@@ -1,0 +1,32 @@
+{
+  "name": "graphhopper-maps-react",
+  "version": "0.0.0",
+  "description": "react dummy",
+  "main": "index.js",
+  "scripts": {
+    "serve": "webpack-dev-server",
+    "test": "test"
+  },
+  "dependencies": {
+    "ol": "6.4.3",
+    "ol-mapbox-style": "^6.1.4",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "graphhopper-js-api-client": "^0.13.0"
+  },
+  "devDependencies": {
+    "@types/ol": "^6.4.0",
+    "@types/react": "^16.9.49",
+    "@types/react-dom": "^16.9.8",
+    "awesome-typescript-loader": "^5.2.1",
+    "css-loader": "^2.1.1",
+    "html-webpack-plugin": "^3.2.0",
+    "raw-loader": "^4.0.1",
+    "source-map-loader": "^0.2.4",
+    "style-loader": "^0.23.1",
+    "typescript": "^3.9.5",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.3.1"
+  }
+}
