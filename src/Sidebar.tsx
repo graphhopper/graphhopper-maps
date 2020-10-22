@@ -4,6 +4,7 @@ const styles = require('./Sidebar.css')
 
 export interface SidebarProps {
     onSubmit: (from: [number, number], to: [number, number]) => void
+    path?: GHPath
 }
 
 interface SidebarState {
@@ -33,6 +34,7 @@ export default class Sidebar extends Component<SidebarProps, SidebarState> {
                 <input type="text" value={Sidebar.convertToText(this.state.to)}
                        onChange={e => this.handleToChanged(e.target.value)}/>
                 <button onClick={() => this.props.onSubmit(this.state.from, this.state.to)}>Go!</button>
+                {this.props.path ? <Instructions path={this.props.path}/> : ''}
             </div>
         )
     }
@@ -63,3 +65,13 @@ export default class Sidebar extends Component<SidebarProps, SidebarState> {
             .map(value => Number.parseFloat(value)) as [number, number]
     }
 }
+
+interface InstructionsProps {
+    path: GHPath
+}
+
+const Instructions = (props: InstructionsProps) => (
+    <ul>
+        {props.path.instructions.map((instruction, i) => <li key={i}>{instruction.text}</li>)}
+    </ul>
+)

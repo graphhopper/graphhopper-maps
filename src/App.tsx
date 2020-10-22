@@ -9,7 +9,7 @@ require('graphhopper-js-api-client')
 const styles = require('./App.css')
 
 interface AppState {
-
+    path?: GHPath
 }
 
 interface AppProps {
@@ -21,20 +21,23 @@ export default class App extends React.Component<AppProps, AppState> {
 
     constructor(props: AppProps) {
         super(props);
+        this.state = {
+            path: undefined
+        }
     }
 
     public render() {
         return (
             <div className={styles.appWrapper}>
-                <div className={styles.map}><MapComponent/></div>
+                <div className={styles.map}><MapComponent path={this.state.path}/></div>
                 <div className={styles.sidebar}>
-                    <Sidebar onSubmit={(from, to) => App.onRouteRequested(from, to)}/>
+                    <Sidebar onSubmit={(from, to) => this.onRouteRequested(from, to)} path={this.state.path}/>
                 </div>
             </div>
         )
     }
 
-    private static async onRouteRequested(from: [number, number], to: [number, number]) {
+    private async onRouteRequested(from: [number, number], to: [number, number]) {
 
         const routing = new GraphHopper.Routing({
             key: ghKey,
@@ -48,6 +51,8 @@ export default class App extends React.Component<AppProps, AppState> {
         try {
             const result = await routing.doRequest()
             console.log(result)
+            if (result.paths.length > 0)
+                this.setState({path: result.paths[0]})
         } catch (error) {
             console.error(error)
         }

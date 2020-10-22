@@ -4,6 +4,7 @@ import Openlayers from "@/Openlayers";
 const styles = require('./MapComponent.css') as any
 
 export interface MapProps {
+    path?: GHPath
 }
 
 export class MapComponent extends React.Component<MapProps> {
@@ -23,6 +24,22 @@ export class MapComponent extends React.Component<MapProps> {
         this.map = new Openlayers(this.mapContainer.current)
 
         this.setMapSizeAfterTimeout(500)
+    }
+
+    public componentDidUpdate(prevProps: Readonly<MapProps>, prevState: Readonly<{}>, snapshot?: any) {
+
+        if (this.props.path) {
+
+            // zoom to bounding box
+            this.map.zoomToExtend(this.props.path.bbox)
+
+            // draw a path
+            this.map.setPath(this.props.path.points.coordinates)
+
+        } else {
+
+            // remove path
+        }
     }
 
     public render() {
