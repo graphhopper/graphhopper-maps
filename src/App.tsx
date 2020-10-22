@@ -22,16 +22,21 @@ export default class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps) {
         super(props);
         this.state = {
-            path: undefined
+            path: undefined,
         }
     }
 
     public render() {
         return (
             <div className={styles.appWrapper}>
-                <div className={styles.map}><MapComponent path={this.state.path}/></div>
+                <div className={styles.map}>
+                    <MapComponent path={this.state.path}
+                    />
+                </div>
                 <div className={styles.sidebar}>
-                    <Sidebar onSubmit={(from, to) => this.onRouteRequested(from, to)} path={this.state.path}/>
+                    <Sidebar onSubmit={(from, to) => this.onRouteRequested(from, to)}
+                             path={this.state.path}
+                    />
                 </div>
             </div>
         )

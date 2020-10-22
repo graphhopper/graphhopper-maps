@@ -5,7 +5,6 @@ import VectorTileSource from "ol/source/VectorTile";
 import MVT from "ol/format/MVT";
 import {Fill, Stroke, Style} from "ol/style";
 import {Feature, View} from "ol";
-import {apply} from "ol-mapbox-style";
 import {fromLonLat} from "ol/proj";
 import VectorSource from "ol/source/Vector";
 import LineString from "ol/geom/LineString";
@@ -13,17 +12,32 @@ import VectorLayer from "ol/layer/Vector";
 import BaseLayer from "ol/layer/Base";
 import {MultiPoint} from "ol/geom";
 import CircleStyle from "ol/style/Circle";
+import {OSM} from "ol/source";
+import TileLayer from "ol/layer/Tile";
+
+const key = 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw'
+
+export const AvailableLayers = [
+    'Mapbox', 'Osm'
+]
 
 export default class Openlayers {
 
     private map: Map
     private view: View
     private line_layer: VectorLayer
+    private map_layer: BaseLayer
 
     constructor(container: HTMLDivElement) {
 
         this.view = new View({center: [0, 0], zoom: 5})
-        this.line_layer = new VectorLayer({
+        this.line_layer = Openlayers.initLineLayer()
+        this.map_layer = Openlayers.initOsmLayer()
+        this.map = Openlayers.initMap(container, this.view, [this.line_layer, this.map_layer])
+    }
+
+    private static initLineLayer() {
+        return new VectorLayer({
                 zIndex: 1000, style: [
                     new Style({
                         stroke: new Stroke({
@@ -46,16 +60,10 @@ export default class Openlayers {
                 ]
             }
         )
-        this.map = Openlayers.initMap(container, this.view, [this.line_layer])
     }
 
-    private static initMap(container: HTMLDivElement, view: View, layers: BaseLayer[]): Map {
-        const key = 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw'
-        const styleUrl = 'https://api.mapbox.com/styles/v1/janekdererste/ckf6ke0zt0lh319mydrud4q8w?access_token=' + key
-        // const olMap = await olms(this.mapContainer.current, styleUrl)
-        // this.map = olMap
-
-        layers.push(new VectorTileLayer({
+    private static async initMapboxLayer(): Promise<BaseLayer> {
+        return new VectorTileLayer({
             declutter: true,
             source: new VectorTileSource({
                 format: new MVT(),
@@ -65,16 +73,23 @@ export default class Openlayers {
             }),
             zIndex: 0,
             style: new Style()
-        }))
+        })
+    }
+
+    private static initOsmLayer(): BaseLayer {
+        return new TileLayer({source: new OSM()})
+    }
+
+    private static initMap(container: HTMLDivElement, view: View, layers: BaseLayer[]): Map {
 
         const olMap = new Map({
             target: container,
-            //layers: [new TileLayer({source: new OSM()})],
             layers: layers,
             view: view
         })
 
-        return apply(olMap, styleUrl)
+        // return apply(olMap, 'https://api.mapbox.com/styles/v1/janekdererste/ckf6ke0zt0lh319mydrud4q8w?access_token=' + key)
+        return olMap
     }
 
     public updateSize() {
@@ -109,5 +124,7 @@ export default class Openlayers {
         this.view.fit([bottomLeft[0], bottomLeft[1], topRight[0], topRight[1]], {
             padding: [100, 100, 100, 400], duration: 1000
         })
+
+        this.map.getLayerGroup().getLayersArray().findIndex(layer => layer)
     }
 }

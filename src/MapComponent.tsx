@@ -36,9 +36,6 @@ export class MapComponent extends React.Component<MapProps> {
             // draw a path
             this.map.setPath(this.props.path.points.coordinates)
 
-        } else {
-
-            // remove path
         }
     }
 
