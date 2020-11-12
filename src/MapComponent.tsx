@@ -1,16 +1,18 @@
 import React from 'react'
-import Openlayers from "@/Openlayers";
+import Mapbox from "@/Mapbox";
+import {Points} from "@/routing/Api";
 
 const styles = require('./MapComponent.css') as any
 
 export interface MapProps {
-    path?: GHPath
+    points: Points
+    bbox: [number, number, number, number]
 }
 
 export class MapComponent extends React.Component<MapProps> {
 
     private mapContainer: React.RefObject<HTMLDivElement>
-    private map!: Openlayers
+    private map!: Mapbox
 
     constructor(props: MapProps) {
         super(props)
@@ -21,20 +23,20 @@ export class MapComponent extends React.Component<MapProps> {
 
         if (!this.mapContainer.current) throw new Error('map div was not set!')
 
-        this.map = new Openlayers(this.mapContainer.current)
+        this.map = new Mapbox(this.mapContainer.current)
 
-        this.setMapSizeAfterTimeout(500)
+        this.setMapSizeAfterTimeout(50)
     }
 
     public componentDidUpdate(prevProps: Readonly<MapProps>, prevState: Readonly<{}>, snapshot?: any) {
 
-        if (this.props.path) {
+        if (this.props.points) {
 
             // zoom to bounding box
-            this.map.zoomToExtend(this.props.path.bbox)
+            this.map.fitToExtent(this.props.bbox)
 
             // draw a path
-            this.map.setPath(this.props.path.points.coordinates)
+            this.map.updateGeometry(this.props.points)
 
         }
     }
@@ -54,4 +56,6 @@ export class MapComponent extends React.Component<MapProps> {
             }
         }, timeout)
     }
+
+
 }

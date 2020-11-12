@@ -1,6 +1,7 @@
 import React from 'react'
 import {MapComponent} from "@/MapComponent";
 import Sidebar from "@/Sidebar";
+import {doRequest, Path} from "@/routing/Api";
 
 // somehow graphhopper client is mounted onto the window object and therefore is available as global variable
 // this would be nice to change I guess
@@ -9,7 +10,7 @@ require('graphhopper-js-api-client')
 const styles = require('./App.css')
 
 interface AppState {
-    path?: GHPath
+    path: Path
 }
 
 interface AppProps {
@@ -22,7 +23,19 @@ export default class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps) {
         super(props);
         this.state = {
-            path: undefined,
+            path: {
+                bbox: [0, 0, 0, 0],
+                instructions: [],
+                points: {
+                    coordinates: [],
+                    type: "",
+                },
+                points_encoded: false,
+                snapped_waypoints: {
+                    type: "",
+                    coordinates: []
+                }
+            },
         }
     }
 
@@ -30,12 +43,11 @@ export default class App extends React.Component<AppProps, AppState> {
         return (
             <div className={styles.appWrapper}>
                 <div className={styles.map}>
-                    <MapComponent path={this.state.path}
-                    />
+                    <MapComponent points={this.state.path.points} bbox={this.state.path.bbox}/>
                 </div>
                 <div className={styles.sidebar}>
                     <Sidebar onSubmit={(from, to) => this.onRouteRequested(from, to)}
-                             path={this.state.path}
+                             instructions={this.state.path.instructions}
                     />
                 </div>
             </div>
@@ -44,22 +56,11 @@ export default class App extends React.Component<AppProps, AppState> {
 
     private async onRouteRequested(from: [number, number], to: [number, number]) {
 
-        const routing = new GraphHopper.Routing({
+        const result = await doRequest({
             key: ghKey,
-            vehicle: 'car',
-            elevation: false
+            points: [from, to]
         })
 
-        routing.addPoint(new GraphHopper.Input(from[0], from[1]))
-        routing.addPoint(new GraphHopper.Input(to[0], to[1]))
-
-        try {
-            const result = await routing.doRequest()
-            console.log(result)
-            if (result.paths.length > 0)
-                this.setState({path: result.paths[0]})
-        } catch (error) {
-            console.error(error)
-        }
+        this.setState({path: result.paths[0]})
     }
 }

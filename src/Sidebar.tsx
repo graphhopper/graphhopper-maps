@@ -1,10 +1,11 @@
 import React, {Component} from 'react'
+import {Instruction} from "@/routing/Api";
 
 const styles = require('./Sidebar.css')
 
 export interface SidebarProps {
     onSubmit: (from: [number, number], to: [number, number]) => void
-    path?: GHPath
+    instructions: Instruction[]
 }
 
 interface SidebarState {
@@ -34,7 +35,7 @@ export default class Sidebar extends Component<SidebarProps, SidebarState> {
                 <input type="text" value={Sidebar.convertToText(this.state.to)}
                        onChange={e => this.handleToChanged(e.target.value)}/>
                 <button onClick={() => this.props.onSubmit(this.state.from, this.state.to)}>Go!</button>
-                {this.props.path ? <Instructions path={this.props.path}/> : ''}
+                <Instructions instructions={this.props.instructions}/>
             </div>
         )
     }
@@ -65,13 +66,8 @@ export default class Sidebar extends Component<SidebarProps, SidebarState> {
             .map(value => Number.parseFloat(value)) as [number, number]
     }
 }
-
-interface InstructionsProps {
-    path: GHPath
-}
-
-const Instructions = (props: InstructionsProps) => (
+const Instructions = (props: { instructions: Instruction[] }) => (
     <ul>
-        {props.path.instructions.map((instruction, i) => <li key={i}>{instruction.text}</li>)}
+        {props.instructions.map((instruction, i) => <li key={i}>{instruction.text}</li>)}
     </ul>
 )
