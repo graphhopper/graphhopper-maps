@@ -43,7 +43,7 @@ export interface Path {
 
 export interface Instruction {
     text: string
-    interval: number[],
+    interval: number[]
     points: number[][]
 }
 
@@ -53,29 +53,17 @@ export interface Result {
 
 function copyOptions(args: Args): Options {
 
-    const opt: Options = {
-        vehicle: "car",
-        points_encoded: true,
-        optimize: false,
-        locale: "en",
-        instructions: true,
-        elevation: false,
-        debug: false,
+    return {
+        vehicle: args.vehicle || "car",
+        elevation: args.elevation || false,
+        debug: args.debug || false,
+        instructions: args.instructions || true,
+        locale: args.locale || "en",
+        optimize: args.optimize || false,
+        points_encoded: args.points_encoded || true,
         points: args.points,
         key: args.key
-    };
-
-    // this is ugly but I couldn't find a more elegant way quickly
-    if (args.vehicle) opt.vehicle = args.vehicle;
-    if (args.points_encoded !== undefined)
-        opt.points_encoded = args.points_encoded;
-    if (args.optimize !== undefined) opt.optimize = args.optimize;
-    if (args.locale !== undefined) opt.locale = args.locale;
-    if (args.instructions !== undefined) opt.instructions = args.instructions;
-    if (args.elevation !== undefined) opt.elevation = args.elevation;
-    if (args.debug !== undefined) opt.debug = args.debug;
-
-    return opt;
+    }
 }
 
 function createPointParams(points: [number, number][]): [string, string][] {
@@ -93,7 +81,7 @@ function createURL(
 
     for (const key in options) {
 
-        if (!options.hasOwnProperty(key)) continue // skip inherited properties
+        if (!options.hasOwnProperty(key)) continue; // skip inherited properties
 
         const value = options[key];
 
