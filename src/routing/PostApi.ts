@@ -97,10 +97,10 @@ function createRequest(args: RoutingArgs): RoutingRequest {
         vehicle: args.vehicle || "car",
         elevation: args.elevation || false,
         debug: args.debug || false,
-        instructions: args.instructions || true,
+        instructions: args.instructions !== undefined ? args.instructions : true,
         locale: args.locale || "en",
         optimize: args.optimize || false,
-        points_encoded: args.points_encoded || true,
+        points_encoded: args.points_encoded !== undefined ? args.points_encoded : true,
         points: args.points,
         key: args.key
     }
