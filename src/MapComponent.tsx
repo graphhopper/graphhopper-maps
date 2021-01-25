@@ -1,11 +1,12 @@
 import React from 'react'
 import Mapbox from "@/Mapbox";
-import {Points} from "@/routing/Api";
+
+import {LineString} from "@/routing/Api";
 
 const styles = require('./MapComponent.css') as any
 
 export interface MapProps {
-    points: Points
+    points: LineString
     bbox: [number, number, number, number]
 }
 

@@ -1,4 +1,4 @@
-export interface Args {
+export interface RoutingArgs {
     points: [number, number][];
     key: string;
     host?: string;
@@ -11,9 +11,10 @@ export interface Args {
     instructions?: boolean;
     elevation?: boolean;
     optimize?: boolean;
+    method?: string
 }
 
-interface Options {
+interface RoutingRequest {
     points: [number, number][];
     key: string;
     vehicle: string;
@@ -23,82 +24,97 @@ interface Options {
     instructions: boolean;
     elevation: boolean;
     optimize: boolean;
-
     [index: string]: string | boolean | [number, number][];
 }
 
-// probably this could be replaced by some geojson interface
-export interface Points {
+interface ErrorResponse {
+    message: string
+    hints: unknown
+}
+
+export interface RoutingResult {
+    info: { copyrigh: string [], took: number }
+    paths: Path[]
+}
+
+export interface Path {
+    distance: number
+    time: number
+    ascend: number
+    descend: number
+    points: LineString
+    snapped_waypoints: LineString
+    points_encoded: boolean
+    bbox: [number, number, number, number]
+    instructions: Instruction[]
+    details: Details
+    points_order: number[]
+}
+
+export interface LineString {
     type: string
     coordinates: number[][]
 }
 
-export interface Path {
-    points: Points
-    snapped_waypoints: Points
-    instructions: Instruction[]
-    points_encoded: boolean
-    bbox: [number, number, number, number]
-}
-
 export interface Instruction {
-    text: string
-    interval: number[]
+    distance: number,
+    interval: [number, number]
     points: number[][]
+    sign: number
+    text: string
+    time: number
 }
 
-export interface Result {
-    paths: Path[]
+interface Details {
+    street_name: [number, number, string][]
+    toll: [number, number, string][]
+    max_speed: [number, number, number][]
 }
 
-function copyOptions(args: Args): Options {
-
-    return {
-        vehicle: args.vehicle || "car",
-        elevation: args.elevation || false,
-        debug: args.debug || false,
-        instructions: args.instructions || true,
-        locale: args.locale || "en",
-        optimize: args.optimize || false,
-        points_encoded: args.points_encoded || true,
-        points: args.points,
-        key: args.key
-    }
+export default async function route(args: RoutingArgs) {
+    return args.method === undefined || args.method === 'POST' ? routePost(args) : routeGet(args)
 }
 
-function createPointParams(points: [number, number][]): [string, string][] {
-    return points.map(point => {
-        return ["point", point[0] + "," + point[1]];
-    });
-}
+async function routeGet(args: RoutingArgs) {
 
-function createURL(
-    host = "https://graphhopper.com/api/1",
-    basePath = "/route",
-    options: Options
-) {
-    const url = new URL(host + basePath);
+    const request = createRequest(args);
+    const url = createGetURL(args.host, args.basePath, request);
 
-    for (const key in options) {
-
-        if (!options.hasOwnProperty(key)) continue; // skip inherited properties
-
-        const value = options[key];
-
-        if (key === "points") {
-            const points = value as [number, number][];
-            createPointParams(points).forEach(param => {
-                url.searchParams.append(param[0], param[1]);
-            });
-        } else {
-            url.searchParams.append(
-                key,
-                encodeURIComponent(value as string | boolean)
-            ); // point are already filtered
+    const response = await fetch(url.toString(), {
+        headers: {
+            Accept: args.data_type ? args.data_type : "application/json"
         }
-    }
+    });
 
-    return url;
+    if (response.ok) {
+        const result = await response.json();
+        result.paths.forEach((path: Path) => {
+            // convert encoded polyline to geojson
+            if (path.points_encoded) {
+                path.points = {
+                    type: "LineString",
+                    coordinates: decodePath(path.points, request.elevation)
+                };
+                path.snapped_waypoints = {
+                    type: "LineString",
+                    coordinates: decodePath(path.snapped_waypoints, request.elevation)
+                };
+            }
+            if (path.instructions) {
+                for (let i = 0; i < path.instructions.length; i++) {
+                    const interval = path.instructions[i].interval;
+                    path.instructions[i].points = path.points.coordinates.slice(
+                        interval[0],
+                        interval[1] + 1
+                    );
+                }
+            }
+        });
+        return result;
+    } else {
+        // original code has GHUTIL.extracterrors
+        throw Error("something went wrong ");
+    }
 }
 
 function decodePath(encoded: any, is3D: any): number[][] {
@@ -150,43 +166,84 @@ function decodePath(encoded: any, is3D: any): number[][] {
     return array;
 }
 
-export async function doRequest(args: Args): Promise<Result> {
-    const options = copyOptions(args);
-    const url = createURL(args.host, args.basePath, options);
+function createGetURL(host = "https://graphhopper.com/api/1",
+                      basePath = "/route",
+                      options: RoutingRequest) {
+
+    const url = new URL(host + basePath);
+
+    for (const key in options) {
+
+        if (!options.hasOwnProperty(key)) continue; // skip inherited properties
+
+        const value = options[key];
+
+        if (key === "points") {
+            const points = value as [number, number][];
+            createPointParams(points).forEach(param => {
+                url.searchParams.append(param[0], param[1]);
+            });
+        } else {
+            url.searchParams.append(
+                key,
+                encodeURIComponent(value as string | boolean)
+            ); // point are already filtered
+        }
+    }
+
+    return url;
+}
+
+function createPointParams(points: [number, number][]): [string, string][] {
+    return points.map(point => {
+        return ["point", point[0] + "," + point[1]];
+    });
+}
+
+async function routePost(args: RoutingArgs) {
+
+    if (args.points_encoded === true) throw Error("Encoded points are not yet implemented")
+
+    const request = createRequest(args)
+    const url = createURL(args)
 
     const response = await fetch(url.toString(), {
         headers: {
-            Accept: args.data_type ? args.data_type : "application/json"
+            Accept: args.data_type ? args.data_type : "application/json",
+            method: 'POST',
+            mode: 'cors',
+            body: JSON.stringify(request)
         }
-    });
+    })
 
     if (response.ok) {
-        const result = await response.json();
-        result.paths.forEach((path: Path) => {
-            // convert encoded polyline to geojson
-            if (path.points_encoded) {
-                path.points = {
-                    type: "LineString",
-                    coordinates: decodePath(path.points, options.elevation)
-                };
-                path.snapped_waypoints = {
-                    type: "LineString",
-                    coordinates: decodePath(path.snapped_waypoints, options.elevation)
-                };
-            }
-            if (path.instructions) {
-                for (let i = 0; i < path.instructions.length; i++) {
-                    const interval = path.instructions[i].interval;
-                    path.instructions[i].points = path.points.coordinates.slice(
-                        interval[0],
-                        interval[1] + 1
-                    );
-                }
-            }
-        });
-        return result;
+        // there will be points encoding and getting instructions right later, but opt for the bare minimum for now
+        return await response.json() as RoutingResult
     } else {
-        // original code has GHUTIL.extracterrors
-        throw Error("something went wrong ");
+        const errorResult = await response.json() as ErrorResponse
+        throw new Error(errorResult.message)
+    }
+}
+
+function createURL(args: { host?: string, basePath?: string, key: string }) {
+    const host = args.host ? args.host : "https://graphhopper.com/api/1"
+    const basePath = args.basePath ? args.basePath : "/route"
+    const url = new URL(host + basePath)
+    url.searchParams.append("key", args.key)
+    return url
+}
+
+function createRequest(args: RoutingArgs): RoutingRequest {
+
+    return {
+        vehicle: args.vehicle || "car",
+        elevation: args.elevation || false,
+        debug: args.debug || false,
+        instructions: args.instructions !== undefined ? args.instructions : true,
+        locale: args.locale || "en",
+        optimize: args.optimize || false,
+        points_encoded: args.points_encoded !== undefined ? args.points_encoded : true,
+        points: args.points,
+        key: args.key
     }
 }

@@ -1,5 +1,5 @@
 import fetchMock from 'jest-fetch-mock'
-import route, {RoutingArgs} from "../../src/routing/PostApi";
+import route, {RoutingArgs} from "../../src/routing/Api";
 
 describe("fetching results from the graphhopper api", () => {
 
@@ -12,7 +12,7 @@ describe("fetching results from the graphhopper api", () => {
     // disable fetchMock and restore global 'fetch' method
     afterAll(() => fetchMock.disableMocks())
 
-    it("should use POST as method", async () => {
+    it("should use POST as method as default", async () => {
 
         const args: RoutingArgs = {
             key: "", points: []
@@ -28,6 +28,28 @@ describe("fetching results from the graphhopper api", () => {
         const response = await route(args)
 
         expect(response).toEqual(expectedResponse)
+    })
+
+    it("should use GET as method if provided by args", async () => {
+
+        // not properly testing GET here, since we actually want to use POST, but the
+        // server is not yet configured for it.
+
+        const args: RoutingArgs = {
+            key: "", points: [], method: 'GET'
+        }
+
+        const expectedResponse = {paths: []}
+
+        fetchMock.mockResponse(request => {
+            expect(request.method).toEqual("GET")
+            return Promise.resolve(JSON.stringify(expectedResponse))
+        })
+
+        const response = await route(args)
+
+        expect(response).toEqual(expectedResponse)
+
     })
 
     it("should set default request parameters if none are provided", async () => {

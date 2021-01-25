@@ -1,7 +1,7 @@
 import React from 'react'
 import {MapComponent} from "@/MapComponent";
 import Sidebar from "@/Sidebar";
-import {doRequest, Path} from "@/routing/Api";
+import route, {Path} from "@/routing/Api";
 
 // somehow graphhopper client is mounted onto the window object and therefore is available as global variable
 // this would be nice to change I guess
@@ -34,7 +34,17 @@ export default class App extends React.Component<AppProps, AppState> {
                 snapped_waypoints: {
                     type: "",
                     coordinates: []
-                }
+                },
+                ascend: 0,
+                descend: 0,
+                details: {
+                    max_speed: [],
+                    street_name: [],
+                    toll: []
+                },
+                distance: 0,
+                points_order: [],
+                time: 0
             },
         }
     }
@@ -56,9 +66,10 @@ export default class App extends React.Component<AppProps, AppState> {
 
     private async onRouteRequested(from: [number, number], to: [number, number]) {
 
-        const result = await doRequest({
+        const result = await route({
             key: ghKey,
-            points: [from, to]
+            points: [from, to],
+            method: 'GET'
         })
 
         this.setState({path: result.paths[0]})
