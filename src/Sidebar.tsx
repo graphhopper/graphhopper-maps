@@ -7,6 +7,7 @@ const styles = require('./Sidebar.css')
 export interface SidebarProps {
     onSubmit: (from: [number, number], to: [number, number]) => void
     instructions: Instruction[]
+    version: string
 }
 
 interface SidebarState {
@@ -19,8 +20,8 @@ export default class Sidebar extends Component<SidebarProps, SidebarState> {
     constructor(props: SidebarProps) {
         super(props);
         this.state = {
-            from: [47.400905, 8.534317],
-            to: [47.394108, 8.538265]
+            from: [ 8.534317, 47.400905],
+            to: [8.538265, 47.394108]
         }
     }
 
@@ -29,6 +30,7 @@ export default class Sidebar extends Component<SidebarProps, SidebarState> {
         return (
             <div className={styles.sidebar}>
                 <h1>Directions</h1>
+                <span className={styles.truncate}>Version: {this.props.version}</span>
                 <label>From</label>
                 <input type="text" value={Sidebar.convertToText(this.state.from)}
                        onChange={e => this.handleFromChanged(e.target.value)}/>

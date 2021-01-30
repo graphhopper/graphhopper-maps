@@ -31,14 +31,14 @@ export class MapComponent extends React.Component<MapProps> {
 
     public componentDidUpdate(prevProps: Readonly<MapProps>, prevState: Readonly<{}>, snapshot?: any) {
 
-        if (this.props.points) {
+        if (!this.isMapReady()) return; // map is not ready yet
 
-            // zoom to bounding box
-            this.map.fitToExtent(this.props.bbox)
+        // zoom to bounding box
+        this.map.fitToExtent(this.props.bbox)
 
+        if (this.props.points.coordinates.length > 0) {
             // draw a path
             this.map.updateGeometry(this.props.points)
-
         }
     }
 
@@ -50,12 +50,16 @@ export class MapComponent extends React.Component<MapProps> {
 
     private setMapSizeAfterTimeout(timeout: number) {
         setTimeout(() => {
-            if (this.mapContainer.current && this.mapContainer.current.clientHeight > 0) {
+            if (this.isMapReady()) {
                 this.map.updateSize()
             } else {
                 this.setMapSizeAfterTimeout(timeout * 2)
             }
         }, timeout)
+    }
+
+    private isMapReady() {
+        return this.mapContainer.current && this.mapContainer.current.clientHeight > 0
     }
 
 

@@ -1,3 +1,7 @@
+
+const default_host = "https://graphhopper.com/api/1"
+const default_base_path = "/route"
+
 export interface RoutingArgs {
     points: [number, number][];
     key: string;
@@ -11,19 +15,17 @@ export interface RoutingArgs {
     instructions?: boolean;
     elevation?: boolean;
     optimize?: boolean;
-    method?: string
 }
 
 interface RoutingRequest {
     points: [number, number][];
-    key: string;
     vehicle: string;
     locale: string;
     debug: boolean;
     points_encoded: boolean;
     instructions: boolean;
     elevation: boolean;
-    optimize: boolean;
+    optimize: string;
     [index: string]: string | boolean | [number, number][];
 }
 
@@ -35,6 +37,13 @@ interface ErrorResponse {
 export interface RoutingResult {
     info: { copyrigh: string [], took: number }
     paths: Path[]
+}
+
+export interface InfoResult {
+    build_date: string
+    bbox: [number, number, number, number]
+    version: string
+    features: any
 }
 
 export interface Path {
@@ -71,14 +80,48 @@ interface Details {
     max_speed: [number, number, number][]
 }
 
-export default async function route(args: RoutingArgs) {
-    return args.method === undefined || args.method === 'POST' ? routePost(args) : routeGet(args)
+export async function info(key : string): Promise<InfoResult> {
+    const response = await fetch(default_host + "/info?key=" + key, {
+        headers: {Accept: "application/json", }
+    })
+
+    if (response.ok) {
+        return await response.json();
+    } else {
+        throw new Error('here could be your meaningfull error message')
+    }
 }
 
-async function routeGet(args: RoutingArgs) {
+export default async function route(args: RoutingArgs) {
+
+    if (args.points_encoded === true) throw Error("Encoded points are not yet implemented")
+
+    const request = createRequest(args)
+    const url = createURL(args)
+
+    const response = await fetch(url.toString(), {
+        method: 'POST',
+        mode: 'cors',
+        body: JSON.stringify(request),
+        headers: {
+            Accept: args.data_type ? args.data_type : "application/json",
+            'Content-Type': "application/json"
+        }
+    })
+
+    if (response.ok) {
+        // there will be points encoding and getting instructions right later, but opt for the bare minimum for now
+        return await response.json() as RoutingResult
+    } else {
+        const errorResult = await response.json() as ErrorResponse
+        throw new Error(errorResult.message)
+    }
+}
+
+export async function routeGet(args: RoutingArgs) {
 
     const request = createRequest(args);
-    const url = createGetURL(args.host, args.basePath, request);
+    const url = createGetURL(args.host, args.basePath, args.key, request);
 
     const response = await fetch(url.toString(), {
         headers: {
@@ -166,12 +209,14 @@ function decodePath(encoded: any, is3D: any): number[][] {
     return array;
 }
 
-function createGetURL(host = "https://graphhopper.com/api/1",
-                      basePath = "/route",
+function createGetURL(host = default_host,
+                      basePath = default_base_path,
+                      key: string,
                       options: RoutingRequest) {
 
     const url = new URL(host + basePath);
 
+    url.searchParams.append("key", key)
     for (const key in options) {
 
         if (!options.hasOwnProperty(key)) continue; // skip inherited properties
@@ -200,34 +245,9 @@ function createPointParams(points: [number, number][]): [string, string][] {
     });
 }
 
-async function routePost(args: RoutingArgs) {
-
-    if (args.points_encoded === true) throw Error("Encoded points are not yet implemented")
-
-    const request = createRequest(args)
-    const url = createURL(args)
-
-    const response = await fetch(url.toString(), {
-        headers: {
-            Accept: args.data_type ? args.data_type : "application/json",
-            method: 'POST',
-            mode: 'cors',
-            body: JSON.stringify(request)
-        }
-    })
-
-    if (response.ok) {
-        // there will be points encoding and getting instructions right later, but opt for the bare minimum for now
-        return await response.json() as RoutingResult
-    } else {
-        const errorResult = await response.json() as ErrorResponse
-        throw new Error(errorResult.message)
-    }
-}
-
 function createURL(args: { host?: string, basePath?: string, key: string }) {
-    const host = args.host ? args.host : "https://graphhopper.com/api/1"
-    const basePath = args.basePath ? args.basePath : "/route"
+    const host = args.host ? args.host : default_host
+    const basePath = args.basePath ? args.basePath : default_base_path
     const url = new URL(host + basePath)
     url.searchParams.append("key", args.key)
     return url
@@ -241,9 +261,9 @@ function createRequest(args: RoutingArgs): RoutingRequest {
         debug: args.debug || false,
         instructions: args.instructions !== undefined ? args.instructions : true,
         locale: args.locale || "en",
-        optimize: args.optimize || false,
+        optimize: args.optimize !== undefined ? args.optimize.toString() : false.toString(),
         points_encoded: args.points_encoded !== undefined ? args.points_encoded : true,
         points: args.points,
-        key: args.key
     }
 }
+

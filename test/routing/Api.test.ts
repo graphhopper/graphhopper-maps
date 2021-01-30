@@ -21,35 +21,13 @@ describe("fetching results from the graphhopper api", () => {
         const expectedResponse = {all: 'good'}
 
         fetchMock.mockResponse(request => {
-            expect(request.headers.get('method')).toEqual("POST")
+            expect(request.method).toEqual('POST')
             return Promise.resolve(JSON.stringify(expectedResponse))
         })
 
         const response = await route(args)
 
         expect(response).toEqual(expectedResponse)
-    })
-
-    it("should use GET as method if provided by args", async () => {
-
-        // not properly testing GET here, since we actually want to use POST, but the
-        // server is not yet configured for it.
-
-        const args: RoutingArgs = {
-            key: "", points: [], method: 'GET'
-        }
-
-        const expectedResponse = {paths: []}
-
-        fetchMock.mockResponse(request => {
-            expect(request.method).toEqual("GET")
-            return Promise.resolve(JSON.stringify(expectedResponse))
-        })
-
-        const response = await route(args)
-
-        expect(response).toEqual(expectedResponse)
-
     })
 
     it("should set default request parameters if none are provided", async () => {
@@ -64,16 +42,17 @@ describe("fetching results from the graphhopper api", () => {
             debug: false,
             instructions: true,
             locale: "en",
-            optimize: false,
+            optimize: "false",
             points_encoded: true,
             points: args.points,
-            key: args.key
         }
 
         const expectedResponse = {all: 'good'}
 
-        fetchMock.mockResponse(request => {
-            expect(request.headers.get('body')).toEqual(JSON.stringify(expectedBody))
+        fetchMock.mockResponse(async request => {
+            const bodyAsResponse = new Response(request.body)
+            const bodyContent = await bodyAsResponse.text()
+            expect(bodyContent).toEqual(JSON.stringify(expectedBody))
             return Promise.resolve(JSON.stringify(expectedResponse))
         })
 
@@ -95,11 +74,23 @@ describe("fetching results from the graphhopper api", () => {
             points_encoded: false,
         }
 
+        const expectedBody = {
+            vehicle: args.vehicle,
+            elevation: args.elevation,
+            debug: args.debug,
+            instructions: args.instructions,
+            locale: args.locale,
+            optimize: (args.optimize) ? args.optimize.toString(): "this will not happen",
+            points_encoded: args.points_encoded,
+            points: args.points,
+        }
+
         const expectedResponse = {all: 'good'}
 
-        fetchMock.mockResponse(request => {
-            const body = JSON.parse(request.headers.get('body') as string)
-            expect(body).toEqual(args)
+        fetchMock.mockResponse(async request => {
+            const bodyAsResponse = new Response(request.body)
+            const bodyContent = await bodyAsResponse.json()
+            expect(bodyContent).toEqual(expectedBody)
             return Promise.resolve(JSON.stringify(expectedResponse))
         })
 
