@@ -2,6 +2,8 @@ import React from 'react'
 import Mapbox from "@/Mapbox";
 
 import {LineString} from "@/routing/Api";
+import Dispatcher from "@/stores/Dispatcher";
+import {AddPoint} from "@/stores/QueryStore";
 
 const styles = require('./MapComponent.css') as any
 
@@ -24,7 +26,7 @@ export class MapComponent extends React.Component<MapProps> {
 
         if (!this.mapContainer.current) throw new Error('map div was not set!')
 
-        this.map = new Mapbox(this.mapContainer.current)
+        this.map = new Mapbox(this.mapContainer.current, coordinate => Dispatcher.dispatch(new AddPoint(coordinate)))
 
         this.setMapSizeAfterTimeout(50)
     }
@@ -33,13 +35,10 @@ export class MapComponent extends React.Component<MapProps> {
 
         if (!this.isMapReady()) return; // map is not ready yet
 
-        // zoom to bounding box
-        this.map.fitToExtent(this.props.bbox)
+        if (MapComponent.shouldFitToExtent(this.props.bbox))
+            this.map.fitToExtent(this.props.bbox)
 
-        if (this.props.points.coordinates.length > 0) {
-            // draw a path
             this.map.updateGeometry(this.props.points)
-        }
     }
 
     public render() {
@@ -62,5 +61,7 @@ export class MapComponent extends React.Component<MapProps> {
         return this.mapContainer.current && this.mapContainer.current.clientHeight > 0
     }
 
-
+    private static shouldFitToExtent(bbox: [number, number, number, number]) {
+        return bbox.every(num => num !== 0)
+    }
 }

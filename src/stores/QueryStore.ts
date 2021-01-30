@@ -26,12 +26,11 @@ export default class QueryStore extends Store<RoutingArgs>{
 
         if (action instanceof AddPoint) {
             const points = QueryStore.addPoint(this.state.points, action.point)
-            const newState = Object.assign(state, {points: points})
+            const newState = Object.assign({}, state, {points: points})
             if (points.length >= 2) {
                 route(newState).then(() => {}) // having empty callback here to make warnings go away. I don't know whether there is a better way for a fire and forget
             }
             return newState
-
         }
         return state
     }
