@@ -1,24 +1,26 @@
+import Dispatcher from "@/stores/Dispatcher";
+import {RouteReceived} from "@/stores/RouteStore";
 
 const default_host = "https://graphhopper.com/api/1"
 const default_base_path = "/route"
 
 export interface RoutingArgs {
-    points: [number, number][];
-    key: string;
-    host?: string;
-    basePath?: string;
-    vehicle?: string;
-    data_type?: string;
-    locale?: string;
-    debug?: boolean;
-    points_encoded?: boolean;
-    instructions?: boolean;
-    elevation?: boolean;
-    optimize?: boolean;
+    readonly points: ReadonlyArray<[number, number]>,//[number, number][];
+    readonly key: string;
+    readonly host?: string;
+    readonly basePath?: string;
+    readonly vehicle?: string;
+    readonly data_type?: string;
+    readonly locale?: string;
+    readonly debug?: boolean;
+    readonly points_encoded?: boolean;
+    readonly instructions?: boolean;
+    readonly elevation?: boolean;
+    readonly optimize?: boolean;
 }
 
 interface RoutingRequest {
-    points: [number, number][];
+    readonly points: ReadonlyArray<[number, number]>
     vehicle: string;
     locale: string;
     debug: boolean;
@@ -26,7 +28,7 @@ interface RoutingRequest {
     instructions: boolean;
     elevation: boolean;
     optimize: string;
-    [index: string]: string | boolean | [number, number][];
+    [index: string]: string | boolean | ReadonlyArray<[number, number]>;
 }
 
 interface ErrorResponse {
@@ -35,7 +37,7 @@ interface ErrorResponse {
 }
 
 export interface RoutingResult {
-    info: { copyrigh: string [], took: number }
+    info: { copyright: string [], took: number }
     paths: Path[]
 }
 
@@ -111,7 +113,8 @@ export default async function route(args: RoutingArgs) {
 
     if (response.ok) {
         // there will be points encoding and getting instructions right later, but opt for the bare minimum for now
-        return await response.json() as RoutingResult
+        const result = await response.json() as RoutingResult
+        Dispatcher.dispatch(new RouteReceived(result))
     } else {
         const errorResult = await response.json() as ErrorResponse
         throw new Error(errorResult.message)
