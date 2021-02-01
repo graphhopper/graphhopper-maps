@@ -3,7 +3,8 @@ import * as mapbox from "mapbox-gl";
 import {GeoJSONSource} from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-const sourceKey = "route";
+const lineSourceKey = "route";
+const pointsSourceKey = "query"
 const lineLayerKey = "lines";
 const pointsLayerKey = "points";
 
@@ -19,12 +20,15 @@ export default class Mapbox {
             center: [0, 0],
             zoom: 0
         });
-        this.map.on("load", () => this.initLineLayer());
+        this.map.on("load", () => {
+            this.initLineLayer()
+            this.initPointsLayer()
+        });
         this.map.on("click", e => onClick([e.lngLat.lng, e.lngLat.lat]))
         this.map.on("touchend", e => onClick([e.lngLat.lng, e.lngLat.lng]))
     }
 
-    public updateGeometry(points: {
+    public updateRoute(points: {
         type: string;
         coordinates: number[][];
     }) {
@@ -32,6 +36,15 @@ export default class Mapbox {
             this.addLine(points);
         else
             this.removeLine();
+    }
+
+    public updatePoints(points: [number, number][]) {
+
+        // this resets everything all the time. maybe keep a reference and only exchange the coordinates of the Feature
+        // if this yields bad performance
+        this.addPoints({
+            type: 'MultiPoint', coordinates: points
+        })
     }
 
     public updateSize() {
@@ -46,7 +59,7 @@ export default class Mapbox {
     }
 
     private initLineLayer() {
-        this.map.addSource(sourceKey, {
+        this.map.addSource(lineSourceKey, {
             type: "geojson",
             data: {
                 type: "Feature",
@@ -60,7 +73,7 @@ export default class Mapbox {
         this.map.addLayer({
             id: lineLayerKey,
             type: "line",
-            source: sourceKey,
+            source: lineSourceKey,
             layout: {
                 "line-join": "round",
                 "line-cap": "round"
@@ -70,11 +83,24 @@ export default class Mapbox {
                 "line-width": 8
             }
         });
+    }
 
+    private initPointsLayer() {
+        this.map.addSource(pointsSourceKey, {
+            type: "geojson",
+            data: {
+                type: "Feature",
+                properties: {},
+                geometry: {
+                    type: "Point",
+                    coordinates: []
+                }
+            }
+        })
         this.map.addLayer({
             id: pointsLayerKey,
             type: "circle",
-            source: sourceKey,
+            source: pointsSourceKey,
             paint: {
                 "circle-radius": 6,
                 "circle-color": "#B42222"
@@ -84,15 +110,32 @@ export default class Mapbox {
     }
 
     private removeLine() {
-        (this.map.getSource(sourceKey) as GeoJSONSource).setData({
+        (this.map.getSource(lineSourceKey) as GeoJSONSource).setData({
 
             features: [],
             type: "FeatureCollection"
         })
     }
 
+    private addPoints(points: { type: string; coordinates: number[][] }) {
+
+        (this.map.getSource(pointsSourceKey) as GeoJSONSource).setData({
+            type: "FeatureCollection",
+            features: [
+                {
+                    type: "Feature",
+                    properties: {},
+                    geometry: {
+                        type: "MultiPoint",
+                        coordinates: points.coordinates
+                    }
+                }
+            ]
+        })
+    }
+
     private addLine(points: { type: string; coordinates: number[][] }) {
-        (this.map.getSource(sourceKey) as GeoJSONSource).setData({
+        (this.map.getSource(lineSourceKey) as GeoJSONSource).setData({
             type: "FeatureCollection",
             features: [
                 {
@@ -103,17 +146,6 @@ export default class Mapbox {
                         coordinates: points.coordinates
                     }
                 },
-                {
-                    type: "Feature",
-                    properties: {},
-                    geometry: {
-                        type: "MultiPoint",
-                        coordinates: [
-                            points.coordinates[0],
-                            points.coordinates[points.coordinates.length - 1]
-                        ]
-                    }
-                }
             ]
         });
     }

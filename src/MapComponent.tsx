@@ -8,8 +8,9 @@ import {AddPoint} from "@/stores/QueryStore";
 const styles = require('./MapComponent.css') as any
 
 export interface MapProps {
-    points: LineString
-    bbox: [number, number, number, number]
+    readonly route: LineString,
+    readonly points: [number, number][]
+    readonly bbox: [number, number, number, number]
 }
 
 export class MapComponent extends React.Component<MapProps> {
@@ -38,7 +39,8 @@ export class MapComponent extends React.Component<MapProps> {
         if (MapComponent.shouldFitToExtent(this.props.bbox))
             this.map.fitToExtent(this.props.bbox)
 
-            this.map.updateGeometry(this.props.points)
+        this.map.updateRoute(this.props.route)
+        this.map.updatePoints(this.props.points)
     }
 
     public render() {
