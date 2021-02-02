@@ -1,5 +1,7 @@
 import fetchMock from 'jest-fetch-mock'
 import route, {RoutingArgs} from "@/routing/Api";
+import Dispatcher, {Action} from "../../src/stores/Dispatcher";
+import {RouteReceived} from "../../src/stores/RouteStore";
 
 describe("fetching results from the graphhopper api", () => {
 
@@ -8,6 +10,9 @@ describe("fetching results from the graphhopper api", () => {
 
     // clear everything before each test
     beforeEach(() => fetchMock.mockClear())
+
+    // after each test clear the dispatcher in case a dummy store was registered
+    afterEach(() => Dispatcher.clear())
 
     // disable fetchMock and restore global 'fetch' method
     afterAll(() => fetchMock.disableMocks())
@@ -18,16 +23,12 @@ describe("fetching results from the graphhopper api", () => {
             key: "", points: []
         }
 
-        const expectedResponse = {all: 'good'}
-
         fetchMock.mockResponse(request => {
             expect(request.method).toEqual('POST')
-            return Promise.resolve(JSON.stringify(expectedResponse))
+            return Promise.resolve(JSON.stringify({all: 'good'}))
         })
 
-        const response = await route(args)
-
-        expect(response).toEqual(expectedResponse)
+        await route(args)
     })
 
     it("should set default request parameters if none are provided", async () => {
@@ -47,17 +48,14 @@ describe("fetching results from the graphhopper api", () => {
             points: args.points,
         }
 
-        const expectedResponse = {all: 'good'}
-
         fetchMock.mockResponse(async request => {
             const bodyAsResponse = new Response(request.body)
             const bodyContent = await bodyAsResponse.text()
             expect(bodyContent).toEqual(JSON.stringify(expectedBody))
-            return Promise.resolve(JSON.stringify(expectedResponse))
+            return Promise.resolve(JSON.stringify({all: 'good'}))
         })
 
-        const response = await route(args)
-        expect(response).toEqual(expectedResponse)
+        await route(args)
     })
 
     it("should keep parameters if provided ", async () => {
@@ -80,22 +78,19 @@ describe("fetching results from the graphhopper api", () => {
             debug: args.debug,
             instructions: args.instructions,
             locale: args.locale,
-            optimize: (args.optimize) ? args.optimize.toString(): "this will not happen",
+            optimize: (args.optimize) ? args.optimize.toString() : "this will not happen",
             points_encoded: args.points_encoded,
             points: args.points,
         }
-
-        const expectedResponse = {all: 'good'}
 
         fetchMock.mockResponse(async request => {
             const bodyAsResponse = new Response(request.body)
             const bodyContent = await bodyAsResponse.json()
             expect(bodyContent).toEqual(expectedBody)
-            return Promise.resolve(JSON.stringify(expectedResponse))
+            return Promise.resolve(JSON.stringify({all: 'good'}))
         })
 
-        const response = await route(args)
-        expect(response).toEqual(expectedResponse)
+        await route(args)
     })
 
     it("should use provided host and base path", async () => {
@@ -109,11 +104,9 @@ describe("fetching results from the graphhopper api", () => {
 
         const expectedURL = new URL(args.host as string + args.basePath)
         expectedURL.searchParams.append("key", args.key)
-        const expectedResult = {pahts: []}
-        mockFetchWithExpectedURL(expectedURL, "application/json", expectedResult)
+        mockFetchWithExpectedURL(expectedURL, "application/json", {paths: []})
 
-        const response = await route(args) as any
-        expect(response).toEqual(expectedResult)
+        await route(args)
     })
 
     it("should use default host, default base path, and default data_type", async () => {
@@ -124,12 +117,9 @@ describe("fetching results from the graphhopper api", () => {
         }
 
         const expectedURL = createDefaultURL(args.key)
-        const expectedResult = {pahts: []}
-        mockFetchWithExpectedURL(expectedURL, "application/json", expectedResult)
+        mockFetchWithExpectedURL(expectedURL, "application/json", {paths: []})
 
-        const response = await route(args) as any
-        expect(response).toEqual(expectedResult)
-
+        await route(args)
     })
 
     it("should use provided data type", async () => {
@@ -139,25 +129,44 @@ describe("fetching results from the graphhopper api", () => {
             data_type: 'my-data-type'
         }
 
-        const expectedResult = {pahts: []}
-        mockFetchWithExpectedURL(createDefaultURL(args.key), args.data_type as string, expectedResult)
+        mockFetchWithExpectedURL(createDefaultURL(args.key), args.data_type as string, {paths: []})
 
-        const response = await route(args) as any
-        expect(response).toEqual(expectedResult)
+        await route(args)
     })
+
+    it("should create an action when a response is received", async () => {
+
+        const args: RoutingArgs = {
+            key: "some-key",
+            points: [[0, 0], [1, 1]],
+            data_type: 'my-data-type'
+        }
+
+        mockFetchWithExpectedURL(createDefaultURL(args.key), args.data_type as string, {paths: []})
+
+        Dispatcher.register({
+            receive(action: Action) {
+
+                expect(action instanceof RouteReceived).toBeTruthy()
+                expect((action as RouteReceived).result.paths.length).toEqual(0)
+            }
+        })
+
+        await route(args)
+    })
+
+    function createDefaultURL(key: string) {
+        const url = new URL("https://graphhopper.com/api/1" + "/route")
+        url.searchParams.append("key", key)
+        return url
+    }
+
+    function mockFetchWithExpectedURL(expectedURL: URL, data_type: string, response: any) {
+        fetchMock.mockResponse(request => {
+            expect(request.url).toEqual(expectedURL.toString())
+            expect(request.headers.get('Accept')).toEqual(data_type)
+            return Promise.resolve(JSON.stringify(response))
+        })
+    }
 })
-
-function createDefaultURL(key: string) {
-    const url = new URL("https://graphhopper.com/api/1" + "/route")
-    url.searchParams.append("key", key)
-    return url
-}
-
-function mockFetchWithExpectedURL(expectedURL: URL, data_type: string, response: any) {
-    fetchMock.mockResponse(request => {
-        expect(request.url).toEqual(expectedURL.toString())
-        expect(request.headers.get('Accept')).toEqual(data_type)
-        return Promise.resolve(JSON.stringify(response))
-    })
-}
 

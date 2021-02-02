@@ -27,6 +27,10 @@ class Dispatcher {
     public register(receiver: ActionReceiver) {
         this.receivers.push(receiver)
     }
+
+    public clear() {
+        this.receivers = []
+    }
 }
 
 export default new Dispatcher()
