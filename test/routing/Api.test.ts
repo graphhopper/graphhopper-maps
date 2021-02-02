@@ -1,5 +1,5 @@
 import fetchMock from 'jest-fetch-mock'
-import route, {RoutingArgs} from "../../src/routing/Api";
+import route, {RoutingArgs} from "@/routing/Api";
 
 describe("fetching results from the graphhopper api", () => {
 
