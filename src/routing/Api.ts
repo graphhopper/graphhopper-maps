@@ -1,11 +1,14 @@
 import Dispatcher from "@/stores/Dispatcher";
 import {RouteReceived} from "@/stores/RouteStore";
+import {InfoReceived} from "@/stores/ApiInfoStore";
 
 const default_host = "https://graphhopper.com/api/1"
 const default_base_path = "/route"
 
+export const ghKey = 'fb45b8b2-fdda-4093-ac1a-8b57b4e50add'
+
 export interface RoutingArgs {
-    readonly points: ReadonlyArray<[number, number]>,//[number, number][];
+    readonly points: [number, number][];
     readonly key: string;
     readonly host?: string;
     readonly basePath?: string;
@@ -42,7 +45,7 @@ export interface RoutingResult {
 }
 
 export interface InfoResult {
-    build_date: string
+    import_date: string
     bbox: [number, number, number, number]
     version: string
     features: any
@@ -82,13 +85,14 @@ interface Details {
     max_speed: [number, number, number][]
 }
 
-export async function info(key : string): Promise<InfoResult> {
+export async function info(key : string) {
     const response = await fetch(default_host + "/info?key=" + key, {
         headers: {Accept: "application/json", }
     })
 
     if (response.ok) {
-        return await response.json();
+        const result = await response.json() as InfoResult
+        Dispatcher.dispatch(new InfoReceived(result))
     } else {
         throw new Error('here could be your meaningfull error message')
     }

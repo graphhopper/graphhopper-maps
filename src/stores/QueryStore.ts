@@ -1,8 +1,6 @@
-import route, {RoutingArgs} from "@/routing/Api";
+import route, {ghKey, RoutingArgs} from "@/routing/Api";
 import Store from "@/stores/Store";
 import {Action} from "@/stores/Dispatcher";
-
-const ghKey = 'fb45b8b2-fdda-4093-ac1a-8b57b4e50add'
 
 export class AddPoint implements Action {
     readonly point: [number, number]

@@ -1,26 +1,41 @@
 import React from 'react'
 import Mapbox from "@/Mapbox";
 
-import {LineString} from "@/routing/Api";
+import {InfoResult, RoutingArgs} from "@/routing/Api";
 import Dispatcher from "@/stores/Dispatcher";
 import {AddPoint} from "@/stores/QueryStore";
+import {getApiInfoStore, getQueryStore, getRouteStore} from "@/stores/Stores";
+import {RouteStoreState} from "@/stores/RouteStore";
 
 const styles = require('./MapComponent.css') as any
 
-export interface MapProps {
-    readonly route: LineString,
-    readonly points: [number, number][]
-    readonly bbox: [number, number, number, number]
+interface MapState {
+    query: RoutingArgs
+    routeState: RouteStoreState
+    infoState: InfoResult
 }
 
-export class MapComponent extends React.Component<MapProps> {
+export class MapComponent extends React.Component<{}, MapState> {
+
+    private queryStore = getQueryStore()
+    private routeStore = getRouteStore()
+    private infoStore = getApiInfoStore()
 
     private mapContainer: React.RefObject<HTMLDivElement>
     private map!: Mapbox
 
-    constructor(props: MapProps) {
+    constructor(props: {}) {
         super(props)
         this.mapContainer = React.createRef<HTMLDivElement>()
+
+        this.queryStore.register(() => this.onQueryChanged())
+        this.routeStore.register(() => this.onRouteChanged())
+        this.infoStore.register(() => this.onInfoChanged())
+        this.state = {
+            query : this.queryStore.state,
+            routeState: this.routeStore.state,
+            infoState: this.infoStore.state
+        }
     }
 
     public async componentDidMount() {
@@ -29,18 +44,35 @@ export class MapComponent extends React.Component<MapProps> {
 
         this.map = new Mapbox(this.mapContainer.current, coordinate => Dispatcher.dispatch(new AddPoint(coordinate)))
 
+        if (MapComponent.shouldFitToExtent(this.state.infoState.bbox)) {
+            console.info("setting to info bbox on didmount: " + JSON.stringify(this.state.infoState.bbox))
+            this.map.fitToExtent(this.state.infoState.bbox)
+        }
         this.setMapSizeAfterTimeout(50)
     }
 
-    public componentDidUpdate(prevProps: Readonly<MapProps>, prevState: Readonly<{}>, snapshot?: any) {
+    private onQueryChanged() {
 
-        if (!this.isMapReady()) return; // map is not ready yet
+        this.setState({query: this.queryStore.state })
+        this.map.updatePoints(this.state.query.points)
+    }
 
-        if (MapComponent.shouldFitToExtent(this.props.bbox))
-            this.map.fitToExtent(this.props.bbox)
+    private onRouteChanged() {
 
-        this.map.updateRoute(this.props.route)
-        this.map.updatePoints(this.props.points)
+        this.setState({routeState: this.routeStore.state})
+        this.map.updateRoute(this.state.routeState.selectedPath.points)
+
+        if (MapComponent.shouldFitToExtent(this.state.routeState.selectedPath.bbox))
+            this.map.fitToExtent(this.state.routeState.selectedPath.bbox)
+    }
+
+    private onInfoChanged() {
+        this.setState({infoState: this.infoStore.state})
+
+        if (MapComponent.shouldFitToExtent(this.state.infoState.bbox)) {
+            console.info("setting to info bbox on changed: " + JSON.stringify(this.state.infoState.bbox))
+            this.map.fitToExtent(this.state.infoState.bbox)
+        }
     }
 
     public render() {
@@ -53,6 +85,8 @@ export class MapComponent extends React.Component<MapProps> {
         setTimeout(() => {
             if (this.isMapReady()) {
                 this.map.updateSize()
+                console.info("setting to info bbox on updatesize: " + JSON.stringify(this.state.infoState.bbox))
+                this.map.fitToExtent(this.state.infoState.bbox)
             } else {
                 this.setMapSizeAfterTimeout(timeout * 2)
             }

@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
-import {Instruction, RoutingArgs} from "@/routing/Api";
-import {getQueryStore, getRouteStore} from "@/stores/Stores";
+import {InfoResult, Instruction, RoutingArgs} from "@/routing/Api";
+import {getApiInfoStore, getQueryStore, getRouteStore} from "@/stores/Stores";
 import {RouteStoreState} from "@/stores/RouteStore";
 
 const styles = require('./Sidebar.css')
@@ -8,21 +8,25 @@ const styles = require('./Sidebar.css')
 interface SidebarState {
     query: RoutingArgs
     routeState: RouteStoreState
+    infoState: InfoResult
 }
 
 export default class Sidebar extends Component<{ } , SidebarState> {
 
     private queryStore = getQueryStore()
     private routeStore = getRouteStore()
+    private infoStore = getApiInfoStore()
 
     constructor(props: { }) {
         super(props);
 
         this.queryStore.register(() => this.setState({query: this.queryStore.state }))
         this.routeStore.register(() => this.setState({routeState: this.routeStore.state}))
+        this.infoStore.register(() => this.setState({infoState: this.infoStore.state}))
         this.state = {
             query : this.queryStore.state,
-            routeState: this.routeStore.state
+            routeState: this.routeStore.state,
+            infoState: this.infoStore.state
         }
     }
 
@@ -30,6 +34,7 @@ export default class Sidebar extends Component<{ } , SidebarState> {
         return (
             <div className={styles.sidebar}>
                 <h1>Directions</h1>
+                <span>Osm import: {this.state.infoState.import_date}</span>
                 <SearchBox points={this.queryStore.state.points}/>
                 <Instructions instructions={this.state.routeState.selectedPath.instructions}/>
             </div>
