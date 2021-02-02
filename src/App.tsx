@@ -50,8 +50,7 @@ export default class App extends React.Component<AppProps, AppState> {
                     <MapComponent route={path.points} points={points} bbox={path.bbox}/>
                 </div>
                 <div className={styles.sidebar}>
-                    <Sidebar instructions={path.instructions} version="Put the version back in"
-                    />
+                    <Sidebar />
                 </div>
             </div>
         )

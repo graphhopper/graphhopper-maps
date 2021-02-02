@@ -1,28 +1,28 @@
 import React, {Component} from 'react'
-import {Instruction} from "@/routing/Api";
-import Dispatcher from "@/stores/Dispatcher";
-import {AddPoint} from "@/stores/QueryStore";
-
+import {Instruction, RoutingArgs} from "@/routing/Api";
+import {getQueryStore, getRouteStore} from "@/stores/Stores";
+import {RouteStoreState} from "@/stores/RouteStore";
 
 const styles = require('./Sidebar.css')
 
-export interface SidebarProps {
-    instructions: Instruction[]
-    version: string
-}
-
 interface SidebarState {
-    from: [number, number],
-    to: [number, number]
+    query: RoutingArgs
+    routeState: RouteStoreState
 }
 
-export default class Sidebar extends Component<SidebarProps, SidebarState> {
+export default class Sidebar extends Component<{ } , SidebarState> {
 
-    constructor(props: SidebarProps) {
+    private queryStore = getQueryStore()
+    private routeStore = getRouteStore()
+
+    constructor(props: { }) {
         super(props);
+
+        this.queryStore.register(() => this.setState({query: this.queryStore.state }))
+        this.routeStore.register(() => this.setState({routeState: this.routeStore.state}))
         this.state = {
-            from: [ 8.534317, 47.400905],
-            to: [8.538265, 47.394108]
+            query : this.queryStore.state,
+            routeState: this.routeStore.state
         }
     }
 
@@ -30,50 +30,38 @@ export default class Sidebar extends Component<SidebarProps, SidebarState> {
         return (
             <div className={styles.sidebar}>
                 <h1>Directions</h1>
-                <span className={styles.truncate}>Version: {this.props.version}</span>
-                <label>From</label>
-                <input type="text" value={Sidebar.convertToText(this.state.from)}
-                       onChange={e => this.handleFromChanged(e.target.value)}/>
-                <label>To</label>
-                <input type="text" value={Sidebar.convertToText(this.state.to)}
-                       onChange={e => this.handleToChanged(e.target.value)}/>
-                <button onClick={ () => {
-                    Dispatcher.dispatch(new AddPoint(this.state.from))
-                    Dispatcher.dispatch(new AddPoint(this.state.to))
-                }}>Go!</button>
-                <Instructions instructions={this.props.instructions}/>
+                <SearchBox points={this.queryStore.state.points}/>
+                <Instructions instructions={this.state.routeState.selectedPath.instructions}/>
             </div>
         )
     }
-
-    private handleFromChanged(value: string) {
-        const coord = Sidebar.convertToCoord(value)
-        this.setState({
-            from: coord
-        })
-    }
-
-    private handleToChanged(value: string) {
-        const coord = Sidebar.convertToCoord(value)
-        this.setState({
-            to: coord
-        })
-    }
-
-    private static convertToText(coord: [number, number]) {
-        return coord[0] + ', ' + coord[1]
-    }
-
-    private static convertToCoord(text: string) {
-
-        // this only works as a showcase since it is not doing any validation
-        return text.split(',')
-            .map(value => value.trim())
-            .map(value => Number.parseFloat(value)) as [number, number]
-    }
 }
+
+interface SearchBoxProps {
+    readonly points: ReadonlyArray<[number, number]>
+}
+
+const SearchBox = (props: SearchBoxProps) => {
+
+    if (props.points.length > 2) throw Error('only 0, 1 or two points implemented yet.')
+
+    const from = props.points.length > 0 ? convertToText(props.points[0]) : 'Click on the map to select a start'
+    const to = props.points.length > 1 ? convertToText(props.points[1]) : 'Click on the map again to select destination'
+
+    return (<div className={styles.serachBox}>
+        <label>From</label>
+        <input type="text" readOnly={true} value={from}/>
+        <label>To</label>
+        <input type="text" readOnly={true} value={to}/>
+    </div>)
+}
+
 const Instructions = (props: { instructions: Instruction[] }) => (
     <ul>
         {props.instructions.map((instruction, i) => <li key={i}>{instruction.text}</li>)}
     </ul>
 )
+
+function convertToText(coord: [number, number]) {
+    return coord[0] + ', ' + coord[1]
+}

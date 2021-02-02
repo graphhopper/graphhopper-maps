@@ -4,6 +4,11 @@
     padding: 1rem;
 }
 
+.serachBox {
+    display: flex;
+    flex-direction: column;
+}
+
 .truncate {
     white-space: nowrap;
     overflow: hidden;
