@@ -1,21 +1,52 @@
 import fetchMock from 'jest-fetch-mock'
-import route, {RoutingArgs} from "@/routing/Api";
+import route, {info, InfoResult, RoutingArgs} from "@/routing/Api";
 import Dispatcher, {Action} from "../../src/stores/Dispatcher";
 import {RouteReceived} from "../../src/stores/RouteStore";
+import {InfoReceived} from "../../src/stores/ApiInfoStore";
 
-describe("fetching results from the graphhopper api", () => {
+// replace global 'fetch' method by fetchMock
+beforeAll(fetchMock.enableMocks)
 
-    // replace global 'fetch' method by fetchMock
-    beforeAll(fetchMock.enableMocks)
+// clear everything before each test
+beforeEach(() => fetchMock.mockClear())
 
-    // clear everything before each test
-    beforeEach(() => fetchMock.mockClear())
+// after each test clear the dispatcher in case a dummy store was registered
+afterEach(() => Dispatcher.clear())
 
-    // after each test clear the dispatcher in case a dummy store was registered
-    afterEach(() => Dispatcher.clear())
+// disable fetchMock and restore global 'fetch' method
+afterAll(() => fetchMock.disableMocks())
 
-    // disable fetchMock and restore global 'fetch' method
-    afterAll(() => fetchMock.disableMocks())
+describe("info api", () => {
+    it("should query correct url and dispatch an InfoReceived action", async () => {
+
+        const key = "some-key"
+        const expectedUrl = "https://graphhopper.com/api/1/info?key=" + key
+        const result: InfoResult = {
+            bbox: [0, 0, 0, 0],
+            import_date: '',
+            features: {},
+            version: ''
+        }
+
+        fetchMock.mockResponse(request => {
+            expect(request.method).toEqual("GET")
+            expect(request.url.toString()).toEqual(expectedUrl)
+            expect(request.headers.get('Accept')).toEqual('application/json')
+            return Promise.resolve(JSON.stringify(result))
+        })
+
+        Dispatcher.register({
+            receive(action: Action) {
+                expect(action instanceof InfoReceived).toBeTruthy()
+                expect((action as InfoReceived).result).toEqual(result)
+            }
+        })
+
+        await info(key)
+    })
+})
+
+describe("route api", () => {
 
     it("should use POST as method as default", async () => {
 
