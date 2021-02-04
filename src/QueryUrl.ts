@@ -1,12 +1,10 @@
-import {RoutingArgs} from "@/routing/Api";
-import Dispatcher from "@/stores/Dispatcher";
-import {AddPoint} from "@/stores/QueryStore";
+import {ghKey, RoutingArgs} from "@/routing/Api";
 
-export function parseUrl(href: string) {
+export function parseUrl(href: string): RoutingArgs {
 
     const url = new URL(href)
     // so far we only have from and to coordinates. so this is the only thing we have to parse here
-    url.searchParams.getAll('point')
+    const points = url.searchParams.getAll('point')
         .map(parameter => {
             const split = parameter.split(',')
             if (split.length !== 2) throw Error("Could not parse url parameter point: " + parameter + " Think about what to do instead of crashing")
@@ -16,9 +14,11 @@ export function parseUrl(href: string) {
                     return Number.isNaN(number) ? 0 : number
                 }) as [number, number]
         })
-        .forEach(point => {
-            Dispatcher.dispatch(new AddPoint(point))
-        })
+
+    return {
+        points: points,
+        key: ghKey
+    }
 }
 
 export function createUrl(baseUrl: string, request: RoutingArgs) {
