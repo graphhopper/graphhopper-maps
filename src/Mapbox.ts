@@ -10,8 +10,9 @@ const pointsLayerKey = "points";
 
 export default class Mapbox {
     private map: mapbox.Map;
+    private mapReady = false
 
-    constructor(container: HTMLDivElement, onClick: (coordinate: [number, number]) => void) {
+    constructor(container: HTMLDivElement, onClick: (coordinate: [number, number]) => void, onReady: () => void) {
         this.map = new mapbox.Map({
             accessToken:
                 "pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw",
@@ -23,6 +24,8 @@ export default class Mapbox {
         this.map.on("load", () => {
             this.initLineLayer()
             this.initPointsLayer()
+            this.mapReady = true
+            onReady()
         });
         this.map.on("click", e => onClick([e.lngLat.lng, e.lngLat.lat]))
         this.map.on("touchend", e => onClick([e.lngLat.lng, e.lngLat.lng]))
@@ -110,6 +113,9 @@ export default class Mapbox {
     }
 
     private removeLine() {
+
+        if (!this.mapReady) return;
+
         (this.map.getSource(lineSourceKey) as GeoJSONSource).setData({
 
             features: [],
@@ -118,6 +124,8 @@ export default class Mapbox {
     }
 
     private addPoints(points: { type: string; coordinates: number[][] }) {
+
+        if (!this.mapReady) return;
 
         (this.map.getSource(pointsSourceKey) as GeoJSONSource).setData({
             type: "FeatureCollection",
@@ -135,6 +143,9 @@ export default class Mapbox {
     }
 
     private addLine(points: { type: string; coordinates: number[][] }) {
+
+        if (!this.mapReady) return;
+
         (this.map.getSource(lineSourceKey) as GeoJSONSource).setData({
             type: "FeatureCollection",
             features: [

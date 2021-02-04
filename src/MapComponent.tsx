@@ -32,7 +32,7 @@ export class MapComponent extends React.Component<{}, MapState> {
         this.routeStore.register(() => this.onRouteChanged())
         this.infoStore.register(() => this.onInfoChanged())
         this.state = {
-            query : this.queryStore.state,
+            query: this.queryStore.state,
             routeState: this.routeStore.state,
             infoState: this.infoStore.state
         }
@@ -42,18 +42,29 @@ export class MapComponent extends React.Component<{}, MapState> {
 
         if (!this.mapContainer.current) throw new Error('map div was not set!')
 
-        this.map = new Mapbox(this.mapContainer.current, coordinate => Dispatcher.dispatch(new AddPoint(coordinate)))
+        this.map = new Mapbox(
+            this.mapContainer.current,
+            coordinate => Dispatcher.dispatch(new AddPoint(coordinate)),
+            () => {
+                // in case we get a query from a url display it on the map as soon as it is ready
+                this.map.updatePoints(this.state.query.points)
+                this.map.updateRoute(this.state.routeState.selectedPath.points)
+                if (MapComponent.shouldFitToExtent(this.state.routeState.selectedPath.bbox))
+                    this.map.fitToExtent(this.state.routeState.selectedPath.bbox)
+            }
+        )
 
         if (MapComponent.shouldFitToExtent(this.state.infoState.bbox)) {
             console.info("setting to info bbox on didmount: " + JSON.stringify(this.state.infoState.bbox))
             this.map.fitToExtent(this.state.infoState.bbox)
         }
+
         this.setMapSizeAfterTimeout(50)
     }
 
     private onQueryChanged() {
 
-        this.setState({query: this.queryStore.state })
+        this.setState({query: this.queryStore.state})
         this.map.updatePoints(this.state.query.points)
     }
 
@@ -69,10 +80,8 @@ export class MapComponent extends React.Component<{}, MapState> {
     private onInfoChanged() {
         this.setState({infoState: this.infoStore.state})
 
-        if (MapComponent.shouldFitToExtent(this.state.infoState.bbox)) {
-            console.info("setting to info bbox on changed: " + JSON.stringify(this.state.infoState.bbox))
+        if (MapComponent.shouldFitToExtent(this.state.infoState.bbox))
             this.map.fitToExtent(this.state.infoState.bbox)
-        }
     }
 
     public render() {
@@ -83,17 +92,18 @@ export class MapComponent extends React.Component<{}, MapState> {
 
     private setMapSizeAfterTimeout(timeout: number) {
         setTimeout(() => {
-            if (this.isMapReady()) {
+            if (this.isLayoutReady()) {
                 this.map.updateSize()
-                console.info("setting to info bbox on updatesize: " + JSON.stringify(this.state.infoState.bbox))
-                this.map.fitToExtent(this.state.infoState.bbox)
+                if (MapComponent.shouldFitToExtent(this.state.infoState.bbox)) {
+                    this.map.fitToExtent(this.state.infoState.bbox)
+                }
             } else {
                 this.setMapSizeAfterTimeout(timeout * 2)
             }
         }, timeout)
     }
 
-    private isMapReady() {
+    private isLayoutReady() {
         return this.mapContainer.current && this.mapContainer.current.clientHeight > 0
     }
 

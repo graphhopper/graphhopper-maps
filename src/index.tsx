@@ -8,6 +8,7 @@ import Dispatcher from "@/stores/Dispatcher";
 import RouteStore from "@/stores/RouteStore";
 import ApiInfoStore from "@/stores/ApiInfoStore";
 import {ghKey, info} from "@/routing/Api";
+import {createUrl, parseUrl} from '@/./QueryUrl'
 
 // set up state management
 setStores({
@@ -22,6 +23,20 @@ Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
 
 info(ghKey).then(() => {}) // get infos about the api as soon as possible
+
+// parse the window's url and set up a query from it
+// this will also trigger a routing request if the url contains routing parameters
+try {
+    parseUrl(window.location.href)
+} catch (e) {
+    console.error(e)
+}
+
+// hook up the app's state to the navbar to reflect state changes in the url
+getQueryStore().register(() => {
+    const url = createUrl(window.location.origin, getQueryStore().state)
+    window.history.replaceState("last state", "", url.toString())
+})
 
 // create a div which holds the app and render the 'App' component
 const root = document.createElement('div') as HTMLDivElement
