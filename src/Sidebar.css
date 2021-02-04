@@ -2,11 +2,47 @@
     display: flex;
     flex-direction: column;
     padding: 1rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    background-color: white;
+    overflow: hidden;
+    margin: 0.5rem;
+    transition: all 0.2s;
 }
 
 .serachBox {
     display: flex;
     flex-direction: column;
+}
+
+.serachBoxInput {
+    height: 2rem;
+    font-size: 1rem;
+}
+
+.resultList {
+    list-style-type: none; /* Remove bullets */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margins */
+}
+
+.resultRow {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0;
+}
+
+.resultSummary {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.resultValues {
+    display: flex;
+    flex-direction: column;
+}
+
+.resultExpandDirections {
 }
 
 .truncate {
