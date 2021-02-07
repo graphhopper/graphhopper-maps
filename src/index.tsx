@@ -35,7 +35,7 @@ try {
 
 // hook up the app's state to the navbar to reflect state changes in the url
 getQueryStore().register(() => {
-    const url = createUrl(window.location.origin, getQueryStore().state)
+    const url = createUrl(window.location.origin, getQueryStore().state.routingArgs)
     window.history.replaceState("last state", "", url.toString())
 })
 

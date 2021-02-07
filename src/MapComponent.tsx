@@ -32,7 +32,7 @@ export class MapComponent extends React.Component<{}, MapState> {
         this.routeStore.register(() => this.onRouteChanged())
         this.infoStore.register(() => this.onInfoChanged())
         this.state = {
-            query: this.queryStore.state,
+            query: this.queryStore.state.routingArgs,
             routeState: this.routeStore.state,
             infoState: this.infoStore.state
         }
@@ -64,7 +64,7 @@ export class MapComponent extends React.Component<{}, MapState> {
 
     private onQueryChanged() {
 
-        this.setState({query: this.queryStore.state})
+        this.setState({query: this.queryStore.state.routingArgs})
         this.map.updatePoints(this.state.query.points)
     }
 

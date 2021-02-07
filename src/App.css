@@ -4,7 +4,7 @@
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: 20rem auto;
+    grid-template-columns: 25rem auto;
     grid-template-rows: 100%
 }
 .map {

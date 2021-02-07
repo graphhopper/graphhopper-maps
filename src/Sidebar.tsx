@@ -22,11 +22,11 @@ export default class Sidebar extends Component<{}, SidebarState> {
     constructor(props: {}) {
         super(props);
 
-        this.queryStore.register(() => this.setState({query: this.queryStore.state}))
+        this.queryStore.register(() => this.setState({query: this.queryStore.state.routingArgs}))
         this.routeStore.register(() => this.setState({routeState: this.routeStore.state}))
         this.infoStore.register(() => this.setState({infoState: this.infoStore.state}))
         this.state = {
-            query: this.queryStore.state,
+            query: this.queryStore.state.routingArgs,
             routeState: this.routeStore.state,
             infoState: this.infoStore.state
         }
@@ -35,7 +35,7 @@ export default class Sidebar extends Component<{}, SidebarState> {
     public render() {
         return (
             <>
-                <SearchBox points={this.queryStore.state.points}/>
+                <SearchBox points={this.queryStore.state.routingArgs.points}/>
                 <QueryResults paths={this.routeStore.state.routingResult.paths}/>
             </>
         )

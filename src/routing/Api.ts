@@ -1,9 +1,10 @@
 import Dispatcher from "@/stores/Dispatcher";
 import {RouteReceived} from "@/stores/RouteStore";
 import {InfoReceived} from "@/stores/ApiInfoStore";
+import {GeocodingReceived} from "@/stores/QueryStore";
 
 const default_host = "https://graphhopper.com/api/1"
-const default_base_path = "/route"
+const default_route_base_path = "/route"
 
 export const ghKey = 'fb45b8b2-fdda-4093-ac1a-8b57b4e50add'
 
@@ -85,9 +86,48 @@ interface Details {
     max_speed: [number, number, number][]
 }
 
-export async function info(key : string) {
+export interface GeocodingResult {
+    hits: GeocodingHit[]
+    took: number
+}
+
+export interface GeocodingHit {
+
+    point: { lat: number, lng: number }
+    osm_id: string
+    osm_type: string
+    osm_key: string
+    name: string
+    country: string
+    city: string
+    state: string
+    street: string
+    housenumber: string
+    postcode: string
+}
+
+
+export async function geocode(query: string, requestId: number) {
+
+    const url = new URL(default_host)
+    url.searchParams.append("key", ghKey)
+    url.searchParams.append("q", query)
+
+    const response = await fetch(url.toString(), {
+        headers: {Accept: "application/json"}
+    })
+
+    if (response.ok) {
+        const result = await response.json() as GeocodingResult
+        Dispatcher.dispatch(new GeocodingReceived(result, requestId))
+    } else {
+        throw new Error('here could be your meaningfull error message')
+    }
+}
+
+export async function info(key: string) {
     const response = await fetch(default_host + "/info?key=" + key, {
-        headers: {Accept: "application/json", }
+        headers: {Accept: "application/json",}
     })
 
     if (response.ok) {
@@ -217,7 +257,7 @@ function decodePath(encoded: any, is3D: any): number[][] {
 }
 
 function createGetURL(host = default_host,
-                      basePath = default_base_path,
+                      basePath = default_route_base_path,
                       key: string,
                       options: RoutingRequest) {
 
@@ -254,7 +294,7 @@ function createPointParams(points: [number, number][]): [string, string][] {
 
 function createURL(args: { host?: string, basePath?: string, key: string }) {
     const host = args.host ? args.host : default_host
-    const basePath = args.basePath ? args.basePath : default_base_path
+    const basePath = args.basePath ? args.basePath : default_route_base_path
     const url = new URL(host + basePath)
     url.searchParams.append("key", args.key)
     return url
