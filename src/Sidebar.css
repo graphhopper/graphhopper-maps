@@ -1,17 +1,9 @@
-.sidebar {
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    background-color: white;
-    overflow: hidden;
-    margin: 0.5rem;
-    transition: all 0.2s;
-}
+
 
 .serachBox {
     display: flex;
     flex-direction: column;
+    margin: 0.5rem;
 }
 
 .serachBoxInput {
@@ -19,10 +11,12 @@
     font-size: 1rem;
 }
 
+.resultListContainer {
+    overflow-y: auto;
+}
+
 .resultList {
-    list-style-type: none; /* Remove bullets */
-    padding: 0; /* Remove padding */
-    margin: 0; /* Remove margins */
+    margin: 0 0.5rem;
 }
 
 .resultRow {
@@ -42,7 +36,8 @@
     flex-direction: column;
 }
 
-.resultExpandDirections {
+.instructionsList {
+    margin: 1rem 0 0 0;
 }
 
 .truncate {

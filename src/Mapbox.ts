@@ -8,6 +8,9 @@ const pointsSourceKey = "query"
 const lineLayerKey = "lines";
 const pointsLayerKey = "points";
 
+// have this right here for now. Not sure if this needs to be abstracted somewhere else
+const mediaQuery = window.matchMedia('(max-width: 640px)')
+
 export default class Mapbox {
     private map: mapbox.Map;
     private mapReady = false
@@ -28,7 +31,6 @@ export default class Mapbox {
             onReady()
         });
         this.map.on("click", e => onClick([e.lngLat.lng, e.lngLat.lat]))
-        this.map.on("touchend", e => onClick([e.lngLat.lng, e.lngLat.lng]))
     }
 
     public updateRoute(points: {
@@ -54,11 +56,13 @@ export default class Mapbox {
         this.map.resize()
     }
 
-    public fitToExtent(extent: [number, number, number, number]) {
-        const bounds = new mapbox.LngLatBounds(extent);
-        this.map.fitBounds(bounds, {
-            padding: {top: 100, bottom: 100, right: 100, left: 400}
-        });
+    private static getPadding() {
+        return mediaQuery.matches ? {top: 200, bottom: 16, right: 16, left: 16} : {
+            top: 100,
+            bottom: 100,
+            right: 100,
+            left: 400
+        }
     }
 
     private initLineLayer() {
@@ -158,6 +162,13 @@ export default class Mapbox {
                     }
                 },
             ]
+        });
+    }
+
+    public fitToExtent(extent: [number, number, number, number]) {
+        const bounds = new mapbox.LngLatBounds(extent);
+        this.map.fitBounds(bounds, {
+            padding: Mapbox.getPadding()
         });
     }
 }

@@ -10,7 +10,9 @@ export default function App() {
                 <MapComponent/>
             </div>
             <div className={styles.sidebar}>
-                <Sidebar/>
+                <div className={styles.sidebarContent}>
+                    <Sidebar/>
+                </div>
             </div>
         </div>
     )

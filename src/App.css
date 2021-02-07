@@ -7,7 +7,6 @@
     grid-template-columns: 20rem auto;
     grid-template-rows: 100%
 }
-
 .map {
     grid-column: 1 / span 2;
     grid-row: 1 / span 1;
@@ -16,7 +15,42 @@
 .sidebar {
     grid-column: 1 / span 1;
     grid-row: 1 / span 1;
-    align-self: start;
 
+    background-color: transparent;
     z-index: 500;
+    pointer-events: none; /* let the user click on the map where the sidebar is transparent */
 }
+
+.sidebarContent {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100% - 2 * 0.5rem);
+
+    margin: 0.5rem;
+    background-color: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+
+    pointer-events: all; /* we want all the content to behave normally*/
+}
+
+@media screen and (max-width: 44rem) {
+
+    .appWrapper {
+        grid-template-columns: 100%;
+        grid-template-rows: 100%;
+    }
+
+    .map {
+        grid-row: 1 /span 1;
+    }
+
+    .sidebar {
+        grid-row: 1 / span 1;
+    }
+
+    .sidebarContent {
+        margin: 0;
+        max-height: 100%;
+    }
+}
+

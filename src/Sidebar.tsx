@@ -5,6 +5,8 @@ import {RouteStoreState} from "@/stores/RouteStore";
 
 const styles = require('./Sidebar.css')
 
+const distanceFormat = new Intl.NumberFormat(undefined, {maximumFractionDigits: 3})
+
 interface SidebarState {
     query: RoutingArgs
     routeState: RouteStoreState
@@ -32,16 +34,10 @@ export default class Sidebar extends Component<{}, SidebarState> {
 
     public render() {
         return (
-            <div className={styles.sidebar}>
+            <>
                 <SearchBox points={this.queryStore.state.points}/>
-                {
-                    /*
-                    <Instructions instructions={this.state.routeState.selectedPath.instructions}/>
-                     */
-                }
                 <QueryResults paths={this.routeStore.state.routingResult.paths}/>
-
-            </div>
+            </>
         )
     }
 }
@@ -66,24 +62,26 @@ const SearchBox = (props: SearchBoxProps) => {
 }
 
 const QueryResults = (props: { paths: Path[] }) => (
-    <ul className={styles.resultList}>
-        {props.paths.map(path => <li><QueryResult path={path}/></li>)}
-    </ul>
+    <div className={styles.resultListContainer}>
+        <ul className={styles.resultList}>
+            {props.paths.map(path => <li><QueryResult path={path}/></li>)}
+        </ul>
+    </div>
 )
 
 const QueryResult = (props: { path: Path }) => {
 
     const [isExpanded, setExpanded] = useState(false)
+    const buttonText = isExpanded ? 'Hide' : 'Details'
 
     return (
-
         <div className={styles.resultRow}>
             <div className={styles.resultSummary}>
                 <div className={styles.resultValues}>
-                    <span>{props.path.distance / 1000}km</span>
+                    <span>{distanceFormat.format(props.path.distance / 1000)}km</span>
                     <span>{milliSecondsToText(props.path.time)}</span>
                 </div>
-                <button className={styles.resultExpandDirections} onClick={() => setExpanded(!isExpanded)}>Details
+                <button className={styles.resultExpandDirections} onClick={() => setExpanded(!isExpanded)}>{buttonText}
                 </button>
             </div>
             {isExpanded && <Instructions instructions={props.path.instructions}/>}
@@ -92,7 +90,7 @@ const QueryResult = (props: { path: Path }) => {
 }
 
 const Instructions = (props: { instructions: Instruction[] }) => (
-    <ul>
+    <ul className={styles.instructionsList}>
         {props.instructions.map((instruction, i) => <li key={i}>{instruction.text}</li>)}
     </ul>
 )
