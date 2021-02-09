@@ -1,0 +1,10 @@
+.serachBox {
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem;
+}
+
+.serachBoxInput {
+    height: 2rem;
+    font-size: 1rem;
+}

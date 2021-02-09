@@ -13,10 +13,16 @@ export class AddPoint implements Action {
 export class QueryAddress implements Action {
 
     readonly query: string
+    readonly queryPointIndex: number
 
-    constructor(query: string) {
+    constructor(query: string, queryPointIndex: number) {
         this.query = query
+        this.queryPointIndex = queryPointIndex
     }
+}
+
+export class ClearGeocodingResults implements Action {
+
 }
 
 export class SelectAddress implements Action {
@@ -30,8 +36,8 @@ export class SelectAddress implements Action {
 
 export class GeocodingReceived implements Action {
 
-    readonly result: GeocodingResult
-    readonly requestId: number
+    readonly result: GeocodingResult;
+    readonly requestId: number;
 
     constructor(result: GeocodingResult, requestId: number) {
         this.result = result
@@ -41,10 +47,28 @@ export class GeocodingReceived implements Action {
 
 export interface QueryStoreState {
 
+    query: Query
     routingArgs: RoutingArgs
-    geocodingRequestId: number
-    geocodingResults: GeocodingHit[] // type the geocoding results
+    currentGeocodingRequest: Geocoding
+}
 
+export interface Geocoding {
+
+    query: string,
+    id: number
+    queryPointIndex: number
+    result?: GeocodingResult
+}
+
+export interface Query {
+    queryPoints: QueryPoint[]
+}
+
+export interface QueryPoint {
+    lat: number
+    lon: number
+    queryString: string
+    isInitialized: boolean // don't know about this flag yet
 }
 
 export default class QueryStore extends Store<QueryStoreState> {
@@ -55,16 +79,97 @@ export default class QueryStore extends Store<QueryStoreState> {
         return Object.assign({}, state, {routingArgs: newRoutingArgs})
     }
 
+    private static queryAddress(state: QueryStoreState, query: string, queryPointIndex: number): QueryStoreState {
+
+        // replace the query point with the new text
+        const newQueryPoints = Array.from(state.query.queryPoints)
+        newQueryPoints[queryPointIndex] = {
+            queryString: query,
+            isInitialized: false,
+            lon: 0,
+            lat: 0
+        }
+
+        if (query) {
+
+            const request: Geocoding = {
+                id: state.currentGeocodingRequest.id + 1,
+                queryPointIndex: queryPointIndex,
+                query: query
+            }
+
+            const newState: QueryStoreState = {
+                ...state,
+                currentGeocodingRequest: request,
+                query: {queryPoints: newQueryPoints}
+            }
+
+            // send a request to the api
+            geocode(query, request.id).then(() => {
+            })
+            return newState
+        } else {
+
+            return {
+                ...state,
+                query: {queryPoints: newQueryPoints},
+                currentGeocodingRequest: {
+                    id: state.currentGeocodingRequest.id,
+                    queryPointIndex: queryPointIndex,
+                    query: '',
+                    result: {hits: [], took: -1}
+                }
+            }
+        }
+    }
+
+    private static filterDuplicates(hits: GeocodingHit[]) {
+
+        const set: Set<string> = new Set()
+        return hits.filter(hit => {
+            if (!set.has(hit.osm_id)) {
+                set.add(hit.osm_id)
+                return true
+            }
+            return false
+        })
+    }
+
+    private static addPoint(points: ReadonlyArray<[number, number]>, point: [number, number]): ReadonlyArray<[number, number]> {
+
+        if (points.length !== 1) {
+            return [point]
+        } else {
+            const result = Array.from(points)
+            result.push(point)
+            return result
+        }
+    }
+
     protected getInitialState(): QueryStoreState {
         return {
+            query: {
+                queryPoints: [{lat: 0, lon: 0, queryString: '', isInitialized: false}, {
+                    lat: 0,
+                    lon: 0,
+                    queryString: '',
+                    isInitialized: false
+                }]
+            },
             routingArgs: {
                 points: [],
                 key: ghKey,
                 points_encoded: false
             },
-            geocodingRequestId: 0,
-            geocodingResults: []
-
+            currentGeocodingRequest: {
+                id: -1,
+                query: '',
+                queryPointIndex: -1,
+                result: {
+                    took: -1,
+                    hits: []
+                }
+            }
         };
     }
 
@@ -79,27 +184,30 @@ export default class QueryStore extends Store<QueryStoreState> {
             return newState
         } else if (action instanceof QueryAddress) {
 
-            // remember the query we are interested in i.e. set an id
-            const nextId = state.geocodingRequestId + 1;
-            const newState = Object.assign({}, state, {geocodingRequestId: nextId})
-
-            // send a request to the api
-            geocode(action.query, nextId).then(() => {
-            })
-            return newState
-
+            return QueryStore.queryAddress(state, action.query, action.queryPointIndex)
         } else if (action instanceof GeocodingReceived) {
 
             // check whether we are interested in the result
-            if (action.requestId === state.geocodingRequestId) {
+            if (action.requestId === state.currentGeocodingRequest.id && action.result) {
                 // if so change the state with the suggestions from the api
-                return Object.assign({}, state, {geocodingResults: action.result.hits})
+                const distinctHits = QueryStore.filterDuplicates(action.result.hits)
+
+                return {
+                    ...state,
+                    currentGeocodingRequest: {
+                        ...state.currentGeocodingRequest,
+                        result: {
+                            took: action.result.took,
+                            hits: distinctHits
+                        }
+                    }
+                }
             }
-        } else if (action instanceof SelectAddress) {
+        } else if (action instanceof SelectAddress && state.currentGeocodingRequest.result) {
 
             // select an address from the address result list previously fetched from the geocoding api
             // Do we need error checking here? I don't think so, because one should only be able to select things in the list
-            const geocodingResult = state.geocodingResults.find(result => result.osm_id === action.osm_id)
+            const geocodingResult = state.currentGeocodingRequest.result.hits.find(result => result.osm_id === action.osm_id)
 
             if (geocodingResult) {
                 // make typescript happy
@@ -110,17 +218,16 @@ export default class QueryStore extends Store<QueryStoreState> {
                 }
                 return newState;
             }
+        } else if (action instanceof ClearGeocodingResults) {
+            return {
+                ...state,
+                currentGeocodingRequest: {
+                    id: -1,
+                    queryPointIndex: -1,
+                    query: ''
+                }
+            }
         }
         return state
-    }
-    private static addPoint(points: ReadonlyArray<[number, number]>, point: [number, number]): ReadonlyArray<[number, number]> {
-
-        if (points.length !== 1) {
-            return [point]
-        } else {
-            const result = Array.from(points)
-            result.push(point)
-            return result
-        }
     }
 }

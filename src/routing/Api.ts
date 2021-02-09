@@ -97,6 +97,7 @@ export interface GeocodingHit {
     osm_id: string
     osm_type: string
     osm_key: string
+    osm_value: string
     name: string
     country: string
     city: string
@@ -109,7 +110,7 @@ export interface GeocodingHit {
 
 export async function geocode(query: string, requestId: number) {
 
-    const url = new URL(default_host)
+    const url = new URL("https://graphhopper.com/api/1/geocode")
     url.searchParams.append("key", ghKey)
     url.searchParams.append("q", query)
 
