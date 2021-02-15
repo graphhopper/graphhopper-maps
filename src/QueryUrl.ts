@@ -1,32 +1,37 @@
-import {ghKey, RoutingArgs} from "@/routing/Api";
+import {QueryPoint} from "@/stores/QueryStore";
 
-export function parseUrl(href: string): RoutingArgs {
+export function parseUrl(href: string): QueryPoint[] {
 
     const url = new URL(href)
     // so far we only have from and to coordinates. so this is the only thing we have to parse here
-    const points = url.searchParams.getAll('point')
+    return url.searchParams.getAll('point')
         .map(parameter => {
             const split = parameter.split(',')
             if (split.length !== 2) throw Error("Could not parse url parameter point: " + parameter + " Think about what to do instead of crashing")
-            return split
-                .map(value => {
-                    const number = Number.parseFloat(value)
-                    return Number.isNaN(number) ? 0 : number
-                }) as [number, number]
+            return {lng: parseNumber(split[0]), lat: parseNumber(split[1])}
         })
-
-    return {
-        points: points,
-        key: ghKey
-    }
+        .map((coordinate, i) => {
+            return {
+                point: coordinate,
+                isInitialized: true,
+                id: i,
+                queryText: ''
+            } as QueryPoint
+        })
 }
 
-export function createUrl(baseUrl: string, request: RoutingArgs) {
+export function createUrl(baseUrl: string, points: QueryPoint[]) {
 
     const result = new URL(baseUrl)
-    request.points
-        .map(point => point.join(','))
+    points
+        .filter(point => point.isInitialized)
+        .map(point => point.point.lng + "," + point.point.lat)
         .forEach(pointAsString => result.searchParams.append("point", pointAsString))
 
-      return result
+    return result
+}
+
+function parseNumber(value: string) {
+    const number = Number.parseFloat(value)
+    return Number.isNaN(number) ? 0 : number
 }

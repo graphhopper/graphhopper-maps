@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 
 import App from '@/App'
 import {getApiInfoStore, getQueryStore, getRouteStore, setStores} from "@/stores/Stores";
-import QueryStore from "@/stores/QueryStore";
+import QueryStore, {SetPointFromCoordinate} from "@/stores/QueryStore";
 import Dispatcher from "@/stores/Dispatcher";
 import RouteStore from "@/stores/RouteStore";
 import ApiInfoStore from "@/stores/ApiInfoStore";
@@ -27,15 +27,16 @@ info(ghKey).then(() => {}) // get infos about the api as soon as possible
 // parse the window's url and set up a query from it
 // this will also trigger a routing request if the url contains routing parameters
 try {
-    const request = parseUrl(window.location.href)
-    //request.points.forEach(point => Dispatcher.dispatch(new SetPointFromCoordinate(point)))
+    const queryPoints = parseUrl(window.location.href)
+    queryPoints.forEach(point => Dispatcher.dispatch(new SetPointFromCoordinate(point.point, point)))
 } catch (e) {
     console.error(e)
 }
 
 // hook up the app's state to the navbar to reflect state changes in the url
 getQueryStore().register(() => {
-    const url = createUrl(window.location.origin, getQueryStore().state.routingArgs)
+
+    const url = createUrl(window.location.origin, getQueryStore().state.queryPoints)
     window.history.replaceState("last state", "", url.toString())
 })
 
