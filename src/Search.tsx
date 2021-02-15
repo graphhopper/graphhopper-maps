@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from "react";
 import Dispatcher from "@/stores/Dispatcher";
-import {QueryPoint, SelectAddress} from "@/stores/QueryStore";
+import {QueryPoint, SetPointFromAddress} from "@/stores/QueryStore";
 import {geocode, GeocodingHit} from "@/routing/Api";
+import {ClearRoute} from "@/stores/RouteStore";
 
 const styles = require('./Search.css')
 
@@ -18,6 +19,10 @@ export default function Search({points}: { points: QueryPoint[] }) {
         }, text: ''
     })
     const [geocodingHits, setGeocodingHits] = useState<GeocodingHit[]>([])
+
+    useEffect(() => {
+        setGeocodingHits([])
+    }, [points])
 
     useEffect(() => {
 
@@ -41,17 +46,21 @@ export default function Search({points}: { points: QueryPoint[] }) {
 
     const handleHitSelected = (hit: GeocodingHit) => {
 
-        setGeocodingHits([])
-        Dispatcher.dispatch(new SelectAddress(hit, query.point))
+        Dispatcher.dispatch(new SetPointFromAddress(hit, query.point))
     }
 
-    return (<div className={styles.searchBox}>
+    const searchBoxStyle = (hits: GeocodingHit[]) => {
+        return hits.length > 0 ? styles.searchBox + " " + styles.searchBoxScrollable : styles.searchBox
+    }
+
+    return (<div className={searchBoxStyle(geocodingHits)}>
         {
             points.map((point) =>
                 <SearchBox
                     key={point.id}
                     point={point}
                     onChange={(text) => {
+                        Dispatcher.dispatch(new ClearRoute())
                         setQuery({point: point, text: text})
                     }}/>)
         }
@@ -66,7 +75,7 @@ const SearchBox = ({point, onChange}: { point: QueryPoint, onChange: (value: str
 
     return (<input
         type="text"
-        className={styles.serachBoxInput}
+        className={styles.searchBoxInput}
         value={text}
         placeholder="Click on map to select a location"
         onChange={e => {

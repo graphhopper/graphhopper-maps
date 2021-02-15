@@ -1,21 +1,13 @@
 import React from 'react'
 import Mapbox from "@/Mapbox";
-
-import {InfoResult} from "@/routing/Api";
 import Dispatcher from "@/stores/Dispatcher";
-import {AddPoint, QueryPoint} from "@/stores/QueryStore";
+import {ClearPoints, Coordinate, QueryPoint, SetPointFromCoordinate} from "@/stores/QueryStore";
 import {getApiInfoStore, getQueryStore, getRouteStore} from "@/stores/Stores";
-import {RouteStoreState} from "@/stores/RouteStore";
+import {ClearRoute} from "@/stores/RouteStore";
 
 const styles = require('./MapComponent.css') as any
 
-interface MapState {
-    query: QueryPoint[]
-    routeState: RouteStoreState
-    infoState: InfoResult
-}
-
-export class MapComponent extends React.Component<{}, MapState> {
+export class MapComponent extends React.Component {
 
     private queryStore = getQueryStore()
     private routeStore = getRouteStore()
@@ -31,11 +23,12 @@ export class MapComponent extends React.Component<{}, MapState> {
         this.queryStore.register(() => this.onQueryChanged())
         this.routeStore.register(() => this.onRouteChanged())
         this.infoStore.register(() => this.onInfoChanged())
-        this.state = {
-            query: this.queryStore.state.queryPoints,
-            routeState: this.routeStore.state,
-            infoState: this.infoStore.state
-        }
+    }
+
+    private static convertToMarkerPoints(queryPoints: QueryPoint[]): [number, number][] {
+        return queryPoints
+            .filter(point => point.isInitialized)
+            .map(point => [point.point.lng, point.point.lat])
     }
 
     public async componentDidMount() {
@@ -44,51 +37,30 @@ export class MapComponent extends React.Component<{}, MapState> {
 
         this.map = new Mapbox(
             this.mapContainer.current,
-            coordinate => Dispatcher.dispatch(new AddPoint(coordinate)),
+            coordinate => this.setQueryPoint({lng: coordinate[0], lat: coordinate[1]}),
             () => {
                 // in case we get a query from a url display it on the map as soon as it is ready
 
-                const points: [number, number][] = this.state.query
-                    .map(qPoint => [qPoint.point.lng, qPoint.point.lat])
-
-
+                const points = MapComponent.convertToMarkerPoints(this.queryStore.state.queryPoints)
                 this.map.updatePoints(points)
-                this.map.updateRoute(this.state.routeState.selectedPath.points)
-                if (MapComponent.shouldFitToExtent(this.state.routeState.selectedPath.bbox))
-                    this.map.fitToExtent(this.state.routeState.selectedPath.bbox)
+                this.map.updateRoute(this.routeStore.state.selectedPath.points)
+                this.fitToExtentIfNecessary(this.routeStore.state.selectedPath.bbox)
             }
         )
 
-        if (MapComponent.shouldFitToExtent(this.state.infoState.bbox)) {
-            console.info("setting to info bbox on didmount: " + JSON.stringify(this.state.infoState.bbox))
-            this.map.fitToExtent(this.state.infoState.bbox)
-        }
-
+        this.fitToExtentIfNecessary(this.infoStore.state.bbox)
         this.setMapSizeAfterTimeout(50)
     }
 
     private onQueryChanged() {
 
-        this.setState({query: this.queryStore.state.queryPoints})
-        const points: [number, number][] = this.state.query
-            .map(qPoint => [qPoint.point.lng, qPoint.point.lat])
+        const points = MapComponent.convertToMarkerPoints(this.queryStore.state.queryPoints)
         this.map.updatePoints(points)
     }
 
     private onRouteChanged() {
-
-        this.setState({routeState: this.routeStore.state})
-        this.map.updateRoute(this.state.routeState.selectedPath.points)
-
-        if (MapComponent.shouldFitToExtent(this.state.routeState.selectedPath.bbox))
-            this.map.fitToExtent(this.state.routeState.selectedPath.bbox)
-    }
-
-    private onInfoChanged() {
-        this.setState({infoState: this.infoStore.state})
-
-        if (MapComponent.shouldFitToExtent(this.state.infoState.bbox))
-            this.map.fitToExtent(this.state.infoState.bbox)
+        this.map.updateRoute(this.routeStore.state.selectedPath.points)
+        this.fitToExtentIfNecessary(this.routeStore.state.selectedPath.bbox)
     }
 
     public render() {
@@ -97,24 +69,42 @@ export class MapComponent extends React.Component<{}, MapState> {
         )
     }
 
-    private setMapSizeAfterTimeout(timeout: number) {
-        setTimeout(() => {
-            if (this.isLayoutReady()) {
-                this.map.updateSize()
-                if (MapComponent.shouldFitToExtent(this.state.infoState.bbox)) {
-                    this.map.fitToExtent(this.state.infoState.bbox)
-                }
-            } else {
-                this.setMapSizeAfterTimeout(timeout * 2)
-            }
-        }, timeout)
+    private onInfoChanged() {
+        this.fitToExtentIfNecessary(this.infoStore.state.bbox)
     }
 
     private isLayoutReady() {
         return this.mapContainer.current && this.mapContainer.current.clientHeight > 0
     }
 
+    private setMapSizeAfterTimeout(timeout: number) {
+        setTimeout(() => {
+            if (this.isLayoutReady()) {
+                this.map.updateSize()
+                this.fitToExtentIfNecessary(this.infoStore.state.bbox)
+            } else {
+                this.setMapSizeAfterTimeout(timeout * 2)
+            }
+        }, timeout)
+    }
+
+    private fitToExtentIfNecessary(bbox: [number, number, number, number]) {
+        if (MapComponent.shouldFitToExtent(bbox))
+            this.map.fitToExtent(bbox)
+    }
+
     private static shouldFitToExtent(bbox: [number, number, number, number]) {
         return bbox.every(num => num !== 0)
+    }
+
+    private setQueryPoint(coordinate: Coordinate) {
+        let point = this.queryStore.state.queryPoints.find(point => !point.isInitialized)
+        if (!point) {
+            // clear
+            Dispatcher.dispatch(new ClearPoints())
+            point = this.queryStore.state.queryPoints.find(point => !point.isInitialized)
+        }
+        Dispatcher.dispatch(new SetPointFromCoordinate(coordinate, point!))
+        Dispatcher.dispatch(new ClearRoute())
     }
 }

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 
 import App from '@/App'
 import {getApiInfoStore, getQueryStore, getRouteStore, setStores} from "@/stores/Stores";
-import QueryStore, {AddPoint} from "@/stores/QueryStore";
+import QueryStore from "@/stores/QueryStore";
 import Dispatcher from "@/stores/Dispatcher";
 import RouteStore from "@/stores/RouteStore";
 import ApiInfoStore from "@/stores/ApiInfoStore";
@@ -28,7 +28,7 @@ info(ghKey).then(() => {}) // get infos about the api as soon as possible
 // this will also trigger a routing request if the url contains routing parameters
 try {
     const request = parseUrl(window.location.href)
-    request.points.forEach(point => Dispatcher.dispatch(new AddPoint(point)))
+    //request.points.forEach(point => Dispatcher.dispatch(new SetPointFromCoordinate(point)))
 } catch (e) {
     console.error(e)
 }
