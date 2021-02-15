@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import Dispatcher from "@/stores/Dispatcher";
-import {QueryPoint, SetPointFromAddress} from "@/stores/QueryStore";
+import {InvalidatePoint, QueryPoint, SetPointFromAddress} from "@/stores/QueryStore";
 import {geocode, GeocodingHit} from "@/routing/Api";
 import {ClearRoute} from "@/stores/RouteStore";
 
@@ -61,6 +61,7 @@ export default function Search({points}: { points: QueryPoint[] }) {
                     point={point}
                     onChange={(text) => {
                         Dispatcher.dispatch(new ClearRoute())
+                        Dispatcher.dispatch(new InvalidatePoint(point))
                         setQuery({point: point, text: text})
                     }}/>)
         }

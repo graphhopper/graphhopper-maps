@@ -30,7 +30,15 @@ export class SetPointFromAddress implements Action {
 }
 
 export class ClearPoints implements Action {
+}
 
+export class InvalidatePoint implements Action {
+
+    readonly point: QueryPoint
+
+    constructor(point: QueryPoint) {
+        this.point = point;
+    }
 }
 
 export interface QueryStoreState {
@@ -48,18 +56,13 @@ export interface QueryPoint {
 
 // noinspection JSIgnoredPromiseFromCall
 export default class QueryStore extends Store<QueryStoreState> {
-    
+
     private static convertToQueryText(hit: GeocodingHit) {
 
         let result = hit.name === hit.street ? "" : hit.name + ", "
         result += this.convertToStreet(hit)
-
-        if (hit.postcode)
-            result += hit.postcode
-        if (hit.city)
-            result += " " + hit.city
-        if (hit.country)
-            result += ", " + hit.country
+        result += this.convertToCity(hit)
+        result += this.convertToCountry(hit)
 
         return result;
     }
@@ -67,10 +70,24 @@ export default class QueryStore extends Store<QueryStoreState> {
     private static convertToStreet(hit: GeocodingHit) {
 
         if (hit.housenumber && hit.street)
-            return hit.street + " " + hit.housenumber + ","
+            return hit.street + " " + hit.housenumber + ", "
         if (hit.street)
             return hit.street + ", "
         return ""
+    }
+
+    private static convertToCity(hit: GeocodingHit) {
+        if (hit.city && hit.postcode)
+            return hit.postcode + " " + hit.city + ", "
+        if (hit.city)
+            return hit.city + ", "
+        if (hit.postcode)
+            return hit.postcode + ", "
+        return ""
+    }
+
+    private static convertToCountry(hit: GeocodingHit) {
+        return hit.country ? hit.country : ""
     }
 
     private static setPoint(state: QueryStoreState, newPoint: QueryPoint) {
@@ -125,6 +142,12 @@ export default class QueryStore extends Store<QueryStoreState> {
                 isInitialized: true,
                 point: action.hit.point,
                 queryText: QueryStore.convertToQueryText(action.hit)
+            })
+        } else if (action instanceof InvalidatePoint) {
+
+            return QueryStore.setPoint(state, {
+                ...action.point,
+                isInitialized: false
             })
         } else if (action instanceof ClearPoints) {
 
