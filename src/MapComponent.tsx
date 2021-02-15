@@ -1,16 +1,16 @@
 import React from 'react'
 import Mapbox from "@/Mapbox";
 
-import {InfoResult, RoutingArgs} from "@/routing/Api";
+import {InfoResult} from "@/routing/Api";
 import Dispatcher from "@/stores/Dispatcher";
-import {AddPoint} from "@/stores/QueryStore";
+import {AddPoint, QueryPoint} from "@/stores/QueryStore";
 import {getApiInfoStore, getQueryStore, getRouteStore} from "@/stores/Stores";
 import {RouteStoreState} from "@/stores/RouteStore";
 
 const styles = require('./MapComponent.css') as any
 
 interface MapState {
-    query: RoutingArgs
+    query: QueryPoint[]
     routeState: RouteStoreState
     infoState: InfoResult
 }
@@ -32,7 +32,7 @@ export class MapComponent extends React.Component<{}, MapState> {
         this.routeStore.register(() => this.onRouteChanged())
         this.infoStore.register(() => this.onInfoChanged())
         this.state = {
-            query: this.queryStore.state.routingArgs,
+            query: this.queryStore.state.queryPoints,
             routeState: this.routeStore.state,
             infoState: this.infoStore.state
         }
@@ -47,7 +47,12 @@ export class MapComponent extends React.Component<{}, MapState> {
             coordinate => Dispatcher.dispatch(new AddPoint(coordinate)),
             () => {
                 // in case we get a query from a url display it on the map as soon as it is ready
-                this.map.updatePoints(this.state.query.points)
+
+                const points: [number, number][] = this.state.query
+                    .map(qPoint => [qPoint.point.lng, qPoint.point.lat])
+
+
+                this.map.updatePoints(points)
                 this.map.updateRoute(this.state.routeState.selectedPath.points)
                 if (MapComponent.shouldFitToExtent(this.state.routeState.selectedPath.bbox))
                     this.map.fitToExtent(this.state.routeState.selectedPath.bbox)
@@ -64,8 +69,10 @@ export class MapComponent extends React.Component<{}, MapState> {
 
     private onQueryChanged() {
 
-        this.setState({query: this.queryStore.state.routingArgs})
-        this.map.updatePoints(this.state.query.points)
+        this.setState({query: this.queryStore.state.queryPoints})
+        const points: [number, number][] = this.state.query
+            .map(qPoint => [qPoint.point.lng, qPoint.point.lat])
+        this.map.updatePoints(points)
     }
 
     private onRouteChanged() {

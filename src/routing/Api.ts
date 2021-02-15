@@ -1,7 +1,6 @@
 import Dispatcher from "@/stores/Dispatcher";
 import {RouteReceived} from "@/stores/RouteStore";
 import {InfoReceived} from "@/stores/ApiInfoStore";
-import {GeocodingReceived} from "@/stores/QueryStore";
 
 const default_host = "https://graphhopper.com/api/1"
 const default_route_base_path = "/route"
@@ -108,7 +107,7 @@ export interface GeocodingHit {
 }
 
 
-export async function geocode(query: string, requestId: number) {
+export async function geocode(query: string) {
 
     const url = new URL("https://graphhopper.com/api/1/geocode")
     url.searchParams.append("key", ghKey)
@@ -119,8 +118,7 @@ export async function geocode(query: string, requestId: number) {
     })
 
     if (response.ok) {
-        const result = await response.json() as GeocodingResult
-        Dispatcher.dispatch(new GeocodingReceived(result, requestId))
+        return await response.json() as GeocodingResult
     } else {
         throw new Error('here could be your meaningfull error message')
     }

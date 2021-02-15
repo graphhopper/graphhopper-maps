@@ -1,8 +1,8 @@
 import React, {Component, useState} from 'react'
-import {GeocodingHit, Instruction, Path} from "@/routing/Api";
+import {Instruction, Path} from "@/routing/Api";
 import {getQueryStore, getRouteStore} from "@/stores/Stores";
 import {RouteStoreState} from "@/stores/RouteStore";
-import {Geocoding, QueryStoreState} from "@/stores/QueryStore";
+import {QueryStoreState} from "@/stores/QueryStore";
 import Search from "@/Search";
 
 const styles = require('./Sidebar.css')
@@ -31,57 +31,14 @@ export default class Sidebar extends Component<{}, SidebarState> {
     }
 
     public render() {
-
-        const queryState = this.state.queryState
+        
         return (
             <>
-                <Search points={this.state.queryState.query.queryPoints}/>
-                <GeocodingResults request={queryState.currentGeocodingRequest}/>
+                <Search points={this.state.queryState.queryPoints}/>
                 <QueryResults paths={this.state.routeState.routingResult.paths}/>
             </>
         )
     }
-}
-
-const GeocodingResults = ({request}: { request: Geocoding }) => {
-    return (
-        <div>
-            <span>{request.id}</span>
-            {request.result ?
-                <ul>{request.result.hits.map(hit => (<GeocodingEntry key={hit.osm_id} entry={hit}/>))}</ul> :
-                <span>Loading...</span>}
-        </div>)
-
-}
-
-function geocodingHitToName(result: GeocodingHit) {
-    if (result.name && result.housenumber) return result.name + ', ' + result.housenumber
-    if (result.name) return result.name
-    return 'No name?'
-}
-
-function geocodingHitToAdress(hit: GeocodingHit) {
-
-    let result = hit.postcode ? hit.postcode : ""
-    if (hit.city)
-        result = result + ", " + hit.city
-    if (hit.country)
-        result = result + ", " + hit.country
-    return result
-}
-
-function geocodingHitToTag(hit: GeocodingHit) {
-    return hit.osm_key === 'place' ? hit.osm_value : hit.osm_key
-}
-
-const GeocodingEntry = ({entry}: { entry: GeocodingHit }) => {
-    return (
-        <li>
-            <span>{geocodingHitToName(entry)}</span>
-            <span>{geocodingHitToAdress(entry)}</span>
-            <span>{geocodingHitToTag(entry)}</span>
-        </li>
-    )
 }
 
 const QueryResults = (props: { paths: Path[] }) => (

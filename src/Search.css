@@ -1,10 +1,45 @@
-.serachBox {
+.searchBox {
     display: flex;
     flex-direction: column;
     margin: 0.5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .serachBoxInput {
     height: 2rem;
     font-size: 1rem;
+}
+
+.selectableGeocodingEntry {
+    display: block;
+    width: 100%;
+
+    border: none;
+    border-bottom: 1px lightgray solid;
+    background: none;
+    color: inherit;
+    font: inherit;
+    padding: 0;
+    cursor: pointer;
+    outline: inherit;
+}
+
+.selectableGeocodingEntry:hover {
+    background-color: lightgray;
+}
+
+.selectableGeocodingEntry:active {
+    background-color: darkgray;
+}
+
+.geocodingEntry {
+    display: flex;
+    flex-direction: column;
+    text-align: start;
+    margin: 0.5rem 0.5rem;
+}
+
+.geocodingEntryMain {
+    font-weight: bold;
 }
