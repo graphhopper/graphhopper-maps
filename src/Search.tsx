@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import {InvalidatePoint, QueryPoint, SetPointFromAddress} from '@/stores/QueryStore'
-import {geocode, GeocodingHit} from '@/routing/Api'
-import {ClearRoute} from '@/stores/RouteStore'
+import { InvalidatePoint, QueryPoint, SetPointFromAddress } from '@/stores/QueryStore'
+import { geocode, GeocodingHit } from '@/routing/Api'
+import { ClearRoute } from '@/stores/RouteStore'
 
 const styles = require('./Search.css')
 

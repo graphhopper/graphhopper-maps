@@ -1,6 +1,6 @@
-import route, {GeocodingHit, ghKey, RoutingArgs} from '@/routing/Api'
+import route, { GeocodingHit, ghKey, RoutingArgs } from '@/routing/Api'
 import Store from '@/stores/Store'
-import {Action} from '@/stores/Dispatcher'
+import { Action } from '@/stores/Dispatcher'
 
 export interface Coordinate {
     lat: number

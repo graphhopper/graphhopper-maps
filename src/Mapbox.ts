@@ -1,6 +1,6 @@
 // import mapbox like this instead of {Map} from 'mapbox-gl' because otherwise the app is missing some global mapbox state
 import * as mapbox from 'mapbox-gl'
-import {GeoJSONSource} from 'mapbox-gl'
+import { GeoJSONSource } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 const lineSourceKey = 'route'

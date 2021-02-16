@@ -1,5 +1,5 @@
 import React from 'react'
-import {MapComponent} from '@/MapComponent'
+import { MapComponent } from '@/MapComponent'
 import Sidebar from '@/Sidebar'
 
 const styles = require('./App.css')

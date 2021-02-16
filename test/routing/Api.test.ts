@@ -1,8 +1,8 @@
 import fetchMock from 'jest-fetch-mock'
-import route, {info, InfoResult, RoutingArgs} from '@/routing/Api'
-import Dispatcher, {Action} from '../../src/stores/Dispatcher'
-import {RouteReceived} from '../../src/stores/RouteStore'
-import {InfoReceived} from '../../src/stores/ApiInfoStore'
+import route, { info, InfoResult, RoutingArgs } from '@/routing/Api'
+import Dispatcher, { Action } from '../../src/stores/Dispatcher'
+import { RouteReceived } from '../../src/stores/RouteStore'
+import { InfoReceived } from '../../src/stores/ApiInfoStore'
 
 // replace global 'fetch' method by fetchMock
 beforeAll(fetchMock.enableMocks)

@@ -1,8 +1,8 @@
-import React, {Component, useState} from 'react'
-import {Instruction, Path} from '@/routing/Api'
-import {getQueryStore, getRouteStore} from '@/stores/Stores'
-import {RouteStoreState} from '@/stores/RouteStore'
-import {QueryStoreState} from '@/stores/QueryStore'
+import React, { Component, useState } from 'react'
+import { Instruction, Path } from '@/routing/Api'
+import { getQueryStore, getRouteStore } from '@/stores/Stores'
+import { RouteStoreState } from '@/stores/RouteStore'
+import { QueryStoreState } from '@/stores/QueryStore'
 import Search from '@/Search'
 
 const styles = require('./Sidebar.css')

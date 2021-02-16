@@ -1,6 +1,6 @@
-import {InfoResult} from '@/routing/Api'
+import { InfoResult } from '@/routing/Api'
 import Store from '@/stores/Store'
-import {Action} from '@/stores/Dispatcher'
+import { Action } from '@/stores/Dispatcher'
 
 export class InfoReceived implements Action {
     readonly result: InfoResult

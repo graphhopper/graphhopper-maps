@@ -2,13 +2,13 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import App from '@/App'
-import {getApiInfoStore, getQueryStore, getRouteStore, setStores} from '@/stores/Stores'
-import QueryStore, {SetPointFromCoordinate} from '@/stores/QueryStore'
+import { getApiInfoStore, getQueryStore, getRouteStore, setStores } from '@/stores/Stores'
+import QueryStore, { SetPointFromCoordinate } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
-import {ghKey, info} from '@/routing/Api'
-import {createUrl, parseUrl} from '@/./QueryUrl'
+import { ghKey, info } from '@/routing/Api'
+import { createUrl, parseUrl } from '@/./QueryUrl'
 
 // set up state management
 setStores({

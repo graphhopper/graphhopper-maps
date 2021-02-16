@@ -1,6 +1,6 @@
 import Dispatcher from '@/stores/Dispatcher'
-import {RouteReceived} from '@/stores/RouteStore'
-import {InfoReceived} from '@/stores/ApiInfoStore'
+import { RouteReceived } from '@/stores/RouteStore'
+import { InfoReceived } from '@/stores/ApiInfoStore'
 
 const default_host = 'https://graphhopper.com/api/1'
 const default_route_base_path = '/route'

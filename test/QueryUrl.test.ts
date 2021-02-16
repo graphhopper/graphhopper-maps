@@ -1,5 +1,5 @@
-import {createUrl, parseUrl} from '../src/QueryUrl'
-import {QueryPoint} from '../src/stores/QueryStore'
+import { createUrl, parseUrl } from '../src/QueryUrl'
+import { QueryPoint } from '../src/stores/QueryStore'
 
 describe('parseUrl', () => {
     it('should parse points from a url', () => {

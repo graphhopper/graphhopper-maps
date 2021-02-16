@@ -1,6 +1,6 @@
-import {Path, RoutingResult} from '@/routing/Api'
+import { Path, RoutingResult } from '@/routing/Api'
 import Store from '@/stores/Store'
-import {Action} from '@/stores/Dispatcher'
+import { Action } from '@/stores/Dispatcher'
 
 export class RouteReceived implements Action {
     readonly result: RoutingResult

@@ -1,9 +1,9 @@
 import React from 'react'
 import Mapbox from '@/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
-import {ClearPoints, Coordinate, QueryPoint, SetPointFromCoordinate} from '@/stores/QueryStore'
-import {getApiInfoStore, getQueryStore, getRouteStore} from '@/stores/Stores'
-import {ClearRoute} from '@/stores/RouteStore'
+import { ClearPoints, Coordinate, QueryPoint, SetPointFromCoordinate } from '@/stores/QueryStore'
+import { getApiInfoStore, getQueryStore, getRouteStore } from '@/stores/Stores'
+import { ClearRoute } from '@/stores/RouteStore'
 
 const styles = require('./MapComponent.css') as any
 
