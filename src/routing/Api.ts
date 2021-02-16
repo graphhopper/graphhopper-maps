@@ -112,7 +112,7 @@ export async function geocode(query: string) {
     url.searchParams.append('q', query)
 
     const response = await fetch(url.toString(), {
-        headers: {Accept: 'application/json'},
+        headers: { Accept: 'application/json' },
     })
 
     if (response.ok) {
@@ -124,7 +124,7 @@ export async function geocode(query: string) {
 
 export async function info(key: string) {
     const response = await fetch(default_host + '/info?key=' + key, {
-        headers: {Accept: 'application/json'},
+        headers: { Accept: 'application/json' },
     })
 
     if (response.ok) {

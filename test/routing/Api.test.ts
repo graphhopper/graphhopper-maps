@@ -54,7 +54,7 @@ describe('route api', () => {
 
         fetchMock.mockResponse(request => {
             expect(request.method).toEqual('POST')
-            return Promise.resolve(JSON.stringify({all: 'good'}))
+            return Promise.resolve(JSON.stringify({ all: 'good' }))
         })
 
         await route(args)
@@ -81,7 +81,7 @@ describe('route api', () => {
             const bodyAsResponse = new Response(request.body)
             const bodyContent = await bodyAsResponse.text()
             expect(bodyContent).toEqual(JSON.stringify(expectedBody))
-            return Promise.resolve(JSON.stringify({all: 'good'}))
+            return Promise.resolve(JSON.stringify({ all: 'good' }))
         })
 
         await route(args)
@@ -115,7 +115,7 @@ describe('route api', () => {
             const bodyAsResponse = new Response(request.body)
             const bodyContent = await bodyAsResponse.json()
             expect(bodyContent).toEqual(expectedBody)
-            return Promise.resolve(JSON.stringify({all: 'good'}))
+            return Promise.resolve(JSON.stringify({ all: 'good' }))
         })
 
         await route(args)
@@ -134,7 +134,7 @@ describe('route api', () => {
 
         const expectedURL = new URL((args.host as string) + args.basePath)
         expectedURL.searchParams.append('key', args.key)
-        mockFetchWithExpectedURL(expectedURL, 'application/json', {paths: []})
+        mockFetchWithExpectedURL(expectedURL, 'application/json', { paths: [] })
 
         await route(args)
     })
@@ -149,7 +149,7 @@ describe('route api', () => {
         }
 
         const expectedURL = createDefaultURL(args.key)
-        mockFetchWithExpectedURL(expectedURL, 'application/json', {paths: []})
+        mockFetchWithExpectedURL(expectedURL, 'application/json', { paths: [] })
 
         await route(args)
     })
@@ -164,7 +164,7 @@ describe('route api', () => {
             data_type: 'my-data-type',
         }
 
-        mockFetchWithExpectedURL(createDefaultURL(args.key), args.data_type as string, {paths: []})
+        mockFetchWithExpectedURL(createDefaultURL(args.key), args.data_type as string, { paths: [] })
 
         await route(args)
     })
@@ -179,7 +179,7 @@ describe('route api', () => {
             data_type: 'my-data-type',
         }
 
-        mockFetchWithExpectedURL(createDefaultURL(args.key), args.data_type as string, {paths: []})
+        mockFetchWithExpectedURL(createDefaultURL(args.key), args.data_type as string, { paths: [] })
 
         Dispatcher.register({
             receive(action: Action) {

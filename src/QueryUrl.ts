@@ -11,7 +11,7 @@ export function parseUrl(href: string): QueryPoint[] {
                 throw Error(
                     'Could not parse url parameter point: ' + parameter + ' Think about what to do instead of crashing'
                 )
-            return {lng: parseNumber(split[0]), lat: parseNumber(split[1])}
+            return { lng: parseNumber(split[0]), lat: parseNumber(split[1]) }
         })
         .map((coordinate, i) => {
             return {

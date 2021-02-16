@@ -11,11 +11,11 @@ interface Query {
     text: string
 }
 
-export default function Search({points}: { points: QueryPoint[] }) {
+export default function Search({ points }: { points: QueryPoint[] }) {
     const [query, setQuery] = useState<Query>({
         point: {
             queryText: '',
-            point: {lat: 0, lng: 0},
+            point: { lat: 0, lng: 0 },
             isInitialized: false,
             id: -1,
         },
@@ -62,16 +62,16 @@ export default function Search({points}: { points: QueryPoint[] }) {
                     onChange={text => {
                         Dispatcher.dispatch(new ClearRoute())
                         Dispatcher.dispatch(new InvalidatePoint(point))
-                        setQuery({point: point, text: text})
+                        setQuery({ point: point, text: text })
                     }}
                 />
             ))}
-            <GeocodingResults hits={geocodingHits} onSelectHit={handleHitSelected}/>
+            <GeocodingResults hits={geocodingHits} onSelectHit={handleHitSelected} />
         </div>
     )
 }
 
-const SearchBox = ({point, onChange}: { point: QueryPoint; onChange: (value: string) => void }) => {
+const SearchBox = ({ point, onChange }: { point: QueryPoint; onChange: (value: string) => void }) => {
     const [text, setText] = useState(point.queryText)
     useEffect(() => setText(point.queryText), [point.queryText])
 
@@ -90,9 +90,9 @@ const SearchBox = ({point, onChange}: { point: QueryPoint; onChange: (value: str
 }
 
 const GeocodingResults = ({
-                              hits,
-                              onSelectHit,
-                          }: {
+    hits,
+    onSelectHit,
+}: {
     hits: GeocodingHit[]
     onSelectHit: (hit: GeocodingHit) => void
 }) => {
@@ -100,7 +100,7 @@ const GeocodingResults = ({
         <div>
             <ul>
                 {hits.map(hit => (
-                    <GeocodingEntry key={hit.osm_id} entry={hit} onSelectHit={onSelectHit}/>
+                    <GeocodingEntry key={hit.osm_id} entry={hit} onSelectHit={onSelectHit} />
                 ))}
             </ul>
         </div>
@@ -120,7 +120,7 @@ function geocodingHitToAdress(hit: GeocodingHit) {
     return result
 }
 
-const GeocodingEntry = ({entry, onSelectHit}: { entry: GeocodingHit; onSelectHit: (hit: GeocodingHit) => void }) => {
+const GeocodingEntry = ({ entry, onSelectHit }: { entry: GeocodingHit; onSelectHit: (hit: GeocodingHit) => void }) => {
     return (
         <li>
             <button className={styles.selectableGeocodingEntry} onClick={() => onSelectHit(entry)}>

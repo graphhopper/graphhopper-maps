@@ -27,8 +27,7 @@ export class SetPointFromAddress implements Action {
     }
 }
 
-export class ClearPoints implements Action {
-}
+export class ClearPoints implements Action {}
 
 export class InvalidatePoint implements Action {
     readonly point: QueryPoint
@@ -84,7 +83,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         if (newPoints.every(point => point.isInitialized)) {
             const rawPoints = newPoints.map(point => [point.point.lng, point.point.lat]) as [number, number][]
-            route({points: rawPoints, key: ghKey, points_encoded: false})
+            route({ points: rawPoints, key: ghKey, points_encoded: false })
         }
 
         return {
@@ -97,7 +96,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             isInitialized: false,
             queryText: '',
-            point: {lng: 0, lat: 0},
+            point: { lng: 0, lat: 0 },
             id: id,
         }
     }

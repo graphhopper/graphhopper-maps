@@ -62,7 +62,7 @@ describe('createUrl', () => {
 function coordinateToQueryPoint(coordinate: [number, number], id: number): QueryPoint {
     return {
         isInitialized: true,
-        point: {lng: coordinate[0], lat: coordinate[1]},
+        point: { lng: coordinate[0], lat: coordinate[1] },
         queryText: '',
         id: id,
     }

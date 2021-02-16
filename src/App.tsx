@@ -8,11 +8,11 @@ export default function App() {
     return (
         <div className={styles.appWrapper}>
             <div className={styles.map}>
-                <MapComponent/>
+                <MapComponent />
             </div>
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent}>
-                    <Sidebar/>
+                    <Sidebar />
                 </div>
             </div>
         </div>

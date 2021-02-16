@@ -10,8 +10,7 @@ export class RouteReceived implements Action {
     }
 }
 
-export class ClearRoute implements Action {
-}
+export class ClearRoute implements Action {}
 
 export interface RouteStoreState {
     routingResult: RoutingResult
@@ -69,7 +68,7 @@ export default class RouteStore extends Store<RouteStoreState> {
 
     private handleRouteReceived(state: RouteStoreState, action: RouteReceived) {
         if (action.result.paths.length > 0) {
-            return Object.assign({}, state, {routingResult: action.result, selectedPath: action.result.paths[0]})
+            return Object.assign({}, state, { routingResult: action.result, selectedPath: action.result.paths[0] })
         }
         return this.getInitialState()
     }

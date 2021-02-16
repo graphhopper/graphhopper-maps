@@ -33,7 +33,7 @@ export class MapComponent extends React.Component {
 
         this.map = new Mapbox(
             this.mapContainer.current,
-            coordinate => this.setQueryPoint({lng: coordinate[0], lat: coordinate[1]}),
+            coordinate => this.setQueryPoint({ lng: coordinate[0], lat: coordinate[1] }),
             () => {
                 // in case we get a query from a url display it on the map as soon as it is ready
 
@@ -59,7 +59,7 @@ export class MapComponent extends React.Component {
     }
 
     public render() {
-        return <div className={styles.map} ref={this.mapContainer}/>
+        return <div className={styles.map} ref={this.mapContainer} />
     }
 
     private onInfoChanged() {

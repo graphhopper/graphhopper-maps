@@ -7,7 +7,7 @@ import Search from '@/Search'
 
 const styles = require('./Sidebar.css')
 
-const distanceFormat = new Intl.NumberFormat(undefined, {maximumFractionDigits: 3})
+const distanceFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 3 })
 
 interface SidebarState {
     queryState: QueryStoreState
@@ -21,8 +21,8 @@ export default class Sidebar extends Component<{}, SidebarState> {
     constructor(props: {}) {
         super(props)
 
-        this.queryStore.register(() => this.setState({queryState: this.queryStore.state}))
-        this.routeStore.register(() => this.setState({routeState: this.routeStore.state}))
+        this.queryStore.register(() => this.setState({ queryState: this.queryStore.state }))
+        this.routeStore.register(() => this.setState({ routeState: this.routeStore.state }))
         this.state = {
             queryState: this.queryStore.state,
             routeState: this.routeStore.state,
@@ -32,8 +32,8 @@ export default class Sidebar extends Component<{}, SidebarState> {
     public render() {
         return (
             <>
-                <Search points={this.state.queryState.queryPoints}/>
-                <QueryResults paths={this.state.routeState.routingResult.paths}/>
+                <Search points={this.state.queryState.queryPoints} />
+                <QueryResults paths={this.state.routeState.routingResult.paths} />
             </>
         )
     }
@@ -44,7 +44,7 @@ const QueryResults = (props: { paths: Path[] }) => (
         <ul className={styles.resultList}>
             {props.paths.map((path, i) => (
                 <li key={i}>
-                    <QueryResult path={path}/>
+                    <QueryResult path={path} />
                 </li>
             ))}
         </ul>
@@ -66,7 +66,7 @@ const QueryResult = (props: { path: Path }) => {
                     {buttonText}
                 </button>
             </div>
-            {isExpanded && <Instructions instructions={props.path.instructions}/>}
+            {isExpanded && <Instructions instructions={props.path.instructions} />}
         </div>
     )
 }

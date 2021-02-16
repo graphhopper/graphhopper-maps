@@ -1,36 +1,36 @@
 {
-  "name": "graphhopper-maps-react",
-  "version": "0.0.0",
-  "description": "react dummy",
-  "main": "index.js",
-  "scripts": {
-    "serve": "webpack-dev-server",
-    "build": "webpack",
-    "test": "jest"
-  },
-  "dependencies": {
-    "mapbox-gl": "^1.12.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "graphhopper-js-api-client": "^0.13.0"
-  },
-  "devDependencies": {
-    "@types/mapbox-gl": "^1.12.7",
-    "@types/react": "^16.9.49",
-    "@types/react-dom": "^16.9.8",
-    "awesome-typescript-loader": "^5.2.1",
-    "css-loader": "^2.1.1",
-    "html-webpack-plugin": "^3.2.0",
-    "jest": "^26.6.3",
-    "jest-fetch-mock": "^3.0.3",
-    "prettier": "2.2.1",
-    "raw-loader": "^4.0.1",
-    "source-map-loader": "^0.2.4",
-    "style-loader": "^0.23.1",
-    "ts-jest": "^26.4.4",
-    "typescript": "^3.9.7",
-    "webpack": "^4.29.6",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.3.1"
-  }
+    "name": "graphhopper-maps-react",
+    "version": "0.0.0",
+    "description": "react dummy",
+    "main": "index.js",
+    "scripts": {
+        "serve": "webpack-dev-server",
+        "build": "webpack",
+        "test": "jest"
+    },
+    "dependencies": {
+        "mapbox-gl": "^1.12.0",
+        "react": "^16.13.1",
+        "react-dom": "^16.13.1",
+        "graphhopper-js-api-client": "^0.13.0"
+    },
+    "devDependencies": {
+        "@types/mapbox-gl": "^1.12.7",
+        "@types/react": "^16.9.49",
+        "@types/react-dom": "^16.9.8",
+        "awesome-typescript-loader": "^5.2.1",
+        "css-loader": "^2.1.1",
+        "html-webpack-plugin": "^3.2.0",
+        "jest": "^26.6.3",
+        "jest-fetch-mock": "^3.0.3",
+        "prettier": "2.2.1",
+        "raw-loader": "^4.0.1",
+        "source-map-loader": "^0.2.4",
+        "style-loader": "^0.23.1",
+        "ts-jest": "^26.4.4",
+        "typescript": "^3.9.7",
+        "webpack": "^4.29.6",
+        "webpack-cli": "^3.3.12",
+        "webpack-dev-server": "^3.3.1"
+    }
 }

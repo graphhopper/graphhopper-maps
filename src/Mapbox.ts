@@ -35,13 +35,13 @@ export default class Mapbox {
 
     private static getPadding() {
         return mediaQuery.matches
-            ? {top: 200, bottom: 16, right: 16, left: 16}
+            ? { top: 200, bottom: 16, right: 16, left: 16 }
             : {
-                top: 100,
-                bottom: 100,
-                right: 100,
-                left: 400,
-            }
+                  top: 100,
+                  bottom: 100,
+                  right: 100,
+                  left: 400,
+              }
     }
 
     public updateRoute(points: { type: string; coordinates: number[][] }) {
@@ -122,8 +122,7 @@ export default class Mapbox {
 
     private removeLine() {
         if (!this.mapReady) return
-            ;
-        (this.map.getSource(lineSourceKey) as GeoJSONSource).setData({
+        ;(this.map.getSource(lineSourceKey) as GeoJSONSource).setData({
             features: [],
             type: 'FeatureCollection',
         })
@@ -131,8 +130,7 @@ export default class Mapbox {
 
     private addPoints(points: { type: string; coordinates: number[][] }) {
         if (!this.mapReady) return
-            ;
-        (this.map.getSource(pointsSourceKey) as GeoJSONSource).setData({
+        ;(this.map.getSource(pointsSourceKey) as GeoJSONSource).setData({
             type: 'FeatureCollection',
             features: [
                 {
@@ -149,8 +147,7 @@ export default class Mapbox {
 
     private addLine(points: { type: string; coordinates: number[][] }) {
         if (!this.mapReady) return
-            ;
-        (this.map.getSource(lineSourceKey) as GeoJSONSource).setData({
+        ;(this.map.getSource(lineSourceKey) as GeoJSONSource).setData({
             type: 'FeatureCollection',
             features: [
                 {

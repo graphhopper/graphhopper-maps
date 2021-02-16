@@ -13,19 +13,11 @@
         "strict": true,
         "target": "ES2019",
         "paths": {
-            "@/*": [
-                "src/*"
-            ]
+            "@/*": ["src/*"]
         },
-        "lib": [
-            "ES2019",
-            "dom",
-            "dom.iterable"
-        ],
+        "lib": ["ES2019", "dom", "dom.iterable"],
         "esModuleInterop": true,
         "resolveJsonModule": true
     },
-    "include": [
-        "./src/**/*"
-    ]
+    "include": ["./src/**/*"]
 }

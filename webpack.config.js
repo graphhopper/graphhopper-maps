@@ -15,26 +15,26 @@ module.exports = {
     },
     devtool: 'source-map',
     resolve: {
-        alias: {'@': path.resolve(__dirname, 'src')},
+        alias: { '@': path.resolve(__dirname, 'src') },
         extensions: ['.ts', '.tsx', '.js', '.json'],
     },
     module: {
         rules: [
-            {test: /\.tsx?$/, loader: 'awesome-typescript-loader'},
-            {enforce: 'pre', test: /\.js$/, loader: 'source-map-loader'},
+            { test: /\.tsx?$/, loader: 'awesome-typescript-loader' },
+            { enforce: 'pre', test: /\.js$/, loader: 'source-map-loader' },
             // load styles from node_modules but leave them un-touched
             {
                 test: /\.css$/,
                 include: path.resolve(__dirname, 'node_modules'),
                 exclude: path.resolve(__dirname, 'src'),
-                use: [{loader: 'style-loader'}, {loader: 'css-loader'}],
+                use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
             },
             // load styles from sources and apply css modules to them
             {
                 test: /\.css$/,
                 exclude: path.resolve(__dirname, 'node_modules'),
                 use: [
-                    {loader: 'style-loader'},
+                    { loader: 'style-loader' },
                     {
                         loader: 'css-loader',
                         options: {
@@ -47,7 +47,7 @@ module.exports = {
             },
         ],
     },
-    plugins: [new HTMLWebpackPlugin({template: path.resolve(__dirname, 'src/index.html')})],
+    plugins: [new HTMLWebpackPlugin({ template: path.resolve(__dirname, 'src/index.html') })],
 
     // When importing a module whose path matches one of the following, just
     // assume a corresponding global variable exists and use that instead.
