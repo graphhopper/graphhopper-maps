@@ -1,31 +1,31 @@
 {
-  "compilerOptions": {
-    "outDir": "./dist/",
-    "sourceMap": true,
-    "noImplicitAny": true,
-    "jsx": "react",
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "importHelpers": true,
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "noImplicitReturns": true,
-    "strict": true,
-    "target": "ES2019",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
+    "compilerOptions": {
+        "outDir": "./dist/",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "jsx": "react",
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": ".",
+        "importHelpers": true,
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "noImplicitReturns": true,
+        "strict": true,
+        "target": "ES2019",
+        "paths": {
+            "@/*": [
+                "src/*"
+            ]
+        },
+        "lib": [
+            "ES2019",
+            "dom",
+            "dom.iterable"
+        ],
+        "esModuleInterop": true,
+        "resolveJsonModule": true
     },
-    "lib": [
-      "ES2019",
-      "dom",
-      "dom.iterable"
-    ],
-    "esModuleInterop": true,
-    "resolveJsonModule": true
-  },
-  "include": [
-    "./src/**/*"
-  ]
+    "include": [
+        "./src/**/*"
+    ]
 }

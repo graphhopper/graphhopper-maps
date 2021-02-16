@@ -1,9 +1,9 @@
 import React, {Component, useState} from 'react'
-import {Instruction, Path} from "@/routing/Api";
-import {getQueryStore, getRouteStore} from "@/stores/Stores";
-import {RouteStoreState} from "@/stores/RouteStore";
-import {QueryStoreState} from "@/stores/QueryStore";
-import Search from "@/Search";
+import {Instruction, Path} from '@/routing/Api'
+import {getQueryStore, getRouteStore} from '@/stores/Stores'
+import {RouteStoreState} from '@/stores/RouteStore'
+import {QueryStoreState} from '@/stores/QueryStore'
+import Search from '@/Search'
 
 const styles = require('./Sidebar.css')
 
@@ -15,12 +15,11 @@ interface SidebarState {
 }
 
 export default class Sidebar extends Component<{}, SidebarState> {
-
     private queryStore = getQueryStore()
     private routeStore = getRouteStore()
 
     constructor(props: {}) {
-        super(props);
+        super(props)
 
         this.queryStore.register(() => this.setState({queryState: this.queryStore.state}))
         this.routeStore.register(() => this.setState({routeState: this.routeStore.state}))
@@ -31,7 +30,6 @@ export default class Sidebar extends Component<{}, SidebarState> {
     }
 
     public render() {
-        
         return (
             <>
                 <Search points={this.state.queryState.queryPoints}/>
@@ -44,13 +42,16 @@ export default class Sidebar extends Component<{}, SidebarState> {
 const QueryResults = (props: { paths: Path[] }) => (
     <div className={styles.resultListContainer}>
         <ul className={styles.resultList}>
-            {props.paths.map((path, i) => <li key={i}><QueryResult path={path}/></li>)}
+            {props.paths.map((path, i) => (
+                <li key={i}>
+                    <QueryResult path={path}/>
+                </li>
+            ))}
         </ul>
     </div>
 )
 
 const QueryResult = (props: { path: Path }) => {
-
     const [isExpanded, setExpanded] = useState(false)
     const buttonText = isExpanded ? 'Hide' : 'Details'
 
@@ -61,7 +62,8 @@ const QueryResult = (props: { path: Path }) => {
                     <span>{distanceFormat.format(props.path.distance / 1000)}km</span>
                     <span>{milliSecondsToText(props.path.time)}</span>
                 </div>
-                <button className={styles.resultExpandDirections} onClick={() => setExpanded(!isExpanded)}>{buttonText}
+                <button className={styles.resultExpandDirections} onClick={() => setExpanded(!isExpanded)}>
+                    {buttonText}
                 </button>
             </div>
             {isExpanded && <Instructions instructions={props.path.instructions}/>}
@@ -71,13 +73,15 @@ const QueryResult = (props: { path: Path }) => {
 
 const Instructions = (props: { instructions: Instruction[] }) => (
     <ul className={styles.instructionsList}>
-        {props.instructions.map((instruction, i) => <li key={i}>{instruction.text}</li>)}
+        {props.instructions.map((instruction, i) => (
+            <li key={i}>{instruction.text}</li>
+        ))}
     </ul>
 )
 
 function milliSecondsToText(seconds: number) {
     const hours = Math.floor(seconds / 3600000)
-    const minutes = Math.floor(seconds % 3600000 / 60000)
+    const minutes = Math.floor((seconds % 3600000) / 60000)
 
     const hourText = hours > 0 ? hours + 'h' : ''
     return hourText + ' ' + minutes + 'min'

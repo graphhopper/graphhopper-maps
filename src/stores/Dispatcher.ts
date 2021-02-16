@@ -4,17 +4,14 @@ export interface Action {
 }
 
 export interface ActionReceiver {
-
     receive(action: Action): void
 }
 
 export interface NotifyStateChanged {
-
     register(callback: () => void): void
 }
 
 class Dispatcher {
-
     private receivers: ActionReceiver[] = []
 
     constructor() {

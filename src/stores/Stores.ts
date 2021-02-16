@@ -1,15 +1,15 @@
-import QueryStore from "@/stores/QueryStore";
-import RouteStore from "@/stores/RouteStore";
-import ApiInfoStore from "@/stores/ApiInfoStore";
+import QueryStore from '@/stores/QueryStore'
+import RouteStore from '@/stores/RouteStore'
+import ApiInfoStore from '@/stores/ApiInfoStore'
 
 let queryStore: QueryStore
-let routeStore : RouteStore
+let routeStore: RouteStore
 let infoStore: ApiInfoStore
 
 interface StoresInput {
-    queryStore: QueryStore,
-    routeStore: RouteStore,
-    infoStore: ApiInfoStore,
+    queryStore: QueryStore
+    routeStore: RouteStore
+    infoStore: ApiInfoStore
 }
 
 export const setStores = function (stores: StoresInput) {

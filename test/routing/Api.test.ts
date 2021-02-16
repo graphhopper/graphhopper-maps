@@ -1,8 +1,8 @@
 import fetchMock from 'jest-fetch-mock'
-import route, {info, InfoResult, RoutingArgs} from "@/routing/Api";
-import Dispatcher, {Action} from "../../src/stores/Dispatcher";
-import {RouteReceived} from "../../src/stores/RouteStore";
-import {InfoReceived} from "../../src/stores/ApiInfoStore";
+import route, {info, InfoResult, RoutingArgs} from '@/routing/Api'
+import Dispatcher, {Action} from '../../src/stores/Dispatcher'
+import {RouteReceived} from '../../src/stores/RouteStore'
+import {InfoReceived} from '../../src/stores/ApiInfoStore'
 
 // replace global 'fetch' method by fetchMock
 beforeAll(fetchMock.enableMocks)
@@ -16,20 +16,19 @@ afterEach(() => Dispatcher.clear())
 // disable fetchMock and restore global 'fetch' method
 afterAll(() => fetchMock.disableMocks())
 
-describe("info api", () => {
-    it("should query correct url and dispatch an InfoReceived action", async () => {
-
-        const key = "some-key"
-        const expectedUrl = "https://graphhopper.com/api/1/info?key=" + key
+describe('info api', () => {
+    it('should query correct url and dispatch an InfoReceived action', async () => {
+        const key = 'some-key'
+        const expectedUrl = 'https://graphhopper.com/api/1/info?key=' + key
         const result: InfoResult = {
             bbox: [0, 0, 0, 0],
             import_date: '',
             features: {},
-            version: ''
+            version: '',
         }
 
         fetchMock.mockResponse(request => {
-            expect(request.method).toEqual("GET")
+            expect(request.method).toEqual('GET')
             expect(request.url.toString()).toEqual(expectedUrl)
             expect(request.headers.get('Accept')).toEqual('application/json')
             return Promise.resolve(JSON.stringify(result))
@@ -39,19 +38,18 @@ describe("info api", () => {
             receive(action: Action) {
                 expect(action instanceof InfoReceived).toBeTruthy()
                 expect((action as InfoReceived).result).toEqual(result)
-            }
+            },
         })
 
         await info(key)
     })
 })
 
-describe("route api", () => {
-
-    it("should use POST as method as default", async () => {
-
+describe('route api', () => {
+    it('should use POST as method as default', async () => {
         const args: RoutingArgs = {
-            key: "", points: []
+            key: '',
+            points: [],
         }
 
         fetchMock.mockResponse(request => {
@@ -62,19 +60,19 @@ describe("route api", () => {
         await route(args)
     })
 
-    it("should set default request parameters if none are provided", async () => {
-
+    it('should set default request parameters if none are provided', async () => {
         const args: RoutingArgs = {
-            key: "", points: []
+            key: '',
+            points: [],
         }
 
         const expectedBody = {
-            vehicle: "car",
+            vehicle: 'car',
             elevation: false,
             debug: false,
             instructions: true,
-            locale: "en",
-            optimize: "false",
+            locale: 'en',
+            optimize: 'false',
             points_encoded: true,
             points: args.points,
         }
@@ -89,16 +87,15 @@ describe("route api", () => {
         await route(args)
     })
 
-    it("should keep parameters if provided ", async () => {
-
+    it('should keep parameters if provided ', async () => {
         const args: RoutingArgs = {
-            key: "",
+            key: '',
             points: [],
-            vehicle: "not-default",
+            vehicle: 'not-default',
             elevation: true,
             debug: true,
             instructions: false,
-            locale: "not-en",
+            locale: 'not-en',
             optimize: true,
             points_encoded: false,
         }
@@ -109,7 +106,7 @@ describe("route api", () => {
             debug: args.debug,
             instructions: args.instructions,
             locale: args.locale,
-            optimize: (args.optimize) ? args.optimize.toString() : "this will not happen",
+            optimize: args.optimize ? args.optimize.toString() : 'this will not happen',
             points_encoded: args.points_encoded,
             points: args.points,
         }
@@ -124,40 +121,47 @@ describe("route api", () => {
         await route(args)
     })
 
-    it("should use provided host and base path", async () => {
-
+    it('should use provided host and base path', async () => {
         const args: RoutingArgs = {
-            basePath: "some-base-path",
-            host: "http://some-host.com/",
-            key: "some-key",
-            points: [[0, 0], [1, 1]]
+            basePath: 'some-base-path',
+            host: 'http://some-host.com/',
+            key: 'some-key',
+            points: [
+                [0, 0],
+                [1, 1],
+            ],
         }
 
-        const expectedURL = new URL(args.host as string + args.basePath)
-        expectedURL.searchParams.append("key", args.key)
-        mockFetchWithExpectedURL(expectedURL, "application/json", {paths: []})
+        const expectedURL = new URL((args.host as string) + args.basePath)
+        expectedURL.searchParams.append('key', args.key)
+        mockFetchWithExpectedURL(expectedURL, 'application/json', {paths: []})
 
         await route(args)
     })
 
-    it("should use default host, default base path, and default data_type", async () => {
-
+    it('should use default host, default base path, and default data_type', async () => {
         const args: RoutingArgs = {
-            key: "some-key",
-            points: [[0, 0], [1, 1]]
+            key: 'some-key',
+            points: [
+                [0, 0],
+                [1, 1],
+            ],
         }
 
         const expectedURL = createDefaultURL(args.key)
-        mockFetchWithExpectedURL(expectedURL, "application/json", {paths: []})
+        mockFetchWithExpectedURL(expectedURL, 'application/json', {paths: []})
 
         await route(args)
     })
 
-    it("should use provided data type", async () => {
+    it('should use provided data type', async () => {
         const args: RoutingArgs = {
-            key: "some-key",
-            points: [[0, 0], [1, 1]],
-            data_type: 'my-data-type'
+            key: 'some-key',
+            points: [
+                [0, 0],
+                [1, 1],
+            ],
+            data_type: 'my-data-type',
         }
 
         mockFetchWithExpectedURL(createDefaultURL(args.key), args.data_type as string, {paths: []})
@@ -165,30 +169,31 @@ describe("route api", () => {
         await route(args)
     })
 
-    it("should create an action when a response is received", async () => {
-
+    it('should create an action when a response is received', async () => {
         const args: RoutingArgs = {
-            key: "some-key",
-            points: [[0, 0], [1, 1]],
-            data_type: 'my-data-type'
+            key: 'some-key',
+            points: [
+                [0, 0],
+                [1, 1],
+            ],
+            data_type: 'my-data-type',
         }
 
         mockFetchWithExpectedURL(createDefaultURL(args.key), args.data_type as string, {paths: []})
 
         Dispatcher.register({
             receive(action: Action) {
-
                 expect(action instanceof RouteReceived).toBeTruthy()
                 expect((action as RouteReceived).result.paths.length).toEqual(0)
-            }
+            },
         })
 
         await route(args)
     })
 
     function createDefaultURL(key: string) {
-        const url = new URL("https://graphhopper.com/api/1" + "/route")
-        url.searchParams.append("key", key)
+        const url = new URL('https://graphhopper.com/api/1' + '/route')
+        url.searchParams.append('key', key)
         return url
     }
 
@@ -200,4 +205,3 @@ describe("route api", () => {
         })
     }
 })
-

@@ -1,14 +1,13 @@
 import React from 'react'
-import Mapbox from "@/Mapbox";
-import Dispatcher from "@/stores/Dispatcher";
-import {ClearPoints, Coordinate, QueryPoint, SetPointFromCoordinate} from "@/stores/QueryStore";
-import {getApiInfoStore, getQueryStore, getRouteStore} from "@/stores/Stores";
-import {ClearRoute} from "@/stores/RouteStore";
+import Mapbox from '@/Mapbox'
+import Dispatcher from '@/stores/Dispatcher'
+import {ClearPoints, Coordinate, QueryPoint, SetPointFromCoordinate} from '@/stores/QueryStore'
+import {getApiInfoStore, getQueryStore, getRouteStore} from '@/stores/Stores'
+import {ClearRoute} from '@/stores/RouteStore'
 
 const styles = require('./MapComponent.css') as any
 
 export class MapComponent extends React.Component {
-
     private queryStore = getQueryStore()
     private routeStore = getRouteStore()
     private infoStore = getApiInfoStore()
@@ -26,13 +25,10 @@ export class MapComponent extends React.Component {
     }
 
     private static convertToMarkerPoints(queryPoints: QueryPoint[]): [number, number][] {
-        return queryPoints
-            .filter(point => point.isInitialized)
-            .map(point => [point.point.lng, point.point.lat])
+        return queryPoints.filter(point => point.isInitialized).map(point => [point.point.lng, point.point.lat])
     }
 
     public async componentDidMount() {
-
         if (!this.mapContainer.current) throw new Error('map div was not set!')
 
         this.map = new Mapbox(
@@ -53,7 +49,6 @@ export class MapComponent extends React.Component {
     }
 
     private onQueryChanged() {
-
         const points = MapComponent.convertToMarkerPoints(this.queryStore.state.queryPoints)
         this.map.updatePoints(points)
     }
@@ -64,9 +59,7 @@ export class MapComponent extends React.Component {
     }
 
     public render() {
-        return (
-            <div className={styles.map} ref={this.mapContainer}/>
-        )
+        return <div className={styles.map} ref={this.mapContainer}/>
     }
 
     private onInfoChanged() {
@@ -89,8 +82,7 @@ export class MapComponent extends React.Component {
     }
 
     private fitToExtentIfNecessary(bbox: [number, number, number, number]) {
-        if (MapComponent.shouldFitToExtent(bbox))
-            this.map.fitToExtent(bbox)
+        if (MapComponent.shouldFitToExtent(bbox)) this.map.fitToExtent(bbox)
     }
 
     private static shouldFitToExtent(bbox: [number, number, number, number]) {

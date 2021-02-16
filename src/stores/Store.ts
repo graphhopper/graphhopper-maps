@@ -1,8 +1,7 @@
-import {Action, ActionReceiver, NotifyStateChanged} from "@/stores/Dispatcher";
+import {Action, ActionReceiver, NotifyStateChanged} from '@/stores/Dispatcher'
 
 export default abstract class Store<TState> implements ActionReceiver, NotifyStateChanged {
-
-    private _subscriptions: { (): void } [] = []
+    private _subscriptions: { (): void }[] = []
 
     constructor() {
         this._state = this.getInitialState()
