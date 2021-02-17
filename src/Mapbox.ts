@@ -3,6 +3,8 @@ import * as mapbox from 'mapbox-gl'
 import { GeoJSONSource } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
+import dot from '@/img/dot.svg'
+
 const lineSourceKey = 'route'
 const pointsSourceKey = 'query'
 const lineLayerKey = 'lines'
@@ -24,6 +26,12 @@ export default class Mapbox {
             center: [0, 0],
             zoom: 0,
         })
+
+        // add a marker for the start and the end of a route
+        let img = new Image(20, 20)
+        img.src = dot
+        img.onload = () => this.map.addImage('dot', img)
+
         this.map.on('load', () => {
             this.initLineLayer()
             this.initPointsLayer()
@@ -110,12 +118,19 @@ export default class Mapbox {
         })
         this.map.addLayer({
             id: pointsLayerKey,
-            type: 'circle',
+            // type: 'circle',
+            type: 'symbol',
             source: pointsSourceKey,
-            paint: {
+            layout: {
+                'icon-image': 'dot',
+                'icon-size': 1,
+            },
+            /*paint: {
                 'circle-radius': 6,
                 'circle-color': '#B42222',
             },
+
+             */
             filter: ['==', '$type', 'Point'],
         })
     }
