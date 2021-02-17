@@ -3,8 +3,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { InvalidatePoint, QueryPoint, SetPointFromAddress } from '@/stores/QueryStore'
 import { geocode, GeocodingHit } from '@/routing/Api'
 import { ClearRoute } from '@/stores/RouteStore'
-
-const styles = require('./Search.css')
+import styles from '@/Search.module.css'
 
 interface Query {
     point: QueryPoint

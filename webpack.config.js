@@ -16,13 +16,14 @@ module.exports = {
     devtool: 'source-map',
     resolve: {
         alias: { '@': path.resolve(__dirname, 'src') },
-        extensions: ['.ts', '.tsx', '.js', '.json'],
+        extensions: ['.ts', '.tsx', '.js', '.json', '.css', '.svg'],
     },
     module: {
         rules: [
             { test: /\.tsx?$/, loader: 'awesome-typescript-loader' },
             { enforce: 'pre', test: /\.js$/, loader: 'source-map-loader' },
             // load styles from node_modules but leave them un-touched
+            // this is important for mapbox-gl
             {
                 test: /\.css$/,
                 include: path.resolve(__dirname, 'node_modules'),
@@ -38,9 +39,7 @@ module.exports = {
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
                             modules: true,
-                            localIdentName: '[name]__[local]__[hash:base64:5]',
                         },
                     },
                 ],

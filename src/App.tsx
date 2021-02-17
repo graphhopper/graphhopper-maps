@@ -2,7 +2,7 @@ import React from 'react'
 import { MapComponent } from '@/MapComponent'
 import Sidebar from '@/Sidebar'
 
-const styles = require('./App.css')
+import styles from './App.module.css'
 
 export default function App() {
     return (

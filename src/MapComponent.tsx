@@ -5,7 +5,7 @@ import { ClearPoints, Coordinate, QueryPoint, SetPointFromCoordinate } from '@/s
 import { getApiInfoStore, getQueryStore, getRouteStore } from '@/stores/Stores'
 import { ClearRoute } from '@/stores/RouteStore'
 
-const styles = require('./MapComponent.css') as any
+import styles from '@/MapComponent.module.css'
 
 export class MapComponent extends React.Component {
     private queryStore = getQueryStore()
