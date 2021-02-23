@@ -1,20 +1,19 @@
 // import mapbox like this instead of {Map} from 'mapbox-gl' because otherwise the app is missing some global mapbox state
 import * as mapbox from 'mapbox-gl'
-import { GeoJSONSource } from 'mapbox-gl'
+import { GeoJSONSource, Marker } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
-import dot from '@/img/dot.svg'
+import dot from '@/img/red-dot.svg'
 
 const lineSourceKey = 'route'
-const pointsSourceKey = 'query'
 const lineLayerKey = 'lines'
-const pointsLayerKey = 'points'
 
 // have this right here for now. Not sure if this needs to be abstracted somewhere else
 const mediaQuery = window.matchMedia('(max-width: 640px)')
 
 export default class Mapbox {
-    private map: mapbox.Map
+    private readonly map: mapbox.Map
+    private markers: Marker[] = []
     private mapReady = false
 
     constructor(container: HTMLDivElement, onClick: (coordinate: [number, number]) => void, onReady: () => void) {
@@ -34,7 +33,6 @@ export default class Mapbox {
 
         this.map.on('load', () => {
             this.initLineLayer()
-            this.initPointsLayer()
             this.mapReady = true
             onReady()
         })
@@ -62,12 +60,11 @@ export default class Mapbox {
     }
 
     public updatePoints(points: [number, number][]) {
-        // this resets everything all the time. maybe keep a reference and only exchange the coordinates of the Feature
-        // if this yields bad performance
-        this.addPoints({
-            type: 'MultiPoint',
-            coordinates: points,
-        })
+        if (!this.mapReady) return
+
+        this.markers.forEach(marker => marker.remove())
+        this.markers = points.map(point => new Marker().setLngLat(point))
+        this.markers.forEach(marker => marker.addTo(this.map))
     }
 
     public fitToExtent(extent: [number, number, number, number]) {
@@ -104,59 +101,11 @@ export default class Mapbox {
         })
     }
 
-    private initPointsLayer() {
-        this.map.addSource(pointsSourceKey, {
-            type: 'geojson',
-            data: {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'Point',
-                    coordinates: [],
-                },
-            },
-        })
-        this.map.addLayer({
-            id: pointsLayerKey,
-            // type: 'circle',
-            type: 'symbol',
-            source: pointsSourceKey,
-            layout: {
-                'icon-image': 'dot',
-                'icon-size': 1,
-            },
-            /*paint: {
-                'circle-radius': 6,
-                'circle-color': '#B42222',
-            },
-
-             */
-            filter: ['==', '$type', 'Point'],
-        })
-    }
-
     private removeLine() {
         if (!this.mapReady) return
         ;(this.map.getSource(lineSourceKey) as GeoJSONSource).setData({
             features: [],
             type: 'FeatureCollection',
-        })
-    }
-
-    private addPoints(points: { type: string; coordinates: number[][] }) {
-        if (!this.mapReady) return
-        ;(this.map.getSource(pointsSourceKey) as GeoJSONSource).setData({
-            type: 'FeatureCollection',
-            features: [
-                {
-                    type: 'Feature',
-                    properties: {},
-                    geometry: {
-                        type: 'MultiPoint',
-                        coordinates: points.coordinates,
-                    },
-                },
-            ],
         })
     }
 
