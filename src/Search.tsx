@@ -17,6 +17,7 @@ export default function Search({ points }: { points: QueryPoint[] }) {
             point: { lat: 0, lng: 0 },
             isInitialized: false,
             id: -1,
+            color: '',
         },
         text: '',
     })
@@ -55,46 +56,59 @@ export default function Search({ points }: { points: QueryPoint[] }) {
     return (
         <div className={searchBoxStyle(geocodingHits)}>
             {points.map(point => (
-                <div key={point.id} className={styles.searchBoxContainer}>
-                    <SearchBox
-                        point={point}
-                        onChange={text => {
-                            Dispatcher.dispatch(new ClearRoute())
-                            Dispatcher.dispatch(new InvalidatePoint(point))
-                            setQuery({ point: point, text: text })
-                        }}
-                    />
-                    {points.length > 2 && (
-                        <button
-                            onClick={() => Dispatcher.dispatch(new RemovePoint(point))}
-                            className={styles.removeSearchBox}
-                        >
-                            X
-                        </button>
-                    )}
-                </div>
+                <SearchBox
+                    key={point.id}
+                    point={point}
+                    deletable={points.length > 2}
+                    onChange={text => {
+                        Dispatcher.dispatch(new ClearRoute())
+                        Dispatcher.dispatch(new InvalidatePoint(point))
+                        setQuery({ point: point, text: text })
+                    }}
+                />
             ))}
-            <button onClick={() => Dispatcher.dispatch(new AddPoint())}>Add Destination</button>
+            {
+                // current limit of the api is 5 points
+                points.length < 5 && (
+                    <button onClick={() => Dispatcher.dispatch(new AddPoint())}>Add Destination</button>
+                )
+            }
             <GeocodingResults hits={geocodingHits} onSelectHit={handleHitSelected} />
         </div>
     )
 }
 
-const SearchBox = ({ point, onChange }: { point: QueryPoint; onChange: (value: string) => void }) => {
+const SearchBox = ({
+    point,
+    onChange,
+    deletable,
+}: {
+    point: QueryPoint
+    deletable: boolean
+    onChange: (value: string) => void
+}) => {
     const [text, setText] = useState(point.queryText)
     useEffect(() => setText(point.queryText), [point.queryText])
 
     return (
-        <input
-            type="text"
-            className={styles.searchBoxInput}
-            value={text}
-            placeholder="Click on map to select a location"
-            onChange={e => {
-                setText(e.target.value)
-                onChange(e.target.value)
-            }}
-        />
+        <div className={styles.searchBoxContainer}>
+            <div className={styles.dot} style={{ backgroundColor: point.color }} />
+            <input
+                type="text"
+                className={styles.searchBoxInput}
+                value={text}
+                placeholder="Click on map to select a location"
+                onChange={e => {
+                    setText(e.target.value)
+                    onChange(e.target.value)
+                }}
+            />
+            {deletable && (
+                <button onClick={() => Dispatcher.dispatch(new RemovePoint(point))} className={styles.removeSearchBox}>
+                    X
+                </button>
+            )}
+        </div>
     )
 }
 

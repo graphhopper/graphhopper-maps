@@ -71,24 +71,17 @@ export default class Mapbox {
             .filter(indexPoint => indexPoint.point.isInitialized)
             .map(indexPoint =>
                 new Marker({
-                    color: Mapbox.getMarkerColor(indexPoint.index, points.length),
+                    color: indexPoint.point.color,
                     draggable: true,
                 })
                     .setLngLat(indexPoint.point.point)
                     .on('dragend', (e: { type: string; target: Marker }) => {
                         const marker = e.target
                         const coords = marker.getLngLat()
-                        console.log(coords)
                         Dispatcher.dispatch(new SetPointFromCoordinate(coords, indexPoint.point))
                     })
             )
         this.markers.forEach(marker => marker.addTo(this.map))
-    }
-
-    static getMarkerColor(index: number, length: number) {
-        if (index === 0) return '#417900'
-        if (index === length - 1) return '#F97777'
-        return ''
     }
 
     public fitToExtent(extent: [number, number, number, number]) {

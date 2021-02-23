@@ -54,10 +54,11 @@ export interface QueryStoreState {
 }
 
 export interface QueryPoint {
-    point: Coordinate
-    queryText: string
-    isInitialized: boolean // don't know about this flag yet
-    id: number
+    readonly point: Coordinate
+    readonly queryText: string
+    readonly isInitialized: boolean // don't know about this flag yet
+    readonly color: string
+    readonly id: number
 }
 
 // noinspection JSIgnoredPromiseFromCall
@@ -88,6 +89,12 @@ export default class QueryStore extends Store<QueryStoreState> {
         return hit.country ? hit.country : ''
     }
 
+    static getMarkerColor(index: number, length: number) {
+        if (index === 0) return '#417900'
+        if (index === length - 1) return '#F97777'
+        return '#76D0F7'
+    }
+
     private static setPoint(queryPoints: QueryPoint[], newPoint: QueryPoint) {
         const index = queryPoints.findIndex(point => point.id === newPoint.id)
         const newPoints = queryPoints.slice()
@@ -106,18 +113,22 @@ export default class QueryStore extends Store<QueryStoreState> {
         }
     }
 
-    private static getEmptyPoint(id: number): QueryPoint {
+    private static getEmptyPoint(id: number, color: string): QueryPoint {
         return {
             isInitialized: false,
             queryText: '',
             point: { lng: 0, lat: 0 },
             id: id,
+            color: color,
         }
     }
 
     protected getInitialState(): QueryStoreState {
         return {
-            queryPoints: [QueryStore.getEmptyPoint(0), QueryStore.getEmptyPoint(1)],
+            queryPoints: [
+                QueryStore.getEmptyPoint(0, QueryStore.getMarkerColor(0, 2)),
+                QueryStore.getEmptyPoint(1, QueryStore.getMarkerColor(1, 2)),
+            ],
             nextId: 2,
             routingArgs: {
                 points: [],
@@ -133,6 +144,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 id: action.point.id,
                 isInitialized: true,
                 point: action.coordinate,
+                color: action.point.color,
                 queryText: action.coordinate.lng + ', ' + action.coordinate.lat,
             })
             return {
@@ -145,6 +157,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 id: action.point.id,
                 isInitialized: true,
                 point: action.hit.point,
+                color: action.point.color,
                 queryText: QueryStore.convertToQueryText(action.hit),
             })
             return {
@@ -161,7 +174,9 @@ export default class QueryStore extends Store<QueryStoreState> {
                 queryPoints: points,
             }
         } else if (action instanceof ClearPoints) {
-            const newPoints = state.queryPoints.map((point, i) => QueryStore.getEmptyPoint(state.nextId + i))
+            const newPoints = state.queryPoints.map((point, i) =>
+                QueryStore.getEmptyPoint(state.nextId + i, QueryStore.getMarkerColor(i, state.queryPoints.length))
+            )
 
             return {
                 ...state,
@@ -169,10 +184,13 @@ export default class QueryStore extends Store<QueryStoreState> {
                 queryPoints: newPoints,
             }
         } else if (action instanceof AddPoint) {
-            // const newPoints = Array.from(state.queryPoints)
-            // newPoints.push(QueryStore.getEmptyPoint(state.nextId))
-
-            const points = QueryStore.setPoint(state.queryPoints, QueryStore.getEmptyPoint(state.nextId))
+            const points = QueryStore.setPoint(
+                state.queryPoints,
+                QueryStore.getEmptyPoint(
+                    state.nextId,
+                    QueryStore.getMarkerColor(state.queryPoints.length - 1, state.queryPoints.length)
+                )
+            )
             return {
                 ...state,
                 nextId: state.nextId + 1,
