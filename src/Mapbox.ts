@@ -2,8 +2,8 @@
 import * as mapbox from 'mapbox-gl'
 import { GeoJSONSource, Marker } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-
-import dot from '@/img/red-dot.svg'
+import { Coordinate, QueryPoint, SetPointFromCoordinate } from '@/stores/QueryStore'
+import Dispatcher from '@/stores/Dispatcher'
 
 const lineSourceKey = 'route'
 const lineLayerKey = 'lines'
@@ -13,10 +13,15 @@ const mediaQuery = window.matchMedia('(max-width: 640px)')
 
 export default class Mapbox {
     private readonly map: mapbox.Map
+    private readonly onCoordinateSelected: (coordinate: Coordinate) => void
     private markers: Marker[] = []
     private mapReady = false
 
-    constructor(container: HTMLDivElement, onClick: (coordinate: [number, number]) => void, onReady: () => void) {
+    constructor(
+        container: HTMLDivElement,
+        onCoordinateSelected: (coordinate: Coordinate) => void,
+        onReady: () => void
+    ) {
         this.map = new mapbox.Map({
             accessToken:
                 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
@@ -25,18 +30,14 @@ export default class Mapbox {
             center: [0, 0],
             zoom: 0,
         })
-
-        // add a marker for the start and the end of a route
-        let img = new Image(20, 20)
-        img.src = dot
-        img.onload = () => this.map.addImage('dot', img)
+        this.onCoordinateSelected = onCoordinateSelected
 
         this.map.on('load', () => {
             this.initLineLayer()
             this.mapReady = true
             onReady()
         })
-        this.map.on('click', e => onClick([e.lngLat.lng, e.lngLat.lat]))
+        this.map.on('click', e => onCoordinateSelected(e.lngLat))
     }
 
     private static getPadding() {
@@ -59,12 +60,30 @@ export default class Mapbox {
         this.map.resize()
     }
 
-    public updatePoints(points: [number, number][]) {
+    public updateQueryPoints(points: QueryPoint[]) {
         if (!this.mapReady) return
 
         this.markers.forEach(marker => marker.remove())
-        this.markers = points.map(point => new Marker().setLngLat(point))
+        this.markers = points.map((point, i) =>
+            new Marker({
+                color: Mapbox.getMarkerColor(i, points.length),
+                draggable: true,
+            })
+                .setLngLat(point.point)
+                .on('dragend', (e: { type: string; target: Marker }) => {
+                    const marker = e.target
+                    const coords = marker.getLngLat()
+                    console.log(coords)
+                    Dispatcher.dispatch(new SetPointFromCoordinate(coords, point))
+                })
+        )
         this.markers.forEach(marker => marker.addTo(this.map))
+    }
+
+    static getMarkerColor(index: number, length: number) {
+        if (index === 0) return '#417900'
+        if (index === length - 1) return '#F97777'
+        return ''
     }
 
     public fitToExtent(extent: [number, number, number, number]) {

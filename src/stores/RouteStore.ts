@@ -1,6 +1,7 @@
 import { Path, RoutingResult } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
+import { SetPointFromAddress, SetPointFromCoordinate } from '@/stores/QueryStore'
 
 export class RouteReceived implements Action {
     readonly result: RoutingResult
@@ -47,8 +48,12 @@ export default class RouteStore extends Store<RouteStoreState> {
     protected reduce(state: RouteStoreState, action: Action): RouteStoreState {
         if (action instanceof RouteReceived) {
             return this.handleRouteReceived(state, action)
-        } else if (action instanceof ClearRoute) {
-            return this.getInitialState() // clear the current path
+        } else if (
+            action instanceof SetPointFromCoordinate ||
+            action instanceof SetPointFromAddress ||
+            action instanceof ClearRoute
+        ) {
+            return this.getInitialState()
         }
         return state
     }

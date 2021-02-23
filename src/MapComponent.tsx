@@ -1,9 +1,8 @@
 import React from 'react'
 import Mapbox from '@/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, Coordinate, QueryPoint, SetPointFromCoordinate } from '@/stores/QueryStore'
+import { ClearPoints, Coordinate, SetPointFromCoordinate } from '@/stores/QueryStore'
 import { getApiInfoStore, getQueryStore, getRouteStore } from '@/stores/Stores'
-import { ClearRoute } from '@/stores/RouteStore'
 
 import styles from '@/MapComponent.module.css'
 
@@ -24,21 +23,16 @@ export class MapComponent extends React.Component {
         this.infoStore.register(() => this.onInfoChanged())
     }
 
-    private static convertToMarkerPoints(queryPoints: QueryPoint[]): [number, number][] {
-        return queryPoints.filter(point => point.isInitialized).map(point => [point.point.lng, point.point.lat])
-    }
-
     public async componentDidMount() {
         if (!this.mapContainer.current) throw new Error('map div was not set!')
 
         this.map = new Mapbox(
             this.mapContainer.current,
-            coordinate => this.setQueryPoint({ lng: coordinate[0], lat: coordinate[1] }),
+            coordinate => this.setQueryPoint(coordinate),
             () => {
                 // in case we get a query from a url display it on the map as soon as it is ready
 
-                const points = MapComponent.convertToMarkerPoints(this.queryStore.state.queryPoints)
-                this.map.updatePoints(points)
+                this.map.updateQueryPoints(this.queryStore.state.queryPoints.filter(point => point.isInitialized))
                 this.map.updateRoute(this.routeStore.state.selectedPath.points)
                 this.fitToExtentIfNecessary(this.routeStore.state.selectedPath.bbox)
             }
@@ -49,8 +43,7 @@ export class MapComponent extends React.Component {
     }
 
     private onQueryChanged() {
-        const points = MapComponent.convertToMarkerPoints(this.queryStore.state.queryPoints)
-        this.map.updatePoints(points)
+        this.map.updateQueryPoints(this.queryStore.state.queryPoints.filter(point => point.isInitialized))
     }
 
     private onRouteChanged() {
@@ -97,6 +90,6 @@ export class MapComponent extends React.Component {
             point = this.queryStore.state.queryPoints.find(point => !point.isInitialized)
         }
         Dispatcher.dispatch(new SetPointFromCoordinate(coordinate, point!))
-        Dispatcher.dispatch(new ClearRoute())
+        //Dispatcher.dispatch(new ClearRoute())
     }
 }
