@@ -1,3 +1,9 @@
+.searchBoxContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
 .searchBox {
     display: flex;
     flex-direction: column;
@@ -12,6 +18,7 @@
 .searchBoxInput {
     height: 2rem;
     font-size: 1rem;
+    flex-grow: 1;
 }
 
 .selectableGeocodingEntry {

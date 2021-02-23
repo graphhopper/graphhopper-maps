@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { InvalidatePoint, QueryPoint, SetPointFromAddress } from '@/stores/QueryStore'
+import { AddPoint, InvalidatePoint, QueryPoint, RemovePoint, SetPointFromAddress } from '@/stores/QueryStore'
 import { geocode, GeocodingHit } from '@/routing/Api'
 import { ClearRoute } from '@/stores/RouteStore'
 import styles from '@/Search.module.css'
@@ -55,16 +55,26 @@ export default function Search({ points }: { points: QueryPoint[] }) {
     return (
         <div className={searchBoxStyle(geocodingHits)}>
             {points.map(point => (
-                <SearchBox
-                    key={point.id}
-                    point={point}
-                    onChange={text => {
-                        Dispatcher.dispatch(new ClearRoute())
-                        Dispatcher.dispatch(new InvalidatePoint(point))
-                        setQuery({ point: point, text: text })
-                    }}
-                />
+                <div key={point.id} className={styles.searchBoxContainer}>
+                    <SearchBox
+                        point={point}
+                        onChange={text => {
+                            Dispatcher.dispatch(new ClearRoute())
+                            Dispatcher.dispatch(new InvalidatePoint(point))
+                            setQuery({ point: point, text: text })
+                        }}
+                    />
+                    {points.length > 2 && (
+                        <button
+                            onClick={() => Dispatcher.dispatch(new RemovePoint(point))}
+                            className={styles.removeSearchBox}
+                        >
+                            X
+                        </button>
+                    )}
+                </div>
             ))}
+            <button onClick={() => Dispatcher.dispatch(new AddPoint())}>Add Destination</button>
             <GeocodingResults hits={geocodingHits} onSelectHit={handleHitSelected} />
         </div>
     )

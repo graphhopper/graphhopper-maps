@@ -64,19 +64,24 @@ export default class Mapbox {
         if (!this.mapReady) return
 
         this.markers.forEach(marker => marker.remove())
-        this.markers = points.map((point, i) =>
-            new Marker({
-                color: Mapbox.getMarkerColor(i, points.length),
-                draggable: true,
+        this.markers = points
+            .map((point, i) => {
+                return { index: i, point: point }
             })
-                .setLngLat(point.point)
-                .on('dragend', (e: { type: string; target: Marker }) => {
-                    const marker = e.target
-                    const coords = marker.getLngLat()
-                    console.log(coords)
-                    Dispatcher.dispatch(new SetPointFromCoordinate(coords, point))
+            .filter(indexPoint => indexPoint.point.isInitialized)
+            .map(indexPoint =>
+                new Marker({
+                    color: Mapbox.getMarkerColor(indexPoint.index, points.length),
+                    draggable: true,
                 })
-        )
+                    .setLngLat(indexPoint.point.point)
+                    .on('dragend', (e: { type: string; target: Marker }) => {
+                        const marker = e.target
+                        const coords = marker.getLngLat()
+                        console.log(coords)
+                        Dispatcher.dispatch(new SetPointFromCoordinate(coords, indexPoint.point))
+                    })
+            )
         this.markers.forEach(marker => marker.addTo(this.map))
     }
 

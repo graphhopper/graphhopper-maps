@@ -2,11 +2,6 @@ import route, { GeocodingHit, ghKey, RoutingArgs } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 
-export interface Coordinate {
-    lat: number
-    lng: number
-}
-
 export class SetPointFromCoordinate implements Action {
     readonly coordinate: Coordinate
     readonly point: QueryPoint
@@ -27,7 +22,17 @@ export class SetPointFromAddress implements Action {
     }
 }
 
+export class AddPoint implements Action {}
+
 export class ClearPoints implements Action {}
+
+export class RemovePoint implements Action {
+    readonly point: QueryPoint
+
+    constructor(point: QueryPoint) {
+        this.point = point
+    }
+}
 
 export class InvalidatePoint implements Action {
     readonly point: QueryPoint
@@ -37,9 +42,15 @@ export class InvalidatePoint implements Action {
     }
 }
 
+export interface Coordinate {
+    lat: number
+    lng: number
+}
+
 export interface QueryStoreState {
-    queryPoints: QueryPoint[]
-    routingArgs: RoutingArgs
+    readonly queryPoints: QueryPoint[]
+    readonly nextId: number
+    readonly routingArgs: RoutingArgs
 }
 
 export interface QueryPoint {
@@ -77,18 +88,21 @@ export default class QueryStore extends Store<QueryStoreState> {
         return hit.country ? hit.country : ''
     }
 
-    private static setPoint(state: QueryStoreState, newPoint: QueryPoint) {
-        const newPoints = Array.from(state.queryPoints)
-        newPoints[newPoint.id] = newPoint
+    private static setPoint(queryPoints: QueryPoint[], newPoint: QueryPoint) {
+        const index = queryPoints.findIndex(point => point.id === newPoint.id)
+        const newPoints = queryPoints.slice()
 
-        if (newPoints.every(point => point.isInitialized)) {
-            const rawPoints = newPoints.map(point => [point.point.lng, point.point.lat]) as [number, number][]
+        if (index === -1) newPoints.push(newPoint)
+        else newPoints[index] = newPoint
+
+        this.routeIfAllPointsSet(newPoints)
+        return newPoints
+    }
+
+    private static routeIfAllPointsSet(points: QueryPoint[]) {
+        if (points.every(point => point.isInitialized)) {
+            const rawPoints = points.map(point => [point.point.lng, point.point.lat]) as [number, number][]
             route({ points: rawPoints, key: ghKey, points_encoded: false })
-        }
-
-        return {
-            ...state,
-            queryPoints: newPoints,
         }
     }
 
@@ -104,6 +118,7 @@ export default class QueryStore extends Store<QueryStoreState> {
     protected getInitialState(): QueryStoreState {
         return {
             queryPoints: [QueryStore.getEmptyPoint(0), QueryStore.getEmptyPoint(1)],
+            nextId: 2,
             routingArgs: {
                 points: [],
                 key: ghKey,
@@ -114,27 +129,59 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     protected reduce(state: QueryStoreState, action: Action): QueryStoreState {
         if (action instanceof SetPointFromCoordinate) {
-            return QueryStore.setPoint(state, {
+            const points = QueryStore.setPoint(state.queryPoints, {
                 id: action.point.id,
                 isInitialized: true,
                 point: action.coordinate,
                 queryText: action.coordinate.lng + ', ' + action.coordinate.lat,
             })
+            return {
+                ...state,
+                queryPoints: points,
+            }
         } else if (action instanceof SetPointFromAddress) {
-            return QueryStore.setPoint(state, {
+            const points = QueryStore.setPoint(state.queryPoints, {
                 // taking the index from the point could be more robust, but since the ids are set in here, this does the job
                 id: action.point.id,
                 isInitialized: true,
                 point: action.hit.point,
                 queryText: QueryStore.convertToQueryText(action.hit),
             })
+            return {
+                ...state,
+                queryPoints: points,
+            }
         } else if (action instanceof InvalidatePoint) {
-            return QueryStore.setPoint(state, {
+            const points = QueryStore.setPoint(state.queryPoints, {
                 ...action.point,
                 isInitialized: false,
             })
+            return {
+                ...state,
+                queryPoints: points,
+            }
         } else if (action instanceof ClearPoints) {
-            const newPoints = state.queryPoints.map((point, i) => QueryStore.getEmptyPoint(i))
+            const newPoints = state.queryPoints.map((point, i) => QueryStore.getEmptyPoint(state.nextId + i))
+
+            return {
+                ...state,
+                nextId: state.nextId + newPoints.length,
+                queryPoints: newPoints,
+            }
+        } else if (action instanceof AddPoint) {
+            // const newPoints = Array.from(state.queryPoints)
+            // newPoints.push(QueryStore.getEmptyPoint(state.nextId))
+
+            const points = QueryStore.setPoint(state.queryPoints, QueryStore.getEmptyPoint(state.nextId))
+            return {
+                ...state,
+                nextId: state.nextId + 1,
+                queryPoints: points,
+            }
+        } else if (action instanceof RemovePoint) {
+            const newPoints = state.queryPoints.filter(point => point.id !== action.point.id)
+
+            QueryStore.routeIfAllPointsSet(newPoints)
 
             return {
                 ...state,

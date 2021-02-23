@@ -32,7 +32,7 @@ export class MapComponent extends React.Component {
             () => {
                 // in case we get a query from a url display it on the map as soon as it is ready
 
-                this.map.updateQueryPoints(this.queryStore.state.queryPoints.filter(point => point.isInitialized))
+                this.map.updateQueryPoints(this.queryStore.state.queryPoints)
                 this.map.updateRoute(this.routeStore.state.selectedPath.points)
                 this.fitToExtentIfNecessary(this.routeStore.state.selectedPath.bbox)
             }
@@ -43,7 +43,7 @@ export class MapComponent extends React.Component {
     }
 
     private onQueryChanged() {
-        this.map.updateQueryPoints(this.queryStore.state.queryPoints.filter(point => point.isInitialized))
+        this.map.updateQueryPoints(this.queryStore.state.queryPoints)
     }
 
     private onRouteChanged() {
