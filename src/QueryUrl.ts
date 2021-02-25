@@ -13,14 +13,17 @@ export function parseUrl(href: string): QueryPoint[] {
                 )
             return { lng: parseNumber(split[0]), lat: parseNumber(split[1]) }
         })
-        .map((coordinate, i) => {
-            return {
-                coordinate: coordinate,
-                isInitialized: true,
-                id: i,
-                queryText: '',
-            } as QueryPoint
-        })
+        .map(
+            (coordinate, i): QueryPoint => {
+                return {
+                    coordinate: coordinate,
+                    isInitialized: true,
+                    id: i,
+                    queryText: '',
+                    color: '',
+                }
+            }
+        )
 }
 
 export function createUrl(baseUrl: string, points: QueryPoint[]) {

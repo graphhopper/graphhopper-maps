@@ -65,5 +65,6 @@ function coordinateToQueryPoint(coordinate: [number, number], id: number): Query
         coordinate: { lng: coordinate[0], lat: coordinate[1] },
         queryText: '',
         id: id,
+        color: '',
     }
 }
