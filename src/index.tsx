@@ -3,12 +3,13 @@ import ReactDOM from 'react-dom'
 
 import App from '@/App'
 import { getApiInfoStore, getQueryStore, getRouteStore, setStores } from '@/stores/Stores'
-import QueryStore, { SetPointFromCoordinate } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
 import { ghKey, info } from '@/routing/Api'
 import { createUrl, parseUrl } from '@/./QueryUrl'
+import QueryStore from '@/stores/QueryStore'
+import { AddPoint, SetPoint } from '@/actions/Actions'
 
 // set up state management
 setStores({
@@ -28,7 +29,13 @@ info(ghKey).then(() => {}) // get infos about the api as soon as possible
 // this will also trigger a routing request if the url contains routing parameters
 try {
     const queryPoints = parseUrl(window.location.href)
-    queryPoints.forEach(point => Dispatcher.dispatch(new SetPointFromCoordinate(point.point, point)))
+    queryPoints.forEach((point, i) => {
+        // this assumes that the store starts with a default of two points
+        // it also relies on the point's ids to be the same as those in the store.
+        // Slightly brittle I guess.
+        if (i > 1) Dispatcher.dispatch(new AddPoint())
+        Dispatcher.dispatch(new SetPoint(point.id, point.coordinate, ''))
+    })
 } catch (e) {
     console.error(e)
 }

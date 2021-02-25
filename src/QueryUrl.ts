@@ -15,7 +15,7 @@ export function parseUrl(href: string): QueryPoint[] {
         })
         .map((coordinate, i) => {
             return {
-                point: coordinate,
+                coordinate: coordinate,
                 isInitialized: true,
                 id: i,
                 queryText: '',
@@ -27,7 +27,7 @@ export function createUrl(baseUrl: string, points: QueryPoint[]) {
     const result = new URL(baseUrl)
     points
         .filter(point => point.isInitialized)
-        .map(point => point.point.lng + ',' + point.point.lat)
+        .map(point => point.coordinate.lng + ',' + point.coordinate.lat)
         .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
     return result

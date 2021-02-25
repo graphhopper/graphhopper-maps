@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, InvalidatePoint, QueryPoint, RemovePoint, SetPointFromAddress } from '@/stores/QueryStore'
 import { geocode, GeocodingHit } from '@/routing/Api'
-import { ClearRoute } from '@/stores/RouteStore'
 import styles from '@/Search.module.css'
+import { QueryPoint } from '@/stores/QueryStore'
+import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 
 interface Query {
     point: QueryPoint
@@ -14,7 +14,7 @@ export default function Search({ points }: { points: QueryPoint[] }) {
     const [query, setQuery] = useState<Query>({
         point: {
             queryText: '',
-            point: { lat: 0, lng: 0 },
+            coordinate: { lat: 0, lng: 0 },
             isInitialized: false,
             id: -1,
             color: '',
@@ -46,7 +46,7 @@ export default function Search({ points }: { points: QueryPoint[] }) {
     }, [query])
 
     const handleHitSelected = (hit: GeocodingHit) => {
-        Dispatcher.dispatch(new SetPointFromAddress(hit, query.point))
+        Dispatcher.dispatch(new SetPoint(query.point.id, hit.point, convertToQueryText(hit)))
     }
 
     const searchBoxStyle = (hits: GeocodingHit[]) => {
@@ -130,30 +130,58 @@ const GeocodingResults = ({
     )
 }
 
-function geocodingHitToName(result: GeocodingHit) {
-    if (result.name && result.housenumber) return result.name + ' ' + result.housenumber
-    if (result.name) return result.name
-    return 'No name?'
-}
-
-function geocodingHitToAdress(hit: GeocodingHit) {
-    let result = hit.postcode ? hit.postcode : ''
-    if (hit.city) result = result + ' ' + hit.city
-    if (hit.country) result = result ? result + ', ' + hit.country : hit.country // if it is only the country, don't make a comma
-    return result
-}
-
 const GeocodingEntry = ({ entry, onSelectHit }: { entry: GeocodingHit; onSelectHit: (hit: GeocodingHit) => void }) => {
     return (
         <li>
             <button className={styles.selectableGeocodingEntry} onClick={() => onSelectHit(entry)}>
                 <div className={styles.geocodingEntry}>
-                    <span className={styles.geocodingEntryMain}>{geocodingHitToName(entry)}</span>
-                    <span>{geocodingHitToAdress(entry)}</span>
+                    <span className={styles.geocodingEntryMain}>{convertToMainText(entry)}</span>
+                    <span>{convertToSecondaryText(entry)}</span>
                 </div>
             </button>
         </li>
     )
+}
+
+function convertToMainText(hit: GeocodingHit) {
+    if (hit.name && hit.housenumber) return hit.name + ' ' + hit.housenumber
+    return hit.name
+}
+
+function convertToSecondaryText(hit: GeocodingHit) {
+    let result = convertToCity(hit, ', ')
+    result += convertToCountry(hit)
+    return result
+}
+
+function convertToQueryText(hit: GeocodingHit) {
+    let result = convertToName(hit, ', ')
+    result += convertToStreet(hit, ', ')
+    result += convertToCity(hit, ', ')
+    result += convertToCountry(hit)
+
+    return result
+}
+
+function convertToName(hit: GeocodingHit, appendix: string) {
+    return hit.name === hit.street ? '' : hit.name + appendix
+}
+
+function convertToStreet(hit: GeocodingHit, appendix: string) {
+    if (hit.housenumber && hit.street) return hit.street + ' ' + hit.housenumber + appendix
+    if (hit.street) return hit.street + appendix
+    return ''
+}
+
+function convertToCity(hit: GeocodingHit, appendix: string) {
+    if (hit.city && hit.postcode) return hit.postcode + ' ' + hit.city + appendix
+    if (hit.city) return hit.city + appendix
+    if (hit.postcode) return hit.postcode + appendix
+    return ''
+}
+
+function convertToCountry(hit: GeocodingHit) {
+    return hit.country ? hit.country : ''
 }
 
 const filterDuplicates = function (hits: GeocodingHit[]) {

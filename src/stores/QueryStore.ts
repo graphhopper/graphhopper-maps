@@ -1,46 +1,7 @@
-import route, { GeocodingHit, ghKey, RoutingArgs } from '@/routing/Api'
+import route, { ghKey, RoutingArgs } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-
-export class SetPointFromCoordinate implements Action {
-    readonly coordinate: Coordinate
-    readonly point: QueryPoint
-
-    constructor(coordinate: Coordinate, point: QueryPoint) {
-        this.coordinate = coordinate
-        this.point = point
-    }
-}
-
-export class SetPointFromAddress implements Action {
-    readonly hit: GeocodingHit
-    readonly point: QueryPoint
-
-    constructor(hit: GeocodingHit, point: QueryPoint) {
-        this.hit = hit
-        this.point = point
-    }
-}
-
-export class AddPoint implements Action {}
-
-export class ClearPoints implements Action {}
-
-export class RemovePoint implements Action {
-    readonly point: QueryPoint
-
-    constructor(point: QueryPoint) {
-        this.point = point
-    }
-}
-
-export class InvalidatePoint implements Action {
-    readonly point: QueryPoint
-
-    constructor(point: QueryPoint) {
-        this.point = point
-    }
-}
+import { AddPoint, ClearPoints, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 
 export interface Coordinate {
     lat: number
@@ -54,7 +15,7 @@ export interface QueryStoreState {
 }
 
 export interface QueryPoint {
-    readonly point: Coordinate
+    readonly coordinate: Coordinate
     readonly queryText: string
     readonly isInitialized: boolean // don't know about this flag yet
     readonly color: string
@@ -63,52 +24,15 @@ export interface QueryPoint {
 
 // noinspection JSIgnoredPromiseFromCall
 export default class QueryStore extends Store<QueryStoreState> {
-    private static convertToQueryText(hit: GeocodingHit) {
-        let result = hit.name === hit.street ? '' : hit.name + ', '
-        result += this.convertToStreet(hit)
-        result += this.convertToCity(hit)
-        result += this.convertToCountry(hit)
-
-        return result
-    }
-
-    private static convertToStreet(hit: GeocodingHit) {
-        if (hit.housenumber && hit.street) return hit.street + ' ' + hit.housenumber + ', '
-        if (hit.street) return hit.street + ', '
-        return ''
-    }
-
-    private static convertToCity(hit: GeocodingHit) {
-        if (hit.city && hit.postcode) return hit.postcode + ' ' + hit.city + ', '
-        if (hit.city) return hit.city + ', '
-        if (hit.postcode) return hit.postcode + ', '
-        return ''
-    }
-
-    private static convertToCountry(hit: GeocodingHit) {
-        return hit.country ? hit.country : ''
-    }
-
     static getMarkerColor(index: number, length: number) {
         if (index === 0) return '#417900'
         if (index === length - 1) return '#F97777'
         return '#76D0F7'
     }
 
-    private static setPoint(queryPoints: QueryPoint[], newPoint: QueryPoint) {
-        const index = queryPoints.findIndex(point => point.id === newPoint.id)
-        const newPoints = queryPoints.slice()
-
-        if (index === -1) newPoints.push(newPoint)
-        else newPoints[index] = newPoint
-
-        this.routeIfAllPointsSet(newPoints)
-        return newPoints
-    }
-
     private static routeIfAllPointsSet(points: QueryPoint[]) {
         if (points.every(point => point.isInitialized)) {
-            const rawPoints = points.map(point => [point.point.lng, point.point.lat]) as [number, number][]
+            const rawPoints = points.map(point => [point.coordinate.lng, point.coordinate.lat]) as [number, number][]
             route({ points: rawPoints, key: ghKey, points_encoded: false })
         }
     }
@@ -117,7 +41,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             isInitialized: false,
             queryText: '',
-            point: { lng: 0, lat: 0 },
+            coordinate: { lng: 0, lat: 0 },
             id: id,
             color: color,
         }
@@ -138,34 +62,39 @@ export default class QueryStore extends Store<QueryStoreState> {
         }
     }
 
+    static replace(points: QueryPoint[], newPoint: QueryPoint) {
+        const result = []
+        for (const point of points) {
+            if (point.id === newPoint.id) result.push(newPoint)
+            else result.push(point)
+        }
+
+        return result
+    }
+
     protected reduce(state: QueryStoreState, action: Action): QueryStoreState {
-        if (action instanceof SetPointFromCoordinate) {
-            const points = QueryStore.setPoint(state.queryPoints, {
-                id: action.point.id,
+        if (action instanceof SetPoint) {
+            const points = QueryStore.replace(state.queryPoints, {
+                id: action.id,
+                color: '',
                 isInitialized: true,
-                point: action.coordinate,
-                color: action.point.color,
-                queryText: action.coordinate.lng + ', ' + action.coordinate.lat,
+                coordinate: action.coordinate,
+                queryText: action.text ? action.text : action.coordinate.lng + ', ' + action.coordinate.lat,
+            }).map((point, i) => {
+                return {
+                    ...point,
+                    color: QueryStore.getMarkerColor(i, state.queryPoints.length),
+                }
             })
-            return {
-                ...state,
-                queryPoints: points,
-            }
-        } else if (action instanceof SetPointFromAddress) {
-            const points = QueryStore.setPoint(state.queryPoints, {
-                // taking the index from the point could be more robust, but since the ids are set in here, this does the job
-                id: action.point.id,
-                isInitialized: true,
-                point: action.hit.point,
-                color: action.point.color,
-                queryText: QueryStore.convertToQueryText(action.hit),
-            })
+
+            QueryStore.routeIfAllPointsSet(points)
+
             return {
                 ...state,
                 queryPoints: points,
             }
         } else if (action instanceof InvalidatePoint) {
-            const points = QueryStore.setPoint(state.queryPoints, {
+            const points = QueryStore.replace(state.queryPoints, {
                 ...action.point,
                 isInitialized: false,
             })
@@ -174,30 +103,38 @@ export default class QueryStore extends Store<QueryStoreState> {
                 queryPoints: points,
             }
         } else if (action instanceof ClearPoints) {
-            const newPoints = state.queryPoints.map((point, i) =>
-                QueryStore.getEmptyPoint(state.nextId + i, QueryStore.getMarkerColor(i, state.queryPoints.length))
-            )
+            const newPoints = state.queryPoints.map(point => {
+                return {
+                    ...point,
+                    queryText: '',
+                    point: { lat: 0, lng: 0 },
+                    isInitialized: false,
+                }
+            })
 
             return {
                 ...state,
-                nextId: state.nextId + newPoints.length,
                 queryPoints: newPoints,
             }
         } else if (action instanceof AddPoint) {
-            const points = QueryStore.setPoint(
-                state.queryPoints,
-                QueryStore.getEmptyPoint(
-                    state.nextId,
-                    QueryStore.getMarkerColor(state.queryPoints.length - 1, state.queryPoints.length)
-                )
-            )
+            const tmp = state.queryPoints.slice()
+
+            // add new point at the end
+            tmp.push(QueryStore.getEmptyPoint(state.nextId, ''))
+            const newPoints = tmp.map((point, i) => {
+                return { ...point, color: QueryStore.getMarkerColor(i, tmp.length) }
+            })
             return {
                 ...state,
                 nextId: state.nextId + 1,
-                queryPoints: points,
+                queryPoints: newPoints,
             }
         } else if (action instanceof RemovePoint) {
-            const newPoints = state.queryPoints.filter(point => point.id !== action.point.id)
+            const newPoints = state.queryPoints
+                .filter(point => point.id !== action.point.id)
+                .map((point, i) => {
+                    return { ...point, color: QueryStore.getMarkerColor(i, state.queryPoints.length - 1) }
+                })
 
             QueryStore.routeIfAllPointsSet(newPoints)
 

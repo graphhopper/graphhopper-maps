@@ -1,10 +1,11 @@
 import React from 'react'
 import Mapbox from '@/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, Coordinate, SetPointFromCoordinate } from '@/stores/QueryStore'
 import { getApiInfoStore, getQueryStore, getRouteStore } from '@/stores/Stores'
 
 import styles from '@/MapComponent.module.css'
+import { Coordinate } from '@/stores/QueryStore'
+import { ClearPoints, SetPoint } from '@/actions/Actions'
 
 export class MapComponent extends React.Component {
     private queryStore = getQueryStore()
@@ -89,7 +90,6 @@ export class MapComponent extends React.Component {
             Dispatcher.dispatch(new ClearPoints())
             point = this.queryStore.state.queryPoints.find(point => !point.isInitialized)
         }
-        Dispatcher.dispatch(new SetPointFromCoordinate(coordinate, point!))
-        //Dispatcher.dispatch(new ClearRoute())
+        Dispatcher.dispatch(new SetPoint(point!.id, coordinate, point!.queryText))
     }
 }

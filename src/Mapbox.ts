@@ -2,8 +2,9 @@
 import * as mapbox from 'mapbox-gl'
 import { GeoJSONSource, Marker } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { Coordinate, QueryPoint, SetPointFromCoordinate } from '@/stores/QueryStore'
+import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
+import { SetPoint } from '@/actions/Actions'
 
 const lineSourceKey = 'route'
 const lineLayerKey = 'lines'
@@ -74,11 +75,11 @@ export default class Mapbox {
                     color: indexPoint.point.color,
                     draggable: true,
                 })
-                    .setLngLat(indexPoint.point.point)
+                    .setLngLat(indexPoint.point.coordinate)
                     .on('dragend', (e: { type: string; target: Marker }) => {
                         const marker = e.target
                         const coords = marker.getLngLat()
-                        Dispatcher.dispatch(new SetPointFromCoordinate(coords, indexPoint.point))
+                        Dispatcher.dispatch(new SetPoint(indexPoint.point.id, coords, indexPoint.point.queryText))
                     })
             )
         this.markers.forEach(marker => marker.addTo(this.map))

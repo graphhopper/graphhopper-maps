@@ -1,17 +1,7 @@
 import { Path, RoutingResult } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { SetPointFromAddress, SetPointFromCoordinate } from '@/stores/QueryStore'
-
-export class RouteReceived implements Action {
-    readonly result: RoutingResult
-
-    constructor(result: RoutingResult) {
-        this.result = result
-    }
-}
-
-export class ClearRoute implements Action {}
+import { ClearRoute, RouteReceived, SetPoint } from '@/actions/Actions'
 
 export interface RouteStoreState {
     routingResult: RoutingResult
@@ -47,12 +37,8 @@ export default class RouteStore extends Store<RouteStoreState> {
 
     protected reduce(state: RouteStoreState, action: Action): RouteStoreState {
         if (action instanceof RouteReceived) {
-            return this.handleRouteReceived(state, action)
-        } else if (
-            action instanceof SetPointFromCoordinate ||
-            action instanceof SetPointFromAddress ||
-            action instanceof ClearRoute
-        ) {
+            return this.handleRouteReceived(action)
+        } else if (action instanceof SetPoint || action instanceof ClearRoute) {
             return this.getInitialState()
         }
         return state
@@ -71,9 +57,12 @@ export default class RouteStore extends Store<RouteStoreState> {
         }
     }
 
-    private handleRouteReceived(state: RouteStoreState, action: RouteReceived) {
+    private handleRouteReceived(action: RouteReceived) {
         if (action.result.paths.length > 0) {
-            return Object.assign({}, state, { routingResult: action.result, selectedPath: action.result.paths[0] })
+            return {
+                routingResult: action.result,
+                selectedPath: action.result.paths[0],
+            }
         }
         return this.getInitialState()
     }

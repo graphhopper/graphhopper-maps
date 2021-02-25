@@ -1,14 +1,7 @@
 import { InfoResult } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-
-export class InfoReceived implements Action {
-    readonly result: InfoResult
-
-    constructor(result: InfoResult) {
-        this.result = result
-    }
-}
+import { InfoReceived } from '@/actions/Actions'
 
 export default class ApiInfoStore extends Store<InfoResult> {
     protected getInitialState(): InfoResult {
