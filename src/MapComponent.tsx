@@ -35,12 +35,12 @@ export class MapComponent extends React.Component {
 
                 this.map.updateQueryPoints(this.queryStore.state.queryPoints)
                 this.map.updateRoute(this.routeStore.state.selectedPath.points)
-                this.fitToExtentIfNecessary(this.routeStore.state.selectedPath.bbox)
+                //    this.fitToExtentIfNecessary(this.routeStore.state.selectedPath.bbox)
             }
         )
 
-        this.fitToExtentIfNecessary(this.infoStore.state.bbox)
-        this.setMapSizeAfterTimeout(50)
+        //this.fitToExtentIfNecessary(this.infoStore.state.bbox)
+        //this.setMapSizeAfterTimeout(50)
     }
 
     private onQueryChanged() {
@@ -76,7 +76,7 @@ export class MapComponent extends React.Component {
     }
 
     private fitToExtentIfNecessary(bbox: [number, number, number, number]) {
-        if (MapComponent.shouldFitToExtent(bbox)) this.map.fitToExtent(bbox)
+        // if (MapComponent.shouldFitToExtent(bbox)) this.map.fitToExtent(bbox)
     }
 
     private static shouldFitToExtent(bbox: [number, number, number, number]) {

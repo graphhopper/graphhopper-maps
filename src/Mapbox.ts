@@ -17,6 +17,11 @@ export default class Mapbox {
     private readonly onCoordinateSelected: (coordinate: Coordinate) => void
     private markers: Marker[] = []
     private mapReady = false
+    private popup: mapbox.Popup = new mapbox.Popup({
+        closeButton: false,
+        closeOnClick: true,
+        closeOnMove: true,
+    })
 
     constructor(
         container: HTMLDivElement,
@@ -38,7 +43,13 @@ export default class Mapbox {
             this.mapReady = true
             onReady()
         })
-        this.map.on('click', e => onCoordinateSelected(e.lngLat))
+        this.map.on('click', e => {
+            if (this.popup.isOpen()) this.popup.remove()
+            else onCoordinateSelected(e.lngLat)
+        })
+        //this.map.on('contextmenu', e =>
+        //    this.popup.setLngLat(e.lngLat).setDOMContent(createPopup(e.lngLat)).addTo(this.map)
+        // )
     }
 
     private static getPadding() {

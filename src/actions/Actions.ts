@@ -22,7 +22,17 @@ export class SetPoint implements Action {
     }
 }
 
-export class AddPoint implements Action {}
+export class AddPoint implements Action {
+    readonly atIndex: number
+    readonly coordinate: Coordinate
+    readonly isInitialized: boolean
+
+    constructor(atIndex: number, coordinate: Coordinate, isInitialized: boolean) {
+        this.atIndex = atIndex
+        this.coordinate = coordinate
+        this.isInitialized = isInitialized
+    }
+}
 
 export class ClearPoints implements Action {}
 

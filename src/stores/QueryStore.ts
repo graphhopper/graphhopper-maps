@@ -119,11 +119,22 @@ export default class QueryStore extends Store<QueryStoreState> {
         } else if (action instanceof AddPoint) {
             const tmp = state.queryPoints.slice()
 
-            // add new point at the end
-            tmp.push(QueryStore.getEmptyPoint(state.nextId, ''))
+            // add new point at the desired index
+            tmp.splice(action.atIndex, 0, {
+                coordinate: action.coordinate,
+                id: state.nextId,
+                queryText: action.coordinate.lng + ', ' + action.coordinate.lat,
+                color: '',
+                isInitialized: action.isInitialized,
+            })
+
+            // determine colors for each point. I guess this could be smarter if this needs to be faster
             const newPoints = tmp.map((point, i) => {
                 return { ...point, color: QueryStore.getMarkerColor(i, tmp.length) }
             })
+
+            QueryStore.routeIfAllPointsSet(newPoints)
+
             return {
                 ...state,
                 nextId: state.nextId + 1,

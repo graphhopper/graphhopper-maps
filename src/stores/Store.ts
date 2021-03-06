@@ -22,9 +22,12 @@ export default abstract class Store<TState> implements ActionReceiver, NotifySta
         }
     }
 
-    // I guess technically this needs a deregister counter part, but we would never use it
     register(callback: () => void): void {
         this._subscriptions.push(callback)
+    }
+
+    deregister(callback: () => void): void {
+        this._subscriptions = this._subscriptions.filter(s => s !== callback)
     }
 
     protected abstract getInitialState(): TState

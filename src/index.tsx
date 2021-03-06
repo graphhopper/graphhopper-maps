@@ -33,8 +33,13 @@ try {
         // this assumes that the store starts with a default of two points
         // it also relies on the point's ids to be the same as those in the store.
         // Slightly brittle I guess.
-        if (i > 1) Dispatcher.dispatch(new AddPoint())
-        Dispatcher.dispatch(new SetPoint(point.id, point.coordinate, ''))
+        if (i === 0) {
+            Dispatcher.dispatch(new SetPoint(0, point.coordinate, ''))
+        } else if (i === queryPoints.length - 1) {
+            Dispatcher.dispatch(new SetPoint(1, point.coordinate, ''))
+        } else {
+            Dispatcher.dispatch(new AddPoint(i, point.coordinate, true))
+        }
     })
 } catch (e) {
     console.error(e)
