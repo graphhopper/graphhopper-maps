@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { geocode, GeocodingHit } from '@/routing/Api'
 import styles from '@/Search.module.css'
-import { QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 
 interface Query {
@@ -18,6 +18,7 @@ export default function Search({ points }: { points: QueryPoint[] }) {
             isInitialized: false,
             id: -1,
             color: '',
+            type: QueryPointType.Via,
         },
         text: '',
     })
@@ -46,7 +47,14 @@ export default function Search({ points }: { points: QueryPoint[] }) {
     }, [query])
 
     const handleHitSelected = (hit: GeocodingHit) => {
-        Dispatcher.dispatch(new SetPoint(query.point.id, hit.point, convertToQueryText(hit)))
+        Dispatcher.dispatch(
+            new SetPoint({
+                ...query.point,
+                coordinate: hit.point,
+                isInitialized: true,
+                queryText: convertToQueryText(hit),
+            })
+        )
     }
 
     const searchBoxStyle = (hits: GeocodingHit[]) => {

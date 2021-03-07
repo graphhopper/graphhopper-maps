@@ -1,10 +1,10 @@
-// import mapbox like this instead of {Map} from 'mapbox-gl' because otherwise the app is missing some global mapbox state
-import * as mapbox from 'mapbox-gl'
-import { GeoJSONSource, Marker } from 'mapbox-gl'
+import { GeoJSONSource, LngLatBounds, Map, MapMouseEvent, Marker } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { Coordinate, QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
+import { Popup } from '@/Popup'
+import { Path } from '@/routing/Api'
 
 const lineSourceKey = 'route'
 const lineLayerKey = 'lines'
@@ -13,70 +13,65 @@ const lineLayerKey = 'lines'
 const mediaQuery = window.matchMedia('(max-width: 640px)')
 
 export default class Mapbox {
-    private readonly map: mapbox.Map
-    private readonly onCoordinateSelected: (coordinate: Coordinate) => void
+    private readonly map: Map
     private markers: Marker[] = []
-    private mapReady = false
-    private popup: mapbox.Popup = new mapbox.Popup({
-        closeButton: false,
-        closeOnClick: true,
-        closeOnMove: true,
-    })
+    private popup: Popup
 
-    constructor(
-        container: HTMLDivElement,
-        onCoordinateSelected: (coordinate: Coordinate) => void,
-        onReady: () => void
-    ) {
-        this.map = new mapbox.Map({
+    private mapIsReady = false
+
+    constructor(container: HTMLDivElement, onMapReady: () => void, onClick: (e: MapMouseEvent) => void) {
+        this.map = new Map({
+            container: container,
             accessToken:
                 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
-            container: container,
             style: 'mapbox://styles/mapbox/streets-v11',
-            center: [0, 0],
-            zoom: 0,
         })
-        this.onCoordinateSelected = onCoordinateSelected
 
         this.map.on('load', () => {
             this.initLineLayer()
-            this.mapReady = true
-            onReady()
+            this.mapIsReady = true
+            onMapReady()
         })
-        this.map.on('click', e => {
-            if (this.popup.isOpen()) this.popup.remove()
-            else onCoordinateSelected(e.lngLat)
-        })
-        //this.map.on('contextmenu', e =>
-        //    this.popup.setLngLat(e.lngLat).setDOMContent(createPopup(e.lngLat)).addTo(this.map)
-        // )
+
+        this.map.on('click', onClick)
+        this.map.on('contextmenu', e => this.popup.show(e.lngLat))
+
+        this.popup = new Popup(this.map)
     }
 
-    private static getPadding() {
-        return mediaQuery.matches
-            ? { top: 200, bottom: 16, right: 16, left: 16 }
-            : {
-                  top: 100,
-                  bottom: 100,
-                  right: 100,
-                  left: 400,
-              }
+    remove() {
+        this.map.remove()
     }
 
-    public updateRoute(points: { type: string; coordinates: number[][] }) {
-        if (points.coordinates.length > 0) this.addLine(points)
-        else this.removeLine()
+    drawLine(path: Path) {
+        if (!this.mapIsReady) return
+
+        console.log('draw line')
+        const source = this.map.getSource(lineSourceKey) as GeoJSONSource
+        if (path.points.coordinates.length > 0) {
+            source.setData({
+                type: 'FeatureCollection',
+                features: [
+                    {
+                        type: 'Feature',
+                        properties: {},
+                        geometry: path.points as GeoJSON.LineString,
+                    },
+                ],
+            })
+        } else {
+            source.setData({
+                features: [],
+                type: 'FeatureCollection',
+            })
+        }
     }
 
-    public updateSize() {
-        this.map.resize()
-    }
-
-    public updateQueryPoints(points: QueryPoint[]) {
-        if (!this.mapReady) return
+    drawMarkers(queryPoints: QueryPoint[]) {
+        if (!this.mapIsReady) return
 
         this.markers.forEach(marker => marker.remove())
-        this.markers = points
+        this.markers = queryPoints
             .map((point, i) => {
                 return { index: i, point: point }
             })
@@ -90,17 +85,34 @@ export default class Mapbox {
                     .on('dragend', (e: { type: string; target: Marker }) => {
                         const marker = e.target
                         const coords = marker.getLngLat()
-                        Dispatcher.dispatch(new SetPoint(indexPoint.point.id, coords, indexPoint.point.queryText))
+                        Dispatcher.dispatch(
+                            new SetPoint({
+                                ...indexPoint.point,
+                                coordinate: coords,
+                                queryText: coords.lng + ', ' + coords.lat,
+                            })
+                        )
                     })
             )
         this.markers.forEach(marker => marker.addTo(this.map))
     }
 
-    public fitToExtent(extent: [number, number, number, number]) {
-        const bounds = new mapbox.LngLatBounds(extent)
-        this.map.fitBounds(bounds, {
-            padding: Mapbox.getPadding(),
-        })
+    fitBounds(bbox: [number, number, number, number]) {
+        if (bbox.every(num => num !== 0))
+            this.map.fitBounds(new LngLatBounds(bbox), {
+                padding: Mapbox.getPadding(),
+            })
+    }
+
+    private static getPadding() {
+        return mediaQuery.matches
+            ? { top: 200, bottom: 16, right: 16, left: 16 }
+            : {
+                  top: 100,
+                  bottom: 100,
+                  right: 100,
+                  left: 400,
+              }
     }
 
     private initLineLayer() {
@@ -127,31 +139,6 @@ export default class Mapbox {
                 'line-color': '#888',
                 'line-width': 8,
             },
-        })
-    }
-
-    private removeLine() {
-        if (!this.mapReady) return
-        ;(this.map.getSource(lineSourceKey) as GeoJSONSource).setData({
-            features: [],
-            type: 'FeatureCollection',
-        })
-    }
-
-    private addLine(points: { type: string; coordinates: number[][] }) {
-        if (!this.mapReady) return
-        ;(this.map.getSource(lineSourceKey) as GeoJSONSource).setData({
-            type: 'FeatureCollection',
-            features: [
-                {
-                    type: 'Feature',
-                    properties: {},
-                    geometry: {
-                        type: 'LineString',
-                        coordinates: points.coordinates,
-                    },
-                },
-            ],
         })
     }
 }

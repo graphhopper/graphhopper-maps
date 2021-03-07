@@ -11,14 +11,10 @@ export class InfoReceived implements Action {
 }
 
 export class SetPoint implements Action {
-    readonly id: number
-    readonly coordinate: Coordinate
-    readonly text: string
+    readonly point: QueryPoint
 
-    constructor(id: number, coordinate: Coordinate, text: string) {
-        this.id = id
-        this.coordinate = coordinate
-        this.text = text
+    constructor(point: QueryPoint) {
+        this.point = point
     }
 }
 

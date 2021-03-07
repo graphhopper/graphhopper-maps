@@ -1,4 +1,4 @@
-import { QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 
 export function parseUrl(href: string): QueryPoint[] {
     const url = new URL(href)
@@ -21,6 +21,7 @@ export function parseUrl(href: string): QueryPoint[] {
                     id: i,
                     queryText: '',
                     color: '',
+                    type: QueryPointType.Via,
                 }
             }
         )

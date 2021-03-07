@@ -3,7 +3,7 @@ import Sidebar from '@/Sidebar'
 
 import styles from './App.module.css'
 import { getApiInfoStore, getQueryStore, getRouteStore } from '@/stores/Stores'
-import MapboxComponentWithClass from '@/MapboxComponentWithClass'
+import MapComponent from '@/Map'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -30,7 +30,7 @@ export default function App() {
     return (
         <div className={styles.appWrapper}>
             <div className={styles.map}>
-                <MapboxComponentWithClass queryPoints={query.queryPoints} path={route.selectedPath} bbox={bbox} />
+                <MapComponent queryPoints={query.queryPoints} path={route.selectedPath} bbox={bbox} />
             </div>
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent}>

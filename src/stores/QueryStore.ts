@@ -17,41 +17,60 @@ export interface QueryStoreState {
 export interface QueryPoint {
     readonly coordinate: Coordinate
     readonly queryText: string
-    readonly isInitialized: boolean // don't know about this flag yet
+    readonly isInitialized: boolean
     readonly color: string
     readonly id: number
+    readonly type: QueryPointType
+}
+
+export enum QueryPointType {
+    From,
+    To,
+    Via,
 }
 
 // noinspection JSIgnoredPromiseFromCall
 export default class QueryStore extends Store<QueryStoreState> {
-    static getMarkerColor(index: number, length: number) {
-        if (index === 0) return '#417900'
-        if (index === length - 1) return '#F97777'
-        return '#76D0F7'
+    static getMarkerColor(type: QueryPointType) {
+        switch (type) {
+            case QueryPointType.From:
+                return '#417900'
+            case QueryPointType.To:
+                return '#F97777'
+            default:
+                return '#76D0F7'
+        }
+    }
+
+    private static getPointType(index: number, numberOfPoints: number) {
+        if (index === 0) return QueryPointType.From
+        if (index === numberOfPoints - 1) return QueryPointType.To
+        return QueryPointType.Via
     }
 
     private static routeIfAllPointsSet(points: QueryPoint[]) {
-        if (points.every(point => point.isInitialized)) {
+        if (points.length > 1 && points.every(point => point.isInitialized)) {
             const rawPoints = points.map(point => [point.coordinate.lng, point.coordinate.lat]) as [number, number][]
             route({ points: rawPoints, key: ghKey, points_encoded: false })
         }
     }
 
-    private static getEmptyPoint(id: number, color: string): QueryPoint {
+    private static getEmptyPoint(id: number, type: QueryPointType): QueryPoint {
         return {
             isInitialized: false,
             queryText: '',
             coordinate: { lng: 0, lat: 0 },
             id: id,
-            color: color,
+            color: QueryStore.getMarkerColor(type),
+            type: type,
         }
     }
 
     protected getInitialState(): QueryStoreState {
         return {
             queryPoints: [
-                QueryStore.getEmptyPoint(0, QueryStore.getMarkerColor(0, 2)),
-                QueryStore.getEmptyPoint(1, QueryStore.getMarkerColor(1, 2)),
+                QueryStore.getEmptyPoint(0, QueryPointType.From),
+                QueryStore.getEmptyPoint(1, QueryPointType.To),
             ],
             nextId: 2,
             routingArgs: {
@@ -64,6 +83,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     static replace(points: QueryPoint[], newPoint: QueryPoint) {
         const result = []
+
         for (const point of points) {
             if (point.id === newPoint.id) result.push(newPoint)
             else result.push(point)
@@ -74,21 +94,8 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     protected reduce(state: QueryStoreState, action: Action): QueryStoreState {
         if (action instanceof SetPoint) {
-            const points = QueryStore.replace(state.queryPoints, {
-                id: action.id,
-                color: '',
-                isInitialized: true,
-                coordinate: action.coordinate,
-                queryText: action.text ? action.text : action.coordinate.lng + ', ' + action.coordinate.lat,
-            }).map((point, i) => {
-                return {
-                    ...point,
-                    color: QueryStore.getMarkerColor(i, state.queryPoints.length),
-                }
-            })
-
+            const points = QueryStore.replace(state.queryPoints, action.point)
             QueryStore.routeIfAllPointsSet(points)
-
             return {
                 ...state,
                 queryPoints: points,
@@ -118,19 +125,22 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
         } else if (action instanceof AddPoint) {
             const tmp = state.queryPoints.slice()
+            const queryText = action.isInitialized ? action.coordinate.lng + ', ' + action.coordinate.lat : ''
 
             // add new point at the desired index
             tmp.splice(action.atIndex, 0, {
                 coordinate: action.coordinate,
                 id: state.nextId,
-                queryText: action.coordinate.lng + ', ' + action.coordinate.lat,
+                queryText: queryText,
                 color: '',
                 isInitialized: action.isInitialized,
+                type: QueryPointType.Via,
             })
 
             // determine colors for each point. I guess this could be smarter if this needs to be faster
             const newPoints = tmp.map((point, i) => {
-                return { ...point, color: QueryStore.getMarkerColor(i, tmp.length) }
+                const type = QueryStore.getPointType(i, tmp.length)
+                return { ...point, color: QueryStore.getMarkerColor(type), type: type }
             })
 
             QueryStore.routeIfAllPointsSet(newPoints)
@@ -144,7 +154,8 @@ export default class QueryStore extends Store<QueryStoreState> {
             const newPoints = state.queryPoints
                 .filter(point => point.id !== action.point.id)
                 .map((point, i) => {
-                    return { ...point, color: QueryStore.getMarkerColor(i, state.queryPoints.length - 1) }
+                    const type = QueryStore.getPointType(i, state.queryPoints.length - 1)
+                    return { ...point, color: QueryStore.getMarkerColor(type), type: type }
                 })
 
             QueryStore.routeIfAllPointsSet(newPoints)
