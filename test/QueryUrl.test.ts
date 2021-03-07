@@ -1,5 +1,5 @@
 import { createUrl, parseUrl } from '../src/QueryUrl'
-import { QueryPoint } from '../src/stores/QueryStore'
+import { QueryPoint, QueryPointType } from '../src/stores/QueryStore'
 
 describe('parseUrl', () => {
     it('should parse points from a url', () => {
@@ -66,5 +66,6 @@ function coordinateToQueryPoint(coordinate: [number, number], id: number): Query
         queryText: '',
         id: id,
         color: '',
+        type: QueryPointType.Via,
     }
 }
