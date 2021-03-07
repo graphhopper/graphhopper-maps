@@ -22,13 +22,21 @@
     flex-grow: 1;
 }
 
+.removeSearchBox {
+    align-self: stretch;
+}
+
 .dot {
     border-radius: 0.75rem;
-    background-color: blue;
     height: 0.75rem;
     width: 0.75rem;
     margin: 0 0.5rem 0 0;
     border: rgb(100, 100, 100) 0.125rem solid;
+}
+
+.addDestination {
+    align-self: flex-end;
+    margin: 0.5rem 0 0 0;
 }
 
 .selectableGeocodingEntry {

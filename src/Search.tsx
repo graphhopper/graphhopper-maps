@@ -78,7 +78,10 @@ export default function Search({ points }: { points: QueryPoint[] }) {
             {
                 // current limit of the api is 5 points
                 points.length < 5 && (
-                    <button onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lng: 0, lat: 0 }, false))}>
+                    <button
+                        className={styles.addDestination}
+                        onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lng: 0, lat: 0 }, false))}
+                    >
                         Add Destination
                     </button>
                 )
