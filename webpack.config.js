@@ -12,6 +12,7 @@ module.exports = {
         contentBase: path.resolve(__dirname, 'dist'),
         https: false,
         port: 3000,
+        host: '0.0.0.0',
     },
     devtool: 'source-map',
     resolve: {

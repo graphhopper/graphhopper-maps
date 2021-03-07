@@ -15,7 +15,11 @@ import { getQueryStore } from '@/stores/Stores'
  */
 export class Popup {
     private readonly map: mapboxgl.Map
-    private readonly popup = new mapboxgl.Popup({ closeOnMove: true, closeOnClick: true, closeButton: false })
+    private readonly popup = new mapboxgl.Popup({
+        closeOnMove: true,
+        closeOnClick: true,
+        closeButton: false,
+    })
     private readonly queryStore = getQueryStore()
     private readonly container = document.createElement('div')
 
@@ -83,12 +87,25 @@ function PopupComponent({
 
     return (
         <div className={styles.wrapper}>
-            <button onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>From here</button>
-            <button disabled={disableViaPoint(queryPoints)} onClick={() => setViaPoint(queryPoints)}>
+            <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
+                From here
+            </button>
+            <button
+                className={styles.entry}
+                disabled={disableViaPoint(queryPoints)}
+                onClick={() => setViaPoint(queryPoints)}
+            >
                 Via here
             </button>
-            <button onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}>To here</button>
-            <button>Center map</button>
+            <button
+                className={styles.entry}
+                onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
+            >
+                To here
+            </button>
+            <button className={styles.entry} disabled={true}>
+                Center map
+            </button>
         </div>
     )
 }

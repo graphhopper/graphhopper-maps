@@ -54,11 +54,11 @@
 }
 
 .selectableGeocodingEntry:hover {
-    background-color: lightgray;
+    background-color: #ececec;
 }
 
 .selectableGeocodingEntry:active {
-    background-color: darkgray;
+    background-color: #c6c6c6;
 }
 
 .geocodingEntry {

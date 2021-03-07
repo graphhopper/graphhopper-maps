@@ -2,3 +2,29 @@
     display: flex;
     flex-direction: column;
 }
+
+.entry {
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    /* this compensates the border of mapbox's popup container */
+    padding: 0 10px;
+    margin: 0 -10px;
+    min-height: 1.8rem;
+    cursor: pointer;
+    outline: inherit;
+    font-size: medium;
+}
+
+.entry:hover {
+    background-color: #ececec;
+}
+
+.entry:active {
+    background-color: #c6c6c6;
+}
+
+.entry:disabled {
+    color: lightgray;
+}
