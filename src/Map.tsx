@@ -1,18 +1,27 @@
-import { Path } from '@/routing/Api'
+import { Bbox, Path } from '@/routing/Api'
 import { QueryPoint } from '@/stores/QueryStore'
 import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/Map.module.css'
 import Mapbox from '@/Mapbox'
+import Dispatcher from '@/stores/Dispatcher'
+import { ClearPoints, SetPoint } from '@/actions/Actions'
 
 type ComponentWithClassProps = {
     path: Path
     queryPoints: QueryPoint[]
-    bbox: [number, number, number, number]
+    bbox: Bbox
 }
 
 export default function ({ path, queryPoints, bbox }: ComponentWithClassProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
+    const queryPointsRef = useRef(queryPoints)
     const [map, setMap] = useState<Mapbox | null>(null)
+
+    // use this to be able to use querypoints props in onClick callback of the map
+    // see https://reactjs.org/docs/hooks-faq.html#what-can-i-do-if-my-effect-dependencies-change-too-often
+    useEffect(() => {
+        queryPointsRef.current = queryPoints
+    })
 
     useEffect(() => {
         const mapWrapper = new Mapbox(
@@ -21,7 +30,19 @@ export default function ({ path, queryPoints, bbox }: ComponentWithClassProps) {
                 setMap(mapWrapper)
             },
             e => {
-                console.log('onclick: ' + e.lngLat)
+                let point = queryPointsRef.current.find(point => !point.isInitialized)
+                if (!point) {
+                    point = queryPointsRef.current[0]
+                    Dispatcher.dispatch(new ClearPoints())
+                }
+                Dispatcher.dispatch(
+                    new SetPoint({
+                        ...point,
+                        isInitialized: true,
+                        coordinate: e.lngLat,
+                        queryText: e.lngLat.lng + ', ' + e.lngLat.lat,
+                    })
+                )
             }
         )
         return () => map?.remove()

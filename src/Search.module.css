@@ -25,9 +25,10 @@
 .dot {
     border-radius: 0.75rem;
     background-color: blue;
-    height: 1.5rem;
-    width: 1.5rem;
+    height: 0.75rem;
+    width: 0.75rem;
     margin: 0 0.5rem 0 0;
+    border: rgb(100, 100, 100) 0.125rem solid;
 }
 
 .selectableGeocodingEntry {

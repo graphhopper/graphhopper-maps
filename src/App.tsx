@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import Sidebar from '@/Sidebar'
-
 import styles from './App.module.css'
 import { getApiInfoStore, getQueryStore, getRouteStore } from '@/stores/Stores'
 import MapComponent from '@/Map'
+import { Bbox } from '@/routing/Api'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
     const [info, setInfo] = useState(getApiInfoStore().state)
     const [route, setRoute] = useState(getRouteStore().state)
+    const [useInfoBbox, setUseInfoBbox] = useState(true)
 
     useEffect(() => {
         const onQueryChanged = () => setQuery(getQueryStore().state)
@@ -26,7 +27,17 @@ export default function App() {
         }
     })
 
-    const bbox = route.selectedPath.bbox.every(num => num !== 0) ? route.selectedPath.bbox : info.bbox
+    // only use the api info's bbox until any other bounding box was chosen. Is this too messy?
+    const chooseBoundingBox = function (infoBbox: Bbox, pathBbox: Bbox, shouldUseInfoBbox: boolean) {
+        if (shouldUseInfoBbox && pathBbox.every(num => num !== 0)) {
+            setUseInfoBbox(false)
+            return pathBbox
+        } else if (shouldUseInfoBbox) return infoBbox
+        return pathBbox
+    }
+
+    const bbox = chooseBoundingBox(info.bbox, route.selectedPath.bbox, useInfoBbox)
+
     return (
         <div className={styles.appWrapper}>
             <div className={styles.map}>

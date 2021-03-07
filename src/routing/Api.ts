@@ -6,6 +6,8 @@ const default_route_base_path = '/route'
 
 export const ghKey = 'fb45b8b2-fdda-4093-ac1a-8b57b4e50add'
 
+export type Bbox = [number, number, number, number]
+
 export interface RoutingArgs {
     readonly points: [number, number][]
     readonly key: string
@@ -59,7 +61,7 @@ export interface Path {
     points: LineString
     snapped_waypoints: LineString
     points_encoded: boolean
-    bbox: [number, number, number, number]
+    bbox: Bbox
     instructions: Instruction[]
     details: Details
     points_order: number[]

@@ -19,8 +19,12 @@ function setUpQueryStoreFromUrl() {
         // add the point from the url to the store
         queryPointsFromUrl.forEach((point, i) => Dispatcher.dispatch(new AddPoint(i, point.coordinate, true)))
 
-        // remove the points the store has as default. Removing them after adding the others prevents premature routing requests
-        queryPointsFromStore.forEach(point => Dispatcher.dispatch(new RemovePoint(point)))
+        // remove the points the store has as default but keepa at least as many points as the default number of points in case the url didn't have any or too few points
+        // Removing them after adding the others prevents premature routing requests
+        for (let i = 0; i < queryPointsFromStore.length && i < queryPointsFromUrl.length; i++) {
+            const point = queryPointsFromStore[i]
+            Dispatcher.dispatch(new RemovePoint(point))
+        }
     } catch (e) {
         console.error(e)
     }

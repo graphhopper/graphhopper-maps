@@ -4,7 +4,7 @@ import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
 import { Popup } from '@/Popup'
-import { Path } from '@/routing/Api'
+import { Bbox, Path } from '@/routing/Api'
 
 const lineSourceKey = 'route'
 const lineLayerKey = 'lines'
@@ -97,7 +97,7 @@ export default class Mapbox {
         this.markers.forEach(marker => marker.addTo(this.map))
     }
 
-    fitBounds(bbox: [number, number, number, number]) {
+    fitBounds(bbox: Bbox) {
         if (bbox.every(num => num !== 0))
             this.map.fitBounds(new LngLatBounds(bbox), {
                 padding: Mapbox.getPadding(),
