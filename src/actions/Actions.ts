@@ -1,11 +1,11 @@
 import { Action } from '@/stores/Dispatcher'
-import { InfoResult, RoutingResult } from '@/routing/Api'
+import { ApiInfo, RoutingResult } from '@/routing/Api'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 
 export class InfoReceived implements Action {
-    readonly result: InfoResult
+    readonly result: ApiInfo
 
-    constructor(result: InfoResult) {
+    constructor(result: ApiInfo) {
         this.result = result
     }
 }

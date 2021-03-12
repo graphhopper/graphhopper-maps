@@ -1,5 +1,5 @@
 import fetchMock from 'jest-fetch-mock'
-import route, { info, InfoResult, RoutingArgs } from '@/routing/Api'
+import route, { ApiInfo, info, RoutingArgs, RoutingVehicleType } from '@/routing/Api'
 import Dispatcher, { Action } from '../../src/stores/Dispatcher'
 import { InfoReceived, RouteReceived } from '../../src/actions/Actions'
 
@@ -19,28 +19,64 @@ describe('info api', () => {
     it('should query correct url and dispatch an InfoReceived action', async () => {
         const key = 'some-key'
         const expectedUrl = 'https://graphhopper.com/api/1/info?key=' + key
-        const result: InfoResult = {
+        const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
-            import_date: '',
-            features: {},
-            version: '',
+            import_date: 'some_date',
+            vehicles: new Map(),
+            version: 'some_version',
         }
 
         fetchMock.mockResponse(request => {
             expect(request.method).toEqual('GET')
             expect(request.url.toString()).toEqual(expectedUrl)
             expect(request.headers.get('Accept')).toEqual('application/json')
-            return Promise.resolve(JSON.stringify(result))
+            return Promise.resolve(
+                JSON.stringify({
+                    bbox: expected.bbox,
+                    import_date: expected.import_date,
+                    version: expected.version,
+                })
+            )
         })
 
         Dispatcher.register({
             receive(action: Action) {
                 expect(action instanceof InfoReceived).toBeTruthy()
-                expect((action as InfoReceived).result).toEqual(result)
+                expect((action as InfoReceived).result).toEqual(expected)
             },
         })
 
         await info(key)
+    })
+
+    it('should convert the response into an ApiInfo object', async () => {
+        const carRoutingVehicle = { version: '1_car', import_date: 'car_import_date', features: { elevation: true } }
+        const expected: ApiInfo = {
+            bbox: [0, 0, 0, 0],
+            import_date: 'some_date',
+            vehicles: new Map([[RoutingVehicleType.car, carRoutingVehicle]]),
+            version: 'some_version',
+        }
+
+        fetchMock.mockResponseOnce(
+            JSON.stringify({
+                bbox: expected.bbox,
+                import_date: expected.import_date,
+                version: expected.version,
+                car: { version: carRoutingVehicle.version, import_date: carRoutingVehicle.import_date },
+                unexpectedProperty: { version: 'unexpected_version', import_date: 'unexpected_import_date' },
+                features: { car: { elevation: true }, unexpectedProperty: { elevation: false } },
+            })
+        )
+
+        Dispatcher.register({
+            receive(action: Action) {
+                expect(action instanceof InfoReceived).toBeTruthy()
+                expect((action as InfoReceived).result).toEqual(expected)
+            },
+        })
+
+        await info('some-key')
     })
 })
 

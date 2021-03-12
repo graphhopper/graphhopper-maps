@@ -46,11 +46,33 @@ export interface RoutingResult {
     paths: Path[]
 }
 
-export interface InfoResult {
+export interface ApiInfo {
     import_date: string
-    bbox: [number, number, number, number]
     version: string
-    features: any
+    bbox: Bbox
+    vehicles: Map<RoutingVehicleType, RoutingVehicle>
+}
+
+export interface RoutingVehicle {
+    version: string
+    import_date: string // maybe parse this to date instead?
+    features: RoutingFeature // Unsure if a map would make more sense but from looking at the api typing it makes sense (talk to peter)
+}
+
+export interface RoutingFeature {
+    elevation: boolean
+}
+
+export enum RoutingVehicleType {
+    car,
+    bike,
+    foot,
+    hike,
+    mtb,
+    racingbike,
+    scooter,
+    truck,
+    small_truck,
 }
 
 export interface Path {
@@ -129,10 +151,47 @@ export async function info(key: string) {
     })
 
     if (response.ok) {
-        const result = (await response.json()) as InfoResult
-        Dispatcher.dispatch(new InfoReceived(result))
+        const result = await response.json()
+        const apiInfo = convertToApiInfo(result)
+        Dispatcher.dispatch(new InfoReceived(apiInfo))
     } else {
         throw new Error('here could be your meaningfull error message')
+    }
+}
+
+function convertToApiInfo(response: any): ApiInfo {
+    let bbox = [0, 0, 0, 0] as Bbox
+    let version = ''
+    let import_date = ''
+    const vehicles: Map<RoutingVehicleType, RoutingVehicle> = new Map()
+
+    const features = response.features as { [index: string]: RoutingFeature }
+
+    for (const property in response) {
+        if (property in RoutingVehicleType) {
+            //https://www.typescriptlang.org/docs/handbook/enums.html#enums-at-runtime
+            const num = RoutingVehicleType[property as keyof typeof RoutingVehicleType]
+            const value = response[property]
+            const routingFeatures = features[property]
+
+            const routingVehicle: RoutingVehicle = {
+                features: routingFeatures,
+                import_date: value.import_date,
+                version: value.version,
+            }
+
+            vehicles.set(num, routingVehicle)
+        } else if (property === 'bbox') bbox = response[property]
+        else if (property === 'version') version = response[property]
+        else if (property === 'import_date') import_date = response[property]
+        else if (property !== 'features') console.log('unexpected property name: ' + property)
+    }
+
+    return {
+        vehicles: vehicles,
+        bbox: bbox,
+        version: version,
+        import_date: import_date,
     }
 }
 
