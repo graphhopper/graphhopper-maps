@@ -16,6 +16,7 @@ before_deploy: pip install --user awscli
 deploy:
     on:
         branch: master
+    skip_cleanup: true
     provider: script
     script:
         # upload all files from ./dist folder and delete files on s3 which are not in current build
