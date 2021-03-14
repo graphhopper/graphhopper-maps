@@ -93,7 +93,7 @@ export default function Search({
                             className={styles.addDestination}
                             onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lng: 0, lat: 0 }, false))}
                         >
-                            Add Destination
+                            Add Route Point
                         </button>
                     )
                 }
