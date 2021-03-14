@@ -6,7 +6,7 @@ import { getApiInfoStore, getQueryStore, getRouteStore, setStores } from '@/stor
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
-import { ghKey, info } from '@/routing/Api'
+import { info } from '@/routing/Api'
 import { createUrl, parseUrl } from '@/./QueryUrl'
 import QueryStore from '@/stores/QueryStore'
 
@@ -22,7 +22,7 @@ Dispatcher.register(getQueryStore())
 Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
 
-info(ghKey).then(() => {}) // get infos about the api as soon as possible
+info().then(() => {}) // get infos about the api as soon as possible
 
 // parse the window's url and set up a query from it
 // this will also trigger a routing request if the url contains routing parameters

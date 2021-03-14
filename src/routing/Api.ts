@@ -10,17 +10,9 @@ export type Bbox = [number, number, number, number]
 
 export interface RoutingArgs {
     readonly points: [number, number][]
-    readonly key: string
     readonly host?: string
     readonly basePath?: string
     readonly vehicle?: string
-    readonly data_type?: string
-    readonly locale?: string
-    readonly debug?: boolean
-    readonly points_encoded?: boolean
-    readonly instructions?: boolean
-    readonly elevation?: boolean
-    readonly optimize?: boolean
 }
 
 interface RoutingRequest {
@@ -32,8 +24,9 @@ interface RoutingRequest {
     instructions: boolean
     elevation: boolean
     optimize: string
-
-    [index: string]: string | boolean | ReadonlyArray<[number, number]>
+    'alternative_route.max_paths'?: number
+    'ch.disable'?: boolean
+    algorithm?: 'alternative_route' | 'round_trip'
 }
 
 interface ErrorResponse {
@@ -42,80 +35,93 @@ interface ErrorResponse {
 }
 
 export interface RoutingResult {
-    info: { copyright: string[]; took: number }
-    paths: Path[]
+    readonly info: { copyright: string[]; took: number }
+    readonly paths: Path[]
+}
+
+interface RawResult {
+    readonly info: { copyright: string[]; took: number }
+    readonly paths: RawPath[]
 }
 
 export interface ApiInfo {
-    import_date: string
-    version: string
-    bbox: Bbox
-    vehicles: RoutingVehicle[]
+    readonly import_date: string
+    readonly version: string
+    readonly bbox: Bbox
+    readonly vehicles: RoutingVehicle[]
 }
 
 export interface RoutingVehicle {
-    key: string
-    version: string
-    import_date: string // maybe parse this to date instead?
-    features: RoutingFeature // Unsure if a map would make more sense but from looking at the api typing it makes sense (talk to peter)
+    readonly key: string
+    readonly version: string
+    readonly import_date: string // maybe parse this to date instead?
+    readonly features: RoutingFeature // Unsure if a map would make more sense but from looking at the api typing it makes sense (talk to peter)
 }
 
 export interface RoutingFeature {
-    elevation: boolean
+    readonly elevation: boolean
 }
 
-export interface Path {
-    distance: number
-    time: number
-    ascend: number
-    descend: number
-    points: LineString
-    snapped_waypoints: LineString
-    points_encoded: boolean
-    bbox: Bbox
-    instructions: Instruction[]
-    details: Details
-    points_order: number[]
+export interface Path extends BasePath {
+    readonly points: LineString
+    readonly snapped_waypoints: LineString
+}
+
+interface RawPath extends BasePath {
+    readonly points: string | LineString
+    readonly snapped_waypoints: string | LineString
+}
+
+export interface BasePath {
+    readonly distance: number
+    readonly time: number
+    readonly ascend: number
+    readonly descend: number
+    readonly points_encoded: boolean
+    readonly bbox: Bbox
+    readonly instructions: Instruction[]
+    readonly details: Details
+    readonly points_order: number[]
 }
 
 export interface LineString {
-    type: string
-    coordinates: number[][]
+    readonly type: string
+    readonly coordinates: number[][]
 }
 
 export interface Instruction {
-    distance: number
-    interval: [number, number]
-    points: number[][]
-    sign: number
-    text: string
-    time: number
+    readonly distance: number
+    readonly interval: [number, number]
+    readonly points: number[][]
+    readonly sign: number
+    readonly text: string
+    readonly time: number
 }
 
 interface Details {
-    street_name: [number, number, string][]
-    toll: [number, number, string][]
-    max_speed: [number, number, number][]
+    readonly street_name: [number, number, string][]
+    readonly toll: [number, number, string][]
+    readonly max_speed: [number, number, number][]
 }
 
 export interface GeocodingResult {
-    hits: GeocodingHit[]
-    took: number
+    readonly hits: GeocodingHit[]
+    readonly took: number
 }
 
 export interface GeocodingHit {
-    point: { lat: number; lng: number }
-    osm_id: string
-    osm_type: string
-    osm_key: string
-    osm_value: string
-    name: string
-    country: string
-    city: string
-    state: string
-    street: string
-    housenumber: string
-    postcode: string
+    readonly point: { lat: number; lng: number }
+    readonly osm_id: string
+    readonly osm_type: string
+    readonly osm_key: string
+    readonly osm_value: string
+    readonly name: string
+    readonly country: string
+    readonly city: string
+    readonly state: string
+    readonly street: string
+    readonly housenumber: string
+    readonly postcode: string
 }
 
 export async function geocode(query: string) {
@@ -134,8 +140,8 @@ export async function geocode(query: string) {
     }
 }
 
-export async function info(key: string) {
-    const response = await fetch(default_host + '/info?key=' + key, {
+export async function info() {
+    const response = await fetch(default_host + '/info?key=' + ghKey, {
         headers: { Accept: 'application/json' },
     })
 
@@ -145,6 +151,38 @@ export async function info(key: string) {
         Dispatcher.dispatch(new InfoReceived(apiInfo))
     } else {
         throw new Error('here could be your meaningfull error message')
+    }
+}
+
+export default async function route(args: RoutingArgs) {
+    const request = createRequest(args)
+    const url = createURL(args.host, args.basePath)
+
+    const response = await fetch(url.toString(), {
+        method: 'POST',
+        mode: 'cors',
+        body: JSON.stringify(request),
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    })
+
+    if (response.ok) {
+        // parse from json
+        const rawResult = (await response.json()) as RawResult
+
+        // transform encoded points into decoded
+        const result = {
+            ...rawResult,
+            paths: decodeResult(rawResult),
+        }
+
+        // send into application
+        Dispatcher.dispatch(new RouteReceived(result))
+    } else {
+        const errorResult = (await response.json()) as ErrorResponse
+        throw new Error(errorResult.message)
     }
 }
 
@@ -182,71 +220,55 @@ function convertToApiInfo(response: any): ApiInfo {
     }
 }
 
-export default async function route(args: RoutingArgs) {
-    if (args.points_encoded === true) throw Error('Encoded points are not yet implemented')
-
-    const request = createRequest(args)
-    const url = createURL(args)
-
-    const response = await fetch(url.toString(), {
-        method: 'POST',
-        mode: 'cors',
-        body: JSON.stringify(request),
-        headers: {
-            Accept: args.data_type ? args.data_type : 'application/json',
-            'Content-Type': 'application/json',
-        },
-    })
-
-    if (response.ok) {
-        // there will be points encoding and getting instructions right later, but opt for the bare minimum for now
-        const result = (await response.json()) as RoutingResult
-        Dispatcher.dispatch(new RouteReceived(result))
-    } else {
-        const errorResult = (await response.json()) as ErrorResponse
-        throw new Error(errorResult.message)
-    }
-}
-
-export async function routeGet(args: RoutingArgs) {
-    const request = createRequest(args)
-    const url = createGetURL(args.host, args.basePath, args.key, request)
-
-    const response = await fetch(url.toString(), {
-        headers: {
-            Accept: args.data_type ? args.data_type : 'application/json',
-        },
-    })
-
-    if (response.ok) {
-        const result = await response.json()
-        result.paths.forEach((path: Path) => {
-            // convert encoded polyline to geojson
-            if (path.points_encoded) {
-                path.points = {
-                    type: 'LineString',
-                    coordinates: decodePath(path.points, request.elevation),
-                }
-                path.snapped_waypoints = {
-                    type: 'LineString',
-                    coordinates: decodePath(path.snapped_waypoints, request.elevation),
-                }
-            }
-            if (path.instructions) {
-                for (let i = 0; i < path.instructions.length; i++) {
-                    const interval = path.instructions[i].interval
-                    path.instructions[i].points = path.points.coordinates.slice(interval[0], interval[1] + 1)
-                }
+function decodeResult(result: RawResult) {
+    return result.paths
+        .map((path: RawPath) => {
+            return {
+                ...path,
+                points: decodePoints(path),
+                snapped_waypoints: decodeWaypoints(path),
             }
         })
-        return result
+        .map((path: Path) => {
+            return {
+                ...path,
+                instructions: setPointsOnInstructions(path),
+            }
+        })
+}
+
+function decodePoints(path: RawPath) {
+    if (path.points_encoded)
+        return {
+            type: 'LineString',
+            coordinates: decodePath(path.points as string, false),
+        }
+    else return path.points as LineString
+}
+
+function decodeWaypoints(path: RawPath) {
+    if (path.points_encoded)
+        return {
+            type: 'LineString',
+            coordinates: decodePath(path.snapped_waypoints as string, false),
+        }
+    else return path.snapped_waypoints as LineString
+}
+
+function setPointsOnInstructions(path: Path) {
+    if (path.instructions) {
+        return path.instructions.map(instruction => {
+            return {
+                ...instruction,
+                points: path.points.coordinates.slice(instruction.interval[0], instruction.interval[1] + 1),
+            }
+        })
     } else {
-        // original code has GHUTIL.extracterrors
-        throw Error('something went wrong ')
+        return path.instructions
     }
 }
 
-function decodePath(encoded: any, is3D: any): number[][] {
+function decodePath(encoded: string, is3D: any): number[][] {
     const len = encoded.length
     let index = 0
     const array: number[][] = []
@@ -295,51 +317,24 @@ function decodePath(encoded: any, is3D: any): number[][] {
     return array
 }
 
-function createGetURL(host = default_host, basePath = default_route_base_path, key: string, options: RoutingRequest) {
+function createURL(host = default_host, basePath = default_route_base_path) {
     const url = new URL(host + basePath)
-
-    url.searchParams.append('key', key)
-    for (const key in options) {
-        if (!options.hasOwnProperty(key)) continue // skip inherited properties
-
-        const value = options[key]
-
-        if (key === 'points') {
-            const points = value as [number, number][]
-            createPointParams(points).forEach(param => {
-                url.searchParams.append(param[0], param[1])
-            })
-        } else {
-            url.searchParams.append(key, encodeURIComponent(value as string | boolean)) // point are already filtered
-        }
-    }
-
-    return url
-}
-
-function createPointParams(points: [number, number][]): [string, string][] {
-    return points.map(point => {
-        return ['point', point[0] + ',' + point[1]]
-    })
-}
-
-function createURL(args: { host?: string; basePath?: string; key: string }) {
-    const host = args.host ? args.host : default_host
-    const basePath = args.basePath ? args.basePath : default_route_base_path
-    const url = new URL(host + basePath)
-    url.searchParams.append('key', args.key)
+    url.searchParams.append('key', ghKey)
     return url
 }
 
 function createRequest(args: RoutingArgs): RoutingRequest {
     return {
         vehicle: args.vehicle || 'car',
-        elevation: args.elevation || false,
-        debug: args.debug || false,
-        instructions: args.instructions !== undefined ? args.instructions : true,
-        locale: args.locale || 'en',
-        optimize: args.optimize !== undefined ? args.optimize.toString() : false.toString(),
-        points_encoded: args.points_encoded !== undefined ? args.points_encoded : true,
+        elevation: false,
+        debug: false,
+        instructions: true,
+        locale: 'en',
+        optimize: 'false',
+        points_encoded: true,
+        'alternative_route.max_paths': 2,
+        'ch.disable': true,
+        algorithm: 'alternative_route',
         points: args.points,
     }
 }

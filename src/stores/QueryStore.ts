@@ -1,4 +1,4 @@
-import route, { ghKey, RoutingVehicle } from '@/routing/Api'
+import route, { RoutingVehicle } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import {
@@ -62,7 +62,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 number,
                 number
             ][]
-            route({ points: rawPoints, key: ghKey, points_encoded: false, vehicle: state.routingVehicle.key })
+            route({ points: rawPoints, vehicle: state.routingVehicle.key })
         }
     }
 
