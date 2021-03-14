@@ -1,5 +1,5 @@
 import { Action } from '@/stores/Dispatcher'
-import { ApiInfo, RoutingResult } from '@/routing/Api'
+import { ApiInfo, RoutingResult, RoutingVehicle } from '@/routing/Api'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 
 export class InfoReceived implements Action {
@@ -15,6 +15,14 @@ export class SetPoint implements Action {
 
     constructor(point: QueryPoint) {
         this.point = point
+    }
+}
+
+export class SetVehicle implements Action {
+    readonly vehicle: RoutingVehicle
+
+    constructor(vehicle: RoutingVehicle) {
+        this.vehicle = vehicle
     }
 }
 

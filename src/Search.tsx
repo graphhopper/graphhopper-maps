@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { geocode, GeocodingHit } from '@/routing/Api'
+import { geocode, GeocodingHit, RoutingVehicle } from '@/routing/Api'
 import styles from '@/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
+import RoutingVehicles from '@/RoutingVehicles'
 
 interface Query {
     point: QueryPoint
     text: string
 }
 
-export default function Search({ points }: { points: QueryPoint[] }) {
+export default function Search({
+    points,
+    routingVehicles,
+    selectedVehicle,
+}: {
+    points: QueryPoint[]
+    routingVehicles: RoutingVehicle[]
+    selectedVehicle: RoutingVehicle
+}) {
     const [query, setQuery] = useState<Query>({
         point: {
             queryText: '',
@@ -75,17 +84,20 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                     }}
                 />
             ))}
-            {
-                // current limit of the api is 5 points
-                points.length < 5 && (
-                    <button
-                        className={styles.addDestination}
-                        onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lng: 0, lat: 0 }, false))}
-                    >
-                        Add Destination
-                    </button>
-                )
-            }
+            <div className={styles.searchOptions}>
+                <RoutingVehicles routingVehicles={routingVehicles} selectedVehicle={selectedVehicle} />
+                {
+                    // current limit of the api is 5 points
+                    points.length < 5 && (
+                        <button
+                            className={styles.addDestination}
+                            onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lng: 0, lat: 0 }, false))}
+                        >
+                            Add Destination
+                        </button>
+                    )
+                }
+            </div>
             <GeocodingResults hits={geocodingHits} onSelectHit={handleHitSelected} />
         </div>
     )

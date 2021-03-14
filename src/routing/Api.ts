@@ -50,10 +50,11 @@ export interface ApiInfo {
     import_date: string
     version: string
     bbox: Bbox
-    vehicles: Map<RoutingVehicleType, RoutingVehicle>
+    vehicles: RoutingVehicle[]
 }
 
 export interface RoutingVehicle {
+    key: string
     version: string
     import_date: string // maybe parse this to date instead?
     features: RoutingFeature // Unsure if a map would make more sense but from looking at the api typing it makes sense (talk to peter)
@@ -61,18 +62,6 @@ export interface RoutingVehicle {
 
 export interface RoutingFeature {
     elevation: boolean
-}
-
-export enum RoutingVehicleType {
-    car,
-    bike,
-    foot,
-    hike,
-    mtb,
-    racingbike,
-    scooter,
-    truck,
-    small_truck,
 }
 
 export interface Path {
@@ -163,24 +152,22 @@ function convertToApiInfo(response: any): ApiInfo {
     let bbox = [0, 0, 0, 0] as Bbox
     let version = ''
     let import_date = ''
-    const vehicles: Map<RoutingVehicleType, RoutingVehicle> = new Map()
+    const vehicles: RoutingVehicle[] = []
 
     const features = response.features as { [index: string]: RoutingFeature }
 
     for (const property in response) {
-        if (property in RoutingVehicleType) {
-            //https://www.typescriptlang.org/docs/handbook/enums.html#enums-at-runtime
-            const num = RoutingVehicleType[property as keyof typeof RoutingVehicleType]
+        if (property in features) {
             const value = response[property]
-            const routingFeatures = features[property]
 
-            const routingVehicle: RoutingVehicle = {
-                features: routingFeatures,
-                import_date: value.import_date,
+            const vehicle: RoutingVehicle = {
+                features: features[property],
                 version: value.version,
+                import_date: value.import_date,
+                key: property,
             }
 
-            vehicles.set(num, routingVehicle)
+            vehicles.push(vehicle)
         } else if (property === 'bbox') bbox = response[property]
         else if (property === 'version') version = response[property]
         else if (property === 'import_date') import_date = response[property]

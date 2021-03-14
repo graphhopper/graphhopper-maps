@@ -8,7 +8,7 @@ export default class ApiInfoStore extends Store<ApiInfo> {
         return {
             version: '',
             bbox: [0, 0, 0, 0],
-            vehicles: new Map(),
+            vehicles: [],
             import_date: '',
         }
     }

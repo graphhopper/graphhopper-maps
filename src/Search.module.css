@@ -34,6 +34,13 @@
     border: rgb(100, 100, 100) 0.125rem solid;
 }
 
+.searchOptions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 1rem 0;
+}
+
 .addDestination {
     align-self: flex-end;
     margin: 0.5rem 0 0 0;

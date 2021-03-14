@@ -1,5 +1,5 @@
 import fetchMock from 'jest-fetch-mock'
-import route, { ApiInfo, info, RoutingArgs, RoutingVehicleType } from '@/routing/Api'
+import route, { ApiInfo, info, RoutingArgs } from '@/routing/Api'
 import Dispatcher, { Action } from '../../src/stores/Dispatcher'
 import { InfoReceived, RouteReceived } from '../../src/actions/Actions'
 
@@ -22,7 +22,7 @@ describe('info api', () => {
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
             import_date: 'some_date',
-            vehicles: new Map(),
+            vehicles: [],
             version: 'some_version',
         }
 
@@ -35,6 +35,7 @@ describe('info api', () => {
                     bbox: expected.bbox,
                     import_date: expected.import_date,
                     version: expected.version,
+                    features: {},
                 })
             )
         })
@@ -50,11 +51,16 @@ describe('info api', () => {
     })
 
     it('should convert the response into an ApiInfo object', async () => {
-        const carRoutingVehicle = { version: '1_car', import_date: 'car_import_date', features: { elevation: true } }
+        const carRoutingVehicle = {
+            key: 'car',
+            version: '1_car',
+            import_date: 'car_import_date',
+            features: { elevation: true },
+        }
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
             import_date: 'some_date',
-            vehicles: new Map([[RoutingVehicleType.car, carRoutingVehicle]]),
+            vehicles: [carRoutingVehicle],
             version: 'some_version',
         }
 
@@ -64,8 +70,8 @@ describe('info api', () => {
                 import_date: expected.import_date,
                 version: expected.version,
                 car: { version: carRoutingVehicle.version, import_date: carRoutingVehicle.import_date },
-                unexpectedProperty: { version: 'unexpected_version', import_date: 'unexpected_import_date' },
-                features: { car: { elevation: true }, unexpectedProperty: { elevation: false } },
+                notAVehicle: { version: 'notAVehicle_version', import_date: 'notAVehicle_import_date' },
+                features: { car: { elevation: true } },
             })
         )
 

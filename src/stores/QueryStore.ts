@@ -1,7 +1,15 @@
-import route, { ghKey, RoutingArgs } from '@/routing/Api'
+import route, { ghKey, RoutingVehicle } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { AddPoint, ClearPoints, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
+import {
+    AddPoint,
+    ClearPoints,
+    InfoReceived,
+    InvalidatePoint,
+    RemovePoint,
+    SetPoint,
+    SetVehicle,
+} from '@/actions/Actions'
 
 export interface Coordinate {
     lat: number
@@ -11,7 +19,7 @@ export interface Coordinate {
 export interface QueryStoreState {
     readonly queryPoints: QueryPoint[]
     readonly nextId: number
-    readonly routingArgs: RoutingArgs
+    readonly routingVehicle: RoutingVehicle
 }
 
 export interface QueryPoint {
@@ -48,10 +56,13 @@ export default class QueryStore extends Store<QueryStoreState> {
         return QueryPointType.Via
     }
 
-    private static routeIfAllPointsSet(points: QueryPoint[]) {
-        if (points.length > 1 && points.every(point => point.isInitialized)) {
-            const rawPoints = points.map(point => [point.coordinate.lng, point.coordinate.lat]) as [number, number][]
-            route({ points: rawPoints, key: ghKey, points_encoded: false })
+    private static routeIfAllPointsSet(state: QueryStoreState) {
+        if (state.queryPoints.length > 1 && state.queryPoints.every(point => point.isInitialized)) {
+            const rawPoints = state.queryPoints.map(point => [point.coordinate.lng, point.coordinate.lat]) as [
+                number,
+                number
+            ][]
+            route({ points: rawPoints, key: ghKey, points_encoded: false, vehicle: state.routingVehicle.key })
         }
     }
 
@@ -73,10 +84,11 @@ export default class QueryStore extends Store<QueryStoreState> {
                 QueryStore.getEmptyPoint(1, QueryPointType.To),
             ],
             nextId: 2,
-            routingArgs: {
-                points: [],
-                key: ghKey,
-                points_encoded: false,
+            routingVehicle: {
+                key: '',
+                import_date: '',
+                version: '',
+                features: { elevation: false },
             },
         }
     }
@@ -94,12 +106,13 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     protected reduce(state: QueryStoreState, action: Action): QueryStoreState {
         if (action instanceof SetPoint) {
-            const points = QueryStore.replace(state.queryPoints, action.point)
-            QueryStore.routeIfAllPointsSet(points)
-            return {
+            const newState = {
                 ...state,
-                queryPoints: points,
+                queryPoints: QueryStore.replace(state.queryPoints, action.point),
             }
+
+            QueryStore.routeIfAllPointsSet(newState)
+            return newState
         } else if (action instanceof InvalidatePoint) {
             const points = QueryStore.replace(state.queryPoints, {
                 ...action.point,
@@ -143,13 +156,15 @@ export default class QueryStore extends Store<QueryStoreState> {
                 return { ...point, color: QueryStore.getMarkerColor(type), type: type }
             })
 
-            QueryStore.routeIfAllPointsSet(newPoints)
-
-            return {
+            const newState = {
                 ...state,
                 nextId: state.nextId + 1,
                 queryPoints: newPoints,
             }
+
+            QueryStore.routeIfAllPointsSet(newState)
+
+            return newState
         } else if (action instanceof RemovePoint) {
             const newPoints = state.queryPoints
                 .filter(point => point.id !== action.point.id)
@@ -158,12 +173,27 @@ export default class QueryStore extends Store<QueryStoreState> {
                     return { ...point, color: QueryStore.getMarkerColor(type), type: type }
                 })
 
-            QueryStore.routeIfAllPointsSet(newPoints)
-
-            return {
+            const newState = {
                 ...state,
                 queryPoints: newPoints,
             }
+            QueryStore.routeIfAllPointsSet(newState)
+
+            return newState
+        } else if (action instanceof InfoReceived) {
+            const car = action.result.vehicles.find(vehicle => vehicle.key === 'car')
+            return {
+                ...state,
+                routingVehicle: car ? car : action.result.vehicles[0],
+            }
+        } else if (action instanceof SetVehicle) {
+            const newState = {
+                ...state,
+                routingVehicle: action.vehicle,
+            }
+
+            QueryStore.routeIfAllPointsSet(newState)
+            return newState
         }
         return state
     }

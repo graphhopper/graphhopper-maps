@@ -1,6 +1,5 @@
-import React, { Component, useState } from 'react'
-import { Instruction, Path } from '@/routing/Api'
-import { getQueryStore, getRouteStore } from '@/stores/Stores'
+import React, { useState } from 'react'
+import { ApiInfo, Instruction, Path } from '@/routing/Api'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { QueryStoreState } from '@/stores/QueryStore'
 import Search from '@/Search'
@@ -8,34 +7,19 @@ import styles from '@/Sidebar.module.css'
 
 const distanceFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 3 })
 
-interface SidebarState {
-    queryState: QueryStoreState
-    routeState: RouteStoreState
+type SidebarProps = {
+    query: QueryStoreState
+    route: RouteStoreState
+    info: ApiInfo
 }
 
-export default class Sidebar extends Component<{}, SidebarState> {
-    private queryStore = getQueryStore()
-    private routeStore = getRouteStore()
-
-    constructor(props: {}) {
-        super(props)
-
-        this.queryStore.register(() => this.setState({ queryState: this.queryStore.state }))
-        this.routeStore.register(() => this.setState({ routeState: this.routeStore.state }))
-        this.state = {
-            queryState: this.queryStore.state,
-            routeState: this.routeStore.state,
-        }
-    }
-
-    public render() {
-        return (
-            <>
-                <Search points={this.state.queryState.queryPoints} />
-                <QueryResults paths={this.state.routeState.routingResult.paths} />
-            </>
-        )
-    }
+export default function ({ query, route, info }: SidebarProps) {
+    return (
+        <>
+            <Search points={query.queryPoints} routingVehicles={info.vehicles} selectedVehicle={query.routingVehicle} />
+            <QueryResults paths={route.routingResult.paths} />
+        </>
+    )
 }
 
 const QueryResults = (props: { paths: Path[] }) => (

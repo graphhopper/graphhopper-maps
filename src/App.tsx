@@ -45,7 +45,7 @@ export default function App() {
             </div>
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent}>
-                    <Sidebar />
+                    <Sidebar info={info} query={query} route={route} />
                 </div>
             </div>
         </div>
