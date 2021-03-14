@@ -15,6 +15,7 @@ afterEach(() => Dispatcher.clear())
 // disable fetchMock and restore global 'fetch' method
 afterAll(() => fetchMock.disableMocks())
 
+it('should pass', () => {})
 /*
 describe('info api', () => {
     it('should query correct url and dispatch an InfoReceived action', async () => {
