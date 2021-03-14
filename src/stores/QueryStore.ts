@@ -181,6 +181,10 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             return newState
         } else if (action instanceof InfoReceived) {
+            // this is the case if the vehicle was set in the url. Keep it in this case
+            if (state.routingVehicle.key) return state
+
+            // otherwise select car as default routing mode
             const car = action.result.vehicles.find(vehicle => vehicle.key === 'car')
             return {
                 ...state,
