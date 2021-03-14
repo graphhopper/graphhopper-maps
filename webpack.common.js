@@ -8,13 +8,6 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js',
     },
-    devServer: {
-        contentBase: path.resolve(__dirname, 'dist'),
-        https: false,
-        port: 3000,
-        host: '0.0.0.0',
-    },
-    devtool: 'source-map',
     resolve: {
         alias: { '@': path.resolve(__dirname, 'src') },
         extensions: ['.ts', '.tsx', '.js', '.json', '.css', '.svg'],

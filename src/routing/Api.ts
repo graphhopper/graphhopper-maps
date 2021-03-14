@@ -332,9 +332,9 @@ function createRequest(args: RoutingArgs): RoutingRequest {
         locale: 'en',
         optimize: 'false',
         points_encoded: true,
-        'alternative_route.max_paths': 2,
-        'ch.disable': true,
-        algorithm: 'alternative_route',
+        //'alternative_route.max_paths': 2,
+        //'ch.disable': true,
+        //algorithm: 'alternative_route',
         points: args.points,
     }
 }
