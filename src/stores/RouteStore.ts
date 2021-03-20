@@ -15,7 +15,7 @@ export default class RouteStore extends Store<RouteStoreState> {
             instructions: [],
             points: {
                 coordinates: [],
-                type: '',
+                type: 'LineString',
             },
             points_encoded: false,
             snapped_waypoints: {

@@ -1,13 +1,16 @@
-import { GeoJSONSource, LngLatBounds, Map, MapMouseEvent, Marker } from 'mapbox-gl'
+import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
 import { Popup } from '@/Popup'
 import { Bbox, Path } from '@/routing/Api'
+import { FeatureCollection, LineString } from 'geojson'
 
-const lineSourceKey = 'route'
-const lineLayerKey = 'lines'
+const selectedPathSourceKey = 'selectedPathSource'
+const selectedPathLayerKey = 'selectedPathLayer'
+const pathsSourceKey = 'pathsSource'
+const pathsLayerKey = 'pathsLayer'
 
 // have this right here for now. Not sure if this needs to be abstracted somewhere else
 const mediaQuery = window.matchMedia('(max-width: 640px)')
@@ -28,7 +31,7 @@ export default class Mapbox {
         })
 
         this.map.on('load', () => {
-            this.initLineLayer()
+            this.initLineLayers()
             this.mapIsReady = true
             onMapReady()
         })
@@ -43,27 +46,56 @@ export default class Mapbox {
         this.map.remove()
     }
 
-    drawLine(path: Path) {
-        if (!this.mapIsReady) return
+    drawPaths(paths: Path[], selectedPath: Path) {
+        const unselectedPaths = paths.filter(path => path !== selectedPath)
+        this.drawUnselectedPaths(unselectedPaths)
+        this.drawSelectedPath(selectedPath)
+    }
 
-        console.log('draw line')
-        const source = this.map.getSource(lineSourceKey) as GeoJSONSource
-        if (path.points.coordinates.length > 0) {
-            source.setData({
-                type: 'FeatureCollection',
-                features: [
-                    {
-                        type: 'Feature',
-                        properties: {},
-                        geometry: path.points as GeoJSON.LineString,
-                    },
-                ],
-            })
-        } else {
-            source.setData({
-                features: [],
-                type: 'FeatureCollection',
-            })
+    drawSelectedPath(path: Path) {
+        const featureCollection: FeatureCollection = {
+            type: 'FeatureCollection',
+            features: [
+                {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: path.points as LineString,
+                },
+            ],
+        }
+
+        this.setGeoJsonSource(selectedPathSourceKey, featureCollection)
+    }
+
+    drawUnselectedPaths(paths: Path[]) {
+        const featureCollection: FeatureCollection = {
+            type: 'FeatureCollection',
+            features: paths.map(path => {
+                return {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: path.points as LineString,
+                }
+            }),
+        }
+
+        this.setGeoJsonSource(pathsSourceKey, featureCollection)
+    }
+
+    setGeoJsonSource(sourceKey: string, featureCollection: FeatureCollection) {
+        if (!this.mapIsReady) return
+        try {
+            const source = this.map.getSource(sourceKey) as GeoJSONSource
+            if (featureCollection.features.length > 0) {
+                source.setData(featureCollection)
+            } else {
+                source.setData({
+                    features: [],
+                    type: 'FeatureCollection',
+                })
+            }
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -115,8 +147,8 @@ export default class Mapbox {
               }
     }
 
-    private initLineLayer() {
-        this.map.addSource(lineSourceKey, {
+    private initLineLayers() {
+        const source: GeoJSONSourceRaw = {
             type: 'geojson',
             data: {
                 type: 'Feature',
@@ -126,19 +158,38 @@ export default class Mapbox {
                     coordinates: [],
                 },
             },
-        })
-        this.map.addLayer({
-            id: lineLayerKey,
+        }
+
+        const pathsLayer: LineLayer = {
+            id: pathsLayerKey,
             type: 'line',
-            source: lineSourceKey,
+            source: pathsSourceKey,
             layout: {
                 'line-join': 'round',
                 'line-cap': 'round',
             },
             paint: {
-                'line-color': '#888',
-                'line-width': 8,
+                'line-color': '#5B616A',
+                'line-width': 6,
+                'line-opacity': 0.8,
             },
-        })
+        }
+
+        this.map.addSource(pathsSourceKey, source)
+        this.map.addLayer(pathsLayer, 'road-label')
+
+        this.map.addSource(selectedPathSourceKey, source)
+        this.map.addLayer(
+            {
+                ...pathsLayer,
+                id: selectedPathLayerKey,
+                source: selectedPathSourceKey,
+                paint: {
+                    'line-color': '#275DAD',
+                    'line-width': 8,
+                },
+            },
+            'road-label'
+        )
     }
 }

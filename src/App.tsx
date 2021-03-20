@@ -41,7 +41,12 @@ export default function App() {
     return (
         <div className={styles.appWrapper}>
             <div className={styles.map}>
-                <MapComponent queryPoints={query.queryPoints} path={route.selectedPath} bbox={bbox} />
+                <MapComponent
+                    queryPoints={query.queryPoints}
+                    paths={route.routingResult.paths}
+                    selectedPath={route.selectedPath}
+                    bbox={bbox}
+                />
             </div>
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent}>

@@ -2,20 +2,35 @@
     overflow-y: auto;
 }
 
-.resultList {
-    margin: 0 0.5rem;
-}
-
 .resultRow {
     display: flex;
     flex-direction: column;
-    margin: 1rem 0;
+
+    border-bottom: 1px lightgray solid;
+}
+
+.resultSelectableArea {
+    padding: 1rem 0;
+}
+
+.resultSelectableArea:hover {
+    background-color: #ececec;
+}
+
+.resultSelectableArea:active {
+    background-color: #c6c6c6;
 }
 
 .resultSummary {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    padding: 0 0.5rem;
+}
+
+.selectedResultSummary {
+    border-left: #275dad solid 0.25rem;
+    padding: 0 0.5rem 0 0.25rem;
 }
 
 .resultValues {
@@ -24,7 +39,7 @@
 }
 
 .instructionsList {
-    margin: 1rem 0 0 0;
+    margin: 1rem 0.5rem 0 0.5rem;
 }
 
 .truncate {

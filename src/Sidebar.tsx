@@ -17,39 +17,46 @@ export default function ({ query, route, info }: SidebarProps) {
     return (
         <>
             <Search points={query.queryPoints} routingVehicles={info.vehicles} selectedVehicle={query.routingVehicle} />
-            <QueryResults paths={route.routingResult.paths} />
+            <QueryResults paths={route.routingResult.paths} selectedPath={route.selectedPath} />
         </>
     )
 }
 
-const QueryResults = (props: { paths: Path[] }) => (
+const QueryResults = (props: { paths: Path[]; selectedPath: Path }) => (
     <div className={styles.resultListContainer}>
-        <ul className={styles.resultList}>
+        <ul>
             {props.paths.map((path, i) => (
                 <li key={i}>
-                    <QueryResult path={path} />
+                    <QueryResult path={path} isSelected={path === props.selectedPath} />
                 </li>
             ))}
         </ul>
     </div>
 )
 
-const QueryResult = (props: { path: Path }) => {
+const QueryResult = ({ path, isSelected }: { path: Path; isSelected: boolean }) => {
     const [isExpanded, setExpanded] = useState(false)
     const buttonText = isExpanded ? 'Hide' : 'Details'
+    const resultSummaryClass = isSelected
+        ? styles.resultSummary + ' ' + styles.selectedResultSummary
+        : styles.resultSummary
 
     return (
         <div className={styles.resultRow}>
-            <div className={styles.resultSummary}>
-                <div className={styles.resultValues}>
-                    <span>{distanceFormat.format(props.path.distance / 1000)}km</span>
-                    <span>{milliSecondsToText(props.path.time)}</span>
+            <div className={styles.resultSelectableArea}>
+                <div className={resultSummaryClass}>
+                    <div className={styles.resultValues}>
+                        <span>{distanceFormat.format(path.distance / 1000)}km</span>
+                        <span>{milliSecondsToText(path.time)}</span>
+                    </div>
+                    {isSelected && (
+                        <button className={styles.resultExpandDirections} onClick={() => setExpanded(!isExpanded)}>
+                            {buttonText}
+                        </button>
+                    )}
                 </div>
-                <button className={styles.resultExpandDirections} onClick={() => setExpanded(!isExpanded)}>
-                    {buttonText}
-                </button>
             </div>
-            {isExpanded && <Instructions instructions={props.path.instructions} />}
+            {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
     )
 }
