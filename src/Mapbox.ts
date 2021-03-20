@@ -2,7 +2,7 @@ import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouse
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetPoint } from '@/actions/Actions'
+import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/Popup'
 import { Bbox, Path } from '@/routing/Api'
 import { FeatureCollection, LineString } from 'geojson'
@@ -19,8 +19,10 @@ export default class Mapbox {
     private readonly map: Map
     private markers: Marker[] = []
     private popup: Popup
+    private currentPaths: { path: Path; index: number }[] = []
 
     private mapIsReady = false
+    private a = true
 
     constructor(container: HTMLDivElement, onMapReady: () => void, onClick: (e: MapMouseEvent) => void) {
         this.map = new Map({
@@ -36,8 +38,31 @@ export default class Mapbox {
             onMapReady()
         })
 
+        const onSelectPath = (e: MapMouseEvent) => {
+            console.log('click')
+        }
+
         this.map.on('click', onClick)
         this.map.on('contextmenu', e => this.popup.show(e.lngLat))
+
+        this.map.on('mouseenter', pathsLayerKey, e => {
+            this.map.getCanvasContainer().style.cursor = 'pointer'
+            this.map.off('click', onClick)
+        })
+
+        //TODO Hacky hacky. Make this proper, but time is up for today
+        this.map.on('click', pathsLayerKey, e => {
+            const features = this.map.querySourceFeatures(pathsSourceKey)
+            if (features.length > 0) {
+                const index = features[0].properties!.index
+                const path = this.currentPaths.find(indexPath => indexPath.index === index)
+                Dispatcher.dispatch(new SetSelectedPath(path!.path))
+            }
+        })
+        this.map.on('mouseleave', pathsLayerKey, e => {
+            this.map.getCanvasContainer().style.cursor = ''
+            this.map.on('click', onClick)
+        })
 
         this.popup = new Popup(this.map)
     }
@@ -47,8 +72,15 @@ export default class Mapbox {
     }
 
     drawPaths(paths: Path[], selectedPath: Path) {
-        const unselectedPaths = paths.filter(path => path !== selectedPath)
-        this.drawUnselectedPaths(unselectedPaths)
+        this.currentPaths = paths
+            .map((path, i) => {
+                return {
+                    path: path,
+                    index: i,
+                }
+            })
+            .filter(indexPath => indexPath.path !== selectedPath)
+        this.drawUnselectedPaths(this.currentPaths)
         this.drawSelectedPath(selectedPath)
     }
 
@@ -67,14 +99,16 @@ export default class Mapbox {
         this.setGeoJsonSource(selectedPathSourceKey, featureCollection)
     }
 
-    drawUnselectedPaths(paths: Path[]) {
+    drawUnselectedPaths(indexPaths: { path: Path; index: number }[]) {
         const featureCollection: FeatureCollection = {
             type: 'FeatureCollection',
-            features: paths.map(path => {
+            features: indexPaths.map(indexPath => {
                 return {
                     type: 'Feature',
-                    properties: {},
-                    geometry: path.points as LineString,
+                    properties: {
+                        index: indexPath.index,
+                    },
+                    geometry: indexPath.path.points as LineString,
                 }
             }),
         }
