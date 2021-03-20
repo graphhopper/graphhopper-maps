@@ -1,7 +1,7 @@
 import { Path, RoutingResult } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { ClearRoute, RouteReceived, SetPoint } from '@/actions/Actions'
+import { ClearRoute, RouteReceived, SetPoint, SetSelectedPath } from '@/actions/Actions'
 
 export interface RouteStoreState {
     routingResult: RoutingResult
@@ -38,6 +38,11 @@ export default class RouteStore extends Store<RouteStoreState> {
     protected reduce(state: RouteStoreState, action: Action): RouteStoreState {
         if (action instanceof RouteReceived) {
             return this.handleRouteReceived(action)
+        } else if (action instanceof SetSelectedPath) {
+            return {
+                ...state,
+                selectedPath: action.path,
+            }
         } else if (action instanceof SetPoint || action instanceof ClearRoute) {
             return this.getInitialState()
         }

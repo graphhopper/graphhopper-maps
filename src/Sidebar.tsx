@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ApiInfo, Instruction, Path } from '@/routing/Api'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { QueryStoreState } from '@/stores/QueryStore'
 import Search from '@/Search'
 import styles from '@/Sidebar.module.css'
+import Dispatcher from '@/stores/Dispatcher'
+import { SetSelectedPath } from '@/actions/Actions'
 
 const distanceFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 3 })
 
@@ -41,9 +43,11 @@ const QueryResult = ({ path, isSelected }: { path: Path; isSelected: boolean }) 
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
 
+    useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
+
     return (
         <div className={styles.resultRow}>
-            <div className={styles.resultSelectableArea}>
+            <div className={styles.resultSelectableArea} onClick={() => Dispatcher.dispatch(new SetSelectedPath(path))}>
                 <div className={resultSummaryClass}>
                     <div className={styles.resultValues}>
                         <span>{distanceFormat.format(path.distance / 1000)}km</span>
