@@ -13,7 +13,7 @@ export default class ApiInfoStore extends Store<ApiInfo> {
         }
     }
 
-    protected reduce(state: ApiInfo, action: Action): ApiInfo {
+    reduce(state: ApiInfo, action: Action): ApiInfo {
         if (action instanceof InfoReceived) {
             return action.result
         }

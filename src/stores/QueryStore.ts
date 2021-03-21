@@ -1,4 +1,4 @@
-import routeNoAlternative, { routeWithAlternativeRoutes, RoutingVehicle } from '@/routing/Api'
+import routeWithoutAlternativeRoutes, { routeWithAlternativeRoutes, RoutingVehicle } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import {
@@ -63,7 +63,10 @@ export default class QueryStore extends Store<QueryStoreState> {
                 number,
                 number
             ][]
-            routeNoAlternative(state.currentRequestId, { points: rawPoints, vehicle: state.routingVehicle.key })
+            routeWithoutAlternativeRoutes(state.currentRequestId, {
+                points: rawPoints,
+                vehicle: state.routingVehicle.key,
+            })
             if (state.queryPoints.length === 2) {
                 routeWithAlternativeRoutes(state.currentRequestId, {
                     points: rawPoints,
@@ -112,7 +115,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return result
     }
 
-    protected reduce(state: QueryStoreState, action: Action): QueryStoreState {
+    reduce(state: QueryStoreState, action: Action): QueryStoreState {
         if (action instanceof SetPoint) {
             const newState: QueryStoreState = {
                 ...state,

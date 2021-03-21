@@ -43,7 +43,7 @@ export default class RouteStore extends Store<RouteStoreState> {
         this.queryStore = queryStore
     }
 
-    protected reduce(state: RouteStoreState, action: Action): RouteStoreState {
+    reduce(state: RouteStoreState, action: Action): RouteStoreState {
         if (action instanceof RouteReceived) {
             return this.reduceRouteReceived(state, action)
         } else if (action instanceof SetSelectedPath) {

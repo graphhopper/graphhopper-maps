@@ -10,8 +10,6 @@ export type Bbox = [number, number, number, number]
 
 export interface RoutingArgs {
     readonly points: [number, number][]
-    readonly host?: string
-    readonly basePath?: string
     readonly vehicle?: string
 }
 
@@ -40,7 +38,7 @@ export interface RoutingResult {
     readonly paths: Path[]
 }
 
-interface RawResult {
+export interface RawResult {
     readonly info: { copyright: string[]; took: number }
     readonly paths: RawPath[]
 }
@@ -177,18 +175,18 @@ export async function routeWithAlternativeRoutes(requestId: number, args: Routin
         points: args.points,
     }
 
-    const url = createURL(args.host, args.basePath)
-    await route(requestId, url, request)
+    await route(requestId, request)
 }
 
-export default async function routeNoAlternative(requestId: number, args: RoutingArgs) {
+export default async function routeWithoutAlternativeRoutes(requestId: number, args: RoutingArgs) {
     const request = createRequest(args)
-    const url = createURL(args.host, args.basePath)
-
-    await route(requestId, url, request)
+    await route(requestId, request)
 }
 
-async function route(requestId: number, url: URL, request: RoutingRequest) {
+async function route(requestId: number, request: RoutingRequest) {
+    const url = new URL(default_host + default_route_base_path)
+    url.searchParams.append('key', ghKey)
+
     const response = await fetch(url.toString(), {
         method: 'POST',
         mode: 'cors',
@@ -346,12 +344,6 @@ function decodePath(encoded: string, is3D: any): number[][] {
     // var end = new Date().getTime();
     // console.log("decoded " + len + " coordinates in " + ((end - start) / 1000) + "s");
     return array
-}
-
-function createURL(host = default_host, basePath = default_route_base_path) {
-    const url = new URL(host + basePath)
-    url.searchParams.append('key', ghKey)
-    return url
 }
 
 function createRequest(args: RoutingArgs): RoutingRequest {
