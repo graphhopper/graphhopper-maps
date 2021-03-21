@@ -1,5 +1,5 @@
 import fetchMock from 'jest-fetch-mock'
-import route, { ApiInfo, info, RoutingArgs } from '@/routing/Api'
+import routeNoAlternative, { ApiInfo, info, RoutingArgs } from '@/routing/Api'
 import Dispatcher, { Action } from '../../src/stores/Dispatcher'
 import { InfoReceived, RouteReceived } from '../../src/actions/Actions'
 

@@ -58,9 +58,11 @@ export class InvalidatePoint implements Action {
 
 export class RouteReceived implements Action {
     readonly result: RoutingResult
+    readonly requestId: number
 
-    constructor(result: RoutingResult) {
+    constructor(result: RoutingResult, requestId: number) {
         this.result = result
+        this.requestId = requestId
     }
 }
 

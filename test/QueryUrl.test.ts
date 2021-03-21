@@ -1,5 +1,5 @@
 import { createUrl, parseUrl } from '../src/QueryUrl'
-import { QueryPoint, QueryPointType } from '../src/stores/QueryStore'
+import { QueryPoint, QueryPointType, QueryStoreState } from '../src/stores/QueryStore'
 import Dispatcher, { Action } from '../src/stores/Dispatcher'
 import Store from '../src/stores/Store'
 import { RoutingVehicle } from '../src/routing/Api'
@@ -49,7 +49,8 @@ describe('parseUrl', () => {
 
         parseUrl(url, {
             queryPoints: [],
-            nextId: 0,
+            nextQueryPointId: 0,
+            currentRequestId: 0,
             routingVehicle: store.state.vehicle,
         })
 
@@ -115,7 +116,8 @@ describe('createUrl', () => {
 
         const result = createUrl(expectedUrl.origin, {
             routingVehicle: { ...emptyState.routingVehicle, key: vehicle },
-            nextId: 0,
+            nextQueryPointId: 0,
+            currentRequestId: 0,
             queryPoints: [coordinateToQueryPoint(point1, 1), coordinateToQueryPoint(point2, 2)],
         })
 
@@ -123,10 +125,11 @@ describe('createUrl', () => {
     })
 })
 
-function getQueryStoreState() {
+function getQueryStoreState(): QueryStoreState {
     return {
         queryPoints: [],
-        nextId: 0,
+        nextQueryPointId: 0,
+        currentRequestId: 0,
         routingVehicle: { import_date: '', features: { elevation: false }, version: '', key: '' },
     }
 }

@@ -1,4 +1,4 @@
-import route, { RoutingVehicle } from '@/routing/Api'
+import routeNoAlternative, { routeWithAlternativeRoutes, RoutingVehicle } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import {
@@ -18,7 +18,8 @@ export interface Coordinate {
 
 export interface QueryStoreState {
     readonly queryPoints: QueryPoint[]
-    readonly nextId: number
+    readonly nextQueryPointId: number
+    readonly currentRequestId: number
     readonly routingVehicle: RoutingVehicle
 }
 
@@ -62,7 +63,13 @@ export default class QueryStore extends Store<QueryStoreState> {
                 number,
                 number
             ][]
-            route({ points: rawPoints, vehicle: state.routingVehicle.key })
+            routeNoAlternative(state.currentRequestId, { points: rawPoints, vehicle: state.routingVehicle.key })
+            if (state.queryPoints.length === 2) {
+                routeWithAlternativeRoutes(state.currentRequestId, {
+                    points: rawPoints,
+                    vehicle: state.routingVehicle.key,
+                })
+            }
         }
     }
 
@@ -83,7 +90,8 @@ export default class QueryStore extends Store<QueryStoreState> {
                 QueryStore.getEmptyPoint(0, QueryPointType.From),
                 QueryStore.getEmptyPoint(1, QueryPointType.To),
             ],
-            nextId: 2,
+            nextQueryPointId: 2,
+            currentRequestId: 0,
             routingVehicle: {
                 key: '',
                 import_date: '',
@@ -106,9 +114,10 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     protected reduce(state: QueryStoreState, action: Action): QueryStoreState {
         if (action instanceof SetPoint) {
-            const newState = {
+            const newState: QueryStoreState = {
                 ...state,
                 queryPoints: QueryStore.replace(state.queryPoints, action.point),
+                currentRequestId: state.currentRequestId + 1,
             }
 
             QueryStore.routeIfAllPointsSet(newState)
@@ -143,7 +152,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             // add new point at the desired index
             tmp.splice(action.atIndex, 0, {
                 coordinate: action.coordinate,
-                id: state.nextId,
+                id: state.nextQueryPointId,
                 queryText: queryText,
                 color: '',
                 isInitialized: action.isInitialized,
@@ -156,9 +165,10 @@ export default class QueryStore extends Store<QueryStoreState> {
                 return { ...point, color: QueryStore.getMarkerColor(type), type: type }
             })
 
-            const newState = {
+            const newState: QueryStoreState = {
                 ...state,
-                nextId: state.nextId + 1,
+                nextQueryPointId: state.nextQueryPointId + 1,
+                currentRequestId: state.currentRequestId + 1,
                 queryPoints: newPoints,
             }
 
@@ -173,7 +183,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     return { ...point, color: QueryStore.getMarkerColor(type), type: type }
                 })
 
-            const newState = {
+            const newState: QueryStoreState = {
                 ...state,
                 queryPoints: newPoints,
             }
@@ -191,9 +201,10 @@ export default class QueryStore extends Store<QueryStoreState> {
                 routingVehicle: car ? car : action.result.vehicles[0],
             }
         } else if (action instanceof SetVehicle) {
-            const newState = {
+            const newState: QueryStoreState = {
                 ...state,
                 routingVehicle: action.vehicle,
+                currentRequestId: state.currentRequestId + 1,
             }
 
             QueryStore.routeIfAllPointsSet(newState)

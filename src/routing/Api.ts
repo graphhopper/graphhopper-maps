@@ -25,6 +25,7 @@ interface RoutingRequest {
     elevation: boolean
     optimize: string
     'alternative_route.max_paths'?: number
+    'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean
     algorithm?: 'alternative_route' | 'round_trip'
 }
@@ -154,10 +155,40 @@ export async function info() {
     }
 }
 
-export default async function route(args: RoutingArgs) {
+/**
+ * routeWithAlternativeRoutes and routeNoAlternativeRoutes create different RoutingRequest objects
+ * This is subject to change since andi and peter want the request object being represented in the app's state.
+ * Probably this will go back to a single 'route' method which accepts a request object. and the query store will
+ * take care of supplying the right values.
+ */
+export async function routeWithAlternativeRoutes(requestId: number, args: RoutingArgs) {
+    const request: RoutingRequest = {
+        vehicle: args.vehicle || 'car',
+        elevation: false,
+        debug: false,
+        instructions: true,
+        locale: 'en',
+        optimize: 'false',
+        points_encoded: true,
+        'alternative_route.max_paths': 3,
+        'alternative_route.max_weight_factor': 2.0,
+        'ch.disable': true,
+        algorithm: 'alternative_route',
+        points: args.points,
+    }
+
+    const url = createURL(args.host, args.basePath)
+    await route(requestId, url, request)
+}
+
+export default async function routeNoAlternative(requestId: number, args: RoutingArgs) {
     const request = createRequest(args)
     const url = createURL(args.host, args.basePath)
 
+    await route(requestId, url, request)
+}
+
+async function route(requestId: number, url: URL, request: RoutingRequest) {
     const response = await fetch(url.toString(), {
         method: 'POST',
         mode: 'cors',
@@ -179,7 +210,7 @@ export default async function route(args: RoutingArgs) {
         }
 
         // send into application
-        Dispatcher.dispatch(new RouteReceived(result))
+        Dispatcher.dispatch(new RouteReceived(result, requestId))
     } else {
         const errorResult = (await response.json()) as ErrorResponse
         throw new Error(errorResult.message)
@@ -332,9 +363,6 @@ function createRequest(args: RoutingArgs): RoutingRequest {
         locale: 'en',
         optimize: 'false',
         points_encoded: true,
-        'alternative_route.max_paths': 2,
-        'ch.disable': true,
-        algorithm: 'alternative_route',
         points: args.points,
     }
 }
