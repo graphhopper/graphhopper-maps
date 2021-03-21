@@ -10,8 +10,6 @@ export type Bbox = [number, number, number, number]
 
 export interface RoutingArgs {
     readonly points: [number, number][]
-    readonly host?: string
-    readonly basePath?: string
     readonly vehicle?: string
 }
 
@@ -25,6 +23,7 @@ interface RoutingRequest {
     elevation: boolean
     optimize: string
     'alternative_route.max_paths'?: number
+    'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean
     algorithm?: 'alternative_route' | 'round_trip'
 }
@@ -39,7 +38,7 @@ export interface RoutingResult {
     readonly paths: Path[]
 }
 
-interface RawResult {
+export interface RawResult {
     readonly info: { copyright: string[]; took: number }
     readonly paths: RawPath[]
 }
@@ -154,9 +153,39 @@ export async function info() {
     }
 }
 
-export default async function route(args: RoutingArgs) {
+/**
+ * routeWithAlternativeRoutes and routeNoAlternativeRoutes create different RoutingRequest objects
+ * This is subject to change since andi and peter want the request object being represented in the app's state.
+ * Probably this will go back to a single 'route' method which accepts a request object. and the query store will
+ * take care of supplying the right values.
+ */
+export async function routeWithAlternativeRoutes(requestId: number, args: RoutingArgs) {
+    const request: RoutingRequest = {
+        vehicle: args.vehicle || 'car',
+        elevation: false,
+        debug: false,
+        instructions: true,
+        locale: 'en',
+        optimize: 'false',
+        points_encoded: true,
+        'alternative_route.max_paths': 3,
+        'alternative_route.max_weight_factor': 2.0,
+        'ch.disable': true,
+        algorithm: 'alternative_route',
+        points: args.points,
+    }
+
+    await route(requestId, request)
+}
+
+export default async function routeWithoutAlternativeRoutes(requestId: number, args: RoutingArgs) {
     const request = createRequest(args)
-    const url = createURL(args.host, args.basePath)
+    await route(requestId, request)
+}
+
+async function route(requestId: number, request: RoutingRequest) {
+    const url = new URL(default_host + default_route_base_path)
+    url.searchParams.append('key', ghKey)
 
     const response = await fetch(url.toString(), {
         method: 'POST',
@@ -179,7 +208,7 @@ export default async function route(args: RoutingArgs) {
         }
 
         // send into application
-        Dispatcher.dispatch(new RouteReceived(result))
+        Dispatcher.dispatch(new RouteReceived(result, requestId))
     } else {
         const errorResult = (await response.json()) as ErrorResponse
         throw new Error(errorResult.message)
@@ -317,12 +346,6 @@ function decodePath(encoded: string, is3D: any): number[][] {
     return array
 }
 
-function createURL(host = default_host, basePath = default_route_base_path) {
-    const url = new URL(host + basePath)
-    url.searchParams.append('key', ghKey)
-    return url
-}
-
 function createRequest(args: RoutingArgs): RoutingRequest {
     return {
         vehicle: args.vehicle || 'car',
@@ -332,9 +355,6 @@ function createRequest(args: RoutingArgs): RoutingRequest {
         locale: 'en',
         optimize: 'false',
         points_encoded: true,
-        //'alternative_route.max_paths': 2,
-        //'ch.disable': true,
-        //algorithm: 'alternative_route',
         points: args.points,
     }
 }

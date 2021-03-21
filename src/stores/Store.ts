@@ -32,7 +32,7 @@ export default abstract class Store<TState> implements ActionReceiver, NotifySta
 
     protected abstract getInitialState(): TState
 
-    protected abstract reduce(state: TState, action: Action): TState
+    abstract reduce(state: TState, action: Action): TState
 
     private setState(value: TState) {
         this._state = value

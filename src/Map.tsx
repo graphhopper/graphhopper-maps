@@ -6,13 +6,14 @@ import Mapbox from '@/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, SetPoint } from '@/actions/Actions'
 
-type ComponentWithClassProps = {
-    path: Path
+type MapProps = {
+    selectedPath: Path
+    paths: Path[]
     queryPoints: QueryPoint[]
     bbox: Bbox
 }
 
-export default function ({ path, queryPoints, bbox }: ComponentWithClassProps) {
+export default function ({ selectedPath, paths, queryPoints, bbox }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const queryPointsRef = useRef(queryPoints)
     const [map, setMap] = useState<Mapbox | null>(null)
@@ -47,7 +48,7 @@ export default function ({ path, queryPoints, bbox }: ComponentWithClassProps) {
         )
         return () => map?.remove()
     }, [])
-    useEffect(() => map?.drawLine(path), [path, map])
+    useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
     useEffect(() => map?.fitBounds(bbox), [bbox, map])
 

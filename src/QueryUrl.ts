@@ -4,8 +4,8 @@ import { AddPoint, RemovePoint, SetVehicle } from '@/actions/Actions'
 
 export function parseUrl(href: string, currentState: QueryStoreState) {
     const url = new URL(href)
-    parsePoints(url, currentState.queryPoints)
     parseRoutingVehicle(url)
+    parsePoints(url, currentState.queryPoints)
 }
 
 function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {

@@ -11,9 +11,10 @@ import { createUrl, parseUrl } from '@/./QueryUrl'
 import QueryStore from '@/stores/QueryStore'
 
 // set up state management
+const queryStore = new QueryStore()
 setStores({
-    queryStore: new QueryStore(),
-    routeStore: new RouteStore(),
+    queryStore: queryStore,
+    routeStore: new RouteStore(queryStore),
     infoStore: new ApiInfoStore(),
 })
 

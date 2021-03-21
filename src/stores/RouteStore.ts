@@ -1,7 +1,8 @@
 import { Path, RoutingResult } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { ClearRoute, RouteReceived, SetPoint } from '@/actions/Actions'
+import { ClearRoute, RouteReceived, SetPoint, SetSelectedPath } from '@/actions/Actions'
+import QueryStore from '@/stores/QueryStore'
 
 export interface RouteStoreState {
     routingResult: RoutingResult
@@ -15,7 +16,7 @@ export default class RouteStore extends Store<RouteStoreState> {
             instructions: [],
             points: {
                 coordinates: [],
-                type: '',
+                type: 'LineString',
             },
             points_encoded: false,
             snapped_waypoints: {
@@ -35,9 +36,21 @@ export default class RouteStore extends Store<RouteStoreState> {
         }
     }
 
-    protected reduce(state: RouteStoreState, action: Action): RouteStoreState {
+    private readonly queryStore: QueryStore
+
+    constructor(queryStore: QueryStore) {
+        super()
+        this.queryStore = queryStore
+    }
+
+    reduce(state: RouteStoreState, action: Action): RouteStoreState {
         if (action instanceof RouteReceived) {
-            return this.handleRouteReceived(action)
+            return this.reduceRouteReceived(state, action)
+        } else if (action instanceof SetSelectedPath) {
+            return {
+                ...state,
+                selectedPath: action.path,
+            }
         } else if (action instanceof SetPoint || action instanceof ClearRoute) {
             return this.getInitialState()
         }
@@ -57,13 +70,23 @@ export default class RouteStore extends Store<RouteStoreState> {
         }
     }
 
-    private handleRouteReceived(action: RouteReceived) {
-        if (action.result.paths.length > 0) {
+    private reduceRouteReceived(state: RouteStoreState, action: RouteReceived) {
+        if (this.isStaleRequest(action.requestId)) return state
+
+        if (RouteStore.containsPaths(action.result.paths)) {
             return {
                 routingResult: action.result,
                 selectedPath: action.result.paths[0],
             }
         }
         return this.getInitialState()
+    }
+
+    private isStaleRequest(requestId: number) {
+        return requestId !== this.queryStore.state.currentRequestId
+    }
+
+    private static containsPaths(paths: Path[]) {
+        return paths.length > 0
     }
 }
