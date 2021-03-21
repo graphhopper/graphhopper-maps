@@ -25,17 +25,27 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 0 0.5rem;
+    padding: 0 1rem;
 }
 
 .selectedResultSummary {
     border-left: #275dad solid 0.25rem;
-    padding: 0 0.5rem 0 0.25rem;
+    padding: 0 0.5rem 0 0.75rem;
 }
 
 .resultValues {
     display: flex;
     flex-direction: column;
+}
+
+.resultMainText {
+    font-size: large;
+    font-weight: bold;
+    margin-bottom: 0.1rem;
+}
+
+.resultSecondaryText {
+    color: #5b616a;
 }
 
 .instructionsList {

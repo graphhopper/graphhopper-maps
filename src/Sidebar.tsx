@@ -7,7 +7,7 @@ import styles from '@/Sidebar.module.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
 
-const distanceFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 3 })
+const distanceFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 })
 
 type SidebarProps = {
     query: QueryStoreState
@@ -50,8 +50,8 @@ const QueryResult = ({ path, isSelected }: { path: Path; isSelected: boolean }) 
             <div className={styles.resultSelectableArea} onClick={() => Dispatcher.dispatch(new SetSelectedPath(path))}>
                 <div className={resultSummaryClass}>
                     <div className={styles.resultValues}>
-                        <span>{distanceFormat.format(path.distance / 1000)}km</span>
-                        <span>{milliSecondsToText(path.time)}</span>
+                        <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
+                        <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
                     </div>
                     {isSelected && (
                         <button className={styles.resultExpandDirections} onClick={() => setExpanded(!isExpanded)}>
@@ -77,6 +77,11 @@ function milliSecondsToText(seconds: number) {
     const hours = Math.floor(seconds / 3600000)
     const minutes = Math.floor((seconds % 3600000) / 60000)
 
-    const hourText = hours > 0 ? hours + 'h' : ''
-    return hourText + ' ' + minutes + 'min'
+    const hourText = hours > 0 ? hours + ' h' : ''
+    return hourText + ' ' + minutes + ' min'
+}
+
+function metersToText(meters: number) {
+    if (meters < 1000) return Math.floor(meters) + ' m'
+    return distanceFormat.format(meters / 1000) + ' km'
 }
