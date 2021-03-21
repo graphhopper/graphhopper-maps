@@ -18,7 +18,7 @@ class TestStore extends Store<TestState> {
         }
     }
 
-    protected reduce(state: TestState, action: Action): TestState {
+    reduce(state: TestState, action: Action): TestState {
         if (action instanceof AddPoint) {
             state.points.push(action.coordinate)
             return {
