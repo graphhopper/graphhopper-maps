@@ -22,7 +22,6 @@ export default class Mapbox {
     private currentPaths: { path: Path; index: number }[] = []
 
     private mapIsReady = false
-    private a = true
 
     constructor(container: HTMLDivElement, onMapReady: () => void, onClick: (e: MapMouseEvent) => void) {
         this.map = new Map({
@@ -45,20 +44,24 @@ export default class Mapbox {
         this.map.on('click', onClick)
         this.map.on('contextmenu', e => this.popup.show(e.lngLat))
 
+        // set up selection of alternative paths
+        // de-register default onClick handler when an alternative path is hovered
         this.map.on('mouseenter', pathsLayerKey, e => {
             this.map.getCanvasContainer().style.cursor = 'pointer'
             this.map.off('click', onClick)
         })
 
-        //TODO Hacky hacky. Make this proper, but time is up for today
+        // select an alternative path if clicked
         this.map.on('click', pathsLayerKey, e => {
-            const features = this.map.querySourceFeatures(pathsSourceKey)
+            const features = this.map.queryRenderedFeatures(e.point, { layers: [pathsLayerKey] })
             if (features.length > 0) {
                 const index = features[0].properties!.index
                 const path = this.currentPaths.find(indexPath => indexPath.index === index)
                 Dispatcher.dispatch(new SetSelectedPath(path!.path))
             }
         })
+
+        // re-register default click handler if mouse leaves alternative paths
         this.map.on('mouseleave', pathsLayerKey, e => {
             this.map.getCanvasContainer().style.cursor = ''
             this.map.on('click', onClick)
