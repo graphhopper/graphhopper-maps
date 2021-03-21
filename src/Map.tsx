@@ -6,14 +6,14 @@ import Mapbox from '@/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, SetPoint } from '@/actions/Actions'
 
-type ComponentWithClassProps = {
+type MapProps = {
     selectedPath: Path
     paths: Path[]
     queryPoints: QueryPoint[]
     bbox: Bbox
 }
 
-export default function ({ selectedPath, paths, queryPoints, bbox }: ComponentWithClassProps) {
+export default function ({ selectedPath, paths, queryPoints, bbox }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const queryPointsRef = useRef(queryPoints)
     const [map, setMap] = useState<Mapbox | null>(null)

@@ -71,8 +71,6 @@ export default class RouteStore extends Store<RouteStoreState> {
     }
 
     private reduceRouteReceived(state: RouteStoreState, action: RouteReceived) {
-        console.log('requestId: ' + action.requestId + ', currentRequestId: ' + this.queryStore.state.currentRequestId)
-
         if (this.isStaleRequest(action.requestId)) return state
 
         if (RouteStore.containsPaths(action.result.paths)) {
