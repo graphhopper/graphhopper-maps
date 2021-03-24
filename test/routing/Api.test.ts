@@ -199,8 +199,6 @@ describe('route with alternatives', () => {
             optimize: 'false',
             points_encoded: true,
             'alternative_route.max_paths': 3,
-            'alternative_route.max_weight_factor': 2.0,
-            'ch.disable': true,
             algorithm: 'alternative_route',
             points: args.points,
         }
