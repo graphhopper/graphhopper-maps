@@ -24,17 +24,5 @@
     font-size: small;
     color: #5b616a;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #5b616a;
-}
-
-.bottom {
-    display: flex;
-    flex-direction: row;
-    grid-column: 2 / span 1;
-    align-items: center;
-    color: lightgray;
-}
-
-.bottomBorder {
-    flex-grow: 1;
+    border-bottom: 1px solid lightgray;
 }
