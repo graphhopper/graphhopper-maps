@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { geocode, GeocodingHit, RoutingVehicle } from '@/routing/Api'
-import styles from '@/Search.module.css'
+import styles from '@/sidebar/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
-import RoutingVehicles from '@/RoutingVehicles'
+import RoutingVehicles from '@/sidebar/RoutingVehicles'
 
 interface Query {
     point: QueryPoint
