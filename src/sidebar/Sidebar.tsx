@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { ApiInfo, Instruction, Path } from '@/routing/Api'
+import { ApiInfo, Path } from '@/routing/Api'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { QueryStoreState } from '@/stores/QueryStore'
-import Search from '@/sidebar/Search'
+import Search from '@/sidebar/search/Search'
 import styles from '@/sidebar/Sidebar.module.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
-
-const distanceFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 })
+import Instructions from '@/sidebar/instructions/Instructions'
+import { metersToText, milliSecondsToText } from '@/Converters'
 
 type SidebarProps = {
     query: QueryStoreState
@@ -63,25 +63,4 @@ const QueryResult = ({ path, isSelected }: { path: Path; isSelected: boolean }) 
             {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
     )
-}
-
-const Instructions = (props: { instructions: Instruction[] }) => (
-    <ul className={styles.instructionsList}>
-        {props.instructions.map((instruction, i) => (
-            <li key={i}>{instruction.text}</li>
-        ))}
-    </ul>
-)
-
-function milliSecondsToText(seconds: number) {
-    const hours = Math.floor(seconds / 3600000)
-    const minutes = Math.floor((seconds % 3600000) / 60000)
-
-    const hourText = hours > 0 ? hours + ' h' : ''
-    return hourText + ' ' + minutes + ' min'
-}
-
-function metersToText(meters: number) {
-    if (meters < 1000) return Math.floor(meters) + ' m'
-    return distanceFormat.format(meters / 1000) + ' km'
 }

@@ -2,7 +2,6 @@ const path = require('path')
 const HTMLWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
-    mode: 'development',
     entry: path.resolve(__dirname, 'src', 'index.tsx'),
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -39,7 +38,7 @@ module.exports = {
                 ],
             },
             {
-                test: /\.svg$/,
+                test: /\.(svg|png)$/i,
                 type: 'asset',
             },
         ],
