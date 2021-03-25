@@ -1,0 +1,28 @@
+.instructionsList {
+}
+
+.instruction {
+    display: grid;
+    grid-template-rows: auto auto;
+    grid-template-columns: 3rem auto;
+    align-items: center;
+}
+
+.sign {
+    grid-row: 1 / span 2;
+    justify-self: center;
+    align-self: center;
+    height: 1.5rem;
+}
+
+.mainText {
+    margin-top: 1rem;
+}
+
+.distance {
+    grid-column: 2 / span 1;
+    font-size: small;
+    color: #5b616a;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid lightgray;
+}

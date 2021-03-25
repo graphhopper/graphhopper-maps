@@ -1,8 +1,8 @@
 import { Bbox, Path } from '@/routing/Api'
 import { QueryPoint } from '@/stores/QueryStore'
 import React, { useEffect, useRef, useState } from 'react'
-import styles from '@/Map.module.css'
-import Mapbox from '@/Mapbox'
+import styles from '@/map/Map.module.css'
+import Mapbox from '@/map/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, SetPoint } from '@/actions/Actions'
 

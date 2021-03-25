@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import Sidebar from '@/Sidebar'
+import Sidebar from '@/sidebar/Sidebar'
 import styles from './App.module.css'
 import { getApiInfoStore, getQueryStore, getRouteStore } from '@/stores/Stores'
-import MapComponent from '@/Map'
+import MapComponent from '@/map/Map'
 import { Bbox } from '@/routing/Api'
 
 export default function App() {

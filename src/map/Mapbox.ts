@@ -3,7 +3,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint, SetSelectedPath } from '@/actions/Actions'
-import { Popup } from '@/Popup'
+import { Popup } from '@/map/Popup'
 import { Bbox, Path } from '@/routing/Api'
 import { FeatureCollection, LineString } from 'geojson'
 
@@ -37,16 +37,12 @@ export default class Mapbox {
             onMapReady()
         })
 
-        const onSelectPath = (e: MapMouseEvent) => {
-            console.log('click')
-        }
-
         this.map.on('click', onClick)
         this.map.on('contextmenu', e => this.popup.show(e.lngLat))
 
         // set up selection of alternative paths
         // de-register default onClick handler when an alternative path is hovered
-        this.map.on('mouseenter', pathsLayerKey, e => {
+        this.map.on('mouseenter', pathsLayerKey, () => {
             this.map.getCanvasContainer().style.cursor = 'pointer'
             this.map.off('click', onClick)
         })
@@ -62,7 +58,7 @@ export default class Mapbox {
         })
 
         // re-register default click handler if mouse leaves alternative paths
-        this.map.on('mouseleave', pathsLayerKey, e => {
+        this.map.on('mouseleave', pathsLayerKey, () => {
             this.map.getCanvasContainer().style.cursor = ''
             this.map.on('click', onClick)
         })
