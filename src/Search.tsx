@@ -122,7 +122,7 @@ const SearchBox = ({
                 type="text"
                 className={styles.searchBoxInput}
                 value={text}
-                placeholder="Click on map to select a location"
+                placeholder="Search location or click the map"
                 onChange={e => {
                     setText(e.target.value)
                     onChange(e.target.value)
