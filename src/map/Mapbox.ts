@@ -1,6 +1,5 @@
 import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import '../../global_styles/heightgraph/L.Control.Heightgraph.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint, SetSelectedPath } from '@/actions/Actions'
@@ -8,7 +7,7 @@ import { Popup } from '@/map/Popup'
 import { Bbox, Path } from '@/routing/Api'
 import { FeatureCollection, LineString } from 'geojson'
 import {MapboxHeightGraph} from "@/heightgraph/MapboxHeightGraph";
-import {geojson1} from '@/heightgraph/data'
+import '../../global_styles/heightgraph/L.Control.Heightgraph.css'
 
 const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -23,6 +22,7 @@ export default class Mapbox {
     private markers: Marker[] = []
     private popup: Popup
     private currentPaths: { path: Path; index: number }[] = []
+    private heightgraph: any = new MapboxHeightGraph();
 
     private mapIsReady = false
 
@@ -37,24 +37,6 @@ export default class Mapbox {
         this.map.on('load', () => {
             this.initLineLayers()
             this.mapIsReady = true
-
-            for (let i = 0; i < geojson1.length; i++) {
-                const id = 'route-' + i
-                this.map.addSource(id, {
-                    type: 'geojson',
-                    "data": geojson1[i] as any
-                })
-                this.map.addLayer({
-                    'id': id,
-                    'type': 'line',
-                    'source': id,
-                    'paint': {
-                       'line-color': 'green',
-                       'line-width': 4
-                    }
-                })
-            }
-
             onMapReady()
         })
 
@@ -86,11 +68,7 @@ export default class Mapbox {
 
         this.popup = new Popup(this.map)
 
-        const hg = new MapboxHeightGraph({
-            expand: true
-        });
-        this.map.addControl(hg, 'bottom-right');
-        hg.addData(geojson1)
+        this.map.addControl(this.heightgraph, 'bottom-right');
     }
 
     remove() {
@@ -108,6 +86,39 @@ export default class Mapbox {
             .filter(indexPath => indexPath.path !== selectedPath)
         this.drawUnselectedPaths(this.currentPaths)
         this.drawSelectedPath(selectedPath)
+    }
+
+    showPathDetails(selectedPath: Path) {
+        const pathDetails = Object.entries(selectedPath.details).map(([detailName, details]) => {
+            const points = selectedPath.points.coordinates;
+            const features = [];
+            for (let i = 0; i < details.length; i++) {
+                let [from, to, value] = details[i];
+                if (typeof value === 'undefined' || value === null)
+                    value = 'Undefined'
+                features.push({
+                    type: 'Feature',
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: points.slice(from, to+1)
+                    },
+                    properties: {
+                        attributeType: value
+                    }
+                });
+            }
+            return {
+                type: 'FeatureCollection',
+                features: features,
+                properties: {
+                    summary: detailName,
+                    records: features.length
+                }
+            };
+        });
+        // todonow: when there are no details, show elevation at least
+        // later: also allow showing details without elevation
+        this.heightgraph.addData(pathDetails);
     }
 
     drawSelectedPath(path: Path) {

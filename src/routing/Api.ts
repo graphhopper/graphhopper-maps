@@ -26,6 +26,7 @@ interface RoutingRequest {
     'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean
     algorithm?: 'alternative_route' | 'round_trip'
+    details: string[],
 }
 
 interface ErrorResponse {
@@ -162,14 +163,17 @@ export async function info() {
 export async function routeWithAlternativeRoutes(requestId: number, args: RoutingArgs) {
     const request: RoutingRequest = {
         vehicle: args.vehicle || 'car',
-        elevation: false,
+        elevation: true,
         debug: false,
         instructions: true,
         locale: 'en',
         optimize: 'false',
-        points_encoded: true,
+        // todonow: apparently point decoding does not handle elevation yet
+        points_encoded: false,
         'alternative_route.max_paths': 3,
         algorithm: 'alternative_route',
+        // todonow: simply hard-coded for now
+        details: ['road_environment', 'surface', 'average_speed'] as any,
         points: args.points,
     }
 
@@ -347,12 +351,13 @@ function decodePath(encoded: string, is3D: any): number[][] {
 function createRequest(args: RoutingArgs): RoutingRequest {
     return {
         vehicle: args.vehicle || 'car',
-        elevation: false,
+        elevation: true,
         debug: false,
         instructions: true,
         locale: 'en',
         optimize: 'false',
-        points_encoded: true,
+        points_encoded: false,
         points: args.points,
+        details: ['road_environment', 'surface', 'average_speed'] as any
     }
 }
