@@ -21,13 +21,29 @@ module.exports = {
             {
                 test: /\.css$/,
                 include: path.resolve(__dirname, 'node_modules'),
-                exclude: path.resolve(__dirname, 'src'),
+                exclude: [
+                    path.resolve(__dirname, 'src'),
+                    path.resolve(__dirname, 'global_styles')
+                    ],
+                use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
+            },
+            // ... for heightgraph
+            {
+                test: /\.css$/,
+                include: path.resolve(__dirname, 'global_styles'),
+                exclude: [
+                    path.resolve(__dirname, 'src'),
+                    path.resolve(__dirname, 'node_modules')
+                    ],
                 use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
             },
             // load styles from sources and apply css modules to them
             {
                 test: /\.css$/,
-                exclude: path.resolve(__dirname, 'node_modules'),
+                exclude: [
+                    path.resolve(__dirname, 'global_styles'),
+                    path.resolve(__dirname, 'node_modules')
+                    ],
                 use: [
                     { loader: 'style-loader' },
                     {

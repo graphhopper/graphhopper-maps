@@ -1,5 +1,4 @@
 import {HeightGraph} from "./heightgraph";
-import '../heightgraph/L.Control.Heightgraph.css'
 import mapboxgl from "mapbox-gl";
 
 export class MapboxHeightGraph {

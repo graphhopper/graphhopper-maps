@@ -1,5 +1,6 @@
 import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import '../../global_styles/heightgraph/L.Control.Heightgraph.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint, SetSelectedPath } from '@/actions/Actions'
