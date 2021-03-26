@@ -6,6 +6,8 @@ import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
 import { Bbox, Path } from '@/routing/Api'
 import { FeatureCollection, LineString } from 'geojson'
+import {MapboxHeightGraph} from "@/heightgraph/MapboxHeightGraph";
+import {geojson1} from '@/heightgraph/data'
 
 const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -34,6 +36,24 @@ export default class Mapbox {
         this.map.on('load', () => {
             this.initLineLayers()
             this.mapIsReady = true
+
+            for (let i = 0; i < geojson1.length; i++) {
+                const id = 'route-' + i
+                this.map.addSource(id, {
+                    type: 'geojson',
+                    "data": geojson1[i] as any
+                })
+                this.map.addLayer({
+                    'id': id,
+                    'type': 'line',
+                    'source': id,
+                    'paint': {
+                       'line-color': 'green',
+                       'line-width': 4
+                    }
+                })
+            }
+
             onMapReady()
         })
 
@@ -64,6 +84,12 @@ export default class Mapbox {
         })
 
         this.popup = new Popup(this.map)
+
+        const hg = new MapboxHeightGraph({
+            expand: true
+        });
+        this.map.addControl(hg, 'bottom-right');
+        hg.addData(geojson1)
     }
 
     remove() {

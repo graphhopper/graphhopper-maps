@@ -14,6 +14,7 @@ module.exports = {
     module: {
         rules: [
             { test: /\.tsx?$/, loader: 'awesome-typescript-loader' },
+            { test: /\.js$/, loader: 'awesome-typescript-loader' },
             { enforce: 'pre', test: /\.js$/, loader: 'source-map-loader' },
             // load styles from node_modules but leave them un-touched
             // this is important for mapbox-gl
