@@ -9,7 +9,7 @@
         "test": "jest"
     },
     "dependencies": {
-        "leaflet.heightgraph": "github:easbar/Leaflet.Heightgraph#7025c9ff1b81a0f743239596438eceb0724fbb62",
+        "leaflet.heightgraph": "github:easbar/Leaflet.Heightgraph#4151fe10cebcde6af3d4683269c60273cee202c2",
         "mapbox-gl": "^1.13.0",
         "react": "^17.0.1",
         "react-dom": "^17.0.1"
@@ -20,8 +20,6 @@
         "@types/react-dom": "^17.0.1",
         "awesome-typescript-loader": "^5.2.1",
         "css-loader": "^5.0.2",
-        "d3": "^5.16.0",
-        "d3-selection-multi": "^1.0.1",
         "html-webpack-plugin": "^5.1.0",
         "jest": "^26.6.3",
         "jest-fetch-mock": "^3.0.3",
