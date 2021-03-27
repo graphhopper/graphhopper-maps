@@ -6,8 +6,10 @@ import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
 import { Bbox, Path } from '@/routing/Api'
 import { FeatureCollection, LineString } from 'geojson'
-import {MapboxHeightGraph} from "@/heightgraph/MapboxHeightGraph";
-import '../../global_styles/heightgraph/L.Control.Heightgraph.css'
+import mapboxgl from "mapbox-gl";
+window.mapboxgl = mapboxgl;
+import {MapboxHeightGraph} from 'leaflet.heightgraph/src/MapboxHeightGraph';
+import 'leaflet.heightgraph/src/heightgraph.css'
 
 const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'

@@ -14,36 +14,19 @@ module.exports = {
     module: {
         rules: [
             { test: /\.tsx?$/, loader: 'awesome-typescript-loader' },
-            { test: /\.js$/, loader: 'awesome-typescript-loader' },
             { enforce: 'pre', test: /\.js$/, loader: 'source-map-loader' },
             // load styles from node_modules but leave them un-touched
             // this is important for mapbox-gl
             {
                 test: /\.css$/,
                 include: path.resolve(__dirname, 'node_modules'),
-                exclude: [
-                    path.resolve(__dirname, 'src'),
-                    path.resolve(__dirname, 'global_styles')
-                    ],
-                use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
-            },
-            // ... for heightgraph
-            {
-                test: /\.css$/,
-                include: path.resolve(__dirname, 'global_styles'),
-                exclude: [
-                    path.resolve(__dirname, 'src'),
-                    path.resolve(__dirname, 'node_modules')
-                    ],
+                exclude: path.resolve(__dirname, 'src'),
                 use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
             },
             // load styles from sources and apply css modules to them
             {
                 test: /\.css$/,
-                exclude: [
-                    path.resolve(__dirname, 'global_styles'),
-                    path.resolve(__dirname, 'node_modules')
-                    ],
+                exclude: path.resolve(__dirname, 'node_modules'),
                 use: [
                     { loader: 'style-loader' },
                     {
