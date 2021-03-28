@@ -37,8 +37,13 @@ module.exports = {
                     },
                 ],
             },
+            // this loader inlines svg images as react components
             {
-                test: /\.(svg|png)$/i,
+                test: /\.svg$/,
+                use: ['@svgr/webpack'],
+            },
+            {
+                test: /\.png$/i,
                 type: 'asset',
             },
         ],

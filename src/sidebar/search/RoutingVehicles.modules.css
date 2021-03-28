@@ -1,4 +1,7 @@
 .vehicleSelect {
+    grid-column: 3 / span 1;
+    justify-self: start;
     font-size: medium;
-    padding: 0.5rem;
+    padding: 0.4rem;
+    margin: 0.5rem 0 0 0;
 }

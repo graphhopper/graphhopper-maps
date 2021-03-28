@@ -1,13 +1,7 @@
-.searchBoxContainer {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-}
-
 .searchBox {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
     margin: 0.5rem;
 }
 
@@ -17,20 +11,36 @@
 }
 
 .searchBoxInput {
+    grid-column: 2 / span 3;
     height: 2rem;
     font-size: 1rem;
     flex-grow: 1;
 }
 
 .removeSearchBox {
-    align-self: stretch;
+    grid-column: 4;
+    justify-self: center;
+    width: 1rem;
+    margin: 0 0 0 0.5rem;
+}
+
+.addSearchBox {
+    grid-column: 1 / span 2;
+    justify-self: start;
+    display: grid;
+    grid-template-columns: 1rem auto;
+    grid-column-gap: 0.3rem;
+    margin: 0.5rem 0;
 }
 
 .dot {
+    grid-column: 1 / span 1;
+    align-self: center;
+    justify-self: center;
+    margin: 0 0.5rem 0 0;
     border-radius: 0.75rem;
     height: 0.75rem;
     width: 0.75rem;
-    margin: 0 0.5rem 0 0;
     border: rgb(100, 100, 100) 0.125rem solid;
 }
 
@@ -44,6 +54,12 @@
 .addDestination {
     align-self: flex-end;
     margin: 0.5rem 0 0 0;
+    width: 2rem;
+    height: 2rem;
+}
+
+.geocodingResults {
+    grid-column: 1 / span 3;
 }
 
 .selectableGeocodingEntry {
