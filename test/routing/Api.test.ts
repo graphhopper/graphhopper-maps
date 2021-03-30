@@ -120,7 +120,7 @@ describe('route without alternatives', () => {
             instructions: true,
             locale: 'en',
             optimize: 'false',
-            points_encoded: false,
+            points_encoded: true,
             points: args.points,
             details: ['road_environment', 'surface', 'average_speed']
         }
@@ -148,7 +148,7 @@ describe('route without alternatives', () => {
             instructions: true,
             locale: 'en',
             optimize: 'false',
-            points_encoded: false,
+            points_encoded: true,
             points: args.points,
             details: ['road_environment', 'surface', 'average_speed']
         }
@@ -199,7 +199,7 @@ describe('route with alternatives', () => {
             instructions: true,
             locale: 'en',
             optimize: 'false',
-            points_encoded: false,
+            points_encoded: true,
             'alternative_route.max_paths': 3,
             algorithm: 'alternative_route',
             details: ['road_environment', 'surface', 'average_speed'],

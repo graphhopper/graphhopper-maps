@@ -168,8 +168,7 @@ export async function routeWithAlternativeRoutes(requestId: number, args: Routin
         instructions: true,
         locale: 'en',
         optimize: 'false',
-        // todonow: apparently point decoding does not handle elevation yet
-        points_encoded: false,
+        points_encoded: true,
         'alternative_route.max_paths': 3,
         algorithm: 'alternative_route',
         // todonow: simply hard-coded for now
@@ -206,7 +205,7 @@ async function route(requestId: number, request: RoutingRequest) {
         // transform encoded points into decoded
         const result = {
             ...rawResult,
-            paths: decodeResult(rawResult),
+            paths: decodeResult(rawResult, request.elevation === true),
         }
 
         // send into application
@@ -251,13 +250,13 @@ function convertToApiInfo(response: any): ApiInfo {
     }
 }
 
-function decodeResult(result: RawResult) {
+function decodeResult(result: RawResult, is3D: boolean) {
     return result.paths
         .map((path: RawPath) => {
             return {
                 ...path,
-                points: decodePoints(path),
-                snapped_waypoints: decodeWaypoints(path),
+                points: decodePoints(path, is3D),
+                snapped_waypoints: decodeWaypoints(path, is3D),
             }
         })
         .map((path: Path) => {
@@ -268,20 +267,20 @@ function decodeResult(result: RawResult) {
         })
 }
 
-function decodePoints(path: RawPath) {
+function decodePoints(path: RawPath, is3D: boolean) {
     if (path.points_encoded)
         return {
             type: 'LineString',
-            coordinates: decodePath(path.points as string, false),
+            coordinates: decodePath(path.points as string, is3D),
         }
     else return path.points as LineString
 }
 
-function decodeWaypoints(path: RawPath) {
+function decodeWaypoints(path: RawPath, is3D: boolean) {
     if (path.points_encoded)
         return {
             type: 'LineString',
-            coordinates: decodePath(path.snapped_waypoints as string, false),
+            coordinates: decodePath(path.snapped_waypoints as string, is3D),
         }
     else return path.snapped_waypoints as LineString
 }
@@ -356,7 +355,7 @@ function createRequest(args: RoutingArgs): RoutingRequest {
         instructions: true,
         locale: 'en',
         optimize: 'false',
-        points_encoded: false,
+        points_encoded: true,
         points: args.points,
         details: ['road_environment', 'surface', 'average_speed'] as any
     }
