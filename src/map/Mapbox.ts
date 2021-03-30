@@ -90,23 +90,10 @@ export default class Mapbox {
     }
 
     showPathDetails(selectedPath: Path) {
-        const elevation = {
-            type: 'FeatureCollection',
-            features: [{
-                type: 'Feature',
-                geometry: {
-                    type: 'LineString',
-                    coordinates: selectedPath.points.coordinates
-                },
-                properties: {
-                    attributeType: 'elevation'
-                }
-            }],
-            properties: {
-                summary: 'Elevation [m]',
-                records: 1
-            }
-        };
+        const elevation = this.createFeatureCollection(
+            'Elevation [m]',
+            [this.createFeature(selectedPath.points.coordinates, 'elevation')]
+        );
         const pathDetails = Object.entries(selectedPath.details).map(([detailName, details]) => {
             const points = selectedPath.points.coordinates;
             const features = [];
@@ -114,41 +101,51 @@ export default class Mapbox {
                 let [from, to, value] = details[i];
                 if (typeof value === 'undefined' || value === null)
                     value = 'Undefined'
-                features.push({
-                    type: 'Feature',
-                    geometry: {
-                        type: 'LineString',
-                        coordinates: points.slice(from, to+1)
-                    },
-                    properties: {
-                        attributeType: value
-                    }
-                });
+                features.push(this.createFeature(points.slice(from, to + 1), value));
             }
-            return {
-                type: 'FeatureCollection',
-                features: features,
-                properties: {
-                    summary: detailName,
-                    records: features.length
-                }
-            };
+            return this.createFeatureCollection(detailName, features);
         });
-        const mappings : any = {};
-        mappings['Elevation [m]'] = function() { return {text: 'Elevation [m]', color: '#27ce49'}};
+        const mappings: any = {};
+        mappings['Elevation [m]'] = function () {
+            return {text: 'Elevation [m]', color: '#27ce49'}
+        };
         Object.entries(selectedPath.details).forEach(([detailName, details]) => {
-            mappings[detailName] = this.getColorMapping(details);
+            mappings[detailName] = this.createColorMapping(details);
         });
         this.heightgraph.setData([elevation, ...pathDetails], mappings, this.heightgraph._currentSelection);
     }
 
-    getColorMapping(detail : any) : any {
-        const detailInfo : any = this.analyzeDetail(detail);
+    createFeature(coordinates: number[][], attributeType: any) {
+        return {
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: coordinates
+            },
+            properties: {
+                attributeType: attributeType
+            }
+        }
+    }
+
+    createFeatureCollection(detailName: string, features: any[]) {
+        return {
+            type: 'FeatureCollection',
+            features: features,
+            properties: {
+                summary: detailName,
+                records: features.length
+            }
+        }
+    }
+
+    createColorMapping(detail: any): any {
+        const detailInfo: any = Mapbox.inspectDetail(detail);
         if (detailInfo.numeric === true && detailInfo.minVal !== detailInfo.maxVal) {
             // for numeric details we use a color gradient, taken from here:  https://uigradients.com/#Superman
             const colorMin = [0, 153, 247];
             const colorMax = [241, 23, 18];
-            return function (attributeType : number) {
+            return function (attributeType: number) {
                 const factor = (attributeType - detailInfo.minVal) / (detailInfo.maxVal - detailInfo.minVal);
                 const color = [];
                 for (let i = 0; i < 3; i++)
@@ -160,8 +157,8 @@ export default class Mapbox {
             }
         } else {
             // for discrete encoded values we use discrete colors
-            const values = detail.map((d : any) => d[2]);
-            return function (attributeType : string) {
+            const values = detail.map((d: any) => d[2]);
+            return function (attributeType: string) {
                 // we choose a color-blind friendly palette from here: https://personal.sron.nl/~pault/#sec:qualitative
                 // see also this: https://thenode.biologists.com/data-visualization-with-flying-colors/research/
                 const palette = ['#332288', '#88ccee', '#44aa99', '#117733', '#999933', '#ddcc77', '#cc6677', '#882255', '#aa4499'];
@@ -178,7 +175,7 @@ export default class Mapbox {
         }
     }
 
-    analyzeDetail(detail : any) {
+    static inspectDetail(detail: any) {
         // we check if all detail values are numeric
         const numbers = new Set();
         let minVal, maxVal;
@@ -256,7 +253,7 @@ export default class Mapbox {
         this.markers.forEach(marker => marker.remove())
         this.markers = queryPoints
             .map((point, i) => {
-                return { index: i, point: point }
+                return {index: i, point: point}
             })
             .filter(indexPoint => indexPoint.point.isInitialized)
             .map(indexPoint =>
