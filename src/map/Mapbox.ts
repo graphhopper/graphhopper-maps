@@ -112,7 +112,7 @@ export default class Mapbox {
         Object.entries(selectedPath.details).forEach(([detailName, details]) => {
             mappings[detailName] = this.createColorMapping(details);
         });
-        this.heightgraph.setData([elevation, ...pathDetails], mappings, this.heightgraph._currentSelection);
+        this.heightgraph.setData([elevation, ...pathDetails], mappings);
     }
 
     createFeature(coordinates: number[][], attributeType: any) {
