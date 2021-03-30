@@ -90,6 +90,23 @@ export default class Mapbox {
     }
 
     showPathDetails(selectedPath: Path) {
+        const elevation = {
+            type: 'FeatureCollection',
+            features: [{
+                type: 'Feature',
+                geometry: {
+                    type: 'LineString',
+                    coordinates: selectedPath.points.coordinates
+                },
+                properties: {
+                    attributeType: 'elevation'
+                }
+            }],
+            properties: {
+                summary: 'Elevation [m]',
+                records: 1
+            }
+        };
         const pathDetails = Object.entries(selectedPath.details).map(([detailName, details]) => {
             const points = selectedPath.points.coordinates;
             const features = [];
@@ -118,12 +135,11 @@ export default class Mapbox {
             };
         });
         const mappings : any = {};
+        mappings['Elevation [m]'] = function() { return {text: 'Elevation [m]', color: '#27ce49'}};
         Object.entries(selectedPath.details).forEach(([detailName, details]) => {
             mappings[detailName] = this.getColorMapping(details);
         });
-        // todonow: when there are no details, show elevation at least
-        // later: also allow showing details without elevation
-        this.heightgraph.setData(pathDetails, mappings, this.heightgraph._currentSelection);
+        this.heightgraph.setData([elevation, ...pathDetails], mappings, this.heightgraph._currentSelection);
     }
 
     getColorMapping(detail : any) : any {
@@ -132,32 +148,30 @@ export default class Mapbox {
             // for numeric details we use a color gradient, taken from here:  https://uigradients.com/#Superman
             const colorMin = [0, 153, 247];
             const colorMax = [241, 23, 18];
-            return function (data : any) {
-                const factor = (data - detailInfo.minVal) / (detailInfo.maxVal - detailInfo.minVal);
+            return function (attributeType : number) {
+                const factor = (attributeType - detailInfo.minVal) / (detailInfo.maxVal - detailInfo.minVal);
                 const color = [];
                 for (let i = 0; i < 3; i++)
                     color.push(colorMin[i] + factor * (colorMax[i] - colorMin[i]));
                 return {
-                    'text': data,
+                    'text': attributeType,
                     'color': 'rgb(' + color[0] + ', ' + color[1] + ', ' + color[2] + ')'
                 }
             }
         } else {
             // for discrete encoded values we use discrete colors
-            const values = detail.map(function (d : any) {
-                return d[2]
-            });
-            return function (data : any) {
+            const values = detail.map((d : any) => d[2]);
+            return function (attributeType : string) {
                 // we choose a color-blind friendly palette from here: https://personal.sron.nl/~pault/#sec:qualitative
                 // see also this: https://thenode.biologists.com/data-visualization-with-flying-colors/research/
                 const palette = ['#332288', '#88ccee', '#44aa99', '#117733', '#999933', '#ddcc77', '#cc6677', '#882255', '#aa4499'];
                 const missingColor = '#dddddd';
-                const index = values.indexOf(data) % palette.length;
-                const color = data === 'missing' || data === 'unclassified'
+                const index = values.indexOf(attributeType) % palette.length;
+                const color = attributeType === 'missing' || attributeType === 'unclassified'
                     ? missingColor
                     : palette[index];
                 return {
-                    'text': data,
+                    'text': attributeType,
                     'color': color
                 }
             }
