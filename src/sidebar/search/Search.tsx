@@ -120,7 +120,7 @@ const SearchBox = ({
         <>
             <div className={styles.dot} style={{ backgroundColor: point.color }} />
             <input
-                type="search"
+                type="text"
                 className={styles.searchBoxInput}
                 value={text}
                 placeholder="Search location or click the map"

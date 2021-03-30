@@ -10,6 +10,7 @@ import Instructions from '@/sidebar/instructions/Instructions'
 import Arrow from '@/sidebar/chevron-down-solid.svg'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
+import Header from '@/sidebar/header.png'
 
 type SidebarProps = {
     query: QueryStoreState
@@ -20,6 +21,9 @@ type SidebarProps = {
 export default function ({ query, route, info }: SidebarProps) {
     return (
         <>
+            <div className={styles.headerContainer}>
+                <img src={Header} alt={'graphhopper logo'} />
+            </div>
             <Search points={query.queryPoints} routingVehicles={info.vehicles} selectedVehicle={query.routingVehicle} />
             <QueryResults paths={route.routingResult.paths} selectedPath={route.selectedPath} />
         </>
