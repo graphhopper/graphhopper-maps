@@ -115,13 +115,14 @@ describe('route without alternatives', () => {
 
         const expectedBody = {
             vehicle: 'car',
-            elevation: false,
+            elevation: true,
             debug: false,
             instructions: true,
             locale: 'en',
             optimize: 'false',
-            points_encoded: true,
+            points_encoded: false,
             points: args.points,
+            details: ['road_environment', 'surface', 'average_speed']
         }
 
         fetchMock.mockResponse(async request => {
@@ -142,13 +143,14 @@ describe('route without alternatives', () => {
 
         const expectedBody = {
             vehicle: args.vehicle,
-            elevation: false,
+            elevation: true,
             debug: false,
             instructions: true,
             locale: 'en',
             optimize: 'false',
-            points_encoded: true,
+            points_encoded: false,
             points: args.points,
+            details: ['road_environment', 'surface', 'average_speed']
         }
 
         fetchMock.mockResponse(async request => {
@@ -192,15 +194,16 @@ describe('route with alternatives', () => {
 
         const expectedBody = {
             vehicle: 'car',
-            elevation: false,
+            elevation: true,
             debug: false,
             instructions: true,
             locale: 'en',
             optimize: 'false',
-            points_encoded: true,
+            points_encoded: false,
             'alternative_route.max_paths': 3,
             algorithm: 'alternative_route',
-            points: args.points,
+            details: ['road_environment', 'surface', 'average_speed'],
+            points: args.points
         }
 
         fetchMock.mockResponse(async request => {
