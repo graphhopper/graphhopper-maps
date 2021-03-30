@@ -5,6 +5,9 @@ import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RoutingVehicles from '@/sidebar/search/RoutingVehicles'
+import RemoveIcon from './times-solid.svg'
+import AddIcon from './plus-circle-solid.svg'
+import PlainButton from '@/PlainButton'
 
 interface Query {
     point: QueryPoint
@@ -84,20 +87,14 @@ export default function Search({
                     }}
                 />
             ))}
-            <div className={styles.searchOptions}>
-                <RoutingVehicles routingVehicles={routingVehicles} selectedVehicle={selectedVehicle} />
-                {
-                    // current limit of the api is 5 points
-                    points.length < 5 && (
-                        <button
-                            className={styles.addDestination}
-                            onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lng: 0, lat: 0 }, false))}
-                        >
-                            Add Route Point
-                        </button>
-                    )
-                }
-            </div>
+            <PlainButton
+                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lng: 0, lat: 0 }, false))}
+                className={styles.addSearchBox}
+            >
+                <AddIcon />
+                <span>Add Point</span>
+            </PlainButton>
+            <RoutingVehicles routingVehicles={routingVehicles} selectedVehicle={selectedVehicle} />
             <GeocodingResults hits={geocodingHits} onSelectHit={handleHitSelected} />
         </div>
     )
@@ -115,8 +112,10 @@ const SearchBox = ({
     const [text, setText] = useState(point.queryText)
     useEffect(() => setText(point.queryText), [point.queryText])
 
+    const inputAlignment = deletable ? { gridColumn: '2 / span 2' } : undefined
+
     return (
-        <div className={styles.searchBoxContainer}>
+        <>
             <div className={styles.dot} style={{ backgroundColor: point.color }} />
             <input
                 type="text"
@@ -127,13 +126,17 @@ const SearchBox = ({
                     setText(e.target.value)
                     onChange(e.target.value)
                 }}
+                style={inputAlignment}
             />
             {deletable && (
-                <button onClick={() => Dispatcher.dispatch(new RemovePoint(point))} className={styles.removeSearchBox}>
-                    X
-                </button>
+                <PlainButton
+                    onClick={() => Dispatcher.dispatch(new RemovePoint(point))}
+                    className={styles.removeSearchBox}
+                >
+                    <RemoveIcon />
+                </PlainButton>
             )}
-        </div>
+        </>
     )
 }
 
@@ -145,7 +148,7 @@ const GeocodingResults = ({
     onSelectHit: (hit: GeocodingHit) => void
 }) => {
     return (
-        <div>
+        <div className={styles.geocodingResults}>
             <ul>
                 {hits.map(hit => (
                     <GeocodingEntry key={hit.osm_id} entry={hit} onSelectHit={onSelectHit} />

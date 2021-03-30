@@ -1,3 +1,7 @@
+.headerContainer {
+    margin: 0.5rem 0 0 2rem;
+}
+
 .resultListContainer {
     overflow-y: auto;
 }
@@ -52,4 +56,32 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/*
+This is not a very nice duplication but I have to stop now...
+ */
+.detailsButton {
+    display: grid;
+    justify-content: end;
+    align-items: center;
+    width: 4rem;
+}
+
+.detailsButtonFlipped {
+    display: grid;
+    justify-content: end;
+    align-items: center;
+    width: 4rem;
+}
+
+.detailsButton > svg {
+    transition: 0.3s ease;
+    height: 1.2rem;
+}
+
+.detailsButtonFlipped > svg {
+    transition: 0.3s ease;
+    transform: rotateX(180deg);
+    height: 1.2rem;
 }

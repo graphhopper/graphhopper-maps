@@ -27,7 +27,6 @@ export default function ({
         </select>
     )
 }
-
 function getEmoji(vehicle: RoutingVehicle) {
     switch (vehicle.key) {
         case 'car':

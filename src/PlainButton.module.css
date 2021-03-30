@@ -1,0 +1,14 @@
+.button {
+    border: none;
+    padding: 0;
+    background-color: inherit;
+    color: #5b616a;
+}
+
+.button:hover {
+    cursor: pointer;
+}
+
+.button:active {
+    color: #275dad;
+}
