@@ -7,7 +7,10 @@ import styles from '@/sidebar/Sidebar.module.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
 import Instructions from '@/sidebar/instructions/Instructions'
+import Arrow from '@/sidebar/chevron-down-solid.svg'
 import { metersToText, milliSecondsToText } from '@/Converters'
+import PlainButton from '@/PlainButton'
+import Header from '@/sidebar/header.png'
 
 type SidebarProps = {
     query: QueryStoreState
@@ -18,6 +21,9 @@ type SidebarProps = {
 export default function ({ query, route, info }: SidebarProps) {
     return (
         <>
+            <div className={styles.headerContainer}>
+                <img src={Header} alt={'graphhopper logo'} />
+            </div>
             <Search points={query.queryPoints} routingVehicles={info.vehicles} selectedVehicle={query.routingVehicle} />
             <QueryResults paths={route.routingResult.paths} selectedPath={route.selectedPath} />
         </>
@@ -38,7 +44,7 @@ const QueryResults = (props: { paths: Path[]; selectedPath: Path }) => (
 
 const QueryResult = ({ path, isSelected }: { path: Path; isSelected: boolean }) => {
     const [isExpanded, setExpanded] = useState(false)
-    const buttonText = isExpanded ? 'Hide' : 'Details'
+    const buttonClass = isExpanded ? styles.detailsButtonFlipped : styles.detailsButton
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
@@ -54,9 +60,9 @@ const QueryResult = ({ path, isSelected }: { path: Path; isSelected: boolean }) 
                         <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
                     </div>
                     {isSelected && (
-                        <button className={styles.resultExpandDirections} onClick={() => setExpanded(!isExpanded)}>
-                            {buttonText}
-                        </button>
+                        <PlainButton className={buttonClass} onClick={() => setExpanded(!isExpanded)}>
+                            <Arrow />
+                        </PlainButton>
                     )}
                 </div>
             </div>
