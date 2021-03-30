@@ -8,7 +8,7 @@ import { Bbox, Path } from '@/routing/Api'
 import { FeatureCollection, LineString } from 'geojson'
 import mapboxgl from "mapbox-gl";
 window.mapboxgl = mapboxgl;
-import {MapboxHeightGraph} from 'leaflet.heightgraph/src/MapboxHeightGraph';
+import {MapboxHeightGraph} from 'leaflet.heightgraph/example/MapboxHeightGraph';
 import 'leaflet.heightgraph/src/heightgraph.css'
 
 const selectedPathSourceKey = 'selectedPathSource'
@@ -24,7 +24,7 @@ export default class Mapbox {
     private markers: Marker[] = []
     private popup: Popup
     private currentPaths: { path: Path; index: number }[] = []
-    private heightgraph: any = new MapboxHeightGraph();
+    private heightgraph = new MapboxHeightGraph();
 
     private mapIsReady = false
 
@@ -69,7 +69,6 @@ export default class Mapbox {
         })
 
         this.popup = new Popup(this.map)
-
         this.map.addControl(this.heightgraph, 'bottom-right');
     }
 
@@ -118,9 +117,74 @@ export default class Mapbox {
                 }
             };
         });
+        const mappings : any = {};
+        Object.entries(selectedPath.details).forEach(([detailName, details]) => {
+            mappings[detailName] = this.getColorMapping(details);
+        });
         // todonow: when there are no details, show elevation at least
         // later: also allow showing details without elevation
-        this.heightgraph.addData(pathDetails);
+        this.heightgraph.setData(pathDetails, mappings, this.heightgraph._currentSelection);
+    }
+
+    getColorMapping(detail : any) : any {
+        const detailInfo : any = this.analyzeDetail(detail);
+        if (detailInfo.numeric === true && detailInfo.minVal !== detailInfo.maxVal) {
+            // for numeric details we use a color gradient, taken from here:  https://uigradients.com/#Superman
+            const colorMin = [0, 153, 247];
+            const colorMax = [241, 23, 18];
+            return function (data : any) {
+                const factor = (data - detailInfo.minVal) / (detailInfo.maxVal - detailInfo.minVal);
+                const color = [];
+                for (let i = 0; i < 3; i++)
+                    color.push(colorMin[i] + factor * (colorMax[i] - colorMin[i]));
+                return {
+                    'text': data,
+                    'color': 'rgb(' + color[0] + ', ' + color[1] + ', ' + color[2] + ')'
+                }
+            }
+        } else {
+            // for discrete encoded values we use discrete colors
+            const values = detail.map(function (d : any) {
+                return d[2]
+            });
+            return function (data : any) {
+                // we choose a color-blind friendly palette from here: https://personal.sron.nl/~pault/#sec:qualitative
+                // see also this: https://thenode.biologists.com/data-visualization-with-flying-colors/research/
+                const palette = ['#332288', '#88ccee', '#44aa99', '#117733', '#999933', '#ddcc77', '#cc6677', '#882255', '#aa4499'];
+                const missingColor = '#dddddd';
+                const index = values.indexOf(data) % palette.length;
+                const color = data === 'missing' || data === 'unclassified'
+                    ? missingColor
+                    : palette[index];
+                return {
+                    'text': data,
+                    'color': color
+                }
+            }
+        }
+    }
+
+    analyzeDetail(detail : any) {
+        // we check if all detail values are numeric
+        const numbers = new Set();
+        let minVal, maxVal;
+        let numberCount = 0;
+        for (let i = 0; i < detail.length; i++) {
+            const val = detail[i][2];
+            if (typeof val === "number") {
+                if (!minVal) minVal = val;
+                if (!maxVal) maxVal = val;
+                numbers.add(val);
+                numberCount++;
+                minVal = Math.min(val, minVal);
+                maxVal = Math.max(val, maxVal);
+            }
+        }
+        return {
+            numeric: numberCount === detail.length,
+            minVal: minVal,
+            maxVal: maxVal
+        }
     }
 
     drawSelectedPath(path: Path) {
