@@ -20,8 +20,8 @@
 
 .removeSearchBox {
     grid-column: 4;
+    width: 0.8rem;
     justify-self: center;
-    width: 1rem;
     margin: 0 0 0 0.5rem;
 }
 

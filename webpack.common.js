@@ -1,5 +1,6 @@
 const path = require('path')
 const HTMLWebpackPlugin = require('html-webpack-plugin')
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
 
 module.exports = {
     entry: path.resolve(__dirname, 'src', 'index.tsx'),
@@ -48,7 +49,10 @@ module.exports = {
             },
         ],
     },
-    plugins: [new HTMLWebpackPlugin({ template: path.resolve(__dirname, 'src/index.html') })],
+    plugins: [
+        new HTMLWebpackPlugin({ template: path.resolve(__dirname, 'src/index.html') }),
+        new FaviconsWebpackPlugin(path.resolve(__dirname, 'src/favicon.png')),
+    ],
 
     // When importing a module whose path matches one of the following, just
     // assume a corresponding global variable exists and use that instead.

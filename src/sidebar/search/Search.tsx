@@ -94,9 +94,7 @@ export default function Search({
                 <AddIcon />
                 <span>Add Point</span>
             </PlainButton>
-
             <RoutingVehicles routingVehicles={routingVehicles} selectedVehicle={selectedVehicle} />
-
             <GeocodingResults hits={geocodingHits} onSelectHit={handleHitSelected} />
         </div>
     )
