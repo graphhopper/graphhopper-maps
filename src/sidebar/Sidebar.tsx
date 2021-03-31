@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { ApiInfo, Path } from '@/routing/Api'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { QueryStoreState } from '@/stores/QueryStore'
+import { QueryStoreState, RequestState } from '@/stores/QueryStore'
 import Search from '@/sidebar/search/Search'
 import styles from '@/sidebar/Sidebar.module.css'
 import Dispatcher from '@/stores/Dispatcher'
@@ -19,12 +19,14 @@ type SidebarProps = {
 }
 
 export default function ({ query, route, info }: SidebarProps) {
+    const pendingSubRequests = query.currentRequest.subRequests.filter(req => req.state === RequestState.SENT).length
     return (
         <>
             <div className={styles.headerContainer}>
                 <img src={Header} alt={'graphhopper logo'} />
             </div>
             <Search points={query.queryPoints} routingVehicles={info.vehicles} selectedVehicle={query.routingVehicle} />
+            <span>Pending Subrequests: {pendingSubRequests + '/' + query.currentRequest.subRequests.length}</span>
             <QueryResults paths={route.routingResult.paths} selectedPath={route.selectedPath} />
         </>
     )

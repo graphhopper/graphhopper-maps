@@ -1,5 +1,5 @@
 import Dispatcher from '@/stores/Dispatcher'
-import { InfoReceived, RouteReceived } from '@/actions/Actions'
+import { InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
 
 const default_host = 'https://graphhopper.com/api/1'
 const default_route_base_path = '/route'
@@ -11,9 +11,10 @@ export type Bbox = [number, number, number, number]
 export interface RoutingArgs {
     readonly points: [number, number][]
     readonly vehicle?: string
+    readonly maxAlternativeRoutes?: number
 }
 
-interface RoutingRequest {
+export interface RoutingRequest {
     readonly points: ReadonlyArray<[number, number]>
     vehicle: string
     locale: string
@@ -28,7 +29,7 @@ interface RoutingRequest {
     algorithm?: 'alternative_route' | 'round_trip'
 }
 
-interface ErrorResponse {
+export interface ErrorResponse {
     message: string
     hints: unknown
 }
@@ -153,42 +154,16 @@ export async function info() {
     }
 }
 
-/**
- * routeWithAlternativeRoutes and routeNoAlternativeRoutes create different RoutingRequest objects
- * This is subject to change since andi and peter want the request object being represented in the app's state.
- * Probably this will go back to a single 'route' method which accepts a request object. and the query store will
- * take care of supplying the right values.
- */
-export async function routeWithAlternativeRoutes(requestId: number, args: RoutingArgs) {
-    const request: RoutingRequest = {
-        vehicle: args.vehicle || 'car',
-        elevation: false,
-        debug: false,
-        instructions: true,
-        locale: 'en',
-        optimize: 'false',
-        points_encoded: true,
-        'alternative_route.max_paths': 3,
-        algorithm: 'alternative_route',
-        points: args.points,
-    }
+export async function route(args: RoutingArgs) {
+    const completeRequest = createRequest(args)
 
-    await route(requestId, request)
-}
-
-export default async function routeWithoutAlternativeRoutes(requestId: number, args: RoutingArgs) {
-    const request = createRequest(args)
-    await route(requestId, request)
-}
-
-async function route(requestId: number, request: RoutingRequest) {
     const url = new URL(default_host + default_route_base_path)
     url.searchParams.append('key', ghKey)
 
     const response = await fetch(url.toString(), {
         method: 'POST',
         mode: 'cors',
-        body: JSON.stringify(request),
+        body: JSON.stringify(completeRequest),
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -206,10 +181,10 @@ async function route(requestId: number, request: RoutingRequest) {
         }
 
         // send into application
-        Dispatcher.dispatch(new RouteReceived(result, requestId))
+        Dispatcher.dispatch(new RouteRequestSuccess(args, result))
     } else {
         const errorResult = (await response.json()) as ErrorResponse
-        throw new Error(errorResult.message)
+        Dispatcher.dispatch(new RouteRequestFailed(args, errorResult))
     }
 }
 
@@ -345,7 +320,8 @@ function decodePath(encoded: string, is3D: any): number[][] {
 }
 
 function createRequest(args: RoutingArgs): RoutingRequest {
-    return {
+    const request: RoutingRequest = {
+        points: args.points,
         vehicle: args.vehicle || 'car',
         elevation: false,
         debug: false,
@@ -353,6 +329,14 @@ function createRequest(args: RoutingArgs): RoutingRequest {
         locale: 'en',
         optimize: 'false',
         points_encoded: true,
-        points: args.points,
     }
+
+    if (args.maxAlternativeRoutes && args.maxAlternativeRoutes > 1) {
+        return {
+            ...request,
+            'alternative_route.max_paths': args.maxAlternativeRoutes,
+            algorithm: 'alternative_route',
+        }
+    }
+    return request
 }

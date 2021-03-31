@@ -8,7 +8,7 @@ import routeWithoutAlternativeRoutes, {
     RoutingArgs,
 } from '@/routing/Api'
 import Dispatcher, { Action } from '../../src/stores/Dispatcher'
-import { InfoReceived, RouteReceived } from '../../src/actions/Actions'
+import { InfoReceived, RouteRequestSuccess } from '../../src/actions/Actions'
 
 // replace global 'fetch' method by fetchMock
 beforeAll(fetchMock.enableMocks)
@@ -174,9 +174,9 @@ describe('route without alternatives', () => {
 
         Dispatcher.register({
             receive(action: Action) {
-                expect(action instanceof RouteReceived).toBeTruthy()
-                expect((action as RouteReceived).result.paths.length).toEqual(0)
-                expect((action as RouteReceived).requestId).toEqual(requestId)
+                expect(action instanceof RouteRequestSuccess).toBeTruthy()
+                expect((action as RouteRequestSuccess).result.paths.length).toEqual(0)
+                expect((action as RouteRequestSuccess).requestId).toEqual(requestId)
             },
         })
 
