@@ -171,8 +171,7 @@ export async function routeWithAlternativeRoutes(requestId: number, args: Routin
         points_encoded: true,
         'alternative_route.max_paths': 3,
         algorithm: 'alternative_route',
-        // todonow: simply hard-coded for now
-        details: ['road_environment', 'surface', 'average_speed'] as any,
+        details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'] as any,
         points: args.points,
     }
 
@@ -357,6 +356,6 @@ function createRequest(args: RoutingArgs): RoutingRequest {
         optimize: 'false',
         points_encoded: true,
         points: args.points,
-        details: ['road_environment', 'surface', 'average_speed'] as any
+        details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'] as any
     }
 }
