@@ -10,8 +10,8 @@ export type Bbox = [number, number, number, number]
 
 export interface RoutingArgs {
     readonly points: [number, number][]
-    readonly vehicle?: string
-    readonly maxAlternativeRoutes?: number
+    readonly vehicle: string
+    readonly maxAlternativeRoutes: number
 }
 
 export interface RoutingRequest {
@@ -322,7 +322,7 @@ function decodePath(encoded: string, is3D: any): number[][] {
 function createRequest(args: RoutingArgs): RoutingRequest {
     const request: RoutingRequest = {
         points: args.points,
-        vehicle: args.vehicle || 'car',
+        vehicle: args.vehicle,
         elevation: false,
         debug: false,
         instructions: true,
@@ -331,7 +331,7 @@ function createRequest(args: RoutingArgs): RoutingRequest {
         points_encoded: true,
     }
 
-    if (args.maxAlternativeRoutes && args.maxAlternativeRoutes > 1) {
+    if (args.maxAlternativeRoutes > 1) {
         return {
             ...request,
             'alternative_route.max_paths': args.maxAlternativeRoutes,

@@ -85,3 +85,21 @@ This is not a very nice duplication but I have to stop now...
     transform: rotateX(180deg);
     height: 1.2rem;
 }
+
+.placeholderContainer {
+    margin: 1.08rem 1rem;
+}
+
+.placeholderMain {
+    height: 1.25rem;
+    width: 7rem;
+    background-color: lightgray;
+    margin-bottom: 0.5rem;
+    border-radius: 0.2rem;
+}
+
+.placeholderSecondary {
+    height: 1rem;
+    width: 5rem;
+    margin-bottom: 0;
+}
