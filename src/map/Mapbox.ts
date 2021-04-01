@@ -69,7 +69,6 @@ export default class Mapbox {
         })
 
         this.popup = new Popup(this.map)
-        this.map.addControl(this.heightgraph, 'bottom-right');
     }
 
     remove() {
@@ -90,6 +89,12 @@ export default class Mapbox {
     }
 
     showPathDetails(selectedPath: Path) {
+        if (this.map.hasControl(this.heightgraph))
+            this.map.removeControl(this.heightgraph);
+        if (selectedPath.points.coordinates.length === 0) {
+            return;
+        }
+        this.map.addControl(this.heightgraph, 'bottom-right');
         const elevation = this.createFeatureCollection(
             'Elevation [m]',
             [this.createFeature(selectedPath.points.coordinates, 'elevation')]
