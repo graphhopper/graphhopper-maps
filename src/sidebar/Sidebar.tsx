@@ -43,6 +43,7 @@ const QueryResults = (props: QueryResultsProps) => {
     const hasPendingRequests = function (subRequests: SubRequest[]) {
         return subRequests.some(req => req.state === RequestState.SENT)
     }
+
     const getLength = function (paths: Path[], subRequests: SubRequest[]) {
         if (subRequests.length > 0 && hasPendingRequests(subRequests)) {
             // assuming that the last sub request is the one with most alternative routes
@@ -55,8 +56,9 @@ const QueryResults = (props: QueryResultsProps) => {
         const length = getLength(paths, currentRequest.subRequests)
         const result = []
         for (let i = 0; i < length; i++) {
-            if (i < paths.length) result.push(<QueryResult path={paths[i]} isSelected={paths[i] === selectedPath} />)
-            else result.push(<QueryResultPlaceholder />)
+            if (i < paths.length)
+                result.push(<QueryResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} />)
+            else result.push(<QueryResultPlaceholder key={i} />)
         }
 
         return result

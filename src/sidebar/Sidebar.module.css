@@ -96,10 +96,24 @@ This is not a very nice duplication but I have to stop now...
     background-color: lightgray;
     margin-bottom: 0.5rem;
     border-radius: 0.2rem;
+    animation-name: pulse;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
 }
 
 .placeholderSecondary {
     height: 1rem;
     width: 5rem;
     margin-bottom: 0;
+    animation-delay: 0.25s;
+}
+
+@keyframes pulse {
+    from {
+        opacity: 0.5;
+    }
+    to {
+        opacity: 1;
+    }
 }

@@ -112,8 +112,6 @@ const SearchBox = ({
     const [text, setText] = useState(point.queryText)
     useEffect(() => setText(point.queryText), [point.queryText])
 
-    const inputAlignment = deletable ? { gridColumn: '2 / span 2' } : undefined
-
     return (
         <>
             <div className={styles.dot} style={{ backgroundColor: point.color }} />
@@ -126,7 +124,6 @@ const SearchBox = ({
                     setText(e.target.value)
                     onChange(e.target.value)
                 }}
-                style={inputAlignment}
             />
             {deletable && (
                 <PlainButton
