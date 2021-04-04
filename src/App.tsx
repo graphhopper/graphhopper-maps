@@ -3,7 +3,7 @@ import Sidebar from '@/sidebar/Sidebar'
 import styles from './App.module.css'
 import { getApiInfoStore, getQueryStore, getRouteStore } from '@/stores/Stores'
 import MapComponent from '@/map/Map'
-import { Bbox } from '@/routing/Api'
+import { Bbox } from '@/api/graphhopper'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)

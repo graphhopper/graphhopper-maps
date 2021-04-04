@@ -1,8 +1,8 @@
-import { Path, RoutingArgs, RoutingResult } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { ClearRoute, RouteRequestSuccess, SetPoint, SetSelectedPath } from '@/actions/Actions'
 import QueryStore, { RequestState } from '@/stores/QueryStore'
+import { Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 
 export interface RouteStoreState {
     routingResult: RoutingResult
@@ -20,7 +20,7 @@ export default class RouteStore extends Store<RouteStoreState> {
             },
             points_encoded: false,
             snapped_waypoints: {
-                type: '',
+                type: 'LineString',
                 coordinates: [],
             },
             ascend: 0,

@@ -1,6 +1,6 @@
-import { ApiInfo } from '../../src/routing/Api'
 import ApiInfoStore from '../../src/stores/ApiInfoStore'
 import { InfoReceived } from '../../src/actions/Actions'
+import { ApiInfo } from '../../src/api/graphhopper'
 
 describe('ApiInfoStore', () => {
     it('should accept an InfoReceived action and store its result', () => {

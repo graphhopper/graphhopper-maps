@@ -1,6 +1,6 @@
 import { Action } from '@/stores/Dispatcher'
-import { ApiInfo, ErrorResponse, Path, RoutingArgs, RoutingResult, RoutingVehicle } from '@/routing/Api'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
+import { ApiInfo, Path, RoutingArgs, RoutingResult, RoutingVehicle } from '@/api/graphhopper'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -67,11 +67,11 @@ export class RouteRequestSuccess implements Action {
 }
 
 export class RouteRequestFailed implements Action {
-    readonly error: ErrorResponse
+    readonly errorMessage: string
     readonly request: RoutingArgs
 
-    constructor(request: RoutingArgs, error: ErrorResponse) {
-        this.error = error
+    constructor(request: RoutingArgs, errorMessage: string) {
+        this.errorMessage = errorMessage
         this.request = request
     }
 }

@@ -1,4 +1,4 @@
-import { route, RoutingArgs, RoutingVehicle } from '@/routing/Api'
+import Api from '@/api/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import {
@@ -12,6 +12,7 @@ import {
     SetPoint,
     SetVehicle,
 } from '@/actions/Actions'
+import { RoutingArgs, RoutingVehicle } from '@/api/graphhopper'
 
 export interface Coordinate {
     lat: number
@@ -58,78 +59,11 @@ export interface SubRequest {
 
 // noinspection JSIgnoredPromiseFromCall
 export default class QueryStore extends Store<QueryStoreState> {
-    static getMarkerColor(type: QueryPointType) {
-        switch (type) {
-            case QueryPointType.From:
-                return '#417900'
-            case QueryPointType.To:
-                return '#F97777'
-            default:
-                return '#76D0F7'
-        }
-    }
+    private readonly api: Api
 
-    private static getPointType(index: number, numberOfPoints: number) {
-        if (index === 0) return QueryPointType.From
-        if (index === numberOfPoints - 1) return QueryPointType.To
-        return QueryPointType.Via
-    }
-
-    private static buildRouteRequest(state: QueryStoreState): RoutingArgs {
-        const coordinates = state.queryPoints.map(point => [point.coordinate.lng, point.coordinate.lat]) as [
-            number,
-            number
-        ][]
-
-        return {
-            points: coordinates,
-            vehicle: state.routingVehicle.key,
-            maxAlternativeRoutes: state.maxAlternativeRoutes,
-        }
-    }
-
-    private static routeIfAllPointsSet(state: QueryStoreState): QueryStoreState {
-        if (state.queryPoints.length > 1 && state.queryPoints.every(point => point.isInitialized)) {
-            const requests = [
-                QueryStore.buildRouteRequest({
-                    ...state,
-                    maxAlternativeRoutes: 1,
-                }),
-            ]
-
-            if (state.queryPoints.length === 2) {
-                requests.push(QueryStore.buildRouteRequest(state))
-            }
-
-            return {
-                ...state,
-                currentRequest: { subRequests: QueryStore.send(requests) },
-            }
-        }
-        return state
-    }
-
-    private static send(args: RoutingArgs[]) {
-        const subRequests = args.map(arg => {
-            return {
-                args: arg,
-                state: RequestState.SENT,
-            }
-        })
-
-        subRequests.forEach(subRequest => route(subRequest.args))
-        return subRequests
-    }
-
-    private static getEmptyPoint(id: number, type: QueryPointType): QueryPoint {
-        return {
-            isInitialized: false,
-            queryText: '',
-            coordinate: { lng: 0, lat: 0 },
-            id: id,
-            color: QueryStore.getMarkerColor(type),
-            type: type,
-        }
+    constructor(api: Api) {
+        super()
+        this.api = api
     }
 
     protected getInitialState(): QueryStoreState {
@@ -159,7 +93,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 queryPoints: QueryStore.replacePoint(state.queryPoints, action.point),
             }
 
-            return QueryStore.routeIfAllPointsSet(newState)
+            return this.routeIfAllPointsSet(newState)
         } else if (action instanceof InvalidatePoint) {
             const points = QueryStore.replacePoint(state.queryPoints, {
                 ...action.point,
@@ -209,7 +143,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 queryPoints: newPoints,
             }
 
-            return QueryStore.routeIfAllPointsSet(newState)
+            return this.routeIfAllPointsSet(newState)
         } else if (action instanceof RemovePoint) {
             const newPoints = state.queryPoints
                 .filter(point => point.id !== action.point.id)
@@ -222,7 +156,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 ...state,
                 queryPoints: newPoints,
             }
-            return QueryStore.routeIfAllPointsSet(newState)
+            return this.routeIfAllPointsSet(newState)
         } else if (action instanceof InfoReceived) {
             // this is the case if the vehicle was set in the url. Keep it in this case
             if (state.routingVehicle.key) return state
@@ -239,7 +173,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 routingVehicle: action.vehicle,
             }
 
-            return QueryStore.routeIfAllPointsSet(newState)
+            return this.routeIfAllPointsSet(newState)
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
         }
@@ -261,6 +195,39 @@ export default class QueryStore extends Store<QueryStoreState> {
         }
     }
 
+    private routeIfAllPointsSet(state: QueryStoreState): QueryStoreState {
+        if (state.queryPoints.length > 1 && state.queryPoints.every(point => point.isInitialized)) {
+            const requests = [
+                QueryStore.buildRouteRequest({
+                    ...state,
+                    maxAlternativeRoutes: 1,
+                }),
+            ]
+
+            if (state.queryPoints.length === 2) {
+                requests.push(QueryStore.buildRouteRequest(state))
+            }
+
+            return {
+                ...state,
+                currentRequest: { subRequests: this.send(requests) },
+            }
+        }
+        return state
+    }
+
+    private send(args: RoutingArgs[]) {
+        const subRequests = args.map(arg => {
+            return {
+                args: arg,
+                state: RequestState.SENT,
+            }
+        })
+
+        subRequests.forEach(subRequest => this.api.routeWithDispatch(subRequest.args))
+        return subRequests
+    }
+
     private static replacePoint(points: QueryPoint[], point: QueryPoint) {
         return replace(
             points,
@@ -277,6 +244,47 @@ export default class QueryStore extends Store<QueryStoreState> {
                 return { ...r, state }
             }
         )
+    }
+
+    private static getMarkerColor(type: QueryPointType) {
+        switch (type) {
+            case QueryPointType.From:
+                return '#417900'
+            case QueryPointType.To:
+                return '#F97777'
+            default:
+                return '#76D0F7'
+        }
+    }
+
+    private static getPointType(index: number, numberOfPoints: number) {
+        if (index === 0) return QueryPointType.From
+        if (index === numberOfPoints - 1) return QueryPointType.To
+        return QueryPointType.Via
+    }
+
+    private static buildRouteRequest(state: QueryStoreState): RoutingArgs {
+        const coordinates = state.queryPoints.map(point => [point.coordinate.lng, point.coordinate.lat]) as [
+            number,
+            number
+        ][]
+
+        return {
+            points: coordinates,
+            vehicle: state.routingVehicle.key,
+            maxAlternativeRoutes: state.maxAlternativeRoutes,
+        }
+    }
+
+    private static getEmptyPoint(id: number, type: QueryPointType): QueryPoint {
+        return {
+            isInitialized: false,
+            queryText: '',
+            coordinate: { lng: 0, lat: 0 },
+            id: id,
+            color: QueryStore.getMarkerColor(type),
+            type: type,
+        }
     }
 }
 

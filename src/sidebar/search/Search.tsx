@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { geocode, GeocodingHit, RoutingVehicle } from '@/routing/Api'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
@@ -8,6 +7,8 @@ import RoutingVehicles from '@/sidebar/search/RoutingVehicles'
 import RemoveIcon from './times-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import PlainButton from '@/PlainButton'
+import { GeocodingHit, RoutingVehicle } from '@/api/graphhopper'
+import Api from '@/api/Api'
 
 interface Query {
     point: QueryPoint
@@ -35,6 +36,8 @@ export default function Search({
         text: '',
     })
     const [geocodingHits, setGeocodingHits] = useState<GeocodingHit[]>([])
+    // future me will take care of this
+    const [api] = useState<Api>(new Api())
 
     useEffect(() => {
         setGeocodingHits([])
@@ -45,7 +48,7 @@ export default function Search({
 
         let isCancelled = false
 
-        geocode(query.text)
+        api.geocode(query.text)
             .then(result => {
                 const hits = filterDuplicates(result.hits)
                 if (!isCancelled) setGeocodingHits(hits)
