@@ -4,27 +4,31 @@ import { CurrentRequest, QueryStoreState, RequestState, SubRequest } from '@/sto
 import Search from '@/sidebar/search/Search'
 import styles from '@/sidebar/Sidebar.module.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetSelectedPath } from '@/actions/Actions'
+import { DismissLastError, SetSelectedPath } from '@/actions/Actions'
 import Instructions from '@/sidebar/instructions/Instructions'
 import Arrow from '@/sidebar/chevron-down-solid.svg'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
+import Cross from './times-solid.svg'
 import Header from '@/sidebar/header.png'
 import { ApiInfo, Path } from '@/api/graphhopper'
+import { ErrorStoreState } from '@/stores/ErrorStore'
 
 type SidebarProps = {
     query: QueryStoreState
     route: RouteStoreState
     info: ApiInfo
+    error: ErrorStoreState
 }
 
-export default function ({ query, route, info }: SidebarProps) {
+export default function ({ query, route, info, error }: SidebarProps) {
     return (
         <>
             <div className={styles.headerContainer}>
                 <img src={Header} alt={'graphhopper logo'} />
             </div>
             <Search points={query.queryPoints} routingVehicles={info.vehicles} selectedVehicle={query.routingVehicle} />
+            {!error.isDismissed && <ErrorMessage error={error} />}
             <QueryResults
                 paths={route.routingResult.paths}
                 selectedPath={route.selectedPath}
@@ -107,6 +111,20 @@ const QueryResultPlaceholder = function () {
                 <div className={styles.placeholderMain} />
                 <div className={styles.placeholderMain + ' ' + styles.placeholderSecondary} />
             </div>
+        </div>
+    )
+}
+
+const ErrorMessage = function ({ error }: { error: ErrorStoreState }) {
+    return (
+        <div className={styles.errorMessageContainer}>
+            <span className={styles.errorMessage}>{error.lastError}</span>
+            <PlainButton
+                className={styles.errorMessageCloseBtn}
+                onClick={() => Dispatcher.dispatch(new DismissLastError())}
+            >
+                <Cross />
+            </PlainButton>
         </div>
     )
 }

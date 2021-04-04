@@ -94,8 +94,8 @@ export class ApiImpl implements Api {
             }
         } else {
             const errorResult = (await response.json()) as ErrorResponse
-            //Dispatcher.dispatch(new RouteRequestFailed(args, errorResult))
-            throw new Error(errorResult.message)
+            const message = (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
+            throw new Error(message)
         }
     }
 
