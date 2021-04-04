@@ -8,7 +8,7 @@ import RemoveIcon from './times-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import PlainButton from '@/PlainButton'
 import { GeocodingHit, RoutingVehicle } from '@/api/graphhopper'
-import Api from '@/api/Api'
+import Api, { ApiImpl } from '@/api/Api'
 
 interface Query {
     point: QueryPoint
@@ -37,7 +37,7 @@ export default function Search({
     })
     const [geocodingHits, setGeocodingHits] = useState<GeocodingHit[]>([])
     // future me will take care of this
-    const [api] = useState<Api>(new Api())
+    const [api] = useState<Api>(new ApiImpl())
 
     useEffect(() => {
         setGeocodingHits([])

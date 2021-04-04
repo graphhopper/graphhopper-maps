@@ -16,9 +16,18 @@ import {
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
 
-export const ghKey = 'fb45b8b2-fdda-4093-ac1a-8b57b4e50add'
+export default interface Api {
+    info(): Promise<ApiInfo>
+    infoWithDispatch(): void
 
-export default class Api {
+    route(args: RoutingArgs): Promise<RoutingResult>
+    routeWithDispatch(args: RoutingArgs): void
+
+    geocode(query: string): Promise<GeocodingResult>
+}
+
+export const ghKey = 'fb45b8b2-fdda-4093-ac1a-8b57b4e50add'
+export class ApiImpl implements Api {
     private readonly apiKey: string
     private readonly apiAddress: string
 
@@ -34,20 +43,16 @@ export default class Api {
 
         if (response.ok) {
             const result = await response.json()
-            return Api.convertToApiInfo(result)
+            return ApiImpl.convertToApiInfo(result)
         } else {
             throw new Error('here could be your meaningfull error message')
         }
     }
 
-    async infoWithDispatch() {
-        try {
-            const apiInfo = await this.info()
-            Dispatcher.dispatch(new InfoReceived(apiInfo))
-        } catch (e) {
-            //Dispatcher.dispatch(new InfoReceivedFailed(e.message)) should be something like this
-            throw e
-        }
+    infoWithDispatch() {
+        this.info()
+            .then(result => Dispatcher.dispatch(new InfoReceived(result)))
+            .catch(e => console.log(e.message))
     }
 
     async geocode(query: string) {
@@ -66,7 +71,7 @@ export default class Api {
     }
 
     async route(args: RoutingArgs): Promise<RoutingResult> {
-        const completeRequest = Api.createRequest(args)
+        const completeRequest = ApiImpl.createRequest(args)
 
         const response = await fetch(this.getURLWithKey('route').toString(), {
             method: 'POST',
@@ -85,7 +90,7 @@ export default class Api {
             // transform encoded points into decoded
             return {
                 ...rawResult,
-                paths: Api.decodeResult(rawResult),
+                paths: ApiImpl.decodeResult(rawResult),
             }
         } else {
             const errorResult = (await response.json()) as ErrorResponse
@@ -94,13 +99,10 @@ export default class Api {
         }
     }
 
-    async routeWithDispatch(args: RoutingArgs) {
-        try {
-            const result = await this.route(args)
-            Dispatcher.dispatch(new RouteRequestSuccess(args, result))
-        } catch (e) {
-            Dispatcher.dispatch(new RouteRequestFailed(args, e.message))
-        }
+    routeWithDispatch(args: RoutingArgs) {
+        this.route(args)
+            .then(result => Dispatcher.dispatch(new RouteRequestSuccess(args, result)))
+            .catch(error => Dispatcher.dispatch(new RouteRequestFailed(args, error.message)))
     }
 
     private getURLWithKey(endpoint: string) {
@@ -170,14 +172,14 @@ export default class Api {
             .map((path: RawPath) => {
                 return {
                     ...path,
-                    points: Api.decodePoints(path),
-                    snapped_waypoints: Api.decodeWaypoints(path),
+                    points: ApiImpl.decodePoints(path),
+                    snapped_waypoints: ApiImpl.decodeWaypoints(path),
                 } as Path
             })
             .map((path: Path) => {
                 return {
                     ...path,
-                    instructions: Api.setPointsOnInstructions(path),
+                    instructions: ApiImpl.setPointsOnInstructions(path),
                 }
             })
     }
@@ -186,7 +188,7 @@ export default class Api {
         if (path.points_encoded)
             return {
                 type: 'LineString',
-                coordinates: Api.decodePath(path.points as string, false),
+                coordinates: ApiImpl.decodePath(path.points as string, false),
             }
         else return path.points as LineString
     }
@@ -195,7 +197,7 @@ export default class Api {
         if (path.points_encoded)
             return {
                 type: 'LineString',
-                coordinates: Api.decodePath(path.snapped_waypoints as string, false),
+                coordinates: ApiImpl.decodePath(path.snapped_waypoints as string, false),
             }
         else return path.snapped_waypoints as LineString
     }

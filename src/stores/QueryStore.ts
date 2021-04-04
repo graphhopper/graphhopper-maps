@@ -57,7 +57,6 @@ export interface SubRequest {
     readonly state: RequestState
 }
 
-// noinspection JSIgnoredPromiseFromCall
 export default class QueryStore extends Store<QueryStoreState> {
     private readonly api: Api
 
@@ -204,7 +203,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 }),
             ]
 
-            if (state.queryPoints.length === 2) {
+            if (state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1) {
                 requests.push(QueryStore.buildRouteRequest(state))
             }
 

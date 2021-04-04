@@ -1,7 +1,7 @@
 import fetchMock from 'jest-fetch-mock'
 import Dispatcher, { Action } from '../../src/stores/Dispatcher'
 import { InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '../../src/actions/Actions'
-import Api, { ghKey } from '../../src/api/Api'
+import { ApiImpl, ghKey } from '../../src/api/Api'
 import { ApiInfo, ErrorResponse, RawResult, RoutingArgs, RoutingRequest } from '../../src/api/graphhopper'
 
 // replace global 'fetch' method by fetchMock
@@ -49,7 +49,7 @@ describe('info api', () => {
             },
         })
 
-        await new Api().infoWithDispatch()
+        await new ApiImpl().infoWithDispatch()
     })
 
     it('should convert the response into an ApiInfo object', async () => {
@@ -84,7 +84,7 @@ describe('info api', () => {
             },
         })
 
-        await new Api().infoWithDispatch()
+        await new ApiImpl().infoWithDispatch()
     })
 })
 
@@ -106,7 +106,7 @@ describe('route', () => {
             return Promise.resolve(JSON.stringify(getEmptyResult()))
         })
 
-        await new Api().routeWithDispatch(args)
+        await new ApiImpl().routeWithDispatch(args)
     })
 
     it('transforms routingArgs into routing request with default algorithm for maxAlternativeRoutes: 1', async () => {
@@ -131,7 +131,7 @@ describe('route', () => {
             return compareRequestBodyAndResolve(request, expectedBody)
         })
 
-        await new Api().routeWithDispatch(args)
+        await new ApiImpl().routeWithDispatch(args)
     })
 
     it('transforms routingArgs into routing request with alternative_route algorithm for maxAlternativeRoutes > 1', async () => {
@@ -158,7 +158,7 @@ describe('route', () => {
             return compareRequestBodyAndResolve(request, expectedBody)
         })
 
-        await new Api().routeWithDispatch(args)
+        await new ApiImpl().routeWithDispatch(args)
     })
 
     it('should create an action when a response is received', async () => {
@@ -181,7 +181,7 @@ describe('route', () => {
             },
         })
 
-        await new Api().routeWithDispatch(args)
+        await new ApiImpl().routeWithDispatch(args)
     })
 
     it('should create an action when an error is received', async () => {
@@ -209,7 +209,7 @@ describe('route', () => {
             },
         })
 
-        await new Api().routeWithDispatch(args)
+        await new ApiImpl().routeWithDispatch(args)
     })
 })
 
