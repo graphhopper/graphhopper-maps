@@ -1,4 +1,4 @@
-import routeWithoutAlternativeRoutes, { routeWithAlternativeRoutes, RoutingVehicle } from '@/routing/Api'
+import { route, RoutingArgs, RoutingVehicle } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import {
@@ -7,6 +7,8 @@ import {
     InfoReceived,
     InvalidatePoint,
     RemovePoint,
+    RouteRequestFailed,
+    RouteRequestSuccess,
     SetPoint,
     SetVehicle,
 } from '@/actions/Actions'
@@ -19,7 +21,8 @@ export interface Coordinate {
 export interface QueryStoreState {
     readonly queryPoints: QueryPoint[]
     readonly nextQueryPointId: number
-    readonly currentRequestId: number
+    readonly currentRequest: CurrentRequest
+    readonly maxAlternativeRoutes: number
     readonly routingVehicle: RoutingVehicle
 }
 
@@ -36,6 +39,21 @@ export enum QueryPointType {
     From,
     To,
     Via,
+}
+
+export interface CurrentRequest {
+    subRequests: SubRequest[]
+}
+
+export enum RequestState {
+    SENT,
+    SUCCESS,
+    FAILED,
+}
+
+export interface SubRequest {
+    readonly args: RoutingArgs
+    readonly state: RequestState
 }
 
 // noinspection JSIgnoredPromiseFromCall
@@ -57,23 +75,50 @@ export default class QueryStore extends Store<QueryStoreState> {
         return QueryPointType.Via
     }
 
-    private static routeIfAllPointsSet(state: QueryStoreState) {
+    private static buildRouteRequest(state: QueryStoreState): RoutingArgs {
+        const coordinates = state.queryPoints.map(point => [point.coordinate.lng, point.coordinate.lat]) as [
+            number,
+            number
+        ][]
+
+        return {
+            points: coordinates,
+            vehicle: state.routingVehicle.key,
+            maxAlternativeRoutes: state.maxAlternativeRoutes,
+        }
+    }
+
+    private static routeIfAllPointsSet(state: QueryStoreState): QueryStoreState {
         if (state.queryPoints.length > 1 && state.queryPoints.every(point => point.isInitialized)) {
-            const rawPoints = state.queryPoints.map(point => [point.coordinate.lng, point.coordinate.lat]) as [
-                number,
-                number
-            ][]
-            routeWithoutAlternativeRoutes(state.currentRequestId, {
-                points: rawPoints,
-                vehicle: state.routingVehicle.key,
-            })
+            const requests = [
+                QueryStore.buildRouteRequest({
+                    ...state,
+                    maxAlternativeRoutes: 1,
+                }),
+            ]
+
             if (state.queryPoints.length === 2) {
-                routeWithAlternativeRoutes(state.currentRequestId, {
-                    points: rawPoints,
-                    vehicle: state.routingVehicle.key,
-                })
+                requests.push(QueryStore.buildRouteRequest(state))
+            }
+
+            return {
+                ...state,
+                currentRequest: { subRequests: QueryStore.send(requests) },
             }
         }
+        return state
+    }
+
+    private static send(args: RoutingArgs[]) {
+        const subRequests = args.map(arg => {
+            return {
+                args: arg,
+                state: RequestState.SENT,
+            }
+        })
+
+        subRequests.forEach(subRequest => route(subRequest.args))
+        return subRequests
     }
 
     private static getEmptyPoint(id: number, type: QueryPointType): QueryPoint {
@@ -94,7 +139,10 @@ export default class QueryStore extends Store<QueryStoreState> {
                 QueryStore.getEmptyPoint(1, QueryPointType.To),
             ],
             nextQueryPointId: 2,
-            currentRequestId: 0,
+            currentRequest: {
+                subRequests: [],
+            },
+            maxAlternativeRoutes: 3,
             routingVehicle: {
                 key: '',
                 import_date: '',
@@ -104,29 +152,16 @@ export default class QueryStore extends Store<QueryStoreState> {
         }
     }
 
-    static replace(points: QueryPoint[], newPoint: QueryPoint) {
-        const result = []
-
-        for (const point of points) {
-            if (point.id === newPoint.id) result.push(newPoint)
-            else result.push(point)
-        }
-
-        return result
-    }
-
     reduce(state: QueryStoreState, action: Action): QueryStoreState {
         if (action instanceof SetPoint) {
             const newState: QueryStoreState = {
                 ...state,
-                queryPoints: QueryStore.replace(state.queryPoints, action.point),
-                currentRequestId: state.currentRequestId + 1,
+                queryPoints: QueryStore.replacePoint(state.queryPoints, action.point),
             }
 
-            QueryStore.routeIfAllPointsSet(newState)
-            return newState
+            return QueryStore.routeIfAllPointsSet(newState)
         } else if (action instanceof InvalidatePoint) {
-            const points = QueryStore.replace(state.queryPoints, {
+            const points = QueryStore.replacePoint(state.queryPoints, {
                 ...action.point,
                 isInitialized: false,
             })
@@ -171,13 +206,10 @@ export default class QueryStore extends Store<QueryStoreState> {
             const newState: QueryStoreState = {
                 ...state,
                 nextQueryPointId: state.nextQueryPointId + 1,
-                currentRequestId: state.currentRequestId + 1,
                 queryPoints: newPoints,
             }
 
-            QueryStore.routeIfAllPointsSet(newState)
-
-            return newState
+            return QueryStore.routeIfAllPointsSet(newState)
         } else if (action instanceof RemovePoint) {
             const newPoints = state.queryPoints
                 .filter(point => point.id !== action.point.id)
@@ -190,9 +222,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 ...state,
                 queryPoints: newPoints,
             }
-            QueryStore.routeIfAllPointsSet(newState)
-
-            return newState
+            return QueryStore.routeIfAllPointsSet(newState)
         } else if (action instanceof InfoReceived) {
             // this is the case if the vehicle was set in the url. Keep it in this case
             if (state.routingVehicle.key) return state
@@ -207,12 +237,56 @@ export default class QueryStore extends Store<QueryStoreState> {
             const newState: QueryStoreState = {
                 ...state,
                 routingVehicle: action.vehicle,
-                currentRequestId: state.currentRequestId + 1,
             }
 
-            QueryStore.routeIfAllPointsSet(newState)
-            return newState
+            return QueryStore.routeIfAllPointsSet(newState)
+        } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
+            return QueryStore.handleFinishedRequest(state, action)
         }
         return state
     }
+
+    private static handleFinishedRequest(
+        state: QueryStoreState,
+        action: RouteRequestSuccess | RouteRequestFailed
+    ): QueryStoreState {
+        const newState = action instanceof RouteRequestSuccess ? RequestState.SUCCESS : RequestState.FAILED
+        const newSubrequests = QueryStore.replaceSubRequest(state.currentRequest.subRequests, action.request, newState)
+
+        return {
+            ...state,
+            currentRequest: {
+                subRequests: newSubrequests,
+            },
+        }
+    }
+
+    private static replacePoint(points: QueryPoint[], point: QueryPoint) {
+        return replace(
+            points,
+            p => p.id === point.id,
+            () => point
+        )
+    }
+
+    private static replaceSubRequest(subRequests: SubRequest[], args: RoutingArgs, state: RequestState) {
+        return replace(
+            subRequests,
+            r => r.args === args,
+            r => {
+                return { ...r, state }
+            }
+        )
+    }
+}
+
+function replace<T>(array: T[], compare: { (element: T): boolean }, provider: { (element: T): T }) {
+    const result = []
+
+    for (const element of array) {
+        if (compare(element)) result.push(provider(element))
+        else result.push(element)
+    }
+
+    return result
 }

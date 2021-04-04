@@ -1,5 +1,5 @@
 import { Action } from '@/stores/Dispatcher'
-import { ApiInfo, Path, RoutingResult, RoutingVehicle } from '@/routing/Api'
+import { ApiInfo, ErrorResponse, Path, RoutingArgs, RoutingResult, RoutingVehicle } from '@/routing/Api'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 
 export class InfoReceived implements Action {
@@ -56,13 +56,23 @@ export class InvalidatePoint implements Action {
     }
 }
 
-export class RouteReceived implements Action {
+export class RouteRequestSuccess implements Action {
     readonly result: RoutingResult
-    readonly requestId: number
+    readonly request: RoutingArgs
 
-    constructor(result: RoutingResult, requestId: number) {
+    constructor(request: RoutingArgs, result: RoutingResult) {
         this.result = result
-        this.requestId = requestId
+        this.request = request
+    }
+}
+
+export class RouteRequestFailed implements Action {
+    readonly error: ErrorResponse
+    readonly request: RoutingArgs
+
+    constructor(request: RoutingArgs, error: ErrorResponse) {
+        this.error = error
+        this.request = request
     }
 }
 

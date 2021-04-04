@@ -1,8 +1,8 @@
-import { Path, RoutingResult } from '@/routing/Api'
+import { Path, RoutingArgs, RoutingResult } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { ClearRoute, RouteReceived, SetPoint, SetSelectedPath } from '@/actions/Actions'
-import QueryStore from '@/stores/QueryStore'
+import { ClearRoute, RouteRequestSuccess, SetPoint, SetSelectedPath } from '@/actions/Actions'
+import QueryStore, { RequestState } from '@/stores/QueryStore'
 
 export interface RouteStoreState {
     routingResult: RoutingResult
@@ -44,7 +44,7 @@ export default class RouteStore extends Store<RouteStoreState> {
     }
 
     reduce(state: RouteStoreState, action: Action): RouteStoreState {
-        if (action instanceof RouteReceived) {
+        if (action instanceof RouteRequestSuccess) {
             return this.reduceRouteReceived(state, action)
         } else if (action instanceof SetSelectedPath) {
             return {
@@ -70,8 +70,8 @@ export default class RouteStore extends Store<RouteStoreState> {
         }
     }
 
-    private reduceRouteReceived(state: RouteStoreState, action: RouteReceived) {
-        if (this.isStaleRequest(action.requestId)) return state
+    private reduceRouteReceived(state: RouteStoreState, action: RouteRequestSuccess) {
+        if (this.isStaleRequest(action.request)) return state
 
         if (RouteStore.containsPaths(action.result.paths)) {
             return {
@@ -82,8 +82,22 @@ export default class RouteStore extends Store<RouteStoreState> {
         return this.getInitialState()
     }
 
-    private isStaleRequest(requestId: number) {
-        return requestId !== this.queryStore.state.currentRequestId
+    private isStaleRequest(request: RoutingArgs) {
+        // this could be probably written less tedious...
+        const subRequests = this.queryStore.state.currentRequest.subRequests
+        let requestIndex = -1
+        let mostRecentAndFinishedIndex = -1
+        for (let i = 0; i < subRequests.length; i++) {
+            const element = subRequests[i]
+            if (element.args === request) {
+                requestIndex = i
+            }
+            if (element.state === RequestState.SUCCESS) {
+                mostRecentAndFinishedIndex = i
+            }
+        }
+
+        return requestIndex < 0 && requestIndex < mostRecentAndFinishedIndex
     }
 
     private static containsPaths(paths: Path[]) {
