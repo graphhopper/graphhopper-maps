@@ -1,5 +1,6 @@
 .headerContainer {
-    margin: 0.5rem 0 0 2rem;
+    margin-top: 0.5rem;
+    align-self: center;
 }
 
 .resultListContainer {
@@ -116,4 +117,31 @@ This is not a very nice duplication but I have to stop now...
     to {
         opacity: 1;
     }
+}
+
+.errorMessageContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: #f97777;
+    color: white;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 2px;
+}
+
+.errorMessage {
+    word-break: break-word;
+    max-width: 90%;
+}
+
+.errorMessageCloseBtn {
+    width: 0.8rem;
+    color: white;
+    align-self: flex-start;
+    flex-shrink: 0;
+}
+
+.errorMessageCloseBtn svg {
+    width: 100%;
 }

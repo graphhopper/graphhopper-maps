@@ -2,13 +2,14 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import App from '@/App'
-import { getApiInfoStore, getQueryStore, getRouteStore, setStores } from '@/stores/Stores'
+import { getApiInfoStore, getErrorStore, getQueryStore, getRouteStore, setStores } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
 import { createUrl, parseUrl } from '@/./QueryUrl'
 import QueryStore from '@/stores/QueryStore'
 import { ApiImpl } from '@/api/Api'
+import ErrorStore from '@/stores/ErrorStore'
 
 // set up state management
 const api = new ApiImpl()
@@ -17,12 +18,14 @@ setStores({
     queryStore: queryStore,
     routeStore: new RouteStore(queryStore),
     infoStore: new ApiInfoStore(),
+    errorStore: new ErrorStore(),
 })
 
 // register stores at dispatcher to receive actions
 Dispatcher.register(getQueryStore())
 Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
+Dispatcher.register(getErrorStore())
 
 api.infoWithDispatch() // get infos about the api as soon as possible
 

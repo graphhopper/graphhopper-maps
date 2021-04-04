@@ -85,3 +85,5 @@ export class SetSelectedPath implements Action {
         this.path = path
     }
 }
+
+export class DismissLastError implements Action {}
