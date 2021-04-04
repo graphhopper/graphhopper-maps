@@ -6,12 +6,13 @@ import { getApiInfoStore, getQueryStore, getRouteStore, setStores } from '@/stor
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
-import { info } from '@/routing/Api'
 import { createUrl, parseUrl } from '@/./QueryUrl'
 import QueryStore from '@/stores/QueryStore'
+import { ApiImpl } from '@/api/Api'
 
 // set up state management
-const queryStore = new QueryStore()
+const api = new ApiImpl()
+const queryStore = new QueryStore(api)
 setStores({
     queryStore: queryStore,
     routeStore: new RouteStore(queryStore),
@@ -23,7 +24,7 @@ Dispatcher.register(getQueryStore())
 Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
 
-info().then(() => {}) // get infos about the api as soon as possible
+api.infoWithDispatch() // get infos about the api as soon as possible
 
 // parse the window's url and set up a query from it
 // this will also trigger a routing request if the url contains routing parameters

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { ApiInfo, Path } from '@/routing/Api'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { CurrentRequest, QueryStoreState, RequestState, SubRequest } from '@/stores/QueryStore'
 import Search from '@/sidebar/search/Search'
@@ -11,6 +10,7 @@ import Arrow from '@/sidebar/chevron-down-solid.svg'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Header from '@/sidebar/header.png'
+import { ApiInfo, Path } from '@/api/graphhopper'
 
 type SidebarProps = {
     query: QueryStoreState

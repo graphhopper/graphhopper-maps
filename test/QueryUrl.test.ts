@@ -2,9 +2,9 @@ import { createUrl, parseUrl } from '../src/QueryUrl'
 import { QueryPoint, QueryPointType, QueryStoreState } from '../src/stores/QueryStore'
 import Dispatcher, { Action } from '../src/stores/Dispatcher'
 import Store from '../src/stores/Store'
-import { RoutingVehicle } from '../src/routing/Api'
 import { Coordinate } from '@/stores/QueryStore'
 import { AddPoint, SetVehicle } from '../src/actions/Actions'
+import { RoutingVehicle } from '../src/api/graphhopper'
 
 interface TestState {
     points: Coordinate[]
