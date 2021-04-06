@@ -32,15 +32,15 @@ export default function App() {
     })
 
     // only use the api info's bbox until any other bounding box was chosen. Is this too messy?
-    const chooseBoundingBox = function (infoBbox: Bbox, pathBbox: Bbox, shouldUseInfoBbox: boolean) {
-        if (shouldUseInfoBbox && pathBbox.every(num => num !== 0)) {
+    const chooseBoundingBox = function (infoBbox: Bbox, shouldUseInfoBbox: boolean, pathBbox?: Bbox) {
+        if (shouldUseInfoBbox && pathBbox && pathBbox.every(num => num !== 0)) {
             setUseInfoBbox(false)
             return pathBbox
         } else if (shouldUseInfoBbox) return infoBbox
-        return pathBbox
+        return pathBbox || [0, 0, 0, 0]
     }
 
-    const bbox = chooseBoundingBox(info.bbox, route.selectedPath.bbox, useInfoBbox)
+    const bbox = chooseBoundingBox(info.bbox, useInfoBbox, route.selectedPath.bbox)
 
     return (
         <div className={styles.appWrapper}>
