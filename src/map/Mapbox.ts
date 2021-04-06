@@ -6,6 +6,7 @@ import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
 import { FeatureCollection, LineString } from 'geojson'
 import { Bbox, Path } from '@/api/graphhopper'
+import StyleSwitch from '@/map/StyleSwitch'
 
 const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -29,6 +30,30 @@ export default class Mapbox {
             accessToken:
                 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
             style: 'mapbox://styles/mapbox/streets-v11',
+            /*
+            style: {
+                version: 8,
+                sources: {
+                    'raster-tiles': {
+                        type: 'raster',
+                        tiles: ['https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg'],
+                        tileSize: 256,
+                        attribution:
+                            'Map tiles by <a target="_top" rel="noopener" href="http://stamen.com">Stamen Design</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a target="_top" rel="noopener" href="http://openstreetmap.org">OpenStreetMap</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
+                    },
+                },
+                layers: [
+                    {
+                        id: 'simple-tiles',
+                        type: 'raster',
+                        source: 'raster-tiles',
+                        minzoom: 0,
+                        maxzoom: 22,
+                    },
+                ],
+            },
+
+             */
         })
 
         this.map.on('load', () => {
@@ -64,6 +89,9 @@ export default class Mapbox {
         })
 
         this.popup = new Popup(this.map)
+
+        const control = new StyleSwitch()
+        this.map.addControl(control, 'top-right')
     }
 
     remove() {
@@ -209,9 +237,11 @@ export default class Mapbox {
         }
 
         this.map.addSource(pathsSourceKey, source)
-        this.map.addLayer(pathsLayer, 'road-label')
+        // this.map.addLayer(pathsLayer, 'road-label')
+        this.map.addLayer(pathsLayer)
 
         this.map.addSource(selectedPathSourceKey, source)
+
         this.map.addLayer(
             {
                 ...pathsLayer,
@@ -221,8 +251,8 @@ export default class Mapbox {
                     'line-color': '#275DAD',
                     'line-width': 8,
                 },
-            },
-            'road-label'
+            }
+            //'road-label'
         )
     }
 }
