@@ -166,7 +166,7 @@ export default class Mapbox {
         if (bbox.every(num => num !== 0))
             this.map.fitBounds(new LngLatBounds(bbox), {
                 padding: Mapbox.getPadding(),
-                animate: false
+                duration: 150
             })
     }
 
