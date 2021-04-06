@@ -4,8 +4,8 @@ import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
-import { Bbox, Path } from '@/routing/Api'
 import { FeatureCollection, LineString } from 'geojson'
+import { Bbox, Path } from '@/api/graphhopper'
 import mapboxgl from "mapbox-gl";
 window.mapboxgl = mapboxgl;
 import {MapboxHeightGraph} from 'leaflet.heightgraph/example/MapboxHeightGraph';
@@ -118,7 +118,7 @@ export default class Mapbox {
         this.heightgraph.setData([elevation, ...pathDetails], mappings);
     }
 
-    createFeature(coordinates: number[][], attributeType: any) {
+    createFeature(coordinates: number[][], attributeType: number | string) {
         return {
             type: 'Feature',
             geometry: {
@@ -256,7 +256,7 @@ export default class Mapbox {
         this.markers.forEach(marker => marker.remove())
         this.markers = queryPoints
             .map((point, i) => {
-                return {index: i, point: point}
+                return { index: i, point: point }
             })
             .filter(indexPoint => indexPoint.point.isInitialized)
             .map(indexPoint =>

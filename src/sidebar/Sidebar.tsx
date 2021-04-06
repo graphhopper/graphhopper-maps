@@ -1,46 +1,79 @@
 import React, { useEffect, useState } from 'react'
-import { ApiInfo, Path } from '@/routing/Api'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { QueryStoreState } from '@/stores/QueryStore'
+import { CurrentRequest, QueryStoreState, RequestState, SubRequest } from '@/stores/QueryStore'
 import Search from '@/sidebar/search/Search'
 import styles from '@/sidebar/Sidebar.module.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetSelectedPath } from '@/actions/Actions'
+import { DismissLastError, SetSelectedPath } from '@/actions/Actions'
 import Instructions from '@/sidebar/instructions/Instructions'
 import Arrow from '@/sidebar/chevron-down-solid.svg'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
+import Cross from './times-solid.svg'
 import Header from '@/sidebar/header.png'
+import { ApiInfo, Path } from '@/api/graphhopper'
+import { ErrorStoreState } from '@/stores/ErrorStore'
 
 type SidebarProps = {
     query: QueryStoreState
     route: RouteStoreState
     info: ApiInfo
+    error: ErrorStoreState
 }
 
-export default function ({ query, route, info }: SidebarProps) {
+export default function ({ query, route, info, error }: SidebarProps) {
     return (
         <>
             <div className={styles.headerContainer}>
                 <img src={Header} alt={'graphhopper logo'} />
             </div>
             <Search points={query.queryPoints} routingVehicles={info.vehicles} selectedVehicle={query.routingVehicle} />
-            <QueryResults paths={route.routingResult.paths} selectedPath={route.selectedPath} />
+            {!error.isDismissed && <ErrorMessage error={error} />}
+            <QueryResults
+                paths={route.routingResult.paths}
+                selectedPath={route.selectedPath}
+                currentRequest={query.currentRequest}
+            />
         </>
     )
 }
 
-const QueryResults = (props: { paths: Path[]; selectedPath: Path }) => (
-    <div className={styles.resultListContainer}>
-        <ul>
-            {props.paths.map((path, i) => (
-                <li key={i}>
-                    <QueryResult path={path} isSelected={path === props.selectedPath} />
-                </li>
-            ))}
-        </ul>
-    </div>
-)
+interface QueryResultsProps {
+    paths: Path[]
+    selectedPath: Path
+    currentRequest: CurrentRequest
+}
+const QueryResults = (props: QueryResultsProps) => {
+    const hasPendingRequests = function (subRequests: SubRequest[]) {
+        return subRequests.some(req => req.state === RequestState.SENT)
+    }
+
+    const getLength = function (paths: Path[], subRequests: SubRequest[]) {
+        if (subRequests.length > 0 && hasPendingRequests(subRequests)) {
+            // assuming that the last sub request is the one with most alternative routes
+            return Math.max(subRequests[subRequests.length - 1].args.maxAlternativeRoutes, paths.length)
+        }
+        return paths.length
+    }
+
+    const createListContent = function ({ paths, currentRequest, selectedPath }: QueryResultsProps) {
+        const length = getLength(paths, currentRequest.subRequests)
+        const result = []
+        for (let i = 0; i < length; i++) {
+            if (i < paths.length)
+                result.push(<QueryResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} />)
+            else result.push(<QueryResultPlaceholder key={i} />)
+        }
+
+        return result
+    }
+
+    return (
+        <div className={styles.resultListContainer}>
+            <ul>{createListContent(props)}</ul>
+        </div>
+    )
+}
 
 const QueryResult = ({ path, isSelected }: { path: Path; isSelected: boolean }) => {
     const [isExpanded, setExpanded] = useState(false)
@@ -67,6 +100,31 @@ const QueryResult = ({ path, isSelected }: { path: Path; isSelected: boolean }) 
                 </div>
             </div>
             {isExpanded && <Instructions instructions={path.instructions} />}
+        </div>
+    )
+}
+
+const QueryResultPlaceholder = function () {
+    return (
+        <div className={styles.resultRow}>
+            <div className={styles.placeholderContainer}>
+                <div className={styles.placeholderMain} />
+                <div className={styles.placeholderMain + ' ' + styles.placeholderSecondary} />
+            </div>
+        </div>
+    )
+}
+
+const ErrorMessage = function ({ error }: { error: ErrorStoreState }) {
+    return (
+        <div className={styles.errorMessageContainer}>
+            <span className={styles.errorMessage}>{error.lastError}</span>
+            <PlainButton
+                className={styles.errorMessageCloseBtn}
+                onClick={() => Dispatcher.dispatch(new DismissLastError())}
+            >
+                <Cross />
+            </PlainButton>
         </div>
     )
 }

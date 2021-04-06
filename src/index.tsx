@@ -2,28 +2,32 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import App from '@/App'
-import { getApiInfoStore, getQueryStore, getRouteStore, setStores } from '@/stores/Stores'
+import { getApiInfoStore, getErrorStore, getQueryStore, getRouteStore, setStores } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
-import { info } from '@/routing/Api'
 import { createUrl, parseUrl } from '@/./QueryUrl'
 import QueryStore from '@/stores/QueryStore'
+import { ApiImpl } from '@/api/Api'
+import ErrorStore from '@/stores/ErrorStore'
 
 // set up state management
-const queryStore = new QueryStore()
+const api = new ApiImpl()
+const queryStore = new QueryStore(api)
 setStores({
     queryStore: queryStore,
     routeStore: new RouteStore(queryStore),
     infoStore: new ApiInfoStore(),
+    errorStore: new ErrorStore(),
 })
 
 // register stores at dispatcher to receive actions
 Dispatcher.register(getQueryStore())
 Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
+Dispatcher.register(getErrorStore())
 
-info().then(() => {}) // get infos about the api as soon as possible
+api.infoWithDispatch() // get infos about the api as soon as possible
 
 // parse the window's url and set up a query from it
 // this will also trigger a routing request if the url contains routing parameters

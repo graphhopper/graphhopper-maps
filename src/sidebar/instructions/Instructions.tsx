@@ -1,4 +1,3 @@
-import { Instruction } from '@/routing/Api'
 import styles from '@/sidebar/instructions/Instructions.module.css'
 import React from 'react'
 
@@ -22,6 +21,7 @@ import ptStartTrip from './pt_start_trip.png'
 import ptTransferTo from './pt_transfer_to.png'
 import ptEndTrip from './pt_end_trip.png'
 import { metersToText } from '@/Converters'
+import { Instruction } from '@/api/graphhopper'
 
 export default function (props: { instructions: Instruction[] }) {
     return (
