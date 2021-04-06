@@ -93,24 +93,20 @@ export default class Mapbox {
             return;
         if (!this.map.hasControl(this.heightgraph))
             this.map.addControl(this.heightgraph, 'bottom-right');
-        const elevation = this.createFeatureCollection(
+        const elevation = Mapbox.createFeatureCollection(
             'Elevation [m]',
-            [this.createFeature(selectedPath.points.coordinates, 'elevation')]
+            [Mapbox.createFeature(selectedPath.points.coordinates, 'elevation')]
         );
         const pathDetails = Object.entries(selectedPath.details).map(([detailName, details]) => {
             const points = selectedPath.points.coordinates;
-            const features = [];
-            for (let i = 0; i < details.length; i++) {
-                let [from, to, value] = details[i];
-                if (typeof value === 'undefined' || value === null)
-                    value = 'Undefined'
-                features.push(this.createFeature(points.slice(from, to + 1), value));
-            }
-            return this.createFeatureCollection(detailName, features);
+            const features = details.map(([from, to, value = 'Undefined']: [number, number, string | number]) =>
+                Mapbox.createFeature(points.slice(from, to + 1), value));
+            return Mapbox.createFeatureCollection(detailName, features);
         });
-        const mappings: any = {};
-        mappings['Elevation [m]'] = function () {
-            return {text: 'Elevation [m]', color: '#27ce49'}
+        const mappings: any = {
+            'Elevation [m]': function () {
+                return {text: 'Elevation [m]', color: '#27ce49'}
+            }
         };
         Object.entries(selectedPath.details).forEach(([detailName, details]) => {
             mappings[detailName] = this.createColorMapping(details);
@@ -118,7 +114,7 @@ export default class Mapbox {
         this.heightgraph.setData([elevation, ...pathDetails], mappings);
     }
 
-    createFeature(coordinates: number[][], attributeType: number | string) {
+    private static createFeature(coordinates: number[][], attributeType: number | string) {
         return {
             type: 'Feature',
             geometry: {
@@ -131,7 +127,7 @@ export default class Mapbox {
         }
     }
 
-    createFeatureCollection(detailName: string, features: any[]) {
+    private static createFeatureCollection(detailName: string, features: any[]) {
         return {
             type: 'FeatureCollection',
             features: features,
@@ -142,7 +138,7 @@ export default class Mapbox {
         }
     }
 
-    createColorMapping(detail: any): any {
+    private createColorMapping(detail: any): any {
         const detailInfo: any = Mapbox.inspectDetail(detail);
         if (detailInfo.numeric === true && detailInfo.minVal !== detailInfo.maxVal) {
             // for numeric details we use a color gradient, taken from here:  https://uigradients.com/#Superman
