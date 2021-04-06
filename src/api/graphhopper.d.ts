@@ -72,7 +72,7 @@ export interface BasePath {
     readonly ascend: number
     readonly descend: number
     readonly points_encoded: boolean
-    readonly bbox: Bbox
+    readonly bbox?: Bbox
     readonly instructions: Instruction[]
     readonly details: Details
     readonly points_order: number[]
