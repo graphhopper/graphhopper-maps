@@ -1,4 +1,4 @@
-import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker } from 'mapbox-gl'
+import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker, Style } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
@@ -6,7 +6,7 @@ import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
 import { FeatureCollection, LineString } from 'geojson'
 import { Bbox, Path } from '@/api/graphhopper'
-import StyleSwitch from '@/map/StyleSwitch'
+import { StyleOption } from '@/stores/MapOptionsStore'
 
 const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -23,38 +23,24 @@ export default class Mapbox {
     private currentPaths: { path: Path; index: number }[] = []
 
     private mapIsReady = false
+    private isFirstBounds = true
+    private isRemoved = false
 
-    constructor(container: HTMLDivElement, onMapReady: () => void, onClick: (e: MapMouseEvent) => void) {
+    constructor(
+        container: HTMLDivElement,
+        mapStyle: StyleOption,
+        onMapReady: () => void,
+        onClick: (e: MapMouseEvent) => void
+    ) {
         this.map = new Map({
             container: container,
             accessToken:
                 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
-            style: 'mapbox://styles/mapbox/streets-v11',
-            /*
-            style: {
-                version: 8,
-                sources: {
-                    'raster-tiles': {
-                        type: 'raster',
-                        tiles: ['https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg'],
-                        tileSize: 256,
-                        attribution:
-                            'Map tiles by <a target="_top" rel="noopener" href="http://stamen.com">Stamen Design</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a target="_top" rel="noopener" href="http://openstreetmap.org">OpenStreetMap</a>, under <a target="_top" rel="noopener" href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
-                    },
-                },
-                layers: [
-                    {
-                        id: 'simple-tiles',
-                        type: 'raster',
-                        source: 'raster-tiles',
-                        minzoom: 0,
-                        maxzoom: 22,
-                    },
-                ],
-            },
-
-             */
+            style: Mapbox.getStyle(mapStyle),
         })
+
+        // add controls
+        this.popup = new Popup(this.map)
 
         this.map.on('load', () => {
             this.initLineLayers()
@@ -87,18 +73,31 @@ export default class Mapbox {
             this.map.getCanvasContainer().style.cursor = ''
             this.map.on('click', onClick)
         })
+    }
 
-        this.popup = new Popup(this.map)
-
-        const control = new StyleSwitch()
-        this.map.addControl(control, 'top-right')
+    setStyle(styleOption: StyleOption) {
+        const onStyleData = () => {
+            if (this.map.isStyleLoaded()) {
+                console.log('onStyleData')
+                this.map.off('styledata', onStyleData)
+                this.initLineLayers()
+                this.drawUnselectedPaths(this.currentPaths)
+            }
+        }
+        const style = Mapbox.getStyle(styleOption)
+        this.map.on('styledata', onStyleData)
+        this.map.setStyle(style)
     }
 
     remove() {
-        this.map.remove()
+        if (!this.isRemoved) {
+            this.isRemoved = true
+            this.map.remove()
+        }
     }
 
     drawPaths(paths: Path[], selectedPath: Path) {
+        console.log('drawPaths')
         this.currentPaths = paths
             .map((path, i) => {
                 return {
@@ -112,6 +111,7 @@ export default class Mapbox {
     }
 
     drawSelectedPath(path: Path) {
+        console.log('drawSelectedPath')
         const featureCollection: FeatureCollection = {
             type: 'FeatureCollection',
             features: [
@@ -123,6 +123,7 @@ export default class Mapbox {
             ],
         }
 
+        //this.setGeoJsonSource(SELECTED_PATH_SOURCE_KEY, featureCollection)
         this.setGeoJsonSource(selectedPathSourceKey, featureCollection)
     }
 
@@ -141,12 +142,14 @@ export default class Mapbox {
         }
 
         this.setGeoJsonSource(pathsSourceKey, featureCollection)
+        //this.setGeoJsonSource(PATHS_LAYER_KEY, featureCollection)
     }
 
     setGeoJsonSource(sourceKey: string, featureCollection: FeatureCollection) {
         if (!this.mapIsReady) return
         try {
             const source = this.map.getSource(sourceKey) as GeoJSONSource
+            //const source = this.customLayers.getGeoJsonSource(sourceKey)
             if (featureCollection.features.length > 0) {
                 source.setData(featureCollection)
             } else {
@@ -191,21 +194,13 @@ export default class Mapbox {
     }
 
     fitBounds(bbox: Bbox) {
-        if (bbox.every(num => num !== 0))
+        if (bbox.every(num => num !== 0)) {
             this.map.fitBounds(new LngLatBounds(bbox), {
                 padding: Mapbox.getPadding(),
+                animate: !this.isFirstBounds,
             })
-    }
-
-    private static getPadding() {
-        return mediaQuery.matches
-            ? { top: 200, bottom: 16, right: 16, left: 16 }
-            : {
-                  top: 100,
-                  bottom: 100,
-                  right: 100,
-                  left: 400,
-              }
+            if (this.isFirstBounds) this.isFirstBounds = false
+        }
     }
 
     private initLineLayers() {
@@ -254,5 +249,38 @@ export default class Mapbox {
             }
             //'road-label'
         )
+    }
+
+    private static getPadding() {
+        return mediaQuery.matches
+            ? { top: 200, bottom: 16, right: 16, left: 16 }
+            : {
+                  top: 100,
+                  bottom: 100,
+                  right: 100,
+                  left: 400,
+              }
+    }
+
+    private static getStyle(styleOption: StyleOption): string | Style {
+        if (styleOption.type === 'vector') return styleOption.url
+        return {
+            version: 8,
+            sources: {
+                'raster-source': {
+                    type: 'raster',
+                    tiles: [styleOption.url],
+                    attribution: styleOption.attribution,
+                    tileSize: 256,
+                },
+            },
+            layers: [
+                {
+                    id: 'raster-layer',
+                    type: 'raster',
+                    source: 'raster-source',
+                },
+            ],
+        }
     }
 }

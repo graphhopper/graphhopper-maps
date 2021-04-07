@@ -5,15 +5,17 @@ import Mapbox from '@/map/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, SetPoint } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
+import { StyleOption } from '@/stores/MapOptionsStore'
 
 type MapProps = {
     selectedPath: Path
     paths: Path[]
     queryPoints: QueryPoint[]
     bbox: Bbox
+    mapStyle: StyleOption
 }
 
-export default function ({ selectedPath, paths, queryPoints, bbox }: MapProps) {
+export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const queryPointsRef = useRef(queryPoints)
     const [map, setMap] = useState<Mapbox | null>(null)
@@ -25,8 +27,11 @@ export default function ({ selectedPath, paths, queryPoints, bbox }: MapProps) {
     })
 
     useEffect(() => {
+        if (map) map.remove()
+
         const mapWrapper = new Mapbox(
             mapContainerRef.current!,
+            mapStyle,
             () => {
                 setMap(mapWrapper)
             },
@@ -46,8 +51,9 @@ export default function ({ selectedPath, paths, queryPoints, bbox }: MapProps) {
                 )
             }
         )
+        mapWrapper.fitBounds(bbox)
         return () => map?.remove()
-    }, [])
+    }, [mapStyle])
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
     useEffect(() => map?.fitBounds(bbox), [bbox, map])
