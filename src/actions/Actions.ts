@@ -96,3 +96,5 @@ export class SelectMapStyle implements Action {
         this.styleOption = styleOption
     }
 }
+
+export class MapIsLoaded implements Action {}

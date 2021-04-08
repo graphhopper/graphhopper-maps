@@ -1,10 +1,25 @@
+.mapOptionsContainer {
+    margin: 0.5rem;
+    display: flex;
+}
+
 .options {
     display: flex;
     flex-direction: column;
-    margin: 0.5rem;
 }
 
 .option {
     display: flex;
     flex-direction: row;
+    align-items: center;
+}
+
+.layerButton {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.layerButton svg {
+    width: 100%;
+    display: block;
 }

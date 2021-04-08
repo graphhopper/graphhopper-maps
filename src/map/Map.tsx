@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/map/Map.module.css'
 import Mapbox from '@/map/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, SetPoint } from '@/actions/Actions'
+import { ClearPoints, MapIsLoaded, SetPoint } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 
@@ -34,6 +34,7 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
             mapStyle,
             () => {
                 setMap(mapWrapper)
+                Dispatcher.dispatch(new MapIsLoaded())
             },
             e => {
                 let point = queryPointsRef.current.find(point => !point.isInitialized)
