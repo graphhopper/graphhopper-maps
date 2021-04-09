@@ -75,20 +75,6 @@ export default class Mapbox {
         })
     }
 
-    setStyle(styleOption: StyleOption) {
-        const onStyleData = () => {
-            if (this.map.isStyleLoaded()) {
-                console.log('onStyleData')
-                this.map.off('styledata', onStyleData)
-                this.initLineLayers()
-                this.drawUnselectedPaths(this.currentPaths)
-            }
-        }
-        const style = Mapbox.getStyle(styleOption)
-        this.map.on('styledata', onStyleData)
-        this.map.setStyle(style)
-    }
-
     remove() {
         if (!this.isRemoved) {
             this.isRemoved = true
@@ -97,7 +83,6 @@ export default class Mapbox {
     }
 
     drawPaths(paths: Path[], selectedPath: Path) {
-        console.log('drawPaths')
         this.currentPaths = paths
             .map((path, i) => {
                 return {
@@ -111,7 +96,6 @@ export default class Mapbox {
     }
 
     drawSelectedPath(path: Path) {
-        console.log('drawSelectedPath')
         const featureCollection: FeatureCollection = {
             type: 'FeatureCollection',
             features: [
@@ -122,8 +106,6 @@ export default class Mapbox {
                 },
             ],
         }
-
-        //this.setGeoJsonSource(SELECTED_PATH_SOURCE_KEY, featureCollection)
         this.setGeoJsonSource(selectedPathSourceKey, featureCollection)
     }
 
@@ -142,14 +124,12 @@ export default class Mapbox {
         }
 
         this.setGeoJsonSource(pathsSourceKey, featureCollection)
-        //this.setGeoJsonSource(PATHS_LAYER_KEY, featureCollection)
     }
 
     setGeoJsonSource(sourceKey: string, featureCollection: FeatureCollection) {
         if (!this.mapIsReady) return
         try {
             const source = this.map.getSource(sourceKey) as GeoJSONSource
-            //const source = this.customLayers.getGeoJsonSource(sourceKey)
             if (featureCollection.features.length > 0) {
                 source.setData(featureCollection)
             } else {
@@ -232,33 +212,29 @@ export default class Mapbox {
         }
 
         this.map.addSource(pathsSourceKey, source)
-        // this.map.addLayer(pathsLayer, 'road-label')
         this.map.addLayer(pathsLayer)
 
         this.map.addSource(selectedPathSourceKey, source)
 
-        this.map.addLayer(
-            {
-                ...pathsLayer,
-                id: selectedPathLayerKey,
-                source: selectedPathSourceKey,
-                paint: {
-                    'line-color': '#275DAD',
-                    'line-width': 8,
-                },
-            }
-            //'road-label'
-        )
+        this.map.addLayer({
+            ...pathsLayer,
+            id: selectedPathLayerKey,
+            source: selectedPathSourceKey,
+            paint: {
+                'line-color': '#275DAD',
+                'line-width': 8,
+            },
+        })
     }
 
     private static getPadding() {
         return mediaQuery.matches
-            ? { top: 200, bottom: 16, right: 16, left: 16 }
+            ? { top: 400, bottom: 16, right: 16, left: 16 }
             : {
                   top: 100,
                   bottom: 100,
                   right: 100,
-                  left: 400,
+                  left: 500,
               }
     }
 

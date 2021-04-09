@@ -59,12 +59,12 @@ export default function App() {
                 />
             </div>
             <div className={styles.sidebar}>
-                <div className={styles.controlContent}>
+                <div className={styles.sidebarContent}>
                     <Sidebar info={info} query={query} route={route} error={error} />
                 </div>
             </div>
             <div className={styles.mapOptions}>
-                <div className={styles.controlContent}>
+                <div className={styles.mapOptionsContent}>
                     <MapOptions {...mapOptions} />
                 </div>
             </div>

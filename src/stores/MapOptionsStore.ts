@@ -35,7 +35,7 @@ export interface VectorStyle extends StyleOption {
 export default class MapOptionsStore extends Store<MapOptionsStoreState> {
     protected getInitialState(): MapOptionsStoreState {
         const defaultStyle: VectorStyle = {
-            name: 'Mapbox',
+            name: 'Mapbox Streets',
             url: 'mapbox://styles/mapbox/streets-v11',
             type: 'vector',
             attribution: 'mapbox',
@@ -44,6 +44,12 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
             selectedStyle: defaultStyle,
             styleOptions: [
                 defaultStyle,
+                {
+                    name: 'Mapbox Light',
+                    type: 'vector',
+                    url: 'mapbox://styles/mapbox/light-v10',
+                    attribution: 'mapbox',
+                },
                 {
                     name: 'OpenStreetMap',
                     type: 'raster',
@@ -87,9 +93,9 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     name: 'TF Cycle',
                     type: 'raster',
                     url: [
-                        'https://a.tile.thunderforest.com/cycle/{z}/{x}/{y}.png@2x' + thunderforestApiKey,
-                        'https://b.tile.thunderforest.com/cycle/{z}/{x}/{y}.png@2x' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/cycle/{z}/{x}/{y}.png@2x' + thunderforestApiKey,
+                        'https://a.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://b.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://c.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
@@ -99,9 +105,9 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     name: 'TF Outdoors',
                     type: 'raster',
                     url: [
-                        'https://a.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png@2x' + thunderforestApiKey,
-                        'https://b.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png@2x' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png@2x' + thunderforestApiKey,
+                        'https://a.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://b.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://c.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
