@@ -41,6 +41,7 @@
     grid-row: 1 / span 1;
     background-color: transparent;
     z-index: 400;
+    pointer-events: none; /* let the user click on the map where the sidebar is transparent */
 }
 
 .mapOptionsContent {
