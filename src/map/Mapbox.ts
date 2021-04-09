@@ -1,4 +1,4 @@
-import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker } from 'mapbox-gl'
+import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker, Style } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
@@ -6,6 +6,7 @@ import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
 import { FeatureCollection, LineString } from 'geojson'
 import { Bbox, Path } from '@/api/graphhopper'
+import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
 import mapboxgl from "mapbox-gl";
 window.mapboxgl = mapboxgl;
 import {MapboxHeightGraph} from 'leaflet.heightgraph/example/MapboxHeightGraph';
@@ -27,14 +28,24 @@ export default class Mapbox {
     private heightgraph = new MapboxHeightGraph();
 
     private mapIsReady = false
+    private isFirstBounds = true
+    private isRemoved = false
 
-    constructor(container: HTMLDivElement, onMapReady: () => void, onClick: (e: MapMouseEvent) => void) {
+    constructor(
+        container: HTMLDivElement,
+        mapStyle: StyleOption,
+        onMapReady: () => void,
+        onClick: (e: MapMouseEvent) => void
+    ) {
         this.map = new Map({
             container: container,
             accessToken:
                 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
-            style: 'mapbox://styles/mapbox/streets-v11',
+            style: Mapbox.getStyle(mapStyle),
         })
+
+        // add controls
+        this.popup = new Popup(this.map)
 
         this.map.on('load', () => {
             this.initLineLayers()
@@ -67,12 +78,13 @@ export default class Mapbox {
             this.map.getCanvasContainer().style.cursor = ''
             this.map.on('click', onClick)
         })
-
-        this.popup = new Popup(this.map)
     }
 
     remove() {
-        this.map.remove()
+        if (!this.isRemoved) {
+            this.isRemoved = true
+            this.map.remove()
+        }
     }
 
     drawPaths(paths: Path[], selectedPath: Path) {
@@ -208,7 +220,6 @@ export default class Mapbox {
                 },
             ],
         }
-
         this.setGeoJsonSource(selectedPathSourceKey, featureCollection)
     }
 
@@ -277,21 +288,13 @@ export default class Mapbox {
     }
 
     fitBounds(bbox: Bbox) {
-        if (bbox.every(num => num !== 0))
+        if (bbox.every(num => num !== 0)) {
             this.map.fitBounds(new LngLatBounds(bbox), {
                 padding: Mapbox.getPadding(),
+                animate: !this.isFirstBounds,
             })
-    }
-
-    private static getPadding() {
-        return mediaQuery.matches
-            ? { top: 200, bottom: 16, right: 16, left: 16 }
-            : {
-                  top: 100,
-                  bottom: 100,
-                  right: 100,
-                  left: 400,
-              }
+            if (this.isFirstBounds) this.isFirstBounds = false
+        }
     }
 
     private initLineLayers() {
@@ -323,20 +326,59 @@ export default class Mapbox {
         }
 
         this.map.addSource(pathsSourceKey, source)
-        this.map.addLayer(pathsLayer, 'road-label')
+        this.map.addLayer(pathsLayer)
 
         this.map.addSource(selectedPathSourceKey, source)
-        this.map.addLayer(
-            {
-                ...pathsLayer,
-                id: selectedPathLayerKey,
-                source: selectedPathSourceKey,
-                paint: {
-                    'line-color': '#275DAD',
-                    'line-width': 8,
+        this.map.addLayer({
+            ...pathsLayer,
+            id: selectedPathLayerKey,
+            source: selectedPathSourceKey,
+            paint: {
+                'line-color': '#275DAD',
+                'line-width': 8,
+            },
+        })
+    }
+
+    private static getPadding() {
+        return mediaQuery.matches
+            ? { top: 400, bottom: 16, right: 16, left: 16 }
+            : {
+                  top: 100,
+                  bottom: 100,
+                  right: 100,
+                  left: 500,
+              }
+    }
+
+    private static getStyle(styleOption: StyleOption): string | Style {
+        if (this.isVectorStyle(styleOption)) {
+            return styleOption.url
+        }
+
+        const rasterStyle = styleOption as RasterStyle
+        return {
+            version: 8,
+            sources: {
+                'raster-source': {
+                    type: 'raster',
+                    tiles: rasterStyle.url,
+                    attribution: rasterStyle.attribution,
+                    tileSize: 256,
+                    maxzoom: rasterStyle.maxZoom ? styleOption.maxZoom : 22,
                 },
             },
-            'road-label'
-        )
+            layers: [
+                {
+                    id: 'raster-layer',
+                    type: 'raster',
+                    source: 'raster-source',
+                },
+            ],
+        }
+    }
+
+    private static isVectorStyle(styleOption: StyleOption): styleOption is VectorStyle {
+        return styleOption.type === 'vector'
     }
 }

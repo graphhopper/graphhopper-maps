@@ -1,6 +1,7 @@
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Path, RoutingArgs, RoutingResult, RoutingVehicle } from '@/api/graphhopper'
+import { StyleOption } from '@/stores/MapOptionsStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -87,3 +88,13 @@ export class SetSelectedPath implements Action {
 }
 
 export class DismissLastError implements Action {}
+
+export class SelectMapStyle implements Action {
+    readonly styleOption: StyleOption
+
+    constructor(styleOption: StyleOption) {
+        this.styleOption = styleOption
+    }
+}
+
+export class MapIsLoaded implements Action {}
