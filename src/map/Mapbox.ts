@@ -6,7 +6,7 @@ import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
 import { FeatureCollection, LineString } from 'geojson'
 import { Bbox, Path } from '@/api/graphhopper'
-import { StyleOption } from '@/stores/MapOptionsStore'
+import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
 
 const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -263,15 +263,20 @@ export default class Mapbox {
     }
 
     private static getStyle(styleOption: StyleOption): string | Style {
-        if (styleOption.type === 'vector') return styleOption.url
+        if (this.isVectorStyle(styleOption)) {
+            return styleOption.url
+        }
+
+        const rasterStyle = styleOption as RasterStyle
         return {
             version: 8,
             sources: {
                 'raster-source': {
                     type: 'raster',
-                    tiles: [styleOption.url],
-                    attribution: styleOption.attribution,
+                    tiles: rasterStyle.url,
+                    attribution: rasterStyle.attribution,
                     tileSize: 256,
+                    maxzoom: rasterStyle.maxZoom ? styleOption.maxZoom : 22,
                 },
             },
             layers: [
@@ -282,5 +287,9 @@ export default class Mapbox {
                 },
             ],
         }
+    }
+
+    private static isVectorStyle(styleOption: StyleOption): styleOption is VectorStyle {
+        return styleOption.type === 'vector'
     }
 }
