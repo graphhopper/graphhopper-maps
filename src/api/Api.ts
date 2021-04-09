@@ -66,7 +66,7 @@ export class ApiImpl implements Api {
         if (response.ok) {
             return (await response.json()) as GeocodingResult
         } else {
-            throw new Error('here could be your meaningfull error message')
+            throw new Error('here could be your meaningful error message')
         }
     }
 
@@ -90,7 +90,7 @@ export class ApiImpl implements Api {
             // transform encoded points into decoded
             return {
                 ...rawResult,
-                paths: ApiImpl.decodeResult(rawResult),
+                paths: ApiImpl.decodeResult(rawResult, completeRequest.elevation),
             }
         } else {
             const errorResult = (await response.json()) as ErrorResponse
@@ -115,12 +115,13 @@ export class ApiImpl implements Api {
         const request: RoutingRequest = {
             points: args.points,
             vehicle: args.vehicle,
-            elevation: false,
+            elevation: true,
             debug: false,
             instructions: true,
             locale: 'en',
             optimize: 'false',
             points_encoded: true,
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
         }
 
         if (args.maxAlternativeRoutes > 1) {
@@ -167,13 +168,13 @@ export class ApiImpl implements Api {
         }
     }
 
-    private static decodeResult(result: RawResult) {
+    private static decodeResult(result: RawResult, is3D: boolean) {
         return result.paths
             .map((path: RawPath) => {
                 return {
                     ...path,
-                    points: ApiImpl.decodePoints(path),
-                    snapped_waypoints: ApiImpl.decodeWaypoints(path),
+                    points: ApiImpl.decodePoints(path, is3D),
+                    snapped_waypoints: ApiImpl.decodeWaypoints(path, is3D),
                 } as Path
             })
             .map((path: Path) => {
@@ -184,20 +185,20 @@ export class ApiImpl implements Api {
             })
     }
 
-    private static decodePoints(path: RawPath) {
+    private static decodePoints(path: RawPath, is3D: boolean) {
         if (path.points_encoded)
             return {
                 type: 'LineString',
-                coordinates: ApiImpl.decodePath(path.points as string, false),
+                coordinates: ApiImpl.decodePath(path.points as string, is3D),
             }
         else return path.points as LineString
     }
 
-    private static decodeWaypoints(path: RawPath) {
+    private static decodeWaypoints(path: RawPath, is3D: boolean) {
         if (path.points_encoded)
             return {
                 type: 'LineString',
-                coordinates: ApiImpl.decodePath(path.snapped_waypoints as string, false),
+                coordinates: ApiImpl.decodePath(path.snapped_waypoints as string, is3D),
             }
         else return path.snapped_waypoints as LineString
     }
@@ -215,7 +216,7 @@ export class ApiImpl implements Api {
         }
     }
 
-    private static decodePath(encoded: string, is3D: any): number[][] {
+    private static decodePath(encoded: string, is3D: boolean): number[][] {
         const len = encoded.length
         let index = 0
         const array: number[][] = []

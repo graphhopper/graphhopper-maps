@@ -119,12 +119,13 @@ describe('route', () => {
         const expectedBody: RoutingRequest = {
             points: args.points,
             vehicle: args.vehicle,
-            elevation: false,
+            elevation: true,
             debug: false,
             instructions: true,
             locale: 'en',
             optimize: 'false',
             points_encoded: true,
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed']
         }
 
         fetchMock.mockResponse(async request => {
@@ -144,7 +145,7 @@ describe('route', () => {
         const expectedBody: RoutingRequest = {
             points: args.points,
             vehicle: args.vehicle,
-            elevation: false,
+            elevation: true,
             debug: false,
             instructions: true,
             locale: 'en',
@@ -152,6 +153,7 @@ describe('route', () => {
             points_encoded: true,
             'alternative_route.max_paths': args.maxAlternativeRoutes,
             algorithm: 'alternative_route',
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed']
         }
 
         fetchMock.mockResponse(async request => {

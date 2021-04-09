@@ -7,6 +7,10 @@ import { Popup } from '@/map/Popup'
 import { FeatureCollection, LineString } from 'geojson'
 import { Bbox, Path } from '@/api/graphhopper'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
+import mapboxgl from "mapbox-gl";
+window.mapboxgl = mapboxgl;
+import {MapboxHeightGraph} from 'leaflet.heightgraph/example/MapboxHeightGraph';
+import 'leaflet.heightgraph/src/heightgraph.css'
 
 const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -21,6 +25,7 @@ export default class Mapbox {
     private markers: Marker[] = []
     private popup: Popup
     private currentPaths: { path: Path; index: number }[] = []
+    private heightgraph = new MapboxHeightGraph();
 
     private mapIsReady = false
     private isFirstBounds = true
@@ -93,6 +98,115 @@ export default class Mapbox {
             .filter(indexPath => indexPath.path !== selectedPath)
         this.drawUnselectedPaths(this.currentPaths)
         this.drawSelectedPath(selectedPath)
+    }
+
+    showPathDetails(selectedPath: Path) {
+        if (selectedPath.points.coordinates.length === 0)
+            return;
+        if (!this.map.hasControl(this.heightgraph))
+            this.map.addControl(this.heightgraph, 'bottom-right');
+        const elevation = Mapbox.createFeatureCollection(
+            'Elevation [m]',
+            [Mapbox.createFeature(selectedPath.points.coordinates, 'elevation')]
+        );
+        const pathDetails = Object.entries(selectedPath.details).map(([detailName, details]) => {
+            const points = selectedPath.points.coordinates;
+            const features = details.map(([from, to, value = 'Undefined']: [number, number, string | number]) =>
+                Mapbox.createFeature(points.slice(from, to + 1), value));
+            return Mapbox.createFeatureCollection(detailName, features);
+        });
+        const mappings: any = {
+            'Elevation [m]': function () {
+                return {text: 'Elevation [m]', color: '#27ce49'}
+            }
+        };
+        Object.entries(selectedPath.details).forEach(([detailName, details]) => {
+            mappings[detailName] = this.createColorMapping(details);
+        });
+        this.heightgraph.setData([elevation, ...pathDetails], mappings);
+    }
+
+    private static createFeature(coordinates: number[][], attributeType: number | string) {
+        return {
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: coordinates
+            },
+            properties: {
+                attributeType: attributeType
+            }
+        }
+    }
+
+    private static createFeatureCollection(detailName: string, features: any[]) {
+        return {
+            type: 'FeatureCollection',
+            features: features,
+            properties: {
+                summary: detailName,
+                records: features.length
+            }
+        }
+    }
+
+    private createColorMapping(detail: any): any {
+        const detailInfo: any = Mapbox.inspectDetail(detail);
+        if (detailInfo.numeric === true && detailInfo.minVal !== detailInfo.maxVal) {
+            // for numeric details we use a color gradient, taken from here:  https://uigradients.com/#Superman
+            const colorMin = [0, 153, 247];
+            const colorMax = [241, 23, 18];
+            return function (attributeType: number) {
+                const factor = (attributeType - detailInfo.minVal) / (detailInfo.maxVal - detailInfo.minVal);
+                const color = [];
+                for (let i = 0; i < 3; i++)
+                    color.push(colorMin[i] + factor * (colorMax[i] - colorMin[i]));
+                return {
+                    'text': attributeType,
+                    'color': 'rgb(' + color[0] + ', ' + color[1] + ', ' + color[2] + ')'
+                }
+            }
+        } else {
+            // for discrete encoded values we use discrete colors
+            const values = detail.map((d: any) => d[2]);
+            return function (attributeType: string) {
+                // we choose a color-blind friendly palette from here: https://personal.sron.nl/~pault/#sec:qualitative
+                // see also this: https://thenode.biologists.com/data-visualization-with-flying-colors/research/
+                const palette = ['#332288', '#88ccee', '#44aa99', '#117733', '#999933', '#ddcc77', '#cc6677', '#882255', '#aa4499'];
+                const missingColor = '#dddddd';
+                const index = values.indexOf(attributeType) % palette.length;
+                const color = attributeType === 'missing' || attributeType === 'unclassified'
+                    ? missingColor
+                    : palette[index];
+                return {
+                    'text': attributeType,
+                    'color': color
+                }
+            }
+        }
+    }
+
+    static inspectDetail(detail: any) {
+        // we check if all detail values are numeric
+        const numbers = new Set();
+        let minVal, maxVal;
+        let numberCount = 0;
+        for (let i = 0; i < detail.length; i++) {
+            const val = detail[i][2];
+            if (typeof val === "number") {
+                if (!minVal) minVal = val;
+                if (!maxVal) maxVal = val;
+                numbers.add(val);
+                numberCount++;
+                minVal = Math.min(val, minVal);
+                maxVal = Math.max(val, maxVal);
+            }
+        }
+        return {
+            numeric: numberCount === detail.length,
+            minVal: minVal,
+            maxVal: maxVal
+        }
     }
 
     drawSelectedPath(path: Path) {
@@ -215,7 +329,6 @@ export default class Mapbox {
         this.map.addLayer(pathsLayer)
 
         this.map.addSource(selectedPathSourceKey, source)
-
         this.map.addLayer({
             ...pathsLayer,
             id: selectedPathLayerKey,

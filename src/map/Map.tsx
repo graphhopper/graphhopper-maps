@@ -56,6 +56,7 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
         return () => map?.remove()
     }, [mapStyle])
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
+    useEffect(() => map?.showPathDetails(selectedPath), [selectedPath, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
     useEffect(() => map?.fitBounds(bbox), [bbox, map])
 

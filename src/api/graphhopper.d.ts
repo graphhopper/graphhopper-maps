@@ -21,6 +21,7 @@ export interface RoutingRequest {
     'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean
     algorithm?: 'alternative_route' | 'round_trip'
+    details?: string[]
 }
 
 export interface ErrorResponse {
