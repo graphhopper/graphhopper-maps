@@ -17,13 +17,14 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
             const dist = this.distCalc(state.coordinate.lat, state.coordinate.lng, action.coordinate.lat, action.coordinate.lng)
             console.log("location new state. distance: " + dist+ " state:", state)
             if(dist > 10) {
-                // TODO NOW why is this too early and will be overwritten from query created from URL parameters?
-                // in index.tsx we call currentLocationStore.init after parseUrl
+                // TODO NOW how to find out that point.id==2 !?
+                // if we trigger SetPoint from inside QueryStore then how can we avoid filtering again?
+                // or how do I listen in QueryStore for a real CurrentLocationState change instead of SetCurrentLocation action?
                 Dispatcher.dispatch(new SetPoint({ coordinate: action.coordinate,
                     queryText: "Current Location",
                     isInitialized: true,
                     color: '',
-                    id: 0,
+                    id: 2,
                     type: QueryPointType.From}))
             }
             return { coordinate: action.coordinate } as CurrentLocationState
@@ -44,7 +45,7 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
                 Dispatcher.dispatch(new SetCurrentLocation(coords, pos.coords.heading, pos.coords.speed))
             }
             var options = { enableHighAccuracy: true, timeout: 5000, maximumAge: 1000 }
-            this.watchId = navigator.geolocation.watchPosition(success, function(err) { console.log("error {}", err);}, options)
+            this.watchId = navigator.geolocation.watchPosition(success, function(err) { console.log("error", err);}, options)
             this.initialized = true
         }
     }
