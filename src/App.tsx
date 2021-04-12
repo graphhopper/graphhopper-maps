@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import Sidebar from '@/sidebar/Sidebar'
 import styles from './App.module.css'
-import { getApiInfoStore, getErrorStore, getMapOptionsStore, getQueryStore, getRouteStore } from '@/stores/Stores'
+import { getApiInfoStore, getErrorStore, getMapOptionsStore, getQueryStore, getCurrentLocationStore, getRouteStore } from '@/stores/Stores'
 import MapComponent from '@/map/Map'
 import { Bbox } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
+    const [currentLocation, setCurrentLocation] = useState(getCurrentLocationStore().state)
     const [info, setInfo] = useState(getApiInfoStore().state)
     const [route, setRoute] = useState(getRouteStore().state)
     const [error, setError] = useState(getErrorStore().state)
@@ -16,12 +17,14 @@ export default function App() {
 
     useEffect(() => {
         const onQueryChanged = () => setQuery(getQueryStore().state)
+        const onCurrentLocationChanged = () => setCurrentLocation(getCurrentLocationStore().state)
         const onInfoChanged = () => setInfo(getApiInfoStore().state)
         const onRouteChanged = () => setRoute(getRouteStore().state)
         const onErrorChanged = () => setError(getErrorStore().state)
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
 
         getQueryStore().register(onQueryChanged)
+        getCurrentLocationStore().register(onCurrentLocationChanged)
         getApiInfoStore().register(onInfoChanged)
         getRouteStore().register(onRouteChanged)
         getErrorStore().register(onErrorChanged)
@@ -29,6 +32,7 @@ export default function App() {
 
         return () => {
             getQueryStore().deregister(onQueryChanged)
+            getCurrentLocationStore().deregister(onCurrentLocationChanged)
             getApiInfoStore().deregister(onInfoChanged)
             getRouteStore().deregister(onRouteChanged)
             getErrorStore().deregister(onErrorChanged)

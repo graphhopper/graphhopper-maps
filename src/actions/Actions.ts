@@ -19,6 +19,18 @@ export class SetPoint implements Action {
     }
 }
 
+export class SetCurrentLocation implements Action {
+    readonly coordinate: Coordinate
+    readonly heading: number
+    readonly speed: number
+
+    constructor(coordinate: Coordinate, heading: number, speed: number) {
+        this.coordinate = coordinate
+        this.heading = heading
+        this.speed = speed
+    }
+}
+
 export class SetVehicle implements Action {
     readonly vehicle: RoutingVehicle
 
