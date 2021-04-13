@@ -1,7 +1,7 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPointType } from '@/stores/QueryStore'
-import { SetCurrentLocation, SetPoint } from '@/actions/Actions'
+import { SetCurrentLocation, SetNavigationStart } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 
 export interface CurrentLocationState {
@@ -16,17 +16,8 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
         if (action instanceof SetCurrentLocation) {
             const dist = this.distCalc(state.coordinate.lat, state.coordinate.lng, action.coordinate.lat, action.coordinate.lng)
             console.log("location new state. distance: " + dist+ " state:", state)
-            if(dist > 10) {
-                // TODO NOW how to find out that point.id==2 !?
-                // if we trigger SetPoint from inside QueryStore then how can we avoid filtering again?
-                // or how do I listen in QueryStore for a real CurrentLocationState change instead of SetCurrentLocation action?
-                Dispatcher.dispatch(new SetPoint({ coordinate: action.coordinate,
-                    queryText: "Current Location",
-                    isInitialized: true,
-                    color: '',
-                    id: 2,
-                    type: QueryPointType.From}))
-            }
+            if(dist > 10)
+                Dispatcher.dispatch(new SetNavigationStart(action.coordinate))
             return { coordinate: action.coordinate } as CurrentLocationState
         }
         return state;

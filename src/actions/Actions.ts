@@ -31,6 +31,15 @@ export class SetCurrentLocation implements Action {
     }
 }
 
+// TODO NOW: a bit ugly that we need two actions?
+export class SetNavigationStart implements Action {
+    readonly coordinate: Coordinate
+
+    constructor(coordinate: Coordinate) {
+        this.coordinate = coordinate
+    }
+}
+
 export class SetVehicle implements Action {
     readonly vehicle: RoutingVehicle
 
