@@ -2,9 +2,9 @@ import { createUrl, parseUrl } from '../src/QueryUrl'
 import { QueryPoint, QueryPointType, QueryStoreState } from '../src/stores/QueryStore'
 import Dispatcher, { Action } from '../src/stores/Dispatcher'
 import Store from '../src/stores/Store'
-import { RoutingVehicle } from '../src/routing/Api'
 import { Coordinate } from '@/stores/QueryStore'
 import { AddPoint, SetVehicle } from '../src/actions/Actions'
+import { RoutingVehicle } from '../src/api/graphhopper'
 
 interface TestState {
     points: Coordinate[]
@@ -50,7 +50,8 @@ describe('parseUrl', () => {
         parseUrl(url, {
             queryPoints: [],
             nextQueryPointId: 0,
-            currentRequestId: 0,
+            currentRequest: { subRequests: [] },
+            maxAlternativeRoutes: 1,
             routingVehicle: store.state.vehicle,
         })
 
@@ -117,7 +118,8 @@ describe('createUrl', () => {
         const result = createUrl(expectedUrl.origin, {
             routingVehicle: { ...emptyState.routingVehicle, key: vehicle },
             nextQueryPointId: 0,
-            currentRequestId: 0,
+            maxAlternativeRoutes: 1,
+            currentRequest: { subRequests: [] },
             queryPoints: [coordinateToQueryPoint(point1, 1), coordinateToQueryPoint(point2, 2)],
         })
 
@@ -129,7 +131,8 @@ function getQueryStoreState(): QueryStoreState {
     return {
         queryPoints: [],
         nextQueryPointId: 0,
-        currentRequestId: 0,
+        currentRequest: { subRequests: [] },
+        maxAlternativeRoutes: 1,
         routingVehicle: { import_date: '', features: { elevation: false }, version: '', key: '' },
     }
 }

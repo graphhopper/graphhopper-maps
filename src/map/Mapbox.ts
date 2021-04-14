@@ -1,11 +1,16 @@
-import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker } from 'mapbox-gl'
+import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker, Style } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
-import { Bbox, Path } from '@/routing/Api'
 import { FeatureCollection, LineString } from 'geojson'
+import { Bbox, Path } from '@/api/graphhopper'
+import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
+import mapboxgl from "mapbox-gl";
+window.mapboxgl = mapboxgl;
+import {MapboxHeightGraph} from 'leaflet.heightgraph/example/MapboxHeightGraph';
+import 'leaflet.heightgraph/src/heightgraph.css'
 
 const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -20,16 +25,27 @@ export default class Mapbox {
     private markers: Marker[] = []
     private popup: Popup
     private currentPaths: { path: Path; index: number }[] = []
+    private heightgraph = new MapboxHeightGraph();
 
     private mapIsReady = false
+    private isFirstBounds = true
+    private isRemoved = false
 
-    constructor(container: HTMLDivElement, onMapReady: () => void, onClick: (e: MapMouseEvent) => void) {
+    constructor(
+        container: HTMLDivElement,
+        mapStyle: StyleOption,
+        onMapReady: () => void,
+        onClick: (e: MapMouseEvent) => void
+    ) {
         this.map = new Map({
             container: container,
             accessToken:
                 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
-            style: 'mapbox://styles/mapbox/streets-v11',
+            style: Mapbox.getStyle(mapStyle),
         })
+
+        // add controls
+        this.popup = new Popup(this.map)
 
         this.map.on('load', () => {
             this.initLineLayers()
@@ -62,12 +78,13 @@ export default class Mapbox {
             this.map.getCanvasContainer().style.cursor = ''
             this.map.on('click', onClick)
         })
-
-        this.popup = new Popup(this.map)
     }
 
     remove() {
-        this.map.remove()
+        if (!this.isRemoved) {
+            this.isRemoved = true
+            this.map.remove()
+        }
     }
 
     drawPaths(paths: Path[], selectedPath: Path) {
@@ -83,6 +100,115 @@ export default class Mapbox {
         this.drawSelectedPath(selectedPath)
     }
 
+    showPathDetails(selectedPath: Path) {
+        if (selectedPath.points.coordinates.length === 0)
+            return;
+        if (!this.map.hasControl(this.heightgraph))
+            this.map.addControl(this.heightgraph, 'bottom-right');
+        const elevation = Mapbox.createFeatureCollection(
+            'Elevation [m]',
+            [Mapbox.createFeature(selectedPath.points.coordinates, 'elevation')]
+        );
+        const pathDetails = Object.entries(selectedPath.details).map(([detailName, details]) => {
+            const points = selectedPath.points.coordinates;
+            const features = details.map(([from, to, value = 'Undefined']: [number, number, string | number]) =>
+                Mapbox.createFeature(points.slice(from, to + 1), value));
+            return Mapbox.createFeatureCollection(detailName, features);
+        });
+        const mappings: any = {
+            'Elevation [m]': function () {
+                return {text: 'Elevation [m]', color: '#27ce49'}
+            }
+        };
+        Object.entries(selectedPath.details).forEach(([detailName, details]) => {
+            mappings[detailName] = this.createColorMapping(details);
+        });
+        this.heightgraph.setData([elevation, ...pathDetails], mappings);
+    }
+
+    private static createFeature(coordinates: number[][], attributeType: number | string) {
+        return {
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: coordinates
+            },
+            properties: {
+                attributeType: attributeType
+            }
+        }
+    }
+
+    private static createFeatureCollection(detailName: string, features: any[]) {
+        return {
+            type: 'FeatureCollection',
+            features: features,
+            properties: {
+                summary: detailName,
+                records: features.length
+            }
+        }
+    }
+
+    private createColorMapping(detail: any): any {
+        const detailInfo: any = Mapbox.inspectDetail(detail);
+        if (detailInfo.numeric === true && detailInfo.minVal !== detailInfo.maxVal) {
+            // for numeric details we use a color gradient, taken from here:  https://uigradients.com/#Superman
+            const colorMin = [0, 153, 247];
+            const colorMax = [241, 23, 18];
+            return function (attributeType: number) {
+                const factor = (attributeType - detailInfo.minVal) / (detailInfo.maxVal - detailInfo.minVal);
+                const color = [];
+                for (let i = 0; i < 3; i++)
+                    color.push(colorMin[i] + factor * (colorMax[i] - colorMin[i]));
+                return {
+                    'text': attributeType,
+                    'color': 'rgb(' + color[0] + ', ' + color[1] + ', ' + color[2] + ')'
+                }
+            }
+        } else {
+            // for discrete encoded values we use discrete colors
+            const values = detail.map((d: any) => d[2]);
+            return function (attributeType: string) {
+                // we choose a color-blind friendly palette from here: https://personal.sron.nl/~pault/#sec:qualitative
+                // see also this: https://thenode.biologists.com/data-visualization-with-flying-colors/research/
+                const palette = ['#332288', '#88ccee', '#44aa99', '#117733', '#999933', '#ddcc77', '#cc6677', '#882255', '#aa4499'];
+                const missingColor = '#dddddd';
+                const index = values.indexOf(attributeType) % palette.length;
+                const color = attributeType === 'missing' || attributeType === 'unclassified'
+                    ? missingColor
+                    : palette[index];
+                return {
+                    'text': attributeType,
+                    'color': color
+                }
+            }
+        }
+    }
+
+    static inspectDetail(detail: any) {
+        // we check if all detail values are numeric
+        const numbers = new Set();
+        let minVal, maxVal;
+        let numberCount = 0;
+        for (let i = 0; i < detail.length; i++) {
+            const val = detail[i][2];
+            if (typeof val === "number") {
+                if (!minVal) minVal = val;
+                if (!maxVal) maxVal = val;
+                numbers.add(val);
+                numberCount++;
+                minVal = Math.min(val, minVal);
+                maxVal = Math.max(val, maxVal);
+            }
+        }
+        return {
+            numeric: numberCount === detail.length,
+            minVal: minVal,
+            maxVal: maxVal
+        }
+    }
+
     drawSelectedPath(path: Path) {
         const featureCollection: FeatureCollection = {
             type: 'FeatureCollection',
@@ -94,7 +220,6 @@ export default class Mapbox {
                 },
             ],
         }
-
         this.setGeoJsonSource(selectedPathSourceKey, featureCollection)
     }
 
@@ -163,22 +288,14 @@ export default class Mapbox {
     }
 
     fitBounds(bbox: Bbox) {
-        if (bbox.every(num => num !== 0))
+        if (bbox.every(num => num !== 0)) {
             this.map.fitBounds(new LngLatBounds(bbox), {
                 padding: Mapbox.getPadding(),
                 duration: 150
+                animate: !this.isFirstBounds,
             })
-    }
-
-    private static getPadding() {
-        return mediaQuery.matches
-            ? { top: 200, bottom: 16, right: 16, left: 16 }
-            : {
-                  top: 100,
-                  bottom: 100,
-                  right: 100,
-                  left: 400,
-              }
+            if (this.isFirstBounds) this.isFirstBounds = false
+        }
     }
 
     private initLineLayers() {
@@ -210,20 +327,59 @@ export default class Mapbox {
         }
 
         this.map.addSource(pathsSourceKey, source)
-        this.map.addLayer(pathsLayer, 'road-label')
+        this.map.addLayer(pathsLayer)
 
         this.map.addSource(selectedPathSourceKey, source)
-        this.map.addLayer(
-            {
-                ...pathsLayer,
-                id: selectedPathLayerKey,
-                source: selectedPathSourceKey,
-                paint: {
-                    'line-color': '#275DAD',
-                    'line-width': 8,
+        this.map.addLayer({
+            ...pathsLayer,
+            id: selectedPathLayerKey,
+            source: selectedPathSourceKey,
+            paint: {
+                'line-color': '#275DAD',
+                'line-width': 8,
+            },
+        })
+    }
+
+    private static getPadding() {
+        return mediaQuery.matches
+            ? { top: 400, bottom: 16, right: 16, left: 16 }
+            : {
+                  top: 100,
+                  bottom: 100,
+                  right: 100,
+                  left: 500,
+              }
+    }
+
+    private static getStyle(styleOption: StyleOption): string | Style {
+        if (this.isVectorStyle(styleOption)) {
+            return styleOption.url
+        }
+
+        const rasterStyle = styleOption as RasterStyle
+        return {
+            version: 8,
+            sources: {
+                'raster-source': {
+                    type: 'raster',
+                    tiles: rasterStyle.url,
+                    attribution: rasterStyle.attribution,
+                    tileSize: 256,
+                    maxzoom: rasterStyle.maxZoom ? styleOption.maxZoom : 22,
                 },
             },
-            'road-label'
-        )
+            layers: [
+                {
+                    id: 'raster-layer',
+                    type: 'raster',
+                    source: 'raster-source',
+                },
+            ],
+        }
+    }
+
+    private static isVectorStyle(styleOption: StyleOption): styleOption is VectorStyle {
+        return styleOption.type === 'vector'
     }
 }

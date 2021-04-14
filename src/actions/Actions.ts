@@ -1,6 +1,7 @@
 import { Action } from '@/stores/Dispatcher'
-import { ApiInfo, Path, RoutingResult, RoutingVehicle } from '@/routing/Api'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
+import { ApiInfo, Path, RoutingArgs, RoutingResult, RoutingVehicle } from '@/api/graphhopper'
+import { StyleOption } from '@/stores/MapOptionsStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -56,13 +57,23 @@ export class InvalidatePoint implements Action {
     }
 }
 
-export class RouteReceived implements Action {
+export class RouteRequestSuccess implements Action {
     readonly result: RoutingResult
-    readonly requestId: number
+    readonly request: RoutingArgs
 
-    constructor(result: RoutingResult, requestId: number) {
+    constructor(request: RoutingArgs, result: RoutingResult) {
         this.result = result
-        this.requestId = requestId
+        this.request = request
+    }
+}
+
+export class RouteRequestFailed implements Action {
+    readonly errorMessage: string
+    readonly request: RoutingArgs
+
+    constructor(request: RoutingArgs, errorMessage: string) {
+        this.errorMessage = errorMessage
+        this.request = request
     }
 }
 
@@ -75,3 +86,15 @@ export class SetSelectedPath implements Action {
         this.path = path
     }
 }
+
+export class DismissLastError implements Action {}
+
+export class SelectMapStyle implements Action {
+    readonly styleOption: StyleOption
+
+    constructor(styleOption: StyleOption) {
+        this.styleOption = styleOption
+    }
+}
+
+export class MapIsLoaded implements Action {}

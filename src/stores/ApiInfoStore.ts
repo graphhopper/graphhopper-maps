@@ -1,7 +1,7 @@
-import { ApiInfo } from '@/routing/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { InfoReceived } from '@/actions/Actions'
+import { ApiInfo } from '@/api/graphhopper'
 
 export default class ApiInfoStore extends Store<ApiInfo> {
     protected getInitialState(): ApiInfo {

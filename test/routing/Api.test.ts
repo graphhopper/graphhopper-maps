@@ -1,14 +1,8 @@
 import fetchMock from 'jest-fetch-mock'
-import routeWithoutAlternativeRoutes, {
-    ApiInfo,
-    ghKey,
-    info,
-    RawResult,
-    routeWithAlternativeRoutes,
-    RoutingArgs,
-} from '@/routing/Api'
 import Dispatcher, { Action } from '../../src/stores/Dispatcher'
-import { InfoReceived, RouteReceived } from '../../src/actions/Actions'
+import { InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '../../src/actions/Actions'
+import { ApiImpl, ghKey } from '../../src/api/Api'
+import { ApiInfo, ErrorResponse, RawResult, RoutingArgs, RoutingRequest } from '../../src/api/graphhopper'
 
 // replace global 'fetch' method by fetchMock
 beforeAll(fetchMock.enableMocks)
@@ -55,7 +49,7 @@ describe('info api', () => {
             },
         })
 
-        await info()
+        await new ApiImpl().infoWithDispatch()
     })
 
     it('should convert the response into an ApiInfo object', async () => {
@@ -90,75 +84,83 @@ describe('info api', () => {
             },
         })
 
-        await info()
+        await new ApiImpl().infoWithDispatch()
     })
 })
 
-describe('route without alternatives', () => {
-    it('should use POST as method as default', async () => {
+describe('route', () => {
+    it('should use correct metadata', async () => {
         const args: RoutingArgs = {
             points: [],
+            maxAlternativeRoutes: 1,
+            vehicle: 'vehicle',
         }
 
         fetchMock.mockResponse(request => {
+            expect(request.url.toString()).toEqual('https://graphhopper.com/api/1/route?key=' + ghKey)
             expect(request.method).toEqual('POST')
+            //expect(request.mode).toEqual('cors') This could be tested as well but somehow this is not set in fetch mock request :-(
+            expect(request.headers.get('Accept')).toEqual('application/json')
+            expect(request.headers.get('Content-Type')).toEqual('application/json')
+            expect(request.body).toBeDefined()
             return Promise.resolve(JSON.stringify(getEmptyResult()))
         })
 
-        await routeWithoutAlternativeRoutes(1, args)
+        await new ApiImpl().routeWithDispatch(args)
     })
 
-    it('should set default request parameters if none are provided', async () => {
+    it('transforms routingArgs into routing request with default algorithm for maxAlternativeRoutes: 1', async () => {
         const args: RoutingArgs = {
             points: [],
-        }
-
-        const expectedBody = {
+            maxAlternativeRoutes: 1,
             vehicle: 'car',
-            elevation: false,
+        }
+
+        const expectedBody: RoutingRequest = {
+            points: args.points,
+            vehicle: args.vehicle,
+            elevation: true,
             debug: false,
             instructions: true,
             locale: 'en',
             optimize: 'false',
             points_encoded: true,
-            points: args.points,
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed']
         }
 
         fetchMock.mockResponse(async request => {
-            const bodyAsResponse = new Response(request.body)
-            const bodyContent = await bodyAsResponse.text()
-            expect(bodyContent).toEqual(JSON.stringify(expectedBody))
-            return Promise.resolve(JSON.stringify(getEmptyResult()))
+            return compareRequestBodyAndResolve(request, expectedBody)
         })
 
-        await routeWithoutAlternativeRoutes(0, args)
+        await new ApiImpl().routeWithDispatch(args)
     })
 
-    it('should keep parameters if provided ', async () => {
+    it('transforms routingArgs into routing request with alternative_route algorithm for maxAlternativeRoutes > 1', async () => {
         const args: RoutingArgs = {
             points: [],
-            vehicle: 'not-default',
+            maxAlternativeRoutes: 2,
+            vehicle: 'car',
         }
 
-        const expectedBody = {
+        const expectedBody: RoutingRequest = {
+            points: args.points,
             vehicle: args.vehicle,
-            elevation: false,
+            elevation: true,
             debug: false,
             instructions: true,
             locale: 'en',
             optimize: 'false',
             points_encoded: true,
-            points: args.points,
+            'alternative_route.max_paths': args.maxAlternativeRoutes,
+            algorithm: 'alternative_route',
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed']
         }
 
         fetchMock.mockResponse(async request => {
-            const bodyAsResponse = new Response(request.body)
-            const bodyContent = await bodyAsResponse.json()
-            expect(bodyContent).toEqual(expectedBody)
-            return Promise.resolve(JSON.stringify(getEmptyResult()))
+            return compareRequestBodyAndResolve(request, expectedBody)
         })
 
-        await routeWithoutAlternativeRoutes(0, args)
+        await new ApiImpl().routeWithDispatch(args)
     })
 
     it('should create an action when a response is received', async () => {
@@ -167,50 +169,49 @@ describe('route without alternatives', () => {
                 [0, 0],
                 [1, 1],
             ],
+            maxAlternativeRoutes: 1,
+            vehicle: 'bla',
         }
-        const requestId = 1
 
         fetchMock.mockResponseOnce(JSON.stringify(getEmptyResult()))
 
         Dispatcher.register({
             receive(action: Action) {
-                expect(action instanceof RouteReceived).toBeTruthy()
-                expect((action as RouteReceived).result.paths.length).toEqual(0)
-                expect((action as RouteReceived).requestId).toEqual(requestId)
+                expect(action instanceof RouteRequestSuccess).toBeTruthy()
+                expect((action as RouteRequestSuccess).result.paths.length).toEqual(0)
+                expect((action as RouteRequestSuccess).request).toEqual(args)
             },
         })
 
-        await routeWithoutAlternativeRoutes(requestId, args)
+        await new ApiImpl().routeWithDispatch(args)
     })
-})
 
-describe('route with alternatives', () => {
-    it('should work like without alternatives but with different params', async () => {
+    it('should create an action when an error is received', async () => {
         const args: RoutingArgs = {
-            points: [],
+            points: [
+                [0, 0],
+                [1, 1],
+            ],
+            maxAlternativeRoutes: 1,
+            vehicle: 'bla',
         }
 
-        const expectedBody = {
-            vehicle: 'car',
-            elevation: false,
-            debug: false,
-            instructions: true,
-            locale: 'en',
-            optimize: 'false',
-            points_encoded: true,
-            'alternative_route.max_paths': 3,
-            algorithm: 'alternative_route',
-            points: args.points,
+        const error: ErrorResponse = {
+            message: 'message',
+            hints: {},
         }
 
-        fetchMock.mockResponse(async request => {
-            const bodyAsResponse = new Response(request.body)
-            const bodyContent = await bodyAsResponse.text()
-            expect(bodyContent).toEqual(JSON.stringify(expectedBody))
-            return Promise.resolve(JSON.stringify(getEmptyResult()))
+        fetchMock.mockRejectOnce(() => Promise.resolve(new Response(JSON.stringify(error), { status: 400 })))
+
+        Dispatcher.register({
+            receive(action: Action) {
+                expect(action instanceof RouteRequestFailed).toBeTruthy()
+                expect((action as RouteRequestFailed).errorMessage).toEqual(error.message)
+                expect((action as RouteRequestFailed).request).toEqual(args)
+            },
         })
 
-        await routeWithAlternativeRoutes(0, args)
+        await new ApiImpl().routeWithDispatch(args)
     })
 })
 
@@ -219,4 +220,11 @@ function getEmptyResult(): RawResult {
         info: { copyright: [], took: 0 },
         paths: [],
     }
+}
+
+async function compareRequestBodyAndResolve(request: Request, expectedBody: any) {
+    const bodyAsResponse = new Response(request.body)
+    const bodyContent = await bodyAsResponse.text()
+    expect(bodyContent).toEqual(JSON.stringify(expectedBody))
+    return Promise.resolve(JSON.stringify(getEmptyResult()))
 }

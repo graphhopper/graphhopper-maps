@@ -1,8 +1,8 @@
-import { RoutingVehicle } from '@/routing/Api'
 import React from 'react'
 import styles from './RoutingVehicles.modules.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetVehicle } from '@/actions/Actions'
+import { RoutingVehicle } from '@/api/graphhopper'
 
 export default function ({
     routingVehicles,

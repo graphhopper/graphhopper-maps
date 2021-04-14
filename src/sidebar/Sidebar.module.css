@@ -1,5 +1,6 @@
 .headerContainer {
-    margin: 0.5rem 0 0 2rem;
+    margin-top: 0.5rem;
+    align-self: center;
 }
 
 .resultListContainer {
@@ -84,4 +85,63 @@ This is not a very nice duplication but I have to stop now...
     transition: 0.3s ease;
     transform: rotateX(180deg);
     height: 1.2rem;
+}
+
+.placeholderContainer {
+    margin: 1.08rem 1rem;
+}
+
+.placeholderMain {
+    height: 1.25rem;
+    width: 7rem;
+    background-color: lightgray;
+    margin-bottom: 0.5rem;
+    border-radius: 0.2rem;
+    animation-name: pulse;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+.placeholderSecondary {
+    height: 1rem;
+    width: 5rem;
+    margin-bottom: 0;
+    animation-delay: 0.25s;
+}
+
+@keyframes pulse {
+    from {
+        opacity: 0.5;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.errorMessageContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: #f97777;
+    color: white;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 2px;
+}
+
+.errorMessage {
+    word-break: break-word;
+    max-width: 90%;
+}
+
+.errorMessageCloseBtn {
+    width: 0.8rem;
+    color: white;
+    align-self: flex-start;
+    flex-shrink: 0;
+}
+
+.errorMessageCloseBtn svg {
+    width: 100%;
 }

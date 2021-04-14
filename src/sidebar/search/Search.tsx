@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { geocode, GeocodingHit, RoutingVehicle } from '@/routing/Api'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RoutingVehicles from '@/sidebar/search/RoutingVehicles'
-import RemoveIcon from './times-solid.svg'
+import RemoveIcon from '../times-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import PlainButton from '@/PlainButton'
+import { GeocodingHit, RoutingVehicle } from '@/api/graphhopper'
+import Api, { ApiImpl } from '@/api/Api'
 
 interface Query {
     point: QueryPoint
@@ -35,6 +36,8 @@ export default function Search({
         text: '',
     })
     const [geocodingHits, setGeocodingHits] = useState<GeocodingHit[]>([])
+    // future me will take care of this
+    const [api] = useState<Api>(new ApiImpl())
 
     useEffect(() => {
         setGeocodingHits([])
@@ -45,7 +48,7 @@ export default function Search({
 
         let isCancelled = false
 
-        geocode(query.text)
+        api.geocode(query.text)
             .then(result => {
                 const hits = filterDuplicates(result.hits)
                 if (!isCancelled) setGeocodingHits(hits)
@@ -112,8 +115,6 @@ const SearchBox = ({
     const [text, setText] = useState(point.queryText)
     useEffect(() => setText(point.queryText), [point.queryText])
 
-    const inputAlignment = deletable ? { gridColumn: '2 / span 2' } : undefined
-
     return (
         <>
             <div className={styles.dot} style={{ backgroundColor: point.color }} />
@@ -126,7 +127,6 @@ const SearchBox = ({
                     setText(e.target.value)
                     onChange(e.target.value)
                 }}
-                style={inputAlignment}
             />
             {deletable && (
                 <PlainButton
