@@ -42,7 +42,10 @@ export default function App() {
 
     // only use the api info's bbox until any other bounding box was chosen. Is this too messy?
     const chooseBoundingBox = function (infoBbox: Bbox, shouldUseInfoBbox: boolean, pathBbox?: Bbox) {
+        pathBbox = [0, 0, 0, 0]
+        shouldUseInfoBbox = true
         if (shouldUseInfoBbox && pathBbox && pathBbox.every(num => num !== 0)) {
+            console.log("NOW disable info bbox")
             setUseInfoBbox(false)
             return pathBbox
         } else if (shouldUseInfoBbox) return infoBbox

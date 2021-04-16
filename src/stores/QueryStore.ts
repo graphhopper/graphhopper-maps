@@ -88,26 +88,28 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     reduce(state: QueryStoreState, action: Action): QueryStoreState {
         if (action instanceof SetNavigationStart) {
-            const newPoints = state.queryPoints.slice()
 
-            // replace first point
-            newPoints.splice(0, 1, {
-                coordinate: action.coordinate,
-                id: state.nextQueryPointId,
-                queryText: "Current Location",
-                color: QueryStore.getMarkerColor(QueryPointType.From),
-                isInitialized: true,
-                type: QueryPointType.From,
-            })
-
-            const newState: QueryStoreState = {
-                ...state,
-                nextQueryPointId: state.nextQueryPointId + 1,
-                queryPoints: newPoints,
-            }
-
-            return this.routeIfAllPointsSet(newState)
-        } else if (action instanceof SetPoint) {
+//             const newPoints = state.queryPoints.slice()
+//
+//             // replace first point
+//             newPoints.splice(0, 1, {
+//                 coordinate: action.coordinate,
+//                 id: state.nextQueryPointId,
+//                 queryText: "Current Location",
+//                 color: QueryStore.getMarkerColor(QueryPointType.From),
+//                 isInitialized: true,
+//                 type: QueryPointType.From,
+//             })
+//
+//             const newState: QueryStoreState = {
+//                 ...state,
+//                 nextQueryPointId: state.nextQueryPointId + 1,
+//                 queryPoints: newPoints,
+//             }
+//
+//             return this.routeIfAllPointsSet(newState)
+        } else
+        if (action instanceof SetPoint) {
             const newState: QueryStoreState = {
                 ...state,
                 queryPoints: QueryStore.replacePoint(state.queryPoints, action.point),

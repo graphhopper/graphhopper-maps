@@ -1,7 +1,8 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { ClearRoute, RouteRequestSuccess, SetPoint, SetSelectedPath } from '@/actions/Actions'
+import { ClearRoute, RouteRequestSuccess, SetPoint, SetSelectedPath, SetNavigationStart } from '@/actions/Actions'
 import QueryStore, { RequestState } from '@/stores/QueryStore'
+import CurrentLocationStore from '@/stores/CurrentLocationStore'
 import { Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 
 export interface RouteStoreState {
@@ -43,8 +44,60 @@ export default class RouteStore extends Store<RouteStoreState> {
         this.queryStore = queryStore
     }
 
+    ajax(url: string, success: (url: string) => void) {
+        var request = new XMLHttpRequest();
+        request.open('GET', url, true);
+        request.responseType = 'blob';
+        request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        request.onload = () => {
+            if (request.readyState === 4) {
+                const url = window.URL.createObjectURL(request.response);
+                success(url);
+            }
+        }
+        request.send();
+    }
+
+    // const audio = document.getElementById("audio") as HTMLMediaElement;
+    synthesize(text: string) {
+       this.ajax('http://157.90.156.93:5002/api/tts?text=' + encodeURIComponent(text), (url: string) => {
+            // audio.src = url;
+            const audio = new Audio(url);
+            audio.play();
+       })
+    }
+
     reduce(state: RouteStoreState, action: Action): RouteStoreState {
-        if (action instanceof RouteRequestSuccess) {
+        if (action instanceof SetNavigationStart) {
+            const instructions = state.selectedPath.instructions
+            var closeIndex = -1
+            var smallestDist = 2000
+            var distanceNext = 10.0
+            // find instruction nearby and very simple method (pick first point)
+            for(var i = 0; i < instructions.length; i++) {
+                const points: number[][] = instructions[i].points;
+                const p: number[] = points[0]
+                const dist = CurrentLocationStore.distCalc(p[1], p[0], action.coordinate.lat, action.coordinate.lng)
+                if( dist < smallestDist) {
+                    smallestDist = dist
+                    closeIndex = i
+
+                    const last: number[] = points[points.length - 1]
+                    distanceNext = Math.round(CurrentLocationStore.distCalc(last[1], last[0], action.coordinate.lat, action.coordinate.lng))
+                }
+            }
+
+            // TODO marker on map
+            if(smallestDist < 500) {
+                this.synthesize("In " + distanceNext + " Metern " + instructions[closeIndex].text)
+
+            } else if (closeIndex > 0) {
+                this.synthesize("Vom Weeg abgekommen.")
+            } else {
+                this.synthesize("Windows Ausnahmefehler.")
+            }
+
+        } else if (action instanceof RouteRequestSuccess) {
             return this.reduceRouteReceived(state, action)
         } else if (action instanceof SetSelectedPath) {
             return {

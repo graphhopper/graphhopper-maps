@@ -118,7 +118,7 @@ export class ApiImpl implements Api {
             elevation: true,
             debug: false,
             instructions: true,
-            locale: 'en',
+            locale: 'de',
             optimize: 'false',
             points_encoded: true,
             details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],

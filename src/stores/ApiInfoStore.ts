@@ -1,7 +1,8 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { InfoReceived } from '@/actions/Actions'
+import { InfoReceived, SetNavigationStart } from '@/actions/Actions'
 import { ApiInfo } from '@/api/graphhopper'
+
 
 export default class ApiInfoStore extends Store<ApiInfo> {
     protected getInitialState(): ApiInfo {
@@ -14,7 +15,15 @@ export default class ApiInfoStore extends Store<ApiInfo> {
     }
 
     reduce(state: ApiInfo, action: Action): ApiInfo {
+        if(action instanceof SetNavigationStart) {
+            // zoom closer to current location
+            return {
+                ...state,
+                bbox: [action.coordinate.lng-0.001, action.coordinate.lat-0.001, action.coordinate.lng+0.001, action.coordinate.lat+0.001]
+             } as ApiInfo;
+        } else
         if (action instanceof InfoReceived) {
+            // console.log("NOW ", action.result.bbox)
             return action.result
         }
         return state
