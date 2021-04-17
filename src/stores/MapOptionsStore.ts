@@ -2,7 +2,8 @@ import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { MapIsLoaded, SelectMapStyle } from '@/actions/Actions'
 
-const osmApiKey = 'mapsgraph-bf48cc0b'
+const osApiKey = 'mapsgraph-bf48cc0b'
+const mapTilerKey = '?key=wYonyRi2hNgJVH2qgs81'
 const thunderforestApiKey = '?apikey=95b7c76e19c04e36ab9756f2cdf15b32'
 const kurvigerApiKey = '?key=b582abd4-d55d-4cb1-8f34-f4254cd52aa7'
 const osmAttribution =
@@ -35,20 +36,20 @@ export interface VectorStyle extends StyleOption {
 export default class MapOptionsStore extends Store<MapOptionsStoreState> {
     protected getInitialState(): MapOptionsStoreState {
         const defaultStyle: VectorStyle = {
-            name: 'Mapbox Streets',
-            url: 'mapbox://styles/mapbox/streets-v11',
+            name: 'MapTiler',
             type: 'vector',
-            attribution: 'mapbox',
+            url: 'https://api.maptiler.com/maps/1f566542-c726-4cc5-8f2d-2309b90083db/style.json' + mapTilerKey,
+            attribution: osmAttribution + ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
         }
         return {
             selectedStyle: defaultStyle,
             styleOptions: [
                 defaultStyle,
                 {
-                    name: 'Mapbox Light',
+                    name: 'MapTiler Satellite',
                     type: 'vector',
-                    url: 'mapbox://styles/mapbox/light-v10',
-                    attribution: 'mapbox',
+                    url: 'https://api.maptiler.com/maps/hybrid/style.json' + mapTilerKey,
+                    attribution: osmAttribution + ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
                 },
                 {
                     name: 'OpenStreetMap',
@@ -63,17 +64,17 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                 {
                     name: 'Omniscale',
                     type: 'raster',
-                    url: ['https://maps.omniscale.net/v2/' + osmApiKey + '/style.default/{z}/{x}/{y}.png'],
-                    attribution: osmAttribution + ', &copy; <a href="https://maps.omniscale.com/">Omniscale</a>',
+                    url: ['https://maps.omniscale.net/v2/' + osApiKey + '/style.default/{z}/{x}/{y}.png'],
+                    attribution: osmAttribution + ', &copy; <a href="https://maps.omniscale.com/" target="_blank">Omniscale</a>',
                 },
                 {
-                    name: 'Esri Aerial',
+                    name: 'Esri Satellite',
                     type: 'raster',
                     url: [
                         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                     ],
                     attribution:
-                        '&copy; <a href="http://www.esri.com/">Esri</a>' +
+                        '&copy; <a href="http://www.esri.com/" target="_blank">Esri</a>' +
                         ' i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
                     maxZoom: 18,
                 },
