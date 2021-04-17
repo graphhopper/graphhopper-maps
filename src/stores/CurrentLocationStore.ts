@@ -1,7 +1,7 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPointType } from '@/stores/QueryStore'
-import { SetCurrentLocation, SetNavigationStart, RouteRequestSuccess } from '@/actions/Actions'
+import { SetCurrentLocation, RouteRequestSuccess } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 
 export interface CurrentLocationState {
@@ -13,10 +13,7 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
     private watchId : number = 0
 
     reduce(state: CurrentLocationState, action: Action): CurrentLocationState {
-        if (action instanceof RouteRequestSuccess) {
-            console.log("TODO NOW trigger SetNavigationStart due to route update: ", action)
-
-        } else if (action instanceof SetCurrentLocation) {
+        if (action instanceof SetCurrentLocation) {
             const dist = CurrentLocationStore.distCalc(state.coordinate.lat, state.coordinate.lng, action.coordinate.lat, action.coordinate.lng)
             console.log("location new state. distance: " + dist+ " state:", state)
             if(dist > 10)

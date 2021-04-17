@@ -68,8 +68,8 @@ export default function App() {
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent}>
                     <Sidebar info={info} query={query} route={route} error={error} />
-                    <div onClick={() => getRouteStore().synthesize("Willkommen")}>
-                        Sound on
+                    <div onClick={() => getRouteStore().startNavigation(getCurrentLocationStore())}>
+                        Start Navigation
                     </div>
                 </div>
             </div>
