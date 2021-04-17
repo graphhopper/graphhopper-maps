@@ -61,6 +61,7 @@ export default function App() {
                     queryPoints={query.queryPoints}
                     paths={route.routingResult.paths}
                     selectedPath={route.selectedPath}
+                    currentLocation={currentLocation.coordinate}
                     bbox={bbox}
                     mapStyle={mapOptions.selectedStyle}
                 />

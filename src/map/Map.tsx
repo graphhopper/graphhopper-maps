@@ -1,4 +1,4 @@
-import { QueryPoint } from '@/stores/QueryStore'
+import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/map/Map.module.css'
 import Mapbox from '@/map/Mapbox'
@@ -11,11 +11,12 @@ type MapProps = {
     selectedPath: Path
     paths: Path[]
     queryPoints: QueryPoint[]
+    currentLocation: Coordinate
     bbox: Bbox
     mapStyle: StyleOption
 }
 
-export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: MapProps) {
+export default function ({ selectedPath, paths, queryPoints, currentLocation, bbox, mapStyle }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const queryPointsRef = useRef(queryPoints)
     const [map, setMap] = useState<Mapbox | null>(null)
@@ -56,6 +57,7 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
         return () => map?.remove()
     }, [mapStyle])
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
+    useEffect(() => map?.drawCurrentLocation(currentLocation), [currentLocation, map])
     useEffect(() => map?.showPathDetails(selectedPath), [selectedPath, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
     useEffect(() => map?.fitBounds(bbox), [bbox, map])

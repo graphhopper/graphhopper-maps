@@ -1,6 +1,6 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { ClearRoute, RouteRequestSuccess, SetPoint, SetSelectedPath, SetNavigationStart } from '@/actions/Actions'
+import { ClearRoute, RouteRequestSuccess, SetPoint, SetSelectedPath, LocationUpdate } from '@/actions/Actions'
 import QueryStore, { RequestState } from '@/stores/QueryStore'
 import CurrentLocationStore from '@/stores/CurrentLocationStore'
 import { Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
@@ -88,7 +88,7 @@ export default class RouteStore extends Store<RouteStoreState> {
     }
 
     reduce(state: RouteStoreState, action: Action): RouteStoreState {
-        if (action instanceof SetNavigationStart) {
+        if (action instanceof LocationUpdate) {
             const instructions = state.selectedPath.instructions
             var closeIndex = -1
             var smallestDist = Number.MAX_VALUE

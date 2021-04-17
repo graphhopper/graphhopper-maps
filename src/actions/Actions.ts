@@ -31,8 +31,7 @@ export class SetCurrentLocation implements Action {
     }
 }
 
-// TODO NOW: a bit ugly that we need two actions?
-export class SetNavigationStart implements Action {
+export class LocationUpdate implements Action {
     readonly coordinate: Coordinate
 
     constructor(coordinate: Coordinate) {

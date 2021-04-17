@@ -1,10 +1,10 @@
-import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker, Style } from 'mapbox-gl'
+import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, CircleLayer, LngLatBounds, Map, MapMouseEvent, Marker, Style } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { QueryPoint } from '@/stores/QueryStore'
+import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
-import { FeatureCollection, LineString } from 'geojson'
+import { FeatureCollection, LineString, Point } from 'geojson'
 import { Bbox, Path } from '@/api/graphhopper'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
 import mapboxgl from "mapbox-gl";
@@ -16,6 +16,8 @@ const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'
 const pathsSourceKey = 'pathsSource'
 const pathsLayerKey = 'pathsLayer'
+const currentLocationSourceKey = 'currentLocationSource'
+const currentLocationLayerKey = 'currentLocationLayer'
 
 // have this right here for now. Not sure if this needs to be abstracted somewhere else
 const mediaQuery = window.matchMedia('(max-width: 640px)')
@@ -227,6 +229,23 @@ export default class Mapbox {
         this.setGeoJsonSource(selectedPathSourceKey, featureCollection)
     }
 
+    drawCurrentLocation(coordinate: Coordinate) {
+        if(coordinate.lat === 0 && coordinate.lng == 0)
+            return;
+
+        console.log("NOW change location ", coordinate)
+        const featureCollection: FeatureCollection = {
+            type: 'FeatureCollection',
+            features: [{
+               type: 'Feature',
+               properties: {},
+               geometry: { type: "Point", coordinates: [coordinate.lng, coordinate.lat] }
+            }]
+        }
+
+        this.setGeoJsonSource(currentLocationSourceKey, featureCollection)
+    }
+
     drawUnselectedPaths(indexPaths: { path: Path; index: number }[]) {
         const featureCollection: FeatureCollection = {
             type: 'FeatureCollection',
@@ -342,6 +361,13 @@ export default class Mapbox {
                 'line-width': 8,
             },
         })
+
+        this.map.addSource(currentLocationSourceKey, source)
+        this.map.addLayer({
+          id: currentLocationLayerKey,
+          type: 'circle',
+          source: currentLocationSourceKey
+        } as CircleLayer)
     }
 
     private static getPadding() {

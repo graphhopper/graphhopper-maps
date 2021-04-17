@@ -1,7 +1,7 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPointType } from '@/stores/QueryStore'
-import { SetCurrentLocation, SetNavigationStart, RouteRequestSuccess } from '@/actions/Actions'
+import { SetCurrentLocation, LocationUpdate, RouteRequestSuccess } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 
 export interface CurrentLocationState {
@@ -17,7 +17,7 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
             const dist = CurrentLocationStore.distCalc(state.coordinate.lat, state.coordinate.lng, action.coordinate.lat, action.coordinate.lng)
             console.log("location new state. distance: " + dist+ " state:", state)
             if(dist > 10)
-                Dispatcher.dispatch(new SetNavigationStart(action.coordinate))
+                Dispatcher.dispatch(new LocationUpdate(action.coordinate))
             return { coordinate: action.coordinate } as CurrentLocationState
         }
         return state;

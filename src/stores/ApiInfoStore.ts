@@ -1,6 +1,6 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { InfoReceived, SetNavigationStart } from '@/actions/Actions'
+import { InfoReceived, LocationUpdate } from '@/actions/Actions'
 import { ApiInfo } from '@/api/graphhopper'
 
 
@@ -15,7 +15,7 @@ export default class ApiInfoStore extends Store<ApiInfo> {
     }
 
     reduce(state: ApiInfo, action: Action): ApiInfo {
-        if(action instanceof SetNavigationStart) {
+        if(action instanceof LocationUpdate) {
             // zoom closer to current location
             return {
                 ...state,
