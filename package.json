@@ -4,7 +4,7 @@
     "description": "react dummy",
     "main": "index.js",
     "scripts": {
-        "serve": "webpack serve --config webpack.dev.js",
+        "serve": "webpack serve --config webpack.dev.js --public navi.graphhopper.org",
         "build": "webpack --config webpack.prod.js",
         "test": "jest"
     },

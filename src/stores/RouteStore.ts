@@ -58,7 +58,7 @@ export default class RouteStore extends Store<RouteStoreState> {
         // Instead of AudioContext we could use the simpler looking solution via HTMLMediaElement in combination with
         // element.src = URL.createObjectURL(request.response) but I'm unsure how to make it permanently active on mobile
         // (we could still connect AudioContext with an audio control)
-        const url = 'http://157.90.156.93:5002/api/tts?text=' + encodeURIComponent(text);
+        const url = 'https://navi.graphhopper.org:5002/api/tts?text=' + encodeURIComponent(text);
         const xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = 'blob';
