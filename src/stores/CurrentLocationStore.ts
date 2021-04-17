@@ -24,12 +24,15 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
     }
 
     init() {
+        if(this.initialized)
+            return
+
         if (!navigator.geolocation) {
             console.log("location not supported. In firefox I had to set geo.enabled=true in about:config")
         } else {
             console.log("location init")
 
-            if(this.initialized) navigator.geolocation.clearWatch(this.watchId)
+            // navigator.geolocation.clearWatch(this.watchId)
 
             var success = function(pos: any) {
                 const coords : Coordinate = {lng: pos.coords.longitude, lat: pos.coords.latitude }

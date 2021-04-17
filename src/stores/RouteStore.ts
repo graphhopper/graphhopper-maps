@@ -100,7 +100,8 @@ export default class RouteStore extends Store<RouteStoreState> {
                 const dist = CurrentLocationStore.distCalc(p[1], p[0], action.coordinate.lat, action.coordinate.lng)
                 if( dist < smallestDist) {
                     smallestDist = dist
-                    closeIndex = i
+                    // use next instruction or finish
+                    closeIndex = i + 1 < instructions.length ? i + 1 : i
 
                     const last: number[] = points[points.length - 1]
                     distanceNext = Math.round(CurrentLocationStore.distCalc(last[1], last[0], action.coordinate.lat, action.coordinate.lng))

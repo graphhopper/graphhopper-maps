@@ -57,8 +57,6 @@ getQueryStore().register(() => {
     window.history.replaceState('last state', '', url.toString())
 })
 
-currentLocationStore.init();
-
 // create a div which holds the app and render the 'App' component
 const root = document.createElement('div') as HTMLDivElement
 root.id = 'root'
