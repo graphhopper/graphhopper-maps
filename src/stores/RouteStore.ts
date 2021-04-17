@@ -38,40 +38,54 @@ export default class RouteStore extends Store<RouteStoreState> {
     }
 
     private readonly queryStore: QueryStore
+    private audioCtx : AudioContext
+    private source?: AudioBufferSourceNode
 
     constructor(queryStore: QueryStore) {
         super()
         this.queryStore = queryStore
-    }
 
-    ajax(url: string, success: (url: string) => void) {
-        var request = new XMLHttpRequest();
-        request.open('GET', url, true);
-        request.responseType = 'blob';
-        request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        request.onload = () => {
-            if (request.readyState === 4) {
-                const url = window.URL.createObjectURL(request.response);
-                success(url);
-            }
-        }
-        request.send();
+        window.AudioContext = window.AudioContext; // || window.webkitAudioContext;
+        this.audioCtx = new AudioContext();
     }
 
     synthesize(text: string) {
-       var audio = document.getElementById("audio") as HTMLMediaElement;
-       this.ajax('http://157.90.156.93:5002/api/tts?text=' + encodeURIComponent(text), (url: string) => {
-            audio.src = url;
-            // const audio = new Audio(url);
-            audio.play();
-       })
+        // Instead of AudioContext we could use the simpler looking solution via HTMLMediaElement in combination with
+        // element.src = URL.createObjectURL(request.response) but I'm unsure how to make it permanently active on mobile
+        const url = 'http://157.90.156.93:5002/api/tts?text=' + encodeURIComponent(text);
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'blob';
+        xhr.onload = () => {
+          this.initSound(xhr.response);
+        };
+        xhr.send();
+    }
+
+    playSound(audioBuffer: any) {
+        if(this.source)
+            this.source.stop();
+        this.source = this.audioCtx.createBufferSource();
+        this.source.buffer = audioBuffer;
+        this.source.loop = false;
+        this.source.connect(this.audioCtx.destination);
+        this.source.start();
+    }
+
+    async initSound(blob: any) {
+        const arrayBuffer = await blob.arrayBuffer()
+        this.audioCtx.decodeAudioData(arrayBuffer, (audioData: any) => {
+            this.playSound(audioData)
+        }, function(e: any) {
+            console.log('Error decoding file', e);
+        });
     }
 
     reduce(state: RouteStoreState, action: Action): RouteStoreState {
         if (action instanceof SetNavigationStart) {
             const instructions = state.selectedPath.instructions
             var closeIndex = -1
-            var smallestDist = 2000
+            var smallestDist = Number.MAX_VALUE
             var distanceNext = 10.0
             // find instruction nearby and very simple method (pick first point)
             for(var i = 0; i < instructions.length; i++) {
@@ -91,10 +105,8 @@ export default class RouteStore extends Store<RouteStoreState> {
             if(smallestDist < 500) {
                 this.synthesize("In " + distanceNext + " Metern " + instructions[closeIndex].text)
 
-            } else if (closeIndex > 0) {
-                this.synthesize("Vom Weeg abgekommen.")
             } else {
-                this.synthesize("Windows Ausnahmefehler.")
+                this.synthesize("Vom Weeg abgekommen.")
             }
 
         } else if (action instanceof RouteRequestSuccess) {
