@@ -45,7 +45,6 @@ export default function App() {
         pathBbox = [0, 0, 0, 0]
         shouldUseInfoBbox = true
         if (shouldUseInfoBbox && pathBbox && pathBbox.every(num => num !== 0)) {
-            console.log("NOW disable info bbox")
             setUseInfoBbox(false)
             return pathBbox
         } else if (shouldUseInfoBbox) return infoBbox

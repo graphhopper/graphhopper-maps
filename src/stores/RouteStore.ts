@@ -8,6 +8,7 @@ import { Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 export interface RouteStoreState {
     routingResult: RoutingResult
     selectedPath: Path
+    lastInstruction: { text: string, index: number }
 }
 
 export default class RouteStore extends Store<RouteStoreState> {
@@ -40,6 +41,7 @@ export default class RouteStore extends Store<RouteStoreState> {
     private readonly queryStore: QueryStore
     private audioCtx : AudioContext
     private source?: AudioBufferSourceNode
+    private playSoundInProgress = false;
 
     constructor(queryStore: QueryStore) {
         super()
@@ -69,8 +71,13 @@ export default class RouteStore extends Store<RouteStoreState> {
     }
 
     playSound(audioBuffer: any) {
-        if(this.source)
-            this.source.stop();
+        if(this.playSoundInProgress || !this.source)
+            return;
+
+        this.playSoundInProgress = true
+        this.source.onended = (event) => {
+            this.playSoundInProgress = false;
+        }
         this.source = this.audioCtx.createBufferSource();
         this.source.buffer = audioBuffer;
         this.source.loop = false;
@@ -110,7 +117,11 @@ export default class RouteStore extends Store<RouteStoreState> {
 
             // TODO marker on map
             if(smallestDist < 500) {
-                this.synthesize("In " + distanceNext + " Metern " + instructions[closeIndex].text)
+                if(state.lastInstruction.index == closeIndex) {
+                    console.log("Instruction already spoken: " + instructions[closeIndex].text)
+                } else {
+                    this.synthesize("In " + distanceNext + " Metern " + instructions[closeIndex].text)
+                }
 
             } else {
                 this.synthesize("Vom Weeg abgekommen.")
@@ -139,6 +150,7 @@ export default class RouteStore extends Store<RouteStoreState> {
                 },
             },
             selectedPath: RouteStore.getEmptyPath(),
+            lastInstruction: { text: '', index: -1 }
         }
     }
 
@@ -149,6 +161,7 @@ export default class RouteStore extends Store<RouteStoreState> {
             return {
                 routingResult: action.result,
                 selectedPath: action.result.paths[0],
+                lastInstruction: { text: '', index: -1 }
             }
         }
         return this.getInitialState()
