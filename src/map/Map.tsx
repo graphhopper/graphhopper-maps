@@ -35,21 +35,6 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
             () => {
                 setMap(mapWrapper)
                 Dispatcher.dispatch(new MapIsLoaded())
-            },
-            e => {
-                let point = queryPointsRef.current.find(point => !point.isInitialized)
-                if (!point) {
-                    point = queryPointsRef.current[0]
-                    Dispatcher.dispatch(new ClearPoints())
-                }
-                Dispatcher.dispatch(
-                    new SetPoint({
-                        ...point,
-                        isInitialized: true,
-                        coordinate: e.lngLat,
-                        queryText: e.lngLat.lng + ', ' + e.lngLat.lat,
-                    })
-                )
             }
         )
         mapWrapper.fitBounds(bbox)
