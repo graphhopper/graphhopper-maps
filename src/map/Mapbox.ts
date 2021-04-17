@@ -101,6 +101,10 @@ export default class Mapbox {
     }
 
     showPathDetails(selectedPath: Path) {
+        // TODO do not add elevation widget for now
+        return;
+
+
         if (selectedPath.points.coordinates.length === 0)
             return;
         if (!this.map.hasControl(this.heightgraph))

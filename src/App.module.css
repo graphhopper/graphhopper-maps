@@ -13,6 +13,10 @@
     grid-row: 1 / span 1;
 }
 
+.navi {
+    padding: 10px;
+}
+
 .sidebar {
     grid-column: 1 / span 1;
     grid-row: 1 / span 1;

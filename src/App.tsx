@@ -68,7 +68,7 @@ export default function App() {
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent}>
                     <Sidebar info={info} query={query} route={route} error={error} />
-                    <div onClick={() => getRouteStore().startNavigation(getCurrentLocationStore())}>
+                    <div className={styles.navi} onClick={() => getRouteStore().startNavigation(getCurrentLocationStore())}>
                         Start Navigation
                     </div>
                 </div>

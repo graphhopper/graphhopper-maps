@@ -75,7 +75,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             currentRequest: {
                 subRequests: [],
             },
-            maxAlternativeRoutes: 3,
+            maxAlternativeRoutes: 1,
             routingVehicle: {
                 key: '',
                 import_date: '',
