@@ -1,7 +1,7 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPointType } from '@/stores/QueryStore'
-import { SetCurrentLocation, RouteRequestSuccess } from '@/actions/Actions'
+import { SetCurrentLocation, SetNavigationStart, RouteRequestSuccess } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 
 export interface CurrentLocationState {

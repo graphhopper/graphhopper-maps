@@ -50,7 +50,7 @@ export default class RouteStore extends Store<RouteStoreState> {
     }
 
     startNavigation(currentLocationStore: CurrentLocationStore) {
-        synthesize("Willkommen")
+        this.synthesize("Willkommen")
         currentLocationStore.init();
     }
 
