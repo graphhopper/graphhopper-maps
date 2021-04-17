@@ -67,6 +67,7 @@ export default function App() {
             </div>
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent}>
+                    <audio id="audio" controls></audio>
                     <Sidebar info={info} query={query} route={route} error={error} />
                 </div>
             </div>

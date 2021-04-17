@@ -58,11 +58,11 @@ export default class RouteStore extends Store<RouteStoreState> {
         request.send();
     }
 
-    // const audio = document.getElementById("audio") as HTMLMediaElement;
     synthesize(text: string) {
+       var audio = document.getElementById("audio") as HTMLMediaElement;
        this.ajax('http://157.90.156.93:5002/api/tts?text=' + encodeURIComponent(text), (url: string) => {
-            // audio.src = url;
-            const audio = new Audio(url);
+            audio.src = url;
+            // const audio = new Audio(url);
             audio.play();
        })
     }
