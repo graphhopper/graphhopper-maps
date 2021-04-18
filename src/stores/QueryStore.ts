@@ -10,7 +10,7 @@ import {
     RouteRequestFailed,
     RouteRequestSuccess,
     SetPoint,
-    LocationUpdate,
+    SetCurrentLocation,
     SetVehicle,
 } from '@/actions/Actions'
 import { RoutingArgs, RoutingVehicle } from '@/api/graphhopper'
@@ -89,10 +89,11 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     reduce(state: QueryStoreState, action: Action): QueryStoreState {
-         if (action instanceof LocationUpdate) {
+         if (action instanceof SetCurrentLocation) {
             if(state.currentLocationSet)
                 return state;
 
+            console.log("SetCurrentLocation in QueryStore", action)
             const newPoints = state.queryPoints.slice()
 
             // replace first point

@@ -9,43 +9,37 @@ export interface CurrentLocationState {
 }
 
 export default class CurrentLocationStore extends Store<CurrentLocationState> {
-    private initialized : boolean = false
     private watchId : number = 0
 
     reduce(state: CurrentLocationState, action: Action): CurrentLocationState {
-        if (action instanceof RouteRequestSuccess) {
-            // reset
-            return this.getInitialState()
-        } else if (action instanceof SetCurrentLocation) {
+        if (action instanceof SetCurrentLocation) {
             const dist = CurrentLocationStore.distCalc(state.coordinate.lat, state.coordinate.lng, action.coordinate.lat, action.coordinate.lng)
-            console.log("location new state. distance: " + dist+ " state:", state)
-            if(dist > 10)
+            console.log("location new state. distance: " + dist + " state:", state)
+            if(dist > 10) {
                 Dispatcher.dispatch(new LocationUpdate(action.coordinate))
-            return { coordinate: action.coordinate } as CurrentLocationState
+                return { coordinate: action.coordinate } as CurrentLocationState
+            }
         }
         return state;
     }
 
     init() {
-        // force calling clearWatch can help to find GPS fix more reliable in android firefox
-//         if(this.initialized)
-//             return
-
         if (!navigator.geolocation) {
             console.log("location not supported. In firefox I had to set geo.enabled=true in about:config")
         } else {
             console.log("location init")
 
+            // force calling clearWatch can help to find GPS fix more reliable in android firefox
             if(this.watchId)
                 navigator.geolocation.clearWatch(this.watchId)
 
-            var success = function(pos: any) {
+            var success = (pos: any) => {
+                console.log("location success handler start")
                 const coords : Coordinate = {lng: pos.coords.longitude, lat: pos.coords.latitude }
                 Dispatcher.dispatch(new SetCurrentLocation(coords, pos.coords.heading, pos.coords.speed))
             }
             var options = { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 }
             this.watchId = navigator.geolocation.watchPosition(success, function(err) { console.log("location watch error", err);}, options)
-            this.initialized = true
         }
     }
 
