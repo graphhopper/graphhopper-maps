@@ -233,7 +233,7 @@ export default class Mapbox {
         if(coordinate.lat === 0 && coordinate.lng == 0)
             return;
 
-        console.log("NOW change location ", coordinate)
+        console.log("NOW change location on map ", coordinate)
         const featureCollection: FeatureCollection = {
             type: 'FeatureCollection',
             features: [{

@@ -41,7 +41,6 @@ export default class RouteStore extends Store<RouteStoreState> {
     private readonly queryStore: QueryStore
     private audioCtx : AudioContext
     private source?: AudioBufferSourceNode
-    private playSoundInProgress = false;
 
     constructor(queryStore: QueryStore) {
         super()
@@ -52,46 +51,50 @@ export default class RouteStore extends Store<RouteStoreState> {
     }
 
     startNavigation(currentLocationStore: CurrentLocationStore) {
+        // user clicked and we play a sound. The click "confirms" our audioCtx from the user (at least I think this is why this works without confirmation dialog)
+        // Instead of AudioContext we could use the simpler looking solution via HTMLMediaElement in combination with
+        // element.src = URL.createObjectURL(request.response) but I'm unsure how to make it permanently active on mobile
+        // (we could still connect AudioContext with an audio control)
         this.synthesize("Willkommen")
         currentLocationStore.init();
     }
 
     synthesize(text: string) {
-        // Instead of AudioContext we could use the simpler looking solution via HTMLMediaElement in combination with
-        // element.src = URL.createObjectURL(request.response) but I'm unsure how to make it permanently active on mobile
-        // (we could still connect AudioContext with an audio control)
+        // we need a better caching here that does not leak over time and also avoids errors like:
+        // "Error decoding file DOMException: The buffer passed to decodeAudioData contains an unknown content type."
+        // because otherwise the audio for this instruction would be broken forever
         const url = 'https://navi.graphhopper.org:5002/api/tts?text=' + encodeURIComponent(text);
         const xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = 'blob';
         xhr.onload = () => {
-          this.initSound(xhr.response);
+            this.initSound(xhr.response);
         };
         xhr.send();
     }
 
-    playSound(audioBuffer: any) {
-        if(this.playSoundInProgress || !this.source)
-            return;
-
-        this.playSoundInProgress = true
-        this.source = this.audioCtx.createBufferSource();
-        this.source.onended = (event) => {
-            this.playSoundInProgress = false;
-        }
-        this.source.buffer = audioBuffer;
-        this.source.loop = false;
-        this.source.connect(this.audioCtx.destination);
-        this.source.start();
-    }
-
-    async initSound(blob: any) {
+    private async initSound(blob: any) {
         const arrayBuffer = await blob.arrayBuffer()
         this.audioCtx.decodeAudioData(arrayBuffer, (audioData: any) => {
             this.playSound(audioData)
         }, function(e: any) {
             console.log('Error decoding file', e);
         });
+    }
+
+    private playSound(audioBuffer: any) {
+        if(this.source)
+            this.source.stop();
+
+        // this would skip too many stuff
+        // this.source.onended = (event) => { console.log("sound ENDED"); this.playSoundInProgress = false; }
+
+        // the source needs to be freshly created otherwise we get: Cannot set the buffer attribute of an AudioBufferSourceNode with an AudioBuffer more than once
+        this.source = this.audioCtx.createBufferSource();
+        this.source.buffer = audioBuffer;
+        this.source.loop = false;
+        this.source.connect(this.audioCtx.destination);
+        this.source.start();
     }
 
     reduce(state: RouteStoreState, action: Action): RouteStoreState {
@@ -101,17 +104,20 @@ export default class RouteStore extends Store<RouteStoreState> {
             var smallestDist = Number.MAX_VALUE
             var distanceNext = 10.0
             // find instruction nearby and very simple method (pick first point)
-            for(var i = 0; i < instructions.length; i++) {
-                const points: number[][] = instructions[i].points;
-                const p: number[] = points[0]
-                const dist = CurrentLocationStore.distCalc(p[1], p[0], action.coordinate.lat, action.coordinate.lng)
-                if( dist < smallestDist) {
-                    smallestDist = dist
-                    // use next instruction or finish
-                    closeIndex = i + 1 < instructions.length ? i + 1 : i
+            for(var instrIdx = 0; instrIdx < instructions.length; instrIdx++) {
+                const points: number[][] = instructions[instrIdx].points;
 
-                    const last: number[] = points[points.length - 1]
-                    distanceNext = Math.round(CurrentLocationStore.distCalc(last[1], last[0], action.coordinate.lat, action.coordinate.lng))
+                for(var pIdx = 0; pIdx < points.length; pIdx++) {
+                    const p: number[] = points[pIdx]
+                    const dist = CurrentLocationStore.distCalc(p[1], p[0], action.coordinate.lat, action.coordinate.lng)
+                    if( dist < smallestDist) {
+                        smallestDist = dist
+                        // use next instruction or finish
+                        closeIndex = instrIdx + 1 < instructions.length ? instrIdx + 1 : instrIdx
+
+                        const last: number[] = points[points.length - 1]
+                        distanceNext = Math.round(CurrentLocationStore.distCalc(last[1], last[0], action.coordinate.lat, action.coordinate.lng))
+                    }
                 }
             }
 
