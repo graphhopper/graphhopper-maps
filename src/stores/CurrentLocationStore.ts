@@ -15,7 +15,7 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
     reduce(state: CurrentLocationState, action: Action): CurrentLocationState {
         if (action instanceof SetCurrentLocation) {
             const dist = CurrentLocationStore.distCalc(state.coordinate.lat, state.coordinate.lng, action.coordinate.lat, action.coordinate.lng)
-            // console.log("location new state. distance: " + dist+ " state:", state)
+            console.log("location new state. distance: " + dist+ " state:", state)
             if(dist > 10)
                 Dispatcher.dispatch(new LocationUpdate(action.coordinate))
             return { coordinate: action.coordinate } as CurrentLocationState
@@ -24,15 +24,15 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
     }
 
     init() {
-        if(this.initialized)
-            return
+        // force calling clearWatch can help to find GPS fix more reliable in android firefox
+//         if(this.initialized)
+//             return
 
         if (!navigator.geolocation) {
             console.log("location not supported. In firefox I had to set geo.enabled=true in about:config")
         } else {
             console.log("location init")
 
-            // strange, in firefox this seems to be required so that it works more reliable
             if(this.watchId)
                 navigator.geolocation.clearWatch(this.watchId)
 

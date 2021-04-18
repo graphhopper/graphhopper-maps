@@ -99,6 +99,7 @@ export default class RouteStore extends Store<RouteStoreState> {
 
     reduce(state: RouteStoreState, action: Action): RouteStoreState {
         if (action instanceof LocationUpdate) {
+            console.log("NOW LocationUpdate ", action)
             const instructions = state.selectedPath.instructions
             var closeIndex = -1
             var smallestDist = Number.MAX_VALUE
@@ -121,6 +122,7 @@ export default class RouteStore extends Store<RouteStoreState> {
                 }
             }
 
+            console.log("smallestDist:" + smallestDist + ", old: " + state.lastInstruction.text + " vs current instruction: " + instructions[closeIndex].text)
             // TODO marker on map
             if(smallestDist < 500) {
                 if(state.lastInstruction.index == closeIndex) {
