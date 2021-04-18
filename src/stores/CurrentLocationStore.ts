@@ -32,14 +32,16 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
         } else {
             console.log("location init")
 
-            // navigator.geolocation.clearWatch(this.watchId)
+            // strange, in firefox this seems to be required so that it works more reliable
+            if(this.watchId)
+                navigator.geolocation.clearWatch(this.watchId)
 
             var success = function(pos: any) {
                 const coords : Coordinate = {lng: pos.coords.longitude, lat: pos.coords.latitude }
                 Dispatcher.dispatch(new SetCurrentLocation(coords, pos.coords.heading, pos.coords.speed))
             }
-            var options = { enableHighAccuracy: true, timeout: 5000, maximumAge: 1000 }
-            this.watchId = navigator.geolocation.watchPosition(success, function(err) { console.log("error", err);}, options)
+            var options = { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 }
+            this.watchId = navigator.geolocation.watchPosition(success, function(err) { console.log("location watch error", err);}, options)
             this.initialized = true
         }
     }
