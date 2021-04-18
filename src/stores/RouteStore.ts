@@ -75,10 +75,10 @@ export default class RouteStore extends Store<RouteStoreState> {
             return;
 
         this.playSoundInProgress = true
+        this.source = this.audioCtx.createBufferSource();
         this.source.onended = (event) => {
             this.playSoundInProgress = false;
         }
-        this.source = this.audioCtx.createBufferSource();
         this.source.buffer = audioBuffer;
         this.source.loop = false;
         this.source.connect(this.audioCtx.destination);

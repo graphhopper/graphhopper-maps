@@ -15,7 +15,7 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
     reduce(state: CurrentLocationState, action: Action): CurrentLocationState {
         if (action instanceof SetCurrentLocation) {
             const dist = CurrentLocationStore.distCalc(state.coordinate.lat, state.coordinate.lng, action.coordinate.lat, action.coordinate.lng)
-            console.log("location new state. distance: " + dist+ " state:", state)
+            // console.log("location new state. distance: " + dist+ " state:", state)
             if(dist > 10)
                 Dispatcher.dispatch(new LocationUpdate(action.coordinate))
             return { coordinate: action.coordinate } as CurrentLocationState
