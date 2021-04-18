@@ -1,6 +1,9 @@
 import Store from '@/stores/Store'
-import { Action } from '@/stores/Dispatcher'
-import { ClearRoute, RouteRequestSuccess, SetPoint, SetSelectedPath, LocationUpdate } from '@/actions/Actions'
+import Dispatcher, { Action } from '@/stores/Dispatcher'
+import { ClearRoute, RouteRequestSuccess, SetPoint, SetSelectedPath, LocationUpdate, SpeakText } from '@/actions/Actions'
+import { SpeechSynthesizer } from '@/SpeechSynthesizer'
+import { Translation } from '@/Translation'
+
 import QueryStore, { RequestState } from '@/stores/QueryStore'
 import CurrentLocationStore from '@/stores/CurrentLocationStore'
 import { Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
@@ -39,63 +42,17 @@ export default class RouteStore extends Store<RouteStoreState> {
     }
 
     private readonly queryStore: QueryStore
-    private audioCtx : AudioContext
-    private source?: AudioBufferSourceNode
+    private readonly translation: Translation
 
-    constructor(queryStore: QueryStore) {
+    constructor(queryStore: QueryStore, translation: Translation) {
         super();
         this.queryStore = queryStore;
-
-        (window as any).AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
-
-        this.audioCtx = new AudioContext();
+        this.translation = translation;
     }
 
     startNavigation(currentLocationStore: CurrentLocationStore) {
-        // user clicked and we play a sound. The click "confirms" our audioCtx from the user (at least I think this is why this works without confirmation dialog)
-        // Instead of AudioContext we could use the simpler looking solution via HTMLMediaElement in combination with
-        // element.src = URL.createObjectURL(request.response) but I'm unsure how to make it permanently active on mobile
-        // (we could still connect AudioContext with an audio control)
-        this.synthesize("Willkommen")
-        currentLocationStore.init();
-    }
-
-    synthesize(text: string) {
-        // we need a better caching here that does not leak over time and also avoids errors like:
-        // "Error decoding file DOMException: The buffer passed to decodeAudioData contains an unknown content type."
-        // because otherwise the audio for this instruction would be broken forever
-        const url = 'https://navi.graphhopper.org:5002/api/tts?text=' + encodeURIComponent(text);
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.responseType = 'blob';
-        xhr.onload = () => {
-            this.initSound(xhr.response);
-        };
-        xhr.send();
-    }
-
-    private async initSound(blob: any) {
-        const arrayBuffer = await blob.arrayBuffer()
-        this.audioCtx.decodeAudioData(arrayBuffer, (audioData: any) => {
-            this.playSound(audioData)
-        }, function(e: any) {
-            console.log('Error decoding file', e);
-        });
-    }
-
-    private playSound(audioBuffer: any) {
-        if(this.source)
-            this.source.stop();
-
-        // this would skip too many stuff
-        // this.source.onended = (event) => { console.log("sound ENDED"); this.playSoundInProgress = false; }
-
-        // the source needs to be freshly created otherwise we get: Cannot set the buffer attribute of an AudioBufferSourceNode with an AudioBuffer more than once
-        this.source = this.audioCtx.createBufferSource();
-        this.source.buffer = audioBuffer;
-        this.source.loop = false;
-        this.source.connect(this.audioCtx.destination);
-        this.source.start();
+        Dispatcher.dispatch(new SpeakText(this.translation.tr("welcome")))
+        currentLocationStore.init()
     }
 
     reduce(state: RouteStoreState, action: Action): RouteStoreState {
@@ -129,7 +86,7 @@ export default class RouteStore extends Store<RouteStoreState> {
                 if(state.lastInstruction.index == closeIndex) {
                     console.log("Instruction already spoken: " + instructions[closeIndex].text)
                 } else {
-                    this.synthesize("In " + distanceNext + " Metern " + instructions[closeIndex].text)
+                    Dispatcher.dispatch(new SpeakText(this.translation.tr("in_x_meters", [""+distanceNext, instructions[closeIndex].text])))
                     return {
                         ...state,
                         lastInstruction: { text: instructions[closeIndex].text, index: closeIndex }
@@ -137,7 +94,7 @@ export default class RouteStore extends Store<RouteStoreState> {
                 }
 
             } else {
-                this.synthesize("Vom Weeg abgekommen.")
+                Dispatcher.dispatch(new SpeakText(this.translation.tr("too_far_away")))
             }
 
         } else if (action instanceof RouteRequestSuccess) {

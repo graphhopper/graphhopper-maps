@@ -23,6 +23,11 @@ import { CurrentLocationState } from '@/stores/CurrentLocationStore'
 import { ApiImpl } from '@/api/Api'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
+import { SpeechSynthesizer } from '@/SpeechSynthesizer'
+import { Translation, TranslationMap } from '@/Translation'
+
+const locale = navigator.language
+const translation: Translation = new TranslationMap().get(locale)
 
 // set up state management
 const api = new ApiImpl()
@@ -31,7 +36,7 @@ const currentLocationStore = new CurrentLocationStore()
 setStores({
     queryStore: queryStore,
     currentLocationStore: currentLocationStore,
-    routeStore: new RouteStore(queryStore),
+    routeStore: new RouteStore(queryStore, translation),
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
@@ -44,6 +49,7 @@ Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
+Dispatcher.register(new SpeechSynthesizer(translation, locale))
 
 api.infoWithDispatch() // get infos about the api as soon as possible
 

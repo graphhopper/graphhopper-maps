@@ -19,6 +19,13 @@ export class SetPoint implements Action {
     }
 }
 
+export class SpeakText implements Action {
+    readonly text: string
+    constructor(text: string) {
+        this.text = text
+    }
+}
+
 export class SetCurrentLocation implements Action {
     readonly coordinate: Coordinate
     readonly heading: number

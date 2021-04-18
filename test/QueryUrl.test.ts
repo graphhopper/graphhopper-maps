@@ -53,6 +53,7 @@ describe('parseUrl', () => {
             currentRequest: { subRequests: [] },
             maxAlternativeRoutes: 1,
             routingVehicle: store.state.vehicle,
+            currentLocationSet: false
         })
 
         expect(store.state.points.length).toEqual(2)
@@ -121,6 +122,7 @@ describe('createUrl', () => {
             maxAlternativeRoutes: 1,
             currentRequest: { subRequests: [] },
             queryPoints: [coordinateToQueryPoint(point1, 1), coordinateToQueryPoint(point2, 2)],
+            currentLocationSet: false
         })
 
         expect(result).toEqual(expectedUrl)
@@ -134,6 +136,7 @@ function getQueryStoreState(): QueryStoreState {
         currentRequest: { subRequests: [] },
         maxAlternativeRoutes: 1,
         routingVehicle: { import_date: '', features: { elevation: false }, version: '', key: '' },
+        currentLocationSet: false
     }
 }
 
