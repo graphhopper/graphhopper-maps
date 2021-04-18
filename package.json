@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "serve": "webpack serve --config webpack.dev.js",
-        "build": "webpack serve --config webpack.prod.js --public navi.graphhopper.org",
+        "build": "webpack --config webpack.prod.js",
         "test": "jest"
     },
     "dependencies": {

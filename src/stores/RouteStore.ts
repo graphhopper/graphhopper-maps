@@ -43,10 +43,11 @@ export default class RouteStore extends Store<RouteStoreState> {
     private source?: AudioBufferSourceNode
 
     constructor(queryStore: QueryStore) {
-        super()
-        this.queryStore = queryStore
+        super();
+        this.queryStore = queryStore;
 
-        window.AudioContext = window.AudioContext; // || window.webkitAudioContext;
+        (window as any).AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+
         this.audioCtx = new AudioContext();
     }
 
