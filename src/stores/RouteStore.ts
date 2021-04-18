@@ -127,6 +127,10 @@ export default class RouteStore extends Store<RouteStoreState> {
                     console.log("Instruction already spoken: " + instructions[closeIndex].text)
                 } else {
                     this.synthesize("In " + distanceNext + " Metern " + instructions[closeIndex].text)
+                    return {
+                        ...state,
+                        lastInstruction: { text: instructions[closeIndex].text, index: closeIndex }
+                    }
                 }
 
             } else {
