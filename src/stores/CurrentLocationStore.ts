@@ -13,7 +13,10 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
     private watchId : number = 0
 
     reduce(state: CurrentLocationState, action: Action): CurrentLocationState {
-        if (action instanceof SetCurrentLocation) {
+        if (action instanceof RouteRequestSuccess) {
+            // reset
+            return this.getInitialState()
+        } else if (action instanceof SetCurrentLocation) {
             const dist = CurrentLocationStore.distCalc(state.coordinate.lat, state.coordinate.lng, action.coordinate.lat, action.coordinate.lng)
             console.log("location new state. distance: " + dist+ " state:", state)
             if(dist > 10)
