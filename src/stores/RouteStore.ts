@@ -59,6 +59,8 @@ export default class RouteStore extends Store<RouteStoreState> {
         if (action instanceof LocationUpdate) {
             console.log("LocationUpdate in RouteStore", action)
             const instructions = state.selectedPath.instructions
+            if(!instructions) return state
+
             var closeIndex = -1
             var smallestDist = Number.MAX_VALUE
             var distanceNext = 10.0

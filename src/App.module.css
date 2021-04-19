@@ -17,6 +17,12 @@
     padding: 10px;
 }
 
+.naviGps {
+    padding-left: 5px;
+    font-size: 10px;
+    color: gray;
+}
+
 .sidebar {
     grid-column: 1 / span 1;
     grid-row: 1 / span 1;

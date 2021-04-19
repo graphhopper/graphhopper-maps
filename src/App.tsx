@@ -70,6 +70,7 @@ export default function App() {
                     <Sidebar info={info} query={query} route={route} error={error} />
                     <div className={styles.navi} onClick={() => getRouteStore().startNavigation(getCurrentLocationStore())}>
                         Start Navigation
+                        { currentLocation.coordinate.lat == 0 && currentLocation.coordinate.lng == 0 ? <span className={styles.naviGps}>Searching GPS...</span> : null }
                     </div>
                 </div>
             </div>
