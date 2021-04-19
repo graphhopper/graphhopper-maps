@@ -24,6 +24,12 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
     }
 
     init() {
+        if ('wakeLock' in navigator) {
+          console.log('Screen Wake Lock API supported!');
+        } else {
+          console.log('Wake lock is not supported by this browser.');
+        }
+
         if (!navigator.geolocation) {
             console.log("location not supported. In firefox I had to set geo.enabled=true in about:config")
         } else {

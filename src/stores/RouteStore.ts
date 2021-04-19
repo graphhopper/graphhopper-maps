@@ -80,7 +80,9 @@ export default class RouteStore extends Store<RouteStoreState> {
                 }
             }
 
-            console.log("smallestDist:" + smallestDist + ", old: " + state.lastInstruction.text + " vs current instruction: " + instructions[closeIndex].text)
+            if(closeIndex >= 0)
+                console.log("smallestDist:" + smallestDist + ", old: " + state.lastInstruction.text + " vs current instruction: " + instructions[closeIndex].text)
+
             // TODO marker on map
             if(smallestDist < 500) {
                 if(state.lastInstruction.index == closeIndex) {
