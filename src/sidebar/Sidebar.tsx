@@ -24,9 +24,6 @@ type SidebarProps = {
 export default function ({ query, route, info, error }: SidebarProps) {
     return (
         <>
-            <div className={styles.headerContainer}>
-                <img src={Header} alt={'graphhopper logo'} />
-            </div>
             <Search points={query.queryPoints} routingVehicles={info.vehicles} selectedVehicle={query.routingVehicle} />
             {!error.isDismissed && <ErrorMessage error={error} />}
             <QueryResults
