@@ -3,6 +3,7 @@ import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { SetCurrentLocation, LocationUpdate, RouteRequestSuccess } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
+import NoSleep from 'nosleep.js'
 
 export interface CurrentLocationState {
     readonly coordinate: Coordinate
@@ -10,6 +11,7 @@ export interface CurrentLocationState {
 
 export default class CurrentLocationStore extends Store<CurrentLocationState> {
     private watchId : number = 0
+    private noSleep : any
 
     reduce(state: CurrentLocationState, action: Action): CurrentLocationState {
         if (action instanceof SetCurrentLocation) {
@@ -24,11 +26,15 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
     }
 
     init() {
-        if ('wakeLock' in navigator) {
-          console.log('Screen Wake Lock API supported!');
-        } else {
-          console.log('Wake lock is not supported by this browser.');
-        }
+//         if ('wakeLock' in navigator) {
+//             console.log('Screen Wake Lock API supported!');
+//         } else {
+            if(!this.noSleep) {
+                this.noSleep = new NoSleep();
+                this.noSleep.enable()
+            }
+//             console.log('Wake lock is not supported by this browser.');
+//         }
 
         if (!navigator.geolocation) {
             console.log("location not supported. In firefox I had to set geo.enabled=true in about:config")
@@ -47,6 +53,11 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
             var options = { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 }
             this.watchId = navigator.geolocation.watchPosition(success, function(err) { console.log("location watch error", err);}, options)
         }
+    }
+
+    stop() {
+        if(this.noSleep)
+            this.noSleep.disable()
     }
 
     protected getInitialState(): CurrentLocationState {
