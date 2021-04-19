@@ -26,16 +26,6 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
     }
 
     init() {
-//         if ('wakeLock' in navigator) {
-//             console.log('Screen Wake Lock API supported!');
-//         } else {
-            if(!this.noSleep) {
-                this.noSleep = new NoSleep();
-                this.noSleep.enable()
-            }
-//             console.log('Wake lock is not supported by this browser.');
-//         }
-
         if (!navigator.geolocation) {
             console.log("location not supported. In firefox I had to set geo.enabled=true in about:config")
         } else {
@@ -52,6 +42,11 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
             }
             var options = { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 }
             this.watchId = navigator.geolocation.watchPosition(success, function(err) { console.log("location watch error", err);}, options)
+        }
+
+        if(!this.noSleep) {
+            this.noSleep = new NoSleep();
+            this.noSleep.enable()
         }
     }
 
