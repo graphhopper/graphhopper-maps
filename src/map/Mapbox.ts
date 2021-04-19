@@ -366,7 +366,13 @@ export default class Mapbox {
         this.map.addLayer({
           id: currentLocationLayerKey,
           type: 'circle',
-          source: currentLocationSourceKey
+          source: currentLocationSourceKey,
+          paint: {
+              'circle-color': '#385af5',
+              'circle-radius': 8,
+              'circle-stroke-color': 'white',
+              'circle-stroke-width': 4
+          }
         } as CircleLayer)
     }
 
