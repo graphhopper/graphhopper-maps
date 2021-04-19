@@ -29,10 +29,10 @@ export default class CurrentLocationStore extends Store<CurrentLocationState> {
 //         if ('wakeLock' in navigator) {
 //             console.log('Screen Wake Lock API supported!');
 //         } else {
-//             if(!this.noSleep) {
-//                 this.noSleep = new NoSleep();
-//                 this.noSleep.enable()
-//             }
+            if(!this.noSleep) {
+                this.noSleep = new NoSleep();
+                this.noSleep.enable()
+            }
 //             console.log('Wake lock is not supported by this browser.');
 //         }
 
