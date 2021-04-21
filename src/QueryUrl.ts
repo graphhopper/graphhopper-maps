@@ -66,7 +66,7 @@ export function createUrl(baseUrl: string, state: QueryStoreState) {
     const result = new URL(baseUrl)
     state.queryPoints
         .filter(point => point.isInitialized)
-        .map(point => point.coordinate.lat + ',' + point.coordinate.lng)
+        .map(point => point.coordinate.getQueryText())
         .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
     result.searchParams.append('vehicle', state.routingVehicle.key)

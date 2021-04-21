@@ -104,8 +104,8 @@ describe('parseUrl', () => {
 
 describe('createUrl', () => {
     it('should convert points of a request into url params', () => {
-        const point1 = [50.67724646887518, 7.275303695325306] as [number, number]
-        const point2 = [50.28050431501495, 10.81515858598078] as [number, number]
+        const point1 = [50.677246,  7.275303] as [number, number]
+        const point2 = [50.280504, 10.815158] as [number, number]
         const vehicle = 'vehicle-type'
         const expectedUrl = new URL('http://localhost:3000/')
         expectedUrl.searchParams.append('point', point1.join(','))
