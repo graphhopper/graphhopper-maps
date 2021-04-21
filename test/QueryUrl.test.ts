@@ -1,8 +1,7 @@
 import { createUrl, parseUrl } from '../src/QueryUrl'
-import { QueryPoint, QueryPointType, QueryStoreState } from '../src/stores/QueryStore'
+import { QueryPoint, QueryPointType, QueryStoreState, Coordinate } from '../src/stores/QueryStore'
 import Dispatcher, { Action } from '../src/stores/Dispatcher'
 import Store from '../src/stores/Store'
-import { Coordinate } from '@/stores/QueryStore'
 import { AddPoint, SetVehicle } from '../src/actions/Actions'
 import { RoutingVehicle } from '../src/api/graphhopper'
 
@@ -140,7 +139,7 @@ function getQueryStoreState(): QueryStoreState {
 function coordinateToQueryPoint(coordinate: [number, number], id: number): QueryPoint {
     return {
         isInitialized: true,
-        coordinate: { lat: coordinate[0], lng: coordinate[1] },
+        coordinate: new Coordinate(coordinate[0], coordinate[1]),
         queryText: '',
         id: id,
         color: '',

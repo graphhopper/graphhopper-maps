@@ -14,9 +14,18 @@ import {
 } from '@/actions/Actions'
 import { RoutingArgs, RoutingVehicle } from '@/api/graphhopper'
 
-export interface Coordinate {
-    lat: number
-    lng: number
+export class Coordinate {
+  readonly lat: number
+  readonly lng: number
+
+  constructor(lat: number, lng: number) {
+    this.lat = lat
+    this.lng = lng
+  }
+
+  getQueryText(): string {
+    return Math.round(this.lat * 1e6) / 1e6 + ',' + Math.round(this.lng * 1e6) / 1e6;
+  }
 }
 
 export interface QueryStoreState {
@@ -118,7 +127,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
         } else if (action instanceof AddPoint) {
             const tmp = state.queryPoints.slice()
-            const queryText = action.isInitialized ? action.coordinate.lat + ', ' + action.coordinate.lng : ''
+            const queryText = action.isInitialized ? action.coordinate.getQueryText() : ''
 
             // add new point at the desired index
             tmp.splice(action.atIndex, 0, {
@@ -279,7 +288,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             isInitialized: false,
             queryText: '',
-            coordinate: { lat: 0, lng: 0 },
+            coordinate: new Coordinate(0, 0),
             id: id,
             color: QueryStore.getMarkerColor(type),
             type: type,

@@ -3,7 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import styles from './Popup.module.css'
 import mapboxgl from 'mapbox-gl'
-import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType, Coordinate } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, SetPoint } from '@/actions/Actions'
 import { getQueryStore } from '@/stores/Stores'
@@ -54,13 +54,14 @@ function PopupComponent({
     queryPoints: QueryPoint[]
     onSelect: () => void
 }) {
-    const dispatchSetPoint = function (point: QueryPoint, coordinate: mapboxgl.LngLat) {
+    const dispatchSetPoint = function (point: QueryPoint, mCoordinate: mapboxgl.LngLat) {
         onSelect()
+        const coordinate = new Coordinate(mCoordinate.lat, mCoordinate.lng);
         Dispatcher.dispatch(
             new SetPoint({
                 ...point,
                 coordinate: coordinate,
-                queryText: coordinate.lat + ', ' + coordinate.lng,
+                queryText: coordinate.getQueryText(),
                 isInitialized: true,
             })
         )
@@ -74,7 +75,7 @@ function PopupComponent({
         if (point) {
             dispatchSetPoint(point, coordinate)
         } else {
-            Dispatcher.dispatch(new AddPoint(viaPoints.length + 1, coordinate, true))
+            Dispatcher.dispatch(new AddPoint(viaPoints.length + 1, new Coordinate(coordinate.lat, coordinate.lng), true))
         }
     }
 

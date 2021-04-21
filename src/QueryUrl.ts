@@ -1,4 +1,4 @@
-import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType, QueryStoreState, Coordinate } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, RemovePoint, SetVehicle } from '@/actions/Actions'
 
@@ -17,7 +17,7 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
                 throw Error(
                     'Could not parse url parameter point: ' + parameter + ' Think about what to do instead of crashing'
                 )
-            return { lat: parseNumber(split[0]), lng: parseNumber(split[1]) }
+            return new Coordinate(parseNumber(split[0]), parseNumber(split[1]))
         })
         .map(
             (coordinate, i): QueryPoint => {

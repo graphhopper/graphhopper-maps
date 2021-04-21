@@ -1,6 +1,6 @@
 import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker, Style } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint, Coordinate } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
@@ -274,12 +274,12 @@ export default class Mapbox {
                     .setLngLat(indexPoint.point.coordinate)
                     .on('dragend', (e: { type: string; target: Marker }) => {
                         const marker = e.target
-                        const coords = marker.getLngLat()
+                        const coords = new Coordinate(marker.getLngLat().lat, marker.getLngLat().lng)
                         Dispatcher.dispatch(
                             new SetPoint({
                                 ...indexPoint.point,
                                 coordinate: coords,
-                                queryText: coords.lat + ', ' + coords.lng,
+                                queryText: coords.getQueryText(),
                             })
                         )
                     })

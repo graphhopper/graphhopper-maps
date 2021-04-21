@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType, Coordinate } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RoutingVehicles from '@/sidebar/search/RoutingVehicles'
 import RemoveIcon from '../times-solid.svg'
@@ -27,7 +27,7 @@ export default function Search({
     const [query, setQuery] = useState<Query>({
         point: {
             queryText: '',
-            coordinate: { lat: 0, lng: 0 },
+            coordinate: new Coordinate(0, 0),
             isInitialized: false,
             id: -1,
             color: '',
@@ -65,7 +65,7 @@ export default function Search({
         Dispatcher.dispatch(
             new SetPoint({
                 ...query.point,
-                coordinate: hit.point,
+                coordinate: new Coordinate(hit.point.lat, hit.point.lng),
                 isInitialized: true,
                 queryText: convertToQueryText(hit),
             })
@@ -91,7 +91,7 @@ export default function Search({
                 />
             ))}
             <PlainButton
-                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
+                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, new Coordinate(0, 0), false))}
                 className={styles.addSearchBox}
             >
                 <AddIcon />
