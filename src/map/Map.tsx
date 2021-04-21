@@ -47,7 +47,7 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
                         ...point,
                         isInitialized: true,
                         coordinate: e.lngLat,
-                        queryText: e.lngLat.lng + ', ' + e.lngLat.lat,
+                        queryText: e.lngLat.lat + ', ' + e.lngLat.lng,
                     })
                 )
             }

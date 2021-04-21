@@ -118,7 +118,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
         } else if (action instanceof AddPoint) {
             const tmp = state.queryPoints.slice()
-            const queryText = action.isInitialized ? action.coordinate.lng + ', ' + action.coordinate.lat : ''
+            const queryText = action.isInitialized ? action.coordinate.lat + ', ' + action.coordinate.lng : ''
 
             // add new point at the desired index
             tmp.splice(action.atIndex, 0, {
@@ -279,7 +279,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             isInitialized: false,
             queryText: '',
-            coordinate: { lng: 0, lat: 0 },
+            coordinate: { lat: 0, lng: 0 },
             id: id,
             color: QueryStore.getMarkerColor(type),
             type: type,

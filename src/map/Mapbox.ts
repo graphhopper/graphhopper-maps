@@ -279,7 +279,7 @@ export default class Mapbox {
                             new SetPoint({
                                 ...indexPoint.point,
                                 coordinate: coords,
-                                queryText: coords.lng + ', ' + coords.lat,
+                                queryText: coords.lat + ', ' + coords.lng,
                             })
                         )
                     })
