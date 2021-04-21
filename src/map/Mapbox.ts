@@ -274,7 +274,7 @@ export default class Mapbox {
                             new SetPoint({
                                 ...indexPoint.point,
                                 coordinate: coords,
-                                queryText: coords.lng + ', ' + coords.lat,
+                                queryText: coords.lat + ', ' + coords.lng,
                             })
                         )
                     })
@@ -286,6 +286,7 @@ export default class Mapbox {
         if (bbox.every(num => num !== 0)) {
             this.map.fitBounds(new LngLatBounds(bbox), {
                 padding: Mapbox.getPadding(),
+                duration: 150,
                 animate: !this.isFirstBounds,
             })
             if (this.isFirstBounds) this.isFirstBounds = false

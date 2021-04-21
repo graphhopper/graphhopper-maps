@@ -121,6 +121,7 @@ export class ApiImpl implements Api {
             locale: 'en',
             optimize: 'false',
             points_encoded: true,
+            snap_preventions: ["ferry"],
             details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
         }
 

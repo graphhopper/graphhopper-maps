@@ -40,8 +40,8 @@ afterEach(() => Dispatcher.clear())
 describe('parseUrl', () => {
     it('should parse parameters from a url', () => {
         const vehicle = 'car'
-        const point1 = [7.275303695325306, 50.67724646887518] as [number, number]
-        const point2 = [10.81515858598078, 50.28050431501495] as [number, number]
+        const point1 = [50.67724646887518, 7.275303695325306] as [number, number]
+        const point2 = [50.28050431501495, 10.81515858598078] as [number, number]
         const url = `http://localhost:3000/?point=${point1.join(',')}&point=${point2.join(',')}&vehicle=${vehicle}`
 
         const store = new TestStore()
@@ -56,8 +56,8 @@ describe('parseUrl', () => {
         })
 
         expect(store.state.points.length).toEqual(2)
-        expect(store.state.points[0]).toEqual({ lng: point1[0], lat: point1[1] })
-        expect(store.state.points[1]).toEqual({ lng: point2[0], lat: point2[1] })
+        expect(store.state.points[0]).toEqual({ lat: point1[0], lng: point1[1] })
+        expect(store.state.points[1]).toEqual({ lat: point2[0], lng: point2[1] })
         expect(store.state.vehicle.key).toEqual(vehicle)
     })
     it('should create an empty request when no points are supplied', () => {
@@ -65,7 +65,7 @@ describe('parseUrl', () => {
 
         Dispatcher.register({
             receive() {
-                fail('parsing an emtpy url should not raise any actions')
+                fail('parsing an empty url should not raise any actions')
             },
         })
 
@@ -96,7 +96,7 @@ describe('parseUrl', () => {
     })
 
     it('should raise an error if a point is not in the expected format', () => {
-        const point1 = [7.275303695325306, 50.67724646887518, 1.0]
+        const point1 = [50.67724646887518, 7.275303695325306, 1.0]
         const url = `http://localhost:3000/?point=${point1.join(',')}`
 
         expect(() => parseUrl(url, getQueryStoreState())).toThrowError()
@@ -105,8 +105,8 @@ describe('parseUrl', () => {
 
 describe('createUrl', () => {
     it('should convert points of a request into url params', () => {
-        const point1 = [7.275303695325306, 50.67724646887518] as [number, number]
-        const point2 = [10.81515858598078, 50.28050431501495] as [number, number]
+        const point1 = [50.67724646887518, 7.275303695325306] as [number, number]
+        const point2 = [50.28050431501495, 10.81515858598078] as [number, number]
         const vehicle = 'vehicle-type'
         const expectedUrl = new URL('http://localhost:3000/')
         expectedUrl.searchParams.append('point', point1.join(','))
@@ -140,7 +140,7 @@ function getQueryStoreState(): QueryStoreState {
 function coordinateToQueryPoint(coordinate: [number, number], id: number): QueryPoint {
     return {
         isInitialized: true,
-        coordinate: { lng: coordinate[0], lat: coordinate[1] },
+        coordinate: { lat: coordinate[0], lng: coordinate[1] },
         queryText: '',
         id: id,
         color: '',

@@ -60,7 +60,7 @@ function PopupComponent({
             new SetPoint({
                 ...point,
                 coordinate: coordinate,
-                queryText: coordinate.lng + ', ' + coordinate.lat,
+                queryText: coordinate.lat + ', ' + coordinate.lng,
                 isInitialized: true,
             })
         )
