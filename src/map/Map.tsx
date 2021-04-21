@@ -17,14 +17,7 @@ type MapProps = {
 
 export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
-    const queryPointsRef = useRef(queryPoints)
     const [map, setMap] = useState<Mapbox | null>(null)
-
-    // use this to be able to use querypoints props in onClick callback of the map
-    // see https://reactjs.org/docs/hooks-faq.html#what-can-i-do-if-my-effect-dependencies-change-too-often
-    useEffect(() => {
-        queryPointsRef.current = queryPoints
-    })
 
     useEffect(() => {
         if (map) map.remove()
