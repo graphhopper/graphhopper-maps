@@ -35,8 +35,7 @@ export default class Mapbox {
     constructor(
         container: HTMLDivElement,
         mapStyle: StyleOption,
-        onMapReady: () => void,
-        onClick: (e: MapMouseEvent) => void
+        onMapReady: () => void
     ) {
         this.map = new Map({
             container: container,
@@ -54,14 +53,11 @@ export default class Mapbox {
             onMapReady()
         })
 
-        this.map.on('click', onClick)
         this.map.on('contextmenu', e => this.popup.show(e.lngLat))
 
         // set up selection of alternative paths
-        // de-register default onClick handler when an alternative path is hovered
         this.map.on('mouseenter', pathsLayerKey, () => {
             this.map.getCanvasContainer().style.cursor = 'pointer'
-            this.map.off('click', onClick)
         })
 
         // select an alternative path if clicked
@@ -74,10 +70,9 @@ export default class Mapbox {
             }
         })
 
-        // re-register default click handler if mouse leaves alternative paths
+        // if mouse leaves alternative paths
         this.map.on('mouseleave', pathsLayerKey, () => {
             this.map.getCanvasContainer().style.cursor = ''
-            this.map.on('click', onClick)
         })
     }
 
