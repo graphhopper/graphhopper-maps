@@ -1,5 +1,4 @@
-import { coordinateToText } from '@/Converters'
-import { QueryPoint, Coordinate } from '@/stores/QueryStore'
+import { QueryPoint } from '@/stores/QueryStore'
 import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/map/Map.module.css'
 import Mapbox from '@/map/Mapbox'

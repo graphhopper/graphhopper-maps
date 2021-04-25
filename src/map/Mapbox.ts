@@ -1,7 +1,7 @@
 import { coordinateToText } from '@/Converters'
 import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker, Style } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { QueryPoint, Coordinate } from '@/stores/QueryStore'
+import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'

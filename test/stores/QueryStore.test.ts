@@ -5,8 +5,7 @@ import QueryStore, {
     QueryPointType,
     QueryStoreState,
     RequestState,
-    SubRequest,
-    Coordinate
+    SubRequest
 } from '../../src/stores/QueryStore'
 import {
     AddPoint,

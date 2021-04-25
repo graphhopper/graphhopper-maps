@@ -1,5 +1,5 @@
 import { createUrl, parseUrl } from '../src/QueryUrl'
-import { QueryPoint, QueryPointType, QueryStoreState, Coordinate } from '../src/stores/QueryStore'
+import { QueryPoint, QueryPointType, QueryStoreState } from '../src/stores/QueryStore'
 import Dispatcher, { Action } from '../src/stores/Dispatcher'
 import Store from '../src/stores/Store'
 import { AddPoint, SetVehicle } from '../src/actions/Actions'

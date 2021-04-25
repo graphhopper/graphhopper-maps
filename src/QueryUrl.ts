@@ -1,5 +1,5 @@
 import { coordinateToText } from '@/Converters'
-import { QueryPoint, QueryPointType, QueryStoreState, Coordinate } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, RemovePoint, SetVehicle } from '@/actions/Actions'
 
