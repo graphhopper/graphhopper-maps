@@ -30,7 +30,7 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
                 Dispatcher.dispatch(new MapIsLoaded())
             }
         )
-        mapWrapper.fitBounds(bbox)
+
         return () => map?.remove()
     }, [mapStyle])
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])

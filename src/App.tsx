@@ -5,6 +5,7 @@ import { getApiInfoStore, getErrorStore, getMapOptionsStore, getQueryStore, getR
 import MapComponent from '@/map/Map'
 import { Bbox } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
+import { worldWideBBox } from '@/Converters'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -41,7 +42,7 @@ export default function App() {
         if (shouldUseInfoBbox && pathBbox && pathBbox.every(num => num !== 0)) {
             setUseInfoBbox(false)
             return pathBbox
-        } else if (shouldUseInfoBbox) return infoBbox
+        } else if (shouldUseInfoBbox && !worldWideBBox(infoBbox)) return infoBbox
         return pathBbox || [0, 0, 0, 0]
     }
 

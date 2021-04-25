@@ -38,9 +38,9 @@ export default class Mapbox {
     ) {
         this.map = new Map({
             container: container,
-            accessToken:
-                'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
+            accessToken: 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
             style: Mapbox.getStyle(mapStyle),
+            /* bounds: new LngLatBounds(bbox) */
         })
 
         // add controls
