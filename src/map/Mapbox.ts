@@ -1,3 +1,4 @@
+import { coordinateToText } from '@/Converters'
 import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker, Style } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { QueryPoint } from '@/stores/QueryStore'
@@ -269,12 +270,11 @@ export default class Mapbox {
                     .setLngLat(indexPoint.point.coordinate)
                     .on('dragend', (e: { type: string; target: Marker }) => {
                         const marker = e.target
-                        const coords = marker.getLngLat()
                         Dispatcher.dispatch(
                             new SetPoint({
                                 ...indexPoint.point,
-                                coordinate: coords,
-                                queryText: coords.lat + ', ' + coords.lng,
+                                coordinate: marker.getLngLat(),
+                                queryText: coordinateToText(marker.getLngLat()),
                             })
                         )
                     })

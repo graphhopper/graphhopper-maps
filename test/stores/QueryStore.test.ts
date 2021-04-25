@@ -5,7 +5,7 @@ import QueryStore, {
     QueryPointType,
     QueryStoreState,
     RequestState,
-    SubRequest,
+    SubRequest
 } from '../../src/stores/QueryStore'
 import {
     AddPoint,
@@ -133,7 +133,7 @@ describe('QueryStore', () => {
                 ...p,
                 isInitialized: true,
                 queryText: `${i}`,
-                point: { lat: i, lng: i },
+                point: {lat: i, lng: i},
             }))
             const state = {
                 ...store.state,
@@ -156,7 +156,7 @@ describe('QueryStore', () => {
             const newPointId = store.state.nextQueryPointId
             const atIndex = 1
 
-            const newState = store.reduce(store.state, new AddPoint(atIndex, { lat: 1, lng: 1 }, false))
+            const newState = store.reduce(store.state, new AddPoint(atIndex, {lat: 1, lng: 1}, false))
 
             expect(newState.queryPoints.findIndex(p => p.id === newPointId)).toEqual(atIndex)
             expect(newState.queryPoints.every((p, i) => isCorrectType(p, i, newState.queryPoints.length))).toBeTruthy()
@@ -179,7 +179,7 @@ describe('QueryStore', () => {
 
             const newState = store.reduce(state, new AddPoint(atIndex, { lat: 1, lng: 1 }, true))
             expect(newState.queryPoints.findIndex(p => p.id === newPointId)).toEqual(atIndex)
-            expect(newState.queryPoints[atIndex].queryText).toEqual('1, 1') // if initialized flag is set the coordinates are set as query text
+            expect(newState.queryPoints[atIndex].queryText).toEqual('1,1') // if initialized flag is set the coordinates are set as query text
             expect(counter).toEqual(1)
             expect(newState.queryPoints.every((p, i) => isCorrectType(p, i, newState.queryPoints.length))).toBeTruthy()
         })
@@ -345,7 +345,7 @@ function getQueryPoint(id: number): QueryPoint {
         isInitialized: true,
         queryText: '',
         color: '',
-        coordinate: { lat: 0, lng: 0 },
+        coordinate: { lat: 0, lng: 0},
         id: id,
     }
 }

@@ -1,6 +1,6 @@
 import React from 'react'
-
 import ReactDOM from 'react-dom'
+import { coordinateToText } from '@/Converters'
 import styles from './Popup.module.css'
 import mapboxgl from 'mapbox-gl'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
@@ -60,7 +60,7 @@ function PopupComponent({
             new SetPoint({
                 ...point,
                 coordinate: coordinate,
-                queryText: coordinate.lat + ', ' + coordinate.lng,
+                queryText: coordinateToText(coordinate),
                 isInitialized: true,
             })
         )
