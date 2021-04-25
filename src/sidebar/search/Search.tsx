@@ -65,7 +65,7 @@ export default function Search({
         Dispatcher.dispatch(
             new SetPoint({
                 ...query.point,
-                coordinate: { lat: hit.point.lat, lng: hit.point.lng },
+                coordinate: hit.point,
                 isInitialized: true,
                 queryText: convertToQueryText(hit),
             })

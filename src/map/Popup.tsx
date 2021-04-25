@@ -54,13 +54,13 @@ function PopupComponent({
     queryPoints: QueryPoint[]
     onSelect: () => void
 }) {
-    const dispatchSetPoint = function (point: QueryPoint, mCoordinate: mapboxgl.LngLat) {
+    const dispatchSetPoint = function (point: QueryPoint, coordinate: mapboxgl.LngLat) {
         onSelect()
         Dispatcher.dispatch(
             new SetPoint({
                 ...point,
                 coordinate: coordinate,
-                queryText: coordinateToText(mCoordinate),
+                queryText: coordinateToText(coordinate),
                 isInitialized: true,
             })
         )
