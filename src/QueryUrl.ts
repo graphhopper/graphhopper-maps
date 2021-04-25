@@ -1,3 +1,4 @@
+import { coordinateToText } from '@/Converters'
 import { QueryPoint, QueryPointType, QueryStoreState, Coordinate } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, RemovePoint, SetVehicle } from '@/actions/Actions'
@@ -17,7 +18,7 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
                 throw Error(
                     'Could not parse url parameter point: ' + parameter + ' Think about what to do instead of crashing'
                 )
-            return new Coordinate(parseNumber(split[0]), parseNumber(split[1]))
+            return { lat: parseNumber(split[0]), lng: parseNumber(split[1])}
         })
         .map(
             (coordinate, i): QueryPoint => {
@@ -66,7 +67,7 @@ export function createUrl(baseUrl: string, state: QueryStoreState) {
     const result = new URL(baseUrl)
     state.queryPoints
         .filter(point => point.isInitialized)
-        .map(point => point.coordinate.getQueryText())
+        .map(point => coordinateToText(point.coordinate))
         .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
     result.searchParams.append('vehicle', state.routingVehicle.key)

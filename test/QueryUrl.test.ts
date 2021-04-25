@@ -139,7 +139,7 @@ function getQueryStoreState(): QueryStoreState {
 function coordinateToQueryPoint(coordinate: [number, number], id: number): QueryPoint {
     return {
         isInitialized: true,
-        coordinate: new Coordinate(coordinate[0], coordinate[1]),
+        coordinate: { lat: coordinate[0], lng: coordinate[1] },
         queryText: '',
         id: id,
         color: '',

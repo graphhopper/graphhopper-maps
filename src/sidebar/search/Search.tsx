@@ -1,3 +1,4 @@
+import { coordinateToText } from '@/Converters'
 import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
@@ -27,7 +28,7 @@ export default function Search({
     const [query, setQuery] = useState<Query>({
         point: {
             queryText: '',
-            coordinate: new Coordinate(0, 0),
+            coordinate: { lat: 0, lng: 0 },
             isInitialized: false,
             id: -1,
             color: '',
@@ -65,7 +66,7 @@ export default function Search({
         Dispatcher.dispatch(
             new SetPoint({
                 ...query.point,
-                coordinate: new Coordinate(hit.point.lat, hit.point.lng),
+                coordinate: { lat: hit.point.lat, lng: hit.point.lng },
                 isInitialized: true,
                 queryText: convertToQueryText(hit),
             })
@@ -91,7 +92,7 @@ export default function Search({
                 />
             ))}
             <PlainButton
-                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, new Coordinate(0, 0), false))}
+                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0}, false))}
                 className={styles.addSearchBox}
             >
                 <AddIcon />

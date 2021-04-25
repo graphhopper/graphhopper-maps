@@ -1,3 +1,4 @@
+import { coordinateToText } from '@/Converters'
 import { QueryPoint, Coordinate } from '@/stores/QueryStore'
 import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/map/Map.module.css'
@@ -42,13 +43,12 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
                     point = queryPointsRef.current[0]
                     Dispatcher.dispatch(new ClearPoints())
                 }
-                const coordinate = new Coordinate(e.lngLat.lat, e.lngLat.lng)
                 Dispatcher.dispatch(
                     new SetPoint({
                         ...point,
                         isInitialized: true,
-                        coordinate: coordinate,
-                        queryText: coordinate.getQueryText(),
+                        coordinate: e.lngLat,
+                        queryText: coordinateToText(e.lngLat),
                     })
                 )
             }
