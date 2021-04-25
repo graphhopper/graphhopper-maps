@@ -1,3 +1,4 @@
+import { coordinateToText } from '@/Converters'
 import Api from '@/api/Api'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
@@ -118,7 +119,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
         } else if (action instanceof AddPoint) {
             const tmp = state.queryPoints.slice()
-            const queryText = action.isInitialized ? action.coordinate.lat + ', ' + action.coordinate.lng : ''
+            const queryText = action.isInitialized ? coordinateToText(action.coordinate) : ''
 
             // add new point at the desired index
             tmp.splice(action.atIndex, 0, {
@@ -279,7 +280,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             isInitialized: false,
             queryText: '',
-            coordinate: { lat: 0, lng: 0 },
+            coordinate: { lat: 0, lng: 0},
             id: id,
             color: QueryStore.getMarkerColor(type),
             type: type,

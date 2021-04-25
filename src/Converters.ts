@@ -1,4 +1,5 @@
 import { Bbox } from '@/api/graphhopper'
+import { Coordinate } from '@/stores/QueryStore'
 
 export function milliSecondsToText(seconds: number) {
     const hours = Math.floor(seconds / 3600000)
@@ -16,4 +17,8 @@ export function metersToText(meters: number) {
 
 export function worldWideBBox(bbox: Bbox): boolean {
     return bbox[2] - bbox[0] > 359 && bbox[3] - bbox[1] > 179
+}
+
+export function coordinateToText(coord: Coordinate): string {
+    return Math.round(coord.lat * 1e6) / 1e6 + ',' + Math.round(coord.lng * 1e6) / 1e6;
 }
