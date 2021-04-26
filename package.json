@@ -12,6 +12,7 @@
         "leaflet.heightgraph": "github:easbar/Leaflet.Heightgraph#367cde07241745b22e662206ef420537bf5541e7",
         "mapbox-gl": "^1.13.0",
         "react": "^17.0.1",
+        "react-autocomplete": "^1.8.1",
         "react-dom": "^17.0.1"
     },
     "devDependencies": {

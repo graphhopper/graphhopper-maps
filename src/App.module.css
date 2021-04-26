@@ -67,13 +67,17 @@
     .sidebar {
         grid-row: 1 / span 1;
         grid-column: 1 / span 2;
+        display: flex;
+        align-items: stretch;
+        flex-direction: column;
+        justify-content: flex-end;
     }
 
     .mapOptions {
         grid-row: 1 / span 1;
         grid-column: 2 / span 1;
         /* this has to be solved differently when small screen layouts are attempted in #44 */
-        align-self: end;
+        align-self: start;
         margin-bottom: 2rem;
     }
 
