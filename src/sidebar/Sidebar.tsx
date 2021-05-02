@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { CurrentRequest, QueryPoint, QueryStoreState, RequestState, SubRequest } from '@/stores/QueryStore'
+import { CurrentRequest, QueryStoreState, RequestState, SubRequest } from '@/stores/QueryStore'
 import Search from '@/sidebar/search/Search'
 import styles from '@/sidebar/Sidebar.module.css'
 import Dispatcher from '@/stores/Dispatcher'
@@ -10,7 +10,6 @@ import Arrow from '@/sidebar/chevron-down-solid.svg'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Cross from './times-solid.svg'
-import Header from '@/sidebar/header.png'
 import { ApiInfo, Path } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 
@@ -29,6 +28,9 @@ export default function ({ query, route, info, error }: SidebarProps) {
                     points={query.queryPoints}
                     routingVehicles={info.vehicles}
                     selectedVehicle={query.routingVehicle}
+                    onFocus={() => {
+                        /* nothing */
+                    }}
                 />
             }
             {!error.isDismissed && <ErrorMessage error={error} />}
@@ -64,16 +66,12 @@ const QueryResults = (props: QueryResultsProps) => {
     const createListContent = function ({ paths, currentRequest, selectedPath }: QueryResultsProps) {
         const length = getLength(paths, currentRequest.subRequests)
         const result = []
-        if (paths.length > 0) result.push(<QueryResult key={1} path={paths[0]} isSelected={true} />)
 
-        /*
         for (let i = 0; i < length; i++) {
             if (i < paths.length)
                 result.push(<QueryResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} />)
             else result.push(<QueryResultPlaceholder key={i} />)
         }
-        
-         */
 
         return result
     }

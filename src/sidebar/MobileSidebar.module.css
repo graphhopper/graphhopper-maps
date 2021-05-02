@@ -12,6 +12,11 @@
     height: 100%;
 }
 
-.addressInput {
-    width: 100%;
+.addressSearch {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+}
+.addressInputContainer {
+    flex-grow: 1;
 }

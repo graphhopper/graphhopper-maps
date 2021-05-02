@@ -16,10 +16,12 @@ export default function Search({
     points,
     routingVehicles,
     selectedVehicle,
+    onFocus,
 }: {
     points: QueryPoint[]
     routingVehicles: RoutingVehicle[]
     selectedVehicle: RoutingVehicle
+    onFocus: (point: QueryPoint) => void
 }) {
     return (
         <div className={styles.searchBox}>
@@ -32,6 +34,7 @@ export default function Search({
                         Dispatcher.dispatch(new ClearRoute())
                         Dispatcher.dispatch(new InvalidatePoint(point))
                     }}
+                    onFocus={() => onFocus(point)}
                 />
             ))}
             <PlainButton
@@ -50,10 +53,12 @@ const SearchBox = ({
     point,
     onChange,
     deletable,
+    onFocus,
 }: {
     point: QueryPoint
     deletable: boolean
     onChange: (value: string) => void
+    onFocus: () => void
 }) => {
     return (
         <>
@@ -74,6 +79,7 @@ const SearchBox = ({
                         )
                     }
                     onChange={onChange}
+                    onFocus={onFocus}
                 />
             </div>
             {deletable && (

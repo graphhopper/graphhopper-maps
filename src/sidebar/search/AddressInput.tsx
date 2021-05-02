@@ -12,6 +12,7 @@ export interface AddressInputProps {
     onCancel: () => void
     onAddressSelected: (hit: GeocodingHit) => void
     onChange: (value: string) => void
+    onFocus: () => void
 }
 export default function AddressInput(props: AddressInputProps) {
     // useRef and following useEffect put focus onto textbox when rendered
@@ -40,6 +41,7 @@ export default function AddressInput(props: AddressInputProps) {
                     geocoder.request(e.target.value)
                     props.onChange(e.target.value)
                 }}
+                onFocus={() => props.onFocus()}
                 value={text}
             />
             {geocodingResults.length > 0 && (

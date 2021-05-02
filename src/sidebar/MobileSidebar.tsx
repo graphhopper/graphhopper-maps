@@ -4,11 +4,11 @@ import { RouteStoreState } from '@/stores/RouteStore'
 import { ApiInfo } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
-import NewSearch from '@/sidebar/newSearch/NewSearch'
 import AddressInput from '@/sidebar/search/AddressInput'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
 import { convertToQueryText } from '@/Converters'
+import Search from '@/sidebar/search/Search'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -31,7 +31,7 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
         switch (currentScreen) {
             case Screen.SearchView:
                 return (
-                    <NewSearch
+                    <Search
                         points={query.queryPoints}
                         routingVehicles={info.vehicles}
                         selectedVehicle={query.routingVehicle}
@@ -42,35 +42,43 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                     />
                 )
             case Screen.AddressSearch:
-                return (
-                    <div className={styles.addressInput}>
-                        <AddressInput
-                            point={currentPoint}
-                            autofocus={true}
-                            onCancel={() => {
-                                setCurrentScreen(Screen.SearchView)
-                            }}
-                            onAddressSelected={hit => {
-                                console.log('on address selected')
-                                Dispatcher.dispatch(
-                                    new SetPoint({
-                                        ...currentPoint,
-                                        coordinate: hit.point,
-                                        isInitialized: true,
-                                        queryText: convertToQueryText(hit),
-                                    })
-                                )
-                                setCurrentScreen(Screen.SearchView)
-                            }}
-                            onChange={value => console.log('on change: ' + value)}
-                        />
-                    </div>
-                )
+                return <AddressSearch point={currentPoint} onClose={() => setCurrentScreen(Screen.SearchView)} />
             default:
                 return <span>Not yet implemented</span>
         }
     }
     return <div className={getClassNames(currentScreen)}>{getScreen()}</div>
+}
+
+function AddressSearch(props: { point: QueryPoint; onClose: () => void }) {
+    return (
+        <div className={styles.addressSearch}>
+            <div className={styles.addressInputContainer}>
+                <AddressInput
+                    point={{
+                        ...props.point,
+                        queryText: '',
+                    }}
+                    autofocus={true}
+                    onCancel={props.onClose}
+                    onAddressSelected={hit => {
+                        Dispatcher.dispatch(
+                            new SetPoint({
+                                ...props.point,
+                                coordinate: hit.point,
+                                isInitialized: true,
+                                queryText: convertToQueryText(hit),
+                            })
+                        )
+                        props.onClose()
+                    }}
+                    onChange={() => {}}
+                    onFocus={() => {}}
+                />
+            </div>
+            <button onClick={() => props.onClose()}>Cancel</button>
+        </div>
+    )
 }
 
 function getClassNames(screen: Screen) {
