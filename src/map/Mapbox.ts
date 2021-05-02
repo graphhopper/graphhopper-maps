@@ -100,7 +100,12 @@ export default class Mapbox {
         this.drawSelectedPath(selectedPath)
     }
 
-    showPathDetails(selectedPath: Path) {
+    showPathDetails(selectedPath: Path, isSmallScreen: boolean) {
+        if (isSmallScreen) {
+            if (this.map.hasControl(this.heightgraph)) this.map.removeControl(this.heightgraph)
+            return
+        }
+
         if (selectedPath.points.coordinates.length === 0) return
         if (!this.map.hasControl(this.heightgraph)) this.map.addControl(this.heightgraph, 'bottom-right')
         const elevation = Mapbox.createFeatureCollection('Elevation [m]', [

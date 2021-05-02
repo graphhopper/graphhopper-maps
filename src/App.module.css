@@ -22,20 +22,6 @@
     pointer-events: none; /* let the user click on the map where the sidebar is transparent */
 }
 
-.sidebarContent {
-    /* TODO: move the layout into the component themselves*/
-    display: flex;
-    flex-direction: column;
-    max-height: calc(100% - 2 * 0.5rem);
-
-    margin: 0.5rem;
-    background-color: white;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    border-radius: 0.1rem;
-
-    pointer-events: all; /* we want all the content to behave normally*/
-}
-
 .mapOptions {
     grid-column: 3 / span 1;
     grid-row: 1 / span 1;
@@ -67,10 +53,6 @@
     .sidebar {
         grid-row: 1 / span 1;
         grid-column: 1 / span 2;
-        display: flex;
-        align-items: stretch;
-        flex-direction: column;
-        justify-content: flex-end;
     }
 
     .mapOptions {
@@ -79,11 +61,5 @@
         /* this has to be solved differently when small screen layouts are attempted in #44 */
         align-self: start;
         margin-bottom: 2rem;
-    }
-
-    .sidebarContent {
-        margin: 0;
-        max-height: 100%;
-        border-radius: 0;
     }
 }

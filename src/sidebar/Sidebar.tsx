@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { CurrentRequest, QueryStoreState, RequestState, SubRequest } from '@/stores/QueryStore'
+import { CurrentRequest, QueryPoint, QueryStoreState, RequestState, SubRequest } from '@/stores/QueryStore'
 import Search from '@/sidebar/search/Search'
 import styles from '@/sidebar/Sidebar.module.css'
 import Dispatcher from '@/stores/Dispatcher'
@@ -23,18 +23,23 @@ type SidebarProps = {
 
 export default function ({ query, route, info, error }: SidebarProps) {
     return (
-        <>
-            <div className={styles.headerContainer}>
-                <img src={Header} alt={'graphhopper logo'} />
-            </div>
-            <Search points={query.queryPoints} routingVehicles={info.vehicles} selectedVehicle={query.routingVehicle} />
+        <div className={styles.sidebar}>
+            {
+                <Search
+                    points={query.queryPoints}
+                    routingVehicles={info.vehicles}
+                    selectedVehicle={query.routingVehicle}
+                />
+            }
             {!error.isDismissed && <ErrorMessage error={error} />}
-            <QueryResults
-                paths={route.routingResult.paths}
-                selectedPath={route.selectedPath}
-                currentRequest={query.currentRequest}
-            />
-        </>
+            {route.routingResult.paths.length > 0 && (
+                <QueryResults
+                    paths={route.routingResult.paths}
+                    selectedPath={route.selectedPath}
+                    currentRequest={query.currentRequest}
+                />
+            )}
+        </div>
     )
 }
 
@@ -59,11 +64,16 @@ const QueryResults = (props: QueryResultsProps) => {
     const createListContent = function ({ paths, currentRequest, selectedPath }: QueryResultsProps) {
         const length = getLength(paths, currentRequest.subRequests)
         const result = []
+        if (paths.length > 0) result.push(<QueryResult key={1} path={paths[0]} isSelected={true} />)
+
+        /*
         for (let i = 0; i < length; i++) {
             if (i < paths.length)
                 result.push(<QueryResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} />)
             else result.push(<QueryResultPlaceholder key={i} />)
         }
+        
+         */
 
         return result
     }

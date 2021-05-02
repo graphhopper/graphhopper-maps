@@ -1,0 +1,17 @@
+.sidebar {
+    background-color: white;
+    pointer-events: all; /* we want all the content to behave normally*/
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 0.5rem;
+}
+
+.fullHeight {
+    height: 100%;
+}
+
+.addressInput {
+    width: 100%;
+}

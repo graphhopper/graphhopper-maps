@@ -6,6 +6,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, MapIsLoaded, SetPoint } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
+import { useMediaQuery } from 'react-responsive'
 
 type MapProps = {
     selectedPath: Path
@@ -19,6 +20,7 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const queryPointsRef = useRef(queryPoints)
     const [map, setMap] = useState<Mapbox | null>(null)
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
     // use this to be able to use querypoints props in onClick callback of the map
     // see https://reactjs.org/docs/hooks-faq.html#what-can-i-do-if-my-effect-dependencies-change-too-often
@@ -56,7 +58,7 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
         return () => map?.remove()
     }, [mapStyle])
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
-    useEffect(() => map?.showPathDetails(selectedPath), [selectedPath, map])
+    useEffect(() => map?.showPathDetails(selectedPath, isSmallScreen), [selectedPath, isSmallScreen, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
     useEffect(() => map?.fitBounds(bbox), [bbox, map])
 

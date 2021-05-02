@@ -13,9 +13,6 @@
 
 .searchBoxInput {
     grid-column: 2 / span 2;
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
-    font-size: 1rem;
 }
 
 .removeSearchBox {
@@ -66,37 +63,4 @@
 
 .geocodingResults {
     grid-column: 1 / span 3;
-}
-
-.selectableGeocodingEntry {
-    display: block;
-    width: 100%;
-
-    border: none;
-    border-bottom: 1px lightgray solid;
-    background: none;
-    color: inherit;
-    font: inherit;
-    padding: 0;
-    cursor: pointer;
-    outline: inherit;
-}
-
-.selectableGeocodingEntry:hover {
-    background-color: #ececec;
-}
-
-.selectableGeocodingEntry:active {
-    background-color: #c6c6c6;
-}
-
-.geocodingEntry {
-    display: flex;
-    flex-direction: column;
-    text-align: start;
-    margin: 0.5rem 0.5rem;
-}
-
-.geocodingEntryMain {
-    font-weight: bold;
 }

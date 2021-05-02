@@ -5,6 +5,8 @@ import { getApiInfoStore, getErrorStore, getMapOptionsStore, getQueryStore, getR
 import MapComponent from '@/map/Map'
 import { Bbox } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
+import MobileSidebar from '@/sidebar/MobileSidebar'
+import { useMediaQuery } from 'react-responsive'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -36,6 +38,8 @@ export default function App() {
         }
     })
 
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+
     // only use the api info's bbox until any other bounding box was chosen. Is this too messy?
     const chooseBoundingBox = function (infoBbox: Bbox, shouldUseInfoBbox: boolean, pathBbox?: Bbox) {
         if (shouldUseInfoBbox && pathBbox && pathBbox.every(num => num !== 0)) {
@@ -59,9 +63,11 @@ export default function App() {
                 />
             </div>
             <div className={styles.sidebar}>
-                <div className={styles.sidebarContent}>
+                {isSmallScreen ? (
+                    <MobileSidebar info={info} query={query} route={route} error={error} />
+                ) : (
                     <Sidebar info={info} query={query} route={route} error={error} />
-                </div>
+                )}
             </div>
             <div className={styles.mapOptions}>
                 <div className={styles.mapOptionsContent}>
