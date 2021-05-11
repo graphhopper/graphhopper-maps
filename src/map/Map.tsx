@@ -18,15 +18,8 @@ type MapProps = {
 
 export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
-    const queryPointsRef = useRef(queryPoints)
     const [map, setMap] = useState<Mapbox | null>(null)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
-
-    // use this to be able to use querypoints props in onClick callback of the map
-    // see https://reactjs.org/docs/hooks-faq.html#what-can-i-do-if-my-effect-dependencies-change-too-often
-    useEffect(() => {
-        queryPointsRef.current = queryPoints
-    })
 
     useEffect(() => {
         if (map) map.remove()
@@ -37,21 +30,6 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
             () => {
                 setMap(mapWrapper)
                 Dispatcher.dispatch(new MapIsLoaded())
-            },
-            e => {
-                let point = queryPointsRef.current.find(point => !point.isInitialized)
-                if (!point) {
-                    point = queryPointsRef.current[0]
-                    Dispatcher.dispatch(new ClearPoints())
-                }
-                Dispatcher.dispatch(
-                    new SetPoint({
-                        ...point,
-                        isInitialized: true,
-                        coordinate: e.lngLat,
-                        queryText: e.lngLat.lng + ', ' + e.lngLat.lat,
-                    })
-                )
             }
         )
         mapWrapper.fitBounds(bbox)

@@ -38,7 +38,7 @@ export default function Search({
                 />
             ))}
             <PlainButton
-                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lng: 0, lat: 0 }, false))}
+                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0}, false))}
                 className={styles.addSearchBox}
             >
                 <AddIcon />
