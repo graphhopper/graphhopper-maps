@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { QueryPoint, QueryStoreState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { ApiInfo } from '@/api/graphhopper'
+import { ApiInfo, RoutingVehicle } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
 import AddressInput from '@/sidebar/search/AddressInput'
@@ -25,6 +25,9 @@ enum Screen {
 }
 export default function ({ query, route, info, error }: MobileSidebarProps) {
     const [currentScreen, setCurrentScreen] = useState(Screen.SearchView)
+    useEffect(() => {
+        if (route.routingResult.paths.length > 0) setCurrentScreen(Screen.MapView)
+    }, [route.routingResult])
     const [currentPoint, setCurrentPoint] = useState<QueryPoint>(query.queryPoints[0])
 
     const getScreen = function () {
@@ -43,6 +46,8 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                 )
             case Screen.AddressSearch:
                 return <AddressSearch point={currentPoint} onClose={() => setCurrentScreen(Screen.SearchView)} />
+            case Screen.MapView:
+                return <MapView points={query.queryPoints} vehicle={query.routingVehicle} onClick={() => setCurrentScreen(Screen.SearchView)}/>
             default:
                 return <span>Not yet implemented</span>
         }
@@ -79,6 +84,37 @@ function AddressSearch(props: { point: QueryPoint; onClose: () => void }) {
             <button onClick={() => props.onClose()}>Cancel</button>
         </div>
     )
+}
+
+function MapView(props: {points: QueryPoint[], vehicle: RoutingVehicle, onClick: () => void}) {
+
+    const from = props.points[0]
+    const to = props.points[props.points.length - 1]
+
+
+    return (<div className={styles.mapView} onClick={props.onClick}>
+        <MapViewPoint {...from} />
+        <IntermediatePoint points={props.points} />
+        <MapViewPoint {...to} />
+    </div>)
+}
+
+// call this queryText, so that QueryPoints can be passed in as props because they have a fitting shape
+function MapViewPoint({ queryText, color } : {queryText : string, color: string}) {
+        return (<div className={styles.mapViewPoint}>
+            <div className={styles.dot} style={{ backgroundColor: color }}/>
+            <span>{queryText}</span>
+        </div>)
+}
+
+function IntermediatePoint( { points } : { points: QueryPoint[]}) {
+    // for a total number of three points display intermediate via point
+    if (points.length === 3) return <MapViewPoint {...points[1]} />
+
+    // for more than total of three points display the number of via points
+    if (points.length > 3) return (<MapViewPoint queryText={points.length - 2 + ' via points'} color={'#76D0F7'} />)
+
+    return <div /> // in case of no via points display nothing
 }
 
 function getClassNames(screen: Screen) {
