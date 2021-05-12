@@ -1,6 +1,6 @@
 import { Path } from '@/api/graphhopper'
 import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
-import styles from '@/sidebar/Sidebar.module.css'
+import styles from './QueryResults.module.css'
 import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
@@ -14,8 +14,7 @@ export interface QueryResultsProps {
     selectedPath: Path
     currentRequest: CurrentRequest
 }
-export default function QueryResults (props: QueryResultsProps) {
-
+export default function QueryResults(props: QueryResultsProps) {
     return (
         <div className={styles.resultListContainer}>
             <ul>{createListContent(props)}</ul>
@@ -23,7 +22,7 @@ export default function QueryResults (props: QueryResultsProps) {
     )
 }
 
-function QueryResult ({ path, isSelected }: { path: Path; isSelected: boolean }) {
+function QueryResult({ path, isSelected }: { path: Path; isSelected: boolean }) {
     const [isExpanded, setExpanded] = useState(false)
     const buttonClass = isExpanded ? styles.detailsButtonFlipped : styles.detailsButton
     const resultSummaryClass = isSelected
@@ -52,7 +51,7 @@ function QueryResult ({ path, isSelected }: { path: Path; isSelected: boolean })
     )
 }
 
-function QueryResultPlaceholder () {
+function QueryResultPlaceholder() {
     return (
         <div className={styles.resultRow}>
             <div className={styles.placeholderContainer}>
@@ -63,11 +62,11 @@ function QueryResultPlaceholder () {
     )
 }
 
-function hasPendingRequests (subRequests: SubRequest[]) {
+function hasPendingRequests(subRequests: SubRequest[]) {
     return subRequests.some(req => req.state === RequestState.SENT)
 }
 
-function getLength (paths: Path[], subRequests: SubRequest[]) {
+function getLength(paths: Path[], subRequests: SubRequest[]) {
     if (subRequests.length > 0 && hasPendingRequests(subRequests)) {
         // assuming that the last sub request is the one with most alternative routes
         return Math.max(subRequests[subRequests.length - 1].args.maxAlternativeRoutes, paths.length)

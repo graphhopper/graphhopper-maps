@@ -12,6 +12,7 @@ import Search from '@/sidebar/search/Search'
 import QueryResults from '@/sidebar/QueryResults'
 import PlainButton from '@/PlainButton'
 import ChevronIcon from '@/sidebar/chevron-down-solid.svg'
+import ErrorMessage from '@/sidebar/ErrorMessage'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -67,9 +68,10 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
     return (
         <div className={styles.sidebar}>
             <div className={getClassNames(currentScreen)}>{getScreen()}</div>
+            {!error.isDismissed && <ErrorMessage error={error} />}
             <div className={styles.background}>
                 <QueryResults
-                    paths={[route.selectedPath]}
+                    paths={route.routingResult.paths.length > 0 ? [route.selectedPath] : []}
                     selectedPath={route.selectedPath}
                     currentRequest={query.currentRequest}
                 />

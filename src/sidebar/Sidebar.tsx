@@ -3,13 +3,10 @@ import { RouteStoreState } from '@/stores/RouteStore'
 import { QueryStoreState } from '@/stores/QueryStore'
 import Search from '@/sidebar/search/Search'
 import styles from '@/sidebar/Sidebar.module.css'
-import Dispatcher from '@/stores/Dispatcher'
-import { DismissLastError } from '@/actions/Actions'
-import PlainButton from '@/PlainButton'
-import Cross from './times-solid.svg'
 import { ApiInfo } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import QueryResults from '@/sidebar/QueryResults'
+import ErrorMessage from '@/sidebar/ErrorMessage'
 
 type SidebarProps = {
     query: QueryStoreState
@@ -39,20 +36,6 @@ export default function ({ query, route, info, error }: SidebarProps) {
                     currentRequest={query.currentRequest}
                 />
             )}
-        </div>
-    )
-}
-
-const ErrorMessage = function ({ error }: { error: ErrorStoreState }) {
-    return (
-        <div className={styles.errorMessageContainer}>
-            <span className={styles.errorMessage}>{error.lastError}</span>
-            <PlainButton
-                className={styles.errorMessageCloseBtn}
-                onClick={() => Dispatcher.dispatch(new DismissLastError())}
-            >
-                <Cross />
-            </PlainButton>
         </div>
     )
 }

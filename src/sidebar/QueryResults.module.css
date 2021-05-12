@@ -1,0 +1,109 @@
+
+.resultListContainer {
+    overflow-y: auto;
+}
+
+.resultRow {
+    display: flex;
+    flex-direction: column;
+
+    border-bottom: 1px lightgray solid;
+}
+
+.resultSelectableArea {
+    padding: 1rem 0;
+}
+
+.resultSelectableArea:hover {
+    background-color: #ececec;
+}
+
+.resultSelectableArea:active {
+    background-color: #c6c6c6;
+}
+
+.resultSummary {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 1rem;
+}
+
+.selectedResultSummary {
+    border-left: #275dad solid 0.25rem;
+    padding: 0 0.5rem 0 0.75rem;
+}
+
+.resultValues {
+    display: flex;
+    flex-direction: column;
+}
+
+.resultMainText {
+    font-size: large;
+    font-weight: bold;
+    margin-bottom: 0.1rem;
+}
+
+.resultSecondaryText {
+    color: #5b616a;
+}
+/*
+This is not a very nice duplication but I have to stop now...
+ */
+.detailsButton {
+    display: grid;
+    justify-content: end;
+    align-items: center;
+    width: 4rem;
+}
+
+.detailsButtonFlipped {
+    display: grid;
+    justify-content: end;
+    align-items: center;
+    width: 4rem;
+}
+
+.detailsButton > svg {
+    transition: 0.3s ease;
+    height: 1.2rem;
+}
+
+.detailsButtonFlipped > svg {
+    transition: 0.3s ease;
+    transform: rotateX(180deg);
+    height: 1.2rem;
+}
+
+.placeholderContainer {
+    margin: 1.08rem 1rem;
+}
+
+.placeholderMain {
+    height: 1.25rem;
+    width: 7rem;
+    background-color: lightgray;
+    margin-bottom: 0.5rem;
+    border-radius: 0.2rem;
+    animation-name: pulse;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+.placeholderSecondary {
+    height: 1rem;
+    width: 5rem;
+    margin-bottom: 0;
+    animation-delay: 0.25s;
+}
+
+@keyframes pulse {
+    from {
+        opacity: 0.5;
+    }
+    to {
+        opacity: 1;
+    }
+}
