@@ -139,29 +139,59 @@ function MapView(props: { points: QueryPoint[]; vehicle: RoutingVehicle; onClick
 
     return (
         <div className={styles.mapView} onClick={props.onClick}>
-            <MapViewPoint {...from} />
+            <MapViewPoint {...from} fontSize={'1.0rem'} fontWeight={'lighter'} />
             <IntermediatePoint points={props.points} />
-            <MapViewPoint {...to} />
+            <MapViewPoint {...to} fontSize={'1.0rem'} fontWeight={'bold'} />
         </div>
     )
 }
 
 // call this queryText, so that QueryPoints can be passed in as props because they have a fitting shape
-function MapViewPoint({ queryText, color }: { queryText: string; color: string }) {
+function MapViewPoint({
+    queryText,
+    color,
+    fontWeight,
+    fontSize,
+}: {
+    queryText: string
+    color: string
+    fontWeight:
+        | 'lighter'
+        | 'bold'
+        | '-moz-initial'
+        | 'inherit'
+        | 'initial'
+        | 'revert'
+        | 'unset'
+        | 'normal'
+        | (number & {})
+        | 'bolder'
+        | undefined
+    fontSize: string
+}) {
+    // @ts-ignore
     return (
         <div className={styles.mapViewPoint}>
             <div className={styles.dot} style={{ backgroundColor: color }} />
-            <span>{queryText}</span>
+            <span style={{ fontWeight: fontWeight, fontSize: fontSize }}>{queryText}</span>
         </div>
     )
 }
 
 function IntermediatePoint({ points }: { points: QueryPoint[] }) {
     // for a total number of three points display intermediate via point
-    if (points.length === 3) return <MapViewPoint {...points[1]} />
+    if (points.length === 3) return <MapViewPoint fontSize={'0.8rem'} fontWeight={'lighter'} {...points[1]} />
 
     // for more than total of three points display the number of via points
-    if (points.length > 3) return <MapViewPoint queryText={points.length - 2 + ' via points'} color={'#76D0F7'} />
+    if (points.length > 3)
+        return (
+            <MapViewPoint
+                queryText={points.length - 2 + ' via points'}
+                color={'#76D0F7'}
+                fontSize={'0.8rem'}
+                fontWeight={'lighter'}
+            />
+        )
 
     return <div /> // in case of no via points display nothing
 }

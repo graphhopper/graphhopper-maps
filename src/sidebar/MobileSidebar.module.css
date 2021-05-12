@@ -28,7 +28,10 @@
 .mapView {
     display: flex;
     flex-direction: column;
-    padding: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px black solid;
+    margin: 0.5rem;
+    border-radius: 0.2rem;
 }
 
 .mapViewPoint {
