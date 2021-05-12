@@ -9,6 +9,9 @@ import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
 import { convertToQueryText } from '@/Converters'
 import Search from '@/sidebar/search/Search'
+import QueryResults from '@/sidebar/QueryResults'
+import PlainButton from '@/PlainButton'
+import ChevronIcon from '@/sidebar/chevron-down-solid.svg'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -34,7 +37,7 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
         switch (currentScreen) {
             case Screen.SearchView:
                 return (
-                    <Search
+                    <SearchView
                         points={query.queryPoints}
                         routingVehicles={info.vehicles}
                         selectedVehicle={query.routingVehicle}
@@ -42,17 +45,37 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                             setCurrentPoint(point)
                             setCurrentScreen(Screen.AddressSearch)
                         }}
+                        onClose={() => setCurrentScreen(Screen.MapView)}
                     />
                 )
             case Screen.AddressSearch:
                 return <AddressSearch point={currentPoint} onClose={() => setCurrentScreen(Screen.SearchView)} />
             case Screen.MapView:
-                return <MapView points={query.queryPoints} vehicle={query.routingVehicle} onClick={() => setCurrentScreen(Screen.SearchView)}/>
+                return (
+                    <MapView
+                        points={query.queryPoints}
+                        vehicle={query.routingVehicle}
+                        onClick={() => setCurrentScreen(Screen.SearchView)}
+                    />
+                )
             default:
                 return <span>Not yet implemented</span>
         }
     }
-    return <div className={getClassNames(currentScreen)}>{getScreen()}</div>
+    // query results get only the selected path as result list. If we like having just one path on the small layout we can change
+    // the store so that it will only fetch a single route on mobile
+    return (
+        <div className={styles.sidebar}>
+            <div className={getClassNames(currentScreen)}>{getScreen()}</div>
+            <div className={styles.background}>
+                <QueryResults
+                    paths={[route.selectedPath]}
+                    selectedPath={route.selectedPath}
+                    currentRequest={query.currentRequest}
+                />
+            </div>
+        </div>
+    )
 }
 
 function AddressSearch(props: { point: QueryPoint; onClose: () => void }) {
@@ -86,33 +109,57 @@ function AddressSearch(props: { point: QueryPoint; onClose: () => void }) {
     )
 }
 
-function MapView(props: {points: QueryPoint[], vehicle: RoutingVehicle, onClick: () => void}) {
+function SearchView(props: {
+    points: QueryPoint[]
+    routingVehicles: RoutingVehicle[]
+    selectedVehicle: RoutingVehicle
+    onFocus: (point: QueryPoint) => void
+    onClose: () => void
+}) {
+    return (
+        <div className={styles.btnCloseContainer}>
+            <Search
+                points={props.points}
+                routingVehicles={props.routingVehicles}
+                selectedVehicle={props.selectedVehicle}
+                onFocus={props.onFocus}
+            />
+            <PlainButton onClick={() => props.onClose()} className={styles.btnClose}>
+                <ChevronIcon />
+            </PlainButton>
+        </div>
+    )
+}
 
+function MapView(props: { points: QueryPoint[]; vehicle: RoutingVehicle; onClick: () => void }) {
     const from = props.points[0]
     const to = props.points[props.points.length - 1]
 
-
-    return (<div className={styles.mapView} onClick={props.onClick}>
-        <MapViewPoint {...from} />
-        <IntermediatePoint points={props.points} />
-        <MapViewPoint {...to} />
-    </div>)
+    return (
+        <div className={styles.mapView} onClick={props.onClick}>
+            <MapViewPoint {...from} />
+            <IntermediatePoint points={props.points} />
+            <MapViewPoint {...to} />
+        </div>
+    )
 }
 
 // call this queryText, so that QueryPoints can be passed in as props because they have a fitting shape
-function MapViewPoint({ queryText, color } : {queryText : string, color: string}) {
-        return (<div className={styles.mapViewPoint}>
-            <div className={styles.dot} style={{ backgroundColor: color }}/>
+function MapViewPoint({ queryText, color }: { queryText: string; color: string }) {
+    return (
+        <div className={styles.mapViewPoint}>
+            <div className={styles.dot} style={{ backgroundColor: color }} />
             <span>{queryText}</span>
-        </div>)
+        </div>
+    )
 }
 
-function IntermediatePoint( { points } : { points: QueryPoint[]}) {
+function IntermediatePoint({ points }: { points: QueryPoint[] }) {
     // for a total number of three points display intermediate via point
     if (points.length === 3) return <MapViewPoint {...points[1]} />
 
     // for more than total of three points display the number of via points
-    if (points.length > 3) return (<MapViewPoint queryText={points.length - 2 + ' via points'} color={'#76D0F7'} />)
+    if (points.length > 3) return <MapViewPoint queryText={points.length - 2 + ' via points'} color={'#76D0F7'} />
 
     return <div /> // in case of no via points display nothing
 }
@@ -120,11 +167,11 @@ function IntermediatePoint( { points } : { points: QueryPoint[]}) {
 function getClassNames(screen: Screen) {
     switch (screen) {
         case Screen.AddressSearch:
+            return styles.background + ' ' + styles.fullHeight
         case Screen.RouteView:
-            return styles.sidebar + ' ' + styles.fullHeight
         case Screen.SearchView:
         case Screen.MapView:
         default:
-            return styles.sidebar
+            return styles.background
     }
 }

@@ -1,5 +1,5 @@
 import { coordinateToText } from '@/Converters'
-import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker, Style } from 'mapbox-gl'
+import mapboxgl, { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, Marker, Style } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
@@ -8,10 +8,10 @@ import { Popup } from '@/map/Popup'
 import { FeatureCollection, LineString } from 'geojson'
 import { Bbox, Path } from '@/api/graphhopper'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
-import mapboxgl from 'mapbox-gl'
-window.mapboxgl = mapboxgl
 import { MapboxHeightGraph } from 'leaflet.heightgraph/example/MapboxHeightGraph'
 import 'leaflet.heightgraph/src/heightgraph.css'
+
+window.mapboxgl = mapboxgl
 
 const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -32,11 +32,7 @@ export default class Mapbox {
     private isFirstBounds = true
     private isRemoved = false
 
-    constructor(
-        container: HTMLDivElement,
-        mapStyle: StyleOption,
-        onMapReady: () => void
-    ) {
+    constructor(container: HTMLDivElement, mapStyle: StyleOption, onMapReady: () => void) {
         this.map = new Map({
             container: container,
             accessToken:
@@ -349,7 +345,7 @@ export default class Mapbox {
 
     private static getPadding() {
         return mediaQuery.matches
-            ? { top: 400, bottom: 16, right: 16, left: 16 }
+            ? { top: 200, bottom: 100, right: 16, left: 16 }
             : {
                   top: 100,
                   bottom: 100,

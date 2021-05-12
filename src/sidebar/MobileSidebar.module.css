@@ -1,11 +1,14 @@
 .sidebar {
-    background-color: white;
-    pointer-events: all; /* we want all the content to behave normally*/
 
+    height: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+}
 
-    padding: 0.5rem;
+.background {
+    pointer-events: all; /* we want all the content to behave normally*/
+    background-color: white;
 }
 
 .fullHeight {
@@ -16,6 +19,7 @@
     display: flex;
     flex-direction: row;
     gap: 0.5rem;
+    padding: 0.5rem;
 }
 .addressInputContainer {
     flex-grow: 1;
@@ -24,6 +28,7 @@
 .mapView {
     display: flex;
     flex-direction: column;
+    padding: 0.5rem;
 }
 
 .mapViewPoint {
@@ -39,4 +44,15 @@
     width: 0.75rem;
     border: rgb(100, 100, 100) 0.125rem solid;
     margin-right: 0.5rem;
+}
+
+.btnCloseContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.btnClose {
+    width: 1rem;
+    margin: 0.5rem;
+    align-self: flex-end;
 }
