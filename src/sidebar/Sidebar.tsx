@@ -23,9 +23,6 @@ export default function ({ query, route, info, error }: SidebarProps) {
                     points={query.queryPoints}
                     routingVehicles={info.vehicles}
                     selectedVehicle={query.routingVehicle}
-                    onFocus={() => {
-                        /* nothing */
-                    }}
                 />
             }
             {!error.isDismissed && <ErrorMessage error={error} />}

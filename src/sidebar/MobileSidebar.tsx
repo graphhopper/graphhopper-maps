@@ -4,10 +4,6 @@ import { RouteStoreState } from '@/stores/RouteStore'
 import { ApiInfo, RoutingVehicle } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
-import AddressInput from '@/sidebar/search/AddressInput'
-import Dispatcher from '@/stores/Dispatcher'
-import { SetPoint } from '@/actions/Actions'
-import { convertToQueryText } from '@/Converters'
 import Search from '@/sidebar/search/Search'
 import QueryResults from '@/sidebar/QueryResults'
 import PlainButton from '@/PlainButton'
@@ -21,53 +17,34 @@ type MobileSidebarProps = {
     error: ErrorStoreState
 }
 
-enum Screen {
-    MapView,
-    SearchView,
-    AddressSearch,
-    RouteView,
-}
 export default function ({ query, route, info, error }: MobileSidebarProps) {
-    const [currentScreen, setCurrentScreen] = useState(Screen.SearchView)
-    useEffect(() => {
-        if (route.routingResult.paths.length > 0) setCurrentScreen(Screen.MapView)
-    }, [route.routingResult])
-    const [currentPoint, setCurrentPoint] = useState<QueryPoint>(query.queryPoints[0])
+    const [isSmallSearchView, setIsSmallSearchView] = useState(true)
 
-    const getScreen = function () {
-        switch (currentScreen) {
-            case Screen.SearchView:
-                return (
-                    <SearchView
-                        points={query.queryPoints}
-                        routingVehicles={info.vehicles}
-                        selectedVehicle={query.routingVehicle}
-                        onFocus={point => {
-                            setCurrentPoint(point)
-                            setCurrentScreen(Screen.AddressSearch)
-                        }}
-                        onClose={() => setCurrentScreen(Screen.MapView)}
-                    />
-                )
-            case Screen.AddressSearch:
-                return <AddressSearch point={currentPoint} onClose={() => setCurrentScreen(Screen.SearchView)} />
-            case Screen.MapView:
-                return (
-                    <MapView
-                        points={query.queryPoints}
-                        vehicle={query.routingVehicle}
-                        onClick={() => setCurrentScreen(Screen.SearchView)}
-                    />
-                )
-            default:
-                return <span>Not yet implemented</span>
-        }
-    }
+    useEffect(() => {
+        if (route.routingResult.paths.length === 0) setIsSmallSearchView(false)
+        else setIsSmallSearchView(true)
+    }, [route.routingResult])
+
     // query results get only the selected path as result list. If we like having just one path on the small layout we can change
     // the store so that it will only fetch a single route on mobile
     return (
         <div className={styles.sidebar}>
-            <div className={getClassNames(currentScreen)}>{getScreen()}</div>
+            <div className={styles.background}>
+                {isSmallSearchView ? (
+                    <MapView
+                        points={query.queryPoints}
+                        vehicle={query.routingVehicle}
+                        onClick={() => setIsSmallSearchView(false)}
+                    />
+                ) : (
+                    <SearchView
+                        points={query.queryPoints}
+                        routingVehicles={info.vehicles}
+                        selectedVehicle={query.routingVehicle}
+                        onClose={() => setIsSmallSearchView(true)}
+                    />
+                )}
+            </div>
             {!error.isDismissed && <ErrorMessage error={error} />}
             <div className={styles.background}>
                 <QueryResults
@@ -80,42 +57,10 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
     )
 }
 
-function AddressSearch(props: { point: QueryPoint; onClose: () => void }) {
-    return (
-        <div className={styles.addressSearch}>
-            <div className={styles.addressInputContainer}>
-                <AddressInput
-                    point={{
-                        ...props.point,
-                        queryText: '',
-                    }}
-                    autofocus={true}
-                    onCancel={props.onClose}
-                    onAddressSelected={hit => {
-                        Dispatcher.dispatch(
-                            new SetPoint({
-                                ...props.point,
-                                coordinate: hit.point,
-                                isInitialized: true,
-                                queryText: convertToQueryText(hit),
-                            })
-                        )
-                        props.onClose()
-                    }}
-                    onChange={() => {}}
-                    onFocus={() => {}}
-                />
-            </div>
-            <button onClick={() => props.onClose()}>Cancel</button>
-        </div>
-    )
-}
-
 function SearchView(props: {
     points: QueryPoint[]
     routingVehicles: RoutingVehicle[]
     selectedVehicle: RoutingVehicle
-    onFocus: (point: QueryPoint) => void
     onClose: () => void
 }) {
     return (
@@ -124,7 +69,6 @@ function SearchView(props: {
                 points={props.points}
                 routingVehicles={props.routingVehicles}
                 selectedVehicle={props.selectedVehicle}
-                onFocus={props.onFocus}
             />
             <PlainButton onClick={() => props.onClose()} className={styles.btnClose}>
                 <ChevronIcon />
@@ -194,16 +138,4 @@ function IntermediatePoint({ points }: { points: QueryPoint[] }) {
         )
 
     return <div /> // in case of no via points display nothing
-}
-
-function getClassNames(screen: Screen) {
-    switch (screen) {
-        case Screen.AddressSearch:
-            return styles.background + ' ' + styles.fullHeight
-        case Screen.RouteView:
-        case Screen.SearchView:
-        case Screen.MapView:
-        default:
-            return styles.background
-    }
 }

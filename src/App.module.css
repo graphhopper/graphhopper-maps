@@ -40,7 +40,7 @@
     pointer-events: all; /* we want all the content to behave normally*/
 }
 
-@media screen and (max-width: 44rem) {
+@media (max-width: 44rem) {
     .appWrapper {
         grid-template-columns: 1fr auto;
         grid-template-rows: 100%;

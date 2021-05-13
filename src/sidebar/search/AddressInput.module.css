@@ -2,6 +2,33 @@
     position: relative;
 }
 
+@media (max-width: 44rem) {
+    .fullscreen {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: white;
+        z-index: 1;
+        padding: 0.5rem;
+    }
+
+    .fullscreen .btnClose{
+        display: block;
+    }
+
+}
+
+.btnClose {
+    display: none;
+}
+
+.inputContainer {
+    display:flex;
+    gap: 0.5rem;
+}
+
 .input {
     box-sizing: border-box;
     width: 100%;

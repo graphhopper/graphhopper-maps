@@ -12,14 +12,9 @@ export interface AddressInputProps {
     onCancel: () => void
     onAddressSelected: (hit: GeocodingHit) => void
     onChange: (value: string) => void
-    onFocus: () => void
 }
 export default function AddressInput(props: AddressInputProps) {
-    // useRef and following useEffect put focus onto textbox when rendered
     const searchInput = useRef<HTMLInputElement>(null)
-    useEffect(() => {
-        if (props.autofocus) searchInput.current!.focus()
-    })
 
     // holds the query text making this a controlled component
     const [text, setText] = useState(props.point.queryText)
@@ -30,26 +25,42 @@ export default function AddressInput(props: AddressInputProps) {
     const [geocoder] = useState(new Geocoder(hits => setGeocodingResults(hits)))
     useEffect(() => setGeocodingResults([]), [props.point])
 
+    const [fullscreen, setFullscreen] = useState(false)
+
+    const containerClass = fullscreen ? styles.container + ' ' + styles.fullscreen : styles.container
     return (
-        <div className={styles.container}>
-            <input
-                className={styles.input}
-                type="text"
-                ref={searchInput}
-                onChange={e => {
-                    setText(e.target.value)
-                    geocoder.request(e.target.value)
-                    props.onChange(e.target.value)
-                }}
-                onFocus={() => props.onFocus()}
-                value={text}
-            />
+        <div className={containerClass}>
+            <div className={styles.inputContainer}>
+                <input
+                    className={styles.input}
+                    type="text"
+                    ref={searchInput}
+                    onChange={e => {
+                        setText(e.target.value)
+                        geocoder.request(e.target.value)
+                        props.onChange(e.target.value)
+                    }}
+                    onFocus={() => setFullscreen(true)}
+                    value={text}
+                />
+                <button
+                    className={styles.btnClose}
+                    onClick={() => {
+                        console.log(searchInput.current)
+                        setFullscreen(false)
+                    }}
+                >
+                    Close
+                </button>
+            </div>
+
             {geocodingResults.length > 0 && (
                 <div className={styles.popup}>
                     <GeocodingResult
                         hits={geocodingResults}
                         onSelectHit={hit => {
                             props.onAddressSelected(hit)
+                            setFullscreen(false)
                         }}
                     />
                 </div>
