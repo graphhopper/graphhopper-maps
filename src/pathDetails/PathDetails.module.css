@@ -1,0 +1,5 @@
+.pathDetailsContainer {
+    width: 100%;
+    /* todo: do not repeat height here and in App.module.css?! */
+    height: 10rem;
+}

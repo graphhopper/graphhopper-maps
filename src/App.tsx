@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Sidebar from '@/sidebar/Sidebar'
+import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import { getApiInfoStore, getErrorStore, getMapOptionsStore, getQueryStore, getRouteStore } from '@/stores/Stores'
 import MapComponent from '@/map/Map'
@@ -61,6 +62,11 @@ export default function App() {
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent}>
                     <Sidebar info={info} query={query} route={route} error={error} />
+                </div>
+            </div>
+            <div className={styles.bottomPane}>
+                <div className={styles.bottomPaneContent}>
+                    <PathDetails />
                 </div>
             </div>
             <div className={styles.mapOptions}>
