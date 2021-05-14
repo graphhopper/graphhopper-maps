@@ -39,6 +39,23 @@
     flex-direction: row;
 }
 
+.queryPointText {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #5b616a;
+}
+
+.queryPointTextTo{
+    font-size: large;
+    font-weight: bold;
+    color: inherit;
+}
+
+.queryPointTextVia {
+    font-size: small;
+}
+
 .dot {
     align-self: center;
     justify-self: center;
@@ -47,6 +64,7 @@
     width: 0.75rem;
     border: rgb(100, 100, 100) 0.125rem solid;
     margin-right: 0.5rem;
+    flex-shrink: 0;
 }
 
 .btnCloseContainer {

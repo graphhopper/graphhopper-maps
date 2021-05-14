@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { QueryPoint, QueryStoreState } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { ApiInfo, RoutingVehicle } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
@@ -31,7 +31,7 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
         <div className={styles.sidebar}>
             <div className={styles.background}>
                 {isSmallSearchView ? (
-                    <MapView
+                    <SmallSearchView
                         points={query.queryPoints}
                         vehicle={query.routingVehicle}
                         onClick={() => setIsSmallSearchView(false)}
@@ -77,64 +77,50 @@ function SearchView(props: {
     )
 }
 
-function MapView(props: { points: QueryPoint[]; vehicle: RoutingVehicle; onClick: () => void }) {
+function SmallSearchView(props: { points: QueryPoint[]; vehicle: RoutingVehicle; onClick: () => void }) {
     const from = props.points[0]
     const to = props.points[props.points.length - 1]
 
     return (
         <div className={styles.mapView} onClick={props.onClick}>
-            <MapViewPoint {...from} fontSize={'1.0rem'} fontWeight={'lighter'} />
+            <SmallQueryPoint text={from.queryText} color={from.color} position={from.type} />
             <IntermediatePoint points={props.points} />
-            <MapViewPoint {...to} fontSize={'1.0rem'} fontWeight={'bold'} />
+            <SmallQueryPoint text={to.queryText} color={to.color} position={to.type} />
         </div>
     )
 }
 
 // call this queryText, so that QueryPoints can be passed in as props because they have a fitting shape
-function MapViewPoint({
-    queryText,
-    color,
-    fontWeight,
-    fontSize,
-}: {
-    queryText: string
-    color: string
-    fontWeight:
-        | 'lighter'
-        | 'bold'
-        | '-moz-initial'
-        | 'inherit'
-        | 'initial'
-        | 'revert'
-        | 'unset'
-        | 'normal'
-        | (number & {})
-        | 'bolder'
-        | undefined
-    fontSize: string
-}) {
+function SmallQueryPoint({ text, color, position }: { text: string; color: string; position: QueryPointType }) {
     // @ts-ignore
     return (
         <div className={styles.mapViewPoint}>
             <div className={styles.dot} style={{ backgroundColor: color }} />
-            <span style={{ fontWeight: fontWeight, fontSize: fontSize }}>{queryText}</span>
+            <span className={getClassName(position)}>{text}</span>
         </div>
     )
 }
 
+function getClassName(position: QueryPointType) {
+    switch (position) {
+        case QueryPointType.To:
+            return styles.queryPointText + ' ' + styles.queryPointTextTo
+        case QueryPointType.Via:
+            return styles.queryPointText + ' ' + styles.queryPointTextVia
+        default:
+            return styles.queryPointText
+    }
+}
+
 function IntermediatePoint({ points }: { points: QueryPoint[] }) {
     // for a total number of three points display intermediate via point
-    if (points.length === 3) return <MapViewPoint fontSize={'0.8rem'} fontWeight={'lighter'} {...points[1]} />
+    if (points.length === 3)
+        return <SmallQueryPoint text={points[1].queryText} color={points[1].color} position={QueryPointType.Via} />
 
     // for more than total of three points display the number of via points
     if (points.length > 3)
         return (
-            <MapViewPoint
-                queryText={points.length - 2 + ' via points'}
-                color={'#76D0F7'}
-                fontSize={'0.8rem'}
-                fontWeight={'lighter'}
-            />
+            <SmallQueryPoint text={points.length - 2 + ' via points'} color={'#76D0F7'} position={QueryPointType.Via} />
         )
 
     return <div /> // in case of no via points display nothing
