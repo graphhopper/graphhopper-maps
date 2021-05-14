@@ -2,5 +2,7 @@
     grid-column: 3 / span 1;
     justify-self: start;
     font-size: 1rem;
-    padding: 0.4rem;
+    border: 1px solid #5b616a;
+    border-radius: 0.2rem;
+    padding: 0.35rem 0.5rem;
 }

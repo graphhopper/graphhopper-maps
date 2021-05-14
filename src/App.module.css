@@ -33,9 +33,7 @@
 .mapOptionsContent {
     display: flex;
     margin: 0.5rem;
-    background-color: white;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    border-radius: 0.1rem;
+
 
     pointer-events: all; /* we want all the content to behave normally*/
 }
@@ -58,8 +56,9 @@
     .mapOptions {
         grid-row: 1 / span 1;
         grid-column: 2 / span 1;
-        /* this has to be solved differently when small screen layouts are attempted in #44 */
-        align-self: start;
-        margin-bottom: 2rem;
+
+        /* this is still hacky. but leave it like this for now */
+        align-self: end;
+        margin-bottom: 7.5rem;
     }
 }
