@@ -345,7 +345,7 @@ export default class Mapbox {
 
     private static getPadding() {
         return mediaQuery.matches
-            ? { top: 200, bottom: 100, right: 16, left: 16 }
+            ? { top: 250, bottom: 150, right: 16, left: 16 }
             : {
                   top: 100,
                   bottom: 100,

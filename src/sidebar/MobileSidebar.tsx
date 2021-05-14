@@ -7,6 +7,7 @@ import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'
 import QueryResults from '@/sidebar/QueryResults'
 import ErrorMessage from '@/sidebar/ErrorMessage'
+import { useMediaQuery } from 'react-responsive'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -16,13 +17,16 @@ type MobileSidebarProps = {
 }
 
 export default function ({ query, route, info, error }: MobileSidebarProps) {
-    const [isSmallSearchView, setIsSmallSearchView] = useState(true)
+    // the following three elements control, whether the small search view is displayed
+    const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
+    const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen)
+    useEffect(() => setIsSmallSearchView(isShortScreen), [isShortScreen])
 
     // the following ref, callback and effect minimize the search view if there is any interaction outside the search panel
     const searchContainerRef = useRef<HTMLDivElement>(null)
     const handleWindowClick = useCallback((event: Event) => {
         const clickInside = event.target instanceof Node && searchContainerRef.current?.contains(event.target)
-        if (!clickInside) setIsSmallSearchView(true)
+        if (!clickInside && isShortScreen) setIsSmallSearchView(true)
     }, [])
     useEffect(() => {
         window.addEventListener('mousedown', handleWindowClick)
