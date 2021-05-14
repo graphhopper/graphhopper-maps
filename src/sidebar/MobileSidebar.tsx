@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { ApiInfo, RoutingVehicle } from '@/api/graphhopper'
@@ -6,8 +6,6 @@ import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'
 import QueryResults from '@/sidebar/QueryResults'
-import PlainButton from '@/PlainButton'
-import ChevronIcon from '@/sidebar/chevron-down-solid.svg'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 
 type MobileSidebarProps = {
@@ -20,16 +18,26 @@ type MobileSidebarProps = {
 export default function ({ query, route, info, error }: MobileSidebarProps) {
     const [isSmallSearchView, setIsSmallSearchView] = useState(true)
 
+    // the following ref, callback and effect minimize the search view if there is any interaction outside the search panel
+    const searchContainerRef = useRef<HTMLDivElement>(null)
+    const handleWindowClick = useCallback((event: Event) => {
+        const clickInside = event.target instanceof Node && searchContainerRef.current?.contains(event.target)
+        if (!clickInside) setIsSmallSearchView(true)
+    }, [])
     useEffect(() => {
-        if (route.routingResult.paths.length === 0) setIsSmallSearchView(false)
-        else setIsSmallSearchView(true)
-    }, [route.routingResult])
+        window.addEventListener('mousedown', handleWindowClick)
+        window.addEventListener('touchstart', handleWindowClick)
+        return () => {
+            window.removeEventListener('mousedown', handleWindowClick)
+            window.removeEventListener('touchstart', handleWindowClick)
+        }
+    })
 
     // query results get only the selected path as result list. If we like having just one path on the small layout we can change
     // the store so that it will only fetch a single route on mobile
     return (
         <div className={styles.sidebar}>
-            <div className={styles.background}>
+            <div className={styles.background} ref={searchContainerRef}>
                 {isSmallSearchView ? (
                     <SmallSearchView
                         points={query.queryPoints}
@@ -41,7 +49,6 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                         points={query.queryPoints}
                         routingVehicles={info.vehicles}
                         selectedVehicle={query.routingVehicle}
-                        onClose={() => setIsSmallSearchView(true)}
                     />
                 )}
             </div>
@@ -61,7 +68,6 @@ function SearchView(props: {
     points: QueryPoint[]
     routingVehicles: RoutingVehicle[]
     selectedVehicle: RoutingVehicle
-    onClose: () => void
 }) {
     return (
         <div className={styles.btnCloseContainer}>
@@ -70,9 +76,6 @@ function SearchView(props: {
                 routingVehicles={props.routingVehicles}
                 selectedVehicle={props.selectedVehicle}
             />
-            <PlainButton onClick={() => props.onClose()} className={styles.btnClose}>
-                <ChevronIcon />
-            </PlainButton>
         </div>
     )
 }
