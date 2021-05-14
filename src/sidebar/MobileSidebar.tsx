@@ -19,15 +19,18 @@ type MobileSidebarProps = {
 export default function ({ query, route, info, error }: MobileSidebarProps) {
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
-    const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen)
+    const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen && hasResult(route))
     useEffect(() => setIsSmallSearchView(isShortScreen), [isShortScreen])
 
     // the following ref, callback and effect minimize the search view if there is any interaction outside the search panel
     const searchContainerRef = useRef<HTMLDivElement>(null)
-    const handleWindowClick = useCallback((event: Event) => {
-        const clickInside = event.target instanceof Node && searchContainerRef.current?.contains(event.target)
-        if (!clickInside && isShortScreen) setIsSmallSearchView(true)
-    }, [])
+    const handleWindowClick = useCallback(
+        (event: Event) => {
+            const clickInside = event.target instanceof Node && searchContainerRef.current?.contains(event.target)
+            if (!clickInside && isShortScreen && hasResult(route)) setIsSmallSearchView(true)
+        },
+        [isShortScreen, route]
+    )
     useEffect(() => {
         window.addEventListener('mousedown', handleWindowClick)
         window.addEventListener('touchstart', handleWindowClick)
@@ -66,6 +69,10 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
             </div>
         </div>
     )
+}
+
+function hasResult(route: RouteStoreState) {
+    return route.routingResult.paths.length > 0
 }
 
 function SearchView(props: {
