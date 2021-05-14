@@ -7,6 +7,7 @@ import { ApiInfo } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import QueryResults from '@/sidebar/QueryResults'
 import ErrorMessage from '@/sidebar/ErrorMessage'
+import PoweredBy from '@/sidebar/PoweredBy'
 
 type SidebarProps = {
     query: QueryStoreState
@@ -18,13 +19,13 @@ type SidebarProps = {
 export default function ({ query, route, info, error }: SidebarProps) {
     return (
         <div className={styles.sidebar}>
-            {
+            <div>
                 <Search
                     points={query.queryPoints}
                     routingVehicles={info.vehicles}
                     selectedVehicle={query.routingVehicle}
                 />
-            }
+            </div>
             {!error.isDismissed && <ErrorMessage error={error} />}
             {route.routingResult.paths.length > 0 && (
                 <QueryResults
@@ -33,6 +34,7 @@ export default function ({ query, route, info, error }: SidebarProps) {
                     currentRequest={query.currentRequest}
                 />
             )}
+            <PoweredBy />
         </div>
     )
 }

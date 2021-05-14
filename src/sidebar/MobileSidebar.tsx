@@ -8,6 +8,7 @@ import Search from '@/sidebar/search/Search'
 import QueryResults from '@/sidebar/QueryResults'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { useMediaQuery } from 'react-responsive'
+import PoweredBy from '@/sidebar/PoweredBy'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -67,6 +68,7 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                     selectedPath={route.selectedPath}
                     currentRequest={query.currentRequest}
                 />
+                <PoweredBy />
             </div>
         </div>
     )
