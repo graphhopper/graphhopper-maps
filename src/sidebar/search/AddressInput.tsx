@@ -42,6 +42,7 @@ export default function AddressInput(props: AddressInputProps) {
                     }}
                     onFocus={() => setFullscreen(true)}
                     value={text}
+                    placeholder={'Search location or right click on the map'}
                 />
                 <button
                     className={styles.btnClose}

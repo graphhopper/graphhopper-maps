@@ -6,9 +6,9 @@ export default function PoweredBy() {
     return (
         <div className={styles.poweredByContainer}>
             <span>Powered by: </span>
-            <div className={styles.logoContainer}>
+            <a className={styles.logoContainer} href="https://graphhopper.com" target="_blank">
                 <Header />
-            </div>
+            </a>
         </div>
     )
 }
