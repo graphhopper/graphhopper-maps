@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/map/Map.module.css'
 import Mapbox from '@/map/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, MapIsLoaded, SetPoint } from '@/actions/Actions'
+import { MapIsLoaded } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { useMediaQuery } from 'react-responsive'
@@ -24,14 +24,10 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
     useEffect(() => {
         if (map) map.remove()
 
-        const mapWrapper = new Mapbox(
-            mapContainerRef.current!,
-            mapStyle,
-            () => {
-                setMap(mapWrapper)
-                Dispatcher.dispatch(new MapIsLoaded())
-            }
-        )
+        const mapWrapper = new Mapbox(mapContainerRef.current!, mapStyle, () => {
+            setMap(mapWrapper)
+            Dispatcher.dispatch(new MapIsLoaded())
+        })
         mapWrapper.fitBounds(bbox)
         return () => map?.remove()
     }, [mapStyle])
@@ -39,6 +35,7 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
     useEffect(() => map?.showPathDetails(selectedPath, isSmallScreen), [selectedPath, isSmallScreen, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
     useEffect(() => map?.fitBounds(bbox), [bbox, map])
+    useEffect(() => map?.resize())
 
     return <div className={styles.map} ref={mapContainerRef} />
 }

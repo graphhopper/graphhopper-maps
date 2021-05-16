@@ -77,13 +77,8 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 }
 
 function createSingletonListContent(props: RoutingResultsProps) {
-    if (props.paths.length > 0) {
-        return hasPendingRequests(props.currentRequest.subRequests) ? (
-            <RoutingResultPlacelholder key={1} />
-        ) : (
-            <RoutingResult path={props.selectedPath} isSelected={true} />
-        )
-    }
+    if (props.paths.length > 0) return <RoutingResult path={props.selectedPath} isSelected={true} />
+    if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlacelholder key={1} />
     return ''
 }
 

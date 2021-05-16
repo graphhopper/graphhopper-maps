@@ -300,6 +300,10 @@ export default class Mapbox {
         }
     }
 
+    resize() {
+        this.map.resize()
+    }
+
     private initLineLayers() {
         const source: GeoJSONSourceRaw = {
             type: 'geojson',

@@ -4,8 +4,14 @@
     align-items: center;
     justify-content: center;
     padding: 0.5rem;
-    gap: 0.25rem;
+    gap: 0.3rem;
     font-size: x-small;
+}
+
+@media {
+    .poweredByContainer{
+        padding: 0.1rem;
+    }
 }
 
 .logoContainer {
