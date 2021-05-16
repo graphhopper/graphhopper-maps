@@ -19,7 +19,6 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
     const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen && hasResult(route))
-    useEffect(() => setIsSmallSearchView(isShortScreen), [isShortScreen])
 
     // the following ref, callback and effect minimize the search view if there is any interaction outside the search panel
     const searchContainerRef = useRef<HTMLDivElement>(null)
