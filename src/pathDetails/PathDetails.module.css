@@ -1,5 +1,6 @@
 .pathDetailsContainer {
     width: 100%;
     /* todo: do not repeat height here and in App.module.css?! */
+    /* todo: the height graph is moved all the way down if we expand the instructions list */
     height: 10rem;
 }
