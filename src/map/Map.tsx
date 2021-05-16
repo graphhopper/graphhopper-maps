@@ -1,4 +1,4 @@
-import { QueryPoint } from '@/stores/QueryStore'
+import {Coordinate, QueryPoint} from '@/stores/QueryStore'
 import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/map/Map.module.css'
 import Mapbox from '@/map/Mapbox'
@@ -6,6 +6,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, MapIsLoaded, SetPoint } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
+import {PathDetailsPoint} from "@/stores/PathDetailsStore";
 
 type MapProps = {
     selectedPath: Path
@@ -13,9 +14,11 @@ type MapProps = {
     queryPoints: QueryPoint[]
     bbox: Bbox
     mapStyle: StyleOption
+    pathDetailPoint: PathDetailsPoint | null
+    highlightedPathDetailSegments: Coordinate[][]
 }
 
-export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: MapProps) {
+export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle, pathDetailPoint, highlightedPathDetailSegments }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
 
@@ -34,9 +37,10 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: M
         return () => map?.remove()
     }, [mapStyle])
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
-    useEffect(() => map?.showPathDetails(selectedPath), [selectedPath, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
     useEffect(() => map?.fitBounds(bbox), [bbox, map])
+    useEffect(() => map?.drawPathDetailMarker(pathDetailPoint), [pathDetailPoint, map])
+    useEffect(() => map?.highlightPathSegments(highlightedPathDetailSegments), [highlightedPathDetailSegments, map])
 
     return <div className={styles.map} ref={mapContainerRef} />
 }
