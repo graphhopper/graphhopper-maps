@@ -10,7 +10,7 @@
         left: 0;
         right: 0;
         background-color: white;
-        z-index: 1;
+        z-index: 5;
         padding: 0.5rem;
     }
 
