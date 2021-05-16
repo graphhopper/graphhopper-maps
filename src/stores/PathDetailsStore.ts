@@ -38,11 +38,15 @@ export default class PathDetailsStore extends Store<PathDetailsStoreState> {
             }
         } else if (action instanceof PathDetailsRangeSelected) {
             return {
+                // todo: bug - when we change details and selected a range before and then zoomed somewhere else we jump
+                //       back to the box unintentionally
                 ...state,
                 pathDetailBbox: action.bbox
             }
         } else if (action instanceof PathDetailsElevationSelected) {
             return {
+                // todo: bug - we probabl should keep the the highlighted segments and elevation when we change the
+                //       selected details?!
                 ...state,
                 pathDetailsHighlightedSegments: action.segments
             }

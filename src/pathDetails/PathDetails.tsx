@@ -20,7 +20,10 @@ export default function ({selectedPath}: PathDetailsProps) {
             // todo: is this the right way to do this? for example it should adjust its size when the browser window
             //       size is changed
             width: containerRef.current!.clientWidth,
-            height: containerRef.current!.clientHeight
+            height: containerRef.current!.clientHeight,
+            // todo: since we do not use this maybe we can/should remove the svg asset rules again because this we added
+            //       them just for this...
+            expandControls: false
         };
         const callbacks = {
             pointSelectedCallback: onPathDetailHover,
