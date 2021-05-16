@@ -7,6 +7,8 @@ import { Bbox } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
 import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
+import RoutingResults from '@/sidebar/RoutingResults'
+import PoweredBy from '@/sidebar/PoweredBy'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -66,13 +68,23 @@ export default function App() {
                 {isSmallScreen ? (
                     <MobileSidebar info={info} query={query} route={route} error={error} />
                 ) : (
-                    <Sidebar info={info} query={query} route={route} error={error} />
+                    <Sidebar info={info} query={query} error={error} />
                 )}
+            </div>
+            <div className={styles.routingResult}>
+                <RoutingResults
+                    paths={route.routingResult.paths}
+                    selectedPath={route.selectedPath}
+                    currentRequest={query.currentRequest}
+                />
             </div>
             <div className={styles.mapOptions}>
                 <div className={styles.mapOptionsContent}>
                     <MapOptions {...mapOptions} />
                 </div>
+            </div>
+            <div className={styles.poweredBy}>
+                <PoweredBy />
             </div>
         </div>
     )

@@ -1,14 +1,9 @@
 .sidebar {
     display: flex;
     flex-direction: column;
-    max-height: calc(100% - 2 * 0.5rem);
 
-    margin: 0.5rem;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    border-radius: 0.5rem;
-    background-color: white;
 
-    pointer-events: all; /* we want all the content to behave normally*/
+
 }
 
 @media screen and (max-width: 44rem) {

@@ -1,6 +1,6 @@
 import { Path } from '@/api/graphhopper'
 import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
-import styles from './QueryResults.module.css'
+import styles from './RoutingResult.module.css'
 import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
@@ -8,21 +8,23 @@ import { metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Arrow from '@/sidebar/chevron-down-solid.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
+import { useMediaQuery } from 'react-responsive'
 
-export interface QueryResultsProps {
+export interface RoutingResultsProps {
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
 }
-export default function QueryResults(props: QueryResultsProps) {
+export default function RoutingResults(props: RoutingResultsProps) {
+    const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
     return (
         <div className={styles.resultListContainer}>
-            <ul>{createListContent(props)}</ul>
+            <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
         </div>
     )
 }
 
-function QueryResult({ path, isSelected }: { path: Path; isSelected: boolean }) {
+function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }) {
     const [isExpanded, setExpanded] = useState(false)
     const buttonClass = isExpanded ? styles.detailsButtonFlipped : styles.detailsButton
     const resultSummaryClass = isSelected
@@ -51,7 +53,7 @@ function QueryResult({ path, isSelected }: { path: Path; isSelected: boolean }) 
     )
 }
 
-function QueryResultPlaceholder() {
+function RoutingResultPlacelholder() {
     return (
         <div className={styles.resultRow}>
             <div className={styles.placeholderContainer}>
@@ -74,14 +76,25 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
     return paths.length
 }
 
-function createListContent({ paths, currentRequest, selectedPath }: QueryResultsProps) {
+function createSingletonListContent(props: RoutingResultsProps) {
+    if (props.paths.length > 0) {
+        return hasPendingRequests(props.currentRequest.subRequests) ? (
+            <RoutingResultPlacelholder key={1} />
+        ) : (
+            <RoutingResult path={props.selectedPath} isSelected={true} />
+        )
+    }
+    return ''
+}
+
+function createListContent({ paths, currentRequest, selectedPath }: RoutingResultsProps) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
         if (i < paths.length)
-            result.push(<QueryResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} />)
-        else result.push(<QueryResultPlaceholder key={i} />)
+            result.push(<RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} />)
+        else result.push(<RoutingResultPlacelholder key={i} />)
     }
 
     return result
