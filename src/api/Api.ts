@@ -9,12 +9,15 @@ import {
     RawPath,
     RawResult,
     RoutingArgs,
-    RoutingFeature,
     RoutingRequest,
     RoutingResult,
-    RoutingVehicle,
+    RoutingProfile,
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
+
+interface ApiProfile {
+    name: string
+}
 
 export default interface Api {
     info(): Promise<ApiInfo>
@@ -114,7 +117,7 @@ export class ApiImpl implements Api {
     static createRequest(args: RoutingArgs): RoutingRequest {
         const request: RoutingRequest = {
             points: args.points,
-            vehicle: args.vehicle,
+            profile: args.profile,
             elevation: true,
             debug: false,
             instructions: true,
@@ -139,30 +142,28 @@ export class ApiImpl implements Api {
         let bbox = [0, 0, 0, 0] as Bbox
         let version = ''
         let import_date = ''
-        const vehicles: RoutingVehicle[] = []
+        const profiles: RoutingProfile[] = []
 
-        const features = response.features as { [index: string]: RoutingFeature }
+        for (const profileIndex in response.profiles as ApiProfile[]) {
+            const profile: RoutingProfile = {
+                elevation: response.elevation,
+                version: '', // TODO needed?
+                import_date: '', // TODO needed?
+                key: response.profiles[profileIndex].name,
+            }
+
+            profiles.push(profile)
+        }
 
         for (const property in response) {
-            if (property in features) {
-                const value = response[property]
-
-                const vehicle: RoutingVehicle = {
-                    features: features[property],
-                    version: value.version,
-                    import_date: value.import_date,
-                    key: property,
-                }
-
-                vehicles.push(vehicle)
-            } else if (property === 'bbox') bbox = response[property]
+            if (property === 'bbox') bbox = response[property]
             else if (property === 'version') version = response[property]
             else if (property === 'import_date') import_date = response[property]
             else if (property !== 'features') console.log('unexpected property name: ' + property)
         }
 
         return {
-            vehicles: vehicles,
+            profiles: profiles,
             bbox: bbox,
             version: version,
             import_date: import_date,

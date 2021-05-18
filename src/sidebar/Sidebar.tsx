@@ -27,7 +27,7 @@ export default function ({ query, route, info, error }: SidebarProps) {
             <div className={styles.headerContainer}>
                 <img src={Header} alt={'graphhopper logo'} />
             </div>
-            <Search points={query.queryPoints} routingVehicles={info.vehicles} selectedVehicle={query.routingVehicle} />
+            <Search points={query.queryPoints} routingProfiles={info.profiles} selectedProfile={query.routingProfile} />
             {!error.isDismissed && <ErrorMessage error={error} />}
             <QueryResults
                 paths={route.routingResult.paths}
