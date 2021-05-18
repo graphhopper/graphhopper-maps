@@ -49,10 +49,7 @@ function parseRoutingProfile(url: URL) {
     if (profileKey) {
         Dispatcher.dispatch(
             new SetVehicleProfile({
-                key: profileKey,
-                elevation: false,
-                version: '',
-                import_date: '',
+                key: profileKey
             })
         )
     }

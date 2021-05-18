@@ -9,6 +9,7 @@ export default class ApiInfoStore extends Store<ApiInfo> {
             version: '',
             bbox: [0, 0, 0, 0],
             profiles: [],
+            elevation: false,
             import_date: '',
         }
     }

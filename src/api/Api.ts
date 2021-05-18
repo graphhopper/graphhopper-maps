@@ -146,9 +146,6 @@ export class ApiImpl implements Api {
 
         for (const profileIndex in response.profiles as ApiProfile[]) {
             const profile: RoutingProfile = {
-                elevation: response.elevation,
-                version: '', // TODO needed?
-                import_date: '', // TODO needed?
                 key: response.profiles[profileIndex].name,
             }
 
@@ -159,11 +156,11 @@ export class ApiImpl implements Api {
             if (property === 'bbox') bbox = response[property]
             else if (property === 'version') version = response[property]
             else if (property === 'import_date') import_date = response[property]
-            else if (property !== 'features') console.log('unexpected property name: ' + property)
         }
 
         return {
             profiles: profiles,
+            elevation: response.elevation,
             bbox: bbox,
             version: version,
             import_date: import_date,

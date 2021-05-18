@@ -78,10 +78,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             },
             maxAlternativeRoutes: 3,
             routingProfile: {
-                key: '',
-                import_date: '',
-                version: '',
-                elevation: false
+                key: ''
             },
         }
     }

@@ -5,16 +5,18 @@ import { ApiInfo } from '../../src/api/graphhopper'
 describe('ApiInfoStore', () => {
     it('should accept an InfoReceived action and store its result', () => {
         const state: ApiInfo = {
-            vehicles: [],
+            profiles: [],
             version: '',
             import_date: '',
+            elevation: true,
             bbox: [0, 0, 0, 0],
         }
         const receivedInfo: ApiInfo = {
             bbox: [1, 1, 1, 1],
             import_date: 'some-date',
             version: 'some-version',
-            vehicles: [{ key: 'some-vehicle', version: '1', features: { elevation: true }, import_date: 'date' }],
+            elevation: true,
+            profiles: [{ key: 'some-profile' }],
         }
         const store = new ApiInfoStore()
 
@@ -24,7 +26,8 @@ describe('ApiInfoStore', () => {
     })
     it('should not alter the state if unknown actions are passed', () => {
         const state: ApiInfo = {
-            vehicles: [],
+            profiles: [],
+            elevation: false,
             version: '',
             import_date: '',
             bbox: [0, 0, 0, 0],

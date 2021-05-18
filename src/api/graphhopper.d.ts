@@ -44,14 +44,12 @@ export interface ApiInfo {
     readonly import_date: string
     readonly version: string
     readonly bbox: Bbox
+    readonly elevation: boolean
     readonly profiles: RoutingProfile[]
 }
 
 export interface RoutingProfile {
     readonly key: string
-    readonly version: string
-    readonly import_date: string // maybe parse this to date instead?
-    readonly elevation: boolean
 }
 
 export interface Path extends BasePath {
