@@ -18,6 +18,8 @@ type MapProps = {
 export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
+    // we need to keep track of the latest bbox so it is available in the onMapReady callback by the time the Mapbox
+    // instance is loaded
     const prevBbox = useRef<Bbox>()
     useEffect(() => {
         prevBbox.current = bbox
