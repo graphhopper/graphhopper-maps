@@ -9,7 +9,7 @@
         "test": "jest"
     },
     "dependencies": {
-        "leaflet.heightgraph": "github:easbar/Leaflet.Heightgraph#367cde07241745b22e662206ef420537bf5541e7",
+        "leaflet.heightgraph": "github:easbar/Leaflet.Heightgraph#24d763ef31b7319735478a2af7f5fcfccab018ee",
         "mapbox-gl": "^1.13.0",
         "react": "^17.0.1",
         "react-dom": "^17.0.1"
