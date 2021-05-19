@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/map/Map.module.css'
 import Mapbox from '@/map/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, MapIsLoaded, SetPoint } from '@/actions/Actions'
+import { MapIsLoaded } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 
@@ -18,6 +18,10 @@ type MapProps = {
 export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
+    const prevBbox = useRef<Bbox>()
+    useEffect(() => {
+        prevBbox.current = bbox
+    }, [bbox])
 
     useEffect(() => {
         // as long as we re-create the Mapbox instance when changing the mapStyle we need to make sure the viewport
@@ -30,13 +34,15 @@ export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: Ma
             mapStyle,
             () => {
                 setMap(mapWrapper)
+                if (!prevViewPort)
+                    mapWrapper.fitBounds(prevBbox.current!)
                 Dispatcher.dispatch(new MapIsLoaded())
             }
         )
         if (prevViewPort)
             mapWrapper.setViewPort(prevViewPort)
         return () => map?.remove()
-    }, [mapStyle])
+    }, [mapStyle, prevBbox])
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
     useEffect(() => map?.showPathDetails(selectedPath), [selectedPath, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
