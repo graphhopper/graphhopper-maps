@@ -3,11 +3,11 @@ import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
-import RoutingVehicles from '@/sidebar/search/RoutingVehicles'
+import RoutingProfiles from '@/sidebar/search/RoutingProfiles'
 import RemoveIcon from '../times-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import PlainButton from '@/PlainButton'
-import { GeocodingHit, RoutingVehicle } from '@/api/graphhopper'
+import { GeocodingHit, RoutingProfile } from '@/api/graphhopper'
 import Api, { ApiImpl } from '@/api/Api'
 
 interface Query {
@@ -17,12 +17,12 @@ interface Query {
 
 export default function Search({
     points,
-    routingVehicles,
-    selectedVehicle,
+    routingProfiles,
+    selectedProfile,
 }: {
     points: QueryPoint[]
-    routingVehicles: RoutingVehicle[]
-    selectedVehicle: RoutingVehicle
+    routingProfiles: RoutingProfile[]
+    selectedProfile: RoutingProfile
 }) {
     const [query, setQuery] = useState<Query>({
         point: {
@@ -97,7 +97,7 @@ export default function Search({
                 <AddIcon />
                 <span>Add Point</span>
             </PlainButton>
-            <RoutingVehicles routingVehicles={routingVehicles} selectedVehicle={selectedVehicle} />
+            <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
             <GeocodingResults hits={geocodingHits} onSelectHit={handleHitSelected} />
         </div>
     )

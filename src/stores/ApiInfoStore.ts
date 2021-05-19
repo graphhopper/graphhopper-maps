@@ -8,7 +8,8 @@ export default class ApiInfoStore extends Store<ApiInfo> {
         return {
             version: '',
             bbox: [0, 0, 0, 0],
-            vehicles: [],
+            profiles: [],
+            elevation: false,
             import_date: '',
         }
     }

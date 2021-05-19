@@ -1,34 +1,34 @@
 import React from 'react'
-import styles from './RoutingVehicles.modules.css'
+import styles from './RoutingProfiles.modules.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetVehicle } from '@/actions/Actions'
-import { RoutingVehicle } from '@/api/graphhopper'
+import { SetVehicleProfile } from '@/actions/Actions'
+import { RoutingProfile } from '@/api/graphhopper'
 
 export default function ({
-    routingVehicles,
-    selectedVehicle,
+    routingProfiles,
+    selectedProfile,
 }: {
-    routingVehicles: RoutingVehicle[]
-    selectedVehicle: RoutingVehicle
+    routingProfiles: RoutingProfile[]
+    selectedProfile: RoutingProfile
 }) {
     return (
         <select
-            className={styles.vehicleSelect}
-            value={getEmoji(selectedVehicle)}
+            className={styles.profileSelect}
+            value={getEmoji(selectedProfile)}
             onChange={e => {
                 const selectedIndex = e.target.selectedIndex
-                const routingVehicle = routingVehicles[selectedIndex]
-                Dispatcher.dispatch(new SetVehicle(routingVehicle))
+                const routingProfile = routingProfiles[selectedIndex]
+                Dispatcher.dispatch(new SetVehicleProfile(routingProfile))
             }}
         >
-            {routingVehicles.map(vehicle => (
-                <option key={vehicle.key}>{getEmoji(vehicle)}</option>
+            {routingProfiles.map(profile => (
+                <option key={profile.key}>{getEmoji(profile)}</option>
             ))}
         </select>
     )
 }
-function getEmoji(vehicle: RoutingVehicle) {
-    switch (vehicle.key) {
+function getEmoji(profile: RoutingProfile) {
+    switch (profile.key) {
         case 'car':
             return '🚗\u00a0Car'
         case 'small_truck':

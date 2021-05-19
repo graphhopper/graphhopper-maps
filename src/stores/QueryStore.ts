@@ -11,9 +11,9 @@ import {
     RouteRequestFailed,
     RouteRequestSuccess,
     SetPoint,
-    SetVehicle,
+    SetVehicleProfile,
 } from '@/actions/Actions'
-import { RoutingArgs, RoutingVehicle } from '@/api/graphhopper'
+import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 
 export interface Coordinate {
     lat: number
@@ -25,7 +25,7 @@ export interface QueryStoreState {
     readonly nextQueryPointId: number
     readonly currentRequest: CurrentRequest
     readonly maxAlternativeRoutes: number
-    readonly routingVehicle: RoutingVehicle
+    readonly routingProfile: RoutingProfile
 }
 
 export interface QueryPoint {
@@ -77,11 +77,8 @@ export default class QueryStore extends Store<QueryStoreState> {
                 subRequests: [],
             },
             maxAlternativeRoutes: 3,
-            routingVehicle: {
-                key: '',
-                import_date: '',
-                version: '',
-                features: { elevation: false },
+            routingProfile: {
+                key: ''
             },
         }
     }
@@ -159,18 +156,18 @@ export default class QueryStore extends Store<QueryStoreState> {
             return this.routeIfAllPointsSet(newState)
         } else if (action instanceof InfoReceived) {
             // this is the case if the vehicle was set in the url. Keep it in this case
-            if (state.routingVehicle.key) return state
+            if (state.routingProfile.key) return state
 
             // otherwise select car as default routing mode
-            const car = action.result.vehicles.find(vehicle => vehicle.key === 'car')
+            const car = action.result.profiles.find(profile => profile.key === 'car')
             return {
                 ...state,
-                routingVehicle: car ? car : action.result.vehicles[0],
+                routingProfile: car ? car : action.result.profiles[0],
             }
-        } else if (action instanceof SetVehicle) {
+        } else if (action instanceof SetVehicleProfile) {
             const newState: QueryStoreState = {
                 ...state,
-                routingVehicle: action.vehicle,
+                routingProfile: action.profile,
             }
 
             return this.routeIfAllPointsSet(newState)
@@ -271,7 +268,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         return {
             points: coordinates,
-            vehicle: state.routingVehicle.key,
+            profile: state.routingProfile.key,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
         }
     }

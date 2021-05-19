@@ -1,6 +1,6 @@
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
-import {ApiInfo, Bbox, Path, RoutingArgs, RoutingResult, RoutingVehicle} from '@/api/graphhopper'
+import {ApiInfo, Bbox, Path, RoutingArgs, RoutingResult, RoutingProfile} from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 import {PathDetailsPoint} from "@/stores/PathDetailsStore";
 
@@ -20,11 +20,11 @@ export class SetPoint implements Action {
     }
 }
 
-export class SetVehicle implements Action {
-    readonly vehicle: RoutingVehicle
+export class SetVehicleProfile implements Action {
+    readonly profile: RoutingProfile
 
-    constructor(vehicle: RoutingVehicle) {
-        this.vehicle = vehicle
+    constructor(profile: RoutingProfile) {
+        this.profile = profile
     }
 }
 
