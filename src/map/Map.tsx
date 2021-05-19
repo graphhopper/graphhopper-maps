@@ -20,6 +20,9 @@ export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: Ma
     const [map, setMap] = useState<Mapbox | null>(null)
 
     useEffect(() => {
+        // as long as we re-create the Mapbox instance when changing the mapStyle we need to make sure the viewport
+        // state is preserved
+        const prevViewPort = map?.getViewPort()
         if (map) map.remove()
 
         const mapWrapper = new Mapbox(
@@ -30,13 +33,14 @@ export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: Ma
                 Dispatcher.dispatch(new MapIsLoaded())
             }
         )
-        mapWrapper.fitBounds(bbox)
+        if (prevViewPort)
+            mapWrapper.setViewPort(prevViewPort)
         return () => map?.remove()
     }, [mapStyle])
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
     useEffect(() => map?.showPathDetails(selectedPath), [selectedPath, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
-    useEffect(() => map?.fitBounds(bbox), [bbox, map])
+    useEffect(() => map?.fitBounds(bbox), [bbox])
 
     return <div className={styles.map} ref={mapContainerRef} />
 }
