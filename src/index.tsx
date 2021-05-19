@@ -8,7 +8,7 @@ import {
     getMapOptionsStore, getPathDetailsStore,
     getQueryStore,
     getRouteStore,
-    setStores,
+    setStores
 } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
@@ -18,7 +18,7 @@ import QueryStore from '@/stores/QueryStore'
 import { ApiImpl } from '@/api/Api'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
-import PathDetailsStore from "@/stores/PathDetailsStore";
+import PathDetailsStore from '@/stores/PathDetailsStore'
 
 // set up state management
 const api = new ApiImpl()

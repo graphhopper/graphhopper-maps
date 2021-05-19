@@ -9,6 +9,7 @@
     grid-template-rows: auto 10rem;
     justify-content: space-between;
 }
+
 .map {
     grid-column: 1 / span 3;
     grid-row: 1 / span 1;

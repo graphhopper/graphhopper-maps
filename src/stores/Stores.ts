@@ -3,7 +3,7 @@ import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
-import PathDetailsStore from "@/stores/PathDetailsStore";
+import PathDetailsStore from '@/stores/PathDetailsStore'
 
 let queryStore: QueryStore
 let routeStore: RouteStore
@@ -21,7 +21,7 @@ interface StoresInput {
     pathDetailsStore: PathDetailsStore
 }
 
-export const setStores = function (stores: StoresInput) {
+export const setStores = function(stores: StoresInput) {
     queryStore = stores.queryStore
     routeStore = stores.routeStore
     infoStore = stores.infoStore

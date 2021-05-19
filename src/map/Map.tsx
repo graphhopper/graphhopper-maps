@@ -1,4 +1,4 @@
-import {Coordinate, QueryPoint} from '@/stores/QueryStore'
+import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/map/Map.module.css'
 import Mapbox from '@/map/Mapbox'
@@ -6,7 +6,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, MapIsLoaded, SetPoint } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
-import {PathDetailsPoint} from "@/stores/PathDetailsStore";
+import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 
 type MapProps = {
     selectedPath: Path
@@ -18,7 +18,15 @@ type MapProps = {
     highlightedPathDetailSegments: Coordinate[][]
 }
 
-export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle, pathDetailPoint, highlightedPathDetailSegments }: MapProps) {
+export default function({
+                            selectedPath,
+                            paths,
+                            queryPoints,
+                            bbox,
+                            mapStyle,
+                            pathDetailPoint,
+                            highlightedPathDetailSegments
+                        }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
 

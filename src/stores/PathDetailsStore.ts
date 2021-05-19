@@ -1,8 +1,8 @@
-import Store from "@/stores/Store";
-import {Action} from "@/stores/Dispatcher";
-import {PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelected} from "@/actions/Actions";
-import {Coordinate} from "@/stores/QueryStore";
-import {Bbox} from "@/api/graphhopper";
+import Store from '@/stores/Store'
+import { Action } from '@/stores/Dispatcher'
+import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelected } from '@/actions/Actions'
+import { Coordinate } from '@/stores/QueryStore'
+import { Bbox } from '@/api/graphhopper'
 
 export interface PathDetailsPoint {
     point: Coordinate

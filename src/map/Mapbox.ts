@@ -11,15 +11,15 @@ import {
     Style
 } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import {Coordinate, QueryPoint} from '@/stores/QueryStore'
+import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
 import { FeatureCollection, LineString } from 'geojson'
 import { Bbox, Path } from '@/api/graphhopper'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
-import {createMapMarker} from 'leaflet.heightgraph/src/heightgraph'
-import {PathDetailsPoint} from "@/stores/PathDetailsStore";
+import { createMapMarker } from 'leaflet.heightgraph/src/heightgraph'
+import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 
 const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -51,7 +51,7 @@ export default class Mapbox {
             container: container,
             accessToken:
                 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
-            style: Mapbox.getStyle(mapStyle),
+            style: Mapbox.getStyle(mapStyle)
         })
 
         // add controls
@@ -98,7 +98,7 @@ export default class Mapbox {
             .map((path, i) => {
                 return {
                     path: path,
-                    index: i,
+                    index: i
                 }
             })
             .filter(indexPath => indexPath.path !== selectedPath)
@@ -113,9 +113,9 @@ export default class Mapbox {
                 {
                     type: 'Feature',
                     properties: {},
-                    geometry: path.points as LineString,
-                },
-            ],
+                    geometry: path.points as LineString
+                }
+            ]
         }
         this.setGeoJsonSource(selectedPathSourceKey, featureCollection)
     }
@@ -127,11 +127,11 @@ export default class Mapbox {
                 return {
                     type: 'Feature',
                     properties: {
-                        index: indexPath.index,
+                        index: indexPath.index
                     },
-                    geometry: indexPath.path.points as LineString,
+                    geometry: indexPath.path.points as LineString
                 }
-            }),
+            })
         }
 
         this.setGeoJsonSource(pathsSourceKey, featureCollection)
@@ -146,7 +146,7 @@ export default class Mapbox {
             } else {
                 source.setData({
                     features: [],
-                    type: 'FeatureCollection',
+                    type: 'FeatureCollection'
                 })
             }
         } catch (error) {
@@ -166,7 +166,7 @@ export default class Mapbox {
             .map(indexPoint =>
                 new Marker({
                     color: indexPoint.point.color,
-                    draggable: true,
+                    draggable: true
                 })
                     .setLngLat(indexPoint.point.coordinate)
                     .on('dragend', (e: { type: string; target: Marker }) => {
@@ -175,7 +175,7 @@ export default class Mapbox {
                             new SetPoint({
                                 ...indexPoint.point,
                                 coordinate: marker.getLngLat(),
-                                queryText: coordinateToText(marker.getLngLat()),
+                                queryText: coordinateToText(marker.getLngLat())
                             })
                         )
                     })
@@ -183,7 +183,7 @@ export default class Mapbox {
         this.markers.forEach(marker => marker.addTo(this.map))
     }
 
-    drawPathDetailMarker(point : PathDetailsPoint | null){
+    drawPathDetailMarker(point: PathDetailsPoint | null) {
         if (this.pathDetailsMarker) {
             this.pathDetailsMarker.remove()
             this.pathDetailsMarker = null
@@ -223,7 +223,7 @@ export default class Mapbox {
             this.map.fitBounds(new LngLatBounds(bbox), {
                 padding: Mapbox.getPadding(),
                 duration: 350,
-                animate: !this.isFirstBounds,
+                animate: !this.isFirstBounds
             })
             if (this.isFirstBounds) this.isFirstBounds = false
         }
@@ -237,9 +237,9 @@ export default class Mapbox {
                 properties: {},
                 geometry: {
                     type: 'Point',
-                    coordinates: [],
-                },
-            },
+                    coordinates: []
+                }
+            }
         }
 
         const pathsLayer: LineLayer = {
@@ -248,13 +248,13 @@ export default class Mapbox {
             source: pathsSourceKey,
             layout: {
                 'line-join': 'round',
-                'line-cap': 'round',
+                'line-cap': 'round'
             },
             paint: {
                 'line-color': '#5B616A',
                 'line-width': 6,
-                'line-opacity': 0.8,
-            },
+                'line-opacity': 0.8
+            }
         }
 
         this.map.addSource(pathsSourceKey, source)
@@ -267,8 +267,8 @@ export default class Mapbox {
             source: selectedPathSourceKey,
             paint: {
                 'line-color': '#275DAD',
-                'line-width': 8,
-            },
+                'line-width': 8
+            }
         })
 
         this.map.addSource(highlightedPathSegmentSourceKey, source)
@@ -279,8 +279,8 @@ export default class Mapbox {
             paint: {
                 // todo
                 'line-color': 'red',
-                'line-width': 4,
-            },
+                'line-width': 4
+            }
         })
     }
 
@@ -288,11 +288,11 @@ export default class Mapbox {
         return mediaQuery.matches
             ? { top: 400, bottom: 16, right: 16, left: 16 }
             : {
-                  top: 100,
-                  bottom: 100,
-                  right: 100,
-                  left: 500,
-              }
+                top: 100,
+                bottom: 100,
+                right: 100,
+                left: 500
+            }
     }
 
     private static getStyle(styleOption: StyleOption): string | Style {
@@ -309,16 +309,16 @@ export default class Mapbox {
                     tiles: rasterStyle.url,
                     attribution: rasterStyle.attribution,
                     tileSize: 256,
-                    maxzoom: rasterStyle.maxZoom ? styleOption.maxZoom : 22,
-                },
+                    maxzoom: rasterStyle.maxZoom ? styleOption.maxZoom : 22
+                }
             },
             layers: [
                 {
                     id: 'raster-layer',
                     type: 'raster',
-                    source: 'raster-source',
-                },
-            ],
+                    source: 'raster-source'
+                }
+            ]
         }
     }
 

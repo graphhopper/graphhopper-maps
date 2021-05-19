@@ -1,8 +1,8 @@
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
-import {ApiInfo, Bbox, Path, RoutingArgs, RoutingResult, RoutingProfile} from '@/api/graphhopper'
+import { ApiInfo, Bbox, Path, RoutingArgs, RoutingResult, RoutingProfile } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
-import {PathDetailsPoint} from "@/stores/PathDetailsStore";
+import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -40,7 +40,8 @@ export class AddPoint implements Action {
     }
 }
 
-export class ClearPoints implements Action {}
+export class ClearPoints implements Action {
+}
 
 export class RemovePoint implements Action {
     readonly point: QueryPoint
@@ -78,7 +79,8 @@ export class RouteRequestFailed implements Action {
     }
 }
 
-export class ClearRoute implements Action {}
+export class ClearRoute implements Action {
+}
 
 export class SetSelectedPath implements Action {
     readonly path: Path
@@ -88,7 +90,8 @@ export class SetSelectedPath implements Action {
     }
 }
 
-export class DismissLastError implements Action {}
+export class DismissLastError implements Action {
+}
 
 export class SelectMapStyle implements Action {
     readonly styleOption: StyleOption
@@ -98,7 +101,8 @@ export class SelectMapStyle implements Action {
     }
 }
 
-export class MapIsLoaded implements Action {}
+export class MapIsLoaded implements Action {
+}
 
 export class PathDetailsHover implements Action {
     readonly pathDetailsPoint: PathDetailsPoint | null
@@ -112,7 +116,7 @@ export class PathDetailsRangeSelected implements Action {
     readonly bbox?: Bbox
 
     constructor(bbox: Bbox) {
-        this.bbox = bbox;
+        this.bbox = bbox
     }
 }
 
@@ -120,6 +124,6 @@ export class PathDetailsElevationSelected implements Action {
     readonly segments: Coordinate[][]
 
     constructor(segments: Coordinate[][]) {
-        this.segments = segments;
+        this.segments = segments
     }
 }
