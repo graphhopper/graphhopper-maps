@@ -171,7 +171,7 @@ export default class Mapbox {
                 const palette = ['#332288', '#88ccee', '#44aa99', '#117733', '#999933', '#ddcc77', '#cc6677', '#882255', '#aa4499'];
                 const missingColor = '#dddddd';
                 const index = values.indexOf(attributeType) % palette.length;
-                const color = attributeType === 'missing' || attributeType === 'unclassified'
+                const color = attributeType === 'missing' || attributeType === 'unclassified' || attributeType === 'Undefined'
                     ? missingColor
                     : palette[index];
                 return {
