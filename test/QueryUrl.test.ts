@@ -2,18 +2,18 @@ import { createUrl, parseUrl } from '../src/QueryUrl'
 import { QueryPoint, QueryPointType, QueryStoreState, Coordinate } from '../src/stores/QueryStore'
 import Dispatcher, { Action } from '../src/stores/Dispatcher'
 import Store from '../src/stores/Store'
-import { AddPoint, SetVehicle } from '../src/actions/Actions'
-import { RoutingVehicle } from '../src/api/graphhopper'
+import { AddPoint, SetVehicleProfile } from '../src/actions/Actions'
+import { RoutingProfile } from '../src/api/graphhopper'
 
 interface TestState {
     points: Coordinate[]
-    vehicle: RoutingVehicle
+    profile: RoutingProfile
 }
 class TestStore extends Store<TestState> {
     protected getInitialState(): TestState {
         return {
             points: [],
-            vehicle: { import_date: '', features: { elevation: false }, version: '', key: '' },
+            profile: { key: '' },
         }
     }
 
@@ -24,10 +24,10 @@ class TestStore extends Store<TestState> {
                 ...state,
                 points: state.points,
             }
-        } else if (action instanceof SetVehicle) {
+        } else if (action instanceof SetVehicleProfile) {
             return {
                 ...state,
-                vehicle: action.vehicle,
+                profile: action.profile,
             }
         }
         return state
@@ -38,10 +38,10 @@ afterEach(() => Dispatcher.clear())
 
 describe('parseUrl', () => {
     it('should parse parameters from a url', () => {
-        const vehicle = 'car'
+        const profile = 'car'
         const point1 = [50.67724646887518, 7.275303695325306] as [number, number]
         const point2 = [50.28050431501495, 10.81515858598078] as [number, number]
-        const url = `http://localhost:3000/?point=${point1.join(',')}&point=${point2.join(',')}&vehicle=${vehicle}`
+        const url = `http://localhost:3000/?point=${point1.join(',')}&point=${point2.join(',')}&profile=${profile}`
 
         const store = new TestStore()
         Dispatcher.register(store)
@@ -51,13 +51,13 @@ describe('parseUrl', () => {
             nextQueryPointId: 0,
             currentRequest: { subRequests: [] },
             maxAlternativeRoutes: 1,
-            routingVehicle: store.state.vehicle,
+            routingProfile: store.state.profile,
         })
 
         expect(store.state.points.length).toEqual(2)
         expect(store.state.points[0]).toEqual({ lat: point1[0], lng: point1[1] })
         expect(store.state.points[1]).toEqual({ lat: point2[0], lng: point2[1] })
-        expect(store.state.vehicle.key).toEqual(vehicle)
+        expect(store.state.profile.key).toEqual(profile)
     })
     it('should create an empty request when no points are supplied', () => {
         const url = `http://localhost:3000/?`
@@ -74,15 +74,15 @@ describe('parseUrl', () => {
     })
 
     it('should ignore unknown params', () => {
-        const vehicle = 'car'
-        const url = `http://localhost:3000/?vehicle=${vehicle}&some-param=some-value`
+        const profile = 'car'
+        const url = `http://localhost:3000/?profile=${profile}&some-param=some-value`
 
-        let vehicleFromAction: RoutingVehicle
+        let profileFromAction: RoutingProfile
 
         Dispatcher.register({
             receive(action: Action) {
-                if (action instanceof SetVehicle) {
-                    vehicleFromAction = action.vehicle
+                if (action instanceof SetVehicleProfile) {
+                    profileFromAction = action.profile
                 } else {
                     fail('Unexpected action received')
                 }
@@ -91,7 +91,7 @@ describe('parseUrl', () => {
 
         parseUrl(url, getQueryStoreState())
 
-        expect(vehicleFromAction!.key).toEqual(vehicle)
+        expect(profileFromAction!.key).toEqual(profile)
     })
 
     it('should raise an error if a point is not in the expected format', () => {
@@ -106,16 +106,16 @@ describe('createUrl', () => {
     it('should convert points of a request into url params', () => {
         const point1 = [50.677246,  7.275303] as [number, number]
         const point2 = [50.280504, 10.815158] as [number, number]
-        const vehicle = 'vehicle-type'
+        const profile = 'profile-type'
         const expectedUrl = new URL('http://localhost:3000/')
         expectedUrl.searchParams.append('point', point1.join(','))
         expectedUrl.searchParams.append('point', point2.join(','))
-        expectedUrl.searchParams.append('vehicle', vehicle)
+        expectedUrl.searchParams.append('profile', profile)
 
         const emptyState = getQueryStoreState()
 
         const result = createUrl(expectedUrl.origin, {
-            routingVehicle: { ...emptyState.routingVehicle, key: vehicle },
+            routingProfile: { ...emptyState.routingProfile, key: profile },
             nextQueryPointId: 0,
             maxAlternativeRoutes: 1,
             currentRequest: { subRequests: [] },
@@ -132,7 +132,7 @@ function getQueryStoreState(): QueryStoreState {
         nextQueryPointId: 0,
         currentRequest: { subRequests: [] },
         maxAlternativeRoutes: 1,
-        routingVehicle: { import_date: '', features: { elevation: false }, version: '', key: '' },
+        routingProfile: { key: '' },
     }
 }
 

@@ -3,23 +3,23 @@ import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
-import RoutingVehicles from '@/sidebar/search/RoutingVehicles'
+import RoutingProfiles from '@/sidebar/search/RoutingProfiles'
 import RemoveIcon from '../times-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import PlainButton from '@/PlainButton'
-import { RoutingVehicle } from '@/api/graphhopper'
+import { RoutingProfile } from '@/api/graphhopper'
 
 import AddressInput from '@/sidebar/search/AddressInput'
 import { convertToQueryText } from '@/Converters'
 
 export default function Search({
     points,
-    routingVehicles,
-    selectedVehicle,
+    routingProfiles,
+    selectedProfile,
 }: {
     points: QueryPoint[]
-    routingVehicles: RoutingVehicle[]
-    selectedVehicle: RoutingVehicle
+    routingProfiles: RoutingProfile[]
+    selectedProfile: RoutingProfile
 }) {
     return (
         <div className={styles.searchBox}>
@@ -41,7 +41,7 @@ export default function Search({
                 <AddIcon />
                 <span>Add Point</span>
             </PlainButton>
-            <RoutingVehicles routingVehicles={routingVehicles} selectedVehicle={selectedVehicle} />
+            <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
         </div>
     )
 }

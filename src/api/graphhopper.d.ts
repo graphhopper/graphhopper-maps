@@ -4,13 +4,13 @@ export type Bbox = [number, number, number, number]
 
 export interface RoutingArgs {
     readonly points: [number, number][]
-    readonly vehicle: string
+    readonly profile: string
     readonly maxAlternativeRoutes: number
 }
 
 export interface RoutingRequest {
     readonly points: ReadonlyArray<[number, number]>
-    vehicle: string
+    profile: string
     locale: string
     debug: boolean
     points_encoded: boolean
@@ -44,18 +44,12 @@ export interface ApiInfo {
     readonly import_date: string
     readonly version: string
     readonly bbox: Bbox
-    readonly vehicles: RoutingVehicle[]
-}
-
-export interface RoutingVehicle {
-    readonly key: string
-    readonly version: string
-    readonly import_date: string // maybe parse this to date instead?
-    readonly features: RoutingFeature // Unsure if a map would make more sense but from looking at the api typing it makes sense (talk to peter)
-}
-
-export interface RoutingFeature {
     readonly elevation: boolean
+    readonly profiles: RoutingProfile[]
+}
+
+export interface RoutingProfile {
+    readonly key: string
 }
 
 export interface Path extends BasePath {

@@ -16,7 +16,7 @@ import {
     RouteRequestFailed,
     RouteRequestSuccess,
     SetPoint,
-    SetVehicle,
+    SetVehicleProfile,
 } from '../../src/actions/Actions'
 
 class ApiMock implements Api {
@@ -215,22 +215,20 @@ describe('QueryStore', () => {
         })
     })
     describe('InfoReceived action', () => {
-        it('return unchanged state if routing vehicle was already set', () => {
+        it('return unchanged state if routing profile was already set', () => {
             const store = new QueryStore(new ApiMock(() => {}))
 
             const state: QueryStoreState = {
                 ...store.state,
-                routingVehicle: {
-                    version: 'some-value',
-                    features: { elevation: true },
-                    import_date: 'some-value',
-                    key: 'some-value',
+                routingProfile: {
+                    key: 'some-value'
                 },
             }
             const newState = store.reduce(
                 state,
                 new InfoReceived({
-                    vehicles: [],
+                    profiles: [],
+                    elevation: true,
                     version: '',
                     import_date: '',
                     bbox: [0, 0, 0, 0],
@@ -242,48 +240,46 @@ describe('QueryStore', () => {
         it('should set car as default routing mode', () => {
             const store = new QueryStore(new ApiMock(() => {}))
             const state: QueryStoreState = store.state
-            const expectedVehicle = {
+            const expectedProfile = {
                 key: 'car',
                 import_date: 'some_date',
-                features: { elevation: false },
+                elevation: false,
                 version: 'some-version',
             }
 
             const newState = store.reduce(
                 state,
                 new InfoReceived({
-                    vehicles: [
-                        expectedVehicle,
+                    profiles: [
+                        expectedProfile,
                         {
-                            key: 'other',
-                            import_date: 'other-date',
-                            features: { elevation: false },
-                            version: 'other-version',
+                            key: 'other'
                         },
                     ],
+                    elevation: false,
                     version: '',
                     import_date: '',
                     bbox: [0, 0, 0, 0],
                 })
             )
 
-            expect(newState.routingVehicle).toEqual(expectedVehicle)
+            expect(newState.routingProfile).toEqual(expectedProfile)
         })
     })
-    describe('SetVehicle action', () => {
-        it('should set the routing vehicle (surprise!)', () => {
+    describe('SetVehicleProfile action', () => {
+        it('should set the routing profile (surprise!)', () => {
             const store = new QueryStore(new ApiMock(() => {}))
             const state: QueryStoreState = store.state
-            const vehicle = {
+            const profile = {
                 key: 'car',
                 import_date: 'some_date',
                 features: { elevation: false },
                 version: 'some-version',
             }
 
-            const newState = store.reduce(state, new SetVehicle(vehicle))
+            const newState = store.reduce(state, new SetVehicleProfile(profile))
 
-            expect(newState.routingVehicle).toEqual(vehicle)
+            expect(newState.routingProfile).toEqual(profile)
         })
     })
     describe('RouteRequestSuccess action', () => {
@@ -292,7 +288,7 @@ describe('QueryStore', () => {
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],
-                vehicle: 'some-vehicle',
+                profile: 'some-profile',
             }
             const subRequest: SubRequest = {
                 state: RequestState.SENT,
@@ -319,7 +315,7 @@ describe('QueryStore', () => {
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],
-                vehicle: 'some-vehicle',
+                profile: 'some-profile',
             }
             const subRequest: SubRequest = {
                 state: RequestState.SENT,

@@ -24,7 +24,8 @@ describe('info api', () => {
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
             import_date: 'some_date',
-            vehicles: [],
+            profiles: [],
+            elevation: false,
             version: 'some_version',
         }
 
@@ -37,7 +38,7 @@ describe('info api', () => {
                     bbox: expected.bbox,
                     import_date: expected.import_date,
                     version: expected.version,
-                    features: {},
+                    profiles: []
                 })
             )
         })
@@ -54,15 +55,13 @@ describe('info api', () => {
 
     it('should convert the response into an ApiInfo object', async () => {
         const carRoutingVehicle = {
-            key: 'car',
-            version: '1_car',
-            import_date: 'car_import_date',
-            features: { elevation: true },
+            key: 'car'
         }
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
+            elevation: true,
             import_date: 'some_date',
-            vehicles: [carRoutingVehicle],
+            profiles: [carRoutingVehicle],
             version: 'some_version',
         }
 
@@ -71,9 +70,9 @@ describe('info api', () => {
                 bbox: expected.bbox,
                 import_date: expected.import_date,
                 version: expected.version,
-                car: { version: carRoutingVehicle.version, import_date: carRoutingVehicle.import_date },
+                profiles: expected.profiles,
                 notAVehicle: { version: 'notAVehicle_version', import_date: 'notAVehicle_import_date' },
-                features: { car: { elevation: true } },
+                elevation: expected.elevation
             })
         )
 
@@ -93,7 +92,7 @@ describe('route', () => {
         const args: RoutingArgs = {
             points: [],
             maxAlternativeRoutes: 1,
-            vehicle: 'vehicle',
+            profile: 'profile',
         }
 
         fetchMock.mockResponse(request => {
@@ -113,12 +112,12 @@ describe('route', () => {
         const args: RoutingArgs = {
             points: [],
             maxAlternativeRoutes: 1,
-            vehicle: 'car',
+            profile: 'car',
         }
 
         const expectedBody: RoutingRequest = {
             points: args.points,
-            vehicle: args.vehicle,
+            profile: args.profile,
             elevation: true,
             debug: false,
             instructions: true,
@@ -139,12 +138,12 @@ describe('route', () => {
         const args: RoutingArgs = {
             points: [],
             maxAlternativeRoutes: 2,
-            vehicle: 'car',
+            profile: 'car',
         }
 
         const expectedBody: RoutingRequest = {
             points: args.points,
-            vehicle: args.vehicle,
+            profile: args.profile,
             elevation: true,
             debug: false,
             instructions: true,
@@ -170,7 +169,7 @@ describe('route', () => {
                 [1, 1],
             ],
             maxAlternativeRoutes: 1,
-            vehicle: 'bla',
+            profile: 'bla',
         }
 
         fetchMock.mockResponseOnce(JSON.stringify(getEmptyResult()))
@@ -193,7 +192,7 @@ describe('route', () => {
                 [1, 1],
             ],
             maxAlternativeRoutes: 1,
-            vehicle: 'bla',
+            profile: 'bla',
         }
 
         const error: ErrorResponse = {

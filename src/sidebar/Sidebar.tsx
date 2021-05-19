@@ -18,8 +18,8 @@ export default function ({ query, info, error }: SidebarProps) {
             <div>
                 <Search
                     points={query.queryPoints}
-                    routingVehicles={info.vehicles}
-                    selectedVehicle={query.routingVehicle}
+                    routingProfiles={info.profiles}
+                    selectedProfile={query.routingProfile}
                 />
             </div>
             {!error.isDismissed && <ErrorMessage error={error} />}

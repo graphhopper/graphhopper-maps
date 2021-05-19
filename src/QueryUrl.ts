@@ -1,11 +1,11 @@
 import { coordinateToText } from '@/Converters'
 import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, RemovePoint, SetVehicle } from '@/actions/Actions'
+import { AddPoint, RemovePoint, SetVehicleProfile } from '@/actions/Actions'
 
 export function parseUrl(href: string, currentState: QueryStoreState) {
     const url = new URL(href)
-    parseRoutingVehicle(url)
+    parseRoutingProfile(url)
     parsePoints(url, currentState.queryPoints)
 }
 
@@ -44,15 +44,12 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
     }
 }
 
-function parseRoutingVehicle(url: URL) {
-    const vehicleKey = url.searchParams.get('vehicle')
-    if (vehicleKey) {
+function parseRoutingProfile(url: URL) {
+    const profileKey = url.searchParams.get('profile')
+    if (profileKey) {
         Dispatcher.dispatch(
-            new SetVehicle({
-                key: vehicleKey,
-                features: { elevation: false },
-                version: '',
-                import_date: '',
+            new SetVehicleProfile({
+                key: profileKey
             })
         )
     }
@@ -70,7 +67,7 @@ export function createUrl(baseUrl: string, state: QueryStoreState) {
         .map(point => coordinateToText(point.coordinate))
         .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
-    result.searchParams.append('vehicle', state.routingVehicle.key)
+    result.searchParams.append('profile', state.routingProfile.key)
 
     return result
 }
