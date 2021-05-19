@@ -1,5 +1,14 @@
 import { coordinateToText } from '@/Converters'
-import mapboxgl, { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, Marker, Style } from 'mapbox-gl'
+import mapboxgl, {
+    GeoJSONSource,
+    GeoJSONSourceRaw,
+    LineLayer,
+    LngLatBounds,
+    Map,
+    MapTouchEvent,
+    Marker,
+    Style,
+} from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
@@ -70,6 +79,13 @@ export default class Mapbox {
         this.map.on('mouseleave', pathsLayerKey, () => {
             this.map.getCanvasContainer().style.cursor = ''
         })
+
+        const handler = new LongTouchHandler(e => this.popup.show(e.lngLat))
+
+        // handle long touches to open pop up
+        this.map.on('touchstart', e => handler.onTouchStart(e))
+        this.map.on('touchend', () => handler.onTouchEnd())
+        this.map.on('touchmove', () => handler.onTouchEnd())
     }
 
     remove() {
@@ -387,5 +403,29 @@ export default class Mapbox {
 
     private static isVectorStyle(styleOption: StyleOption): styleOption is VectorStyle {
         return styleOption.type === 'vector'
+    }
+}
+
+class LongTouchHandler {
+    private callback: (e: MapTouchEvent) => void
+    private currentTimeout: number = 0
+    private currentEvent?: MapTouchEvent
+
+    constructor(onLongTouch: (e: MapTouchEvent) => void) {
+        this.callback = onLongTouch
+    }
+
+    onTouchStart(e: MapTouchEvent) {
+        this.currentEvent = e
+        this.currentTimeout = window.setTimeout(() => {
+            console.log('long touch')
+            if (this.currentEvent) this.callback(this.currentEvent)
+        }, 500)
+    }
+
+    onTouchEnd() {
+        console.log('touch end')
+        window.clearTimeout(this.currentTimeout)
+        this.currentEvent = undefined
     }
 }

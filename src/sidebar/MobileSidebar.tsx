@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { ApiInfo, RoutingVehicle } from '@/api/graphhopper'
+import { ApiInfo, RoutingProfile } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'
@@ -46,14 +46,14 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                 {isSmallSearchView ? (
                     <SmallSearchView
                         points={query.queryPoints}
-                        vehicle={query.routingVehicle}
+                        profile={query.routingProfile}
                         onClick={() => setIsSmallSearchView(false)}
                     />
                 ) : (
                     <SearchView
                         points={query.queryPoints}
-                        routingVehicles={info.vehicles}
-                        selectedVehicle={query.routingVehicle}
+                        routingProfiles={info.profiles}
+                        selectedProfile={query.routingProfile}
                     />
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}
@@ -76,21 +76,21 @@ function hasResult(route: RouteStoreState) {
 
 function SearchView(props: {
     points: QueryPoint[]
-    routingVehicles: RoutingVehicle[]
-    selectedVehicle: RoutingVehicle
+    routingProfiles: RoutingProfile[]
+    selectedProfile: RoutingProfile
 }) {
     return (
         <div className={styles.btnCloseContainer}>
             <Search
                 points={props.points}
-                routingVehicles={props.routingVehicles}
-                selectedVehicle={props.selectedVehicle}
+                routingProfiles={props.routingProfiles}
+                selectedProfile={props.selectedProfile}
             />
         </div>
     )
 }
 
-function SmallSearchView(props: { points: QueryPoint[]; vehicle: RoutingVehicle; onClick: () => void }) {
+function SmallSearchView(props: { points: QueryPoint[]; profile: RoutingProfile; onClick: () => void }) {
     const from = props.points[0]
     const to = props.points[props.points.length - 1]
 
