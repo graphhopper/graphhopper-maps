@@ -56,7 +56,6 @@ function onElevationSelected(segments: Coordinate[][]) {
     Dispatcher.dispatch(new PathDetailsElevationSelected(segments))
 }
 
-// todo: rename and once the other heightgraph is removed check which functions we really have to export
 function buildPathDetailsData(selectedPath: Path) {
     const elevation = createFeatureCollection(
         'Elevation [m]',
