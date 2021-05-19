@@ -48,6 +48,8 @@ export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: Ma
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
     useEffect(() => map?.showPathDetails(selectedPath), [selectedPath, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
+    // no dependency on map here, because in case changed the viewport manually we do not want to go back to the bbox
+    // after a style change onMapReady
     useEffect(() => map?.fitBounds(bbox), [bbox])
 
     return <div className={styles.map} ref={mapContainerRef} />
