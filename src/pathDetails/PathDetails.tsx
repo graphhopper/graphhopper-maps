@@ -7,8 +7,7 @@ import Dispatcher from "@/stores/Dispatcher";
 import {PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelected} from "@/actions/Actions";
 import {Coordinate} from "@/stores/QueryStore";
 
-// todo: type vs interface?!
-type PathDetailsProps = {
+interface PathDetailsProps {
     selectedPath: Path
 }
 
