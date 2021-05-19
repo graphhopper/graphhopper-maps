@@ -45,7 +45,7 @@ export default class PathDetailsStore extends Store<PathDetailsStoreState> {
             }
         } else if (action instanceof PathDetailsElevationSelected) {
             return {
-                // todo: bug - we probabl should keep the the highlighted segments and elevation when we change the
+                // todo: bug - we probably should keep the the highlighted segments and elevation when we change the
                 //       selected details?!
                 ...state,
                 pathDetailsHighlightedSegments: action.segments
