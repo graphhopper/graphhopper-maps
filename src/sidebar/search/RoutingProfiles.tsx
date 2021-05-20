@@ -22,13 +22,13 @@ export default function ({
             }}
         >
             {routingProfiles.map(profile => (
-                <option key={profile.key}>{getEmoji(profile)}</option>
+                <option key={profile.name}>{getEmoji(profile)}</option>
             ))}
         </select>
     )
 }
 function getEmoji(profile: RoutingProfile) {
-    switch (profile.key) {
+    switch (profile.name) {
         case 'car':
             return '🚗\u00a0Car'
         case 'small_truck':
