@@ -101,6 +101,7 @@ export class ApiImpl implements Api {
                 const message = (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
                 throw new Error(message)
             } else {
+                console.error(completeRequest)
                 console.error(errorResult)
                 throw new Error("unknown error")
             }
