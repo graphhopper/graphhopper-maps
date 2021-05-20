@@ -59,18 +59,24 @@ describe('parseUrl', () => {
         expect(store.state.points[1]).toEqual({ lat: point2[0], lng: point2[1] })
         expect(store.state.profile.key).toEqual(profile)
     })
-    it('should create an empty request when no points are supplied', () => {
+    it('set default profile when no parameters are supplied', () => {
         const url = `http://localhost:3000/?`
 
+        let profileFromAction: RoutingProfile
+
         Dispatcher.register({
-            receive() {
-                fail('parsing an empty url should not raise any actions')
+            receive(action: Action) {
+                if (action instanceof SetVehicleProfile) {
+                    profileFromAction = action.profile
+                } else {
+                    fail('Unexpected action received')
+                }
             },
         })
 
         parseUrl(url, getQueryStoreState())
 
-        // if we don't fail until here everything is fine
+        expect(profileFromAction!.key).toEqual('car')
     })
 
     it('should ignore unknown params', () => {

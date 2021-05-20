@@ -45,7 +45,7 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
 }
 
 function parseRoutingProfile(url: URL) {
-    var profileKey = url.searchParams.get('profile')
+    let profileKey = url.searchParams.get('profile')
     if (!profileKey) profileKey = "car"
     Dispatcher.dispatch(
         new SetVehicleProfile({
