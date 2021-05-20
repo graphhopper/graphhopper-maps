@@ -58,14 +58,6 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}
             </div>
-
-            <div className={styles.background}>
-                {/*<RoutingResult
-                    paths={route.routingResult.paths.length > 0 ? [route.selectedPath] : []}
-                    selectedPath={route.selectedPath}
-                    currentRequest={query.currentRequest}
-                />*/}
-            </div>
         </div>
     )
 }
