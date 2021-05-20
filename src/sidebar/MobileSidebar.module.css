@@ -1,0 +1,78 @@
+.sidebar {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.background {
+    pointer-events: all; /* we want all the content to behave normally*/
+    background-color: white;
+}
+
+.fullHeight {
+    height: 100%;
+}
+
+.addressSearch {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+.addressInputContainer {
+    flex-grow: 1;
+}
+
+.mapView {
+    display: flex;
+    flex-direction: column;
+    padding: 0.25rem 0.5rem;
+    border: 1px black solid;
+    margin: 0.5rem;
+    border-radius: 0.2rem;
+}
+
+.mapViewPoint {
+    display: flex;
+    flex-direction: row;
+}
+
+.queryPointText {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #5b616a;
+}
+
+.queryPointTextTo {
+    font-size: large;
+    font-weight: bold;
+    color: inherit;
+}
+
+.queryPointTextVia {
+    font-size: small;
+}
+
+.dot {
+    align-self: center;
+    justify-self: center;
+    border-radius: 50%;
+    height: 0.75rem;
+    width: 0.75rem;
+    border: rgb(100, 100, 100) 0.125rem solid;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+}
+
+.btnCloseContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.btnClose {
+    width: 1rem;
+    margin: 0.5rem;
+    align-self: flex-end;
+}

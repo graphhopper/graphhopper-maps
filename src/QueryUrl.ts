@@ -45,14 +45,13 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
 }
 
 function parseRoutingProfile(url: URL) {
-    const profileKey = url.searchParams.get('profile')
-    if (profileKey) {
-        Dispatcher.dispatch(
-            new SetVehicleProfile({
-                key: profileKey
-            })
-        )
-    }
+    var profileKey = url.searchParams.get('profile')
+    if (!profileKey) profileKey = "car"
+    Dispatcher.dispatch(
+        new SetVehicleProfile({
+            key: profileKey
+        })
+    )
 }
 
 function parseNumber(value: string) {
