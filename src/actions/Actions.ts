@@ -11,6 +11,14 @@ export class InfoReceived implements Action {
     }
 }
 
+export class LocationUpdate implements Action {
+    readonly coordinate: Coordinate
+
+    constructor(coordinate: Coordinate) {
+        this.coordinate = coordinate
+    }
+}
+
 export class SetPoint implements Action {
     readonly point: QueryPoint
 

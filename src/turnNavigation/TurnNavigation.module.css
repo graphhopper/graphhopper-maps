@@ -24,9 +24,9 @@
 .arrival {
     display: flex;
     flex-direction: row;
+    font-size: larger;
 }
 
 .arrival_date {
-    font-size: larger;
     font-weight: bold;
 }

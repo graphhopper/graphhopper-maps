@@ -2,7 +2,14 @@ import React, { useEffect, useState } from 'react'
 import Sidebar from '@/sidebar/Sidebar'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
 import styles from './App.module.css'
-import { getApiInfoStore, getErrorStore, getMapOptionsStore, getQueryStore, getRouteStore } from '@/stores/Stores'
+import {
+    getApiInfoStore,
+    getErrorStore,
+    getMapOptionsStore,
+    getQueryStore,
+    getRouteStore,
+    getLocationStore,
+} from '@/stores/Stores'
 import MapComponent from '@/map/Map'
 import { Bbox } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
@@ -11,6 +18,7 @@ export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
     const [info, setInfo] = useState(getApiInfoStore().state)
     const [route, setRoute] = useState(getRouteStore().state)
+    const [location, setLocation] = useState(getLocationStore().state)
     const [error, setError] = useState(getErrorStore().state)
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [useInfoBbox, setUseInfoBbox] = useState(true)
@@ -21,12 +29,14 @@ export default function App() {
         const onRouteChanged = () => setRoute(getRouteStore().state)
         const onErrorChanged = () => setError(getErrorStore().state)
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
+        const onLocationChanged = () => setLocation(getLocationStore().state)
 
         getQueryStore().register(onQueryChanged)
         getApiInfoStore().register(onInfoChanged)
         getRouteStore().register(onRouteChanged)
         getErrorStore().register(onErrorChanged)
         getMapOptionsStore().register(onMapOptionsChanged)
+        getLocationStore().register(onLocationChanged)
 
         return () => {
             getQueryStore().deregister(onQueryChanged)
@@ -34,6 +44,7 @@ export default function App() {
             getRouteStore().deregister(onRouteChanged)
             getErrorStore().deregister(onErrorChanged)
             getMapOptionsStore().deregister(onMapOptionsChanged)
+            getLocationStore().deregister(onLocationChanged)
         }
     })
 
@@ -61,7 +72,7 @@ export default function App() {
                     />
                 </div>
                 <div className={styles.turnNavigation}>
-                    <TurnNavigation path={route.selectedPath} currentLocation={{ lat: 51.434655, lng: 14.249504 }} />
+                    <TurnNavigation path={route.selectedPath} currentLocation={location.coordinate} />
                 </div>
             </div>
         )

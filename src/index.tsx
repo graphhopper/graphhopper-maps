@@ -5,6 +5,7 @@ import App from '@/App'
 import {
     getApiInfoStore,
     getErrorStore,
+    getLocationStore,
     getMapOptionsStore,
     getQueryStore,
     getRouteStore,
@@ -18,6 +19,10 @@ import QueryStore from '@/stores/QueryStore'
 import { ApiImpl } from '@/api/Api'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
+import LocationStore from '@/stores/LocationStore'
+
+const locationStore = new LocationStore()
+locationStore.initFake()
 
 // set up state management
 const api = new ApiImpl()
@@ -28,6 +33,7 @@ setStores({
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
+    locationStore: locationStore,
 })
 
 // register stores at dispatcher to receive actions
@@ -36,6 +42,7 @@ Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
+Dispatcher.register(getLocationStore())
 
 api.infoWithDispatch() // get infos about the api as soon as possible
 

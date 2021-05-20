@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Path, Instruction } from '@/api/graphhopper'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import { getSignName } from '@/sidebar/instructions/Instructions'
@@ -12,6 +12,13 @@ type TurnNavigationProps = {
 
 export default function ({ path, currentLocation }: TurnNavigationProps) {
     const { instructionIndex, distanceNext } = getCurrentInstruction(path.instructions, currentLocation)
+
+    console.log('update ' + currentLocation)
+    // useEffect(() => {
+    //    mapWrapper.fitBounds(bbox)
+    // }, [currentLocation])
+
+    // TODO too far from route - recalculate?
     if (instructionIndex < 0) return <>Cannot find instruction</>
 
     const nextInstruction: Instruction = path.instructions[instructionIndex]

@@ -40,8 +40,8 @@
     grid-column: 1 / span 1;
     grid-row: 1 / span 1;
     z-index: 500;
-    max-height: 13%;
-    
+    max-height: 7em;
+
     margin: 0.5rem;
     padding: 0.5rem;
     background-color: white;
