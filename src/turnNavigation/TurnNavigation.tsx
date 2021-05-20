@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Path, Instruction } from '@/api/graphhopper'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import { getSignName } from '@/sidebar/instructions/Instructions'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
 import { Coordinate } from '@/stores/QueryStore'
+import endNavigation from '@/turnNavigation/end_turn_navigation.png'
+import { getLocationStore } from '@/stores/Stores'
 
 type TurnNavigationProps = {
     path: Path
@@ -14,11 +16,6 @@ export default function ({ path, currentLocation }: TurnNavigationProps) {
     if (currentLocation.lat == 0 && currentLocation.lng == 0) return <span>Searching GPS...</span>
 
     const { instructionIndex, distanceNext } = getCurrentInstruction(path.instructions, currentLocation)
-
-    console.log('update ' + currentLocation)
-    // useEffect(() => {
-    //    mapWrapper.fitBounds(bbox)
-    // }, [currentLocation])
 
     // TODO too far from route - recalculate?
     if (instructionIndex < 0) return <>Cannot find instruction</>
@@ -46,6 +43,9 @@ export default function ({ path, currentLocation }: TurnNavigationProps) {
                 </div>
                 <div>{milliSecondsToText(path.time)}</div>
                 <div>{metersToText(path.distance)}</div>
+                <div onClick={() => getLocationStore().stop()}>
+                    <img className={styles.navicon} src={endNavigation} />
+                </div>
             </div>
         </>
     )

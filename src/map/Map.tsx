@@ -6,6 +6,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, MapIsLoaded, SetPoint } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
+import { LocationStoreState } from '@/stores/LocationStore'
 
 type MapProps = {
     selectedPath: Path
@@ -13,10 +14,10 @@ type MapProps = {
     queryPoints: QueryPoint[]
     bbox: Bbox
     mapStyle: StyleOption
-    currentLocation: Coordinate
+    location: LocationStoreState
 }
 
-export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle, currentLocation }: MapProps) {
+export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle, location }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
 
@@ -34,7 +35,7 @@ export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle, cur
     useEffect(() => map?.showPathDetails(selectedPath), [selectedPath, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
     useEffect(() => map?.fitBounds(bbox), [bbox, map])
-    useEffect(() => map?.showCurrentLocation(currentLocation), [currentLocation, map])
+    useEffect(() => map?.showCurrentLocation(location), [location, map])
 
     return <div className={styles.map} ref={mapContainerRef} />
 }

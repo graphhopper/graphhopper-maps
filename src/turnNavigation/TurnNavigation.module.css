@@ -30,3 +30,7 @@
 .arrival_date {
     font-weight: bold;
 }
+
+.navicon {
+    max-height: 20px;
+}

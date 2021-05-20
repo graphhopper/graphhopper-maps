@@ -13,6 +13,9 @@ import Cross from './times-solid.svg'
 import Header from '@/sidebar/header.png'
 import { ApiInfo, Path } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
+import { getLocationStore } from '@/stores/Stores'
+import startNavigation from '@/sidebar/start_turn_navigation.png'
+import startNavigationDisabled from '@/sidebar/start_turn_navigation_disabled.png'
 
 type SidebarProps = {
     query: QueryStoreState
@@ -29,6 +32,15 @@ export default function ({ query, route, info, error }: SidebarProps) {
             </div>
             <Search points={query.queryPoints} routingProfiles={info.profiles} selectedProfile={query.routingProfile} />
             {!error.isDismissed && <ErrorMessage error={error} />}
+
+            <div onClick={() => getLocationStore().initFake()}>
+                {route.selectedPath.instructions.length > 0 ? (
+                    <img src={startNavigation} />
+                ) : (
+                    <img src={startNavigationDisabled} />
+                )}
+            </div>
+
             <QueryResults
                 paths={route.routingResult.paths}
                 selectedPath={route.selectedPath}

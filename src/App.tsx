@@ -58,8 +58,7 @@ export default function App() {
     }
 
     const bbox = chooseBoundingBox(info.bbox, useInfoBbox, route.selectedPath.bbox)
-    const turnNavigation = true
-    if (turnNavigation && route.selectedPath.instructions.length > 0)
+    if (location.turnNavigation)
         return (
             <div className={styles.appWrapper}>
                 <div className={styles.map}>
@@ -69,7 +68,7 @@ export default function App() {
                         selectedPath={route.selectedPath}
                         bbox={bbox}
                         mapStyle={mapOptions.selectedStyle}
-                        currentLocation={location.coordinate}
+                        location={location}
                     />
                 </div>
                 <div className={styles.turnNavigation}>
@@ -87,7 +86,7 @@ export default function App() {
                     selectedPath={route.selectedPath}
                     bbox={bbox}
                     mapStyle={mapOptions.selectedStyle}
-                    currentLocation={{ lat: 0, lng: 0 }} // no state update if navigation disabled
+                    location={location}
                 />
             </div>
             <div className={styles.sidebar}>

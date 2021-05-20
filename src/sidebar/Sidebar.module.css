@@ -145,3 +145,7 @@ This is not a very nice duplication but I have to stop now...
 .errorMessageCloseBtn svg {
     width: 100%;
 }
+
+.navicon {
+    max-width: 57px;
+}

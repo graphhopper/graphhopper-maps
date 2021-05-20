@@ -4,13 +4,18 @@ import { LocationUpdate } from '@/actions/Actions'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 
 export interface LocationStoreState {
+    turnNavigation: boolean
     coordinate: Coordinate
 }
 
 export default class LocationStore extends Store<LocationStoreState> {
     
+    private watchId : any
+    private interval: any
+
     protected getInitialState(): LocationStoreState {
         return {
+            turnNavigation: false,
             coordinate: {lat: 0, lng: 0}
         }
     }
@@ -18,7 +23,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     reduce(state: LocationStoreState, action: Action): LocationStoreState {
         if(action instanceof LocationUpdate) {
             return {
-                ...state,
+                turnNavigation: action.turnNavigation,
                 coordinate: action.coordinate,
             }
         }
@@ -42,10 +47,51 @@ export default class LocationStore extends Store<LocationStoreState> {
         [51.433959,14.235985],
         [51.43322,14.234999]]
         var currentIndex: number = 0;
-        setInterval(() => {
-            Dispatcher.dispatch(new LocationUpdate({lat: latlon[currentIndex][0], lng: latlon[currentIndex][1] }))
+
+        Dispatcher.dispatch(new LocationUpdate({lat: latlon[currentIndex][0], lng: latlon[currentIndex][1] }, true))
+
+        this.interval = setInterval(() => {
             currentIndex++
             currentIndex %= latlon.length
+            Dispatcher.dispatch(new LocationUpdate({lat: latlon[currentIndex][0], lng: latlon[currentIndex][1] }, true))
         }, 3000);
+    }
+
+    public initReal() {
+         if (!navigator.geolocation) {
+            console.log("location not supported. In firefox I had to set geo.enabled=true in about:config")
+        } else {
+            console.log("location init")
+
+            // force calling clearWatch can help to find GPS fix more reliable in android firefox
+            if(this.watchId)
+                navigator.geolocation.clearWatch(this.watchId)
+
+            var success = (pos: any) => {
+                console.log("location success handler start")
+                Dispatcher.dispatch(new LocationUpdate({lat: pos.coords.latitude, lng: pos.coords.longitude }, true))
+            }
+            var options = { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 }
+            this.watchId = navigator.geolocation.watchPosition(success, function(err) { console.log("location watch error", err);}, options)
+        }
+
+        // TODO NOW
+        // if(!this.noSleep) {
+        //    this.noSleep = new NoSleep();
+        //    this.noSleep.enable()
+        // }
+    }
+
+    public stop() {
+        if(this.interval)
+            clearInterval(this.interval);
+
+        if(this.watchId)
+            navigator.geolocation.clearWatch(this.watchId)
+
+        // directly writing the state does not work: this.state.turnNavigation = false
+        Dispatcher.dispatch(new LocationUpdate({lat: 0, lng: 0 }, false))
+
+        console.log("stopped location updates")
     }
 }

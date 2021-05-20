@@ -11,11 +11,14 @@ export class InfoReceived implements Action {
     }
 }
 
+// TODO identical to LocationStoreState?
 export class LocationUpdate implements Action {
     readonly coordinate: Coordinate
+    readonly turnNavigation: boolean
 
-    constructor(coordinate: Coordinate) {
+    constructor(coordinate: Coordinate, turnNavigation: boolean) {
         this.coordinate = coordinate
+        this.turnNavigation = turnNavigation
     }
 }
 

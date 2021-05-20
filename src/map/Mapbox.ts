@@ -2,6 +2,7 @@ import { coordinateToText } from '@/Converters'
 import { GeoJSONSource, GeoJSONSourceRaw, CircleLayer, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker, Style } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { QueryPoint, Coordinate } from '@/stores/QueryStore'
+import { LocationStoreState } from '@/stores/LocationStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
@@ -103,9 +104,13 @@ export default class Mapbox {
         this.drawSelectedPath(selectedPath)
     }
 
-    showCurrentLocation(location: Coordinate) {
+    showCurrentLocation(locationState: LocationStoreState) {
+        if(!locationState.turnNavigation)
+            return
+
+        const location = locationState.coordinate
         if(location.lat === 0 && location.lng == 0)
-            return;
+            return
 
         const featureCollection: FeatureCollection = {
             type: 'FeatureCollection',
