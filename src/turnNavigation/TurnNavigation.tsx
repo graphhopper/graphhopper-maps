@@ -40,7 +40,7 @@ export default function ({ path, currentLocation }: TurnNavigationProps) {
                 </div>
                 <div className={styles.arrival}>
                     <div className={styles.arrival_date}>
-                        {arrivalDate.getHours() + ':' + (min > 10 ? min : '0' + min)} Uhr
+                        {arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)} Uhr
                     </div>
                     <div>{milliSecondsToText(path.time)}</div>
                     <div>{metersToText(path.distance)}</div>
