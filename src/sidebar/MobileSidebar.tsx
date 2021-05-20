@@ -60,7 +60,7 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                     />
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}
-                <div onClick={() => getLocationStore().initFake()}>
+                <div onClick={() => getLocationStore().initReal()}>
                     {route.selectedPath.instructions.length > 0 ? (
                         <img src={startNavigation} />
                     ) : (
