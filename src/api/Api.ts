@@ -97,8 +97,13 @@ export class ApiImpl implements Api {
             }
         } else {
             const errorResult = (await response.json()) as ErrorResponse
-            const message = (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
-            throw new Error(message)
+            if(errorResult.hints) {
+                const message = (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
+                throw new Error(message)
+            } else {
+                console.error(errorResult)
+                throw new Error("unknown error")
+            }
         }
     }
 
