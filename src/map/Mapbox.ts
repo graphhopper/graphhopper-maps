@@ -1,5 +1,14 @@
 import { coordinateToText } from '@/Converters'
-import { GeoJSONSource, GeoJSONSourceRaw, LineLayer, LngLatBounds, Map, MapMouseEvent, Marker, Style } from 'mapbox-gl'
+import mapboxgl, {
+    GeoJSONSource,
+    GeoJSONSourceRaw,
+    LineLayer,
+    LngLatBounds,
+    Map,
+    MapTouchEvent,
+    Marker,
+    Style,
+} from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
@@ -8,7 +17,6 @@ import { Popup } from '@/map/Popup'
 import { FeatureCollection, LineString } from 'geojson'
 import { Bbox, Path } from '@/api/graphhopper'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
-import mapboxgl from 'mapbox-gl'
 
 window.mapboxgl = mapboxgl
 import { MapboxHeightGraph } from 'leaflet.heightgraph/example/MapboxHeightGraph'
@@ -40,11 +48,7 @@ export default class Mapbox {
     private isFirstBounds = true
     private isRemoved = false
 
-    constructor(
-        container: HTMLDivElement,
-        mapStyle: StyleOption,
-        onMapReady: () => void
-    ) {
+    constructor(container: HTMLDivElement, mapStyle: StyleOption, onMapReady: () => void) {
         this.map = new Map({
             container: container,
             accessToken:
@@ -84,6 +88,13 @@ export default class Mapbox {
         this.map.on('mouseleave', pathsLayerKey, () => {
             this.map.getCanvasContainer().style.cursor = ''
         })
+
+        const handler = new LongTouchHandler(e => this.popup.show(e.lngLat))
+
+        // handle long touches to open pop up
+        this.map.on('touchstart', e => handler.onTouchStart(e))
+        this.map.on('touchend', () => handler.onTouchEnd())
+        this.map.on('touchmove', () => handler.onTouchEnd())
     }
 
     remove() {
@@ -98,7 +109,7 @@ export default class Mapbox {
             .map((path, i) => {
                 return {
                     path: path,
-                    index: i
+                    index: i,
                 }
             })
             .filter(indexPath => indexPath.path !== selectedPath)
@@ -106,25 +117,28 @@ export default class Mapbox {
         this.drawSelectedPath(selectedPath)
     }
 
-    showPathDetails(selectedPath: Path) {
-        if (selectedPath.points.coordinates.length === 0)
+    showPathDetails(selectedPath: Path, isSmallScreen: boolean) {
+        if (isSmallScreen) {
+            if (this.map.hasControl(this.heightgraph)) this.map.removeControl(this.heightgraph)
             return
-        if (!this.map.hasControl(this.heightgraph))
-            this.map.addControl(this.heightgraph, 'bottom-right')
-        const elevation = Mapbox.createFeatureCollection(
-            'Elevation [m]',
-            [Mapbox.createFeature(selectedPath.points.coordinates, 'elevation')]
-        )
+        }
+
+        if (selectedPath.points.coordinates.length === 0) return
+        if (!this.map.hasControl(this.heightgraph)) this.map.addControl(this.heightgraph, 'bottom-right')
+        const elevation = Mapbox.createFeatureCollection('Elevation [m]', [
+            Mapbox.createFeature(selectedPath.points.coordinates, 'elevation'),
+        ])
         const pathDetails = Object.entries(selectedPath.details).map(([detailName, details]) => {
             const points = selectedPath.points.coordinates
             const features = details.map(([from, to, value = 'Undefined']: [number, number, string | number]) =>
-                Mapbox.createFeature(points.slice(from, to + 1), value))
+                Mapbox.createFeature(points.slice(from, to + 1), value)
+            )
             return Mapbox.createFeatureCollection(detailName, features)
         })
         const mappings: any = {
-            'Elevation [m]': function() {
+            'Elevation [m]': function () {
                 return { text: 'Elevation [m]', color: '#27ce49' }
-            }
+            },
         }
         Object.entries(selectedPath.details).forEach(([detailName, details]) => {
             mappings[detailName] = this.createColorMapping(details)
@@ -137,11 +151,11 @@ export default class Mapbox {
             type: 'Feature',
             geometry: {
                 type: 'LineString',
-                coordinates: coordinates
+                coordinates: coordinates,
             },
             properties: {
-                attributeType: attributeType
-            }
+                attributeType: attributeType,
+            },
         }
     }
 
@@ -151,8 +165,8 @@ export default class Mapbox {
             features: features,
             properties: {
                 summary: detailName,
-                records: features.length
-            }
+                records: features.length,
+            },
         }
     }
 
@@ -162,31 +176,39 @@ export default class Mapbox {
             // for numeric details we use a color gradient, taken from here:  https://uigradients.com/#Superman
             const colorMin = [0, 153, 247]
             const colorMax = [241, 23, 18]
-            return function(attributeType: number) {
+            return function (attributeType: number) {
                 const factor = (attributeType - detailInfo.minVal) / (detailInfo.maxVal - detailInfo.minVal)
                 const color = []
-                for (let i = 0; i < 3; i++)
-                    color.push(colorMin[i] + factor * (colorMax[i] - colorMin[i]))
+                for (let i = 0; i < 3; i++) color.push(colorMin[i] + factor * (colorMax[i] - colorMin[i]))
                 return {
-                    'text': attributeType,
-                    'color': 'rgb(' + color[0] + ', ' + color[1] + ', ' + color[2] + ')'
+                    text: attributeType,
+                    color: 'rgb(' + color[0] + ', ' + color[1] + ', ' + color[2] + ')',
                 }
             }
         } else {
             // for discrete encoded values we use discrete colors
             const values = detail.map((d: any) => d[2])
-            return function(attributeType: string) {
+            return function (attributeType: string) {
                 // we choose a color-blind friendly palette from here: https://personal.sron.nl/~pault/#sec:qualitative
                 // see also this: https://thenode.biologists.com/data-visualization-with-flying-colors/research/
-                const palette = ['#332288', '#88ccee', '#44aa99', '#117733', '#999933', '#ddcc77', '#cc6677', '#882255', '#aa4499']
+                const palette = [
+                    '#332288',
+                    '#88ccee',
+                    '#44aa99',
+                    '#117733',
+                    '#999933',
+                    '#ddcc77',
+                    '#cc6677',
+                    '#882255',
+                    '#aa4499',
+                ]
                 const missingColor = '#dddddd'
                 const index = values.indexOf(attributeType) % palette.length
-                const color = attributeType === 'missing' || attributeType === 'unclassified' || attributeType === 'Undefined'
-                    ? missingColor
-                    : palette[index]
+                const color =
+                    attributeType === 'missing' || attributeType === 'unclassified' ? missingColor : palette[index]
                 return {
-                    'text': attributeType,
-                    'color': color
+                    text: attributeType,
+                    color: color,
                 }
             }
         }
@@ -211,7 +233,7 @@ export default class Mapbox {
         return {
             numeric: numberCount === detail.length,
             minVal: minVal,
-            maxVal: maxVal
+            maxVal: maxVal,
         }
     }
 
@@ -222,9 +244,9 @@ export default class Mapbox {
                 {
                     type: 'Feature',
                     properties: {},
-                    geometry: path.points as LineString
-                }
-            ]
+                    geometry: path.points as LineString,
+                },
+            ],
         }
         this.setGeoJsonSource(selectedPathSourceKey, featureCollection)
     }
@@ -236,11 +258,11 @@ export default class Mapbox {
                 return {
                     type: 'Feature',
                     properties: {
-                        index: indexPath.index
+                        index: indexPath.index,
                     },
-                    geometry: indexPath.path.points as LineString
+                    geometry: indexPath.path.points as LineString,
                 }
-            })
+            }),
         }
 
         this.setGeoJsonSource(pathsSourceKey, featureCollection)
@@ -255,7 +277,7 @@ export default class Mapbox {
             } else {
                 source.setData({
                     features: [],
-                    type: 'FeatureCollection'
+                    type: 'FeatureCollection',
                 })
             }
         } catch (error) {
@@ -275,7 +297,7 @@ export default class Mapbox {
             .map(indexPoint =>
                 new Marker({
                     color: indexPoint.point.color,
-                    draggable: true
+                    draggable: true,
                 })
                     .setLngLat(indexPoint.point.coordinate)
                     .on('dragend', (e: { type: string; target: Marker }) => {
@@ -284,7 +306,7 @@ export default class Mapbox {
                             new SetPoint({
                                 ...indexPoint.point,
                                 coordinate: marker.getLngLat(),
-                                queryText: coordinateToText(marker.getLngLat())
+                                queryText: coordinateToText(marker.getLngLat()),
                             })
                         )
                     })
@@ -296,8 +318,8 @@ export default class Mapbox {
         if (bbox.every(num => num !== 0)) {
             this.map.fitBounds(new LngLatBounds(bbox), {
                 padding: Mapbox.getPadding(),
-                duration: 350,
-                animate: !this.isFirstBounds
+                duration: 500,
+                animate: !this.isFirstBounds,
             })
             if (this.isFirstBounds) this.isFirstBounds = false
         }
@@ -319,6 +341,10 @@ export default class Mapbox {
         this.map.setPitch(viewPort.pitch)
     }
 
+    resize() {
+        this.map.resize()
+    }
+
     private initLineLayers() {
         const source: GeoJSONSourceRaw = {
             type: 'geojson',
@@ -327,9 +353,9 @@ export default class Mapbox {
                 properties: {},
                 geometry: {
                     type: 'Point',
-                    coordinates: []
-                }
-            }
+                    coordinates: [],
+                },
+            },
         }
 
         const pathsLayer: LineLayer = {
@@ -338,13 +364,13 @@ export default class Mapbox {
             source: pathsSourceKey,
             layout: {
                 'line-join': 'round',
-                'line-cap': 'round'
+                'line-cap': 'round',
             },
             paint: {
                 'line-color': '#5B616A',
                 'line-width': 6,
-                'line-opacity': 0.8
-            }
+                'line-opacity': 0.8,
+            },
         }
 
         this.map.addSource(pathsSourceKey, source)
@@ -357,20 +383,20 @@ export default class Mapbox {
             source: selectedPathSourceKey,
             paint: {
                 'line-color': '#275DAD',
-                'line-width': 8
-            }
+                'line-width': 8,
+            },
         })
     }
 
     private static getPadding() {
         return mediaQuery.matches
-            ? { top: 400, bottom: 16, right: 16, left: 16 }
+            ? { top: 250, bottom: 150, right: 16, left: 16 }
             : {
-                top: 100,
-                bottom: 100,
-                right: 100,
-                left: 500
-            }
+                  top: 100,
+                  bottom: 100,
+                  right: 100,
+                  left: 500,
+              }
     }
 
     private static getStyle(styleOption: StyleOption): string | Style {
@@ -387,20 +413,44 @@ export default class Mapbox {
                     tiles: rasterStyle.url,
                     attribution: rasterStyle.attribution,
                     tileSize: 256,
-                    maxzoom: rasterStyle.maxZoom ? styleOption.maxZoom : 22
-                }
+                    maxzoom: rasterStyle.maxZoom ? styleOption.maxZoom : 22,
+                },
             },
             layers: [
                 {
                     id: 'raster-layer',
                     type: 'raster',
-                    source: 'raster-source'
-                }
-            ]
+                    source: 'raster-source',
+                },
+            ],
         }
     }
 
     private static isVectorStyle(styleOption: StyleOption): styleOption is VectorStyle {
         return styleOption.type === 'vector'
+    }
+}
+
+class LongTouchHandler {
+    private callback: (e: MapTouchEvent) => void
+    private currentTimeout: number = 0
+    private currentEvent?: MapTouchEvent
+
+    constructor(onLongTouch: (e: MapTouchEvent) => void) {
+        this.callback = onLongTouch
+    }
+
+    onTouchStart(e: MapTouchEvent) {
+        this.currentEvent = e
+        this.currentTimeout = window.setTimeout(() => {
+            console.log('long touch')
+            if (this.currentEvent) this.callback(this.currentEvent)
+        }, 500)
+    }
+
+    onTouchEnd() {
+        console.log('touch end')
+        window.clearTimeout(this.currentTimeout)
+        this.currentEvent = undefined
     }
 }

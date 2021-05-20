@@ -6,6 +6,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { MapIsLoaded } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
+import { useMediaQuery } from 'react-responsive'
 
 type MapProps = {
     selectedPath: Path
@@ -19,6 +20,7 @@ export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: Ma
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
     const prevViewPort = useRef<ViewPort | null>(null)
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     useEffect(() => {
         prevViewPort.current = null
     }, [bbox])
@@ -43,7 +45,7 @@ export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: Ma
         return () => map?.remove()
     }, [mapStyle])
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
-    useEffect(() => map?.showPathDetails(selectedPath), [selectedPath, map])
+    useEffect(() => map?.showPathDetails(selectedPath, isSmallScreen), [selectedPath, isSmallScreen, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
     useEffect(() => {
         // previous view port takes precedence if it was set. for example when we just changed the mapStyle we do
@@ -53,6 +55,7 @@ export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: Ma
         else
             map?.fitBounds(bbox)
     }, [bbox, map, prevViewPort])
+    useEffect(() => map?.resize())
 
     return <div className={styles.map} ref={mapContainerRef} />
 }
