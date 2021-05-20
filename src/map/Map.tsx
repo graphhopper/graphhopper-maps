@@ -19,13 +19,15 @@ export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: Ma
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
     const prevViewPort = useRef<ViewPort | null>(null)
-    prevViewPort.current = null
+    useEffect(() => {
+        prevViewPort.current = null
+    }, [bbox])
 
     useEffect(() => {
         if (map) {
-            map.remove()
             // save the current view port so we can set it after re-creating the Mapbox instance when we change mapStyle
             prevViewPort.current = map.getViewPort()
+            map.remove()
         }
 
         const mapWrapper = new Mapbox(
