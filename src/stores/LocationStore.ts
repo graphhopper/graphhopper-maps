@@ -2,6 +2,7 @@ import { Coordinate } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
 import { LocationUpdate } from '@/actions/Actions'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
+import NoSleep from 'nosleep.js'
 
 export interface LocationStoreState {
     turnNavigation: boolean
@@ -12,6 +13,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     
     private watchId : any
     private interval: any
+    private noSleep : any
 
     protected getInitialState(): LocationStoreState {
         return {
@@ -75,11 +77,9 @@ export default class LocationStore extends Store<LocationStoreState> {
             this.watchId = navigator.geolocation.watchPosition(success, function(err) { console.log("location watch error", err);}, options)
         }
 
-        // TODO NOW
-        // if(!this.noSleep) {
-        //    this.noSleep = new NoSleep();
-        //    this.noSleep.enable()
-        // }
+        if(!this.noSleep)
+            this.noSleep = new NoSleep();
+        this.noSleep.enable()
     }
 
     public stop() {
@@ -91,6 +91,9 @@ export default class LocationStore extends Store<LocationStoreState> {
 
         // directly writing the state does not work: this.state.turnNavigation = false
         Dispatcher.dispatch(new LocationUpdate({lat: 0, lng: 0 }, false))
+
+        if(!this.noSleep)
+            this.noSleep.disable()
 
         console.log("stopped location updates")
     }
