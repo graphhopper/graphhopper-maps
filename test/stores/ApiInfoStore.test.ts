@@ -16,7 +16,7 @@ describe('ApiInfoStore', () => {
             import_date: 'some-date',
             version: 'some-version',
             elevation: true,
-            profiles: [{ key: 'some-profile' }],
+            profiles: [{ name: 'some-profile' }],
         }
         const store = new ApiInfoStore()
 
