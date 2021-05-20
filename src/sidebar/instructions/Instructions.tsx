@@ -43,7 +43,7 @@ const Line = function ({ instruction, index }: { instruction: Instruction; index
     )
 }
 
-function getSignName(sign: number, index: number) {
+export function getSignName(sign: number, index: number) {
     if (index === 0) return markerIconGreen
 
     switch (sign) {

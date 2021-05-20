@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Sidebar from '@/sidebar/Sidebar'
+import TurnNavigation from '@/turnNavigation/TurnNavigation'
 import styles from './App.module.css'
 import { getApiInfoStore, getErrorStore, getMapOptionsStore, getQueryStore, getRouteStore } from '@/stores/Stores'
 import MapComponent from '@/map/Map'
@@ -46,7 +47,25 @@ export default function App() {
     }
 
     const bbox = chooseBoundingBox(info.bbox, useInfoBbox, route.selectedPath.bbox)
-
+    const turnNavigation = true
+    if(turnNavigation && route.selectedPath.instructions.length > 0)
+        return (
+            <div className={styles.appWrapper}>
+                <div className={styles.map}>
+                    <MapComponent
+                        queryPoints={query.queryPoints}
+                        paths={route.routingResult.paths}
+                        selectedPath={route.selectedPath}
+                        bbox={bbox}
+                        mapStyle={mapOptions.selectedStyle}
+                    />
+                </div>
+                <div className={styles.turnNavigation}>
+                    <TurnNavigation path={route.selectedPath}/>
+                </div>
+            </div>
+        )
+    
     return (
         <div className={styles.appWrapper}>
             <div className={styles.map}>
