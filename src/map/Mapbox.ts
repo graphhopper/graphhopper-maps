@@ -42,7 +42,9 @@ export default class Mapbox {
             container: container,
             accessToken:
                 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
-            style: Mapbox.getStyle(mapStyle)
+            style: Mapbox.getStyle(mapStyle),
+            maxBounds: [[-180, -90], [180, 90]],
+            renderWorldCopies: false
         })
 
         // add controls
