@@ -48,7 +48,7 @@ export default function App() {
 
     const bbox = chooseBoundingBox(info.bbox, useInfoBbox, route.selectedPath.bbox)
     const turnNavigation = true
-    if(turnNavigation && route.selectedPath.instructions.length > 0)
+    if (turnNavigation && route.selectedPath.instructions.length > 0)
         return (
             <div className={styles.appWrapper}>
                 <div className={styles.map}>
@@ -61,11 +61,11 @@ export default function App() {
                     />
                 </div>
                 <div className={styles.turnNavigation}>
-                    <TurnNavigation path={route.selectedPath}/>
+                    <TurnNavigation path={route.selectedPath} currentLocation={{ lat: 51.434655, lng: 14.249504 }} />
                 </div>
             </div>
         )
-    
+
     return (
         <div className={styles.appWrapper}>
             <div className={styles.map}>

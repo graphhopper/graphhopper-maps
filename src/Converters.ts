@@ -9,10 +9,14 @@ export function milliSecondsToText(seconds: number) {
     return hourText + ' ' + minutes + ' min'
 }
 
-const distanceFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 })
+const distanceFormatPrecise = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 })
+const distanceFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 })
 export function metersToText(meters: number) {
     if (meters < 1000) return Math.floor(meters) + ' m'
-    return distanceFormat.format(meters / 1000) + ' km'
+    if(meters < 5000)
+        return distanceFormatPrecise.format(meters / 1000) + ' km'
+    else
+        return distanceFormat.format(meters / 1000) + ' km'
 }
 
 export function coordinateToText(coord: Coordinate): string {

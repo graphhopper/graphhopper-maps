@@ -8,6 +8,8 @@
     max-height: 2rem;
 }
 .turnSign {
+    font-size: smaller;
+    min-width: 20%;
     flex-direction: column;
 }
 
@@ -22,4 +24,9 @@
 .arrival {
     display: flex;
     flex-direction: row;
+}
+
+.arrival_date {
+    font-size: larger;
+    font-weight: bold;
 }
