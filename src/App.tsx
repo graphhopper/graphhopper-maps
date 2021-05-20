@@ -69,6 +69,7 @@ export default function App() {
                         selectedPath={route.selectedPath}
                         bbox={bbox}
                         mapStyle={mapOptions.selectedStyle}
+                        currentLocation={location.coordinate}
                     />
                 </div>
                 <div className={styles.turnNavigation}>
@@ -86,6 +87,7 @@ export default function App() {
                     selectedPath={route.selectedPath}
                     bbox={bbox}
                     mapStyle={mapOptions.selectedStyle}
+                    currentLocation={{ lat: 0, lng: 0 }} // no state update if navigation disabled
                 />
             </div>
             <div className={styles.sidebar}>
