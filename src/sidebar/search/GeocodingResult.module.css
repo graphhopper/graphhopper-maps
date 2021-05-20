@@ -1,0 +1,33 @@
+.selectableGeocodingEntry {
+    display: block;
+    width: 100%;
+
+    border: none;
+    border-bottom: 1px lightgray solid;
+    background: none;
+    color: inherit;
+    font: inherit;
+    padding: 0;
+    cursor: pointer;
+    outline: inherit;
+    overflow: hidden;
+}
+
+.selectableGeocodingEntry:hover {
+    background-color: #ececec;
+}
+
+.selectableGeocodingEntry:active {
+    background-color: #c6c6c6;
+}
+
+.geocodingEntry {
+    display: flex;
+    flex-direction: column;
+    text-align: start;
+    margin: 0.5rem 0.5rem;
+}
+
+.geocodingEntryMain {
+    font-weight: bold;
+}

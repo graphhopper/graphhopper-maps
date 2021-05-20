@@ -1,0 +1,49 @@
+.container {
+    position: relative;
+}
+
+@media (max-width: 44rem) {
+    .fullscreen {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: white;
+        z-index: 5;
+        padding: 0.5rem;
+    }
+
+    .fullscreen .btnClose{
+        display: block;
+    }
+
+}
+
+.btnClose {
+    display: none;
+}
+
+.inputContainer {
+    display:flex;
+    gap: 0.5rem;
+}
+
+.input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #5b616a;
+    border-radius: 0.2rem;
+    -webkit-appearance: none;
+}
+
+.popup {
+    position: absolute;
+    box-sizing: border-box;
+    width: 100%;
+    background: white;
+    border: solid 1px lightgray;
+    z-index: 1000;
+}
