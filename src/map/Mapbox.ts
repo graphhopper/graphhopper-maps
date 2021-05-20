@@ -107,7 +107,6 @@ export default class Mapbox {
         if(location.lat === 0 && location.lng == 0)
             return;
 
-        // console.log("NOW change location on map ", coordinate)
         const featureCollection: FeatureCollection = {
             type: 'FeatureCollection',
             features: [{
@@ -118,6 +117,9 @@ export default class Mapbox {
         }
 
         this.setGeoJsonSource(currentLocationSourceKey, featureCollection)
+
+        // TODO NOW when the bbox handling is merged, then this is better done via updating the bbox in the TurnNavigation
+        this.fitBounds([location.lng-0.001, location.lat-0.001, location.lng+0.001, location.lat+0.001])
     }
 
     showPathDetails(selectedPath: Path) {

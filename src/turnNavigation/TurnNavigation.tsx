@@ -11,6 +11,8 @@ type TurnNavigationProps = {
 }
 
 export default function ({ path, currentLocation }: TurnNavigationProps) {
+    if (currentLocation.lat == 0 && currentLocation.lng == 0) return <span>Searching GPS...</span>
+
     const { instructionIndex, distanceNext } = getCurrentInstruction(path.instructions, currentLocation)
 
     console.log('update ' + currentLocation)
