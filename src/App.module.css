@@ -63,17 +63,18 @@
 
 @media (max-width: 44rem) {
     .appWrapper {
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 100%;
         grid-template-rows: auto 0 1fr auto auto;
     }
 
     .map {
         grid-row: 1 / span 3;
+        grid-column: 1 / span 1;
     }
 
     .sidebar {
         grid-row: 1 / span 1;
-        grid-column: 1 / span 2;
+        grid-column: 1 / span 1;
         margin: 0;
         border-radius: 0;
         z-index: 3;
@@ -82,7 +83,8 @@
 
     .mapOptions {
         grid-row: 2 / span 1;
-        grid-column: 2 / span 1;
+        grid-column: 1 / span 1;
+        justify-self: end;
         box-shadow: none;
     }
 
@@ -92,7 +94,7 @@
 
     .routingResult {
         grid-row: 4 / span 1;
-        grid-column: 1 / span 2;
+        grid-column: 1 / span 1;
         margin: 0;
         z-index: 2;
         box-shadow: none;
@@ -100,12 +102,10 @@
 
     .poweredBy {
         grid-row: 5 / span 1;
-        grid-column: 1 / span 2;
+        grid-column: 1 / span 1;
         margin: 0;
         border-radius: 0;
         z-index: 2;
         box-shadow: none;
     }
-
-
 }
