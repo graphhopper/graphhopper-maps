@@ -27,7 +27,7 @@ export interface RoutingRequest {
 
 export interface ErrorResponse {
     message: string
-    hints: unknown
+    hints: any[]
 }
 
 export interface RoutingResult {

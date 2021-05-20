@@ -194,7 +194,7 @@ describe('route', () => {
 
         const error: ErrorResponse = {
             message: 'message',
-            hints: {},
+            hints: [],
         }
 
         fetchMock.mockRejectOnce(() => Promise.resolve(new Response(JSON.stringify(error), { status: 400 })))
