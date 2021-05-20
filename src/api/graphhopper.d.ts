@@ -49,7 +49,7 @@ export interface ApiInfo {
 }
 
 export interface RoutingProfile {
-    readonly key: string
+    readonly name: string
 }
 
 export interface Path extends BasePath {

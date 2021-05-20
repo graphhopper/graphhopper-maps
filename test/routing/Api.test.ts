@@ -23,7 +23,7 @@ describe('info api', () => {
         const expectedUrl = 'https://graphhopper.com/api/1/info?key=' + ghKey
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
-            import_date: 'some_date',
+            import_date: 'some_date1',
             profiles: [],
             elevation: false,
             version: 'some_version',
@@ -54,14 +54,11 @@ describe('info api', () => {
     })
 
     it('should convert the response into an ApiInfo object', async () => {
-        const carRoutingVehicle = {
-            key: 'car'
-        }
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
             elevation: true,
-            import_date: 'some_date',
-            profiles: [carRoutingVehicle],
+            import_date: 'some_date2',
+            profiles: [{ name: 'car' }],
             version: 'some_version',
         }
 
@@ -146,7 +143,7 @@ describe('route', () => {
             profile: args.profile,
             elevation: true,
             debug: false,
-            instructions: true,
+            instructions: false,
             locale: 'en',
             optimize: 'false',
             points_encoded: true,

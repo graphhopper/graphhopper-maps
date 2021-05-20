@@ -151,7 +151,7 @@ export class ApiImpl implements Api {
 
         for (const profileIndex in response.profiles as ApiProfile[]) {
             const profile: RoutingProfile = {
-                key: response.profiles[profileIndex].name,
+                name: response.profiles[profileIndex].name,
             }
 
             profiles.push(profile)

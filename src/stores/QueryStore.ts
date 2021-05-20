@@ -78,7 +78,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             },
             maxAlternativeRoutes: 3,
             routingProfile: {
-                key: ''
+                name: ''
             },
         }
     }
@@ -156,10 +156,10 @@ export default class QueryStore extends Store<QueryStoreState> {
             return this.routeIfAllPointsSet(newState)
         } else if (action instanceof InfoReceived) {
             // this is the case if the vehicle was set in the url. Keep it in this case
-            if (state.routingProfile.key) return state
+            if (state.routingProfile.name) return state
 
             // otherwise select car as default routing mode
-            const car = action.result.profiles.find(profile => profile.key === 'car')
+            const car = action.result.profiles.find(profile => profile.name === 'car')
             return {
                 ...state,
                 routingProfile: car ? car : action.result.profiles[0],
@@ -268,7 +268,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         return {
             points: coordinates,
-            profile: state.routingProfile.key,
+            profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
         }
     }
