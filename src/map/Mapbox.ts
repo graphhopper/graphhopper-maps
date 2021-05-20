@@ -17,10 +17,10 @@ import { Popup } from '@/map/Popup'
 import { FeatureCollection, LineString } from 'geojson'
 import { Bbox, Path } from '@/api/graphhopper'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
-import { MapboxHeightGraph } from 'leaflet.heightgraph/example/MapboxHeightGraph'
-import 'leaflet.heightgraph/src/heightgraph.css'
 
 window.mapboxgl = mapboxgl
+import { MapboxHeightGraph } from 'leaflet.heightgraph/example/MapboxHeightGraph'
+import 'leaflet.heightgraph/src/heightgraph.css'
 
 const selectedPathSourceKey = 'selectedPathSource'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -47,6 +47,8 @@ export default class Mapbox {
             accessToken:
                 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
             style: Mapbox.getStyle(mapStyle),
+            maxBounds: [[-180, -90], [180, 90]],
+            renderWorldCopies: false
         })
 
         // add controls
