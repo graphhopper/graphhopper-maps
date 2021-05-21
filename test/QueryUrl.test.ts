@@ -9,11 +9,12 @@ interface TestState {
     points: Coordinate[]
     profile: RoutingProfile
 }
+
 class TestStore extends Store<TestState> {
     protected getInitialState(): TestState {
         return {
             points: [],
-            profile: { name: '' },
+            profile: { name: '' }
         }
     }
 
@@ -22,12 +23,12 @@ class TestStore extends Store<TestState> {
             state.points.push(action.coordinate)
             return {
                 ...state,
-                points: state.points,
+                points: state.points
             }
         } else if (action instanceof SetVehicleProfile) {
             return {
                 ...state,
-                profile: action.profile,
+                profile: action.profile
             }
         }
         return state
@@ -51,7 +52,7 @@ describe('parseUrl', () => {
             nextQueryPointId: 0,
             currentRequest: { subRequests: [] },
             maxAlternativeRoutes: 1,
-            routingProfile: store.state.profile,
+            routingProfile: store.state.profile
         })
 
         expect(store.state.points.length).toEqual(2)
@@ -71,7 +72,7 @@ describe('parseUrl', () => {
                 } else {
                     fail('Unexpected action received')
                 }
-            },
+            }
         })
 
         parseUrl(url, getQueryStoreState())
@@ -92,7 +93,7 @@ describe('parseUrl', () => {
                 } else {
                     fail('Unexpected action received')
                 }
-            },
+            }
         })
 
         parseUrl(url, getQueryStoreState())
@@ -110,7 +111,7 @@ describe('parseUrl', () => {
 
 describe('createUrl', () => {
     it('should convert points of a request into url params', () => {
-        const point1 = [50.677246,  7.275303] as [number, number]
+        const point1 = [50.677246, 7.275303] as [number, number]
         const point2 = [50.280504, 10.815158] as [number, number]
         const profile = 'profile-type'
         const expectedUrl = new URL('http://localhost:3000/')
@@ -125,7 +126,7 @@ describe('createUrl', () => {
             nextQueryPointId: 0,
             maxAlternativeRoutes: 1,
             currentRequest: { subRequests: [] },
-            queryPoints: [coordinateToQueryPoint(point1, 1), coordinateToQueryPoint(point2, 2)],
+            queryPoints: [coordinateToQueryPoint(point1, 1), coordinateToQueryPoint(point2, 2)]
         })
 
         expect(result).toEqual(expectedUrl)
@@ -138,7 +139,7 @@ function getQueryStoreState(): QueryStoreState {
         nextQueryPointId: 0,
         currentRequest: { subRequests: [] },
         maxAlternativeRoutes: 1,
-        routingProfile: { name: '' },
+        routingProfile: { name: '' }
     }
 }
 
@@ -149,6 +150,6 @@ function coordinateToQueryPoint(coordinate: [number, number], id: number): Query
         queryText: '',
         id: id,
         color: '',
-        type: QueryPointType.Via,
+        type: QueryPointType.Via
     }
 }
