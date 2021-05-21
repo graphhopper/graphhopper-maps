@@ -102,7 +102,9 @@ export class ApiImpl implements Api {
             const errorResult = (await response.json()) as ErrorResponse
             let message = errorResult.message
             if (errorResult.hints.length > 0)
-                message += (message ? message + ' and ' : '') + (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
+                message +=
+                    (message ? message + ' and ' : '') +
+                    (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
 
             throw new Error(message)
         }
