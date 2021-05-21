@@ -16,23 +16,23 @@ export default class RouteStore extends Store<RouteStoreState> {
             instructions: [],
             points: {
                 coordinates: [],
-                type: 'LineString',
+                type: 'LineString'
             },
             points_encoded: false,
             snapped_waypoints: {
                 type: 'LineString',
-                coordinates: [],
+                coordinates: []
             },
             ascend: 0,
             descend: 0,
             details: {
                 max_speed: [],
                 street_name: [],
-                toll: [],
+                toll: []
             },
             distance: 0,
             points_order: [],
-            time: 0,
+            time: 0
         }
     }
 
@@ -49,7 +49,7 @@ export default class RouteStore extends Store<RouteStoreState> {
         } else if (action instanceof SetSelectedPath) {
             return {
                 ...state,
-                selectedPath: action.path,
+                selectedPath: action.path
             }
         } else if (action instanceof SetPoint || action instanceof ClearRoute) {
             return this.getInitialState()
@@ -63,10 +63,10 @@ export default class RouteStore extends Store<RouteStoreState> {
                 paths: [],
                 info: {
                     copyright: [],
-                    took: 0,
-                },
+                    took: 0
+                }
             },
-            selectedPath: RouteStore.getEmptyPath(),
+            selectedPath: RouteStore.getEmptyPath()
         }
     }
 
@@ -76,7 +76,7 @@ export default class RouteStore extends Store<RouteStoreState> {
         if (RouteStore.containsPaths(action.result.paths)) {
             return {
                 routingResult: action.result,
-                selectedPath: action.result.paths[0],
+                selectedPath: action.result.paths[0]
             }
         }
         return this.getInitialState()

@@ -18,7 +18,7 @@ export class Popup {
     private readonly popup = new mapboxgl.Popup({
         closeOnMove: true,
         closeOnClick: true,
-        closeButton: false,
+        closeButton: false
     })
     private readonly queryStore = getQueryStore()
     private readonly container = document.createElement('div')
@@ -46,27 +46,27 @@ export class Popup {
 }
 
 function PopupComponent({
-    coordinate,
-    queryPoints,
-    onSelect,
-}: {
+                            coordinate,
+                            queryPoints,
+                            onSelect
+                        }: {
     coordinate: mapboxgl.LngLat
     queryPoints: QueryPoint[]
     onSelect: () => void
 }) {
-    const dispatchSetPoint = function (point: QueryPoint, coordinate: mapboxgl.LngLat) {
+    const dispatchSetPoint = function(point: QueryPoint, coordinate: mapboxgl.LngLat) {
         onSelect()
         Dispatcher.dispatch(
             new SetPoint({
                 ...point,
                 coordinate: coordinate,
                 queryText: coordinateToText(coordinate),
-                isInitialized: true,
+                isInitialized: true
             })
         )
     }
 
-    const setViaPoint = function (points: QueryPoint[]) {
+    const setViaPoint = function(points: QueryPoint[]) {
         const viaPoints = points.filter(point => point.type === QueryPointType.Via)
         const point = viaPoints.find(point => !point.isInitialized)
         onSelect()
@@ -78,7 +78,7 @@ function PopupComponent({
         }
     }
 
-    const disableViaPoint = function (points: QueryPoint[]) {
+    const disableViaPoint = function(points: QueryPoint[]) {
         return (
             points.length >= 5 &&
             points.filter(point => point.type === QueryPointType.Via).every(point => point.isInitialized)

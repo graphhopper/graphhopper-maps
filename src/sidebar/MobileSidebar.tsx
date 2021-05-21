@@ -15,7 +15,7 @@ type MobileSidebarProps = {
     error: ErrorStoreState
 }
 
-export default function ({ query, route, info, error }: MobileSidebarProps) {
+export default function({ query, route, info, error }: MobileSidebarProps) {
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
     const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen && hasResult(route))
