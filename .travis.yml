@@ -15,7 +15,7 @@ before_deploy: pip install --user awscli
 
 deploy:
     on:
-        all_branches: true
+        all_branches: master
     skip_cleanup: true
     provider: script
     script:
