@@ -11,7 +11,7 @@ export interface LocationStoreState {
 
 export default class LocationStore extends Store<LocationStoreState> {
     
-    private watchId : any
+    private watchId : any = undefined
     private interval: any
     private noSleep : any
 
@@ -66,7 +66,7 @@ export default class LocationStore extends Store<LocationStoreState> {
             console.log("location init")
 
             // force calling clearWatch can help to find GPS fix more reliable in android firefox
-            if(this.watchId)
+            if(this.watchId !== undefined)
                 navigator.geolocation.clearWatch(this.watchId)
 
             var success = (pos: any) => {
@@ -86,7 +86,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         if(this.interval)
             clearInterval(this.interval);
 
-        if(this.watchId)
+        if(this.watchId !== undefined)
             navigator.geolocation.clearWatch(this.watchId)
 
         // directly writing the state does not work: this.state.turnNavigation = false
@@ -95,6 +95,6 @@ export default class LocationStore extends Store<LocationStoreState> {
         if(!this.noSleep)
             this.noSleep.disable()
 
-        console.log("stopped location updates")
+        console.log("stopped location updates " + this.watchId + ", " + this.interval)
     }
 }

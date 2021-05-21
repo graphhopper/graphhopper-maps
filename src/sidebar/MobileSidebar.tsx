@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { ApiInfo, RoutingProfile } from '@/api/graphhopper'
+import { ApiInfo, RoutingProfile, Path } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'
@@ -57,16 +57,10 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                         points={query.queryPoints}
                         routingProfiles={info.profiles}
                         selectedProfile={query.routingProfile}
+                        path={route.selectedPath}
                     />
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}
-                <div>
-                    {route.selectedPath.instructions.length > 0 ? (
-                        <img onClick={() => getLocationStore().initReal()} src={startNavigation} />
-                    ) : (
-                        <img src={startNavigationDisabled} />
-                    )}
-                </div>
             </div>
         </div>
     )
@@ -80,6 +74,7 @@ function SearchView(props: {
     points: QueryPoint[]
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
+    path: Path
 }) {
     return (
         <div className={styles.btnCloseContainer}>
@@ -88,6 +83,13 @@ function SearchView(props: {
                 routingProfiles={props.routingProfiles}
                 selectedProfile={props.selectedProfile}
             />
+            <div>
+                {props.path.instructions.length > 0 ? (
+                    <img onClick={() => getLocationStore().initReal()} src={startNavigation} />
+                ) : (
+                    <img src={startNavigationDisabled} />
+                )}
+            </div>
         </div>
     )
 }
