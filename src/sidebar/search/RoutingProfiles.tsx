@@ -4,10 +4,10 @@ import Dispatcher from '@/stores/Dispatcher'
 import { SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 
-export default function ({
-    routingProfiles,
-    selectedProfile,
-}: {
+export default function({
+                            routingProfiles,
+                            selectedProfile
+                        }: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
 }) {
@@ -22,13 +22,14 @@ export default function ({
             }}
         >
             {routingProfiles.map(profile => (
-                <option key={profile.key}>{getEmoji(profile)}</option>
+                <option key={profile.name}>{getEmoji(profile)}</option>
             ))}
         </select>
     )
 }
+
 function getEmoji(profile: RoutingProfile) {
-    switch (profile.key) {
+    switch (profile.name) {
         case 'car':
             return '🚗\u00a0Car'
         case 'small_truck':

@@ -18,7 +18,7 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
                 throw Error(
                     'Could not parse url parameter point: ' + parameter + ' Think about what to do instead of crashing'
                 )
-            return { lat: parseNumber(split[0]), lng: parseNumber(split[1])}
+            return { lat: parseNumber(split[0]), lng: parseNumber(split[1]) }
         })
         .map(
             (coordinate, i): QueryPoint => {
@@ -28,7 +28,7 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
                     id: i,
                     queryText: '',
                     color: '',
-                    type: QueryPointType.Via,
+                    type: QueryPointType.Via
                 }
             }
         )
@@ -45,11 +45,11 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
 }
 
 function parseRoutingProfile(url: URL) {
-    var profileKey = url.searchParams.get('profile')
-    if (!profileKey) profileKey = "car"
+    let profileKey = url.searchParams.get('profile')
+    if (!profileKey) profileKey = 'car'
     Dispatcher.dispatch(
         new SetVehicleProfile({
-            key: profileKey
+            name: profileKey
         })
     )
 }
@@ -66,7 +66,7 @@ export function createUrl(baseUrl: string, state: QueryStoreState) {
         .map(point => coordinateToText(point.coordinate))
         .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
-    result.searchParams.append('profile', state.routingProfile.key)
+    result.searchParams.append('profile', state.routingProfile.name)
 
     return result
 }

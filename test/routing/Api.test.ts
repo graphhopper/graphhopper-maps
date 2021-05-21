@@ -16,17 +16,18 @@ afterEach(() => Dispatcher.clear())
 // disable fetchMock and restore global 'fetch' method
 afterAll(() => fetchMock.disableMocks())
 
-it('should pass', () => {})
+it('should pass', () => {
+})
 
 describe('info api', () => {
     it('should query correct url and dispatch an InfoReceived action', async () => {
         const expectedUrl = 'https://graphhopper.com/api/1/info?key=' + ghKey
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
-            import_date: 'some_date',
+            import_date: 'some_date1',
             profiles: [],
             elevation: false,
-            version: 'some_version',
+            version: 'some_version'
         }
 
         fetchMock.mockResponse(request => {
@@ -47,22 +48,19 @@ describe('info api', () => {
             receive(action: Action) {
                 expect(action instanceof InfoReceived).toBeTruthy()
                 expect((action as InfoReceived).result).toEqual(expected)
-            },
+            }
         })
 
         await new ApiImpl().infoWithDispatch()
     })
 
     it('should convert the response into an ApiInfo object', async () => {
-        const carRoutingVehicle = {
-            key: 'car'
-        }
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
             elevation: true,
-            import_date: 'some_date',
-            profiles: [carRoutingVehicle],
-            version: 'some_version',
+            import_date: 'some_date2',
+            profiles: [{ name: 'car' }],
+            version: 'some_version'
         }
 
         fetchMock.mockResponseOnce(
@@ -80,7 +78,7 @@ describe('info api', () => {
             receive(action: Action) {
                 expect(action instanceof InfoReceived).toBeTruthy()
                 expect((action as InfoReceived).result).toEqual(expected)
-            },
+            }
         })
 
         await new ApiImpl().infoWithDispatch()
@@ -92,7 +90,7 @@ describe('route', () => {
         const args: RoutingArgs = {
             points: [],
             maxAlternativeRoutes: 1,
-            profile: 'profile',
+            profile: 'profile'
         }
 
         fetchMock.mockResponse(request => {
@@ -112,7 +110,7 @@ describe('route', () => {
         const args: RoutingArgs = {
             points: [],
             maxAlternativeRoutes: 1,
-            profile: 'car',
+            profile: 'car'
         }
 
         const expectedBody: RoutingRequest = {
@@ -138,7 +136,7 @@ describe('route', () => {
         const args: RoutingArgs = {
             points: [],
             maxAlternativeRoutes: 2,
-            profile: 'car',
+            profile: 'car'
         }
 
         const expectedBody: RoutingRequest = {
@@ -146,7 +144,7 @@ describe('route', () => {
             profile: args.profile,
             elevation: true,
             debug: false,
-            instructions: true,
+            instructions: false,
             locale: 'en',
             optimize: 'false',
             points_encoded: true,
@@ -166,10 +164,10 @@ describe('route', () => {
         const args: RoutingArgs = {
             points: [
                 [0, 0],
-                [1, 1],
+                [1, 1]
             ],
             maxAlternativeRoutes: 1,
-            profile: 'bla',
+            profile: 'bla'
         }
 
         fetchMock.mockResponseOnce(JSON.stringify(getEmptyResult()))
@@ -179,7 +177,7 @@ describe('route', () => {
                 expect(action instanceof RouteRequestSuccess).toBeTruthy()
                 expect((action as RouteRequestSuccess).result.paths.length).toEqual(0)
                 expect((action as RouteRequestSuccess).request).toEqual(args)
-            },
+            }
         })
 
         await new ApiImpl().routeWithDispatch(args)
@@ -189,15 +187,15 @@ describe('route', () => {
         const args: RoutingArgs = {
             points: [
                 [0, 0],
-                [1, 1],
+                [1, 1]
             ],
             maxAlternativeRoutes: 1,
-            profile: 'bla',
+            profile: 'bla'
         }
 
         const error: ErrorResponse = {
             message: 'message',
-            hints: {},
+            hints: []
         }
 
         fetchMock.mockRejectOnce(() => Promise.resolve(new Response(JSON.stringify(error), { status: 400 })))
@@ -207,7 +205,7 @@ describe('route', () => {
                 expect(action instanceof RouteRequestFailed).toBeTruthy()
                 expect((action as RouteRequestFailed).errorMessage).toEqual(error.message)
                 expect((action as RouteRequestFailed).request).toEqual(args)
-            },
+            }
         })
 
         await new ApiImpl().routeWithDispatch(args)
@@ -217,7 +215,7 @@ describe('route', () => {
 function getEmptyResult(): RawResult {
     return {
         info: { copyright: [], took: 0 },
-        paths: [],
+        paths: []
     }
 }
 

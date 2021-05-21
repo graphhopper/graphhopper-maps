@@ -60,7 +60,7 @@ export default function App() {
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
     // only use the api info's bbox until any other bounding box was chosen. Is this too messy?
-    const chooseBoundingBox = function (infoBbox: Bbox, shouldUseInfoBbox: boolean, pathBbox?: Bbox) {
+    const chooseBoundingBox = function(infoBbox: Bbox, shouldUseInfoBbox: boolean, pathBbox?: Bbox) {
         if (shouldUseInfoBbox && pathBbox && pathBbox.every(num => num !== 0)) {
             setUseInfoBbox(false)
             return pathBbox

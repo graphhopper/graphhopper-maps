@@ -6,11 +6,12 @@ export interface ErrorStoreState {
     lastError: string
     isDismissed: boolean
 }
+
 export default class ErrorStore extends Store<ErrorStoreState> {
     protected getInitialState(): ErrorStoreState {
         return {
             isDismissed: true,
-            lastError: '',
+            lastError: ''
         }
     }
 
@@ -18,12 +19,12 @@ export default class ErrorStore extends Store<ErrorStoreState> {
         if (action instanceof RouteRequestFailed) {
             return {
                 lastError: action.errorMessage,
-                isDismissed: false,
+                isDismissed: false
             }
         } else if (action instanceof DismissLastError || action instanceof RouteRequestSuccess) {
             return {
                 ...state,
-                isDismissed: true,
+                isDismissed: true
             }
         }
         return state
