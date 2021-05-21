@@ -38,11 +38,8 @@ export default class PathDetailsStore extends Store<PathDetailsStoreState> {
             }
         } else if (action instanceof PathDetailsRangeSelected) {
             return {
-                // todo: when we change details and selected a range before and then zoomed somewhere else we jump
-                //       back to the box unintentionally -> this is caused in heightgraph, fix in master and come back
-                //       here
                 ...state,
-                pathDetailBbox: action.bbox
+                pathDetailBbox: action.bbox ? action.bbox : undefined
             }
         } else if (action instanceof PathDetailsElevationSelected) {
             return {

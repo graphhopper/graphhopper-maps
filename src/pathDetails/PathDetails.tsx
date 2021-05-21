@@ -47,8 +47,9 @@ function onPathDetailHover(point: Coordinate, elevation: string, description: st
 }
 
 /** executed when we box-select a range of the path details diagram */
-function onRangeSelected(bbox: { sw: Coordinate, ne: Coordinate }) {
-    Dispatcher.dispatch(new PathDetailsRangeSelected([bbox.sw.lng, bbox.sw.lat, bbox.ne.lng, bbox.ne.lat]))
+function onRangeSelected(bbox: { sw: Coordinate, ne: Coordinate } | null) {
+    // bbox = null means that the range was cleared
+    Dispatcher.dispatch(new PathDetailsRangeSelected(bbox ? [bbox.sw.lng, bbox.sw.lat, bbox.ne.lng, bbox.ne.lat] : null))
 }
 
 /** executed when we use the vertical elevation slider on the right side of the diagram */

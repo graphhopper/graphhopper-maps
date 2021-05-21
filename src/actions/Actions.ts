@@ -113,9 +113,9 @@ export class PathDetailsHover implements Action {
 }
 
 export class PathDetailsRangeSelected implements Action {
-    readonly bbox?: Bbox
+    readonly bbox: Bbox | null
 
-    constructor(bbox: Bbox) {
+    constructor(bbox: Bbox | null) {
         this.bbox = bbox
     }
 }
