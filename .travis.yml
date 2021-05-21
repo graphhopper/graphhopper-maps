@@ -21,3 +21,6 @@ deploy:
     script:
         # upload all files from ./dist folder and delete files on s3 which are not in current build
         - aws s3 sync ./dist s3://gh-maps-react --delete
+
+cache:
+  npm: false
