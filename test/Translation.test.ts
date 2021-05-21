@@ -31,7 +31,7 @@ describe('translate', () => {
 
             expect(tr.tr('unknownKEY')).toEqual('unknownKEY')
             expect(tr.tr('web.racingbike')).toEqual('Rennrad')
-
+            expect(tr.tr('fallback')).toEqual('fall back English')
             expect(tr.tr('web.route_info', ['27km', '18min'])).toEqual('27km werden 18min brauchen')
         })
     })

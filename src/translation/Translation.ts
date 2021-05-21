@@ -9,7 +9,10 @@ export class Translation {
 
     tr(key: string, parameters?: string[]): string {
         var str: string = this.data[key]
-        if (!str) return key
+        if (!str) {
+            str = this.fallback[key]
+            if (!str) return key
+        }
         if (parameters)
             for (let i = 0; i < parameters.length; i++) {
                 str = str.replace('%' + (i + 1) + '$s', parameters[i])
