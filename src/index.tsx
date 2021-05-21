@@ -8,7 +8,7 @@ import {
     getMapOptionsStore,
     getQueryStore,
     getRouteStore,
-    setStores
+    setStores,
 } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
@@ -18,6 +18,10 @@ import QueryStore from '@/stores/QueryStore'
 import { ApiImpl } from '@/api/Api'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
+import { Translation, TranslationMap } from '@/translation/Translation'
+
+const locale = navigator.language
+const translation: Translation = new TranslationMap().get(locale)
 
 // set up state management
 const api = new ApiImpl()
@@ -27,7 +31,7 @@ setStores({
     routeStore: new RouteStore(queryStore),
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
-    mapOptionsStore: new MapOptionsStore()
+    mapOptionsStore: new MapOptionsStore(),
 })
 
 // register stores at dispatcher to receive actions

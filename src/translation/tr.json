@@ -1,0 +1,12 @@
+{
+    "de": {
+        "welcome": "Willkommen",
+        "in_x_meters": "In %s1 Metern %s2",
+        "too_far_away": "Vom Weg abgekommen."
+    },
+    "en": {
+        "welcome": "Welcome",
+        "in_x_meters": "In %s1 meters %s2",
+        "too_far_away": "Too far away from route."
+    }
+}
