@@ -16,12 +16,6 @@
         "react-dom": "^17.0.1",
         "react-responsive": "^8.2.0"
     },
-    "optionalDependencies": {
-        "fsevents": "1.2.9",
-        "minipass": "2.7.0",
-        "sharp": "^0.23.0"
-    },
-    "_comment": "fsevent,minipass and sharp are locked due to dependency problems with npm ci",
     "devDependencies": {
         "@svgr/webpack": "^5.5.0",
         "@types/mapbox-gl": "^1.13.0",
