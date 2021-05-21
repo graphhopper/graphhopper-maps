@@ -20,7 +20,9 @@ import { ApiImpl } from '@/api/Api'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import LocationStore from '@/stores/LocationStore'
+import { SpeechSynthesizer } from './SpeechSynthesizer'
 
+let speechSynthesizer = new SpeechSynthesizer(navigator.language)
 // set up state management
 const api = new ApiImpl()
 const queryStore = new QueryStore(api)
@@ -30,7 +32,7 @@ setStores({
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
-    locationStore: new LocationStore()
+    locationStore: new LocationStore(speechSynthesizer)
 })
 
 // register stores at dispatcher to receive actions

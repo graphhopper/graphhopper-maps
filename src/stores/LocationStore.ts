@@ -3,6 +3,7 @@ import Store from '@/stores/Store'
 import { LocationUpdate } from '@/actions/Actions'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
+import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 
 export interface LocationStoreState {
     turnNavigation: boolean
@@ -13,6 +14,12 @@ export default class LocationStore extends Store<LocationStoreState> {
     private watchId: any = undefined
     private interval: any
     private noSleep: any
+    private speechSynthesizer: SpeechSynthesizer
+
+    constructor(speechSynthesizer: SpeechSynthesizer) {
+        super()
+        this.speechSynthesizer = speechSynthesizer
+    }
 
     protected getInitialState(): LocationStoreState {
         return {
@@ -33,6 +40,8 @@ export default class LocationStore extends Store<LocationStoreState> {
 
     // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car
     public initFake() {
+        this.speechSynthesizer.synthesize('Unechtes Willkommen!')
+
         // TODO randomize a route
         const latlon: number[][] = [
             [51.439291, 14.245254],
@@ -66,7 +75,7 @@ export default class LocationStore extends Store<LocationStoreState> {
             console.log('location not supported. In firefox I had to set geo.enabled=true in about:config')
         } else {
             console.log('location init')
-
+            this.speechSynthesizer.synthesize('Willkommen!')
             // force calling clearWatch can help to find GPS fix more reliable in android firefox
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 

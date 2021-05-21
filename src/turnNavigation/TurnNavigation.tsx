@@ -6,13 +6,15 @@ import styles from '@/turnNavigation/TurnNavigation.module.css'
 import { Coordinate } from '@/stores/QueryStore'
 import endNavigation from '@/turnNavigation/end_turn_navigation.png'
 import { getLocationStore } from '@/stores/Stores'
+import { LocationStoreState } from '@/stores/LocationStore'
 
 type TurnNavigationProps = {
     path: Path
-    currentLocation: Coordinate
+    location: LocationStoreState
 }
 
-export default function ({ path, currentLocation }: TurnNavigationProps) {
+export default function ({ path, location }: TurnNavigationProps) {
+    let currentLocation = location.coordinate
     if (currentLocation.lat == 0 && currentLocation.lng == 0) return <span>Searching GPS...</span>
 
     const { instructionIndex, distanceNext } = getCurrentInstruction(path.instructions, currentLocation)
@@ -28,7 +30,7 @@ export default function ({ path, currentLocation }: TurnNavigationProps) {
     const min = arrivalDate.getMinutes()
     return (
         <>
-            <div className={styles.turnParent}>
+            <div>
                 <div className={styles.turnInfo}>
                     <div className={styles.turnSign}>
                         <div>

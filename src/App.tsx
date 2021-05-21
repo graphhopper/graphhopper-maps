@@ -83,7 +83,7 @@ export default function App() {
                     />
                 </div>
                 <div className={styles.turnNavigation}>
-                    <TurnNavigation path={route.selectedPath} currentLocation={location.coordinate} />
+                    <TurnNavigation path={route.selectedPath} location={location} />
                 </div>
                 <div className={styles.smallScreenRoutingResult}>
                     <RoutingResults
