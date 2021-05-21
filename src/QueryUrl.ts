@@ -45,14 +45,13 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
 }
 
 function parseRoutingProfile(url: URL) {
-    const profileKey = url.searchParams.get('profile')
-    if (profileKey) {
-        Dispatcher.dispatch(
-            new SetVehicleProfile({
-                key: profileKey
-            })
-        )
-    }
+    let profileKey = url.searchParams.get('profile')
+    if (!profileKey) profileKey = 'car'
+    Dispatcher.dispatch(
+        new SetVehicleProfile({
+            name: profileKey
+        })
+    )
 }
 
 function parseNumber(value: string) {
@@ -67,7 +66,7 @@ export function createUrl(baseUrl: string, state: QueryStoreState) {
         .map(point => coordinateToText(point.coordinate))
         .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
-    result.searchParams.append('profile', state.routingProfile.key)
+    result.searchParams.append('profile', state.routingProfile.name)
 
     return result
 }
