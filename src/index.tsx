@@ -18,10 +18,10 @@ import QueryStore from '@/stores/QueryStore'
 import { ApiImpl } from '@/api/Api'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
-import { Translation, TranslationMap } from '@/translation/Translation'
+import { setTranslation } from '@/translation/Translation'
 
 const locale = navigator.language
-const translation: Translation = new TranslationMap().get(locale)
+setTranslation(locale)
 
 // set up state management
 const api = new ApiImpl()
