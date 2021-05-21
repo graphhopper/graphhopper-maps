@@ -1,10 +1,10 @@
-import trJson from './tr.json'
-
 export class Translation {
     data: any
+    fallback: any
 
-    constructor(data: any) {
+    constructor(data: any, fallback: any) {
         this.data = data
+        this.fallback = fallback
     }
 
     tr(key: string, parameters?: string[]): string {
@@ -19,17 +19,9 @@ export class Translation {
 }
 
 let translation: Translation
-export function setTranslation(lang: string, overwrite = false): Translation {
+export function setTranslation(tr: Translation, overwrite = false) {
     if (translation && !overwrite) throw new Error('translation already initialized')
-
-    let json = (trJson as any) as Record<string, any>
-    for (let property in json) {
-        if (property.startsWith(lang)) {
-            translation = new Translation(json[property])
-            return translation
-        }
-    }
-    throw new Error('language ' + lang + ' not found')
+    translation = tr
 }
 
 export function getTranslation(): Translation {

@@ -20,11 +20,11 @@ import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import { setTranslation } from '@/translation/Translation'
 
-const locale = navigator.language
-setTranslation(locale)
-
 // set up state management
 const api = new ApiImpl()
+
+api.i18n().then(tr => setTranslation(tr))
+
 const queryStore = new QueryStore(api)
 setStores({
     queryStore: queryStore,

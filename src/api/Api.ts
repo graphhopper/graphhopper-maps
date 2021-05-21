@@ -14,6 +14,7 @@ import {
     RoutingProfile
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
+import { Translation } from '@/translation/Translation'
 
 interface ApiProfile {
     name: string
@@ -28,6 +29,8 @@ export default interface Api {
 
     routeWithDispatch(args: RoutingArgs): void
 
+    i18n(): Promise<Translation>
+
     geocode(query: string): Promise<GeocodingResult>
 }
 
@@ -40,6 +43,19 @@ export class ApiImpl implements Api {
     constructor(apiKey = ghKey, apiAddress = 'https://graphhopper.com/api/1/') {
         this.apiKey = apiKey
         this.apiAddress = apiAddress
+    }
+
+    async i18n(): Promise<Translation> {
+        const response = await fetch(this.getURLWithKey('i18n').toString(), {
+            headers: { Accept: 'application/json' }
+        })
+
+        if (response.ok) {
+            const result = await response.json()
+            return new Translation(result.default, result.en)
+        } else {
+            throw new Error('here could be your meaningfull error message')
+        }
     }
 
     async info(): Promise<ApiInfo> {
@@ -102,7 +118,9 @@ export class ApiImpl implements Api {
             const errorResult = (await response.json()) as ErrorResponse
             let message = errorResult.message
             if (errorResult.hints.length > 0)
-                message += (message ? message + ' and ' : '') + (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
+                message +=
+                    (message ? message + ' and ' : '') +
+                    (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
 
             throw new Error(message)
         }
