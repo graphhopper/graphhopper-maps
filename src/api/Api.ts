@@ -33,7 +33,6 @@ export default interface Api {
 
 export const ghKey = 'fb45b8b2-fdda-4093-ac1a-8b57b4e50add'
 
-
 export class ApiImpl implements Api {
     private readonly apiKey: string
     private readonly apiAddress: string
