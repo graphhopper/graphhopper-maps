@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import Sidebar from '@/sidebar/Sidebar'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
@@ -23,6 +22,7 @@ import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
+import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -83,6 +83,7 @@ export default function App() {
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
+                    pathDetails={pathDetails}
                 />
             ) : (
                 <LargeScreenLayout
@@ -92,6 +93,7 @@ export default function App() {
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
+                    pathDetails={pathDetails}
                 />
             )}
         </div>
@@ -104,10 +106,11 @@ interface LayoutProps {
     bbox: Bbox
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
-    info: ApiInfo
+    info: ApiInfo,
+    pathDetails: PathDetailsStoreState
 }
 
-function LargeScreenLayout({ query, route, bbox, error, mapOptions, info }: LayoutProps) {
+function LargeScreenLayout({ query, route, bbox, error, mapOptions, info, pathDetails }: LayoutProps) {
     return (
         <>
             <div className={styles.map}>
@@ -167,6 +170,9 @@ function SmallScreenLayout({ query, route, bbox, error, mapOptions, info }: Layo
                     selectedPath={route.selectedPath}
                     bbox={bbox}
                     mapStyle={mapOptions.selectedStyle}
+                    // we do not show path details on small screens
+                    pathDetailPoint={null}
+                    highlightedPathDetailSegments={[]}
                 />
             </div>
             <div className={styles.smallScreenMapOptions}>
@@ -185,7 +191,7 @@ function SmallScreenLayout({ query, route, bbox, error, mapOptions, info }: Layo
                 />
             </div>
 
-            <div className={styles.smallSreenPoweredBy}>
+            <div className={styles.smallScreenPoweredBy}>
                 <PoweredBy />
             </div>
         </>

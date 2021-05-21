@@ -101,7 +101,7 @@
     background-color: white;
 }
 
-.smallSreenPoweredBy {
+.smallScreenPoweredBy {
     grid-row: 5 / span 1;
     grid-column: 1 / span 1;
     margin: 0;
@@ -114,6 +114,4 @@
         grid-template-columns: 100%;
         grid-template-rows: auto 0 1fr auto auto;
     }
-
-    /* todo: need to add bottom pane styles */
 }
