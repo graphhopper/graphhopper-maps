@@ -1,11 +1,11 @@
 import { coordinateToText } from '@/Converters'
-import {
+import mapboxgl, {
     GeoJSONSource,
     GeoJSONSourceRaw,
     LineLayer,
     LngLatBounds,
     Map,
-    MapMouseEvent,
+    MapTouchEvent,
     Marker,
     Point,
     Style
@@ -51,7 +51,9 @@ export default class Mapbox {
             container: container,
             accessToken:
                 'pk.eyJ1IjoiamFuZWtkZXJlcnN0ZSIsImEiOiJjajd1ZDB6a3A0dnYwMnFtamx6eWJzYW16In0.9vY7vIQAoOuPj7rg1A_pfw',
-            style: Mapbox.getStyle(mapStyle)
+            style: Mapbox.getStyle(mapStyle),
+            maxBounds: [[-180, -90], [180, 90]],
+            renderWorldCopies: false
         })
 
         // add controls
@@ -84,6 +86,13 @@ export default class Mapbox {
         this.map.on('mouseleave', pathsLayerKey, () => {
             this.map.getCanvasContainer().style.cursor = ''
         })
+
+        const handler = new LongTouchHandler(e => this.popup.show(e.lngLat))
+
+        // handle long touches to open pop up
+        this.map.on('touchstart', e => handler.onTouchStart(e))
+        this.map.on('touchend', () => handler.onTouchEnd())
+        this.map.on('touchmove', () => handler.onTouchEnd())
     }
 
     remove() {
@@ -222,11 +231,15 @@ export default class Mapbox {
         if (bbox.every(num => num !== 0)) {
             this.map.fitBounds(new LngLatBounds(bbox), {
                 padding: Mapbox.getPadding(),
-                duration: 350,
+                duration: 500,
                 animate: !this.isFirstBounds
             })
             if (this.isFirstBounds) this.isFirstBounds = false
         }
+    }
+
+    resize() {
+        this.map.resize()
     }
 
     private initLineLayers() {
@@ -286,7 +299,7 @@ export default class Mapbox {
 
     private static getPadding() {
         return mediaQuery.matches
-            ? { top: 400, bottom: 16, right: 16, left: 16 }
+            ? { top: 250, bottom: 150, right: 16, left: 16 }
             : {
                 top: 100,
                 bottom: 100,
@@ -324,5 +337,29 @@ export default class Mapbox {
 
     private static isVectorStyle(styleOption: StyleOption): styleOption is VectorStyle {
         return styleOption.type === 'vector'
+    }
+}
+
+class LongTouchHandler {
+    private callback: (e: MapTouchEvent) => void
+    private currentTimeout: number = 0
+    private currentEvent?: MapTouchEvent
+
+    constructor(onLongTouch: (e: MapTouchEvent) => void) {
+        this.callback = onLongTouch
+    }
+
+    onTouchStart(e: MapTouchEvent) {
+        this.currentEvent = e
+        this.currentTimeout = window.setTimeout(() => {
+            console.log('long touch')
+            if (this.currentEvent) this.callback(this.currentEvent)
+        }, 500)
+    }
+
+    onTouchEnd() {
+        console.log('touch end')
+        window.clearTimeout(this.currentTimeout)
+        this.currentEvent = undefined
     }
 }

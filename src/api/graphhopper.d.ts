@@ -27,7 +27,7 @@ export interface RoutingRequest {
 
 export interface ErrorResponse {
     message: string
-    hints: unknown
+    hints: any[]
 }
 
 export interface RoutingResult {
@@ -49,7 +49,7 @@ export interface ApiInfo {
 }
 
 export interface RoutingProfile {
-    readonly key: string
+    readonly name: string
 }
 
 export interface Path extends BasePath {

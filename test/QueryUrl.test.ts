@@ -13,7 +13,7 @@ class TestStore extends Store<TestState> {
     protected getInitialState(): TestState {
         return {
             points: [],
-            profile: { key: '' },
+            profile: { name: '' },
         }
     }
 
@@ -57,20 +57,26 @@ describe('parseUrl', () => {
         expect(store.state.points.length).toEqual(2)
         expect(store.state.points[0]).toEqual({ lat: point1[0], lng: point1[1] })
         expect(store.state.points[1]).toEqual({ lat: point2[0], lng: point2[1] })
-        expect(store.state.profile.key).toEqual(profile)
+        expect(store.state.profile.name).toEqual(profile)
     })
-    it('should create an empty request when no points are supplied', () => {
+    it('set default profile when no parameters are supplied', () => {
         const url = `http://localhost:3000/?`
 
+        let profileFromAction: RoutingProfile
+
         Dispatcher.register({
-            receive() {
-                fail('parsing an empty url should not raise any actions')
+            receive(action: Action) {
+                if (action instanceof SetVehicleProfile) {
+                    profileFromAction = action.profile
+                } else {
+                    fail('Unexpected action received')
+                }
             },
         })
 
         parseUrl(url, getQueryStoreState())
 
-        // if we don't fail until here everything is fine
+        expect(profileFromAction!.name).toEqual('car')
     })
 
     it('should ignore unknown params', () => {
@@ -91,7 +97,7 @@ describe('parseUrl', () => {
 
         parseUrl(url, getQueryStoreState())
 
-        expect(profileFromAction!.key).toEqual(profile)
+        expect(profileFromAction!.name).toEqual(profile)
     })
 
     it('should raise an error if a point is not in the expected format', () => {
@@ -115,7 +121,7 @@ describe('createUrl', () => {
         const emptyState = getQueryStoreState()
 
         const result = createUrl(expectedUrl.origin, {
-            routingProfile: { ...emptyState.routingProfile, key: profile },
+            routingProfile: { ...emptyState.routingProfile, name: profile },
             nextQueryPointId: 0,
             maxAlternativeRoutes: 1,
             currentRequest: { subRequests: [] },
@@ -132,7 +138,7 @@ function getQueryStoreState(): QueryStoreState {
         nextQueryPointId: 0,
         currentRequest: { subRequests: [] },
         maxAlternativeRoutes: 1,
-        routingProfile: { key: '' },
+        routingProfile: { name: '' },
     }
 }
 

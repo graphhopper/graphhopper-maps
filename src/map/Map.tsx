@@ -3,10 +3,11 @@ import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/map/Map.module.css'
 import Mapbox from '@/map/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, MapIsLoaded, SetPoint } from '@/actions/Actions'
+import { MapIsLoaded } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { useMediaQuery } from 'react-responsive'
 
 type MapProps = {
     selectedPath: Path
@@ -29,18 +30,15 @@ export default function({
                         }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
     useEffect(() => {
         if (map) map.remove()
 
-        const mapWrapper = new Mapbox(
-            mapContainerRef.current!,
-            mapStyle,
-            () => {
-                setMap(mapWrapper)
-                Dispatcher.dispatch(new MapIsLoaded())
-            }
-        )
+        const mapWrapper = new Mapbox(mapContainerRef.current!, mapStyle, () => {
+            setMap(mapWrapper)
+            Dispatcher.dispatch(new MapIsLoaded())
+        })
         mapWrapper.fitBounds(bbox)
         return () => map?.remove()
     }, [mapStyle])
@@ -49,6 +47,7 @@ export default function({
     useEffect(() => map?.fitBounds(bbox), [bbox, map])
     useEffect(() => map?.drawPathDetailMarker(pathDetailPoint), [pathDetailPoint, map])
     useEffect(() => map?.highlightPathSegments(highlightedPathDetailSegments), [highlightedPathDetailSegments, map])
+    useEffect(() => map?.resize())
 
     return <div className={styles.map} ref={mapContainerRef} />
 }

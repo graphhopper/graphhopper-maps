@@ -11,7 +11,7 @@
     /* this compensates the border of mapbox's popup container */
     padding: 0 10px;
     margin: 0 -10px;
-    min-height: 1.8rem;
+    min-height: 1.5rem;
     cursor: pointer;
     outline: inherit;
     font-size: medium;

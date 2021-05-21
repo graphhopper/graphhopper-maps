@@ -97,7 +97,10 @@ export class ApiImpl implements Api {
             }
         } else {
             const errorResult = (await response.json()) as ErrorResponse
-            const message = (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
+            let message = errorResult.message
+            if(errorResult.hints.length > 0)
+                message += (message? message + ' and ': '')+ (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
+                
             throw new Error(message)
         }
     }
@@ -146,7 +149,7 @@ export class ApiImpl implements Api {
 
         for (const profileIndex in response.profiles as ApiProfile[]) {
             const profile: RoutingProfile = {
-                key: response.profiles[profileIndex].name,
+                name: response.profiles[profileIndex].name,
             }
 
             profiles.push(profile)

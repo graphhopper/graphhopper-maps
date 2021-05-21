@@ -221,7 +221,7 @@ describe('QueryStore', () => {
             const state: QueryStoreState = {
                 ...store.state,
                 routingProfile: {
-                    key: 'some-value'
+                    name: 'some-value'
                 },
             }
             const newState = store.reduce(
@@ -241,7 +241,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(new ApiMock(() => {}))
             const state: QueryStoreState = store.state
             const expectedProfile = {
-                key: 'car',
+                name: 'car',
                 import_date: 'some_date',
                 elevation: false,
                 version: 'some-version',
@@ -252,9 +252,7 @@ describe('QueryStore', () => {
                 new InfoReceived({
                     profiles: [
                         expectedProfile,
-                        {
-                            key: 'other'
-                        },
+                        { name: 'other' },
                     ],
                     elevation: false,
                     version: '',
@@ -271,7 +269,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(new ApiMock(() => {}))
             const state: QueryStoreState = store.state
             const profile = {
-                key: 'car',
+                name: 'car',
                 import_date: 'some_date',
                 features: { elevation: false },
                 version: 'some-version',
