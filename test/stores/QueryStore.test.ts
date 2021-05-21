@@ -18,7 +18,6 @@ import {
     SetPoint,
     SetVehicleProfile
 } from '../../src/actions/Actions'
-import { Translation } from '../../src/translation/Translation'
 
 class ApiMock implements Api {
     private readonly callback: { (args: RoutingArgs): void }
@@ -31,15 +30,12 @@ class ApiMock implements Api {
         throw Error('not implemented')
     }
 
-    i18n(): Promise<Translation> {
-        throw Error('not implemented')
-    }
-
     info(): Promise<ApiInfo> {
         throw Error('not implemented')
     }
 
-    infoWithDispatch(): void {}
+    infoWithDispatch(): void {
+    }
 
     route(args: RoutingArgs): Promise<RoutingResult> {
         throw Error('not implemented')
@@ -113,7 +109,8 @@ describe('QueryStore', () => {
     })
     describe('Invalidate point action', () => {
         it('should set point with the same id to isInitialized: false', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
 
             const initializedPoints = store.state.queryPoints.map(p => ({
                 ...p,
@@ -135,7 +132,8 @@ describe('QueryStore', () => {
     })
     describe('Clear Points action', () => {
         it('should reset all points', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
             const initializedPoints = store.state.queryPoints.map((p, i) => ({
                 ...p,
                 isInitialized: true,
@@ -223,7 +221,8 @@ describe('QueryStore', () => {
     })
     describe('InfoReceived action', () => {
         it('return unchanged state if routing profile was already set', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
 
             const state: QueryStoreState = {
                 ...store.state,
@@ -245,7 +244,8 @@ describe('QueryStore', () => {
             expect(newState).toEqual(state)
         })
         it('should set car as default routing mode', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
             const state: QueryStoreState = store.state
             const expectedProfile = {
                 name: 'car',
@@ -257,7 +257,10 @@ describe('QueryStore', () => {
             const newState = store.reduce(
                 state,
                 new InfoReceived({
-                    profiles: [expectedProfile, { name: 'other' }],
+                    profiles: [
+                        expectedProfile,
+                        { name: 'other' }
+                    ],
                     elevation: false,
                     version: '',
                     import_date: '',
@@ -270,7 +273,8 @@ describe('QueryStore', () => {
     })
     describe('SetVehicleProfile action', () => {
         it('should set the routing profile (surprise!)', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
             const state: QueryStoreState = store.state
             const profile = {
                 name: 'car',
@@ -286,7 +290,8 @@ describe('QueryStore', () => {
     })
     describe('RouteRequestSuccess action', () => {
         it('should mark the correct subrequest as done', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],
@@ -313,7 +318,8 @@ describe('QueryStore', () => {
     })
     describe('RouteRequestFailed action', () => {
         it('should mark the correct subrequest as done', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],
