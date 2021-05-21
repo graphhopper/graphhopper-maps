@@ -16,14 +16,16 @@ import {
     RouteRequestFailed,
     RouteRequestSuccess,
     SetPoint,
-    SetVehicleProfile,
+    SetVehicleProfile
 } from '../../src/actions/Actions'
 
 class ApiMock implements Api {
     private readonly callback: { (args: RoutingArgs): void }
+
     constructor(callback: { (args: RoutingArgs): void }) {
         this.callback = callback
     }
+
     geocode(query: string): Promise<GeocodingResult> {
         throw Error('not implemented')
     }
@@ -32,7 +34,8 @@ class ApiMock implements Api {
         throw Error('not implemented')
     }
 
-    infoWithDispatch(): void {}
+    infoWithDispatch(): void {
+    }
 
     route(args: RoutingArgs): Promise<RoutingResult> {
         throw Error('not implemented')
@@ -53,7 +56,7 @@ describe('QueryStore', () => {
             )
             const point: QueryPoint = {
                 ...store.state.queryPoints[0],
-                isInitialized: true,
+                isInitialized: true
             }
 
             const state = store.reduce(store.state, new SetPoint(point))
@@ -65,7 +68,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(new ApiMock(() => counter++))
             let state = {
                 ...store.state,
-                maxAlternativeRoutes: 1,
+                maxAlternativeRoutes: 1
             }
 
             for (const point of store.state.queryPoints) {
@@ -106,15 +109,16 @@ describe('QueryStore', () => {
     })
     describe('Invalidate point action', () => {
         it('should set point with the same id to isInitialized: false', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
 
             const initializedPoints = store.state.queryPoints.map(p => ({
                 ...p,
-                isInitialized: true,
+                isInitialized: true
             }))
             const state = {
                 ...store.state,
-                queryPoints: initializedPoints,
+                queryPoints: initializedPoints
             }
             const point = initializedPoints[0]
 
@@ -128,16 +132,17 @@ describe('QueryStore', () => {
     })
     describe('Clear Points action', () => {
         it('should reset all points', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
             const initializedPoints = store.state.queryPoints.map((p, i) => ({
                 ...p,
                 isInitialized: true,
                 queryText: `${i}`,
-                point: {lat: i, lng: i},
+                point: { lat: i, lng: i }
             }))
             const state = {
                 ...store.state,
-                queryPoints: initializedPoints,
+                queryPoints: initializedPoints
             }
 
             const newState = store.reduce(state, new ClearPoints())
@@ -156,7 +161,7 @@ describe('QueryStore', () => {
             const newPointId = store.state.nextQueryPointId
             const atIndex = 1
 
-            const newState = store.reduce(store.state, new AddPoint(atIndex, {lat: 1, lng: 1}, false))
+            const newState = store.reduce(store.state, new AddPoint(atIndex, { lat: 1, lng: 1 }, false))
 
             expect(newState.queryPoints.findIndex(p => p.id === newPointId)).toEqual(atIndex)
             expect(newState.queryPoints.every((p, i) => isCorrectType(p, i, newState.queryPoints.length))).toBeTruthy()
@@ -174,7 +179,7 @@ describe('QueryStore', () => {
             const initializedPoints = store.state.queryPoints.map(p => ({ ...p, isInitialized: true }))
             const state = {
                 ...store.state,
-                queryPoints: initializedPoints,
+                queryPoints: initializedPoints
             }
 
             const newState = store.reduce(state, new AddPoint(atIndex, { lat: 1, lng: 1 }, true))
@@ -196,13 +201,13 @@ describe('QueryStore', () => {
             const initializedPoints = store.state.queryPoints.map(p => ({ ...p, isInitialized: true }))
             const thirdPoint = {
                 ...getQueryPoint(3),
-                isInitialized: true,
+                isInitialized: true
             }
             initializedPoints.push(thirdPoint)
             const state = {
                 ...store.state,
                 queryPoints: initializedPoints,
-                maxAlternativeRoutes: 1,
+                maxAlternativeRoutes: 1
             }
 
             const lastState = store.reduce(state, new RemovePoint(thirdPoint))
@@ -216,13 +221,14 @@ describe('QueryStore', () => {
     })
     describe('InfoReceived action', () => {
         it('return unchanged state if routing profile was already set', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
 
             const state: QueryStoreState = {
                 ...store.state,
                 routingProfile: {
                     name: 'some-value'
-                },
+                }
             }
             const newState = store.reduce(
                 state,
@@ -231,20 +237,21 @@ describe('QueryStore', () => {
                     elevation: true,
                     version: '',
                     import_date: '',
-                    bbox: [0, 0, 0, 0],
+                    bbox: [0, 0, 0, 0]
                 })
             )
 
             expect(newState).toEqual(state)
         })
         it('should set car as default routing mode', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
             const state: QueryStoreState = store.state
             const expectedProfile = {
                 name: 'car',
                 import_date: 'some_date',
                 elevation: false,
-                version: 'some-version',
+                version: 'some-version'
             }
 
             const newState = store.reduce(
@@ -252,12 +259,12 @@ describe('QueryStore', () => {
                 new InfoReceived({
                     profiles: [
                         expectedProfile,
-                        { name: 'other' },
+                        { name: 'other' }
                     ],
                     elevation: false,
                     version: '',
                     import_date: '',
-                    bbox: [0, 0, 0, 0],
+                    bbox: [0, 0, 0, 0]
                 })
             )
 
@@ -266,13 +273,14 @@ describe('QueryStore', () => {
     })
     describe('SetVehicleProfile action', () => {
         it('should set the routing profile (surprise!)', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
             const state: QueryStoreState = store.state
             const profile = {
                 name: 'car',
                 import_date: 'some_date',
                 features: { elevation: false },
-                version: 'some-version',
+                version: 'some-version'
             }
 
             const newState = store.reduce(state, new SetVehicleProfile(profile))
@@ -282,21 +290,22 @@ describe('QueryStore', () => {
     })
     describe('RouteRequestSuccess action', () => {
         it('should mark the correct subrequest as done', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],
-                profile: 'some-profile',
+                profile: 'some-profile'
             }
             const subRequest: SubRequest = {
                 state: RequestState.SENT,
-                args: routingArgs,
+                args: routingArgs
             }
             const state: QueryStoreState = {
                 ...store.state,
                 currentRequest: {
-                    subRequests: [subRequest],
-                },
+                    subRequests: [subRequest]
+                }
             }
 
             const newState = store.reduce(
@@ -309,21 +318,22 @@ describe('QueryStore', () => {
     })
     describe('RouteRequestFailed action', () => {
         it('should mark the correct subrequest as done', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {
+            }))
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],
-                profile: 'some-profile',
+                profile: 'some-profile'
             }
             const subRequest: SubRequest = {
                 state: RequestState.SENT,
-                args: routingArgs,
+                args: routingArgs
             }
             const state: QueryStoreState = {
                 ...store.state,
                 currentRequest: {
-                    subRequests: [subRequest],
-                },
+                    subRequests: [subRequest]
+                }
             }
 
             const newState = store.reduce(state, new RouteRequestFailed(routingArgs, 'message'))
@@ -339,8 +349,8 @@ function getQueryPoint(id: number): QueryPoint {
         isInitialized: true,
         queryText: '',
         color: '',
-        coordinate: { lat: 0, lng: 0},
-        id: id,
+        coordinate: { lat: 0, lng: 0 },
+        id: id
     }
 }
 

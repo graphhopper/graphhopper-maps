@@ -11,6 +11,7 @@ export function milliSecondsToText(seconds: number) {
 }
 
 const distanceFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 })
+
 export function metersToText(meters: number) {
     if (meters < 1000) return Math.floor(meters) + ' m'
     return distanceFormat.format(meters / 1000) + ' km'
@@ -47,5 +48,5 @@ function convertToCountry(hit: GeocodingHit) {
 }
 
 export function coordinateToText(coord: Coordinate): string {
-    return Math.round(coord.lat * 1e6) / 1e6 + ',' + Math.round(coord.lng * 1e6) / 1e6;
+    return Math.round(coord.lat * 1e6) / 1e6 + ',' + Math.round(coord.lng * 1e6) / 1e6
 }

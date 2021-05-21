@@ -14,7 +14,8 @@ export interface NotifyStateChanged {
 class Dispatcher {
     private receivers: ActionReceiver[] = []
 
-    constructor() {}
+    constructor() {
+    }
 
     public dispatch(action: Action) {
         this.receivers.forEach(receiver => receiver.receive(action))

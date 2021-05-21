@@ -15,6 +15,7 @@ export interface RoutingResultsProps {
     selectedPath: Path
     currentRequest: CurrentRequest
 }
+
 export default function RoutingResults(props: RoutingResultsProps) {
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
     return (
