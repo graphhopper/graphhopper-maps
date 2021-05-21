@@ -42,11 +42,7 @@ export default class Mapbox {
     private isFirstBounds = true
     private isRemoved = false
 
-    constructor(
-        container: HTMLDivElement,
-        mapStyle: StyleOption,
-        onMapReady: () => void
-    ) {
+    constructor(container: HTMLDivElement, mapStyle: StyleOption, onMapReady: () => void) {
         this.map = new Map({
             container: container,
             accessToken:
