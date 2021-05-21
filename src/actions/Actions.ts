@@ -39,7 +39,8 @@ export class AddPoint implements Action {
     }
 }
 
-export class ClearPoints implements Action {}
+export class ClearPoints implements Action {
+}
 
 export class RemovePoint implements Action {
     readonly point: QueryPoint
@@ -77,7 +78,8 @@ export class RouteRequestFailed implements Action {
     }
 }
 
-export class ClearRoute implements Action {}
+export class ClearRoute implements Action {
+}
 
 export class SetSelectedPath implements Action {
     readonly path: Path
@@ -87,7 +89,8 @@ export class SetSelectedPath implements Action {
     }
 }
 
-export class DismissLastError implements Action {}
+export class DismissLastError implements Action {
+}
 
 export class SelectMapStyle implements Action {
     readonly styleOption: StyleOption
@@ -97,4 +100,5 @@ export class SelectMapStyle implements Action {
     }
 }
 
-export class MapIsLoaded implements Action {}
+export class MapIsLoaded implements Action {
+}

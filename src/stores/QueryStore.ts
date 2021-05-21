@@ -11,7 +11,7 @@ import {
     RouteRequestFailed,
     RouteRequestSuccess,
     SetPoint,
-    SetVehicleProfile,
+    SetVehicleProfile
 } from '@/actions/Actions'
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 
@@ -70,16 +70,16 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             queryPoints: [
                 QueryStore.getEmptyPoint(0, QueryPointType.From),
-                QueryStore.getEmptyPoint(1, QueryPointType.To),
+                QueryStore.getEmptyPoint(1, QueryPointType.To)
             ],
             nextQueryPointId: 2,
             currentRequest: {
-                subRequests: [],
+                subRequests: []
             },
             maxAlternativeRoutes: 3,
             routingProfile: {
                 key: ''
-            },
+            }
         }
     }
 
@@ -87,18 +87,18 @@ export default class QueryStore extends Store<QueryStoreState> {
         if (action instanceof SetPoint) {
             const newState: QueryStoreState = {
                 ...state,
-                queryPoints: QueryStore.replacePoint(state.queryPoints, action.point),
+                queryPoints: QueryStore.replacePoint(state.queryPoints, action.point)
             }
 
             return this.routeIfAllPointsSet(newState)
         } else if (action instanceof InvalidatePoint) {
             const points = QueryStore.replacePoint(state.queryPoints, {
                 ...action.point,
-                isInitialized: false,
+                isInitialized: false
             })
             return {
                 ...state,
-                queryPoints: points,
+                queryPoints: points
             }
         } else if (action instanceof ClearPoints) {
             const newPoints = state.queryPoints.map(point => {
@@ -106,13 +106,13 @@ export default class QueryStore extends Store<QueryStoreState> {
                     ...point,
                     queryText: '',
                     point: { lat: 0, lng: 0 },
-                    isInitialized: false,
+                    isInitialized: false
                 }
             })
 
             return {
                 ...state,
-                queryPoints: newPoints,
+                queryPoints: newPoints
             }
         } else if (action instanceof AddPoint) {
             const tmp = state.queryPoints.slice()
@@ -125,7 +125,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 queryText: queryText,
                 color: '',
                 isInitialized: action.isInitialized,
-                type: QueryPointType.Via,
+                type: QueryPointType.Via
             })
 
             // determine colors for each point. I guess this could be smarter if this needs to be faster
@@ -137,7 +137,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             const newState: QueryStoreState = {
                 ...state,
                 nextQueryPointId: state.nextQueryPointId + 1,
-                queryPoints: newPoints,
+                queryPoints: newPoints
             }
 
             return this.routeIfAllPointsSet(newState)
@@ -151,7 +151,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             const newState: QueryStoreState = {
                 ...state,
-                queryPoints: newPoints,
+                queryPoints: newPoints
             }
             return this.routeIfAllPointsSet(newState)
         } else if (action instanceof InfoReceived) {
@@ -162,12 +162,12 @@ export default class QueryStore extends Store<QueryStoreState> {
             const car = action.result.profiles.find(profile => profile.key === 'car')
             return {
                 ...state,
-                routingProfile: car ? car : action.result.profiles[0],
+                routingProfile: car ? car : action.result.profiles[0]
             }
         } else if (action instanceof SetVehicleProfile) {
             const newState: QueryStoreState = {
                 ...state,
-                routingProfile: action.profile,
+                routingProfile: action.profile
             }
 
             return this.routeIfAllPointsSet(newState)
@@ -187,8 +187,8 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             ...state,
             currentRequest: {
-                subRequests: newSubrequests,
-            },
+                subRequests: newSubrequests
+            }
         }
     }
 
@@ -197,8 +197,8 @@ export default class QueryStore extends Store<QueryStoreState> {
             const requests = [
                 QueryStore.buildRouteRequest({
                     ...state,
-                    maxAlternativeRoutes: 1,
-                }),
+                    maxAlternativeRoutes: 1
+                })
             ]
 
             if (state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1) {
@@ -207,7 +207,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             return {
                 ...state,
-                currentRequest: { subRequests: this.send(requests) },
+                currentRequest: { subRequests: this.send(requests) }
             }
         }
         return state
@@ -217,7 +217,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         const subRequests = args.map(arg => {
             return {
                 args: arg,
-                state: RequestState.SENT,
+                state: RequestState.SENT
             }
         })
 
@@ -269,7 +269,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             points: coordinates,
             profile: state.routingProfile.key,
-            maxAlternativeRoutes: state.maxAlternativeRoutes,
+            maxAlternativeRoutes: state.maxAlternativeRoutes
         }
     }
 
@@ -277,10 +277,10 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             isInitialized: false,
             queryText: '',
-            coordinate: { lat: 0, lng: 0},
+            coordinate: { lat: 0, lng: 0 },
             id: id,
             color: QueryStore.getMarkerColor(type),
-            type: type,
+            type: type
         }
     }
 }

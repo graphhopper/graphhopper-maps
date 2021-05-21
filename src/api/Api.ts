@@ -11,7 +11,7 @@ import {
     RoutingArgs,
     RoutingRequest,
     RoutingResult,
-    RoutingProfile,
+    RoutingProfile
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
 
@@ -21,15 +21,18 @@ interface ApiProfile {
 
 export default interface Api {
     info(): Promise<ApiInfo>
+
     infoWithDispatch(): void
 
     route(args: RoutingArgs): Promise<RoutingResult>
+
     routeWithDispatch(args: RoutingArgs): void
 
     geocode(query: string): Promise<GeocodingResult>
 }
 
 export const ghKey = 'fb45b8b2-fdda-4093-ac1a-8b57b4e50add'
+
 export class ApiImpl implements Api {
     private readonly apiKey: string
     private readonly apiAddress: string
@@ -41,7 +44,7 @@ export class ApiImpl implements Api {
 
     async info(): Promise<ApiInfo> {
         const response = await fetch(this.getURLWithKey('info').toString(), {
-            headers: { Accept: 'application/json' },
+            headers: { Accept: 'application/json' }
         })
 
         if (response.ok) {
@@ -63,7 +66,7 @@ export class ApiImpl implements Api {
         url.searchParams.append('q', query)
 
         const response = await fetch(url.toString(), {
-            headers: { Accept: 'application/json' },
+            headers: { Accept: 'application/json' }
         })
 
         if (response.ok) {
@@ -82,8 +85,8 @@ export class ApiImpl implements Api {
             body: JSON.stringify(completeRequest),
             headers: {
                 Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
+                'Content-Type': 'application/json'
+            }
         })
 
         if (response.ok) {
@@ -93,7 +96,7 @@ export class ApiImpl implements Api {
             // transform encoded points into decoded
             return {
                 ...rawResult,
-                paths: ApiImpl.decodeResult(rawResult, completeRequest.elevation),
+                paths: ApiImpl.decodeResult(rawResult, completeRequest.elevation)
             }
         } else {
             const errorResult = (await response.json()) as ErrorResponse
@@ -124,15 +127,15 @@ export class ApiImpl implements Api {
             locale: 'en',
             optimize: 'false',
             points_encoded: true,
-            snap_preventions: ["ferry"],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
+            snap_preventions: ['ferry'],
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed']
         }
 
         if (args.maxAlternativeRoutes > 1) {
             return {
                 ...request,
                 'alternative_route.max_paths': args.maxAlternativeRoutes,
-                algorithm: 'alternative_route',
+                algorithm: 'alternative_route'
             }
         }
         return request
@@ -146,7 +149,7 @@ export class ApiImpl implements Api {
 
         for (const profileIndex in response.profiles as ApiProfile[]) {
             const profile: RoutingProfile = {
-                key: response.profiles[profileIndex].name,
+                key: response.profiles[profileIndex].name
             }
 
             profiles.push(profile)
@@ -163,7 +166,7 @@ export class ApiImpl implements Api {
             elevation: response.elevation,
             bbox: bbox,
             version: version,
-            import_date: import_date,
+            import_date: import_date
         }
     }
 
@@ -173,13 +176,13 @@ export class ApiImpl implements Api {
                 return {
                     ...path,
                     points: ApiImpl.decodePoints(path, is3D),
-                    snapped_waypoints: ApiImpl.decodeWaypoints(path, is3D),
+                    snapped_waypoints: ApiImpl.decodeWaypoints(path, is3D)
                 } as Path
             })
             .map((path: Path) => {
                 return {
                     ...path,
-                    instructions: ApiImpl.setPointsOnInstructions(path),
+                    instructions: ApiImpl.setPointsOnInstructions(path)
                 }
             })
     }
@@ -188,7 +191,7 @@ export class ApiImpl implements Api {
         if (path.points_encoded)
             return {
                 type: 'LineString',
-                coordinates: ApiImpl.decodePath(path.points as string, is3D),
+                coordinates: ApiImpl.decodePath(path.points as string, is3D)
             }
         else return path.points as LineString
     }
@@ -197,7 +200,7 @@ export class ApiImpl implements Api {
         if (path.points_encoded)
             return {
                 type: 'LineString',
-                coordinates: ApiImpl.decodePath(path.snapped_waypoints as string, is3D),
+                coordinates: ApiImpl.decodePath(path.snapped_waypoints as string, is3D)
             }
         else return path.snapped_waypoints as LineString
     }
@@ -207,7 +210,7 @@ export class ApiImpl implements Api {
             return path.instructions.map(instruction => {
                 return {
                     ...instruction,
-                    points: path.points.coordinates.slice(instruction.interval[0], instruction.interval[1] + 1),
+                    points: path.points.coordinates.slice(instruction.interval[0], instruction.interval[1] + 1)
                 }
             })
         } else {

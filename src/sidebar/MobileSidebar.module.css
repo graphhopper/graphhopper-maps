@@ -21,6 +21,7 @@
     gap: 0.5rem;
     padding: 0.5rem;
 }
+
 .addressInputContainer {
     flex-grow: 1;
 }
@@ -46,7 +47,7 @@
     color: #5b616a;
 }
 
-.queryPointTextTo{
+.queryPointTextTo {
     font-size: large;
     font-weight: bold;
     color: inherit;

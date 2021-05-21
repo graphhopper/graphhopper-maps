@@ -18,7 +18,7 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
                 throw Error(
                     'Could not parse url parameter point: ' + parameter + ' Think about what to do instead of crashing'
                 )
-            return { lat: parseNumber(split[0]), lng: parseNumber(split[1])}
+            return { lat: parseNumber(split[0]), lng: parseNumber(split[1]) }
         })
         .map(
             (coordinate, i): QueryPoint => {
@@ -28,7 +28,7 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
                     id: i,
                     queryText: '',
                     color: '',
-                    type: QueryPointType.Via,
+                    type: QueryPointType.Via
                 }
             }
         )
