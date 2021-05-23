@@ -16,8 +16,6 @@ export default function({ selectedPath }: PathDetailsProps) {
     const [graph, setGraph] = useState<any | null>(null)
     useEffect(() => {
         const options = {
-            // todo: is this the right way to do this? for example it should adjust its size when the browser window
-            //       size is changed
             width: containerRef.current!.clientWidth,
             height: containerRef.current!.clientHeight,
             // todo: since we do not use this maybe we can/should remove the svg asset rules again because this we added
@@ -31,6 +29,13 @@ export default function({ selectedPath }: PathDetailsProps) {
         }
         setGraph(new HeightGraph(containerRef.current, options, callbacks))
     }, [containerRef])
+    const resizeGraph = () => {
+        graph?.resize({ width: window.innerWidth, height: containerRef.current?.clientHeight })
+    }
+    useEffect(() => {
+        window.addEventListener('resize', resizeGraph)
+        return () => window.removeEventListener('resize', resizeGraph)
+    })
     useEffect(() => {
         const pathDetailsData = buildPathDetailsData(selectedPath)
         graph?.setData(pathDetailsData.data, pathDetailsData.mappings)
