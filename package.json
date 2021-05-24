@@ -10,14 +10,13 @@
     },
     "dependencies": {
         "leaflet.heightgraph": "github:easbar/Leaflet.Heightgraph#82cff7b3013dd73d7221521c5b404ded6439e050",
-        "mapbox-gl": "^1.13.0",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
+        "react-map-gl": "^5.3.15",
         "react-responsive": "^8.2.0"
     },
     "devDependencies": {
         "@svgr/webpack": "^5.5.0",
-        "@types/mapbox-gl": "^1.13.0",
         "@types/react": "^17.0.1",
         "@types/react-dom": "^17.0.1",
         "awesome-typescript-loader": "^5.2.1",

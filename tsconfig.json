@@ -17,7 +17,8 @@
         },
         "lib": ["ES2019", "dom", "dom.iterable"],
         "esModuleInterop": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "skipLibCheck": true
     },
     "include": ["./src/**/*"]
 }

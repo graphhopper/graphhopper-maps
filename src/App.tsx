@@ -59,7 +59,7 @@ export default function App() {
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
-    const [bbox, setBbox] = useState<Bbox>([-180, -90, 180, 90])
+    const [bbox, setBbox] = useState<Bbox>([-179, -89, 179, 89])
     useEffect(() => {
         // make sure the path bbox and the path details bbox take precedence over the info bbox
         if (!route.selectedPath.bbox && !pathDetails.pathDetailBbox)
