@@ -1,7 +1,7 @@
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/map/Map.module.css'
-import Mapbox from '@/map/Mapbox'
+import Mapbox, { ViewPort } from '@/map/Mapbox'
 import Dispatcher from '@/stores/Dispatcher'
 import { MapIsLoaded } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
@@ -31,7 +31,6 @@ export default function({
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
     const prevViewPort = useRef<ViewPort | null>(null)
-    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     useEffect(() => {
         prevViewPort.current = null
     }, [bbox])

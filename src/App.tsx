@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import styles from './App.module.css'
-import { getApiInfoStore, getErrorStore, getMapOptionsStore, getQueryStore, getRouteStore } from '@/stores/Stores'
+import {
+    getApiInfoStore,
+    getErrorStore,
+    getMapOptionsStore,
+    getPathDetailsStore,
+    getQueryStore,
+    getRouteStore
+} from '@/stores/Stores'
 import MapComponent from '@/map/Map'
 import { ApiInfo, Bbox } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
@@ -54,14 +61,22 @@ export default function App() {
 
     const [bbox, setBbox] = useState<Bbox>([-180, -90, 180, 90])
     useEffect(() => {
-        // make sure the path bbox takes precedence over the info bbox
-        if (!route.selectedPath.bbox)
+        // make sure the path bbox and the path details bbox take precedence over the info bbox
+        if (!route.selectedPath.bbox && !pathDetails.pathDetailBbox)
             setBbox(info.bbox)
     }, [info])
     useEffect(() => {
-        if (route.selectedPath.bbox)
+        // make sure the path details bbox takes precedence over the route bbox
+        if (route.selectedPath.bbox && !pathDetails.pathDetailBbox)
             setBbox(route.selectedPath.bbox)
     }, [route])
+    useEffect(() => {
+        // make sure the path details bbox takes precedence over the path and info bboxes
+        if (pathDetails.pathDetailBbox)
+            setBbox(pathDetails.pathDetailBbox)
+        else if (route.selectedPath.bbox)
+            setBbox(route.selectedPath.bbox)
+    }, [pathDetails])
 
     return (
         <div className={styles.appWrapper}>
