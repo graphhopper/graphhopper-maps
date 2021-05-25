@@ -1,62 +1,41 @@
 import { coordinateToText } from '@/Converters'
-import ReactMapGL, { Layer, Marker, Popup, Source, WebMercatorViewport } from 'react-map-gl'
+import ReactMapGL, { Layer, Marker, Popup, Source } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { MapIsLoaded, SetPoint, SetSelectedPath } from '@/actions/Actions'
-import { Bbox, Path } from '@/api/graphhopper'
+import { MapIsLoaded, SetPoint, SetSelectedPath, SetViewport } from '@/actions/Actions'
+import { Path } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
-import { ViewState } from 'react-map-gl/dist/es6/mapbox/mapbox'
 import { FeatureCollection, LineString } from 'geojson'
 import { PopupComponent } from '@/map/Popup'
+import { ViewportStoreState } from '@/stores/ViewportStore'
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
 const highlightedPathSegmentLayerKey = 'highlightedPathSegmentLayer'
 
-// have this right here for now. Not sure if this needs to be abstracted somewhere else
-const mediaQuery = window.matchMedia('(max-width: 640px)')
-
 type MapProps = {
+    viewport: ViewportStoreState
     selectedPath: Path
     paths: Path[]
     queryPoints: QueryPoint[]
-    bbox: Bbox
     mapStyle: StyleOption
     pathDetailPoint: PathDetailsPoint | null
     highlightedPathDetailSegments: Coordinate[][]
 }
 
 export default function({
+                            viewport,
                             selectedPath,
                             paths,
                             queryPoints,
-                            bbox,
                             mapStyle,
                             pathDetailPoint,
                             highlightedPathDetailSegments
                         }: MapProps) {
-    const [viewport, setViewport] = useState<ViewState>({
-        // todo
-        latitude: 37.7577,
-        longitude: -122.4376,
-        zoom: 8
-    })
     const [popupCoordinate, setPopupCoordinate] = useState<Coordinate | null>(null)
-    useEffect(() => {
-        const bounds: [[number, number], [number, number]] = [[bbox[0], bbox[1]], [bbox[2], bbox[3]]]
-        // todo: use actual width&height and prevent flicker
-        setViewport(new WebMercatorViewport({ width: 800, height: 600 })
-            .fitBounds(bounds, {
-                padding: getPadding()
-                // todo: smooth transition and isFirstBounds
-                // duration: 500,
-                // animate: !this.isFirstBounds
-            }))
-    }, [bbox])
-
     const currentPaths = paths
         .map((path, i) => {
             return {
@@ -65,8 +44,6 @@ export default function({
             }
         })
         .filter(indexPath => indexPath.path !== selectedPath)
-    // todo: long touch handler
-    // const handler = new LongTouchHandler(e => this.popup.show(e.lngLat));
     return <ReactMapGL
         mapStyle={getStyle(mapStyle)}
         {...viewport}
@@ -77,7 +54,7 @@ export default function({
             renderWorldCopies: false
         }}
         onLoad={() => Dispatcher.dispatch(new MapIsLoaded())}
-        onViewportChange={(nextViewport: any) => setViewport(nextViewport)}
+        onViewportChange={(nextViewport: ViewportStoreState) => Dispatcher.dispatch(new SetViewport(nextViewport))}
         // todo: minor glitch: when we hover the map before the path got loaded we get an error in the console
         interactiveLayerIds={currentPaths.length === 0 ? [] : [pathsLayerKey]}
         onClick={(e) => {
@@ -95,6 +72,8 @@ export default function({
             e.preventDefault()
             setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] })
         }}
+        // todo: long touch handler
+        // const handler = new LongTouchHandler(e => this.popup.show(e.lngLat));
         // onTouchStart={handler.onTouchStart}
         // onTouchEnd={handler.onTouchEnd}
         // onTouchMove={handler.onTouchEnd}
@@ -251,17 +230,6 @@ function createHighlightedPathSegments(segments: Coordinate[][]) {
 
         />
     </Source>
-}
-
-function getPadding() {
-    return mediaQuery.matches
-        ? { top: 250, bottom: 150, right: 16, left: 16 }
-        : {
-            top: 100,
-            bottom: 100,
-            right: 100,
-            left: 500
-        }
 }
 
 function getStyle(styleOption: StyleOption): any {

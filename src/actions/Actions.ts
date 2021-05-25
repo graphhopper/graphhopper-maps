@@ -3,6 +3,7 @@ import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingResult, RoutingProfile } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { ViewportStoreState } from '@/stores/ViewportStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -102,6 +103,22 @@ export class SelectMapStyle implements Action {
 }
 
 export class MapIsLoaded implements Action {
+}
+
+export class SetViewport implements Action {
+    readonly viewport: ViewportStoreState
+
+    constructor(viewport : ViewportStoreState) {
+        this.viewport = viewport
+    }
+}
+
+export class SetViewportToBbox implements Action {
+    readonly bbox: Bbox
+
+    constructor(bbox: Bbox) {
+        this.bbox = bbox
+    }
 }
 
 export class PathDetailsHover implements Action {

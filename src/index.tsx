@@ -7,7 +7,7 @@ import {
     getErrorStore,
     getMapOptionsStore, getPathDetailsStore,
     getQueryStore,
-    getRouteStore,
+    getRouteStore, getViewportStore,
     setStores
 } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
@@ -19,6 +19,7 @@ import { ApiImpl } from '@/api/Api'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
+import ViewportStore from '@/stores/ViewportStore'
 
 // set up state management
 const api = new ApiImpl()
@@ -29,7 +30,8 @@ setStores({
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
-    pathDetailsStore: new PathDetailsStore()
+    pathDetailsStore: new PathDetailsStore(),
+    viewportStore: new ViewportStore()
 })
 
 // register stores at dispatcher to receive actions
@@ -39,6 +41,7 @@ Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
+Dispatcher.register(getViewportStore())
 
 api.infoWithDispatch() // get infos about the api as soon as possible
 
