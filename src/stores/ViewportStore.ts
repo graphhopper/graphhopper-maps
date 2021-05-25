@@ -2,6 +2,7 @@ import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { SetViewport, SetViewportToBbox } from '@/actions/Actions'
 import { FlyToInterpolator, WebMercatorViewport } from 'react-map-gl'
+import TransitionInterpolator from 'react-map-gl/src/utils/transition/transition-interpolator'
 
 export interface ViewportStoreState {
     longitude: number,
@@ -17,7 +18,7 @@ export interface ViewportStoreState {
     maxPitch?: number,
     transitionDuration?: number,
     transitionEasing?: Function,
-    transitionInterpolator?: any,
+    transitionInterpolator?: TransitionInterpolator,
     transitionInterruption?: number
 }
 
