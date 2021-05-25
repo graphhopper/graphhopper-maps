@@ -54,7 +54,7 @@ export default function App() {
             getRouteStore().deregister(onRouteChanged)
             getErrorStore().deregister(onErrorChanged)
             getMapOptionsStore().deregister(onMapOptionsChanged)
-            getPathDetailsStore().register(onPathDetailsChanged)
+            getPathDetailsStore().deregister(onPathDetailsChanged)
         }
     })
 
