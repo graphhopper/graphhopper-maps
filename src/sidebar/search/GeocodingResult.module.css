@@ -17,6 +17,10 @@
     background-color: #ececec;
 }
 
+.highlightedGeocodingEntry {
+    background-color: #ececec;
+}
+
 .selectableGeocodingEntry:active {
     background-color: #c6c6c6;
 }
