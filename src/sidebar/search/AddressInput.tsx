@@ -77,7 +77,6 @@ export default function AddressInput(props: AddressInputProps) {
                     onKeyDown={onKeypress}
                     onFocus={() => setFullscreen(true)}
                     onBlur={() => {
-                        console.log('on blur')
                         setFullscreen(false)
                         setGeocodingResults([])
                     }}
