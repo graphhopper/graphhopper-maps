@@ -34,7 +34,12 @@ export default function AddressInput(props: AddressInputProps) {
     const searchInput = useRef<HTMLInputElement>(null)
     const onKeypress = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
+            if (event.key === 'Escape') {
+                searchInput.current!.blur()
+                return
+            }
             if (geocodingResults.length === 0) return
+
             switch (event.key) {
                 case 'ArrowUp':
                     setHighlightedResult(i => calculateHighlightedIndex(geocodingResults.length, i, -1))
