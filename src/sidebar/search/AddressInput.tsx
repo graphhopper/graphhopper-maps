@@ -117,6 +117,7 @@ function calculateHighlightedIndex(length: number, currentIndex: number, increme
  */
 class Geocoder {
     private requestId = 0
+    private timeout = new Timout(500)
     private api = new ApiImpl()
     private onSuccess: (hits: GeocodingHit[]) => void
 
@@ -125,19 +126,22 @@ class Geocoder {
     }
 
     request(query: string) {
-        const currentId = this.getNextId()
+        this.requestAsync(query).then(() => {})
+    }
 
+    async requestAsync(query: string) {
+        const currentId = this.getNextId()
+        this.timeout.cancel()
         if (!query) return
 
-        this.api
-            .geocode(query)
-            .then(result => {
-                const hits = Geocoder.filterDuplicates(result.hits)
-                if (currentId === this.requestId) this.onSuccess(hits)
-            })
-            .catch(reason => {
-                throw Error('Could not get geocoding results because: ' + reason)
-            })
+        await this.timeout.wait()
+        try {
+            const result = await this.api.geocode(query)
+            const hits = Geocoder.filterDuplicates(result.hits)
+            if (currentId === this.requestId) this.onSuccess(hits)
+        } catch (reason) {
+            throw Error('Could not get geocoding results because: ' + reason)
+        }
     }
 
     private getNextId() {
@@ -154,5 +158,23 @@ class Geocoder {
             }
             return false
         })
+    }
+}
+
+class Timout {
+    private delay: number
+    private handle: number = 0
+
+    constructor(delay: number) {
+        this.delay = delay
+    }
+
+    wait() {
+        return new Promise(resolve => {
+            this.handle = window.setTimeout(resolve, this.delay)
+        })
+    }
+    cancel() {
+        clearTimeout(this.handle)
     }
 }
