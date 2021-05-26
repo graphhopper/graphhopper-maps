@@ -12,7 +12,7 @@ export default function GeocodingResult({
     onSelectHit: (hit: GeocodingHit) => void
 }) {
     return (
-        <ul>
+        <ul className={styles.geocodingList}>
             {hits.map(hit => (
                 <GeocodingEntry
                     key={hit.osm_id}
@@ -38,7 +38,7 @@ const GeocodingEntry = ({
         ? styles.selectableGeocodingEntry + ' ' + styles.highlightedGeocodingEntry
         : styles.selectableGeocodingEntry
     return (
-        <li>
+        <li className={styles.geocodingListItem}>
             <button
                 className={className}
                 onClick={() => {
