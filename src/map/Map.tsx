@@ -28,6 +28,7 @@ export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: Ma
     useEffect(() => {
         if (map) {
             // save the current view port so we can set it after re-creating the Mapbox instance when we change mapStyle
+            // todo: maybe use react functional state update instead, see discussion in #77
             prevViewPort.current = map.getViewPort()
             map.remove()
         }

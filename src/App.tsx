@@ -47,6 +47,7 @@ export default function App() {
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
     const [bbox, setBbox] = useState<Bbox>([-180, -90, 180, 90])
+    // todo: maybe combine both effects into one? see discussion in #77
     useEffect(() => {
         // make sure the path bbox takes precedence over the info bbox
         if (!route.selectedPath.bbox)
