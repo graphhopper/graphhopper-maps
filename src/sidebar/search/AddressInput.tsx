@@ -34,7 +34,7 @@ export default function AddressInput(props: AddressInputProps) {
             <div className={styles.inputContainer}>
                 <input
                     className={styles.input}
-                    type='text'
+                    type="text"
                     ref={searchInput}
                     onChange={e => {
                         setText(e.target.value)
@@ -104,7 +104,7 @@ class Geocoder {
         return this.requestId
     }
 
-    private static filterDuplicates = function(hits: GeocodingHit[]) {
+    private static filterDuplicates = function (hits: GeocodingHit[]) {
         const set: Set<string> = new Set()
         return hits.filter(hit => {
             if (!set.has(hit.osm_id)) {

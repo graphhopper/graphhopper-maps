@@ -6,10 +6,9 @@ import { SelectMapStyle } from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
 import LayerImg from './layer-group-solid.svg'
 
-export interface MapOptionsProps {
-}
+export interface MapOptionsProps {}
 
-export default function(props: MapOptionsStoreState) {
+export default function (props: MapOptionsStoreState) {
     const [isOpen, setIsOpen] = useState(false)
     return (
         <div
@@ -33,7 +32,7 @@ interface OptionsProps {
     notifyChanged: { (): void }
 }
 
-const Options = function({ storeState, notifyChanged }: OptionsProps) {
+const Options = function ({ storeState, notifyChanged }: OptionsProps) {
     return (
         <div
             className={styles.options}
@@ -45,9 +44,9 @@ const Options = function({ storeState, notifyChanged }: OptionsProps) {
             {storeState.styleOptions.map(option => (
                 <div className={styles.option} key={option.name}>
                     <input
-                        type='radio'
+                        type="radio"
                         id={option.name}
-                        name='layer'
+                        name="layer"
                         value={option.name}
                         defaultChecked={option === storeState.selectedStyle}
                         disabled={!storeState.isMapLoaded}
