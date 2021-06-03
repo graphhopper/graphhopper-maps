@@ -112,13 +112,14 @@ function calculateHighlightedIndex(length: number, currentIndex: number, increme
 }
 
 /**
- * Tried for hours to make this work with a hook but failed. Now doing it the way I know...
+ * This could definitely be achieved with an effect. But after trying for a while I saved some money and wrote it the
+ * Way I know. If we hire an 10+ react developer, this should be changed.
  */
 class Geocoder {
     private requestId = 0
-    private timeout = new Timout(500)
-    private api = new ApiImpl()
-    private onSuccess: (hits: GeocodingHit[]) => void
+    private readonly timeout = new Timout(500)
+    private readonly api = new ApiImpl()
+    private readonly onSuccess: (hits: GeocodingHit[]) => void
 
     constructor(onSuccess: (hits: GeocodingHit[]) => void) {
         this.onSuccess = onSuccess
@@ -148,7 +149,7 @@ class Geocoder {
         return this.requestId
     }
 
-    private static filterDuplicates = function (hits: GeocodingHit[]) {
+    private static filterDuplicates(hits: GeocodingHit[]) {
         const set: Set<string> = new Set()
         return hits.filter(hit => {
             if (!set.has(hit.osm_id)) {
@@ -161,7 +162,7 @@ class Geocoder {
 }
 
 class Timout {
-    private delay: number
+    private readonly delay: number
     private handle: number = 0
 
     constructor(delay: number) {
