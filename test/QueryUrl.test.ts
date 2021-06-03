@@ -14,7 +14,7 @@ class TestStore extends Store<TestState> {
     protected getInitialState(): TestState {
         return {
             points: [],
-            profile: { name: '' }
+            profile: { name: '' },
         }
     }
 
@@ -23,12 +23,12 @@ class TestStore extends Store<TestState> {
             state.points.push(action.coordinate)
             return {
                 ...state,
-                points: state.points
+                points: state.points,
             }
         } else if (action instanceof SetVehicleProfile) {
             return {
                 ...state,
-                profile: action.profile
+                profile: action.profile,
             }
         }
         return state
@@ -52,7 +52,7 @@ describe('parseUrl', () => {
             nextQueryPointId: 0,
             currentRequest: { subRequests: [] },
             maxAlternativeRoutes: 1,
-            routingProfile: store.state.profile
+            routingProfile: store.state.profile,
         })
 
         expect(store.state.points.length).toEqual(2)
@@ -72,7 +72,7 @@ describe('parseUrl', () => {
                 } else {
                     fail('Unexpected action received')
                 }
-            }
+            },
         })
 
         parseUrl(url, getQueryStoreState())
@@ -93,7 +93,7 @@ describe('parseUrl', () => {
                 } else {
                     fail('Unexpected action received')
                 }
-            }
+            },
         })
 
         parseUrl(url, getQueryStoreState())
@@ -126,7 +126,7 @@ describe('createUrl', () => {
             nextQueryPointId: 0,
             maxAlternativeRoutes: 1,
             currentRequest: { subRequests: [] },
-            queryPoints: [coordinateToQueryPoint(point1, 1), coordinateToQueryPoint(point2, 2)]
+            queryPoints: [coordinateToQueryPoint(point1, 1), coordinateToQueryPoint(point2, 2)],
         })
 
         expect(result).toEqual(expectedUrl)
@@ -139,7 +139,7 @@ function getQueryStoreState(): QueryStoreState {
         nextQueryPointId: 0,
         currentRequest: { subRequests: [] },
         maxAlternativeRoutes: 1,
-        routingProfile: { name: '' }
+        routingProfile: { name: '' },
     }
 }
 
@@ -150,6 +150,6 @@ function coordinateToQueryPoint(coordinate: [number, number], id: number): Query
         queryText: '',
         id: id,
         color: '',
-        type: QueryPointType.Via
+        type: QueryPointType.Via,
     }
 }
