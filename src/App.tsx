@@ -7,7 +7,7 @@ import {
     getMapOptionsStore,
     getPathDetailsStore,
     getQueryStore,
-    getRouteStore
+    getRouteStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/Map'
 import { ApiInfo, Bbox } from '@/api/graphhopper'
@@ -61,7 +61,12 @@ export default function App() {
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
     // only use the api info's bbox until any other bounding box was chosen. Is this too messy?
-    const chooseBoundingBox = function(infoBbox: Bbox, shouldUseInfoBbox: boolean, pathBbox?: Bbox, pathDetailBbox?: Bbox) {
+    const chooseBoundingBox = function (
+        infoBbox: Bbox,
+        shouldUseInfoBbox: boolean,
+        pathBbox?: Bbox,
+        pathDetailBbox?: Bbox
+    ) {
         if (pathDetailBbox && pathDetailBbox.every(num => num !== 0)) {
             return pathDetailBbox
         } else if (shouldUseInfoBbox && pathBbox && pathBbox.every(num => num !== 0)) {
@@ -106,7 +111,7 @@ interface LayoutProps {
     bbox: Bbox
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
-    info: ApiInfo,
+    info: ApiInfo
     pathDetails: PathDetailsStoreState
 }
 
@@ -150,11 +155,7 @@ function LargeScreenLayout({ query, route, bbox, error, mapOptions, info, pathDe
                 </div>
             </div>
             <div className={styles.bottomPane}>
-                <div className={styles.bottomPaneContent}>
-                    <PathDetails
-                        selectedPath={route.selectedPath}
-                    />
-                </div>
+                <PathDetails selectedPath={route.selectedPath} />
             </div>
         </>
     )

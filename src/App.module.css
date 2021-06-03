@@ -4,9 +4,9 @@
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: 25rem auto auto;
+    grid-template-columns: 25rem 1fr auto;
     /* todo: adjust bottom pane height, make foldable and/or responsive */
-    grid-template-rows: auto 10rem;
+    grid-template-rows: 100%;
     justify-content: space-between;
     overflow: auto;
 }
@@ -30,7 +30,7 @@
     flex-direction: column;
     border-radius: 0.5rem;
     background-color: white;
-    max-height: calc(100% - 2 * 0.5rem);
+    max-height: calc(100% - 2rem);
     margin: 0.5rem;
 
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
@@ -55,12 +55,12 @@
 }
 
 .bottomPane {
-    grid-column: 1 / span 3;
-    grid-row: 2 / span 1;
-}
-
-.bottomPaneContent {
+    grid-column: 2 / span 2;
+    grid-row: 1 / span 1;
+    z-index: 1;
+    align-self: end;
     display: flex;
+    justify-content: flex-end;
 }
 
 .smallScreenMap {
