@@ -4,24 +4,50 @@ import React from 'react'
 
 export default function GeocodingResult({
     hits,
+    highlightedHit,
     onSelectHit,
 }: {
     hits: GeocodingHit[]
+    highlightedHit: GeocodingHit
     onSelectHit: (hit: GeocodingHit) => void
 }) {
     return (
-        <ul>
+        <ul className={styles.geocodingList}>
             {hits.map(hit => (
-                <GeocodingEntry key={hit.osm_id} entry={hit} onSelectHit={onSelectHit} />
+                <GeocodingEntry
+                    key={hit.osm_id}
+                    entry={hit}
+                    isHighlighted={hit === highlightedHit}
+                    onSelectHit={onSelectHit}
+                />
             ))}
         </ul>
     )
 }
 
-const GeocodingEntry = ({ entry, onSelectHit }: { entry: GeocodingHit; onSelectHit: (hit: GeocodingHit) => void }) => {
+const GeocodingEntry = ({
+    entry,
+    isHighlighted,
+    onSelectHit,
+}: {
+    entry: GeocodingHit
+    isHighlighted: boolean
+    onSelectHit: (hit: GeocodingHit) => void
+}) => {
+    const className = isHighlighted
+        ? styles.selectableGeocodingEntry + ' ' + styles.highlightedGeocodingEntry
+        : styles.selectableGeocodingEntry
     return (
-        <li>
-            <button className={styles.selectableGeocodingEntry} onClick={() => onSelectHit(entry)}>
+        <li className={styles.geocodingListItem}>
+            <button
+                className={className}
+                onClick={() => {
+                    console.log('hit selected ' + entry.name)
+                    onSelectHit(entry)
+                }}
+                // prevent blur event for input textbox
+                onPointerDown={e => e.preventDefault()}
+            >
                 <div className={styles.geocodingEntry}>
                     <span className={styles.geocodingEntryMain}>{convertToMainText(entry)}</span>
                     <span>{convertToSecondaryText(entry)}</span>
