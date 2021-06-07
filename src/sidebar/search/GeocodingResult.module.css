@@ -1,9 +1,14 @@
+.geocodingList {
+}
+
+.geocodingListItem:not(:last-child) {
+    border-bottom: 1px lightgray solid;
+}
+
 .selectableGeocodingEntry {
     display: block;
     width: 100%;
-
     border: none;
-    border-bottom: 1px lightgray solid;
     background: none;
     color: inherit;
     font: inherit;
@@ -13,6 +18,7 @@
     overflow: hidden;
 }
 
+.highlightedGeocodingEntry,
 .selectableGeocodingEntry:hover {
     background-color: #ececec;
 }

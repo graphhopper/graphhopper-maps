@@ -31,7 +31,6 @@ export default function App() {
     const [error, setError] = useState(getErrorStore().state)
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
-    const [useInfoBbox, setUseInfoBbox] = useState(true)
 
     useEffect(() => {
         const onQueryChanged = () => setQuery(getQueryStore().state)
@@ -60,23 +59,15 @@ export default function App() {
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
-    // only use the api info's bbox until any other bounding box was chosen. Is this too messy?
-    const chooseBoundingBox = function (
-        infoBbox: Bbox,
-        shouldUseInfoBbox: boolean,
-        pathBbox?: Bbox,
-        pathDetailBbox?: Bbox
-    ) {
-        if (pathDetailBbox && pathDetailBbox.every(num => num !== 0)) {
-            return pathDetailBbox
-        } else if (shouldUseInfoBbox && pathBbox && pathBbox.every(num => num !== 0)) {
-            setUseInfoBbox(false)
-            return pathBbox
-        } else if (shouldUseInfoBbox) return infoBbox
-        return pathBbox || [0, 0, 0, 0]
-    }
-
-    const bbox = chooseBoundingBox(info.bbox, useInfoBbox, route.selectedPath.bbox, pathDetails.pathDetailBbox)
+    const [bbox, setBbox] = useState<Bbox>([-180, -90, 180, 90])
+    // todo: maybe combine both effects into one? see discussion in #77
+    useEffect(() => {
+        // make sure the path bbox takes precedence over the info bbox
+        if (!route.selectedPath.bbox) setBbox(info.bbox)
+    }, [info])
+    useEffect(() => {
+        if (route.selectedPath.bbox) setBbox(route.selectedPath.bbox)
+    }, [route])
 
     return (
         <div className={styles.appWrapper}>
