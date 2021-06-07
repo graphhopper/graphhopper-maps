@@ -1,6 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import { setTranslation } from '@/translation/Translation'
+setTranslation(navigator.language)
+
 import App from '@/App'
 import {
     getApiInfoStore,
@@ -13,15 +16,11 @@ import {
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
-import { createUrl, parseUrl } from '@/./QueryUrl'
 import QueryStore from '@/stores/QueryStore'
 import { ApiImpl } from '@/api/Api'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
-import { setTranslation } from '@/translation/Translation'
-
-const locale = navigator.language
-setTranslation(locale)
+import NavBar from '@/NavBar'
 
 // set up state management
 const api = new ApiImpl()
@@ -43,15 +42,10 @@ Dispatcher.register(getMapOptionsStore())
 
 api.infoWithDispatch() // get infos about the api as soon as possible
 
-// parse the window's url and set up a query from it
-// this will also trigger a routing request if the url contains routing parameters
-parseUrl(window.location.href, getQueryStore().state)
-
-// hook up the app's state to the navbar to reflect state changes in the url
-getQueryStore().register(() => {
-    const url = createUrl(window.location.origin + window.location.pathname, getQueryStore().state)
-    window.history.replaceState('last state', '', url.toString())
-})
+// hook up the navbar to the query store and vice versa
+const navBar = new NavBar(getQueryStore(), window)
+// parse the initial url
+navBar.parseUrl()
 
 // create a div which holds the app and render the 'App' component
 const root = document.createElement('div') as HTMLDivElement

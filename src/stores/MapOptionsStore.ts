@@ -39,7 +39,8 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
             name: 'MapTiler',
             type: 'vector',
             url: 'https://api.maptiler.com/maps/1f566542-c726-4cc5-8f2d-2309b90083db/style.json' + mapTilerKey,
-            attribution: osmAttribution + ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>'
+            attribution:
+                osmAttribution + ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
         }
         return {
             selectedStyle: defaultStyle,
@@ -49,7 +50,9 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     name: 'MapTiler Satellite',
                     type: 'vector',
                     url: 'https://api.maptiler.com/maps/hybrid/style.json' + mapTilerKey,
-                    attribution: osmAttribution + ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>'
+                    attribution:
+                        osmAttribution +
+                        ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
                 },
                 {
                     name: 'OpenStreetMap',
@@ -57,26 +60,27 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     url: [
                         'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
                         'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                        'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     ],
-                    attribution: osmAttribution
+                    attribution: osmAttribution,
                 },
                 {
                     name: 'Omniscale',
                     type: 'raster',
                     url: ['https://maps.omniscale.net/v2/' + osApiKey + '/style.default/{z}/{x}/{y}.png'],
-                    attribution: osmAttribution + ', &copy; <a href="https://maps.omniscale.com/" target="_blank">Omniscale</a>'
+                    attribution:
+                        osmAttribution + ', &copy; <a href="https://maps.omniscale.com/" target="_blank">Omniscale</a>',
                 },
                 {
                     name: 'Esri Satellite',
                     type: 'raster',
                     url: [
-                        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                     ],
                     attribution:
                         '&copy; <a href="http://www.esri.com/" target="_blank">Esri</a>' +
                         ' i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-                    maxZoom: 18
+                    maxZoom: 18,
                 },
                 {
                     name: 'TF Transport',
@@ -84,11 +88,11 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     url: [
                         'https://a.tile.thunderforest.com/transport/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
                         'https://b.tile.thunderforest.com/transport/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/transport/{z}/{x}/{y}@2x.png' + thunderforestApiKey
+                        'https://c.tile.thunderforest.com/transport/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
-                        ', <a href="https://www.thunderforest.com/maps/transport/" target="_blank">Thunderforest Transport</a>'
+                        ', <a href="https://www.thunderforest.com/maps/transport/" target="_blank">Thunderforest Transport</a>',
                 },
                 {
                     name: 'TF Cycle',
@@ -96,11 +100,11 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     url: [
                         'https://a.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
                         'https://b.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png' + thunderforestApiKey
+                        'https://c.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
-                        ', <a href="https://www.thunderforest.com/maps/opencyclemap/" target="_blank">Thunderforest Cycle</a>'
+                        ', <a href="https://www.thunderforest.com/maps/opencyclemap/" target="_blank">Thunderforest Cycle</a>',
                 },
                 {
                     name: 'TF Outdoors',
@@ -108,43 +112,61 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     url: [
                         'https://a.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
                         'https://b.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png' + thunderforestApiKey
+                        'https://c.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
-                        ', <a href="https://www.thunderforest.com/maps/outdoors/" target="_blank">Thunderforest Outdoors</a>'
+                        ', <a href="https://www.thunderforest.com/maps/outdoors/" target="_blank">Thunderforest Outdoors</a>',
                 },
                 {
-                    name: 'TF Neighbourhood',
+                    name: 'TF Atlas',
                     type: 'raster',
                     url: [
-                        'https://a.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://b.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}@2x.png' + thunderforestApiKey
+                        'https://a.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://b.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://c.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
-                        ', <a href="https://thunderforest.com/maps/neighbourhood/" target="_blank">Thunderforest Neighbourhood</a>'
+                        ', <a href="https://thunderforest.com/maps/atlas/" target="_blank">Thunderforest Atlas</a>',
                 },
                 {
                     name: 'Kurviger Liberty',
                     type: 'raster',
                     url: [
                         'https://a-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png' +
-                        kurvigerApiKey,
+                            kurvigerApiKey,
                         'https://b-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png' +
-                        kurvigerApiKey,
+                            kurvigerApiKey,
                         'https://c-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png' +
-                        kurvigerApiKey,
+                            kurvigerApiKey,
                         'https://d-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png' +
-                        kurvigerApiKey,
+                            kurvigerApiKey,
                         'https://e-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png' +
-                        kurvigerApiKey
+                            kurvigerApiKey,
                     ],
                     attribution:
                         osmAttribution +
-                        ',&copy; <a href="https://kurviger.de/" target="_blank">Kurviger</a> &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>'
-                }
+                        ',&copy; <a href="https://kurviger.de/" target="_blank">Kurviger</a> &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
+                },
+                {
+                    name: 'Mapilion',
+                    type: 'vector',
+                    url: 'https://tiles.mapilion.com/assets/osm-bright/style.json' + kurvigerApiKey,
+                    attribution:
+                        osmAttribution +
+                        ', &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
+                },
+                {
+                    name: 'OpenStreetmap.de',
+                    type: 'raster',
+                    url: [
+                        'https://a.tile.openstreetmap.de/{z}/{x}/{y}.png',
+                        'https://b.tile.openstreetmap.de/{z}/{x}/{y}.png',
+                        'https://c.tile.openstreetmap.de/{z}/{x}/{y}.png',
+                    ],
+                    attribution: osmAttribution,
+                },
                 /* The original client has this but those options yield cors errors with mapbox yields a cors error
                 {
                     name: 'Lyrk',
@@ -156,35 +178,25 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     name: 'WanderReitKarte',
                     type: 'raster',
                     url: [
-                        'http://topo.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-                        'http://topo2.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-                        'http://topo3.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-                        'http://topo4.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
+                        'https://topo.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
+                        'https://topo2.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
+                        'https://topo3.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
+                        'https://topo4.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
                     ],
                     attribution:
-                        osmAttribution + ', <a href="http://wanderreitkarte.de" target="_blank">WanderReitKarte</a>',
+                        osmAttribution + ', <a href="https://wanderreitkarte.de" target="_blank">WanderReitKarte</a>',
                 },
+                */
+                /* this works but is extremely slow with mapbox
                 {
                     name: 'Sorbian Language',
                     type: 'raster',
-                    url: ['http://a.tile.openstreetmap.de/tiles/osmhrb/{z}/{x}/{y}.png'],
+                    url: ['https://a.tile.openstreetmap.de/tilesbw/osmhrb/{z}/{x}/{y}.png'],
                     attribution:
-                        osmAttribution + ', <a href="http://www.alberding.eu/">&copy; Alberding GmbH, CC-BY-SA</a>',
-                },
-                {
-                    name: 'OpenStreetmap.de',
-                    type: 'raster',
-                    url: [
-                        'http://a.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',
-                        'http://b.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',
-                        'http://c.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',
-                    ],
-                    attribution: osmAttribution,
-                },
-
-                 */
+                        osmAttribution + ', <a href="https://www.alberding.eu/">&copy; Alberding GmbH, CC-BY-SA</a>',
+                },*/
             ],
-            isMapLoaded: false
+            isMapLoaded: false,
         }
     }
 
@@ -193,12 +205,12 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
             return {
                 ...state,
                 selectedStyle: action.styleOption,
-                isMapLoaded: false
+                isMapLoaded: false,
             }
         } else if (action instanceof MapIsLoaded) {
             return {
                 ...state,
-                isMapLoaded: true
+                isMapLoaded: true,
             }
         }
         return state

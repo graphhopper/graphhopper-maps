@@ -1,10 +1,10 @@
 import trJson from './tr.json'
 
 export class Translation {
-    data: any
-    fallback: any
+    data: { [index: string]: string }
+    fallback: { [index: string]: string }
 
-    constructor(data: any, fallback: any) {
+    constructor(data: { [index: string]: string }, fallback: { [index: string]: string }) {
         if (!data) throw Error('Translation is undefined')
         if (!fallback) throw Error('Translation fallback is undefined')
         this.data = data
@@ -29,7 +29,7 @@ let translation: Translation
 export function setTranslation(lang: string, overwrite = false): Translation {
     if (translation && !overwrite) throw new Error('translation already initialized')
 
-    let json = (trJson as any) as Record<string, any>
+    let json = trJson as Record<string, any>
     for (let property in json) {
         if (property.startsWith(lang)) {
             translation = new Translation(json[property], json['en_US'])
