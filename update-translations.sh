@@ -29,3 +29,5 @@ for tr in $translations; do
 done
 
 echo "}" >> $destination
+
+#npx prettier --write "$destination"
