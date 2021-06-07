@@ -10,7 +10,7 @@ import mapboxgl, {
     Style,
 } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { QueryPoint } from '@/stores/QueryStore'
+import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Popup } from '@/map/Popup'
@@ -29,6 +29,13 @@ const pathsLayerKey = 'pathsLayer'
 
 // have this right here for now. Not sure if this needs to be abstracted somewhere else
 const mediaQuery = window.matchMedia('(max-width: 640px)')
+
+export interface ViewPort {
+    center: Coordinate
+    zoom: number
+    bearing: number
+    pitch: number
+}
 
 export default class Mapbox {
     private readonly map: Map
@@ -319,6 +326,22 @@ export default class Mapbox {
             })
             if (this.isFirstBounds) this.isFirstBounds = false
         }
+    }
+
+    getViewPort(): ViewPort {
+        return {
+            center: this.map.getCenter(),
+            zoom: this.map.getZoom(),
+            bearing: this.map.getBearing(),
+            pitch: this.map.getPitch(),
+        }
+    }
+
+    setViewPort(viewPort: ViewPort) {
+        this.map.setZoom(viewPort.zoom)
+        this.map.setCenter(viewPort.center)
+        this.map.setBearing(viewPort.bearing)
+        this.map.setPitch(viewPort.pitch)
     }
 
     resize() {
