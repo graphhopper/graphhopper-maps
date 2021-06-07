@@ -4,10 +4,10 @@ import Dispatcher from '@/stores/Dispatcher'
 import { SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 
-export default function({
-                            routingProfiles,
-                            selectedProfile
-                        }: {
+export default function ({
+    routingProfiles,
+    selectedProfile,
+}: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
 }) {

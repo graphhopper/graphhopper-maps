@@ -16,7 +16,7 @@ type MapProps = {
     mapStyle: StyleOption
 }
 
-export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: MapProps) {
+export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
