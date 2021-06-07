@@ -40,6 +40,9 @@ export default function ({ selectedPath }: PathDetailsProps) {
         const pathDetailsData = buildPathDetailsData(selectedPath)
         graph?.setData(pathDetailsData.data, pathDetailsData.mappings)
     }, [selectedPath, graph])
+
+    // todo: do not show graph when there is no selected path...
+    const isPathPresent = selectedPath.points.coordinates.length !== 0
     return (
         <div className={styles.layoutContainer}>
             <div className={styles.heightgraphContainer} ref={containerRef} />
@@ -81,7 +84,7 @@ function buildPathDetailsData(selectedPath: Path) {
             return { text: 'Elevation [m]', color: '#27ce49' }
         },
     }
-    Object.entries(selectedPath.details).forEach(([detailName, details]) => {
+    Object.entries(selectedPath.details).forEach(([detailName, details]: [string, PathDetails]) => {
         mappings[detailName] = createColorMapping(details)
     })
     return {
@@ -90,7 +93,7 @@ function buildPathDetailsData(selectedPath: Path) {
     }
 }
 
-function createColorMapping(detail: any): any {
+function createColorMapping(detail: PathDetails): (attributeType: any) => { text: string; color: string } {
     const detailInfo: any = inspectDetail(detail)
     if (detailInfo.numeric === true && detailInfo.minVal !== detailInfo.maxVal) {
         // for numeric details we use a color gradient, taken from here:  https://uigradients.com/#Superman
@@ -101,13 +104,13 @@ function createColorMapping(detail: any): any {
             const color = []
             for (let i = 0; i < 3; i++) color.push(colorMin[i] + factor * (colorMax[i] - colorMin[i]))
             return {
-                text: attributeType,
+                text: '' + attributeType,
                 color: 'rgb(' + color[0] + ', ' + color[1] + ', ' + color[2] + ')',
             }
         }
     } else {
         // for discrete encoded values we use discrete colors
-        const values = detail.map((d: any) => d[2])
+        const values = (detail as [number, number, string][]).map(d => d[2])
         return function (attributeType: string) {
             // we choose a color-blind friendly palette from here: https://personal.sron.nl/~pault/#sec:qualitative
             // see also this: https://thenode.biologists.com/data-visualization-with-flying-colors/research/
@@ -136,7 +139,9 @@ function createColorMapping(detail: any): any {
     }
 }
 
-function inspectDetail(detail: any) {
+function inspectDetail(
+    detail: PathDetails
+): { numeric: boolean; minVal: number | undefined; maxVal: number | undefined } {
     // we check if all detail values are numeric
     const numbers = new Set()
     let minVal, maxVal
@@ -182,3 +187,5 @@ function createFeatureCollection(detailName: string, features: any[]) {
         },
     }
 }
+
+type PathDetails = [number, number, number][] | [number, number, string][]

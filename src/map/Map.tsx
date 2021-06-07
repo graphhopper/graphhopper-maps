@@ -7,7 +7,6 @@ import { MapIsLoaded } from '@/actions/Actions'
 import { Bbox, Path } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
-import { useMediaQuery } from 'react-responsive'
 
 type MapProps = {
     selectedPath: Path

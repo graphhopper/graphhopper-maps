@@ -17,10 +17,6 @@ export interface PathDetailsStoreState {
 }
 
 export default class PathDetailsStore extends Store<PathDetailsStoreState> {
-    constructor() {
-        super()
-    }
-
     protected getInitialState(): PathDetailsStoreState {
         return {
             pathDetailsPoint: null,
