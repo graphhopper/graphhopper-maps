@@ -66,6 +66,7 @@ export default function App() {
     })
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+    // todo: maybe combine these effects into one? see discussion in #77
     useEffect(() => {
         if (info.bbox.every(num => num != 0)) Dispatcher.dispatch(new SetViewportToBbox(info.bbox))
     }, [info])

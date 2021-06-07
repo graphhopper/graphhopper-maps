@@ -119,16 +119,16 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                         ', <a href="https://www.thunderforest.com/maps/outdoors/" target="_blank">Thunderforest Outdoors</a>',
                 },
                 {
-                    name: 'TF Neighbourhood',
+                    name: 'TF Atlas',
                     type: 'raster',
                     url: [
-                        'https://a.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://b.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://a.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://b.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://c.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
-                        ', <a href="https://thunderforest.com/maps/neighbourhood/" target="_blank">Thunderforest Neighbourhood</a>',
+                        ', <a href="https://thunderforest.com/maps/atlas/" target="_blank">Thunderforest Atlas</a>',
                 },
                 {
                     name: 'Kurviger Liberty',
@@ -149,6 +149,24 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                         osmAttribution +
                         ',&copy; <a href="https://kurviger.de/" target="_blank">Kurviger</a> &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
                 },
+                {
+                    name: 'Mapilion',
+                    type: 'vector',
+                    url: 'https://tiles.mapilion.com/assets/osm-bright/style.json' + kurvigerApiKey,
+                    attribution:
+                        osmAttribution +
+                        ', &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
+                },
+                {
+                    name: 'OpenStreetmap.de',
+                    type: 'raster',
+                    url: [
+                        'https://a.tile.openstreetmap.de/{z}/{x}/{y}.png',
+                        'https://b.tile.openstreetmap.de/{z}/{x}/{y}.png',
+                        'https://c.tile.openstreetmap.de/{z}/{x}/{y}.png',
+                    ],
+                    attribution: osmAttribution,
+                },
                 /* The original client has this but those options yield cors errors with mapbox yields a cors error
                 {
                     name: 'Lyrk',
@@ -160,33 +178,23 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     name: 'WanderReitKarte',
                     type: 'raster',
                     url: [
-                        'http://topo.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-                        'http://topo2.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-                        'http://topo3.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-                        'http://topo4.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
+                        'https://topo.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
+                        'https://topo2.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
+                        'https://topo3.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
+                        'https://topo4.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
                     ],
                     attribution:
-                        osmAttribution + ', <a href="http://wanderreitkarte.de" target="_blank">WanderReitKarte</a>',
+                        osmAttribution + ', <a href="https://wanderreitkarte.de" target="_blank">WanderReitKarte</a>',
                 },
+                */
+                /* this works but is extremely slow with mapbox
                 {
                     name: 'Sorbian Language',
                     type: 'raster',
-                    url: ['http://a.tile.openstreetmap.de/tiles/osmhrb/{z}/{x}/{y}.png'],
+                    url: ['https://a.tile.openstreetmap.de/tilesbw/osmhrb/{z}/{x}/{y}.png'],
                     attribution:
-                        osmAttribution + ', <a href="http://www.alberding.eu/">&copy; Alberding GmbH, CC-BY-SA</a>',
-                },
-                {
-                    name: 'OpenStreetmap.de',
-                    type: 'raster',
-                    url: [
-                        'http://a.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',
-                        'http://b.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',
-                        'http://c.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',
-                    ],
-                    attribution: osmAttribution,
-                },
-
-                 */
+                        osmAttribution + ', <a href="https://www.alberding.eu/">&copy; Alberding GmbH, CC-BY-SA</a>',
+                },*/
             ],
             isMapLoaded: false,
         }
@@ -197,6 +205,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
             return {
                 ...state,
                 selectedStyle: action.styleOption,
+                isMapLoaded: false,
             }
         } else if (action instanceof MapIsLoaded) {
             return {

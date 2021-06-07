@@ -30,7 +30,7 @@ export default function ({ selectedPath }: PathDetailsProps) {
         setGraph(new HeightGraph(containerRef.current, options, callbacks))
     }, [containerRef])
     const resizeGraph = () => {
-        graph?.resize({ width: window.innerWidth, height: containerRef.current?.clientHeight })
+        graph?.resize({ width: containerRef.current?.clientWidth, height: containerRef.current?.clientHeight })
     }
     useEffect(() => {
         window.addEventListener('resize', resizeGraph)
@@ -40,7 +40,11 @@ export default function ({ selectedPath }: PathDetailsProps) {
         const pathDetailsData = buildPathDetailsData(selectedPath)
         graph?.setData(pathDetailsData.data, pathDetailsData.mappings)
     }, [selectedPath, graph])
-    return <div className={styles.pathDetailsContainer} ref={containerRef}></div>
+    return (
+        <div className={styles.layoutContainer}>
+            <div className={styles.heightgraphContainer} ref={containerRef} />
+        </div>
+    )
 }
 
 /** executed when we hover the mouse over the path details diagram */
