@@ -6,7 +6,7 @@ import GeocodingResult from '@/sidebar/search/GeocodingResult'
 import styles from './AddressInput.module.css'
 import { ApiImpl } from '@/api/Api'
 import { getTranslation } from '@/translation/Translation'
-let t = getTranslation()
+let tr = getTranslation()
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -84,7 +84,7 @@ export default function AddressInput(props: AddressInputProps) {
                         setGeocodingResults([])
                     }}
                     value={text}
-                    placeholder={t.get(
+                    placeholder={tr.get(
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
                     )}
                 />
