@@ -8,7 +8,7 @@ import {
     getMapOptionsStore,
     getQueryStore,
     getRouteStore,
-    setStores
+    setStores,
 } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
@@ -27,7 +27,7 @@ setStores({
     routeStore: new RouteStore(queryStore),
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
-    mapOptionsStore: new MapOptionsStore()
+    mapOptionsStore: new MapOptionsStore(),
 })
 
 // register stores at dispatcher to receive actions

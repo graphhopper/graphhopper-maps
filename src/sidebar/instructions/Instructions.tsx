@@ -23,7 +23,7 @@ import ptEndTrip from './pt_end_trip.png'
 import { metersToText } from '@/Converters'
 import { Instruction } from '@/api/graphhopper'
 
-export default function(props: { instructions: Instruction[] }) {
+export default function (props: { instructions: Instruction[] }) {
     return (
         <ul className={styles.instructionsList}>
             {props.instructions.map((instruction, i) => (
@@ -33,7 +33,7 @@ export default function(props: { instructions: Instruction[] }) {
     )
 }
 
-const Line = function({ instruction, index }: { instruction: Instruction; index: number }) {
+const Line = function ({ instruction, index }: { instruction: Instruction; index: number }) {
     return (
         <li className={styles.instruction}>
             <img className={styles.sign} src={getSignName(instruction.sign, index)} alt={'turn instruction'} />

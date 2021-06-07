@@ -16,7 +16,7 @@ type MapProps = {
     mapStyle: StyleOption
 }
 
-export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: MapProps) {
+export default function ({ selectedPath, paths, queryPoints, bbox, mapStyle }: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
     const prevViewPort = useRef<ViewPort | null>(null)
@@ -33,16 +33,11 @@ export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: Ma
             map.remove()
         }
 
-        const mapWrapper = new Mapbox(
-            mapContainerRef.current!,
-            mapStyle,
-            () => {
-                setMap(mapWrapper)
-                Dispatcher.dispatch(new MapIsLoaded())
-            }
-        )
-        if (prevViewPort.current)
-            mapWrapper.setViewPort(prevViewPort.current)
+        const mapWrapper = new Mapbox(mapContainerRef.current!, mapStyle, () => {
+            setMap(mapWrapper)
+            Dispatcher.dispatch(new MapIsLoaded())
+        })
+        if (prevViewPort.current) mapWrapper.setViewPort(prevViewPort.current)
         return () => map?.remove()
     }, [mapStyle])
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
@@ -51,10 +46,8 @@ export default function({ selectedPath, paths, queryPoints, bbox, mapStyle }: Ma
     useEffect(() => {
         // previous view port takes precedence if it was set. for example when we just changed the mapStyle we do
         // not want to go back to the bbox
-        if (prevViewPort.current)
-            map?.setViewPort(prevViewPort.current)
-        else
-            map?.fitBounds(bbox)
+        if (prevViewPort.current) map?.setViewPort(prevViewPort.current)
+        else map?.fitBounds(bbox)
     }, [bbox, map, prevViewPort])
     useEffect(() => map?.resize())
 

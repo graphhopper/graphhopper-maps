@@ -1,5 +1,4 @@
 .geocodingList {
-
 }
 
 .geocodingListItem:not(:last-child) {
@@ -19,7 +18,8 @@
     overflow: hidden;
 }
 
-.highlightedGeocodingEntry, .selectableGeocodingEntry:hover {
+.highlightedGeocodingEntry,
+.selectableGeocodingEntry:hover {
     background-color: #ececec;
 }
 
