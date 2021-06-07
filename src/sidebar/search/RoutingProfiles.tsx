@@ -3,10 +3,12 @@ import styles from './RoutingProfiles.modules.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
+import { getTranslation } from '@/translation/Translation'
+let t = getTranslation()
 
 export default function ({
     routingProfiles,
-    selectedProfile,
+    selectedProfile
 }: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
@@ -14,7 +16,7 @@ export default function ({
     return (
         <select
             className={styles.profileSelect}
-            value={getEmoji(selectedProfile)}
+            value={getEmoji(selectedProfile) + '\u00a0' + t.get(selectedProfile.name)}
             onChange={e => {
                 const selectedIndex = e.target.selectedIndex
                 const routingProfile = routingProfiles[selectedIndex]
@@ -22,7 +24,7 @@ export default function ({
             }}
         >
             {routingProfiles.map(profile => (
-                <option key={profile.name}>{getEmoji(profile)}</option>
+                <option key={profile.name}>{getEmoji(profile) + '\u00a0' + t.get(profile.name)}</option>
             ))}
         </select>
     )
@@ -31,23 +33,23 @@ export default function ({
 function getEmoji(profile: RoutingProfile) {
     switch (profile.name) {
         case 'car':
-            return '🚗\u00a0Car'
+            return '🚗'
         case 'small_truck':
-            return '🚐\u00a0Small Truck'
+            return '🚐'
         case 'truck':
-            return '🚛\u00a0Truck'
+            return '🚛'
         case 'scooter':
-            return '🛵\u00a0Scooter'
+            return '🛵'
         case 'foot':
-            return '🚶‍♀\u00a0\u00a0\u00a0Foot'
+            return '🚶‍'
         case 'hike':
-            return '🥾\u00a0Hike'
+            return '🥾'
         case 'bike':
-            return '🚲\u00a0Bike'
+            return '🚲'
         case 'mtb':
-            return '🚵‍♂\u00a0Mountain Bike'
+            return '🚵‍'
         case 'racingbike':
-            return '🚴‍♀\u00a0Racing Bike'
+            return '🚴‍'
         default:
             return ''
     }

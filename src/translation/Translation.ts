@@ -11,7 +11,7 @@ export class Translation {
         this.fallback = fallback
     }
 
-    tr(key: string, parameters?: string[]): string {
+    get(key: string, parameters?: string[]): string {
         var str: string = this.data[key]
         if (!str) {
             str = this.fallback[key]
