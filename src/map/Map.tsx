@@ -31,7 +31,6 @@ export default function ({
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
     const prevViewPort = useRef<ViewPort | null>(null)
-    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     useEffect(() => {
         prevViewPort.current = null
     }, [bbox])
@@ -53,14 +52,14 @@ export default function ({
     }, [mapStyle])
     useEffect(() => map?.drawPaths(paths, selectedPath), [paths, selectedPath, map])
     useEffect(() => map?.drawMarkers(queryPoints), [queryPoints, map])
+    useEffect(() => map?.drawPathDetailMarker(pathDetailPoint), [pathDetailPoint, map])
+    useEffect(() => map?.highlightPathSegments(highlightedPathDetailSegments), [highlightedPathDetailSegments, map])
     useEffect(() => {
         // previous view port takes precedence if it was set. for example when we just changed the mapStyle we do
         // not want to go back to the bbox
         if (prevViewPort.current) map?.setViewPort(prevViewPort.current)
         else map?.fitBounds(bbox)
     }, [bbox, map, prevViewPort])
-    useEffect(() => map?.drawPathDetailMarker(pathDetailPoint), [pathDetailPoint, map])
-    useEffect(() => map?.highlightPathSegments(highlightedPathDetailSegments), [highlightedPathDetailSegments, map])
     useEffect(() => map?.resize())
 
     return <div className={styles.map} ref={mapContainerRef} />
