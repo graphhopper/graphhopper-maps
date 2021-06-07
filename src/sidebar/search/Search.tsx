@@ -15,7 +15,7 @@ import { convertToQueryText } from '@/Converters'
 export default function Search({
     points,
     routingProfiles,
-    selectedProfile
+    selectedProfile,
 }: {
     points: QueryPoint[]
     routingProfiles: RoutingProfile[]
@@ -48,7 +48,7 @@ export default function Search({
 const SearchBox = ({
     point,
     onChange,
-    deletable
+    deletable,
 }: {
     point: QueryPoint
     deletable: boolean
@@ -68,7 +68,7 @@ const SearchBox = ({
                                 ...point,
                                 isInitialized: true,
                                 queryText: convertToQueryText(hit),
-                                coordinate: hit.point
+                                coordinate: hit.point,
                             })
                         )
                     }

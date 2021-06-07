@@ -8,7 +8,7 @@ let t = getTranslation()
 
 export default function ({
     routingProfiles,
-    selectedProfile
+    selectedProfile,
 }: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
