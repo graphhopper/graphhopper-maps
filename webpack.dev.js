@@ -3,7 +3,7 @@ const path = require('path')
 
 const common = require('./webpack.common.js')
 
-module.exports = merge(common, {
+const config = merge(common, {
     mode: 'development',
     devtool: 'source-map',
     devServer: {
@@ -13,3 +13,9 @@ module.exports = merge(common, {
         host: '0.0.0.0',
     },
 })
+
+config.module.rules[3].use[1].options.modules = {
+    localIdentName: '[path][name]__[local]'
+}
+
+module.exports = config
