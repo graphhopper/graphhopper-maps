@@ -18,9 +18,7 @@ export default function ({ selectedPath }: PathDetailsProps) {
         const options = {
             width: containerRef.current!.clientWidth,
             height: containerRef.current!.clientHeight,
-            // todo: since we do not use this maybe we can/should remove the svg asset rules again because this we added
-            //       them just for this...
-            expandControls: false,
+            expandControls: true,
         }
         const callbacks = {
             pointSelectedCallback: onPathDetailHover,

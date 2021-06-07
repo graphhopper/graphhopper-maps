@@ -54,7 +54,7 @@
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
 }
 
-.bottomPane {
+.pathDetails {
     grid-column: 2 / span 2;
     grid-row: 1 / span 1;
     z-index: 1;

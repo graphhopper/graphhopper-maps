@@ -151,7 +151,7 @@ function LargeScreenLayout({ query, route, bbox, error, mapOptions, info, pathDe
                     </div>
                 </div>
             </div>
-            <div className={styles.bottomPane}>
+            <div className={styles.pathDetails}>
                 <PathDetails selectedPath={route.selectedPath} />
             </div>
         </>
