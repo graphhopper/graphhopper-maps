@@ -119,16 +119,16 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                         ', <a href="https://www.thunderforest.com/maps/outdoors/" target="_blank">Thunderforest Outdoors</a>',
                 },
                 {
-                    name: 'TF Neighbourhood',
+                    name: 'TF Atlas',
                     type: 'raster',
                     url: [
-                        'https://a.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://b.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/neighbourhood/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://a.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://b.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://c.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
-                        ', <a href="https://thunderforest.com/maps/neighbourhood/" target="_blank">Thunderforest Neighbourhood</a>',
+                        ', <a href="https://thunderforest.com/maps/atlas/" target="_blank">Thunderforest Atlas</a>',
                 },
                 {
                     name: 'Kurviger Liberty',
@@ -167,7 +167,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     ],
                     attribution: osmAttribution,
                 },
-                /* Those layers do not seem to allow CORS (worked with leaflet):
+                /* The original client has this but those options yield cors errors with mapbox yields a cors error
                 {
                     name: 'Lyrk',
                     type: 'raster',
