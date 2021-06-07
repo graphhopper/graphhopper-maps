@@ -7,7 +7,7 @@ import {
     getPathDetailsStore,
     getQueryStore,
     getRouteStore,
-    getViewportStore
+    getViewportStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/Map'
 import { ApiInfo } from '@/api/graphhopper'
@@ -67,16 +67,14 @@ export default function App() {
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     useEffect(() => {
-        if (info.bbox.every(num => num != 0))
-            Dispatcher.dispatch(new SetViewportToBbox(info.bbox))
+        if (info.bbox.every(num => num != 0)) Dispatcher.dispatch(new SetViewportToBbox(info.bbox))
     }, [info])
     useEffect(() => {
         if (route.selectedPath.bbox && route.selectedPath.bbox.every(num => num != 0))
             Dispatcher.dispatch(new SetViewportToBbox(route.selectedPath.bbox))
     }, [route])
     useEffect(() => {
-        if (pathDetails.pathDetailBbox)
-            Dispatcher.dispatch(new SetViewportToBbox(pathDetails.pathDetailBbox))
+        if (pathDetails.pathDetailBbox) Dispatcher.dispatch(new SetViewportToBbox(pathDetails.pathDetailBbox))
         else if (route.selectedPath.bbox && route.selectedPath.bbox.every(num => num != 0))
             Dispatcher.dispatch(new SetViewportToBbox(route.selectedPath.bbox))
     }, [pathDetails])
@@ -113,7 +111,7 @@ interface LayoutProps {
     viewport: ViewportStoreState
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
-    info: ApiInfo,
+    info: ApiInfo
     pathDetails: PathDetailsStoreState
 }
 
@@ -158,9 +156,7 @@ function LargeScreenLayout({ query, route, viewport, error, mapOptions, info, pa
             </div>
             <div className={styles.bottomPane}>
                 <div className={styles.bottomPaneContent}>
-                    <PathDetails
-                        selectedPath={route.selectedPath}
-                    />
+                    <PathDetails selectedPath={route.selectedPath} />
                 </div>
             </div>
         </>

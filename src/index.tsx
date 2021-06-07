@@ -5,10 +5,12 @@ import App from '@/App'
 import {
     getApiInfoStore,
     getErrorStore,
-    getMapOptionsStore, getPathDetailsStore,
+    getMapOptionsStore,
+    getPathDetailsStore,
     getQueryStore,
-    getRouteStore, getViewportStore,
-    setStores
+    getRouteStore,
+    getViewportStore,
+    setStores,
 } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
@@ -31,7 +33,7 @@ setStores({
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
-    viewportStore: new ViewportStore()
+    viewportStore: new ViewportStore(),
 })
 
 // register stores at dispatcher to receive actions

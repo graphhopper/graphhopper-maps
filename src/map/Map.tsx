@@ -26,77 +26,82 @@ type MapProps = {
     highlightedPathDetailSegments: Coordinate[][]
 }
 
-export default function({
-                            viewport,
-                            selectedPath,
-                            paths,
-                            queryPoints,
-                            mapStyle,
-                            pathDetailPoint,
-                            highlightedPathDetailSegments
-                        }: MapProps) {
+export default function ({
+    viewport,
+    selectedPath,
+    paths,
+    queryPoints,
+    mapStyle,
+    pathDetailPoint,
+    highlightedPathDetailSegments,
+}: MapProps) {
     const [popupCoordinate, setPopupCoordinate] = useState<Coordinate | null>(null)
     const currentPaths = paths
         .map((path, i) => {
             return {
                 path,
-                index: i
+                index: i,
             }
         })
         .filter(indexPath => indexPath.path !== selectedPath)
-    return <ReactMapGL
-        mapStyle={getStyle(mapStyle)}
-        {...viewport}
-        width='100%'
-        height='100%'
-        mapOptions={{
-            // todo: maxBounds
-            renderWorldCopies: false
-        }}
-        onLoad={() => Dispatcher.dispatch(new MapIsLoaded())}
-        onViewportChange={(nextViewport: ViewportStoreState) => Dispatcher.dispatch(new SetViewport(nextViewport))}
-        // todo: minor glitch: when we hover the map before the path got loaded we get an error in the console
-        interactiveLayerIds={currentPaths.length === 0 ? [] : [pathsLayerKey]}
-        onClick={(e) => {
-            const feature = e.features?.[0]
-            if (feature) {
-                // select an alternative path if clicked
-                if (feature.layer.id === pathsLayerKey) {
-                    const index = feature.properties!.index
-                    const path = currentPaths.find(indexPath => indexPath.index === index)
-                    Dispatcher.dispatch(new SetSelectedPath(path!.path))
+    return (
+        <ReactMapGL
+            mapStyle={getStyle(mapStyle)}
+            {...viewport}
+            width="100%"
+            height="100%"
+            mapOptions={{
+                // todo: maxBounds
+                renderWorldCopies: false,
+            }}
+            onLoad={() => Dispatcher.dispatch(new MapIsLoaded())}
+            onViewportChange={(nextViewport: ViewportStoreState) => Dispatcher.dispatch(new SetViewport(nextViewport))}
+            // todo: minor glitch: when we hover the map before the path got loaded we get an error in the console
+            interactiveLayerIds={currentPaths.length === 0 ? [] : [pathsLayerKey]}
+            onClick={e => {
+                const feature = e.features?.[0]
+                if (feature) {
+                    // select an alternative path if clicked
+                    if (feature.layer.id === pathsLayerKey) {
+                        const index = feature.properties!.index
+                        const path = currentPaths.find(indexPath => indexPath.index === index)
+                        Dispatcher.dispatch(new SetSelectedPath(path!.path))
+                    }
                 }
-            }
-        }}
-        onContextMenu={(e) => {
-            e.preventDefault()
-            setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] })
-        }}
-        // todo: long touch handler
-        // const handler = new LongTouchHandler(e => this.popup.show(e.lngLat));
-        // onTouchStart={handler.onTouchStart}
-        // onTouchEnd={handler.onTouchEnd}
-        // onTouchMove={handler.onTouchEnd}
-    >
-        {popupCoordinate && <Popup
-            longitude={popupCoordinate.lng}
-            latitude={popupCoordinate.lat}
-            closeOnClick={true}
-            closeButton={false}
-            // todo
-            // closeOnMove: true,
+            }}
+            onContextMenu={e => {
+                e.preventDefault()
+                setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] })
+            }}
+            // todo: long touch handler
+            // const handler = new LongTouchHandler(e => this.popup.show(e.lngLat));
+            // onTouchStart={handler.onTouchStart}
+            // onTouchEnd={handler.onTouchEnd}
+            // onTouchMove={handler.onTouchEnd}
         >
-            <PopupComponent
-                coordinate={popupCoordinate}
-                queryPoints={queryPoints}
-                onSelect={() => setPopupCoordinate(null)} />
-        </Popup>}
-        {createQueryPointMarkers(queryPoints)}
-        {pathDetailPoint && createPathDetailMarker(pathDetailPoint)}
-        {createUnselectedPaths(currentPaths)}
-        {createSelectedPath(selectedPath)}
-        {createHighlightedPathSegments(highlightedPathDetailSegments)}
-    </ReactMapGL>
+            {popupCoordinate && (
+                <Popup
+                    longitude={popupCoordinate.lng}
+                    latitude={popupCoordinate.lat}
+                    closeOnClick={true}
+                    closeButton={false}
+                    // todo
+                    // closeOnMove: true,
+                >
+                    <PopupComponent
+                        coordinate={popupCoordinate}
+                        queryPoints={queryPoints}
+                        onSelect={() => setPopupCoordinate(null)}
+                    />
+                </Popup>
+            )}
+            {createQueryPointMarkers(queryPoints)}
+            {pathDetailPoint && createPathDetailMarker(pathDetailPoint)}
+            {createUnselectedPaths(currentPaths)}
+            {createSelectedPath(selectedPath)}
+            {createHighlightedPathSegments(highlightedPathDetailSegments)}
+        </ReactMapGL>
+    )
 }
 
 function createSelectedPath(path: Path) {
@@ -106,24 +111,26 @@ function createSelectedPath(path: Path) {
             {
                 type: 'Feature',
                 properties: {},
-                geometry: path.points as LineString
-            }
-        ]
+                geometry: path.points as LineString,
+            },
+        ],
     }
-    return <Source type={'geojson'} data={featureCollection}>
-        <Layer
-            id={selectedPathLayerKey}
-            type={'line'}
-            layout={{
-                'line-join': 'round',
-                'line-cap': 'round'
-            }}
-            paint={{
-                'line-color': '#275DAD',
-                'line-width': 8
-            }}
-        />
-    </Source>
+    return (
+        <Source type={'geojson'} data={featureCollection}>
+            <Layer
+                id={selectedPathLayerKey}
+                type={'line'}
+                layout={{
+                    'line-join': 'round',
+                    'line-cap': 'round',
+                }}
+                paint={{
+                    'line-color': '#275DAD',
+                    'line-width': 8,
+                }}
+            />
+        </Source>
+    )
 }
 
 function createUnselectedPaths(indexPaths: { path: Path; index: number }[]) {
@@ -133,28 +140,29 @@ function createUnselectedPaths(indexPaths: { path: Path; index: number }[]) {
             return {
                 type: 'Feature',
                 properties: {
-                    index: indexPath.index
+                    index: indexPath.index,
                 },
-                geometry: indexPath.path.points as LineString
+                geometry: indexPath.path.points as LineString,
             }
-        })
+        }),
     }
-    return <Source type={'geojson'} data={featureCollection}>
-        <Layer
-            id={pathsLayerKey}
-            type={'line'}
-            layout={{
-                'line-join': 'round',
-                'line-cap': 'round'
-            }}
-            paint={{
-                'line-color': '#5B616A',
-                'line-width': 6,
-                'line-opacity': 0.8
-            }}
-
-        />
-    </Source>
+    return (
+        <Source type={'geojson'} data={featureCollection}>
+            <Layer
+                id={pathsLayerKey}
+                type={'line'}
+                layout={{
+                    'line-join': 'round',
+                    'line-cap': 'round',
+                }}
+                paint={{
+                    'line-color': '#5B616A',
+                    'line-width': 6,
+                    'line-opacity': 0.8,
+                }}
+            />
+        </Source>
+    )
 }
 
 function createQueryPointMarkers(queryPoints: QueryPoint[]) {
@@ -164,7 +172,7 @@ function createQueryPointMarkers(queryPoints: QueryPoint[]) {
             return { index: i, point: point }
         })
         .filter(indexPoint => indexPoint.point.isInitialized)
-        .map((indexPoint, i) =>
+        .map((indexPoint, i) => (
             <Marker
                 key={i}
                 longitude={indexPoint.point.coordinate.lng}
@@ -176,27 +184,26 @@ function createQueryPointMarkers(queryPoints: QueryPoint[]) {
                         new SetPoint({
                             ...indexPoint.point,
                             coordinate,
-                            queryText: coordinateToText(coordinate)
+                            queryText: coordinateToText(coordinate),
                         })
                     )
                 }}
             >
                 <div style={{ color: indexPoint.point.color }}>x</div>
             </Marker>
-        )
+        ))
 }
 
 function createPathDetailMarker(point: PathDetailsPoint) {
     // todo: use createMapMarker from heightgraph
     // {createMapMarker(point.elevation, point.description)}
-    return <Marker
-        longitude={point.point.lng}
-        latitude={point.point.lat}
-        offsetLeft={-5}
-        offsetTop={5}
-    >
-        <div>elevation: {point.elevation}, description: {point.description}</div>
-    </Marker>
+    return (
+        <Marker longitude={point.point.lng} latitude={point.point.lat} offsetLeft={-5} offsetTop={5}>
+            <div>
+                elevation: {point.elevation}, description: {point.description}
+            </div>
+        </Marker>
+    )
 }
 
 function createHighlightedPathSegments(segments: Coordinate[][]) {
@@ -207,29 +214,30 @@ function createHighlightedPathSegments(segments: Coordinate[][]) {
                 type: 'Feature',
                 geometry: {
                     type: 'MultiLineString',
-                    coordinates: segments.map(s => s.map(c => [c.lng, c.lat]))
+                    coordinates: segments.map(s => s.map(c => [c.lng, c.lat])),
                 },
-                properties: {}
-            }
-        ]
+                properties: {},
+            },
+        ],
     }
 
-    return <Source type={'geojson'} data={featureCollection}>
-        <Layer
-            id={highlightedPathSegmentLayerKey}
-            type={'line'}
-            layout={{
-                'line-join': 'round',
-                'line-cap': 'round'
-            }}
-            paint={{
-                // todo
-                'line-color': 'red',
-                'line-width': 4
-            }}
-
-        />
-    </Source>
+    return (
+        <Source type={'geojson'} data={featureCollection}>
+            <Layer
+                id={highlightedPathSegmentLayerKey}
+                type={'line'}
+                layout={{
+                    'line-join': 'round',
+                    'line-cap': 'round',
+                }}
+                paint={{
+                    // todo
+                    'line-color': 'red',
+                    'line-width': 4,
+                }}
+            />
+        </Source>
+    )
 }
 
 function getStyle(styleOption: StyleOption): any {
@@ -246,16 +254,16 @@ function getStyle(styleOption: StyleOption): any {
                 tiles: rasterStyle.url,
                 attribution: rasterStyle.attribution,
                 tileSize: 256,
-                maxzoom: rasterStyle.maxZoom ? styleOption.maxZoom : 22
-            }
+                maxzoom: rasterStyle.maxZoom ? styleOption.maxZoom : 22,
+            },
         },
         layers: [
             {
                 id: 'raster-layer',
                 type: 'raster',
-                source: 'raster-source'
-            }
-        ]
+                source: 'raster-source',
+            },
+        ],
     }
 }
 

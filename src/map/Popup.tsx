@@ -5,24 +5,28 @@ import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, SetPoint } from '@/actions/Actions'
 
-export function PopupComponent({ coordinate, queryPoints, onSelect }: {
+export function PopupComponent({
+    coordinate,
+    queryPoints,
+    onSelect,
+}: {
     coordinate: Coordinate
     queryPoints: QueryPoint[]
     onSelect: () => void
 }) {
-    const dispatchSetPoint = function(point: QueryPoint, coordinate: Coordinate) {
+    const dispatchSetPoint = function (point: QueryPoint, coordinate: Coordinate) {
         onSelect()
         Dispatcher.dispatch(
             new SetPoint({
                 ...point,
                 coordinate: coordinate,
                 queryText: coordinateToText(coordinate),
-                isInitialized: true
+                isInitialized: true,
             })
         )
     }
 
-    const setViaPoint = function(points: QueryPoint[]) {
+    const setViaPoint = function (points: QueryPoint[]) {
         const viaPoints = points.filter(point => point.type === QueryPointType.Via)
         const point = viaPoints.find(point => !point.isInitialized)
         onSelect()
@@ -34,7 +38,7 @@ export function PopupComponent({ coordinate, queryPoints, onSelect }: {
         }
     }
 
-    const disableViaPoint = function(points: QueryPoint[]) {
+    const disableViaPoint = function (points: QueryPoint[]) {
         return (
             points.length >= 5 &&
             points.filter(point => point.type === QueryPointType.Via).every(point => point.isInitialized)

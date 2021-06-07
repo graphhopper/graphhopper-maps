@@ -24,7 +24,7 @@ interface StoresInput {
     viewportStore: ViewportStore
 }
 
-export const setStores = function(stores: StoresInput) {
+export const setStores = function (stores: StoresInput) {
     queryStore = stores.queryStore
     routeStore = stores.routeStore
     infoStore = stores.infoStore

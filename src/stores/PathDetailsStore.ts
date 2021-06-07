@@ -25,28 +25,27 @@ export default class PathDetailsStore extends Store<PathDetailsStoreState> {
         return {
             pathDetailsPoint: null,
             pathDetailBbox: undefined,
-            pathDetailsHighlightedSegments: []
+            pathDetailsHighlightedSegments: [],
         }
     }
-
 
     reduce(state: PathDetailsStoreState, action: Action): PathDetailsStoreState {
         if (action instanceof PathDetailsHover) {
             return {
                 ...state,
-                pathDetailsPoint: action.pathDetailsPoint
+                pathDetailsPoint: action.pathDetailsPoint,
             }
         } else if (action instanceof PathDetailsRangeSelected) {
             return {
                 ...state,
-                pathDetailBbox: action.bbox ? action.bbox : undefined
+                pathDetailBbox: action.bbox ? action.bbox : undefined,
             }
         } else if (action instanceof PathDetailsElevationSelected) {
             return {
                 // todo: we probably should keep the highlighted segments and elevation when we change the
                 //       selected details?! -> need to fix in heightgraph
                 ...state,
-                pathDetailsHighlightedSegments: action.segments
+                pathDetailsHighlightedSegments: action.segments,
             }
         }
         return state
