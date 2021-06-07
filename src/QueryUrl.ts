@@ -28,7 +28,7 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
                     id: i,
                     queryText: '',
                     color: '',
-                    type: QueryPointType.Via
+                    type: QueryPointType.Via,
                 }
             }
         )
@@ -49,7 +49,7 @@ function parseRoutingProfile(url: URL) {
     if (!profileKey) profileKey = 'car'
     Dispatcher.dispatch(
         new SetVehicleProfile({
-            name: profileKey
+            name: profileKey,
         })
     )
 }

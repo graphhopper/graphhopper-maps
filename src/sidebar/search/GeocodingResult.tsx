@@ -3,9 +3,9 @@ import styles from './GeocodingResult.module.css'
 import React from 'react'
 
 export default function GeocodingResult({
-                                            hits,
-                                            onSelectHit
-                                        }: {
+    hits,
+    onSelectHit,
+}: {
     hits: GeocodingHit[]
     onSelectHit: (hit: GeocodingHit) => void
 }) {

@@ -19,15 +19,15 @@ type MapProps = {
     highlightedPathDetailSegments: Coordinate[][]
 }
 
-export default function({
-                            selectedPath,
-                            paths,
-                            queryPoints,
-                            bbox,
-                            mapStyle,
-                            pathDetailPoint,
-                            highlightedPathDetailSegments
-                        }: MapProps) {
+export default function ({
+    selectedPath,
+    paths,
+    queryPoints,
+    bbox,
+    mapStyle,
+    pathDetailPoint,
+    highlightedPathDetailSegments,
+}: MapProps) {
     const mapContainerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [map, setMap] = useState<Mapbox | null>(null)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
