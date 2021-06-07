@@ -9,7 +9,11 @@ describe('translate', () => {
     })
 
     it('should fallback', () => {
-        const tr = setTranslation('fi', true)
-        expect(tr.get('drag_to_reorder')).toEqual('Drag to reorder')
+        const trFI = setTranslation('fi', true)
+        expect(trFI.get('drag_to_reorder')).toEqual('Drag to reorder')
+
+        // empty string
+        const trBN = setTranslation('bn_BN', true)
+        expect(trBN.get('search_button')).toEqual('Search')
     })
 })
