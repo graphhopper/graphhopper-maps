@@ -28,15 +28,21 @@ export class Translation {
 let translation: Translation
 export function setTranslation(lang: string, overwrite = false): Translation {
     if (translation && !overwrite) throw new Error('translation already initialized')
+    lang = lang.replace('-', '_')
 
     let json = trJson as Record<string, any>
+    let selectedLang
     for (let property in json) {
         if (property.startsWith(lang)) {
-            translation = new Translation(json[property], json['en_US'])
-            return translation
+            selectedLang = property
+            break
         }
     }
-    throw new Error('language ' + lang + ' not found')
+    if (!selectedLang) {
+        selectedLang = 'en_US'
+        console.warn('cannot find language ' + lang + ' fallback to ' + selectedLang)
+    }
+    return (translation = new Translation(json[selectedLang], json['en_US']))
 }
 
 export function getTranslation(): Translation {

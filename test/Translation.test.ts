@@ -6,6 +6,9 @@ describe('translate', () => {
         expect(tr.get('unknownKEY')).toEqual('unknownKEY')
         expect(tr.get('racingbike')).toEqual('Rennrad')
         expect(tr.get('route_info', ['27km', '18min'])).toEqual('27km werden 18min brauchen')
+
+        const tr2 = setTranslation('de-DE', true)
+        expect(tr2.get('racingbike')).toEqual('Rennrad')
     })
 
     it('should fallback', () => {
