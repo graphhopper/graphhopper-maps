@@ -8,16 +8,18 @@ import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelecte
 import { Coordinate } from '@/stores/QueryStore'
 
 interface PathDetailsProps {
+    width: number
+    height: number
     selectedPath: Path
 }
 
-export default function ({ selectedPath }: PathDetailsProps) {
+export default function ({ width, height, selectedPath }: PathDetailsProps) {
     const containerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [graph, setGraph] = useState<any | null>(null)
     useEffect(() => {
         const options = {
-            width: containerRef.current!.clientWidth,
-            height: containerRef.current!.clientHeight,
+            width,
+            height,
             expandControls: true,
         }
         const callbacks = {
@@ -27,17 +29,13 @@ export default function ({ selectedPath }: PathDetailsProps) {
         }
         setGraph(new HeightGraph(containerRef.current, options, callbacks))
     }, [containerRef])
-    const resizeGraph = () => {
-        graph?.resize({ width: containerRef.current?.clientWidth, height: containerRef.current?.clientHeight })
-    }
-    useEffect(() => {
-        window.addEventListener('resize', resizeGraph)
-        return () => window.removeEventListener('resize', resizeGraph)
-    })
     useEffect(() => {
         const pathDetailsData = buildPathDetailsData(selectedPath)
         graph?.setData(pathDetailsData.data, pathDetailsData.mappings)
     }, [selectedPath, graph])
+    useEffect(() => {
+        graph?.resize({ width, height })
+    }, [width, height])
 
     // todo: do not show graph when there is no selected path...
     const isPathPresent = selectedPath.points.coordinates.length !== 0
