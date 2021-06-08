@@ -318,14 +318,12 @@ export default class Mapbox {
     }
 
     fitBounds(bbox: Bbox) {
-        if (bbox.every(num => num !== 0)) {
-            this.map.fitBounds(new LngLatBounds(bbox), {
-                padding: Mapbox.getPadding(),
-                duration: 500,
-                animate: !this.isFirstBounds,
-            })
-            if (this.isFirstBounds) this.isFirstBounds = false
-        }
+        this.map.fitBounds(new LngLatBounds(bbox), {
+            padding: Mapbox.getPadding(),
+            duration: 500,
+            animate: !this.isFirstBounds,
+        })
+        if (this.isFirstBounds) this.isFirstBounds = false
     }
 
     getViewPort(): ViewPort {
