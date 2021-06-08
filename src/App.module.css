@@ -5,7 +5,6 @@
     margin: 0;
     display: grid;
     grid-template-columns: 25rem 1fr auto;
-    /* todo: adjust bottom pane height, make foldable and/or responsive */
     grid-template-rows: 100%;
     justify-content: space-between;
     overflow: auto;
@@ -54,7 +53,7 @@
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
 }
 
-.bottomPane {
+.pathDetails {
     grid-column: 2 / span 2;
     grid-row: 1 / span 1;
     z-index: 1;
