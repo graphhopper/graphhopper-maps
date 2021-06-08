@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
     getApiInfoStore,
