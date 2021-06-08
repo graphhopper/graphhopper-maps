@@ -39,7 +39,6 @@ export default function Search({
                 className={styles.addSearchBox}
             >
                 <AddIcon />
-                <span>Add Point</span>
             </PlainButton>
             <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
         </div>
