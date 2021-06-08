@@ -37,11 +37,11 @@ export default function ({ width, height, selectedPath }: PathDetailsProps) {
         graph?.resize({ width, height })
     }, [width, height])
 
-    // todo: do not show graph when there is no selected path...
     const isPathPresent = selectedPath.points.coordinates.length !== 0
+    const style : any = {display: (isPathPresent ? null : 'none')}
     return (
         <div className={styles.layoutContainer}>
-            <div className={styles.heightgraphContainer} ref={containerRef} />
+            <div className={styles.heightgraphContainer} ref={containerRef} style={style}/>
         </div>
     )
 }
