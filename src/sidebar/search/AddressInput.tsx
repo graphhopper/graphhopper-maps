@@ -140,7 +140,7 @@ class Geocoder {
     async requestAsync(query: string) {
         const currentId = this.getNextId()
         this.timeout.cancel()
-        if (!query) return
+        if (!query || query.length < 2) return
 
         await this.timeout.wait()
         try {

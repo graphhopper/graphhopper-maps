@@ -41,9 +41,11 @@ const GeocodingEntry = ({
         : styles.selectableGeocodingEntry
     return (
         <li className={styles.geocodingListItem}>
+            {/* This uses pointer down, up and cancel events to make things work on touch devices. Using the click event would close the popup to quickly */}
             <button
                 className={className}
-                // prevent blur event for input textbox
+                // handle the click event to avoid re-focusing of the address input text input
+                onClick={e => e.preventDefault()}
                 onPointerDown={e => {
                     setWasCancelled(false)
                     e.preventDefault()
