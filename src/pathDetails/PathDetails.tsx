@@ -12,6 +12,7 @@ interface PathDetailsProps {
 }
 
 export default function ({ selectedPath }: PathDetailsProps) {
+    // keep a ref to the container to determine the size of the graph, keep the graph as state and initialize it once the component has mounted
     const containerRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [graph, setGraph] = useState<any | null>(null)
     useEffect(() => {
@@ -27,23 +28,29 @@ export default function ({ selectedPath }: PathDetailsProps) {
         }
         setGraph(new HeightGraph(containerRef.current, options, callbacks))
     }, [containerRef])
+
+    // the graph needs to be resized when the window size changes and when the component mounts
+    // because then the width will be 0 first and then a plausible value after the layout pass
     const resizeGraph = () => {
-        console.log('Width: ' + containerRef.current?.clientWidth)
         graph?.resize({ width: containerRef.current?.clientWidth, height: 224 })
     }
     useEffect(() => {
         window.addEventListener('resize', resizeGraph)
         return () => window.removeEventListener('resize', resizeGraph)
     })
+    const width = containerRef.current ? containerRef.current!.clientWidth : 0
+    useEffect(() => resizeGraph(), [width])
+
+    // set data in case anything changes
     useEffect(() => {
         const pathDetailsData = buildPathDetailsData(selectedPath)
         graph?.setData(pathDetailsData.data, pathDetailsData.mappings)
     }, [selectedPath, graph])
 
+    // render the container
     const isPathPresent = selectedPath.points.coordinates.length !== 0
-    const style : any = {display: (isPathPresent ? null : 'none')}
-
-    return <div className={styles.heightgraphContainer} ref={containerRef} style={style}/>
+    const style: any = { display: isPathPresent ? null : 'none' }
+    return <div className={styles.heightgraphContainer} ref={containerRef} style={style} />
 }
 
 /** executed when we hover the mouse over the path details diagram */
