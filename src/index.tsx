@@ -1,6 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import { setTranslation } from '@/translation/Translation'
+setTranslation(navigator.language)
+
 import App from '@/App'
 import {
     getApiInfoStore,
