@@ -8,6 +8,16 @@ describe('translate', () => {
         expect(tr.get('route_info', ['27km', '18min'])).toEqual('27km werden 18min brauchen')
     })
 
+    it('should translate if language and locale is known', () => {
+        const tr = setTranslation('de-DE', true)
+        expect(tr.get('racingbike')).toEqual('Rennrad')
+    })
+
+    it('should translate if only language is known', () => {
+        const tr = setTranslation('de-XX', true)
+        expect(tr.get('racingbike')).toEqual('Rennrad')
+    })
+
     it('should fallback', () => {
         const trFI = setTranslation('fi', true)
         expect(trFI.get('drag_to_reorder')).toEqual('Drag to reorder')
