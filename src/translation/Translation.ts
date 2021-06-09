@@ -31,16 +31,14 @@ export function setTranslation(lang: string, overwrite = false): Translation {
     lang = lang.replace('-', '_')
 
     let json = trJson as Record<string, any>
-    let selectedLang
-    for (let property in json) {
-        if (property.startsWith(lang)) {
-            selectedLang = property
-            break
-        }
-    }
+    let selectedLang = Object.keys(json).find(property => property.startsWith(lang))
     if (!selectedLang) {
-        selectedLang = 'en_US'
-        console.warn('cannot find language ' + lang + ' fallback to ' + selectedLang)
+        let genericLang = lang.length > 1 ? lang.substr(0, 2) : lang
+        selectedLang = Object.keys(json).find(property => property.startsWith(genericLang))
+        if (!selectedLang) {
+            selectedLang = 'en_US'
+            console.warn('cannot find language ' + lang + ' fallback to ' + selectedLang)
+        }
     }
     return (translation = new Translation(json[selectedLang], json['en_US']))
 }
