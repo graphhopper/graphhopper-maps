@@ -60,6 +60,7 @@
     align-self: end;
     overflow: hidden; /* This is important to make the heightgraph shrink */
     margin: 0 0.5rem 1.5rem 0;
+    pointer-events: none;
 }
 
 .smallScreenMap {

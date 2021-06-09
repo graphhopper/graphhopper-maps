@@ -12,12 +12,15 @@ interface PathDetailsProps {
 }
 
 export default function ({ selectedPath }: PathDetailsProps) {
-    // keep a ref to the container to determine the size of the graph, keep the graph as state and initialize it once the component has mounted
+    // keep a ref to the container to determine the size of the graph,
     const containerRef: React.RefObject<HTMLDivElement> = useRef(null)
+
+    // keep a ref to the container of the actual graph and pass it to the graph once the container is mounted
+    const heightgraphRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [graph, setGraph] = useState<any | null>(null)
     useEffect(() => {
         const options = {
-            width: containerRef.current!.clientWidth,
+            width: clampWidth(containerRef.current!.clientWidth),
             height: 224,
             expandControls: true,
         }
@@ -26,20 +29,18 @@ export default function ({ selectedPath }: PathDetailsProps) {
             areaSelectedCallback: onRangeSelected,
             routeSegmentsSelectedCallback: onElevationSelected,
         }
-        setGraph(new HeightGraph(containerRef.current, options, callbacks))
-    }, [containerRef])
+        setGraph(new HeightGraph(heightgraphRef.current, options, callbacks))
+    }, [heightgraphRef])
 
     // the graph needs to be resized when the window size changes and when the component mounts
     // because then the width will be 0 first and then a plausible value after the layout pass
     const resizeGraph = () => {
-        graph?.resize({ width: containerRef.current?.clientWidth, height: 224 })
+        graph?.resize({ width: clampWidth(containerRef.current!.clientWidth) })
     }
     useEffect(() => {
         window.addEventListener('resize', resizeGraph)
         return () => window.removeEventListener('resize', resizeGraph)
     })
-    const width = containerRef.current ? containerRef.current!.clientWidth : 0
-    useEffect(() => resizeGraph(), [width])
 
     // set data in case anything changes
     useEffect(() => {
@@ -50,7 +51,15 @@ export default function ({ selectedPath }: PathDetailsProps) {
     // render the container
     const isPathPresent = selectedPath.points.coordinates.length !== 0
     const style: any = { display: isPathPresent ? null : 'none' }
-    return <div className={styles.heightgraphContainer} ref={containerRef} style={style} />
+    return (
+        <div className={styles.heightgraphContainer} ref={containerRef}>
+            <div className={styles.innerDiv} style={style} ref={heightgraphRef} />
+        </div>
+    )
+}
+
+function clampWidth(clientWidth: number) {
+    return Math.min(clientWidth, 1000)
 }
 
 /** executed when we hover the mouse over the path details diagram */
