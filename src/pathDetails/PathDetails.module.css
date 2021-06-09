@@ -1,13 +1,6 @@
-.layoutContainer {
+.heightgraphContainer {
+    position: relative;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    background-color: white;
-    margin: 0 0.5rem 1.5rem 0.5rem;
-    border-radius: 0.3rem;
-    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
-    height: 100%;
-}
-
-.heightgraphContainer {
+    align-items: flex-end;
 }
