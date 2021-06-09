@@ -116,15 +116,17 @@ function LargeScreenLayout({ query, route, bbox, error, mapOptions, info, pathDe
     return (
         <>
             <div className={styles.map}>
-                <MapComponent
-                    queryPoints={query.queryPoints}
-                    paths={route.routingResult.paths}
-                    selectedPath={route.selectedPath}
-                    bbox={bbox}
-                    mapStyle={mapOptions.selectedStyle}
-                    pathDetailPoint={pathDetails.pathDetailsPoint}
-                    highlightedPathDetailSegments={pathDetails.pathDetailsHighlightedSegments}
-                />
+                {
+                    <MapComponent
+                        queryPoints={query.queryPoints}
+                        paths={route.routingResult.paths}
+                        selectedPath={route.selectedPath}
+                        bbox={bbox}
+                        mapStyle={mapOptions.selectedStyle}
+                        pathDetailPoint={pathDetails.pathDetailsPoint}
+                        highlightedPathDetailSegments={pathDetails.pathDetailsHighlightedSegments}
+                    />
+                }
             </div>
             <div className={styles.mapOptions}>
                 <MapOptions {...mapOptions} />

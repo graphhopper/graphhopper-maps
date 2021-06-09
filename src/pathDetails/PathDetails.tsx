@@ -17,7 +17,7 @@ export default function ({ selectedPath }: PathDetailsProps) {
     useEffect(() => {
         const options = {
             width: containerRef.current!.clientWidth,
-            height: containerRef.current!.clientHeight,
+            height: 224,
             expandControls: true,
         }
         const callbacks = {
@@ -28,7 +28,8 @@ export default function ({ selectedPath }: PathDetailsProps) {
         setGraph(new HeightGraph(containerRef.current, options, callbacks))
     }, [containerRef])
     const resizeGraph = () => {
-        graph?.resize({ width: containerRef.current?.clientWidth, height: containerRef.current?.clientHeight })
+        console.log('Width: ' + containerRef.current?.clientWidth)
+        graph?.resize({ width: containerRef.current?.clientWidth, height: 224 })
     }
     useEffect(() => {
         window.addEventListener('resize', resizeGraph)
@@ -41,11 +42,8 @@ export default function ({ selectedPath }: PathDetailsProps) {
 
     // todo: do not show graph when there is no selected path...
     const isPathPresent = selectedPath.points.coordinates.length !== 0
-    return (
-        <div className={styles.layoutContainer}>
-            <div className={styles.heightgraphContainer} ref={containerRef} />
-        </div>
-    )
+
+    return <div className={styles.heightgraphContainer} ref={containerRef} />
 }
 
 /** executed when we hover the mouse over the path details diagram */
