@@ -1,6 +1,6 @@
 import { GeocodingHit } from '@/api/graphhopper'
 import styles from './GeocodingResult.module.css'
-import React from 'react'
+import React, { useState } from 'react'
 
 export default function GeocodingResult({
     hits,
@@ -34,6 +34,8 @@ const GeocodingEntry = ({
     isHighlighted: boolean
     onSelectHit: (hit: GeocodingHit) => void
 }) => {
+    const [wasCancelled, setWasCancelled] = useState(false)
+
     const className = isHighlighted
         ? styles.selectableGeocodingEntry + ' ' + styles.highlightedGeocodingEntry
         : styles.selectableGeocodingEntry
@@ -41,12 +43,15 @@ const GeocodingEntry = ({
         <li className={styles.geocodingListItem}>
             <button
                 className={className}
-                onClick={() => {
-                    console.log('hit selected ' + entry.name)
-                    onSelectHit(entry)
-                }}
                 // prevent blur event for input textbox
-                onPointerDown={e => e.preventDefault()}
+                onPointerDown={e => {
+                    setWasCancelled(false)
+                    e.preventDefault()
+                }}
+                onPointerUp={() => {
+                    if (!wasCancelled) onSelectHit(entry)
+                }}
+                onPointerCancel={() => setWasCancelled(true)}
             >
                 <div className={styles.geocodingEntry}>
                     <span className={styles.geocodingEntryMain}>{convertToMainText(entry)}</span>
