@@ -1,6 +1,6 @@
 import fetchMock from 'jest-fetch-mock'
 import Dispatcher, { Action } from '../../src/stores/Dispatcher'
-import { InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '../../src/actions/Actions'
+import { ErrorAction, InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '../../src/actions/Actions'
 import { ApiImpl, ghKey } from '../../src/api/Api'
 import { ApiInfo, ErrorResponse, RawResult, RoutingArgs, RoutingRequest } from '../../src/api/graphhopper'
 
@@ -15,8 +15,6 @@ afterEach(() => Dispatcher.clear())
 
 // disable fetchMock and restore global 'fetch' method
 afterAll(() => fetchMock.disableMocks())
-
-it('should pass', () => {})
 
 describe('info api', () => {
     it('should query correct url and dispatch an InfoReceived action', async () => {
@@ -39,17 +37,27 @@ describe('info api', () => {
                     import_date: expected.import_date,
                     version: expected.version,
                     profiles: [],
+                    elevation: expected.elevation,
                 })
             )
         })
 
+        // this is a little indirect. we are making assertions in the callback of the async api call
+        // if the assertion is wrong the error is caught by the error handler of the api, dispatching an errorAction
+        // therefore we must make the test fail manually
         Dispatcher.register({
             receive(action: Action) {
-                expect(action instanceof InfoReceived).toBeTruthy()
-                expect((action as InfoReceived).result).toEqual(expected)
+                if (action instanceof InfoReceived) {
+                    expect(action.result).toEqual(expected)
+                } else if (action instanceof ErrorAction) {
+                    fail(action.message)
+                } else {
+                    fail('unexpected action')
+                }
             },
         })
 
+        // also, this call needs to be awaited so that the above fail within the receive method can fail the test.
         await new ApiImpl().infoWithDispatch()
     })
 
@@ -75,8 +83,13 @@ describe('info api', () => {
 
         Dispatcher.register({
             receive(action: Action) {
-                expect(action instanceof InfoReceived).toBeTruthy()
-                expect((action as InfoReceived).result).toEqual(expected)
+                if (action instanceof InfoReceived) {
+                    expect(action.result).toEqual(expected)
+                } else if (action instanceof ErrorAction) {
+                    fail(action.message)
+                } else {
+                    fail('unexpected action')
+                }
             },
         })
 
@@ -202,7 +215,7 @@ describe('route', () => {
         Dispatcher.register({
             receive(action: Action) {
                 expect(action instanceof RouteRequestFailed).toBeTruthy()
-                expect((action as RouteRequestFailed).errorMessage).toEqual(error.message)
+                expect((action as RouteRequestFailed).message).toEqual(error.message)
                 expect((action as RouteRequestFailed).request).toEqual(args)
             },
         })

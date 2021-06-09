@@ -1,5 +1,5 @@
 import Dispatcher from '@/stores/Dispatcher'
-import { InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
+import { ErrorAction, InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
 import {
     ApiInfo,
     Bbox,
@@ -9,9 +9,9 @@ import {
     RawPath,
     RawResult,
     RoutingArgs,
+    RoutingProfile,
     RoutingRequest,
     RoutingResult,
-    RoutingProfile,
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
 
@@ -51,14 +51,14 @@ export class ApiImpl implements Api {
             const result = await response.json()
             return ApiImpl.convertToApiInfo(result)
         } else {
-            throw new Error('here could be your meaningfull error message')
+            throw new Error('Could not connect to the Service. Try to reload!')
         }
     }
 
     infoWithDispatch() {
         this.info()
             .then(result => Dispatcher.dispatch(new InfoReceived(result)))
-            .catch(e => console.log(e.message))
+            .catch(e => Dispatcher.dispatch(new ErrorAction(e.message)))
     }
 
     async geocode(query: string) {
