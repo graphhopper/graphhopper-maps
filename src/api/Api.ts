@@ -98,21 +98,19 @@ export class ApiImpl implements Api {
                 ...rawResult,
                 paths: ApiImpl.decodeResult(rawResult, completeRequest.elevation),
             }
-        } else if (response.status !== 400) {
-            console.log(`route request failed, status: '${response.statusText}'`)
-            if (response.status === 500)
-                // not always true, but most of the time :)
-                throw new Error('Route calculation timed out')
-            throw new Error('Route request failed')
-        } else {
+        } else if (response.status === 500) {
+            // not always true, but most of the time :)
+            throw new Error('Route calculation timed out')
+        } else if (response.status === 400) {
             const errorResult = (await response.json()) as ErrorResponse
             let message = errorResult.message
             if (errorResult.hints.length > 0)
                 message +=
                     (message ? message + ' and ' : '') +
                     (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
-
             throw new Error(message)
+        } else {
+            throw new Error('Route request failed')
         }
     }
 
