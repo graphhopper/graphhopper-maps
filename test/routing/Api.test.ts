@@ -1,13 +1,16 @@
 import fetchMock from 'jest-fetch-mock'
 import { setTranslation } from '../../src/translation/Translation'
-setTranslation('en', true)
 import Dispatcher, { Action } from '../../src/stores/Dispatcher'
 import { InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '../../src/actions/Actions'
 import { ApiImpl, ghKey } from '../../src/api/Api'
 import { ApiInfo, ErrorResponse, RawResult, RoutingArgs, RoutingRequest } from '../../src/api/graphhopper'
 
-// replace global 'fetch' method by fetchMock
-beforeAll(fetchMock.enableMocks)
+beforeAll(() => {
+    // replace global 'fetch' method by fetchMock
+    fetchMock.enableMocks()
+    // setup translation
+    setTranslation('en', true)
+})
 
 // clear everything before each test
 beforeEach(() => fetchMock.mockClear())

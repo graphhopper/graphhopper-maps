@@ -14,8 +14,7 @@ import {
     RoutingProfile,
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
-import { getTranslation } from '@/translation/Translation'
-const tr = getTranslation()
+import { tr } from '@/translation/Translation'
 
 interface ApiProfile {
     name: string
@@ -102,7 +101,7 @@ export class ApiImpl implements Api {
             }
         } else if (response.status === 500) {
             // not always true, but most of the time :)
-            throw new Error(tr.get('route_timed_out'))
+            throw new Error(tr('route_timed_out'))
         } else if (response.status === 400) {
             const errorResult = (await response.json()) as ErrorResponse
             let message = errorResult.message
@@ -112,7 +111,7 @@ export class ApiImpl implements Api {
                     (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
             throw new Error(message)
         } else {
-            throw new Error(tr.get('route_request_failed'))
+            throw new Error(tr('route_request_failed'))
         }
     }
 
