@@ -217,7 +217,7 @@ describe('route', () => {
             maxAlternativeRoutes: 3,
         }
         fetchMock.mockResponse(() => Promise.resolve({ status: 500 }))
-        await expect(new ApiImpl().route(args)).rejects.toThrow('The request timed out')
+        await expect(new ApiImpl().route(args)).rejects.toThrow('Route calculation timed out')
     })
 })
 
