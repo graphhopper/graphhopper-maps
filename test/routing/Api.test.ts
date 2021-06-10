@@ -217,13 +217,7 @@ describe('route', () => {
             maxAlternativeRoutes: 3,
         }
         fetchMock.mockResponse(() => Promise.resolve({ status: 500 }))
-        try {
-            await new ApiImpl().route(args)
-        } catch (e) {
-            expect(e.message).toEqual('Internal Server Error')
-            return
-        }
-        fail('there should have been an Error')
+        await expect(new ApiImpl().route(args)).rejects.toThrow('The request timed out')
     })
 })
 
