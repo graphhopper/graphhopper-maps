@@ -98,6 +98,8 @@ export class ApiImpl implements Api {
                 ...rawResult,
                 paths: ApiImpl.decodeResult(rawResult, completeRequest.elevation),
             }
+        } else if (response.status !== 400) {
+            throw new Error(response.statusText)
         } else {
             const errorResult = (await response.json()) as ErrorResponse
             let message = errorResult.message

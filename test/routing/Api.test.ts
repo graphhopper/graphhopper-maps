@@ -209,6 +209,22 @@ describe('route', () => {
 
         await new ApiImpl().routeWithDispatch(args)
     })
+
+    it('should handle 500 error', async () => {
+        const args: RoutingArgs = {
+            profile: 'car',
+            points: [],
+            maxAlternativeRoutes: 3,
+        }
+        fetchMock.mockResponse(() => Promise.resolve({ status: 500 }))
+        try {
+            await new ApiImpl().route(args)
+        } catch (e) {
+            expect(e.message).toEqual('Internal Server Error')
+            return
+        }
+        fail('there should have been an Error')
+    })
 })
 
 function getEmptyResult(): RawResult {
