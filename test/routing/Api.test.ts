@@ -1,4 +1,6 @@
 import fetchMock from 'jest-fetch-mock'
+import { setTranslation } from '../../src/translation/Translation'
+setTranslation('en', true)
 import Dispatcher, { Action } from '../../src/stores/Dispatcher'
 import { InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '../../src/actions/Actions'
 import { ApiImpl, ghKey } from '../../src/api/Api'
