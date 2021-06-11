@@ -1,0 +1,13 @@
+.heightgraphContainer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.innerDiv {
+    position: relative;
+    pointer-events: all;
+    background-color: white;
+    border-radius: 0.3rem;
+}
