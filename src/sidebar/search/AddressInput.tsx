@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { GeocodingHit } from '@/api/graphhopper'
 import GeocodingResult from '@/sidebar/search/GeocodingResult'
 
 import styles from './AddressInput.module.css'
 import { ApiImpl } from '@/api/Api'
+import { getTranslation } from '@/translation/Translation'
+let tr = getTranslation()
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -61,6 +63,7 @@ export default function AddressInput(props: AddressInputProps) {
     // toggle fullscreen display on small screens
     const [fullscreen, setFullscreen] = useState(false)
     const containerClass = fullscreen ? styles.container + ' ' + styles.fullscreen : styles.container
+    const type = props.point.type
 
     return (
         <div className={containerClass}>
@@ -81,7 +84,9 @@ export default function AddressInput(props: AddressInputProps) {
                         setGeocodingResults([])
                     }}
                     value={text}
-                    placeholder={'Search location or right click on the map'}
+                    placeholder={tr.get(
+                        type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
+                    )}
                 />
                 <button className={styles.btnClose} onClick={() => setFullscreen(false)}>
                     Close

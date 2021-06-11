@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
     getApiInfoStore,
@@ -117,36 +118,20 @@ interface LayoutProps {
 }
 
 function LargeScreenLayout({ query, route, viewport, error, mapOptions, info, pathDetails }: LayoutProps) {
-    // we need to figure out the dimension of the path details box so we can render the path detail graph with the
-    // correct size
-    const pathDetailsRef = useRef<HTMLDivElement>(null)
-    const pathDetailHeight = 280
-    const [pathDetailDimensions, setPathDetailDimensions] = useState({ width: 800, height: pathDetailHeight })
-    const updatePathDetailDimensions = () => {
-        if (pathDetailsRef.current)
-            setPathDetailDimensions({
-                // we use all available width of the container div and a fixed height
-                width: pathDetailsRef.current.clientWidth,
-                height: pathDetailHeight,
-            })
-    }
-    useEffect(updatePathDetailDimensions, [pathDetailsRef])
-    useEffect(() => {
-        window.addEventListener('resize', updatePathDetailDimensions)
-        return () => window.removeEventListener('resize', updatePathDetailDimensions)
-    })
     return (
         <>
             <div className={styles.map}>
-                <MapComponent
-                    viewport={viewport}
-                    queryPoints={query.queryPoints}
-                    paths={route.routingResult.paths}
-                    selectedPath={route.selectedPath}
-                    mapStyle={mapOptions.selectedStyle}
-                    pathDetailPoint={pathDetails.pathDetailsPoint}
-                    highlightedPathDetailSegments={pathDetails.pathDetailsHighlightedSegments}
-                />
+                {
+                    <MapComponent
+                        viewport={viewport}
+                        queryPoints={query.queryPoints}
+                        paths={route.routingResult.paths}
+                        selectedPath={route.selectedPath}
+                        mapStyle={mapOptions.selectedStyle}
+                        pathDetailPoint={pathDetails.pathDetailsPoint}
+                        highlightedPathDetailSegments={pathDetails.pathDetailsHighlightedSegments}
+                    />
+                }
             </div>
             <div className={styles.mapOptions}>
                 <MapOptions {...mapOptions} />
@@ -173,12 +158,8 @@ function LargeScreenLayout({ query, route, viewport, error, mapOptions, info, pa
                     </div>
                 </div>
             </div>
-            <div className={styles.pathDetails} ref={pathDetailsRef}>
-                <PathDetails
-                    height={pathDetailDimensions.height}
-                    width={pathDetailDimensions.width}
-                    selectedPath={route.selectedPath}
-                />
+            <div className={styles.pathDetails}>
+                <PathDetails selectedPath={route.selectedPath} />
             </div>
         </>
     )

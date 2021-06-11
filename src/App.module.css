@@ -58,8 +58,9 @@
     grid-row: 1 / span 1;
     z-index: 1;
     align-self: end;
-    display: flex;
-    justify-content: flex-end;
+    overflow: hidden; /* This is important to make the heightgraph shrink */
+    margin: 0 0.5rem 1.5rem 0;
+    pointer-events: none;
 }
 
 .smallScreenMap {

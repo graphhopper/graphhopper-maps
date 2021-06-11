@@ -12,7 +12,7 @@ export interface RouteStoreState {
 export default class RouteStore extends Store<RouteStoreState> {
     private static getEmptyPath(): Path {
         return {
-            bbox: [0, 0, 0, 0],
+            bbox: undefined,
             instructions: [],
             points: {
                 coordinates: [],

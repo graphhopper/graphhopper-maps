@@ -8,18 +8,20 @@ import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelecte
 import { Coordinate } from '@/stores/QueryStore'
 
 interface PathDetailsProps {
-    width: number
-    height: number
     selectedPath: Path
 }
 
-export default function ({ width, height, selectedPath }: PathDetailsProps) {
+export default function ({ selectedPath }: PathDetailsProps) {
+    // keep a ref to the container to determine the size of the graph,
     const containerRef: React.RefObject<HTMLDivElement> = useRef(null)
+
+    // keep a ref to the container of the actual graph and pass it to the graph once the container is mounted
+    const heightgraphRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [graph, setGraph] = useState<any | null>(null)
     useEffect(() => {
         const options = {
-            width,
-            height,
+            width: clampWidth(containerRef.current!.clientWidth),
+            height: 224,
             expandControls: true,
         }
         const callbacks = {
@@ -27,23 +29,37 @@ export default function ({ width, height, selectedPath }: PathDetailsProps) {
             areaSelectedCallback: onRangeSelected,
             routeSegmentsSelectedCallback: onElevationSelected,
         }
-        setGraph(new HeightGraph(containerRef.current, options, callbacks))
-    }, [containerRef])
+        setGraph(new HeightGraph(heightgraphRef.current, options, callbacks))
+    }, [heightgraphRef])
+
+    // the graph needs to be resized when the window size changes and when the component mounts
+    // because then the width will be 0 first and then a plausible value after the layout pass
+    const resizeGraph = () => {
+        graph?.resize({ width: clampWidth(containerRef.current!.clientWidth) })
+    }
+    useEffect(() => {
+        window.addEventListener('resize', resizeGraph)
+        return () => window.removeEventListener('resize', resizeGraph)
+    })
+
+    // set data in case anything changes
     useEffect(() => {
         const pathDetailsData = buildPathDetailsData(selectedPath)
         graph?.setData(pathDetailsData.data, pathDetailsData.mappings)
     }, [selectedPath, graph])
-    useEffect(() => {
-        graph?.resize({ width, height })
-    }, [width, height])
 
+    // render the container
     const isPathPresent = selectedPath.points.coordinates.length !== 0
-    const style : any = {display: (isPathPresent ? null : 'none')}
+    const style: any = { display: isPathPresent ? null : 'none' }
     return (
-        <div className={styles.layoutContainer}>
-            <div className={styles.heightgraphContainer} ref={containerRef} style={style}/>
+        <div className={styles.heightgraphContainer} ref={containerRef}>
+            <div className={styles.innerDiv} style={style} ref={heightgraphRef} />
         </div>
     )
+}
+
+function clampWidth(clientWidth: number) {
+    return Math.min(clientWidth, 1000)
 }
 
 /** executed when we hover the mouse over the path details diagram */
