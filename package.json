@@ -4,7 +4,7 @@
     "description": "react dummy",
     "main": "index.js",
     "scripts": {
-        "format": "prettier --write \"src/**/*.{css,ts,tsx,html}\"",
+        "format": "prettier --write \"src/**/*.{css,ts,tsx,html}\" \"test/**/*.{js,ts,jsx,tsx}\" \"jest.config.js\" \"webpack.*.js\"",
         "serve": "webpack serve --config webpack.dev.js",
         "build": "webpack --config webpack.prod.js",
         "test": "jest"
