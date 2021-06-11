@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
     getApiInfoStore,
@@ -22,7 +23,6 @@ import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
-import PathDetails from '@/pathDetails/PathDetails'
 import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { ViewportStoreState } from '@/stores/ViewportStore'
 import Dispatcher from '@/stores/Dispatcher'
