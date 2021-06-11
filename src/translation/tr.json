@@ -36,7 +36,9 @@
 "server_status":"Status",
 "zoom_in":"Zoom in",
 "zoom_out":"Zoom out",
-"drag_to_reorder":"Drag to reorder"
+"drag_to_reorder":"Drag to reorder",
+"route_timed_out":"Route calculation timed out",
+"route_request_failed":"Route request failed"
 },
 "ar":{
 "search_button":"ابحث",
@@ -76,7 +78,9 @@
 "server_status":"الحالة",
 "zoom_in":"تكبير",
 "zoom_out":"تصغير",
-"drag_to_reorder":"اسحب لاعادة الترتيب"
+"drag_to_reorder":"اسحب لاعادة الترتيب",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "ast":{
 "search_button":"Buscar",
@@ -116,7 +120,9 @@
 "server_status":"Estáu",
 "zoom_in":"Averar",
 "zoom_out":"Alloñar",
-"drag_to_reorder":"Abasnar pa cambiar l'orde"
+"drag_to_reorder":"Abasnar pa cambiar l'orde",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "bg":{
 "search_button":"Търсене",
@@ -156,7 +162,9 @@
 "server_status":"",
 "zoom_in":"",
 "zoom_out":"",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "bn_BN":{
 "search_button":"",
@@ -196,7 +204,9 @@
 "server_status":"",
 "zoom_in":"",
 "zoom_out":"",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "ca":{
 "search_button":"Cerca",
@@ -236,7 +246,9 @@
 "server_status":"Estat",
 "zoom_in":"Apropa",
 "zoom_out":"Allunya",
-"drag_to_reorder":"Arrossega per canviar l'ordre"
+"drag_to_reorder":"Arrossega per canviar l'ordre",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "cs_CZ":{
 "search_button":"Vyhledat",
@@ -276,7 +288,9 @@
 "server_status":"Stav",
 "zoom_in":"Přiblížit",
 "zoom_out":"Oddálit",
-"drag_to_reorder":"Přetažením změníte pořadí"
+"drag_to_reorder":"Přetažením změníte pořadí",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "da_DK":{
 "search_button":"Søg",
@@ -316,7 +330,9 @@
 "server_status":"Status",
 "zoom_in":"Zoom ind",
 "zoom_out":"Zoom ud",
-"drag_to_reorder":"Træk for at ændre rækkefølgen"
+"drag_to_reorder":"Træk for at ændre rækkefølgen",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "de_DE":{
 "search_button":"Suche",
@@ -356,7 +372,9 @@
 "server_status":"Status",
 "zoom_in":"Vergrössern",
 "zoom_out":"Verkleinern",
-"drag_to_reorder":"Zum Ändern der Reihenfolge ziehen"
+"drag_to_reorder":"Zum Ändern der Reihenfolge ziehen",
+"route_timed_out":"Zeitlimit für Routenberechnung überschritten",
+"route_request_failed":"Route konnte nicht berechnet werden"
 },
 "el":{
 "search_button":"Αναζήτηση",
@@ -396,7 +414,9 @@
 "server_status":"Κατάσταση",
 "zoom_in":"Μεγέθυνση",
 "zoom_out":"Σμίκρυνση",
-"drag_to_reorder":"Σύρετε για αναδιάταξη"
+"drag_to_reorder":"Σύρετε για αναδιάταξη",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "eo":{
 "search_button":"Serĉi",
@@ -436,7 +456,9 @@
 "server_status":"Stato",
 "zoom_in":"Pligrandigi",
 "zoom_out":"Malgrandigi",
-"drag_to_reorder":"Trenu por reordigi"
+"drag_to_reorder":"Trenu por reordigi",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "es":{
 "search_button":"Buscar",
@@ -476,7 +498,9 @@
 "server_status":"Estado",
 "zoom_in":"Acercar",
 "zoom_out":"Alejar",
-"drag_to_reorder":"Arrastra para cambiar el orden"
+"drag_to_reorder":"Arrastra para cambiar el orden",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "fa":{
 "search_button":"جست‌وجو",
@@ -516,7 +540,9 @@
 "server_status":"وضعیت",
 "zoom_in":"بزرگ‌نمایی",
 "zoom_out":"کوچک‌نمایی",
-"drag_to_reorder":"برای مرتب‌سازی جابه‌جا کنید"
+"drag_to_reorder":"برای مرتب‌سازی جابه‌جا کنید",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "fil":{
 "search_button":"Paghahanap",
@@ -556,7 +582,9 @@
 "server_status":"",
 "zoom_in":"",
 "zoom_out":"",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "fi":{
 "search_button":"Etsi",
@@ -596,7 +624,9 @@
 "server_status":"",
 "zoom_in":"",
 "zoom_out":"",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "fr_FR":{
 "search_button":"Rechercher",
@@ -636,7 +666,9 @@
 "server_status":"Statut",
 "zoom_in":"Zoom avant",
 "zoom_out":"Zoom arrière",
-"drag_to_reorder":"Faire glisser pour réorganiser"
+"drag_to_reorder":"Faire glisser pour réorganiser",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "fr_CH":{
 "search_button":"Rechercher",
@@ -676,7 +708,9 @@
 "server_status":"Statut",
 "zoom_in":"Zoom avant",
 "zoom_out":"Zoom arrière",
-"drag_to_reorder":"Faire glisser pour réorganiser"
+"drag_to_reorder":"Faire glisser pour réorganiser",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "gl":{
 "search_button":"buscar",
@@ -716,7 +750,9 @@
 "server_status":"",
 "zoom_in":"",
 "zoom_out":"",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "he":{
 "search_button":"חיפוש",
@@ -756,7 +792,9 @@
 "server_status":"מצב",
 "zoom_in":"התקרבות",
 "zoom_out":"התרחקות",
-"drag_to_reorder":"יש לגרור כדי לסדר מחדש"
+"drag_to_reorder":"יש לגרור כדי לסדר מחדש",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "hr_HR":{
 "search_button":"Pretraži",
@@ -796,7 +834,9 @@
 "server_status":"Status",
 "zoom_in":"",
 "zoom_out":"",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "hsb":{
 "search_button":"pytaj",
@@ -836,7 +876,9 @@
 "server_status":"",
 "zoom_in":"",
 "zoom_out":"",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "hu_HU":{
 "search_button":"Keresés",
@@ -876,7 +918,9 @@
 "server_status":"Állapot",
 "zoom_in":"Nagyítás",
 "zoom_out":"Kicsinyítés",
-"drag_to_reorder":"Húzza el az átrendezéshez"
+"drag_to_reorder":"Húzza el az átrendezéshez",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "in_ID":{
 "search_button":"pencarian",
@@ -916,7 +960,9 @@
 "server_status":"Status",
 "zoom_in":"Perbesaran",
 "zoom_out":"Pengecilan",
-"drag_to_reorder":"Drag untuk mengatur urutan"
+"drag_to_reorder":"Drag untuk mengatur urutan",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "it":{
 "search_button":"Ricerca",
@@ -956,7 +1002,9 @@
 "server_status":"Stato",
 "zoom_in":"Zoom avanti",
 "zoom_out":"Zoom indietro",
-"drag_to_reorder":"Trascina per riordinare"
+"drag_to_reorder":"Trascina per riordinare",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "ja":{
 "search_button":"検索",
@@ -996,7 +1044,9 @@
 "server_status":"ステータス",
 "zoom_in":"拡大",
 "zoom_out":"縮小",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "ko":{
 "search_button":"탐색",
@@ -1036,7 +1086,9 @@
 "server_status":"상태",
 "zoom_in":"확대",
 "zoom_out":"축소",
-"drag_to_reorder":"드래그하여 재정렬"
+"drag_to_reorder":"드래그하여 재정렬",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "lt_LT":{
 "search_button":"Ieškoti",
@@ -1076,7 +1128,9 @@
 "server_status":"Būsena",
 "zoom_in":"Priartinti",
 "zoom_out":"Atitolinti",
-"drag_to_reorder":"Tempkite, kad pakeistumėte eilės tvarką"
+"drag_to_reorder":"Tempkite, kad pakeistumėte eilės tvarką",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "ne":{
 "search_button":"खोज ",
@@ -1116,7 +1170,9 @@
 "server_status":"",
 "zoom_in":"",
 "zoom_out":"",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "nl":{
 "search_button":"zoek",
@@ -1156,7 +1212,9 @@
 "server_status":"Status",
 "zoom_in":"Zoom in",
 "zoom_out":"Zoom uit",
-"drag_to_reorder":"Slepen om opnieuw te organiseren"
+"drag_to_reorder":"Slepen om opnieuw te organiseren",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "pl_PL":{
 "search_button":"Szukaj",
@@ -1196,7 +1254,9 @@
 "server_status":"Stan",
 "zoom_in":"Przybliż",
 "zoom_out":"Oddal",
-"drag_to_reorder":"Przeciągnij, aby przestawić"
+"drag_to_reorder":"Przeciągnij, aby przestawić",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "pt_BR":{
 "search_button":"Pesquisar",
@@ -1236,7 +1296,9 @@
 "server_status":"Status",
 "zoom_in":"Ampliar",
 "zoom_out":"Reduzir zoom",
-"drag_to_reorder":"Arraste para reordenar"
+"drag_to_reorder":"Arraste para reordenar",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "pt_PT":{
 "search_button":"Pesquisar",
@@ -1276,7 +1338,9 @@
 "server_status":"",
 "zoom_in":"",
 "zoom_out":"",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "ro":{
 "search_button":"Caută",
@@ -1316,7 +1380,9 @@
 "server_status":"Disponibilitate",
 "zoom_in":"Mărește",
 "zoom_out":"Micșorează",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "ru":{
 "search_button":"Поиск",
@@ -1356,7 +1422,9 @@
 "server_status":"Статус сервера",
 "zoom_in":"Приблизить ",
 "zoom_out":"Отдалить",
-"drag_to_reorder":"Переместите путевую точку"
+"drag_to_reorder":"Переместите путевую точку",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "sk":{
 "search_button":"Vyhľadať",
@@ -1396,7 +1464,9 @@
 "server_status":"Stav",
 "zoom_in":"Priblížiť",
 "zoom_out":"Oddialiť",
-"drag_to_reorder":"Ťahaj pre zmenu poradia"
+"drag_to_reorder":"Ťahaj pre zmenu poradia",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "sl_SI":{
 "search_button":"Išči",
@@ -1436,7 +1506,9 @@
 "server_status":"Stanje",
 "zoom_in":"Povečaj",
 "zoom_out":"Pomanjšaj",
-"drag_to_reorder":"Povlecite za spremembo vrstnega reda"
+"drag_to_reorder":"Povlecite za spremembo vrstnega reda",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "sr_RS":{
 "search_button":"Pretraži",
@@ -1476,7 +1548,9 @@
 "server_status":"Status",
 "zoom_in":"",
 "zoom_out":"",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "sv_SE":{
 "search_button":"Sök",
@@ -1516,7 +1590,9 @@
 "server_status":"Status",
 "zoom_in":"Zooma in",
 "zoom_out":"Zooma ut",
-"drag_to_reorder":"Dra för att ändra ordning"
+"drag_to_reorder":"Dra för att ändra ordning",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "tr":{
 "search_button":"Ara",
@@ -1556,7 +1632,9 @@
 "server_status":"Durum",
 "zoom_in":"Yakınlaştır",
 "zoom_out":"Uzaklaştır ",
-"drag_to_reorder":"Yeniden sıralamak için sürükle bırak"
+"drag_to_reorder":"Yeniden sıralamak için sürükle bırak",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "uk":{
 "search_button":"Пошук",
@@ -1596,7 +1674,9 @@
 "server_status":"Стан",
 "zoom_in":"Наблизити",
 "zoom_out":"Віддалити",
-"drag_to_reorder":"Перемістіть шляхову точку"
+"drag_to_reorder":"Перемістіть шляхову точку",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "vi_VN":{
 "search_button":"Tìm",
@@ -1636,7 +1716,9 @@
 "server_status":"Tình trạng Server",
 "zoom_in":"Phóng to",
 "zoom_out":"Thu nhỏ",
-"drag_to_reorder":"Kéo để sắp xếp lại"
+"drag_to_reorder":"Kéo để sắp xếp lại",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "zh_CN":{
 "search_button":"搜索",
@@ -1676,7 +1758,9 @@
 "server_status":"状态",
 "zoom_in":"放大",
 "zoom_out":"缩小",
-"drag_to_reorder":"拖动可重新排序"
+"drag_to_reorder":"拖动可重新排序",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "zh_HK":{
 "search_button":"搜尋",
@@ -1716,7 +1800,9 @@
 "server_status":"狀況",
 "zoom_in":"放大",
 "zoom_out":"縮小",
-"drag_to_reorder":""
+"drag_to_reorder":"",
+"route_timed_out":"",
+"route_request_failed":""
 },
 "zh_TW":{
 "search_button":"搜尋",
@@ -1756,5 +1842,7 @@
 "server_status":"狀態",
 "zoom_in":"放大",
 "zoom_out":"縮小",
-"drag_to_reorder":"拖曳排序"
+"drag_to_reorder":"拖曳排序",
+"route_timed_out":"",
+"route_request_failed":""
 }}
