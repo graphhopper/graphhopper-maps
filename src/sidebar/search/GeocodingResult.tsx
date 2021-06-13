@@ -1,6 +1,6 @@
 import { GeocodingHit } from '@/api/graphhopper'
 import styles from './GeocodingResult.module.css'
-import React, { useState } from 'react'
+import React from 'react'
 
 export default function GeocodingResult({
     hits,
@@ -34,14 +34,11 @@ const GeocodingEntry = ({
     isHighlighted: boolean
     onSelectHit: (hit: GeocodingHit) => void
 }) => {
-    const [wasCancelled, setWasCancelled] = useState(false)
-
     const className = isHighlighted
         ? styles.selectableGeocodingEntry + ' ' + styles.highlightedGeocodingEntry
         : styles.selectableGeocodingEntry
     return (
         <li className={styles.geocodingListItem}>
-            {
             <button
                 className={className}
                 onClick={() => {
