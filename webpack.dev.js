@@ -10,7 +10,7 @@ const develop = {
         contentBase: path.resolve(__dirname, 'dist'),
         https: false,
         port: 3000,
-        host: '0.0.0.0'
+        host: '0.0.0.0',
     },
     module: {
         rules: [
@@ -22,14 +22,14 @@ const develop = {
                         loader: 'css-loader',
                         options: {
                             modules: {
-                                localIdentName: '[path][name]__[local]'
-                            }
-                        }
-                    }
-                ]
-            }
-        ]
-    }
+                                localIdentName: '[path][name]__[local]',
+                            },
+                        },
+                    },
+                ],
+            },
+        ],
+    },
 }
 
 const mergePattern = {
@@ -39,10 +39,10 @@ const mergePattern = {
             exclude: CustomizeRule.Match,
             use: {
                 loader: CustomizeRule.Match,
-                options: CustomizeRule.Replace
-            }
-        }
-    }
+                options: CustomizeRule.Replace,
+            },
+        },
+    },
 }
 
 module.exports = mergeWithRules(mergePattern)(common, develop)

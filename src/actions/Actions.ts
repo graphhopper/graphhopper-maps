@@ -1,7 +1,8 @@
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
-import { ApiInfo, Path, RoutingArgs, RoutingResult, RoutingProfile } from '@/api/graphhopper'
+import { ApiInfo, Bbox, Path, RoutingArgs, RoutingResult, RoutingProfile } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
+import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -98,3 +99,27 @@ export class SelectMapStyle implements Action {
 }
 
 export class MapIsLoaded implements Action {}
+
+export class PathDetailsHover implements Action {
+    readonly pathDetailsPoint: PathDetailsPoint | null
+
+    constructor(pathDetailsPoint: PathDetailsPoint | null) {
+        this.pathDetailsPoint = pathDetailsPoint
+    }
+}
+
+export class PathDetailsRangeSelected implements Action {
+    readonly bbox: Bbox | null
+
+    constructor(bbox: Bbox | null) {
+        this.bbox = bbox
+    }
+}
+
+export class PathDetailsElevationSelected implements Action {
+    readonly segments: Coordinate[][]
+
+    constructor(segments: Coordinate[][]) {
+        this.segments = segments
+    }
+}
