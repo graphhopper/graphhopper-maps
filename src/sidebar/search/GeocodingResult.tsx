@@ -41,18 +41,20 @@ const GeocodingEntry = ({
         : styles.selectableGeocodingEntry
     return (
         <li className={styles.geocodingListItem}>
-            {/* This uses pointer down, up and cancel events to make things work on touch devices. Using the click event would close the popup to quickly */}
+            {
             <button
                 className={className}
-                onPointerDown={e => {
-                    setWasCancelled(false)
+                onClick={() => {
+                    console.log('hit selected ' + entry.name)
+                    onSelectHit(entry)
+                }}
+                // Using the click event would close the popup to quickly, see #100
+                onTouchEnd={e => {
+                    onSelectHit(entry)
                     e.preventDefault()
                 }}
-                onPointerUp={e => {
-                    e.preventDefault()
-                    if (!wasCancelled) onSelectHit(entry)
-                }}
-                onPointerCancel={() => setWasCancelled(true)}
+                // prevent blur event for input textbox
+                onPointerDown={e => e.preventDefault()}
             >
                 <div className={styles.geocodingEntry}>
                     <span className={styles.geocodingEntryMain}>{convertToMainText(entry)}</span>
