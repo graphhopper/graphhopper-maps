@@ -10,6 +10,7 @@ import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
 import { FeatureCollection, LineString } from 'geojson'
 import { PopupComponent } from '@/map/Popup'
+import { MarkerComponent } from '@/map/Marker'
 import { ViewportStoreState } from '@/stores/ViewportStore'
 
 const pathsLayerKey = 'pathsLayer'
@@ -189,7 +190,7 @@ function createQueryPointMarkers(queryPoints: QueryPoint[]) {
                     )
                 }}
             >
-                <div style={{ color: indexPoint.point.color }}>x</div>
+                <MarkerComponent color={indexPoint.point.color} />
             </Marker>
         ))
 }
