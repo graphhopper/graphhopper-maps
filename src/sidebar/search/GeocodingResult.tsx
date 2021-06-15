@@ -41,11 +41,11 @@ const GeocodingEntry = ({
         <li className={styles.geocodingListItem}>
             <button
                 className={className}
-                onClick={() => {
-                    console.log('hit selected ' + entry.name)
-                    onSelectHit(entry)
-                }}
-                // Using the click event would close the popup to quickly, see #100
+                // using click events for mouse interaction to select an entry.
+                onClick={() => onSelectHit(entry)}
+                // On touch devices when listening for the click or pointerup event the next or last address input would
+                // be immediately selected after the 'onSelectHit' method was called. This can be prevented by listening
+                // for the touchend event separately.
                 onTouchEnd={e => {
                     onSelectHit(entry)
                     e.preventDefault()
