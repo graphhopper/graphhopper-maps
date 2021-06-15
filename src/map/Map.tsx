@@ -1,5 +1,5 @@
 import { coordinateToText } from '@/Converters'
-import ReactMapGL, { Layer, Marker, Popup, Source } from 'react-map-gl'
+import ReactMapGL, { Layer, MapEvent, Marker, Popup, Source } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import React, { useState } from 'react'
@@ -45,6 +45,7 @@ export default function ({
             }
         })
         .filter(indexPath => indexPath.path !== selectedPath)
+    const longTouchHandler = new LongTouchHandler(e => setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] }));
     return (
         <ReactMapGL
             mapStyle={getStyle(mapStyle)}
@@ -78,11 +79,9 @@ export default function ({
                 e.preventDefault()
                 setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] })
             }}
-            // todo: long touch handler
-            // const handler = new LongTouchHandler(e => this.popup.show(e.lngLat));
-            // onTouchStart={handler.onTouchStart}
-            // onTouchEnd={handler.onTouchEnd}
-            // onTouchMove={handler.onTouchEnd}
+            onTouchStart={(e) => longTouchHandler.onTouchStart(e)}
+            onTouchEnd={() => longTouchHandler.onTouchEnd()}
+            onTouchMove={() => longTouchHandler.onTouchEnd()}
         >
             {popupCoordinate && (
                 <Popup
@@ -280,17 +279,16 @@ function isVectorStyle(styleOption: StyleOption): styleOption is VectorStyle {
     return styleOption.type === 'vector'
 }
 
-/* todo
 class LongTouchHandler {
-    private callback: (e: MapTouchEvent) => void
+    private readonly callback: (e: MapEvent) => void
     private currentTimeout: number = 0
-    private currentEvent?: MapTouchEvent
+    private currentEvent?: MapEvent
 
-    constructor(onLongTouch: (e: MapTouchEvent) => void) {
+    constructor(onLongTouch: (e: MapEvent) => void) {
         this.callback = onLongTouch
     }
 
-    onTouchStart(e: MapTouchEvent) {
+    onTouchStart(e: MapEvent) {
         this.currentEvent = e
         this.currentTimeout = window.setTimeout(() => {
             console.log('long touch')
@@ -304,4 +302,3 @@ class LongTouchHandler {
         this.currentEvent = undefined
     }
 }
-*/
