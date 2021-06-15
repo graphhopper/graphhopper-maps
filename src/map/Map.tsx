@@ -196,14 +196,20 @@ function createQueryPointMarkers(queryPoints: QueryPoint[]) {
 }
 
 function createPathDetailMarker(point: PathDetailsPoint) {
-    // todo: use createMapMarker from heightgraph
+    // todo: use createMapMarker from heightgraph?
     // {createMapMarker(point.elevation, point.description)}
     return (
-        <Marker longitude={point.point.lng} latitude={point.point.lat} offsetLeft={-5} offsetTop={5}>
-            <div>
-                elevation: {point.elevation}, description: {point.description}
-            </div>
-        </Marker>
+        <Popup
+            longitude={point.point.lng}
+            latitude={point.point.lat}
+            closeButton={false}
+        >
+            <p>
+                elevation: {point.elevation}
+                <br/>
+                {point.description}
+            </p>
+        </Popup>
     )
 }
 
