@@ -45,7 +45,7 @@ export default function ({
             }
         })
         .filter(indexPath => indexPath.path !== selectedPath)
-    const longTouchHandler = new LongTouchHandler(e => setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] }));
+    const longTouchHandler = new LongTouchHandler(e => setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] }))
     return (
         <ReactMapGL
             mapStyle={getStyle(mapStyle)}
@@ -79,7 +79,7 @@ export default function ({
                 e.preventDefault()
                 setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] })
             }}
-            onTouchStart={(e) => longTouchHandler.onTouchStart(e)}
+            onTouchStart={e => longTouchHandler.onTouchStart(e)}
             onTouchEnd={() => longTouchHandler.onTouchEnd()}
             onTouchMove={() => longTouchHandler.onTouchEnd()}
         >
@@ -200,14 +200,10 @@ function createPathDetailMarker(point: PathDetailsPoint) {
     // todo: use createMapMarker from heightgraph?
     // {createMapMarker(point.elevation, point.description)}
     return (
-        <Popup
-            longitude={point.point.lng}
-            latitude={point.point.lat}
-            closeButton={false}
-        >
+        <Popup longitude={point.point.lng} latitude={point.point.lat} closeButton={false}>
             <p>
                 elevation: {point.elevation}
-                <br/>
+                <br />
                 {point.description}
             </p>
         </Popup>

@@ -47,7 +47,7 @@ export default class ViewportStore extends Store<ViewportStoreState> {
                 ...state,
                 longitude: action.coordinate.lng,
                 latitude: action.coordinate.lat,
-                zoom: action.zoom
+                zoom: action.zoom,
             }
         } else if (action instanceof SetViewportToBbox) {
             const bounds: [[number, number], [number, number]] = [
