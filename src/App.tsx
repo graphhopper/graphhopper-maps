@@ -68,17 +68,21 @@ export default function App() {
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     // todo: maybe combine these effects into one? see discussion in #77
     useEffect(() => {
-        if (info.bbox.every(num => num != 0)) Dispatcher.dispatch(new SetViewportToBbox(info.bbox))
+        // make sure the path bbox and the path details bbox take precedence over the info bbox
+        if (!route.selectedPath.bbox && !pathDetails.pathDetailBbox)
+            Dispatcher.dispatch(new SetViewportToBbox(info.bbox))
     }, [info])
     useEffect(() => {
-        if (route.selectedPath.bbox && route.selectedPath.bbox.every(num => num != 0))
+        // make sure the path details bbox takes precedence over the route bbox
+        if (route.selectedPath.bbox && !pathDetails.pathDetailBbox)
             Dispatcher.dispatch(new SetViewportToBbox(route.selectedPath.bbox))
     }, [route])
     useEffect(() => {
+        // make sure the path details bbox takes precedence over the path and info bboxes
         if (pathDetails.pathDetailBbox) Dispatcher.dispatch(new SetViewportToBbox(pathDetails.pathDetailBbox))
-        else if (route.selectedPath.bbox && route.selectedPath.bbox.every(num => num != 0))
-            Dispatcher.dispatch(new SetViewportToBbox(route.selectedPath.bbox))
+        else if (route.selectedPath.bbox) Dispatcher.dispatch(new SetViewportToBbox(route.selectedPath.bbox))
     }, [pathDetails])
+
     return (
         <div className={styles.appWrapper}>
             {isSmallScreen ? (
