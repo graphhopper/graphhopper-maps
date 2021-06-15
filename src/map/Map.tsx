@@ -56,7 +56,11 @@ export default function ({
                 renderWorldCopies: false,
             }}
             onLoad={() => Dispatcher.dispatch(new MapIsLoaded())}
-            onViewportChange={(nextViewport: ViewportStoreState) => Dispatcher.dispatch(new SetViewport(nextViewport))}
+            onViewportChange={(nextViewport: ViewportStoreState) => {
+                // close the context menu when we move the map
+                setPopupCoordinate(null)
+                Dispatcher.dispatch(new SetViewport(nextViewport))
+            }}
             // todo: minor glitch: when we hover the map before the path got loaded we get an error in the console
             interactiveLayerIds={currentPaths.length === 0 ? [] : [pathsLayerKey]}
             onClick={e => {
@@ -86,8 +90,6 @@ export default function ({
                     latitude={popupCoordinate.lat}
                     closeOnClick={true}
                     closeButton={false}
-                    // todo
-                    // closeOnMove: true,
                 >
                     <PopupComponent
                         coordinate={popupCoordinate}
