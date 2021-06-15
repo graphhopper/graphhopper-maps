@@ -51,8 +51,9 @@ export default function AddressInput(props: AddressInputProps) {
                 case 'Enter':
                     // by default use the first result, otherwise the highlighted one
                     const index = highlightedResult >= 0 ? highlightedResult : 0
-                    props.onAddressSelected(geocodingResults[index])
+                    // it seems like the order of the following two statments is important...
                     searchInput.current!.blur()
+                    props.onAddressSelected(geocodingResults[index])
                     break
             }
         },
@@ -98,8 +99,9 @@ export default function AddressInput(props: AddressInputProps) {
                         hits={geocodingResults}
                         highlightedHit={geocodingResults[highlightedResult]}
                         onSelectHit={hit => {
-                            props.onAddressSelected(hit)
+                            // it seems like the order of the following two statments is important...
                             searchInput.current!.blur()
+                            props.onAddressSelected(hit)
                         }}
                     />
                 </div>
@@ -121,7 +123,7 @@ function calculateHighlightedIndex(length: number, currentIndex: number, increme
  */
 class Geocoder {
     private requestId = 0
-    private readonly timeout = new Timout(500)
+    private readonly timeout = new Timout(300)
     private readonly api = new ApiImpl()
     private readonly onSuccess: (hits: GeocodingHit[]) => void
 
@@ -136,7 +138,7 @@ class Geocoder {
     async requestAsync(query: string) {
         const currentId = this.getNextId()
         this.timeout.cancel()
-        if (!query) return
+        if (!query || query.length < 2) return
 
         await this.timeout.wait()
         try {
