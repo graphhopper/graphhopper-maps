@@ -109,6 +109,16 @@ export class SetViewport implements Action {
     }
 }
 
+export class SetViewportToPoint implements Action {
+    readonly coordinate: Coordinate
+    readonly zoom: number
+
+    constructor(coordinate: Coordinate, zoom: number) {
+        this.coordinate = coordinate
+        this.zoom = zoom
+    }
+}
+
 export class SetViewportToBbox implements Action {
     readonly bbox: Bbox
 

@@ -3,7 +3,7 @@ import { coordinateToText } from '@/Converters'
 import styles from './Popup.module.css'
 import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, SetPoint } from '@/actions/Actions'
+import { AddPoint, SetPoint, SetViewportToPoint } from '@/actions/Actions'
 
 export function PopupComponent({
     coordinate,
@@ -63,7 +63,7 @@ export function PopupComponent({
             >
                 To here
             </button>
-            <button className={styles.entry} disabled={true}>
+            <button className={styles.entry} onClick={() => Dispatcher.dispatch(new SetViewportToPoint(coordinate, 8))}>
                 Center map
             </button>
         </div>
