@@ -168,7 +168,6 @@ function createUnselectedPaths(indexPaths: { path: Path; index: number }[]) {
 }
 
 function createQueryPointMarkers(queryPoints: QueryPoint[]) {
-    // todo: use icon
     return queryPoints
         .map((point, i) => {
             return { index: i, point: point }
