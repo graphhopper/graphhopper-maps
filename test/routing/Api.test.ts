@@ -1,9 +1,9 @@
 import fetchMock from 'jest-fetch-mock'
+import { ErrorAction, InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '../../src/actions/Actions'
 import { setTranslation } from '../../src/translation/Translation'
 import Dispatcher, { Action } from '../../src/stores/Dispatcher'
-import { InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '../../src/actions/Actions'
 import { ApiImpl, ghKey } from '../../src/api/Api'
-import { ApiInfo, ErrorResponse, RawResult, RoutingArgs, RoutingRequest } from '../../src/api/graphhopper'
+import { ApiInfo, ErrorResponse, RoutingArgs, RoutingRequest } from '../../src/api/graphhopper'
 
 beforeAll(() => {
     // replace global 'fetch' method by fetchMock
@@ -13,15 +13,13 @@ beforeAll(() => {
 })
 
 // clear everything before each test
-beforeEach(() => fetchMock.mockClear())
-
-// after each test clear the dispatcher in case a dummy store was registered
-afterEach(() => Dispatcher.clear())
+beforeEach(() => {
+    fetchMock.mockClear()
+    jest.clearAllMocks()
+})
 
 // disable fetchMock and restore global 'fetch' method
 afterAll(() => fetchMock.disableMocks())
-
-it('should pass', () => {})
 
 describe('info api', () => {
     it('should query correct url and dispatch an InfoReceived action', async () => {
@@ -35,6 +33,7 @@ describe('info api', () => {
         }
 
         fetchMock.mockResponse(request => {
+            // first assert, that the api is called correctly
             expect(request.method).toEqual('GET')
             expect(request.url.toString()).toEqual(expectedUrl)
             expect(request.headers.get('Accept')).toEqual('application/json')
@@ -44,48 +43,31 @@ describe('info api', () => {
                     import_date: expected.import_date,
                     version: expected.version,
                     profiles: [],
+                    elevation: expected.elevation,
                 })
             )
         })
 
-        Dispatcher.register({
-            receive(action: Action) {
-                expect(action instanceof InfoReceived).toBeTruthy()
-                expect((action as InfoReceived).result).toEqual(expected)
-            },
-        })
+        const mockDispatcher = jest.spyOn(Dispatcher, 'dispatch')
 
-        await new ApiImpl().infoWithDispatch()
+        new ApiImpl().infoWithDispatch()
+        await flushPromises()
+
+        // second: assert that the request issues 1 info received action with the expected payload
+        expect(mockDispatcher).toHaveBeenCalledTimes(1)
+        expect(mockDispatcher).toHaveBeenCalledWith(new InfoReceived(expected))
     })
 
-    it('should convert the response into an ApiInfo object', async () => {
-        const expected: ApiInfo = {
-            bbox: [0, 0, 0, 0],
-            elevation: true,
-            import_date: 'some_date2',
-            profiles: [{ name: 'car' }],
-            version: 'some_version',
-        }
+    it('should issue an error action if anything fails', async () => {
+        const message = 'some error message'
+        fetchMock.mockReject(new Error(message))
+        const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
 
-        fetchMock.mockResponseOnce(
-            JSON.stringify({
-                bbox: expected.bbox,
-                import_date: expected.import_date,
-                version: expected.version,
-                profiles: expected.profiles,
-                notAVehicle: { version: 'notAVehicle_version', import_date: 'notAVehicle_import_date' },
-                elevation: expected.elevation,
-            })
-        )
+        new ApiImpl().infoWithDispatch()
+        await flushPromises()
 
-        Dispatcher.register({
-            receive(action: Action) {
-                expect(action instanceof InfoReceived).toBeTruthy()
-                expect((action as InfoReceived).result).toEqual(expected)
-            },
-        })
-
-        await new ApiImpl().infoWithDispatch()
+        expect(mockedDispatcher).toHaveBeenCalledTimes(1)
+        expect(mockedDispatcher).toHaveBeenCalledWith(new ErrorAction(message))
     })
 })
 
@@ -96,18 +78,22 @@ describe('route', () => {
             maxAlternativeRoutes: 1,
             profile: 'profile',
         }
+        const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
 
         fetchMock.mockResponse(request => {
             expect(request.url.toString()).toEqual('https://graphhopper.com/api/1/route?key=' + ghKey)
             expect(request.method).toEqual('POST')
-            //expect(request.mode).toEqual('cors') This could be tested as well but somehow this is not set in fetch mock request :-(
             expect(request.headers.get('Accept')).toEqual('application/json')
             expect(request.headers.get('Content-Type')).toEqual('application/json')
             expect(request.body).toBeDefined()
             return Promise.resolve(JSON.stringify(getEmptyResult()))
         })
 
-        await new ApiImpl().routeWithDispatch(args)
+        new ApiImpl().routeWithDispatch(args)
+        await flushPromises()
+
+        expect(mockedDispatcher).toHaveBeenCalledTimes(1)
+        expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestSuccess(args, getEmptyResult()))
     })
 
     it('transforms routingArgs into routing request with default algorithm for maxAlternativeRoutes: 1', async () => {
@@ -126,14 +112,21 @@ describe('route', () => {
             locale: 'en',
             optimize: 'false',
             points_encoded: true,
+            snap_preventions: ['ferry'],
             details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
         }
+
+        const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
 
         fetchMock.mockResponse(async request => {
             return compareRequestBodyAndResolve(request, expectedBody)
         })
 
-        await new ApiImpl().routeWithDispatch(args)
+        new ApiImpl().routeWithDispatch(args)
+        await flushPromises()
+
+        expect(mockedDispatcher).toHaveBeenCalledTimes(1)
+        expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestSuccess(args, getEmptyResult()))
     })
 
     it('transforms routingArgs into routing request with alternative_route algorithm for maxAlternativeRoutes > 1', async () => {
@@ -148,22 +141,30 @@ describe('route', () => {
             profile: args.profile,
             elevation: true,
             debug: false,
-            instructions: false,
+            instructions: true,
             locale: 'en',
             optimize: 'false',
             points_encoded: true,
+            snap_preventions: ['ferry'],
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
             'alternative_route.max_paths': args.maxAlternativeRoutes,
             algorithm: 'alternative_route',
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
         }
+
+        const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
 
         fetchMock.mockResponse(async request => {
             return compareRequestBodyAndResolve(request, expectedBody)
         })
 
-        await new ApiImpl().routeWithDispatch(args)
+        new ApiImpl().routeWithDispatch(args)
+        await flushPromises()
+
+        expect(mockedDispatcher).toHaveBeenCalledTimes(1)
+        expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestSuccess(args, getEmptyResult()))
     })
 
+    // i guess this is implicitly tested above, but it is nice to write it down like this.
     it('should create an action when a response is received', async () => {
         const args: RoutingArgs = {
             points: [
@@ -175,16 +176,13 @@ describe('route', () => {
         }
 
         fetchMock.mockResponseOnce(JSON.stringify(getEmptyResult()))
+        const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
 
-        Dispatcher.register({
-            receive(action: Action) {
-                expect(action instanceof RouteRequestSuccess).toBeTruthy()
-                expect((action as RouteRequestSuccess).result.paths.length).toEqual(0)
-                expect((action as RouteRequestSuccess).request).toEqual(args)
-            },
-        })
+        new ApiImpl().routeWithDispatch(args)
+        await flushPromises()
 
-        await new ApiImpl().routeWithDispatch(args)
+        expect(mockedDispatcher).toHaveBeenCalledTimes(1)
+        expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestSuccess(args, getEmptyResult()))
     })
 
     it('should create an action when an error is received', async () => {
@@ -203,16 +201,13 @@ describe('route', () => {
         }
 
         fetchMock.mockRejectOnce(() => Promise.resolve(new Response(JSON.stringify(error), { status: 400 })))
+        const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
 
-        Dispatcher.register({
-            receive(action: Action) {
-                expect(action instanceof RouteRequestFailed).toBeTruthy()
-                expect((action as RouteRequestFailed).errorMessage).toEqual(error.message)
-                expect((action as RouteRequestFailed).request).toEqual(args)
-            },
-        })
+        new ApiImpl().routeWithDispatch(args)
+        await flushPromises()
 
-        await new ApiImpl().routeWithDispatch(args)
+        expect(mockedDispatcher).toHaveBeenCalledTimes(1)
+        expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestFailed(args, error.message))
     })
 
     it('should handle 500 error', async () => {
@@ -226,7 +221,7 @@ describe('route', () => {
     })
 })
 
-function getEmptyResult(): RawResult {
+function getEmptyResult() {
     return {
         info: { copyright: [], took: 0 },
         paths: [],
@@ -238,4 +233,9 @@ async function compareRequestBodyAndResolve(request: Request, expectedBody: any)
     const bodyContent = await bodyAsResponse.text()
     expect(bodyContent).toEqual(JSON.stringify(expectedBody))
     return Promise.resolve(JSON.stringify(getEmptyResult()))
+}
+
+async function flushPromises() {
+    const flush = () => new Promise(setImmediate)
+    await flush()
 }

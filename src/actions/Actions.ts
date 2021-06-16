@@ -68,12 +68,19 @@ export class RouteRequestSuccess implements Action {
     }
 }
 
-export class RouteRequestFailed implements Action {
-    readonly errorMessage: string
+export class ErrorAction implements Action {
+    readonly message: string
+
+    constructor(message: string) {
+        this.message = message
+    }
+}
+
+export class RouteRequestFailed extends ErrorAction {
     readonly request: RoutingArgs
 
-    constructor(request: RoutingArgs, errorMessage: string) {
-        this.errorMessage = errorMessage
+    constructor(request: RoutingArgs, message: string) {
+        super(message)
         this.request = request
     }
 }
