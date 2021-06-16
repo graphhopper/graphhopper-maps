@@ -6,21 +6,21 @@ import Dispatcher from '@/stores/Dispatcher'
 import { MapIsLoaded, SetViewport } from '@/actions/Actions'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
 import { ViewportStoreState } from '@/stores/ViewportStore'
-import { MapLayer } from '@/stores/MapLayerStore'
 import { PopupComponent } from '@/map/Popup'
+import { MapLayer } from '@/layers/MapLayer'
 
 type MapProps = {
     viewport: ViewportStoreState
-    queryPoints: QueryPoint[],
+    queryPoints: QueryPoint[]
     mapStyle: StyleOption
-    mapLayers: { [key: string]: MapLayer }
+    mapLayers: MapLayer[]
 }
 
 export default function ({ viewport, mapStyle, queryPoints, mapLayers }: MapProps) {
     const [popupCoordinate, setPopupCoordinate] = useState<Coordinate | null>(null)
     const longTouchHandler = new LongTouchHandler(e => setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] }))
     let interactiveLayerIds: string[] = []
-    Object.values(mapLayers).forEach(l => {
+    mapLayers.forEach(l => {
         if (l.interactiveLayerIds) interactiveLayerIds = interactiveLayerIds.concat(l.interactiveLayerIds)
     })
     return (
@@ -43,7 +43,7 @@ export default function ({ viewport, mapStyle, queryPoints, mapLayers }: MapProp
             interactiveLayerIds={interactiveLayerIds}
             onClick={e => {
                 const feature = e.features?.[0]
-                if (feature) Object.values(mapLayers).forEach(l => l.onClick(feature))
+                if (feature) mapLayers.forEach(l => l.onClick(feature))
             }}
             onContextMenu={e => {
                 e.preventDefault()
@@ -53,23 +53,21 @@ export default function ({ viewport, mapStyle, queryPoints, mapLayers }: MapProp
             onTouchEnd={() => longTouchHandler.onTouchEnd()}
             onTouchMove={() => longTouchHandler.onTouchEnd()}
         >
-            <>
-                {popupCoordinate && (
-                    <Popup
-                        longitude={popupCoordinate.lng}
-                        latitude={popupCoordinate.lat}
-                        closeOnClick={true}
-                        closeButton={false}
-                    >
-                        <PopupComponent
-                            coordinate={popupCoordinate}
-                            queryPoints={queryPoints}
-                            onSelect={() => setPopupCoordinate(null)}
-                        />
-                    </Popup>
-                )}
-            </>
-            {...Object.values(mapLayers).map(ml => ml.layer)}
+            {popupCoordinate && (
+                <Popup
+                    longitude={popupCoordinate.lng}
+                    latitude={popupCoordinate.lat}
+                    closeOnClick={true}
+                    closeButton={false}
+                >
+                    <PopupComponent
+                        coordinate={popupCoordinate}
+                        queryPoints={queryPoints}
+                        onSelect={() => setPopupCoordinate(null)}
+                    />
+                </Popup>
+            )}
+            {...mapLayers.map(ml => ml.layer)}
         </ReactMapGL>
     )
 }

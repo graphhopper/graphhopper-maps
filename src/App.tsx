@@ -4,7 +4,6 @@ import styles from './App.module.css'
 import {
     getApiInfoStore,
     getErrorStore,
-    getMapLayerStore,
     getMapOptionsStore,
     getPathDetailsStore,
     getQueryStore,
@@ -27,10 +26,10 @@ import ErrorMessage from '@/sidebar/ErrorMessage'
 import { ViewportStoreState } from '@/stores/ViewportStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetViewportToBbox } from '@/actions/Actions'
-import { MapLayer } from '@/stores/MapLayerStore'
 import createPathDetailsLayer from '@/layers/PathDetailsLayer'
 import createQueryPointsLayer from '@/layers/QueryPointsLayer'
 import createPathsLayer from '@/layers/PathsLayer'
+import { MapLayer } from '@/layers/MapLayer'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -40,7 +39,6 @@ export default function App() {
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
     const [viewport, setViewport] = useState(getViewportStore().state)
-    const [mapLayers, setMapLayers] = useState(getMapLayerStore().state)
 
     useEffect(() => {
         const onQueryChanged = () => setQuery(getQueryStore().state)
@@ -50,7 +48,6 @@ export default function App() {
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
         const onViewportChanged = () => setViewport(getViewportStore().state)
-        const onMapLayersChanged = () => setMapLayers(getMapLayerStore().state)
 
         getQueryStore().register(onQueryChanged)
         getApiInfoStore().register(onInfoChanged)
@@ -59,7 +56,6 @@ export default function App() {
         getMapOptionsStore().register(onMapOptionsChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
         getViewportStore().register(onViewportChanged)
-        getMapLayerStore().register(onMapLayersChanged)
 
         return () => {
             getQueryStore().deregister(onQueryChanged)
@@ -69,7 +65,6 @@ export default function App() {
             getMapOptionsStore().deregister(onMapOptionsChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getViewportStore().deregister(onViewportChanged)
-            getMapLayerStore().deregister(onMapLayersChanged)
         }
     })
 
@@ -91,11 +86,11 @@ export default function App() {
         else if (route.selectedPath.bbox) Dispatcher.dispatch(new SetViewportToBbox(route.selectedPath.bbox))
     }, [pathDetails])
 
-    const theMapLayers = {
-        'query-points-layer': createQueryPointsLayer(query.queryPoints),
-        'paths-layer': createPathsLayer(route.selectedPath, route.routingResult.paths),
-        'path-details-layer': createPathDetailsLayer(pathDetails),
-    }
+    const mapLayers: MapLayer[] = [
+        createQueryPointsLayer(query.queryPoints),
+        createPathsLayer(route.selectedPath, route.routingResult.paths),
+        createPathDetailsLayer(pathDetails),
+    ]
 
     return (
         <div className={styles.appWrapper}>
@@ -104,7 +99,7 @@ export default function App() {
                     query={query}
                     route={route}
                     viewport={viewport}
-                    theMapLayers={theMapLayers}
+                    mapLayers={mapLayers}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
@@ -114,7 +109,7 @@ export default function App() {
                     query={query}
                     route={route}
                     viewport={viewport}
-                    theMapLayers={theMapLayers}
+                    mapLayers={mapLayers}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
@@ -128,21 +123,13 @@ interface LayoutProps {
     query: QueryStoreState
     route: RouteStoreState
     viewport: ViewportStoreState
-    theMapLayers: { [key: string]: MapLayer }
+    mapLayers: MapLayer[]
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     info: ApiInfo
 }
 
-function LargeScreenLayout({
-    query,
-    route,
-    viewport,
-    theMapLayers,
-    error,
-    mapOptions,
-    info,
-}: LayoutProps) {
+function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
     return (
         <>
             <div className={styles.map}>
@@ -151,7 +138,7 @@ function LargeScreenLayout({
                         viewport={viewport}
                         mapStyle={mapOptions.selectedStyle}
                         queryPoints={query.queryPoints}
-                        mapLayers={theMapLayers}
+                        mapLayers={mapLayers}
                     />
                 }
             </div>
@@ -187,15 +174,7 @@ function LargeScreenLayout({
     )
 }
 
-function SmallScreenLayout({
-    query,
-    route,
-    viewport,
-    theMapLayers,
-    error,
-    mapOptions,
-    info,
-}: LayoutProps) {
+function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenMap}>
@@ -203,7 +182,7 @@ function SmallScreenLayout({
                     viewport={viewport}
                     queryPoints={query.queryPoints}
                     mapStyle={mapOptions.selectedStyle}
-                    mapLayers={theMapLayers}
+                    mapLayers={mapLayers}
                 />
             </div>
             <div className={styles.smallScreenMapOptions}>

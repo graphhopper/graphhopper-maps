@@ -3,13 +3,12 @@ import React from 'react'
 import { PathDetailsPoint, PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { Coordinate } from '@/stores/QueryStore'
 import { FeatureCollection } from 'geojson'
-import { MapLayer } from '@/stores/MapLayerStore'
+import { MapLayer } from '@/layers/MapLayer'
 
 const highlightedPathSegmentLayerKey = 'highlightedPathSegmentLayer'
 
 export default function (pathDetails: PathDetailsStoreState): MapLayer {
     return {
-        id: 'path-details-layer',
         interactiveLayerIds: [],
         onClick: () => {},
         layer: (

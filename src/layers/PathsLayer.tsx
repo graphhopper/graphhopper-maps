@@ -4,7 +4,7 @@ import { Layer, Source } from 'react-map-gl'
 import React from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
-import { MapLayer } from '@/stores/MapLayerStore'
+import { MapLayer } from '@/layers/MapLayer'
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -19,7 +19,6 @@ export default function (selectedPath: Path, paths: Path[]): MapLayer {
         })
         .filter(indexPath => indexPath.path !== selectedPath)
     return {
-        id: 'paths-layer',
         interactiveLayerIds: currentPaths.length === 0 ? [] : [pathsLayerKey],
         onClick: (feature: any) => {
             // select an alternative path if clicked

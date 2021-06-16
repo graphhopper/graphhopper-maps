@@ -8,7 +8,6 @@ import App from '@/App'
 import {
     getApiInfoStore,
     getErrorStore,
-    getMapLayerStore,
     getMapOptionsStore,
     getPathDetailsStore,
     getQueryStore,
@@ -26,7 +25,6 @@ import MapOptionsStore from '@/stores/MapOptionsStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
 import ViewportStore from '@/stores/ViewportStore'
 import NavBar from '@/NavBar'
-import MapLayerStore from '@/stores/MapLayerStore'
 
 // set up state management
 const api = new ApiImpl()
@@ -39,7 +37,6 @@ setStores({
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
     viewportStore: new ViewportStore(),
-    mapLayerStore: new MapLayerStore(),
 })
 
 // register stores at dispatcher to receive actions
@@ -50,7 +47,6 @@ Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getViewportStore())
-Dispatcher.register(getMapLayerStore())
 
 api.infoWithDispatch() // get infos about the api as soon as possible
 
