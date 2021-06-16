@@ -26,12 +26,12 @@ import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { ViewportStoreState } from '@/stores/ViewportStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetSelectedPath, SetViewportToBbox } from '@/actions/Actions'
+import { SetViewportToBbox } from '@/actions/Actions'
 import { MapLayer } from '@/stores/MapLayerStore'
-import PathDetailsLayer from '@/layers/PathDetailsLayer'
-import QueryPointsLayer from '@/layers/QueryPointsLayer'
-import ContextMenuLayer from '@/layers/ContextMenuLayer'
-import PathsLayer, { getCurrentPaths, getInteractiveLayerIds, pathsLayerKey } from '@/layers/PathsLayer'
+import createPathDetailsLayer from '@/layers/PathDetailsLayer'
+import createContextMenuLayer from '@/layers/ContextMenuLayer'
+import createQueryPointsLayer from '@/layers/QueryPointsLayer'
+import createPathsLayer from '@/layers/PathsLayer'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -93,51 +93,11 @@ export default function App() {
     }, [pathDetails])
 
     const [popupCoordinate, setPopupCoordinate] = useState<Coordinate | null>(null)
-    const theMapLayers: { [key: string]: MapLayer } = {
-        'context-menu-layer': {
-            id: 'context-menu-layer',
-            interactiveLayerIds: [],
-            onClick: () => {},
-            layer: (
-                <ContextMenuLayer
-                    queryPoints={query.queryPoints}
-                    popupCoordinate={popupCoordinate}
-                    setPopupCoordinate={setPopupCoordinate}
-                />
-            ),
-        },
-        'query-points-layer': {
-            id: 'query-points-layer',
-            interactiveLayerIds: [],
-            onClick: () => {},
-            layer: <QueryPointsLayer queryPoints={query.queryPoints} />,
-        },
-        'paths-layer': {
-            id: 'paths-layer',
-            interactiveLayerIds: getInteractiveLayerIds(route.selectedPath, route.routingResult.paths),
-            onClick: feature => {
-                // select an alternative path if clicked
-                if (feature.layer.id === pathsLayerKey) {
-                    const index = feature.properties!.index
-                    const path = getCurrentPaths(route.selectedPath, route.routingResult.paths).find(
-                        indexPath => indexPath.index === index
-                    )
-                    Dispatcher.dispatch(new SetSelectedPath(path!.path))
-                }
-            },
-            layer: <PathsLayer selectedPath={route.selectedPath} paths={route.routingResult.paths} />,
-        },
-        'path-details-layer': {
-            id: 'path-details-layer',
-            interactiveLayerIds: [],
-            onClick: () => {},
-            layer: (
-                <PathDetailsLayer
-                    pathDetailPoint={pathDetails.pathDetailsPoint}
-                    highlightedPathDetailSegments={pathDetails.pathDetailsHighlightedSegments}
-                />
-            ),
-        },
+    const theMapLayers = {
+        'context-menu-layer': createContextMenuLayer(query.queryPoints, popupCoordinate, setPopupCoordinate),
+        'query-points-layer': createQueryPointsLayer(query.queryPoints),
+        'paths-layer': createPathsLayer(route.selectedPath, route.routingResult.paths),
+        'path-details-layer': createPathDetailsLayer(pathDetails),
     }
 
     return (

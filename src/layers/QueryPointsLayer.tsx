@@ -5,13 +5,15 @@ import { SetPoint } from '@/actions/Actions'
 import { coordinateToText } from '@/Converters'
 import { MarkerComponent } from '@/map/Marker'
 import React from 'react'
+import { MapLayer } from '@/stores/MapLayerStore'
 
-interface QueryPointsLayerProps {
-    queryPoints: QueryPoint[]
-}
-
-export default function ({ queryPoints }: QueryPointsLayerProps) {
-    return <>{...createQueryPointMarkers(queryPoints)}</>
+export default function (queryPoints: QueryPoint[]): MapLayer {
+    return {
+        id: 'query-points-layer',
+        interactiveLayerIds: [],
+        onClick: () => {},
+        layer: <>{...createQueryPointMarkers(queryPoints)}</>,
+    }
 }
 
 function createQueryPointMarkers(queryPoints: QueryPoint[]) {

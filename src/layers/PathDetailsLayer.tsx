@@ -1,23 +1,24 @@
 import { Layer, Popup, Source } from 'react-map-gl'
 import React from 'react'
-import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { PathDetailsPoint, PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { Coordinate } from '@/stores/QueryStore'
 import { FeatureCollection } from 'geojson'
+import { MapLayer } from '@/stores/MapLayerStore'
 
 const highlightedPathSegmentLayerKey = 'highlightedPathSegmentLayer'
 
-interface PathDetailsLayerProps {
-    pathDetailPoint: PathDetailsPoint | null
-    highlightedPathDetailSegments: Coordinate[][]
-}
-
-export default function ({ pathDetailPoint, highlightedPathDetailSegments }: PathDetailsLayerProps) {
-    return (
-        <>
-            {pathDetailPoint && createPathDetailMarker(pathDetailPoint)}
-            {createHighlightedPathSegments(highlightedPathDetailSegments)}
-        </>
-    )
+export default function (pathDetails: PathDetailsStoreState): MapLayer {
+    return {
+        id: 'path-details-layer',
+        interactiveLayerIds: [],
+        onClick: () => {},
+        layer: (
+            <>
+                {pathDetails.pathDetailsPoint && createPathDetailMarker(pathDetails.pathDetailsPoint)}
+                {createHighlightedPathSegments(pathDetails.pathDetailsHighlightedSegments)}
+            </>
+        ),
+    }
 }
 
 function createPathDetailMarker(point: PathDetailsPoint) {

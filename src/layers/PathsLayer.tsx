@@ -2,19 +2,15 @@ import { Path } from '@/api/graphhopper'
 import { FeatureCollection, LineString } from 'geojson'
 import { Layer, Source } from 'react-map-gl'
 import React from 'react'
+import Dispatcher from '@/stores/Dispatcher'
+import { SetSelectedPath } from '@/actions/Actions'
+import { MapLayer } from '@/stores/MapLayerStore'
 
-// todo: do not export this but move code using it here
-export const pathsLayerKey = 'pathsLayer'
+const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
 
-interface PathsLayerProps {
-    selectedPath: Path
-    paths: Path[]
-}
-
-// todo: do not export this but move code using it here
-export function getCurrentPaths(selectedPath: Path, paths: Path[]) {
-    return paths
+export default function (selectedPath: Path, paths: Path[]): MapLayer {
+    const currentPaths = paths
         .map((path, i) => {
             return {
                 path,
@@ -22,22 +18,26 @@ export function getCurrentPaths(selectedPath: Path, paths: Path[]) {
             }
         })
         .filter(indexPath => indexPath.path !== selectedPath)
+    return {
+        id: 'paths-layer',
+        interactiveLayerIds: currentPaths.length === 0 ? [] : [pathsLayerKey],
+        onClick: (feature: any) => {
+            // select an alternative path if clicked
+            if (feature.layer.id === pathsLayerKey) {
+                const index = feature.properties!.index
+                const path = currentPaths.find(indexPath => indexPath.index === index)
+                Dispatcher.dispatch(new SetSelectedPath(path!.path))
+            }
+        },
+        layer: (
+            <>
+                {createUnselectedPaths(currentPaths)}
+                {createSelectedPath(selectedPath)}
+            </>
+        ),
+    }
 }
 
-// todo: do not export this but move code using it here
-export function getInteractiveLayerIds(selectedPath: Path, paths: Path[]) {
-    return getCurrentPaths(selectedPath, paths).length === 0 ? [] : [pathsLayerKey]
-}
-
-export default function ({ selectedPath, paths }: PathsLayerProps) {
-    const currentPaths = getCurrentPaths(selectedPath, paths)
-    return (
-        <>
-            {createUnselectedPaths(currentPaths)}
-            {createSelectedPath(selectedPath)}
-        </>
-    )
-}
 function createSelectedPath(path: Path) {
     const featureCollection: FeatureCollection = {
         type: 'FeatureCollection',
