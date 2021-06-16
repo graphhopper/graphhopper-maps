@@ -1,6 +1,6 @@
 import { GeocodingHit } from '@/api/graphhopper'
 import styles from './GeocodingResult.module.css'
-import React from 'react'
+import React, { useState } from 'react'
 
 export default function GeocodingResult({
     hits,
@@ -34,6 +34,7 @@ const GeocodingEntry = ({
     isHighlighted: boolean
     onSelectHit: (hit: GeocodingHit) => void
 }) => {
+    const [isCancelled, setIsCancelled] = useState(false)
     const className = isHighlighted
         ? styles.selectableGeocodingEntry + ' ' + styles.highlightedGeocodingEntry
         : styles.selectableGeocodingEntry
@@ -47,11 +48,16 @@ const GeocodingEntry = ({
                 // be immediately selected after the 'onSelectHit' method was called. This can be prevented by listening
                 // for the touchend event separately.
                 onTouchEnd={e => {
-                    onSelectHit(entry)
+                    e.preventDefault()
+                    if (!isCancelled) onSelectHit(entry)
+                }}
+                // listen for cancel events to prevent selections in case the result list is e.g. scrolled on touch devices
+                onPointerCancel={() => setIsCancelled(true)}
+                // prevent blur event for input textbox
+                onPointerDown={e => {
+                    setIsCancelled(false)
                     e.preventDefault()
                 }}
-                // prevent blur event for input textbox
-                onPointerDown={e => e.preventDefault()}
             >
                 <div className={styles.geocodingEntry}>
                     <span className={styles.geocodingEntryMain}>{convertToMainText(entry)}</span>
