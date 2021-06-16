@@ -1,21 +1,23 @@
-import ReactMapGL, { MapEvent } from 'react-map-gl'
+import ReactMapGL, { MapEvent, Popup } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { Coordinate } from '@/stores/QueryStore'
-import React from 'react'
+import { Coordinate, QueryPoint } from '@/stores/QueryStore'
+import React, { useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { MapIsLoaded, SetViewport } from '@/actions/Actions'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
 import { ViewportStoreState } from '@/stores/ViewportStore'
 import { MapLayer } from '@/stores/MapLayerStore'
+import { PopupComponent } from '@/map/Popup'
 
 type MapProps = {
     viewport: ViewportStoreState
+    queryPoints: QueryPoint[],
     mapStyle: StyleOption
     mapLayers: { [key: string]: MapLayer }
-    setPopupCoordinate: (c: Coordinate | null) => void
 }
 
-export default function ({ viewport, mapStyle, mapLayers, setPopupCoordinate }: MapProps) {
+export default function ({ viewport, mapStyle, queryPoints, mapLayers }: MapProps) {
+    const [popupCoordinate, setPopupCoordinate] = useState<Coordinate | null>(null)
     const longTouchHandler = new LongTouchHandler(e => setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] }))
     let interactiveLayerIds: string[] = []
     Object.values(mapLayers).forEach(l => {
@@ -51,6 +53,22 @@ export default function ({ viewport, mapStyle, mapLayers, setPopupCoordinate }: 
             onTouchEnd={() => longTouchHandler.onTouchEnd()}
             onTouchMove={() => longTouchHandler.onTouchEnd()}
         >
+            <>
+                {popupCoordinate && (
+                    <Popup
+                        longitude={popupCoordinate.lng}
+                        latitude={popupCoordinate.lat}
+                        closeOnClick={true}
+                        closeButton={false}
+                    >
+                        <PopupComponent
+                            coordinate={popupCoordinate}
+                            queryPoints={queryPoints}
+                            onSelect={() => setPopupCoordinate(null)}
+                        />
+                    </Popup>
+                )}
+            </>
             {...Object.values(mapLayers).map(ml => ml.layer)}
         </ReactMapGL>
     )

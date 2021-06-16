@@ -18,7 +18,7 @@ import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
 import RoutingResults from '@/sidebar/RoutingResults'
 import PoweredBy from '@/sidebar/PoweredBy'
-import { Coordinate, QueryStoreState } from '@/stores/QueryStore'
+import { QueryStoreState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
@@ -29,7 +29,6 @@ import Dispatcher from '@/stores/Dispatcher'
 import { SetViewportToBbox } from '@/actions/Actions'
 import { MapLayer } from '@/stores/MapLayerStore'
 import createPathDetailsLayer from '@/layers/PathDetailsLayer'
-import createContextMenuLayer from '@/layers/ContextMenuLayer'
 import createQueryPointsLayer from '@/layers/QueryPointsLayer'
 import createPathsLayer from '@/layers/PathsLayer'
 
@@ -92,9 +91,7 @@ export default function App() {
         else if (route.selectedPath.bbox) Dispatcher.dispatch(new SetViewportToBbox(route.selectedPath.bbox))
     }, [pathDetails])
 
-    const [popupCoordinate, setPopupCoordinate] = useState<Coordinate | null>(null)
     const theMapLayers = {
-        'context-menu-layer': createContextMenuLayer(query.queryPoints, popupCoordinate, setPopupCoordinate),
         'query-points-layer': createQueryPointsLayer(query.queryPoints),
         'paths-layer': createPathsLayer(route.selectedPath, route.routingResult.paths),
         'path-details-layer': createPathDetailsLayer(pathDetails),
@@ -108,7 +105,6 @@ export default function App() {
                     route={route}
                     viewport={viewport}
                     theMapLayers={theMapLayers}
-                    setPopupCoordinate={setPopupCoordinate}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
@@ -119,7 +115,6 @@ export default function App() {
                     route={route}
                     viewport={viewport}
                     theMapLayers={theMapLayers}
-                    setPopupCoordinate={setPopupCoordinate}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
@@ -134,7 +129,6 @@ interface LayoutProps {
     route: RouteStoreState
     viewport: ViewportStoreState
     theMapLayers: { [key: string]: MapLayer }
-    setPopupCoordinate: (c: Coordinate | null) => void
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     info: ApiInfo
@@ -145,7 +139,6 @@ function LargeScreenLayout({
     route,
     viewport,
     theMapLayers,
-    setPopupCoordinate,
     error,
     mapOptions,
     info,
@@ -157,8 +150,8 @@ function LargeScreenLayout({
                     <MapComponent
                         viewport={viewport}
                         mapStyle={mapOptions.selectedStyle}
+                        queryPoints={query.queryPoints}
                         mapLayers={theMapLayers}
-                        setPopupCoordinate={setPopupCoordinate}
                     />
                 }
             </div>
@@ -199,7 +192,6 @@ function SmallScreenLayout({
     route,
     viewport,
     theMapLayers,
-    setPopupCoordinate,
     error,
     mapOptions,
     info,
@@ -209,9 +201,9 @@ function SmallScreenLayout({
             <div className={styles.smallScreenMap}>
                 <MapComponent
                     viewport={viewport}
+                    queryPoints={query.queryPoints}
                     mapStyle={mapOptions.selectedStyle}
                     mapLayers={theMapLayers}
-                    setPopupCoordinate={setPopupCoordinate}
                 />
             </div>
             <div className={styles.smallScreenMapOptions}>
