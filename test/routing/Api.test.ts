@@ -1,11 +1,16 @@
 import fetchMock from 'jest-fetch-mock'
-import Dispatcher from '../../src/stores/Dispatcher'
 import { ErrorAction, InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '../../src/actions/Actions'
+import { setTranslation } from '../../src/translation/Translation'
+import Dispatcher, { Action } from '../../src/stores/Dispatcher'
 import { ApiImpl, ghKey } from '../../src/api/Api'
 import { ApiInfo, ErrorResponse, RoutingArgs, RoutingRequest } from '../../src/api/graphhopper'
 
-// replace global 'fetch' method by fetchMock
-beforeAll(fetchMock.enableMocks)
+beforeAll(() => {
+    // replace global 'fetch' method by fetchMock
+    fetchMock.enableMocks()
+    // setup translation
+    setTranslation('en', true)
+})
 
 // clear everything before each test
 beforeEach(() => {
@@ -203,6 +208,16 @@ describe('route', () => {
 
         expect(mockedDispatcher).toHaveBeenCalledTimes(1)
         expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestFailed(args, error.message))
+    })
+
+    it('should handle 500 error', async () => {
+        const args: RoutingArgs = {
+            profile: 'car',
+            points: [],
+            maxAlternativeRoutes: 3,
+        }
+        fetchMock.mockResponse(() => Promise.resolve({ status: 500 }))
+        await expect(new ApiImpl().route(args)).rejects.toThrow('Route calculation timed out')
     })
 })
 

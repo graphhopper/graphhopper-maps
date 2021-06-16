@@ -1,6 +1,6 @@
 import { GeocodingHit } from '@/api/graphhopper'
 import styles from './GeocodingResult.module.css'
-import React from 'react'
+import React, { useState } from 'react'
 
 export default function GeocodingResult({
     hits,
@@ -34,6 +34,7 @@ const GeocodingEntry = ({
     isHighlighted: boolean
     onSelectHit: (hit: GeocodingHit) => void
 }) => {
+    const [isCancelled, setIsCancelled] = useState(false)
     const className = isHighlighted
         ? styles.selectableGeocodingEntry + ' ' + styles.highlightedGeocodingEntry
         : styles.selectableGeocodingEntry
@@ -41,12 +42,22 @@ const GeocodingEntry = ({
         <li className={styles.geocodingListItem}>
             <button
                 className={className}
-                onClick={() => {
-                    console.log('hit selected ' + entry.name)
-                    onSelectHit(entry)
+                // using click events for mouse interaction to select an entry.
+                onClick={() => onSelectHit(entry)}
+                // On touch devices when listening for the click or pointerup event the next or last address input would
+                // be immediately selected after the 'onSelectHit' method was called. This can be prevented by listening
+                // for the touchend event separately.
+                onTouchEnd={e => {
+                    e.preventDefault()
+                    if (!isCancelled) onSelectHit(entry)
                 }}
+                // listen for cancel events to prevent selections in case the result list is e.g. scrolled on touch devices
+                onPointerCancel={() => setIsCancelled(true)}
                 // prevent blur event for input textbox
-                onPointerDown={e => e.preventDefault()}
+                onPointerDown={e => {
+                    setIsCancelled(false)
+                    e.preventDefault()
+                }}
             >
                 <div className={styles.geocodingEntry}>
                     <span className={styles.geocodingEntryMain}>{convertToMainText(entry)}</span>

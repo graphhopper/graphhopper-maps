@@ -12,7 +12,7 @@ export class Translation {
     }
 
     get(key: string, parameters?: string[]): string {
-        var str: string = this.data[key]
+        let str: string = this.data[key]
         if (!str) {
             str = this.fallback[key]
             if (!str) return key
@@ -46,4 +46,8 @@ export function setTranslation(lang: string, overwrite = false): Translation {
 export function getTranslation(): Translation {
     if (!translation) throw new Error('init translation via setTranslation before using getTranslation')
     return translation
+}
+
+export function tr(key: string, parameters?: string[]) {
+    return getTranslation().get(key, parameters)
 }

@@ -3,8 +3,7 @@ import styles from './RoutingProfiles.modules.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
-import { getTranslation } from '@/translation/Translation'
-let tr = getTranslation()
+import { tr } from '@/translation/Translation'
 
 export default function ({
     routingProfiles,
@@ -16,7 +15,7 @@ export default function ({
     return (
         <select
             className={styles.profileSelect}
-            value={getEmoji(selectedProfile) + '\u00a0' + tr.get(selectedProfile.name)}
+            value={getEmoji(selectedProfile) + '\u00a0' + tr(selectedProfile.name)}
             onChange={e => {
                 const selectedIndex = e.target.selectedIndex
                 const routingProfile = routingProfiles[selectedIndex]
@@ -24,7 +23,7 @@ export default function ({
             }}
         >
             {routingProfiles.map(profile => (
-                <option key={profile.name}>{getEmoji(profile) + '\u00a0' + tr.get(profile.name)}</option>
+                <option key={profile.name}>{getEmoji(profile) + '\u00a0' + tr(profile.name)}</option>
             ))}
         </select>
     )
