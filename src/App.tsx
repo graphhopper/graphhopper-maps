@@ -23,10 +23,13 @@ import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
-import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { ViewportStoreState } from '@/stores/ViewportStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetViewportToBbox } from '@/actions/Actions'
+import createPathDetailsLayer from '@/layers/PathDetailsLayer'
+import createQueryPointsLayer from '@/layers/QueryPointsLayer'
+import createPathsLayer from '@/layers/PathsLayer'
+import { MapLayer } from '@/layers/MapLayer'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -83,6 +86,12 @@ export default function App() {
         else if (route.selectedPath.bbox) Dispatcher.dispatch(new SetViewportToBbox(route.selectedPath.bbox))
     }, [pathDetails])
 
+    const mapLayers: MapLayer[] = [
+        createQueryPointsLayer(query.queryPoints),
+        createPathsLayer(route.selectedPath, route.routingResult.paths),
+    ]
+    if (isSmallScreen) mapLayers.push(createPathDetailsLayer(pathDetails))
+
     return (
         <div className={styles.appWrapper}>
             {isSmallScreen ? (
@@ -90,20 +99,20 @@ export default function App() {
                     query={query}
                     route={route}
                     viewport={viewport}
+                    mapLayers={mapLayers}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
-                    pathDetails={pathDetails}
                 />
             ) : (
                 <LargeScreenLayout
                     query={query}
                     route={route}
                     viewport={viewport}
+                    mapLayers={mapLayers}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
-                    pathDetails={pathDetails}
                 />
             )}
         </div>
@@ -114,25 +123,22 @@ interface LayoutProps {
     query: QueryStoreState
     route: RouteStoreState
     viewport: ViewportStoreState
+    mapLayers: MapLayer[]
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     info: ApiInfo
-    pathDetails: PathDetailsStoreState
 }
 
-function LargeScreenLayout({ query, route, viewport, error, mapOptions, info, pathDetails }: LayoutProps) {
+function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
     return (
         <>
             <div className={styles.map}>
                 {
                     <MapComponent
                         viewport={viewport}
-                        queryPoints={query.queryPoints}
-                        paths={route.routingResult.paths}
-                        selectedPath={route.selectedPath}
                         mapStyle={mapOptions.selectedStyle}
-                        pathDetailPoint={pathDetails.pathDetailsPoint}
-                        highlightedPathDetailSegments={pathDetails.pathDetailsHighlightedSegments}
+                        queryPoints={query.queryPoints}
+                        mapLayers={mapLayers}
                     />
                 }
             </div>
@@ -168,19 +174,15 @@ function LargeScreenLayout({ query, route, viewport, error, mapOptions, info, pa
     )
 }
 
-function SmallScreenLayout({ query, route, viewport, error, mapOptions, info }: LayoutProps) {
+function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenMap}>
                 <MapComponent
                     viewport={viewport}
                     queryPoints={query.queryPoints}
-                    paths={route.routingResult.paths}
-                    selectedPath={route.selectedPath}
                     mapStyle={mapOptions.selectedStyle}
-                    // we do not show path details on small screens
-                    pathDetailPoint={null}
-                    highlightedPathDetailSegments={[]}
+                    mapLayers={mapLayers}
                 />
             </div>
             <div className={styles.smallScreenMapOptions}>
