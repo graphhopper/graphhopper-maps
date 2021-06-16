@@ -1,6 +1,6 @@
 import { GeocodingHit } from '@/api/graphhopper'
 import styles from './GeocodingResult.module.css'
-import React, { useState } from 'react'
+import React from 'react'
 
 export default function GeocodingResult({
     hits,
