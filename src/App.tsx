@@ -89,8 +89,8 @@ export default function App() {
     const mapLayers: MapLayer[] = [
         createQueryPointsLayer(query.queryPoints),
         createPathsLayer(route.selectedPath, route.routingResult.paths),
-        createPathDetailsLayer(pathDetails),
     ]
+    if (isSmallScreen) mapLayers.push(createPathDetailsLayer(pathDetails))
 
     return (
         <div className={styles.appWrapper}>
