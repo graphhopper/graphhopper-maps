@@ -4,6 +4,7 @@ import styles from './App.module.css'
 import {
     getApiInfoStore,
     getErrorStore,
+    getMapLayerStore,
     getMapOptionsStore,
     getPathDetailsStore,
     getQueryStore,
@@ -17,16 +18,20 @@ import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
 import RoutingResults from '@/sidebar/RoutingResults'
 import PoweredBy from '@/sidebar/PoweredBy'
-import { QueryStoreState } from '@/stores/QueryStore'
+import { Coordinate, QueryStoreState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
-import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { ViewportStoreState } from '@/stores/ViewportStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetViewportToBbox } from '@/actions/Actions'
+import { SetSelectedPath, SetViewportToBbox } from '@/actions/Actions'
+import { MapLayer } from '@/stores/MapLayerStore'
+import PathDetailsLayer from '@/layers/PathDetailsLayer'
+import QueryPointsLayer from '@/layers/QueryPointsLayer'
+import ContextMenuLayer from '@/layers/ContextMenuLayer'
+import PathsLayer, { getCurrentPaths, getInteractiveLayerIds, pathsLayerKey } from '@/layers/PathsLayer'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -36,6 +41,7 @@ export default function App() {
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
     const [viewport, setViewport] = useState(getViewportStore().state)
+    const [mapLayers, setMapLayers] = useState(getMapLayerStore().state)
 
     useEffect(() => {
         const onQueryChanged = () => setQuery(getQueryStore().state)
@@ -45,6 +51,7 @@ export default function App() {
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
         const onViewportChanged = () => setViewport(getViewportStore().state)
+        const onMapLayersChanged = () => setMapLayers(getMapLayerStore().state)
 
         getQueryStore().register(onQueryChanged)
         getApiInfoStore().register(onInfoChanged)
@@ -53,6 +60,7 @@ export default function App() {
         getMapOptionsStore().register(onMapOptionsChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
         getViewportStore().register(onViewportChanged)
+        getMapLayerStore().register(onMapLayersChanged)
 
         return () => {
             getQueryStore().deregister(onQueryChanged)
@@ -62,6 +70,7 @@ export default function App() {
             getMapOptionsStore().deregister(onMapOptionsChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getViewportStore().deregister(onViewportChanged)
+            getMapLayerStore().deregister(onMapLayersChanged)
         }
     })
 
@@ -83,6 +92,54 @@ export default function App() {
         else if (route.selectedPath.bbox) Dispatcher.dispatch(new SetViewportToBbox(route.selectedPath.bbox))
     }, [pathDetails])
 
+    const [popupCoordinate, setPopupCoordinate] = useState<Coordinate | null>(null)
+    const theMapLayers: { [key: string]: MapLayer } = {
+        'context-menu-layer': {
+            id: 'context-menu-layer',
+            interactiveLayerIds: [],
+            onClick: () => {},
+            layer: (
+                <ContextMenuLayer
+                    queryPoints={query.queryPoints}
+                    popupCoordinate={popupCoordinate}
+                    setPopupCoordinate={setPopupCoordinate}
+                />
+            ),
+        },
+        'query-points-layer': {
+            id: 'query-points-layer',
+            interactiveLayerIds: [],
+            onClick: () => {},
+            layer: <QueryPointsLayer queryPoints={query.queryPoints} />,
+        },
+        'paths-layer': {
+            id: 'paths-layer',
+            interactiveLayerIds: getInteractiveLayerIds(route.selectedPath, route.routingResult.paths),
+            onClick: feature => {
+                // select an alternative path if clicked
+                if (feature.layer.id === pathsLayerKey) {
+                    const index = feature.properties!.index
+                    const path = getCurrentPaths(route.selectedPath, route.routingResult.paths).find(
+                        indexPath => indexPath.index === index
+                    )
+                    Dispatcher.dispatch(new SetSelectedPath(path!.path))
+                }
+            },
+            layer: <PathsLayer selectedPath={route.selectedPath} paths={route.routingResult.paths} />,
+        },
+        'path-details-layer': {
+            id: 'path-details-layer',
+            interactiveLayerIds: [],
+            onClick: () => {},
+            layer: (
+                <PathDetailsLayer
+                    pathDetailPoint={pathDetails.pathDetailsPoint}
+                    highlightedPathDetailSegments={pathDetails.pathDetailsHighlightedSegments}
+                />
+            ),
+        },
+    }
+
     return (
         <div className={styles.appWrapper}>
             {isSmallScreen ? (
@@ -90,20 +147,22 @@ export default function App() {
                     query={query}
                     route={route}
                     viewport={viewport}
+                    theMapLayers={theMapLayers}
+                    setPopupCoordinate={setPopupCoordinate}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
-                    pathDetails={pathDetails}
                 />
             ) : (
                 <LargeScreenLayout
                     query={query}
                     route={route}
                     viewport={viewport}
+                    theMapLayers={theMapLayers}
+                    setPopupCoordinate={setPopupCoordinate}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
-                    pathDetails={pathDetails}
                 />
             )}
         </div>
@@ -114,25 +173,32 @@ interface LayoutProps {
     query: QueryStoreState
     route: RouteStoreState
     viewport: ViewportStoreState
+    theMapLayers: { [key: string]: MapLayer }
+    setPopupCoordinate: (c: Coordinate | null) => void
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     info: ApiInfo
-    pathDetails: PathDetailsStoreState
 }
 
-function LargeScreenLayout({ query, route, viewport, error, mapOptions, info, pathDetails }: LayoutProps) {
+function LargeScreenLayout({
+    query,
+    route,
+    viewport,
+    theMapLayers,
+    setPopupCoordinate,
+    error,
+    mapOptions,
+    info,
+}: LayoutProps) {
     return (
         <>
             <div className={styles.map}>
                 {
                     <MapComponent
                         viewport={viewport}
-                        queryPoints={query.queryPoints}
-                        paths={route.routingResult.paths}
-                        selectedPath={route.selectedPath}
                         mapStyle={mapOptions.selectedStyle}
-                        pathDetailPoint={pathDetails.pathDetailsPoint}
-                        highlightedPathDetailSegments={pathDetails.pathDetailsHighlightedSegments}
+                        mapLayers={theMapLayers}
+                        setPopupCoordinate={setPopupCoordinate}
                     />
                 }
             </div>
@@ -168,19 +234,24 @@ function LargeScreenLayout({ query, route, viewport, error, mapOptions, info, pa
     )
 }
 
-function SmallScreenLayout({ query, route, viewport, error, mapOptions, info }: LayoutProps) {
+function SmallScreenLayout({
+    query,
+    route,
+    viewport,
+    theMapLayers,
+    setPopupCoordinate,
+    error,
+    mapOptions,
+    info,
+}: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenMap}>
                 <MapComponent
                     viewport={viewport}
-                    queryPoints={query.queryPoints}
-                    paths={route.routingResult.paths}
-                    selectedPath={route.selectedPath}
                     mapStyle={mapOptions.selectedStyle}
-                    // we do not show path details on small screens
-                    pathDetailPoint={null}
-                    highlightedPathDetailSegments={[]}
+                    mapLayers={theMapLayers}
+                    setPopupCoordinate={setPopupCoordinate}
                 />
             </div>
             <div className={styles.smallScreenMapOptions}>

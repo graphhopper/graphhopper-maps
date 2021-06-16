@@ -4,6 +4,7 @@ import { ApiInfo, Bbox, Path, RoutingArgs, RoutingResult, RoutingProfile } from 
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 import { ViewportStoreState } from '@/stores/ViewportStore'
+import { MapLayer } from '@/stores/MapLayerStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -155,5 +156,13 @@ export class PathDetailsElevationSelected implements Action {
 
     constructor(segments: Coordinate[][]) {
         this.segments = segments
+    }
+}
+
+export class PutMapLayer implements Action {
+    readonly mapLayer: MapLayer
+
+    constructor(mapLayer: MapLayer) {
+        this.mapLayer = mapLayer
     }
 }

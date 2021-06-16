@@ -1,51 +1,26 @@
-import { coordinateToText } from '@/Converters'
-import ReactMapGL, { Layer, MapEvent, Marker, Popup, Source } from 'react-map-gl'
+import ReactMapGL, { MapEvent } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { Coordinate, QueryPoint } from '@/stores/QueryStore'
-import React, { useState } from 'react'
+import { Coordinate } from '@/stores/QueryStore'
+import React from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { MapIsLoaded, SetPoint, SetSelectedPath, SetViewport } from '@/actions/Actions'
-import { Path } from '@/api/graphhopper'
-import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { MapIsLoaded, SetViewport } from '@/actions/Actions'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
-import { FeatureCollection, LineString } from 'geojson'
-import { PopupComponent } from '@/map/Popup'
-import { MarkerComponent } from '@/map/Marker'
 import { ViewportStoreState } from '@/stores/ViewportStore'
-
-const pathsLayerKey = 'pathsLayer'
-const selectedPathLayerKey = 'selectedPathLayer'
-const highlightedPathSegmentLayerKey = 'highlightedPathSegmentLayer'
+import { MapLayer } from '@/stores/MapLayerStore'
 
 type MapProps = {
     viewport: ViewportStoreState
-    selectedPath: Path
-    paths: Path[]
-    queryPoints: QueryPoint[]
     mapStyle: StyleOption
-    pathDetailPoint: PathDetailsPoint | null
-    highlightedPathDetailSegments: Coordinate[][]
+    mapLayers: { [key: string]: MapLayer }
+    setPopupCoordinate: (c: Coordinate | null) => void
 }
 
-export default function ({
-    viewport,
-    selectedPath,
-    paths,
-    queryPoints,
-    mapStyle,
-    pathDetailPoint,
-    highlightedPathDetailSegments,
-}: MapProps) {
-    const [popupCoordinate, setPopupCoordinate] = useState<Coordinate | null>(null)
-    const currentPaths = paths
-        .map((path, i) => {
-            return {
-                path,
-                index: i,
-            }
-        })
-        .filter(indexPath => indexPath.path !== selectedPath)
+export default function ({ viewport, mapStyle, mapLayers, setPopupCoordinate }: MapProps) {
     const longTouchHandler = new LongTouchHandler(e => setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] }))
+    let interactiveLayerIds: string[] = []
+    Object.values(mapLayers).forEach(l => {
+        if (l.interactiveLayerIds) interactiveLayerIds = interactiveLayerIds.concat(l.interactiveLayerIds)
+    })
     return (
         <ReactMapGL
             mapStyle={getStyle(mapStyle)}
@@ -63,17 +38,10 @@ export default function ({
                 Dispatcher.dispatch(new SetViewport(nextViewport))
             }}
             // todo: minor glitch: when we hover the map before the path got loaded we get an error in the console
-            interactiveLayerIds={currentPaths.length === 0 ? [] : [pathsLayerKey]}
+            interactiveLayerIds={interactiveLayerIds}
             onClick={e => {
                 const feature = e.features?.[0]
-                if (feature) {
-                    // select an alternative path if clicked
-                    if (feature.layer.id === pathsLayerKey) {
-                        const index = feature.properties!.index
-                        const path = currentPaths.find(indexPath => indexPath.index === index)
-                        Dispatcher.dispatch(new SetSelectedPath(path!.path))
-                    }
-                }
+                if (feature) Object.values(mapLayers).forEach(l => l.onClick(feature))
             }}
             onContextMenu={e => {
                 e.preventDefault()
@@ -83,163 +51,8 @@ export default function ({
             onTouchEnd={() => longTouchHandler.onTouchEnd()}
             onTouchMove={() => longTouchHandler.onTouchEnd()}
         >
-            {popupCoordinate && (
-                <Popup
-                    longitude={popupCoordinate.lng}
-                    latitude={popupCoordinate.lat}
-                    closeOnClick={true}
-                    closeButton={false}
-                >
-                    <PopupComponent
-                        coordinate={popupCoordinate}
-                        queryPoints={queryPoints}
-                        onSelect={() => setPopupCoordinate(null)}
-                    />
-                </Popup>
-            )}
-            {createQueryPointMarkers(queryPoints)}
-            {pathDetailPoint && createPathDetailMarker(pathDetailPoint)}
-            {createUnselectedPaths(currentPaths)}
-            {createSelectedPath(selectedPath)}
-            {createHighlightedPathSegments(highlightedPathDetailSegments)}
+            {...Object.values(mapLayers).map(ml => ml.layer)}
         </ReactMapGL>
-    )
-}
-
-function createSelectedPath(path: Path) {
-    const featureCollection: FeatureCollection = {
-        type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                properties: {},
-                geometry: path.points as LineString,
-            },
-        ],
-    }
-    return (
-        <Source type={'geojson'} data={featureCollection}>
-            <Layer
-                id={selectedPathLayerKey}
-                type={'line'}
-                layout={{
-                    'line-join': 'round',
-                    'line-cap': 'round',
-                }}
-                paint={{
-                    'line-color': '#275DAD',
-                    'line-width': 8,
-                }}
-            />
-        </Source>
-    )
-}
-
-function createUnselectedPaths(indexPaths: { path: Path; index: number }[]) {
-    const featureCollection: FeatureCollection = {
-        type: 'FeatureCollection',
-        features: indexPaths.map(indexPath => {
-            return {
-                type: 'Feature',
-                properties: {
-                    index: indexPath.index,
-                },
-                geometry: indexPath.path.points as LineString,
-            }
-        }),
-    }
-    return (
-        <Source type={'geojson'} data={featureCollection}>
-            <Layer
-                id={pathsLayerKey}
-                type={'line'}
-                layout={{
-                    'line-join': 'round',
-                    'line-cap': 'round',
-                }}
-                paint={{
-                    'line-color': '#5B616A',
-                    'line-width': 6,
-                    'line-opacity': 0.8,
-                }}
-            />
-        </Source>
-    )
-}
-
-function createQueryPointMarkers(queryPoints: QueryPoint[]) {
-    return queryPoints
-        .map((point, i) => {
-            return { index: i, point: point }
-        })
-        .filter(indexPoint => indexPoint.point.isInitialized)
-        .map((indexPoint, i) => (
-            <Marker
-                key={i}
-                longitude={indexPoint.point.coordinate.lng}
-                latitude={indexPoint.point.coordinate.lat}
-                draggable={true}
-                onDragEnd={(e: any) => {
-                    const coordinate = { lng: e.lngLat[0], lat: e.lngLat[1] }
-                    Dispatcher.dispatch(
-                        new SetPoint({
-                            ...indexPoint.point,
-                            coordinate,
-                            queryText: coordinateToText(coordinate),
-                        })
-                    )
-                }}
-            >
-                <MarkerComponent color={indexPoint.point.color} />
-            </Marker>
-        ))
-}
-
-function createPathDetailMarker(point: PathDetailsPoint) {
-    // todo: use createMapMarker from heightgraph?
-    // {createMapMarker(point.elevation, point.description)}
-    return (
-        <Popup longitude={point.point.lng} latitude={point.point.lat} closeButton={false}>
-            <p>
-                elevation: {point.elevation}
-                <br />
-                {point.description}
-            </p>
-        </Popup>
-    )
-}
-
-function createHighlightedPathSegments(segments: Coordinate[][]) {
-    const featureCollection: FeatureCollection = {
-        type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                geometry: {
-                    type: 'MultiLineString',
-                    coordinates: segments.map(s => s.map(c => [c.lng, c.lat])),
-                },
-                properties: {},
-            },
-        ],
-    }
-
-    return (
-        <Source type={'geojson'} data={featureCollection}>
-            <Layer
-                id={highlightedPathSegmentLayerKey}
-                type={'line'}
-                layout={{
-                    'line-join': 'round',
-                    'line-cap': 'round',
-                }}
-                paint={{
-                    // todo
-                    'line-color': 'red',
-                    'line-width': 4,
-                }}
-            />
-        </Source>
     )
 }
 
