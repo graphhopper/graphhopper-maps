@@ -67,7 +67,7 @@ export default function ({ viewport, mapStyle, queryPoints, mapLayers }: MapProp
                     />
                 </Popup>
             )}
-            {...mapLayers.map(ml => ml.layer)}
+            {...mapLayers.map((ml, i) => React.cloneElement(ml.layer, { key: i}))}
         </ReactMapGL>
     )
 }
