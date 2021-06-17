@@ -1,4 +1,4 @@
-import ReactMapGL, { MapEvent, Popup } from 'react-map-gl'
+import ReactMapGL, { MapEvent, Popup, WebMercatorViewport } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import React, { useState } from 'react'
@@ -30,13 +30,15 @@ export default function ({ viewport, mapStyle, queryPoints, mapLayers }: MapProp
             width="100%"
             height="100%"
             mapOptions={{
-                // todo: maxBounds
                 renderWorldCopies: false,
             }}
             onLoad={() => Dispatcher.dispatch(new MapIsLoaded())}
             onViewportChange={(nextViewport: ViewportStoreState) => {
                 // close the context menu when we move the map
                 setPopupCoordinate(null)
+                // restrict zoom/pan such that we never see empty space left of/right of/above/under the map
+                const bounds = new WebMercatorViewport(nextViewport).getBounds()
+                if (bounds[0][0] < -180 || bounds[0][1] < -90 || bounds[1][0] > 180 || bounds[1][1] > 90) return
                 Dispatcher.dispatch(new SetViewport(nextViewport))
             }}
             // todo: minor glitch: when we hover the map before the path got loaded we get an error in the console
