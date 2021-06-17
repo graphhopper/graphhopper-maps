@@ -72,7 +72,7 @@ export default function App() {
     // todo: maybe combine these effects into one? see discussion in #77
     useEffect(() => {
         // make sure the path bbox and the path details bbox take precedence over the info bbox
-        if (!route.selectedPath.bbox && !pathDetails.pathDetailBbox)
+        if (!route.selectedPath.bbox && !pathDetails.pathDetailBbox && info.bbox.every(num => num !== 0))
             Dispatcher.dispatch(new SetViewportToBbox(info.bbox))
     }, [info])
     useEffect(() => {
