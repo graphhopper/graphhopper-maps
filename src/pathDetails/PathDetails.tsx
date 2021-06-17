@@ -5,7 +5,7 @@ import 'leaflet.heightgraph/src/heightgraph.css'
 import { Path } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelected } from '@/actions/Actions'
-import { Coordinate } from '@/stores/QueryStore'
+import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -93,7 +93,7 @@ function buildPathDetailsData(selectedPath: Path) {
     })
     const mappings: any = {
         'Elevation [m]': function () {
-            return { text: 'Elevation [m]', color: '#27ce49' }
+            return { text: 'Elevation [m]', color: QueryStore.getMarkerColor(QueryPointType.From) }
         },
     }
     Object.entries(selectedPath.details).forEach(([detailName, details]: [string, PathDetails]) => {
