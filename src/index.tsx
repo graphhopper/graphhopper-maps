@@ -2,8 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import { setTranslation } from '@/translation/Translation'
-setTranslation(navigator.language)
-
 import App from '@/App'
 import {
     getApiInfoStore,
@@ -26,17 +24,21 @@ import PathDetailsStore from '@/stores/PathDetailsStore'
 import ViewportStore from '@/stores/ViewportStore'
 import NavBar from '@/NavBar'
 
+setTranslation(navigator.language)
+
 // set up state management
 const api = new ApiImpl()
 const queryStore = new QueryStore(api)
+const routeStore = new RouteStore(queryStore)
+
 setStores({
     queryStore: queryStore,
-    routeStore: new RouteStore(queryStore),
+    routeStore: routeStore,
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
-    viewportStore: new ViewportStore(),
+    viewportStore: new ViewportStore(routeStore),
 })
 
 // register stores at dispatcher to receive actions

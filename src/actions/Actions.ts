@@ -1,6 +1,6 @@
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
-import { ApiInfo, Bbox, Path, RoutingArgs, RoutingResult, RoutingProfile } from '@/api/graphhopper'
+import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 import { ViewportStoreState } from '@/stores/ViewportStore'
@@ -123,14 +123,6 @@ export class SetViewportToPoint implements Action {
     constructor(coordinate: Coordinate, zoom: number) {
         this.coordinate = coordinate
         this.zoom = zoom
-    }
-}
-
-export class SetViewportToBbox implements Action {
-    readonly bbox: Bbox
-
-    constructor(bbox: Bbox) {
-        this.bbox = bbox
     }
 }
 

@@ -24,8 +24,6 @@ import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { ViewportStoreState } from '@/stores/ViewportStore'
-import Dispatcher from '@/stores/Dispatcher'
-import { SetViewportToBbox } from '@/actions/Actions'
 import createPathDetailsLayer from '@/layers/PathDetailsLayer'
 import createQueryPointsLayer from '@/layers/QueryPointsLayer'
 import createPathsLayer from '@/layers/PathsLayer'
@@ -69,22 +67,6 @@ export default function App() {
     })
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
-    // todo: maybe combine these effects into one? see discussion in #77
-    useEffect(() => {
-        // make sure the path bbox and the path details bbox take precedence over the info bbox
-        if (!route.selectedPath.bbox && !pathDetails.pathDetailBbox && info.bbox.every(num => num !== 0))
-            Dispatcher.dispatch(new SetViewportToBbox(info.bbox))
-    }, [info])
-    useEffect(() => {
-        // make sure the path details bbox takes precedence over the route bbox
-        if (route.selectedPath.bbox && !pathDetails.pathDetailBbox)
-            Dispatcher.dispatch(new SetViewportToBbox(route.selectedPath.bbox))
-    }, [route])
-    useEffect(() => {
-        // make sure the path details bbox takes precedence over the path and info bboxes
-        if (pathDetails.pathDetailBbox) Dispatcher.dispatch(new SetViewportToBbox(pathDetails.pathDetailBbox))
-        else if (route.selectedPath.bbox) Dispatcher.dispatch(new SetViewportToBbox(route.selectedPath.bbox))
-    }, [pathDetails])
 
     const mapLayers: MapLayer[] = [
         createQueryPointsLayer(query.queryPoints),
