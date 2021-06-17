@@ -49,6 +49,7 @@ export default function AddressInput(props: AddressInputProps) {
                     setHighlightedResult(i => calculateHighlightedIndex(geocodingResults.length, i, 1))
                     break
                 case 'Enter':
+                case 'Tab':
                     // by default use the first result, otherwise the highlighted one
                     const index = highlightedResult >= 0 ? highlightedResult : 0
                     // it seems like the order of the following two statments is important...
@@ -84,6 +85,7 @@ export default function AddressInput(props: AddressInputProps) {
                         setGeocodingResults([])
                     }}
                     value={text}
+                    autoFocus={props.autofocus}
                     placeholder={tr(
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
                     )}

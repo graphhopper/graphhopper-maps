@@ -138,6 +138,7 @@ function LargeScreenLayout({ query, route, bbox, error, mapOptions, info, pathDe
                             points={query.queryPoints}
                             routingProfiles={info.profiles}
                             selectedProfile={query.routingProfile}
+                            autofocus={true}
                         />
                     </div>
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
