@@ -72,10 +72,11 @@ export default class ViewportStore extends Store<ViewportStoreState> {
         } else if (action instanceof SetSelectedPath) {
             return calculateLatLngFromBbox(state, action.path.bbox!)
         } else if (action instanceof PathDetailsRangeSelected) {
-            // take bbox from actio or from selected path
+            // we either use the bbox from the path detail selection or go back to the route bbox when the path details
+            // were deselected
             const bbox = action.bbox ? action.bbox : this.routeStore.state.selectedPath.bbox
-            // if neither has a bbox just fall through to unchanged state
             if (bbox) return calculateLatLngFromBbox(state, bbox)
+            // if there is no route either just fall through to unchanged state
         }
         return state
     }
