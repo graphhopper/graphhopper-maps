@@ -2,8 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import { setTranslation } from '@/translation/Translation'
-setTranslation(navigator.language)
-
 import App from '@/App'
 import {
     getApiInfoStore,
@@ -12,6 +10,7 @@ import {
     getPathDetailsStore,
     getQueryStore,
     getRouteStore,
+    getViewportStore,
     setStores,
 } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
@@ -22,18 +21,26 @@ import { ApiImpl } from '@/api/Api'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
+import ViewportStore from '@/stores/ViewportStore'
 import NavBar from '@/NavBar'
+
+setTranslation(navigator.language)
 
 // set up state management
 const api = new ApiImpl()
 const queryStore = new QueryStore(api)
+const routeStore = new RouteStore(queryStore)
+
+const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
+
 setStores({
     queryStore: queryStore,
-    routeStore: new RouteStore(queryStore),
+    routeStore: routeStore,
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
+    viewportStore: new ViewportStore(routeStore, () => smallScreenMediaQuery.matches),
 })
 
 // register stores at dispatcher to receive actions
@@ -43,6 +50,7 @@ Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
+Dispatcher.register(getViewportStore())
 
 api.infoWithDispatch() // get infos about the api as soon as possible
 

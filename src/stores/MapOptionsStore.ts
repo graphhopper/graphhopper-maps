@@ -205,7 +205,6 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
             return {
                 ...state,
                 selectedStyle: action.styleOption,
-                isMapLoaded: false,
             }
         } else if (action instanceof MapIsLoaded) {
             return {

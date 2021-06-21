@@ -8,9 +8,10 @@ import {
     getPathDetailsStore,
     getQueryStore,
     getRouteStore,
+    getViewportStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/Map'
-import { ApiInfo, Bbox } from '@/api/graphhopper'
+import { ApiInfo } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
 import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
@@ -22,7 +23,11 @@ import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
-import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
+import { ViewportStoreState } from '@/stores/ViewportStore'
+import createPathDetailsLayer from '@/layers/PathDetailsLayer'
+import createQueryPointsLayer from '@/layers/QueryPointsLayer'
+import createPathsLayer from '@/layers/PathsLayer'
+import { MapLayer } from '@/layers/MapLayer'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -31,6 +36,7 @@ export default function App() {
     const [error, setError] = useState(getErrorStore().state)
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
+    const [viewport, setViewport] = useState(getViewportStore().state)
 
     useEffect(() => {
         const onQueryChanged = () => setQuery(getQueryStore().state)
@@ -39,6 +45,7 @@ export default function App() {
         const onErrorChanged = () => setError(getErrorStore().state)
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
+        const onViewportChanged = () => setViewport(getViewportStore().state)
 
         getQueryStore().register(onQueryChanged)
         getApiInfoStore().register(onInfoChanged)
@@ -46,6 +53,7 @@ export default function App() {
         getErrorStore().register(onErrorChanged)
         getMapOptionsStore().register(onMapOptionsChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
+        getViewportStore().register(onViewportChanged)
 
         return () => {
             getQueryStore().deregister(onQueryChanged)
@@ -54,26 +62,17 @@ export default function App() {
             getErrorStore().deregister(onErrorChanged)
             getMapOptionsStore().deregister(onMapOptionsChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
+            getViewportStore().deregister(onViewportChanged)
         }
     })
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
-    const [bbox, setBbox] = useState<Bbox>([-180, -90, 180, 90])
-    // todo: maybe combine these effects into one? see discussion in #77
-    useEffect(() => {
-        // make sure the path bbox and the path details bbox take precedence over the info bbox
-        if (!route.selectedPath.bbox && !pathDetails.pathDetailBbox) setBbox(info.bbox)
-    }, [info])
-    useEffect(() => {
-        // make sure the path details bbox takes precedence over the route bbox
-        if (route.selectedPath.bbox && !pathDetails.pathDetailBbox) setBbox(route.selectedPath.bbox)
-    }, [route])
-    useEffect(() => {
-        // make sure the path details bbox takes precedence over the path and info bboxes
-        if (pathDetails.pathDetailBbox) setBbox(pathDetails.pathDetailBbox)
-        else if (route.selectedPath.bbox) setBbox(route.selectedPath.bbox)
-    }, [pathDetails])
+    const mapLayers: MapLayer[] = [
+        createQueryPointsLayer(query.queryPoints),
+        createPathsLayer(route.selectedPath, route.routingResult.paths),
+    ]
+    if (isSmallScreen) mapLayers.push(createPathDetailsLayer(pathDetails))
 
     return (
         <div className={styles.appWrapper}>
@@ -81,21 +80,21 @@ export default function App() {
                 <SmallScreenLayout
                     query={query}
                     route={route}
-                    bbox={bbox}
+                    viewport={viewport}
+                    mapLayers={mapLayers}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
-                    pathDetails={pathDetails}
                 />
             ) : (
                 <LargeScreenLayout
                     query={query}
                     route={route}
-                    bbox={bbox}
+                    viewport={viewport}
+                    mapLayers={mapLayers}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
-                    pathDetails={pathDetails}
                 />
             )}
         </div>
@@ -105,26 +104,23 @@ export default function App() {
 interface LayoutProps {
     query: QueryStoreState
     route: RouteStoreState
-    bbox: Bbox
+    viewport: ViewportStoreState
+    mapLayers: MapLayer[]
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     info: ApiInfo
-    pathDetails: PathDetailsStoreState
 }
 
-function LargeScreenLayout({ query, route, bbox, error, mapOptions, info, pathDetails }: LayoutProps) {
+function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
     return (
         <>
             <div className={styles.map}>
                 {
                     <MapComponent
-                        queryPoints={query.queryPoints}
-                        paths={route.routingResult.paths}
-                        selectedPath={route.selectedPath}
-                        bbox={bbox}
+                        viewport={viewport}
                         mapStyle={mapOptions.selectedStyle}
-                        pathDetailPoint={pathDetails.pathDetailsPoint}
-                        highlightedPathDetailSegments={pathDetails.pathDetailsHighlightedSegments}
+                        queryPoints={query.queryPoints}
+                        mapLayers={mapLayers}
                     />
                 }
             </div>
@@ -160,19 +156,15 @@ function LargeScreenLayout({ query, route, bbox, error, mapOptions, info, pathDe
     )
 }
 
-function SmallScreenLayout({ query, route, bbox, error, mapOptions, info }: LayoutProps) {
+function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenMap}>
                 <MapComponent
+                    viewport={viewport}
                     queryPoints={query.queryPoints}
-                    paths={route.routingResult.paths}
-                    selectedPath={route.selectedPath}
-                    bbox={bbox}
                     mapStyle={mapOptions.selectedStyle}
-                    // we do not show path details on small screens
-                    pathDetailPoint={null}
-                    highlightedPathDetailSegments={[]}
+                    mapLayers={mapLayers}
                 />
             </div>
             <div className={styles.smallScreenMapOptions}>
