@@ -118,7 +118,10 @@ export class ApiImpl implements Api {
     routeWithDispatch(args: RoutingArgs) {
         this.route(args)
             .then(result => Dispatcher.dispatch(new RouteRequestSuccess(args, result)))
-            .catch(error => Dispatcher.dispatch(new RouteRequestFailed(args, error.message)))
+            .catch(error => {
+                console.warn('error when performing /route request: ', error)
+                return Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
+            })
     }
 
     private getURLWithKey(endpoint: string) {
