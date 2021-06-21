@@ -1,11 +1,10 @@
-import '../matchMedia.mock.ts'
 import ViewportStore, { ViewportStoreState } from '../../src/stores/ViewportStore'
 import { PathDetailsRangeSelected, RouteRequestSuccess, SetViewportToPoint } from '../../src/actions/Actions'
 
 describe('ViewportStore', () => {
     it('should update state correctly', () => {
         const routeStore = {} as any
-        const store = new ViewportStore(routeStore)
+        const store = new ViewportStore(routeStore, () => false)
         const initialState: ViewportStoreState = {
             longitude: 10,
             latitude: 45,

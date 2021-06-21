@@ -31,6 +31,8 @@ const api = new ApiImpl()
 const queryStore = new QueryStore(api)
 const routeStore = new RouteStore(queryStore)
 
+const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
+
 setStores({
     queryStore: queryStore,
     routeStore: routeStore,
@@ -38,7 +40,7 @@ setStores({
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
-    viewportStore: new ViewportStore(routeStore),
+    viewportStore: new ViewportStore(routeStore, () => smallScreenMediaQuery.matches),
 })
 
 // register stores at dispatcher to receive actions

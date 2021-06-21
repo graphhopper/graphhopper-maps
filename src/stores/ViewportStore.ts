@@ -31,15 +31,14 @@ export interface ViewportStoreState {
     transitionInterruption?: number
 }
 
-// have this right here for now. Not sure if this needs to be abstracted somewhere else
-const mediaQuery = window.matchMedia('(max-width: 640px)')
-
 export default class ViewportStore extends Store<ViewportStoreState> {
     private readonly routeStore: RouteStore
+    private readonly isSmallScreenQuery: () => boolean
 
-    constructor(routeStore: RouteStore) {
+    constructor(routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
         super()
         this.routeStore = routeStore
+        this.isSmallScreenQuery = isSmallScreenQuery
     }
 
     protected getInitialState(): ViewportStoreState {
@@ -53,6 +52,7 @@ export default class ViewportStore extends Store<ViewportStoreState> {
         }
     }
     reduce(state: ViewportStoreState, action: Action): ViewportStoreState {
+        const isSmallScreen = this.isSmallScreenQuery()
         if (action instanceof SetViewport) {
             return action.viewport
         } else if (action instanceof SetViewportToPoint) {
@@ -63,26 +63,26 @@ export default class ViewportStore extends Store<ViewportStoreState> {
                 zoom: action.zoom,
             }
         } else if (action instanceof InfoReceived) {
-            return calculateLatLngFromBbox(state, action.result.bbox)
+            return calculateLatLngFromBbox(state, action.result.bbox, isSmallScreen)
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well but then we would have to make sure that the route
             // store digests this action first, which our Dispatcher can't at the moment.
-            return calculateLatLngFromBbox(state, action.result.paths[0].bbox!)
+            return calculateLatLngFromBbox(state, action.result.paths[0].bbox!, isSmallScreen)
         } else if (action instanceof SetSelectedPath) {
-            return calculateLatLngFromBbox(state, action.path.bbox!)
+            return calculateLatLngFromBbox(state, action.path.bbox!, isSmallScreen)
         } else if (action instanceof PathDetailsRangeSelected) {
             // we either use the bbox from the path detail selection or go back to the route bbox when the path details
             // were deselected
             const bbox = action.bbox ? action.bbox : this.routeStore.state.selectedPath.bbox
-            if (bbox) return calculateLatLngFromBbox(state, bbox)
-            // if there is no route either just fall through to unchanged state
+            if (bbox) return calculateLatLngFromBbox(state, bbox, isSmallScreen)
+            // if neither has a bbox just fall through to unchanged state
         }
         return state
     }
 }
 
-function calculateLatLngFromBbox(state: ViewportStoreState, bbox: Bbox): ViewportStoreState {
+function calculateLatLngFromBbox(state: ViewportStoreState, bbox: Bbox, isSmallScreen: boolean): ViewportStoreState {
     const bounds: [[number, number], [number, number]] = [
         [Math.max(-179, bbox[0]), Math.max(-89, bbox[1])],
         [Math.min(179, bbox[2]), Math.min(89, bbox[3])],
@@ -91,7 +91,7 @@ function calculateLatLngFromBbox(state: ViewportStoreState, bbox: Bbox): Viewpor
         width: state.width,
         height: state.height,
     }).fitBounds(bounds, {
-        padding: getPadding(state.width, state.height),
+        padding: getPadding(state.width, state.height, isSmallScreen),
     })
     return {
         ...state,
@@ -110,8 +110,8 @@ function calculateLatLngFromBbox(state: ViewportStoreState, bbox: Bbox): Viewpor
     }
 }
 
-function getPadding(width: number, height: number) {
-    const padding = mediaQuery.matches
+function getPadding(width: number, height: number, isSmallScreen: boolean) {
+    const padding = isSmallScreen
         ? {
               top: 200,
               bottom: 32,
