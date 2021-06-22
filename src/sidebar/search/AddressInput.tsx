@@ -123,7 +123,7 @@ function calculateHighlightedIndex(length: number, currentIndex: number, increme
  */
 class Geocoder {
     private requestId = 0
-    private readonly timeout = new Timout(300)
+    private readonly timeout = new Timout(200)
     private readonly api = new ApiImpl()
     private readonly onSuccess: (hits: GeocodingHit[]) => void
 
