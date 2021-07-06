@@ -32,7 +32,7 @@ export default interface Api {
     geocode(query: string): Promise<GeocodingResult>
 }
 
-export const ghKey = 'fb45b8b2-fdda-4093-ac1a-8b57b4e50add'
+export const ghKey = process.env.GraphHopperApiKey ? process.env.GraphHopperApiKey.toString() : 'missing api key'
 
 export class ApiImpl implements Api {
     private readonly apiKey: string

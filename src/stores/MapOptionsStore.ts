@@ -2,10 +2,11 @@ import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { MapIsLoaded, SelectMapStyle } from '@/actions/Actions'
 
-const osApiKey = 'mapsgraph-bf48cc0b'
-const mapTilerKey = '?key=wYonyRi2hNgJVH2qgs81'
-const thunderforestApiKey = '?apikey=95b7c76e19c04e36ab9756f2cdf15b32'
-const kurvigerApiKey = '?key=b582abd4-d55d-4cb1-8f34-f4254cd52aa7'
+const osApiKey = process.env.OmniscaleApiKey
+const mapTilerKey = process.env.MapTilerApiKey
+const thunderforestApiKey = process.env.ThunderforestApiKey
+const kurvigerApiKey = process.env.KurvigerApiKey
+
 const osmAttribution =
     '&copy; <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
 
@@ -38,7 +39,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
         const defaultStyle: VectorStyle = {
             name: 'MapTiler',
             type: 'vector',
-            url: 'https://api.maptiler.com/maps/1f566542-c726-4cc5-8f2d-2309b90083db/style.json' + mapTilerKey,
+            url: 'https://api.maptiler.com/maps/1f566542-c726-4cc5-8f2d-2309b90083db/style.json?key=' + mapTilerKey,
             attribution:
                 osmAttribution + ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
         }
@@ -49,7 +50,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                 {
                     name: 'MapTiler Satellite',
                     type: 'vector',
-                    url: 'https://api.maptiler.com/maps/hybrid/style.json' + mapTilerKey,
+                    url: 'https://api.maptiler.com/maps/hybrid/style.json?key=' + mapTilerKey,
                     attribution:
                         osmAttribution +
                         ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
@@ -86,9 +87,9 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     name: 'TF Transport',
                     type: 'raster',
                     url: [
-                        'https://a.tile.thunderforest.com/transport/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://b.tile.thunderforest.com/transport/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/transport/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://a.tile.thunderforest.com/transport/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
+                        'https://b.tile.thunderforest.com/transport/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
+                        'https://c.tile.thunderforest.com/transport/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
@@ -98,9 +99,9 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     name: 'TF Cycle',
                     type: 'raster',
                     url: [
-                        'https://a.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://b.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://a.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
+                        'https://b.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
+                        'https://c.tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
@@ -110,9 +111,9 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     name: 'TF Outdoors',
                     type: 'raster',
                     url: [
-                        'https://a.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://b.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://a.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
+                        'https://b.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
+                        'https://c.tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
@@ -122,9 +123,9 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     name: 'TF Atlas',
                     type: 'raster',
                     url: [
-                        'https://a.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://b.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
-                        'https://c.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png' + thunderforestApiKey,
+                        'https://a.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
+                        'https://b.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
+                        'https://c.tile.thunderforest.com/atlas/{z}/{x}/{y}@2x.png?apikey=' + thunderforestApiKey,
                     ],
                     attribution:
                         osmAttribution +
@@ -134,15 +135,15 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     name: 'Kurviger Liberty',
                     type: 'raster',
                     url: [
-                        'https://a-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png' +
+                        'https://a-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png?key=' +
                             kurvigerApiKey,
-                        'https://b-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png' +
+                        'https://b-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png?key=' +
                             kurvigerApiKey,
-                        'https://c-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png' +
+                        'https://c-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png?key=' +
                             kurvigerApiKey,
-                        'https://d-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png' +
+                        'https://d-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png?key=' +
                             kurvigerApiKey,
-                        'https://e-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png' +
+                        'https://e-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}@2x.png?key=' +
                             kurvigerApiKey,
                     ],
                     attribution:
@@ -152,7 +153,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                 {
                     name: 'Mapilion',
                     type: 'vector',
-                    url: 'https://tiles.mapilion.com/assets/osm-bright/style.json' + kurvigerApiKey,
+                    url: 'https://tiles.mapilion.com/assets/osm-bright/style.json?key=' + kurvigerApiKey,
                     attribution:
                         osmAttribution +
                         ', &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
