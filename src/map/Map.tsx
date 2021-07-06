@@ -8,6 +8,7 @@ import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
 import { ViewportStoreState } from '@/stores/ViewportStore'
 import { PopupComponent } from '@/map/Popup'
 import { MapLayer } from '@/layers/MapLayer'
+import styles from './Map.module.css'
 
 type MapProps = {
     viewport: ViewportStoreState
@@ -61,6 +62,7 @@ export default function ({ viewport, mapStyle, queryPoints, mapLayers }: MapProp
                     latitude={popupCoordinate.lat}
                     closeOnClick={true}
                     closeButton={false}
+                    className={styles.contextMenu}
                 >
                     <PopupComponent
                         coordinate={popupCoordinate}

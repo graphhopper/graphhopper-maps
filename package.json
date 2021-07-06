@@ -7,6 +7,7 @@
         "format": "prettier --write \"src/**/*.{css,ts,tsx,html}\" \"test/**/*.{js,ts,jsx,tsx}\" \"jest.config.js\" \"webpack.*.js\"",
         "serve": "webpack serve --config webpack.dev.js",
         "build": "webpack --config webpack.prod.js",
+        "build-debug": "webpack --config webpack.dev.js",
         "test": "jest"
     },
     "dependencies": {

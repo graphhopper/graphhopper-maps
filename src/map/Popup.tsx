@@ -63,7 +63,13 @@ export function PopupComponent({
             >
                 To here
             </button>
-            <button className={styles.entry} onClick={() => Dispatcher.dispatch(new SetViewportToPoint(coordinate, 8))}>
+            <button
+                className={styles.entry}
+                onClick={() => {
+                    onSelect()
+                    Dispatcher.dispatch(new SetViewportToPoint(coordinate, 8))
+                }}
+            >
                 Center map
             </button>
         </div>
