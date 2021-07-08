@@ -139,14 +139,14 @@ function LargeScreenLayout({ query, route, location, viewport, mapLayers, error,
             <div className={styles.mapOptions}>
                 <MapOptions {...mapOptions} />
             </div>
-            <div className={styles.sidebar}>
-                <div className={styles.sidebarContent}>
-                    <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
-                    {location.turnNavigation ? (
-                        <div className={styles.turnNavigation}>
-                            <TurnNavigation path={route.selectedPath} location={location} />
-                        </div>
-                    ) : (
+            {location.turnNavigation ? (
+                <div className={styles.turnNavigation}>
+                    <TurnNavigation path={route.selectedPath} location={location} />
+                </div>
+            ) : (
+                <div className={styles.sidebar}>
+                    <div className={styles.sidebarContent}>
+                        <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <div>
                             <div className={styles.search}>
                                 <Search
@@ -166,9 +166,10 @@ function LargeScreenLayout({ query, route, location, viewport, mapLayers, error,
                                 <PoweredBy />
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
-            </div>
+            )}
+
             <div className={styles.pathDetails}>
                 <PathDetails selectedPath={route.selectedPath} />
             </div>
@@ -196,21 +197,25 @@ function SmallScreenLayout({ query, route, location, viewport, mapLayers, error,
                 <div className={styles.turnNavigation}>
                     <TurnNavigation path={route.selectedPath} location={location} />
                 </div>
+            ) : (
+                <div className={styles.smallScreenSidebar}>
+                    <MobileSidebar info={info} query={query} route={route} error={error} />
+                </div>
+            )}
+            {!location.turnNavigation ? (
+                <div className={styles.smallScreenRoutingResult}>
+                    <RoutingResults
+                        paths={route.routingResult.paths}
+                        selectedPath={route.selectedPath}
+                        currentRequest={query.currentRequest}
+                    />
+                </div>
             ) : null}
-            <div className={styles.smallScreenSidebar}>
-                <MobileSidebar info={info} query={query} route={route} error={error} />
-            </div>
-            <div className={styles.smallScreenRoutingResult}>
-                <RoutingResults
-                    paths={route.routingResult.paths}
-                    selectedPath={route.selectedPath}
-                    currentRequest={query.currentRequest}
-                />
-            </div>
-
-            <div className={styles.smallScreenPoweredBy}>
-                <PoweredBy />
-            </div>
+            {!location.turnNavigation ? (
+                <div className={styles.smallScreenPoweredBy}>
+                    <PoweredBy />
+                </div>
+            ) : null}
         </>
     )
 }

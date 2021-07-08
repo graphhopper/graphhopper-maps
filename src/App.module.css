@@ -45,6 +45,12 @@
     grid-row: 1 / span 1;
     z-index: 5;
     max-height: 7em;
+
+    margin: 0.5rem;
+    padding: 0.5rem;
+    background-color: white;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
 }
 
 .mapOptions {

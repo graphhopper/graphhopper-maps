@@ -51,7 +51,7 @@ export default class LocationStore extends Store<LocationStoreState> {
             [51.438668, 14.246092],
             [51.438226, 14.246972],
             [51.436795, 14.24592],
-            [51.435029, 14.243259],
+            [51.435029, 14.243259], // TODO NOW incorrect turn instruction "right" <- still shows previous!?
             [51.435203, 14.241006],
             [51.434788, 14.238882],
             [51.434146, 14.237745],
