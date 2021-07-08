@@ -29,6 +29,7 @@ import { ViewportStoreState } from '@/stores/ViewportStore'
 import createPathDetailsLayer from '@/layers/PathDetailsLayer'
 import createQueryPointsLayer from '@/layers/QueryPointsLayer'
 import createPathsLayer from '@/layers/PathsLayer'
+import createCurrentLocationLayer from '@/layers/CurrentLocationLayer'
 import { MapLayer } from '@/layers/MapLayer'
 import { LocationStoreState } from './stores/LocationStore'
 
@@ -77,7 +78,8 @@ export default function App() {
 
     const mapLayers: MapLayer[] = [
         createQueryPointsLayer(query.queryPoints),
-        createPathsLayer(route.selectedPath, route.routingResult.paths)
+        createPathsLayer(route.selectedPath, route.routingResult.paths),
+        createCurrentLocationLayer(location.coordinate)
     ]
     if (!isSmallScreen) mapLayers.push(createPathDetailsLayer(pathDetails))
 
