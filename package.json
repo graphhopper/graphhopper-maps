@@ -4,21 +4,22 @@
     "description": "react dummy",
     "main": "index.js",
     "scripts": {
+        "format": "prettier --write \"src/**/*.{css,ts,tsx,html}\" \"test/**/*.{js,ts,jsx,tsx}\" \"jest.config.js\" \"webpack.*.js\"",
         "serve": "webpack serve --config webpack.dev.js",
         "build": "webpack --config webpack.prod.js",
+        "build-debug": "webpack --config webpack.dev.js",
         "test": "jest"
     },
     "dependencies": {
-        "leaflet.heightgraph": "git+https://easbar@github.com/easbar/Leaflet.Heightgraph.git#82cff7b3013dd73d7221521c5b404ded6439e050",
-        "mapbox-gl": "^1.13.0",
         "nosleep.js": "^0.12.0",
+        "leaflet.heightgraph": "github:easbar/Leaflet.Heightgraph#82cff7b3013dd73d7221521c5b404ded6439e050",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
+        "react-map-gl": "^5.3.15",
         "react-responsive": "^8.2.0"
     },
     "devDependencies": {
         "@svgr/webpack": "^5.5.0",
-        "@types/mapbox-gl": "^1.13.0",
         "@types/react": "^17.0.1",
         "@types/react-dom": "^17.0.1",
         "awesome-typescript-loader": "^5.2.1",

@@ -1,27 +1,64 @@
 import { GeocodingHit } from '@/api/graphhopper'
 import styles from './GeocodingResult.module.css'
-import React from 'react'
+import React, { useState } from 'react'
 
 export default function GeocodingResult({
-                                            hits,
-                                            onSelectHit
-                                        }: {
+    hits,
+    highlightedHit,
+    onSelectHit,
+}: {
     hits: GeocodingHit[]
+    highlightedHit: GeocodingHit
     onSelectHit: (hit: GeocodingHit) => void
 }) {
     return (
-        <ul>
+        <ul className={styles.geocodingList}>
             {hits.map(hit => (
-                <GeocodingEntry key={hit.osm_id} entry={hit} onSelectHit={onSelectHit} />
+                <GeocodingEntry
+                    key={hit.osm_id}
+                    entry={hit}
+                    isHighlighted={hit === highlightedHit}
+                    onSelectHit={onSelectHit}
+                />
             ))}
         </ul>
     )
 }
 
-const GeocodingEntry = ({ entry, onSelectHit }: { entry: GeocodingHit; onSelectHit: (hit: GeocodingHit) => void }) => {
+const GeocodingEntry = ({
+    entry,
+    isHighlighted,
+    onSelectHit,
+}: {
+    entry: GeocodingHit
+    isHighlighted: boolean
+    onSelectHit: (hit: GeocodingHit) => void
+}) => {
+    const [isCancelled, setIsCancelled] = useState(false)
+    const className = isHighlighted
+        ? styles.selectableGeocodingEntry + ' ' + styles.highlightedGeocodingEntry
+        : styles.selectableGeocodingEntry
     return (
-        <li>
-            <button className={styles.selectableGeocodingEntry} onClick={() => onSelectHit(entry)}>
+        <li className={styles.geocodingListItem}>
+            <button
+                className={className}
+                // using click events for mouse interaction to select an entry.
+                onClick={() => onSelectHit(entry)}
+                // On touch devices when listening for the click or pointerup event the next or last address input would
+                // be immediately selected after the 'onSelectHit' method was called. This can be prevented by listening
+                // for the touchend event separately.
+                onTouchEnd={e => {
+                    e.preventDefault()
+                    if (!isCancelled) onSelectHit(entry)
+                }}
+                // listen for cancel events to prevent selections in case the result list is e.g. scrolled on touch devices
+                onPointerCancel={() => setIsCancelled(true)}
+                // prevent blur event for input textbox
+                onPointerDown={e => {
+                    setIsCancelled(false)
+                    e.preventDefault()
+                }}
+            >
                 <div className={styles.geocodingEntry}>
                     <span className={styles.geocodingEntryMain}>{convertToMainText(entry)}</span>
                     <span>{convertToSecondaryText(entry)}</span>

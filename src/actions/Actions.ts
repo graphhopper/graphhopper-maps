@@ -1,7 +1,9 @@
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
-import { ApiInfo, Path, RoutingArgs, RoutingResult, RoutingProfile } from '@/api/graphhopper'
+import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
+import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { ViewportStoreState } from '@/stores/ViewportStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -78,12 +80,19 @@ export class RouteRequestSuccess implements Action {
     }
 }
 
-export class RouteRequestFailed implements Action {
-    readonly errorMessage: string
+export class ErrorAction implements Action {
+    readonly message: string
+
+    constructor(message: string) {
+        this.message = message
+    }
+}
+
+export class RouteRequestFailed extends ErrorAction {
     readonly request: RoutingArgs
 
-    constructor(request: RoutingArgs, errorMessage: string) {
-        this.errorMessage = errorMessage
+    constructor(request: RoutingArgs, message: string) {
+        super(message)
         this.request = request
     }
 }
@@ -109,3 +118,45 @@ export class SelectMapStyle implements Action {
 }
 
 export class MapIsLoaded implements Action {}
+
+export class SetViewport implements Action {
+    readonly viewport: ViewportStoreState
+
+    constructor(viewport: ViewportStoreState) {
+        this.viewport = viewport
+    }
+}
+
+export class SetViewportToPoint implements Action {
+    readonly coordinate: Coordinate
+    readonly zoom: number
+
+    constructor(coordinate: Coordinate, zoom: number) {
+        this.coordinate = coordinate
+        this.zoom = zoom
+    }
+}
+
+export class PathDetailsHover implements Action {
+    readonly pathDetailsPoint: PathDetailsPoint | null
+
+    constructor(pathDetailsPoint: PathDetailsPoint | null) {
+        this.pathDetailsPoint = pathDetailsPoint
+    }
+}
+
+export class PathDetailsRangeSelected implements Action {
+    readonly bbox: Bbox | null
+
+    constructor(bbox: Bbox | null) {
+        this.bbox = bbox
+    }
+}
+
+export class PathDetailsElevationSelected implements Action {
+    readonly segments: Coordinate[][]
+
+    constructor(segments: Coordinate[][]) {
+        this.segments = segments
+    }
+}

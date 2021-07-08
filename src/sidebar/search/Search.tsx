@@ -13,10 +13,10 @@ import AddressInput from '@/sidebar/search/AddressInput'
 import { convertToQueryText } from '@/Converters'
 
 export default function Search({
-                                   points,
-                                   routingProfiles,
-                                   selectedProfile
-                               }: {
+    points,
+    routingProfiles,
+    selectedProfile,
+}: {
     points: QueryPoint[]
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
@@ -39,7 +39,6 @@ export default function Search({
                 className={styles.addSearchBox}
             >
                 <AddIcon />
-                <span>Add Point</span>
             </PlainButton>
             <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
         </div>
@@ -47,10 +46,10 @@ export default function Search({
 }
 
 const SearchBox = ({
-                       point,
-                       onChange,
-                       deletable
-                   }: {
+    point,
+    onChange,
+    deletable,
+}: {
     point: QueryPoint
     deletable: boolean
     onChange: (value: string) => void
@@ -69,7 +68,7 @@ const SearchBox = ({
                                 ...point,
                                 isInitialized: true,
                                 queryText: convertToQueryText(hit),
-                                coordinate: hit.point
+                                coordinate: hit.point,
                             })
                         )
                     }

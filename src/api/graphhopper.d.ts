@@ -1,5 +1,6 @@
 import { LineString } from 'geojson'
 
+// minLon, minLat, maxLon, maxLat
 export type Bbox = [number, number, number, number]
 
 export interface RoutingArgs {

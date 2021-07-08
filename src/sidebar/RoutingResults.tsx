@@ -9,6 +9,8 @@ import PlainButton from '@/PlainButton'
 import Arrow from '@/sidebar/chevron-down-solid.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
 import { useMediaQuery } from 'react-responsive'
+import { getLocationStore } from '@/stores/Stores'
+import startNavigation from '@/sidebar/start_turn_navigation.png'
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -41,6 +43,9 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
                         <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
+                    </div>
+                    <div>
+                        <img onClick={() => getLocationStore().initFake()} src={startNavigation} />
                     </div>
                     {isSelected && (
                         <PlainButton className={buttonClass} onClick={() => setExpanded(!isExpanded)}>

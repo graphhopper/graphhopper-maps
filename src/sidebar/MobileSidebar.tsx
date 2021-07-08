@@ -7,9 +7,6 @@ import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { useMediaQuery } from 'react-responsive'
-import { getLocationStore } from '@/stores/Stores'
-import startNavigation from '@/sidebar/start_turn_navigation.png'
-import startNavigationDisabled from '@/sidebar/start_turn_navigation_disabled.png'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -83,13 +80,6 @@ function SearchView(props: {
                 routingProfiles={props.routingProfiles}
                 selectedProfile={props.selectedProfile}
             />
-            <div>
-                {props.path.instructions.length > 0 ? (
-                    <img onClick={() => getLocationStore().initReal()} src={startNavigation} />
-                ) : (
-                    <img src={startNavigationDisabled} />
-                )}
-            </div>
         </div>
     )
 }

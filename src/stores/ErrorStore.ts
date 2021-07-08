@@ -1,6 +1,6 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { DismissLastError, RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
+import { DismissLastError, ErrorAction, RouteRequestSuccess } from '@/actions/Actions'
 
 export interface ErrorStoreState {
     lastError: string
@@ -11,20 +11,20 @@ export default class ErrorStore extends Store<ErrorStoreState> {
     protected getInitialState(): ErrorStoreState {
         return {
             isDismissed: true,
-            lastError: ''
+            lastError: '',
         }
     }
 
     reduce(state: ErrorStoreState, action: Action): ErrorStoreState {
-        if (action instanceof RouteRequestFailed) {
+        if (action instanceof ErrorAction) {
             return {
-                lastError: action.errorMessage,
-                isDismissed: false
+                lastError: action.message,
+                isDismissed: false,
             }
         } else if (action instanceof DismissLastError || action instanceof RouteRequestSuccess) {
             return {
                 ...state,
-                isDismissed: true
+                isDismissed: true,
             }
         }
         return state

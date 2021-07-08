@@ -1,72 +1,32 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import { coordinateToText } from '@/Converters'
 import styles from './Popup.module.css'
-import mapboxgl from 'mapbox-gl'
-import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, SetPoint } from '@/actions/Actions'
-import { getQueryStore } from '@/stores/Stores'
+import { AddPoint, SetPoint, SetViewportToPoint } from '@/actions/Actions'
 
-/**
- * Class to bridge the gap between mapboxgl and reactjs. The popup is rendered by the map which lives outside of the react
- * context. This class holds a container html element which is managed by the mapbox map. Inside the container a new dom
- * tree is rendered by reactjs
- */
-export class Popup {
-    private readonly map: mapboxgl.Map
-    private readonly popup = new mapboxgl.Popup({
-        closeOnMove: true,
-        closeOnClick: true,
-        closeButton: false
-    })
-    private readonly queryStore = getQueryStore()
-    private readonly container = document.createElement('div')
-
-    constructor(map: mapboxgl.Map) {
-        this.map = map
-    }
-
-    show(coordinate: mapboxgl.LngLat) {
-        ReactDOM.render(
-            <PopupComponent
-                coordinate={coordinate}
-                queryPoints={this.queryStore.state.queryPoints}
-                onSelect={() => this.hide()}
-            />,
-            this.container
-        )
-
-        this.popup.setLngLat(coordinate).setDOMContent(this.container).addTo(this.map)
-    }
-
-    hide() {
-        this.popup.remove()
-    }
-}
-
-function PopupComponent({
-                            coordinate,
-                            queryPoints,
-                            onSelect
-                        }: {
-    coordinate: mapboxgl.LngLat
+export function PopupComponent({
+    coordinate,
+    queryPoints,
+    onSelect,
+}: {
+    coordinate: Coordinate
     queryPoints: QueryPoint[]
     onSelect: () => void
 }) {
-    const dispatchSetPoint = function(point: QueryPoint, coordinate: mapboxgl.LngLat) {
+    const dispatchSetPoint = function (point: QueryPoint, coordinate: Coordinate) {
         onSelect()
         Dispatcher.dispatch(
             new SetPoint({
                 ...point,
                 coordinate: coordinate,
                 queryText: coordinateToText(coordinate),
-                isInitialized: true
+                isInitialized: true,
             })
         )
     }
 
-    const setViaPoint = function(points: QueryPoint[]) {
+    const setViaPoint = function (points: QueryPoint[]) {
         const viaPoints = points.filter(point => point.type === QueryPointType.Via)
         const point = viaPoints.find(point => !point.isInitialized)
         onSelect()
@@ -78,7 +38,7 @@ function PopupComponent({
         }
     }
 
-    const disableViaPoint = function(points: QueryPoint[]) {
+    const disableViaPoint = function (points: QueryPoint[]) {
         return (
             points.length >= 5 &&
             points.filter(point => point.type === QueryPointType.Via).every(point => point.isInitialized)
@@ -103,7 +63,13 @@ function PopupComponent({
             >
                 To here
             </button>
-            <button className={styles.entry} disabled={true}>
+            <button
+                className={styles.entry}
+                onClick={() => {
+                    onSelect()
+                    Dispatcher.dispatch(new SetViewportToPoint(coordinate, 8))
+                }}
+            >
                 Center map
             </button>
         </div>
