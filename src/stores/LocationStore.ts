@@ -1,6 +1,6 @@
 import { Coordinate } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
-import { LocationUpdate } from '@/actions/Actions'
+import { LocationUpdate, SetViewportToPoint } from '@/actions/Actions'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
@@ -25,7 +25,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     protected getInitialState(): LocationStoreState {
         return {
             turnNavigation: false,
-            coordinate: { lat: 0, lng: 0 }
+            coordinate: { lat: 0, lng: 0 },
         }
     }
 
@@ -33,7 +33,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         if (action instanceof LocationUpdate) {
             return {
                 turnNavigation: action.turnNavigation,
-                coordinate: action.coordinate
+                coordinate: action.coordinate,
             }
         }
         return state
@@ -51,24 +51,29 @@ export default class LocationStore extends Store<LocationStoreState> {
             [51.438668, 14.246092],
             [51.438226, 14.246972],
             [51.436795, 14.24592],
-            [51.435029, 14.243259], // TODO NOW incorrect turn instruction "right" <- still shows previous!?
+            [51.435029, 14.243259],
             [51.435203, 14.241006],
             [51.434788, 14.238882],
             [51.434146, 14.237745],
             [51.433959, 14.235985],
-            [51.43322, 14.234999]
+            [51.43322, 14.234999],
         ]
-        var currentIndex: number = 0
-
-        Dispatcher.dispatch(new LocationUpdate({ lat: latlon[currentIndex][0], lng: latlon[currentIndex][1] }, true))
+        let currentIndex: number = 0
+        this.locationUpdate({ coords: { latitude: latlon[currentIndex][0], longitude: latlon[currentIndex][1] } })
 
         this.interval = setInterval(() => {
             currentIndex++
             currentIndex %= latlon.length
-            Dispatcher.dispatch(
-                new LocationUpdate({ lat: latlon[currentIndex][0], lng: latlon[currentIndex][1] }, true)
-            )
+            console.log(currentIndex)
+            this.locationUpdate({ coords: { latitude: latlon[currentIndex][0], longitude: latlon[currentIndex][1] } })
         }, 3000)
+    }
+
+    private locationUpdate(pos: any) {
+        console.log('location success handler')
+        let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        Dispatcher.dispatch(new LocationUpdate(c, true))
+        Dispatcher.dispatch(new SetViewportToPoint(c, 16))
     }
 
     public initReal() {
@@ -80,13 +85,9 @@ export default class LocationStore extends Store<LocationStoreState> {
             // force calling clearWatch can help to find GPS fix more reliable in android firefox
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
-            var success = (pos: any) => {
-                console.log('location success handler start')
-                Dispatcher.dispatch(new LocationUpdate({ lat: pos.coords.latitude, lng: pos.coords.longitude }, true))
-            }
-            var options = { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 }
+            let options = { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 }
             this.watchId = navigator.geolocation.watchPosition(
-                success,
+                this.locationUpdate,
                 function (err) {
                     console.log('location watch error', err)
                 },
