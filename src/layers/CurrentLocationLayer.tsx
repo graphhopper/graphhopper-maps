@@ -9,16 +9,15 @@ import { MapLayer } from '@/layers/MapLayer'
 const currentLocationLayerKey = 'currentLocationLayer'
 
 export default function (coordinate: Coordinate): MapLayer {
-    // console.log("NOW change location on map ", coordinate)
     const featureCollection: FeatureCollection = {
         type: 'FeatureCollection',
         features: [
             {
                 type: 'Feature',
                 properties: {},
-                geometry: { type: 'Point', coordinates: [coordinate.lng, coordinate.lat] }
-            }
-        ]
+                geometry: { type: 'Point', coordinates: [coordinate.lng, coordinate.lat] },
+            },
+        ],
     }
 
     return {
@@ -37,10 +36,10 @@ export default function (coordinate: Coordinate): MapLayer {
                         'circle-color': '#385af5',
                         'circle-radius': 8,
                         'circle-stroke-color': 'white',
-                        'circle-stroke-width': 4
+                        'circle-stroke-width': 4,
                     }}
                 />
             </Source>
-        )
+        ),
     }
 }

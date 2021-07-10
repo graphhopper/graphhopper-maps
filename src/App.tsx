@@ -9,7 +9,7 @@ import {
     getQueryStore,
     getRouteStore,
     getViewportStore,
-    getLocationStore
+    getLocationStore,
 } from '@/stores/Stores'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
 import MapComponent from '@/map/Map'
@@ -79,8 +79,9 @@ export default function App() {
     const mapLayers: MapLayer[] = [
         createQueryPointsLayer(query.queryPoints),
         createPathsLayer(route.selectedPath, route.routingResult.paths),
-        createCurrentLocationLayer(location.coordinate)
     ]
+    if (location.coordinate.lat != 0 && location.coordinate.lng != 0)
+        mapLayers.push(createCurrentLocationLayer(location.coordinate))
     if (!isSmallScreen) mapLayers.push(createPathDetailsLayer(pathDetails))
 
     return (
