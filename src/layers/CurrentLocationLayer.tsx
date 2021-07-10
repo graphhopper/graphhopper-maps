@@ -21,12 +21,8 @@ export default function (coordinate: Coordinate): MapLayer {
     }
 
     return {
-        interactiveLayerIds: coordinate.lat === 0 && coordinate.lng == 0 ? [] : [currentLocationLayerKey],
-        onClick: (feature: any) => {
-            // select an alternative path if clicked
-            if (feature.layer.id === currentLocationLayerKey) {
-            }
-        },
+        interactiveLayerIds: [currentLocationLayerKey],
+        onClick: (feature: any) => {},
         layer: (
             <Source type={'geojson'} data={featureCollection}>
                 <Layer

@@ -14,7 +14,7 @@ export interface LocationStoreState {
 export default class LocationStore extends Store<LocationStoreState> {
     private watchId: any = undefined
     private interval: any
-    private noSleep = new NoSleep()
+    private noSleep: any
     private speechSynthesizer: SpeechSynthesizer
 
     constructor(speechSynthesizer: SpeechSynthesizer) {
@@ -77,6 +77,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     public initReal() {
+        if (!this.noSleep) this.noSleep = new NoSleep()
         this.noSleep.enable()
         if (!navigator.geolocation) {
             console.log('location not supported. In firefox I had to set geo.enabled=true in about:config')
@@ -105,7 +106,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         // directly writing the state does not work: this.state.turnNavigation = false
         Dispatcher.dispatch(new LocationUpdate({ lat: 0, lng: 0 }, false))
 
-        this.noSleep.disable()
+        if (this.noSleep) this.noSleep.disable()
 
         console.log('stopped location updates ' + this.watchId + ', ' + this.interval)
     }
