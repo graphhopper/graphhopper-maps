@@ -17,10 +17,10 @@ if (!apikeys.graphhopper) {
 
     console.log('Missing apikeys.js file or missing graphhopper key inside this file. Get it from https://graphhopper.com/dashboard')
     console.log('Then create the file with:')
-    console.log('module.exports = ' + JSON.stringify(emptyApiKeys))
+    console.log('module.exports=' + JSON.stringify(emptyApiKeys))
     process.exit(-1)
 } else {
-    console.log('module.exports = ' + JSON.stringify(apikeys))
+    // console.log('module.exports=' + JSON.stringify(apikeys))
 }
 
 module.exports = {
