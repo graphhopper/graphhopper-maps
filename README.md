@@ -1,13 +1,23 @@
 # GraphHopper Maps
 
-This is a responsive UI for the [GraphHopper routing engine](https://github.com/graphhopper/graphhopper) rewritten from scratch. Soon it will replace the [jquery-based maps UI](https://github.com/graphhopper/graphhopper#graphhopper-maps).
+This is the UI for the [GraphHopper routing engine](https://github.com/graphhopper/graphhopper).
+It was rewritten from scratch and will replace the [jquery-based maps UI](https://github.com/graphhopper/graphhopper#graphhopper-maps).
 
 Try it at [graphhopper.com/maps2](https://graphhopper.com/maps2/).
 
 Get started:
 
- * use your GraphHopper API key at src/api/Api.ts
-   or point it to your local GraphHopper server (change apiAddress in this file)
+ * create an apikeys.js file with the content:
+```
+module.exports = {
+       "graphhopper": "missing_api_key",
+       "maptiler": "missing_api_key",
+       "omniscale": "missing_api_key",
+       "thunderforest": "missing_api_key",
+       "kurviger": "missing_api_key",
+}
+```
+   replace at least your GraphHopper and MapTiler API key or point it to your local GraphHopper and OpenMapTiles servers (change apiAddress in src/api/Api.ts)
  * npm install
  * npm run serve
  * open browser at http://0.0.0.0:3000/
