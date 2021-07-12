@@ -38,7 +38,7 @@ export function getCurrentInstruction(
     return { instructionIndex, distanceNext }
 }
 
-function distCalc(fromLat: number, fromLng: number, toLat: number, toLng: number): number {
+export function distCalc(fromLat: number, fromLng: number, toLat: number, toLng: number): number {
     const sinDeltaLat: number = Math.sin(toRadians(toLat - fromLat) / 2)
     const sinDeltaLon: number = Math.sin(toRadians(toLng - fromLng) / 2)
     const normedDist: number =

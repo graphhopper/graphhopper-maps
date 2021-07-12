@@ -1,4 +1,5 @@
 import Store from '@/stores/Store'
+import { distCalc } from '@/turnNavigation/GeoMethods'
 import { Action } from '@/stores/Dispatcher'
 import {
     InfoReceived,
@@ -56,12 +57,18 @@ export default class ViewportStore extends Store<ViewportStoreState> {
         if (action instanceof SetViewport) {
             return action.viewport
         } else if (action instanceof SetViewportToPoint) {
-            return {
-                ...state,
-                longitude: action.coordinate.lng,
-                latitude: action.coordinate.lat,
-                zoom: action.zoom,
-            }
+            let newCoord = action.coordinate
+            if (
+                action.zoom != state.zoom ||
+                // avoid jitter a bit if location is permanently updated
+                distCalc(newCoord.lat, newCoord.lng, state.latitude, state.longitude) > 5
+            )
+                return {
+                    ...state,
+                    longitude: newCoord.lng,
+                    latitude: newCoord.lat,
+                    zoom: action.zoom,
+                }
         } else if (action instanceof InfoReceived) {
             return calculateLatLngFromBbox(state, action.result.bbox, isSmallScreen)
         } else if (action instanceof RouteRequestSuccess) {
