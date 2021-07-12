@@ -9,7 +9,7 @@ global:
     - travis encrypt AWS_SECRET_ACCESS_KEY=$S3_KEY --add
 
 script:
-    - export GraphHopperApiKey='fb45b8b2-fdda-4093-ac1a-8b57b4e50add'; export MapTilerApiKey='not required for testing'
+    - echo "$APIKEYSJS_CONTENT" > apikeys.js
     - npm run build-debug && npm run test
 
 # install awscli command line tool to sync files to s3

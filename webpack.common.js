@@ -1,6 +1,27 @@
 const path = require('path')
+const webpack = require('webpack')
+
 const HTMLWebpackPlugin = require('html-webpack-plugin')
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
+
+const apikeys = require('./apikeys.js')
+
+if (!apikeys.graphhopper) {
+    const emptyApiKeys = {
+       "graphhopper": "missing api key",
+       "maptiler": "missing api key",
+       "omniscale": "missing api key",
+       "thunderforest": "missing api key",
+       "kurviger": "missing api key",
+    }
+
+    console.log('Missing apikeys.js file or missing graphhopper key inside this file. Get it from https://graphhopper.com/dashboard')
+    console.log('Then create the file with:')
+    console.log('module.exports = ' + JSON.stringify(emptyApiKeys))
+    process.exit(-1)
+} else {
+  //  console.log('module.exports = ' + JSON.stringify(apikeys))
+}
 
 module.exports = {
     entry: path.resolve(__dirname, 'src', 'index.tsx'),
@@ -66,6 +87,13 @@ module.exports = {
     plugins: [
         new HTMLWebpackPlugin({ template: path.resolve(__dirname, 'src/index.html') }),
         new FaviconsWebpackPlugin(path.resolve(__dirname, 'src/favicon.png')),
+        new webpack.EnvironmentPlugin({
+            GraphHopperApiKey: apikeys.graphhopper, // use no default to throw exception if missing
+            MapTilerApiKey: apikeys.maptiler, // use no default to throw exception if missing
+            OmniscaleApiKey: apikeys.omniscale,
+            ThunderforestApiKey: apikeys.thunderforest,
+            KurvigerApiKey: apikeys.kurviger,
+        })
     ],
 
     // When importing a module whose path matches one of the following, just
