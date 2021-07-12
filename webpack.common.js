@@ -8,11 +8,11 @@ const apikeys = require('./apikeys.js')
 
 if (!apikeys.graphhopper) {
     const emptyApiKeys = {
-       "graphhopper": "missing api key",
-       "maptiler": "missing api key",
-       "omniscale": "missing api key",
-       "thunderforest": "missing api key",
-       "kurviger": "missing api key",
+       "graphhopper": "missing_api_key",
+       "maptiler": "missing_api_key",
+       "omniscale": "missing_api_key",
+       "thunderforest": "missing_api_key",
+       "kurviger": "missing_api_key",
     }
 
     console.log('Missing apikeys.js file or missing graphhopper key inside this file. Get it from https://graphhopper.com/dashboard')
