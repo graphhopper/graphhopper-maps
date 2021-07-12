@@ -8,7 +8,7 @@ Try it at [graphhopper.com/maps2](https://graphhopper.com/maps2/).
 Get started:
 
  * create an apikeys.js file with the content:
-```json
+```js
 module.exports = {
   "graphhopper": "missing_api_key",
   "maptiler": "missing_api_key",
