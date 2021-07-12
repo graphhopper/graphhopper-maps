@@ -8,16 +8,17 @@ Try it at [graphhopper.com/maps2](https://graphhopper.com/maps2/).
 Get started:
 
  * create an apikeys.js file with the content:
-```
+```json
 module.exports = {
-       "graphhopper": "missing_api_key",
-       "maptiler": "missing_api_key",
-       "omniscale": "missing_api_key",
-       "thunderforest": "missing_api_key",
-       "kurviger": "missing_api_key",
+  "graphhopper": "missing_api_key",
+  "maptiler": "missing_api_key",
+  "omniscale": "missing_api_key",
+  "thunderforest": "missing_api_key",
+  "kurviger": "missing_api_key"
 }
 ```
-   replace at least your GraphHopper and MapTiler API key or point it to your local GraphHopper and OpenMapTiles servers (change apiAddress in src/api/Api.ts)
+   replace at least your GraphHopper and MapTiler API key. Instead of API keys you can
+also host the GraphHopper and OpenMapTiles servers on your own servers - see src/api/Api.ts
  * npm install
  * npm run serve
  * open browser at http://0.0.0.0:3000/
