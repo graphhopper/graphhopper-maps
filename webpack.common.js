@@ -20,7 +20,7 @@ if (!apikeys.graphhopper) {
     console.log('module.exports = ' + JSON.stringify(emptyApiKeys))
     process.exit(-1)
 } else {
-  //  console.log('module.exports = ' + JSON.stringify(apikeys))
+    console.log('module.exports = ' + JSON.stringify(apikeys))
 }
 
 module.exports = {
