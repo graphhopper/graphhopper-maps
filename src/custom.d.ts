@@ -5,6 +5,7 @@ declare module 'leaflet.heightgraph/src/heightgraph'
 
 declare module 'config' {
     const api : string
+    const defaultTiles: string
     const keys = {
         graphhopper: string,
         omniscale: string,
