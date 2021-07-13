@@ -3,10 +3,12 @@ import trJson from './tr.json'
 export class Translation {
     data: { [index: string]: string }
     fallback: { [index: string]: string }
+    lang: string
 
-    constructor(data: { [index: string]: string }, fallback: { [index: string]: string }) {
+    constructor(lang: string, data: { [index: string]: string }, fallback: { [index: string]: string }) {
         if (!data) throw Error('Translation is undefined')
         if (!fallback) throw Error('Translation fallback is undefined')
+        this.lang = lang
         this.data = data
         this.fallback = fallback
     }
@@ -22,6 +24,10 @@ export class Translation {
                 str = str.replace('%' + (i + 1) + '$s', parameters[i])
             }
         return str || ''
+    }
+
+    getLang() {
+        return this.lang
     }
 }
 
@@ -40,7 +46,7 @@ export function setTranslation(lang: string, overwrite = false): Translation {
             console.warn('cannot find language ' + lang + ' fallback to ' + selectedLang)
         }
     }
-    return (translation = new Translation(json[selectedLang], json['en_US']))
+    return (translation = new Translation(selectedLang, json[selectedLang], json['en_US']))
 }
 
 export function getTranslation(): Translation {

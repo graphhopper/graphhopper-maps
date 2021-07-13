@@ -14,7 +14,7 @@ import {
     RoutingResult,
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
-import { tr } from '@/translation/Translation'
+import { getTranslation, tr } from '@/translation/Translation'
 import config from 'config'
 
 interface ApiProfile {
@@ -139,7 +139,7 @@ export class ApiImpl implements Api {
             elevation: true,
             debug: false,
             instructions: true,
-            locale: 'en',
+            locale: getTranslation().getLang(),
             optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
