@@ -3,4 +3,4 @@
 *.iml
 /dist/
 *~
-apikeys*.js
+config-local.js

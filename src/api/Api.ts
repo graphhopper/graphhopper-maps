@@ -15,6 +15,7 @@ import {
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
 import { tr } from '@/translation/Translation'
+import config from 'config'
 
 interface ApiProfile {
     name: string
@@ -32,15 +33,16 @@ export default interface Api {
     geocode(query: string): Promise<GeocodingResult>
 }
 
-export const ghKey = process.env.GraphHopperApiKey ? process.env.GraphHopperApiKey.toString() : 'missing_api_key'
+export const ghKey = config.keys.graphhopper
+export const ghApi = config.api
 
 export class ApiImpl implements Api {
     private readonly apiKey: string
     private readonly apiAddress: string
 
-    constructor(apiKey = ghKey, apiAddress = 'https://graphhopper.com/api/1/') {
-        this.apiKey = apiKey
-        this.apiAddress = apiAddress
+    constructor() {
+        this.apiKey = ghKey
+        this.apiAddress = ghApi
     }
 
     async info(): Promise<ApiInfo> {

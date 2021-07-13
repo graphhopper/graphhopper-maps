@@ -9,7 +9,7 @@ global:
     - travis encrypt AWS_SECRET_ACCESS_KEY=$S3_KEY --add
 
 script:
-    - echo "$APIKEYS_CONTENT" > apikeys.js
+    - echo "$APIKEYS_CONTENT" > config-local.js
     - npm run build-debug && npm run test
 
 # install awscli command line tool to sync files to s3

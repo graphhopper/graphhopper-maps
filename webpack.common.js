@@ -1,26 +1,18 @@
 const path = require('path')
-const webpack = require('webpack')
+const fs = require('fs')
 
 const HTMLWebpackPlugin = require('html-webpack-plugin')
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
 
-const apikeys = require('./apikeys.js')
-
-if (!apikeys.graphhopper) {
-    const emptyApiKeys = {
-       "graphhopper": "missing_api_key",
-       "maptiler": "missing_api_key",
-       "omniscale": "missing_api_key",
-       "thunderforest": "missing_api_key",
-       "kurviger": "missing_api_key",
-    }
-
-    console.log('Missing apikeys.js file or missing graphhopper key inside this file. Get it from https://graphhopper.com/dashboard')
-    console.log('Then create the file with:')
-    console.log('module.exports=' + JSON.stringify(emptyApiKeys))
-    process.exit(-1)
+const localConfig = path.resolve(__dirname, 'config-local.js')
+const defaultConfig = path.resolve(__dirname, 'config.js')
+let config
+if (fs.existsSync(localConfig)) {
+    config = localConfig
+} else if (fs.existsSync(defaultConfig)) {
+    config = defaultConfig
 } else {
-    // console.log('module.exports=' + JSON.stringify(apikeys))
+    throw `The config file is missing: ${defaultConfig}`
 }
 
 module.exports = {
@@ -30,7 +22,10 @@ module.exports = {
         filename: 'bundle.js',
     },
     resolve: {
-        alias: { '@': path.resolve(__dirname, 'src') },
+        alias: {
+            '@': path.resolve(__dirname, 'src'),
+            config$: config
+        },
         extensions: ['.ts', '.tsx', '.js', '.json', '.css', '.svg'],
     },
     module: {
@@ -87,13 +82,6 @@ module.exports = {
     plugins: [
         new HTMLWebpackPlugin({ template: path.resolve(__dirname, 'src/index.html') }),
         new FaviconsWebpackPlugin(path.resolve(__dirname, 'src/favicon.png')),
-        new webpack.EnvironmentPlugin({
-            GraphHopperApiKey: apikeys.graphhopper, // use no default to throw exception if missing
-            MapTilerApiKey: apikeys.maptiler, // use no default to throw exception if missing
-            OmniscaleApiKey: apikeys.omniscale,
-            ThunderforestApiKey: apikeys.thunderforest,
-            KurvigerApiKey: apikeys.kurviger,
-        })
     ],
 
     // When importing a module whose path matches one of the following, just

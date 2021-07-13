@@ -1,11 +1,12 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { MapIsLoaded, SelectMapStyle } from '@/actions/Actions'
+import config from 'config'
 
-const osApiKey = process.env.OmniscaleApiKey
-const mapTilerKey = process.env.MapTilerApiKey
-const thunderforestApiKey = process.env.ThunderforestApiKey
-const kurvigerApiKey = process.env.KurvigerApiKey
+const osApiKey = config.keys.omniscale
+const mapTilerKey = config.keys.maptiler
+const thunderforestApiKey = config.keys.thunderforest
+const kurvigerApiKey = config.keys.kurviger
 
 const osmAttribution =
     '&copy; <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
