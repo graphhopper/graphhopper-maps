@@ -1,6 +1,19 @@
 const path = require('path')
+const fs = require('fs')
+
 const HTMLWebpackPlugin = require('html-webpack-plugin')
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
+
+const localConfig = path.resolve(__dirname, 'config-local.js')
+const defaultConfig = path.resolve(__dirname, 'config.js')
+let config
+if (fs.existsSync(localConfig)) {
+    config = localConfig
+} else if (fs.existsSync(defaultConfig)) {
+    config = defaultConfig
+} else {
+    throw `The config file is missing: ${defaultConfig}`
+}
 
 module.exports = {
     entry: path.resolve(__dirname, 'src', 'index.tsx'),
@@ -9,7 +22,10 @@ module.exports = {
         filename: 'bundle.js',
     },
     resolve: {
-        alias: { '@': path.resolve(__dirname, 'src') },
+        alias: {
+            '@': path.resolve(__dirname, 'src'),
+            config$: config
+        },
         extensions: ['.ts', '.tsx', '.js', '.json', '.css', '.svg'],
     },
     module: {

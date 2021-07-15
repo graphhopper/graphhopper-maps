@@ -3,3 +3,4 @@
 *.iml
 /dist/
 *~
+config-local.js
