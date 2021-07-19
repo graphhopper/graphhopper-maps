@@ -57,7 +57,7 @@ api.infoWithDispatch() // get infos about the api as soon as possible
 // hook up the navbar to the query store and vice versa
 const navBar = new NavBar(getQueryStore(), window)
 // parse the initial url
-navBar.parseUrl()
+navBar.parseUrlAndReplaceQuery()
 
 // create a div which holds the app and render the 'App' component
 const root = document.createElement('div') as HTMLDivElement
