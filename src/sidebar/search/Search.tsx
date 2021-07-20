@@ -1,7 +1,7 @@
 import React from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RoutingProfiles from '@/sidebar/search/RoutingProfiles'
 import RemoveIcon from '../times-solid.svg'
@@ -16,11 +16,14 @@ export default function Search({
     points,
     routingProfiles,
     selectedProfile,
+    autofocus,
 }: {
     points: QueryPoint[]
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
+    autofocus: boolean
 }) {
+    points.every(point => point.isInitialized)
     return (
         <div className={styles.searchBox}>
             {points.map(point => (
@@ -32,6 +35,7 @@ export default function Search({
                         Dispatcher.dispatch(new ClearRoute())
                         Dispatcher.dispatch(new InvalidatePoint(point))
                     }}
+                    autofocus={point.type === QueryPointType.From && autofocus}
                 />
             ))}
             <PlainButton
@@ -49,10 +53,12 @@ const SearchBox = ({
     point,
     onChange,
     deletable,
+    autofocus,
 }: {
     point: QueryPoint
     deletable: boolean
     onChange: (value: string) => void
+    autofocus: boolean
 }) => {
     return (
         <>
@@ -60,7 +66,7 @@ const SearchBox = ({
             <div className={styles.searchBoxInput}>
                 <AddressInput
                     point={point}
-                    autofocus={false}
+                    autofocus={autofocus}
                     onCancel={() => console.log('cancel')}
                     onAddressSelected={hit =>
                         Dispatcher.dispatch(
