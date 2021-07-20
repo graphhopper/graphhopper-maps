@@ -14,6 +14,7 @@ const osmAttribution =
 export interface MapOptionsStoreState {
     mapStyles: MapboxStyle[]
     selectedMapStyle: MapboxStyle
+    firstSymbolLayerId?: string
     isMapLoaded: boolean
 }
 
@@ -21,8 +22,8 @@ export interface MapboxStyle {
     name: string
     style: {
         version: number
-        sources: object
-        layers: object[]
+        sources: any
+        layers: any[]
     }
 }
 
@@ -259,11 +260,13 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                 ...state,
                 mapStyles: mapStyles,
                 selectedMapStyle: selectedMapStyle ? selectedMapStyle : mapStyles[0],
+                firstSymbolLayerId: selectedMapStyle ? getFirstSymbolLayer(selectedMapStyle) : undefined,
             }
         } else if (action instanceof SelectMapStyle) {
             return {
                 ...state,
                 selectedMapStyle: action.mapStyle,
+                firstSymbolLayerId: getFirstSymbolLayer(action.mapStyle),
             }
         } else if (action instanceof MapIsLoaded) {
             return {
@@ -273,4 +276,8 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
         }
         return state
     }
+}
+
+function getFirstSymbolLayer(mapStyle: MapboxStyle) {
+    return mapStyle.style.layers.find(l => l.type === 'symbol')?.id
 }

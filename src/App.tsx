@@ -70,7 +70,7 @@ export default function App() {
 
     const mapLayers: MapLayer[] = [
         createQueryPointsLayer(query.queryPoints),
-        createPathsLayer(route.selectedPath, route.routingResult.paths),
+        createPathsLayer(route.selectedPath, route.routingResult.paths, mapOptions.firstSymbolLayerId),
     ]
     if (!isSmallScreen) mapLayers.push(createPathDetailsLayer(pathDetails))
 
