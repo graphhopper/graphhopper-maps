@@ -24,9 +24,11 @@ export default function ({ viewport, mapStyle, queryPoints, mapLayers }: MapProp
     mapLayers.forEach(l => {
         if (l.interactiveLayerIds) interactiveLayerIds = interactiveLayerIds.concat(l.interactiveLayerIds)
     })
+
     return (
         <ReactMapGL
             mapStyle={getStyle(mapStyle)}
+            mapboxApiAccessToken="pk.eyJ1IjoicGV0ZXJrYSIsImEiOiJjanRlbGFnYjcwNjFpNDNudTdiYmR3MTZnIn0.YnqaJlbm9p96sxE1fGRZFg"
             {...viewport}
             width="100%"
             height="100%"

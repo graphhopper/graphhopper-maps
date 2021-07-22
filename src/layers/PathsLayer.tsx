@@ -59,7 +59,8 @@ function createSelectedPath(path: Path) {
                 }}
                 paint={{
                     'line-color': '#275DAD',
-                    'line-width': 8,
+                    'line-width': 7,
+                    'line-opacity': 0.8,
                 }}
             />
         </Source>
@@ -90,8 +91,8 @@ function createUnselectedPaths(indexPaths: { path: Path; index: number }[]) {
                 }}
                 paint={{
                     'line-color': '#5B616A',
-                    'line-width': 6,
-                    'line-opacity': 0.8,
+                    'line-width': 5,
+                    'line-opacity': 0.6,
                 }}
             />
         </Source>

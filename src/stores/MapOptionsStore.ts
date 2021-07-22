@@ -47,6 +47,14 @@ const mapTilerSatellite: VectorStyle = {
     url: 'https://api.maptiler.com/maps/hybrid/style.json?key=' + mapTilerKey,
     attribution: osmAttribution + ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
 }
+
+const mapbox: VectorStyle = {
+    name: 'Mapbox',
+    type: 'vector',
+    url:
+        'https://api.mapbox.com/styles/v1/mapbox/streets-v11?access_token=pk.eyJ1IjoicGV0ZXJrYSIsImEiOiJjanRlbGFnYjcwNjFpNDNudTdiYmR3MTZnIn0.YnqaJlbm9p96sxE1fGRZFg',
+    attribution: osmAttribution + ', &copy; <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>',
+}
 const osmOrg: RasterStyle = {
     name: 'OpenStreetMap',
     type: 'raster',
@@ -178,6 +186,7 @@ const sorbian: RasterStyle = {
 const styleOptions: StyleOption[] = [
     mapTiler,
     mapTilerSatellite,
+    mapbox,
     osmOrg,
     omniscale,
     esriSatellite,
