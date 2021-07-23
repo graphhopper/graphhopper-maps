@@ -251,16 +251,18 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
     reduce(state: MapOptionsStoreState, action: Action): MapOptionsStoreState {
         if (action instanceof MapStylesReceived) {
             const mapStyles = action.mapStyles
-            const selectedMapStyle = mapStyles.find(s => s.name === config.defaultTiles)
-            if (!selectedMapStyle)
+            let selectedMapStyle = mapStyles.find(s => s.name === config.defaultTiles)
+            if (!selectedMapStyle) {
                 console.warn(
                     `Could not find tile layer specified in config: '${config.defaultTiles}', using default instead`
                 )
+                selectedMapStyle = mapStyles[0]
+            }
             return {
                 ...state,
                 mapStyles: mapStyles,
-                selectedMapStyle: selectedMapStyle ? selectedMapStyle : mapStyles[0],
-                firstSymbolLayerId: selectedMapStyle ? getFirstSymbolLayer(selectedMapStyle) : undefined,
+                selectedMapStyle: selectedMapStyle,
+                firstSymbolLayerId: getFirstSymbolLayer(selectedMapStyle),
             }
         } else if (action instanceof SelectMapStyle) {
             return {
