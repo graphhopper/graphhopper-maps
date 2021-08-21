@@ -138,9 +138,12 @@ function selectHit(props: AddressInputProps, hit: GeocodingHit) {
                 })
             },
             () => {
-                Dispatcher.dispatch(new ErrorAction('Cannot get current location'))
+                props.onAddressSelected({
+                    ...hit,
+                    name: tr('searching_location_failed'),
+                })
             },
-            { timeout: 15_000, maximumAge: 2_000 }
+            { timeout: 60_000, maximumAge: 2_000 }
         )
     } else {
         props.onAddressSelected(hit)
