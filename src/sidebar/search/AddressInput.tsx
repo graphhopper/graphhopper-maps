@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { GeocodingHit } from '@/api/graphhopper'
+import { ErrorAction } from '@/actions/Actions'
 import GeocodingResult from '@/sidebar/search/GeocodingResult'
+import Dispatcher from '@/stores/Dispatcher'
 
 import styles from './AddressInput.module.css'
 import { ApiImpl } from '@/api/Api'
@@ -62,6 +64,12 @@ export default function AddressInput(props: AddressInputProps) {
     const [hasFocus, setHasFocus] = useState(false)
     const containerClass = hasFocus ? styles.container + ' ' + styles.fullscreen : styles.container
     const type = props.point.type
+    if (hasFocus && text.length == 0 && geocodingResults.length == 0)
+        geocodingResults.push({
+            osm_id: 'current_location', // required for react (for the "key" attribute of the list)
+            name: tr('current_location'),
+            osm_type: 'current_location', // required to internally identify the special geocoding result
+        } as GeocodingHit)
 
     return (
         <div className={containerClass}>
@@ -99,9 +107,25 @@ export default function AddressInput(props: AddressInputProps) {
                         hits={geocodingResults}
                         highlightedHit={geocodingResults[highlightedResult]}
                         onSelectHit={hit => {
-                            // it seems like the order of the following two statments is important...
+                            // it seems like the order of the blur and onAddressSelected statement is important...
                             searchInput.current!.blur()
-                            props.onAddressSelected(hit)
+                            if (hit.osm_type === 'current_location') {
+                                if (!navigator.geolocation) throw new Error('Cannot get current location')
+                                navigator.geolocation.getCurrentPosition(
+                                    position => {
+                                        props.onAddressSelected({
+                                            ...hit,
+                                            point: { lat: position.coords.latitude, lng: position.coords.longitude },
+                                        })
+                                    },
+                                    () => {
+                                        Dispatcher.dispatch(new ErrorAction('Cannot get current location'))
+                                    },
+                                    { timeout: 15000 }
+                                )
+                            } else {
+                                props.onAddressSelected(hit)
+                            }
                         }}
                     />
                 </div>
