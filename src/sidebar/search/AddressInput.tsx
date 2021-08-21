@@ -121,12 +121,13 @@ export default function AddressInput(props: AddressInputProps) {
 
 function selectHit(props: AddressInputProps, hit: GeocodingHit) {
     if (hit.osm_type === 'current_location') {
-        if (!navigator.geolocation) throw new Error('Cannot get current location')
-        props.onAddressSelected({
-            ...hit,
-            name: tr('searching_location') + ' ...',
-        })
+        if (!navigator.geolocation) {
+            Dispatcher.dispatch(new ErrorAction('Location search not available in this browser'))
+            return
+        }
 
+        props.onAddressSelected({ ...hit, name: tr('searching_location') + ' ...' })
+        // TODO: getCurrentPosition() and watchPosition() might interfer (call clearWatch properly or test if current location already exists)
         navigator.geolocation.getCurrentPosition(
             position => {
                 props.onAddressSelected({
@@ -134,13 +135,12 @@ function selectHit(props: AddressInputProps, hit: GeocodingHit) {
                     point: { lat: position.coords.latitude, lng: position.coords.longitude },
                 })
             },
-            () => {
-                props.onAddressSelected({
-                    ...hit,
-                    name: tr('searching_location_failed'),
-                })
+            error => {
+                Dispatcher.dispatch(new ErrorAction(tr('searching_location_failed') + ': ' + error.message))
+                props.onAddressSelected({ ...hit, name: '' })
             },
-            { timeout: 60_000, maximumAge: 2_000 }
+            // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
+            { timeout: 300_000 }
         )
     } else {
         props.onAddressSelected(hit)
