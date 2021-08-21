@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { GeocodingHit } from '@/api/graphhopper'
-import { ErrorAction } from '@/actions/Actions'
+import { ErrorAction, SetPoint } from '@/actions/Actions'
 import GeocodingResult from '@/sidebar/search/GeocodingResult'
 import Dispatcher from '@/stores/Dispatcher'
 
@@ -67,7 +67,7 @@ export default function AddressInput(props: AddressInputProps) {
     const type = props.point.type
     if (hasFocus && text.length == 0 && geocodingResults.length == 0)
         geocodingResults.push({
-            osm_id: 'current_location', // required for react (for the "key" attribute of the list)
+            osm_id: 'current_location', // required for React (for the "key" attribute of the list)
             name: tr('current_location'),
             osm_type: 'current_location', // required to internally identify the special geocoding result
         } as GeocodingHit)
@@ -125,6 +125,11 @@ export default function AddressInput(props: AddressInputProps) {
 function selectHit(props: AddressInputProps, hit: GeocodingHit) {
     if (hit.osm_type === 'current_location') {
         if (!navigator.geolocation) throw new Error('Cannot get current location')
+        props.onAddressSelected({
+            ...hit,
+            name: tr('searching_location') + ' ...',
+        })
+
         navigator.geolocation.getCurrentPosition(
             position => {
                 props.onAddressSelected({
@@ -135,7 +140,7 @@ function selectHit(props: AddressInputProps, hit: GeocodingHit) {
             () => {
                 Dispatcher.dispatch(new ErrorAction('Cannot get current location'))
             },
-            { timeout: 15000 }
+            { timeout: 15_000, maximumAge: 2_000 }
         )
     } else {
         props.onAddressSelected(hit)
