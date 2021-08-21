@@ -141,8 +141,8 @@ function selectHit(props: AddressInputProps, hit: GeocodingHit) {
             error => {
                 Dispatcher.dispatch(new ErrorAction(tr('searching_location_failed') + ': ' + error.message))
                 props.onAddressSelected({ ...hit, name: '' })
-            },
-            { timeout: 300_000, maximumAge: 5_000 }
+            }
+            //{ timeout: 300_000, maximumAge: 5_000 }
         )
     } else {
         props.onAddressSelected(hit)
