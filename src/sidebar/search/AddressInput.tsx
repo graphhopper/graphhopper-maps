@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { GeocodingHit } from '@/api/graphhopper'
-import { ErrorAction, SetPoint } from '@/actions/Actions'
+import { ErrorAction } from '@/actions/Actions'
 import GeocodingResult from '@/sidebar/search/GeocodingResult'
 import Dispatcher from '@/stores/Dispatcher'
 
@@ -124,12 +124,13 @@ export default function AddressInput(props: AddressInputProps) {
 
 function selectHit(props: AddressInputProps, hit: GeocodingHit) {
     if (hit.osm_type === 'current_location') {
-        if (!navigator.geolocation) throw new Error('Cannot get current location')
-        props.onAddressSelected({
-            ...hit,
-            name: tr('searching_location') + ' ...',
-        })
+        if (!navigator.geolocation) {
+            Dispatcher.dispatch(new ErrorAction('Location search not available in this browser'))
+            return
+        }
 
+        props.onAddressSelected({ ...hit, name: tr('searching_location') + ' ...' })
+        // Warning: getCurrentPosition() and watchPosition() might interfer (call clearWatch properly)
         navigator.geolocation.getCurrentPosition(
             position => {
                 props.onAddressSelected({
@@ -137,13 +138,11 @@ function selectHit(props: AddressInputProps, hit: GeocodingHit) {
                     point: { lat: position.coords.latitude, lng: position.coords.longitude },
                 })
             },
-            () => {
-                props.onAddressSelected({
-                    ...hit,
-                    name: tr('searching_location_failed'),
-                })
+            error => {
+                Dispatcher.dispatch(new ErrorAction(tr('searching_location_failed') + ': ' + error.message))
+                props.onAddressSelected({ ...hit, name: '' })
             },
-            { timeout: 60_000, maximumAge: 2_000 }
+            { timeout: 300_000, maximumAge: 5_000 }
         )
     } else {
         props.onAddressSelected(hit)
