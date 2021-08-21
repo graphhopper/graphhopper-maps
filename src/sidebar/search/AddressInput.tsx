@@ -51,9 +51,10 @@ export default function AddressInput(props: AddressInputProps) {
                 case 'Tab':
                     // by default use the first result, otherwise the highlighted one
                     const index = highlightedResult >= 0 ? highlightedResult : 0
-                    // it seems like the order of the following two statments is important...
+
+                    // it seems like the order of the blur and onAddressSelected statement is important...
                     searchInput.current!.blur()
-                    props.onAddressSelected(geocodingResults[index])
+                    selectHit(props, geocodingResults[index])
                     break
             }
         },
@@ -109,29 +110,33 @@ export default function AddressInput(props: AddressInputProps) {
                         onSelectHit={hit => {
                             // it seems like the order of the blur and onAddressSelected statement is important...
                             searchInput.current!.blur()
-                            if (hit.osm_type === 'current_location') {
-                                if (!navigator.geolocation) throw new Error('Cannot get current location')
-                                navigator.geolocation.getCurrentPosition(
-                                    position => {
-                                        props.onAddressSelected({
-                                            ...hit,
-                                            point: { lat: position.coords.latitude, lng: position.coords.longitude },
-                                        })
-                                    },
-                                    () => {
-                                        Dispatcher.dispatch(new ErrorAction('Cannot get current location'))
-                                    },
-                                    { timeout: 15000 }
-                                )
-                            } else {
-                                props.onAddressSelected(hit)
-                            }
+                            selectHit(props, hit)
                         }}
                     />
                 </div>
             )}
         </div>
     )
+}
+
+function selectHit(props: AddressInputProps, hit: GeocodingHit) {
+    if (hit.osm_type === 'current_location') {
+        if (!navigator.geolocation) throw new Error('Cannot get current location')
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                props.onAddressSelected({
+                    ...hit,
+                    point: { lat: position.coords.latitude, lng: position.coords.longitude },
+                })
+            },
+            () => {
+                Dispatcher.dispatch(new ErrorAction('Cannot get current location'))
+            },
+            { timeout: 15000 }
+        )
+    } else {
+        props.onAddressSelected(hit)
+    }
 }
 
 function calculateHighlightedIndex(length: number, currentIndex: number, incrementBy: number) {
