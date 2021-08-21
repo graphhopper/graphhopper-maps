@@ -131,7 +131,7 @@ function LargeScreenLayout({ query, route, location, viewport, mapLayers, error,
                 {
                     <MapComponent
                         viewport={viewport}
-                        mapStyle={mapOptions.selectedStyle}
+                        styleOption={mapOptions.selectedStyle}
                         queryPoints={query.queryPoints}
                         mapLayers={mapLayers}
                     />
@@ -147,25 +147,24 @@ function LargeScreenLayout({ query, route, location, viewport, mapLayers, error,
             ) : (
                 <div className={styles.sidebar}>
                     <div className={styles.sidebarContent}>
+                        <div className={styles.search}>
+                            <Search
+                                points={query.queryPoints}
+                                routingProfiles={info.profiles}
+                                selectedProfile={query.routingProfile}
+                                autofocus={true}
+                            />
+                        </div>
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
-                        <div>
-                            <div className={styles.search}>
-                                <Search
-                                    points={query.queryPoints}
-                                    routingProfiles={info.profiles}
-                                    selectedProfile={query.routingProfile}
-                                />
-                            </div>
-                            <div className={styles.routingResult}>
-                                <RoutingResults
-                                    paths={route.routingResult.paths}
-                                    selectedPath={route.selectedPath}
-                                    currentRequest={query.currentRequest}
-                                />
-                            </div>
-                            <div className={styles.poweredBy}>
-                                <PoweredBy />
-                            </div>
+                        <div className={styles.routingResult}>
+                            <RoutingResults
+                                paths={route.routingResult.paths}
+                                selectedPath={route.selectedPath}
+                                currentRequest={query.currentRequest}
+                            />
+                        </div>
+                        <div className={styles.poweredBy}>
+                            <PoweredBy />
                         </div>
                     </div>
                 </div>
@@ -185,7 +184,7 @@ function SmallScreenLayout({ query, route, location, viewport, mapLayers, error,
                 <MapComponent
                     viewport={viewport}
                     queryPoints={query.queryPoints}
-                    mapStyle={mapOptions.selectedStyle}
+                    styleOption={mapOptions.selectedStyle}
                     mapLayers={mapLayers}
                 />
             </div>

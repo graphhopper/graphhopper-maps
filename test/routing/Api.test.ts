@@ -1,9 +1,9 @@
 import fetchMock from 'jest-fetch-mock'
 import { ErrorAction, InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '../../src/actions/Actions'
-import { setTranslation, getTranslation } from '../../src/translation/Translation'
+import { setTranslation } from '../../src/translation/Translation'
 
 import Dispatcher from '../../src/stores/Dispatcher'
-import { ApiImpl, ghKey } from '../../src/api/Api'
+import { ApiImpl, ghApi, ghKey } from '../../src/api/Api'
 import { ApiInfo, ErrorResponse, RoutingArgs, RoutingRequest } from '../../src/api/graphhopper'
 
 beforeAll(() => {
@@ -23,7 +23,7 @@ afterAll(() => fetchMock.disableMocks())
 
 describe('info api', () => {
     it('should query correct url and dispatch an InfoReceived action', async () => {
-        const expectedUrl = 'https://graphhopper.com/api/1/info?key=' + ghKey
+        const expectedUrl = ghApi + 'info?key=' + ghKey
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
             import_date: 'some_date1',
@@ -81,7 +81,7 @@ describe('route', () => {
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
 
         fetchMock.mockResponse(request => {
-            expect(request.url.toString()).toEqual('https://graphhopper.com/api/1/route?key=' + ghKey)
+            expect(request.url.toString()).toEqual(ghApi + 'route?key=' + ghKey)
             expect(request.method).toEqual('POST')
             expect(request.headers.get('Accept')).toEqual('application/json')
             expect(request.headers.get('Content-Type')).toEqual('application/json')

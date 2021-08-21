@@ -1,7 +1,7 @@
 import ReactMapGL, { MapEvent, Popup, WebMercatorViewport } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { MapIsLoaded, SetViewport } from '@/actions/Actions'
 import { RasterStyle, StyleOption, VectorStyle } from '@/stores/MapOptionsStore'
@@ -14,21 +14,26 @@ import { LocationStoreState } from '@/stores/LocationStore'
 type MapProps = {
     viewport: ViewportStoreState
     queryPoints: QueryPoint[]
-    mapStyle: StyleOption
+    styleOption: StyleOption
     mapLayers: MapLayer[]
     location?: LocationStoreState
 }
 
-export default function ({ viewport, mapStyle, queryPoints, mapLayers }: MapProps) {
+export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapProps) {
     const [popupCoordinate, setPopupCoordinate] = useState<Coordinate | null>(null)
     const longTouchHandler = new LongTouchHandler(e => setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] }))
+
+    // we have to make sure the mapStyle is only updated if styleOption actually changes, see #122
+    const [mapStyle, setMapStyle] = useState(getStyle(styleOption))
+    useEffect(() => setMapStyle(getStyle(styleOption)), [styleOption])
+
     let interactiveLayerIds: string[] = []
     mapLayers.forEach(l => {
         if (l.interactiveLayerIds) interactiveLayerIds = interactiveLayerIds.concat(l.interactiveLayerIds)
     })
     return (
         <ReactMapGL
-            mapStyle={getStyle(mapStyle)}
+            mapStyle={mapStyle}
             {...viewport}
             width="100%"
             height="100%"
