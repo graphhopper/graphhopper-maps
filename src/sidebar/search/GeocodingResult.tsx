@@ -1,5 +1,4 @@
 import { GeocodingHit } from '@/api/graphhopper'
-import PlainButton from '@/PlainButton'
 import styles from './GeocodingResult.module.css'
 import React, { useState } from 'react'
 import CurrentLocationIcon from './current-location.svg'
