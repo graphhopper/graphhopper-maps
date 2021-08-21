@@ -130,7 +130,7 @@ function selectHit(props: AddressInputProps, hit: GeocodingHit) {
         }
 
         props.onAddressSelected({ ...hit, name: tr('searching_location') + ' ...' })
-        // Warning: getCurrentPosition() and watchPosition() might interfer (call clearWatch properly)
+        // TODO: getCurrentPosition() and watchPosition() might interfer (call clearWatch properly or test if current location already exists)
         navigator.geolocation.getCurrentPosition(
             position => {
                 props.onAddressSelected({
@@ -141,8 +141,9 @@ function selectHit(props: AddressInputProps, hit: GeocodingHit) {
             error => {
                 Dispatcher.dispatch(new ErrorAction(tr('searching_location_failed') + ': ' + error.message))
                 props.onAddressSelected({ ...hit, name: '' })
-            }
-            //{ timeout: 300_000, maximumAge: 5_000 }
+            },
+            // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
+            { timeout: 300_000 }
         )
     } else {
         props.onAddressSelected(hit)
