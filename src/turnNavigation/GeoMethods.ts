@@ -3,25 +3,31 @@ import { Coordinate } from '@/stores/QueryStore'
 
 export function getCurrentInstruction(
     instructions: Instruction[],
-    currentLocation: Coordinate
-): { instructionIndex: number; distanceNext: number } {
+    location: Coordinate
+): {
+    instructionIndex: number
+    timeToNext: number
+    distanceToNext: number
+    remainingTime: number
+    remainingDistance: number
+} {
     let instructionIndex = -1
     let smallestDist = Number.MAX_VALUE
-    let distanceNext = 10.0
-    // find instruction nearby and very simple method (pick first point)
+    let distanceToNext = 10.0
+
     for (let instrIdx = 0; instrIdx < instructions.length; instrIdx++) {
         const points: number[][] = instructions[instrIdx].points
 
         for (let pIdx = 0; pIdx < points.length; pIdx++) {
             const p: number[] = points[pIdx]
-            let loc = currentLocation
-            let dist = distCalc(p[1], p[0], loc.lat, loc.lng)
-            // if not the last point of the instruction we can calulate the snapped point
+            let snapped = { lat: p[1], lng: p[0] }
+            let dist = distCalc(p[1], p[0], location.lat, location.lng)
+            // calulate the snapped point, TODO use first point of next instruction for "next" if last point of current instruction
             if (pIdx + 1 < points.length) {
                 const next: number[] = points[pIdx + 1]
-                if (validEdgeDistance(loc.lat, loc.lng, p[1], p[0], next[1], next[0])) {
-                    loc = calcCrossingPointToEdge(loc.lat, loc.lng, p[1], p[0], next[1], next[0])
-                    dist = Math.min(dist, distCalc(loc.lat, loc.lng, currentLocation.lat, currentLocation.lng))
+                if (validEdgeDistance(location.lat, location.lng, p[1], p[0], next[1], next[0])) {
+                    snapped = calcCrossingPointToEdge(location.lat, location.lng, p[1], p[0], next[1], next[0])
+                    dist = Math.min(dist, distCalc(snapped.lat, snapped.lng, location.lat, location.lng))
                 }
             }
 
@@ -29,13 +35,32 @@ export function getCurrentInstruction(
                 smallestDist = dist
                 // use next instruction or finish
                 instructionIndex = instrIdx + 1 < instructions.length ? instrIdx + 1 : instrIdx
-
                 const last: number[] = points[points.length - 1]
-                distanceNext = Math.round(distCalc(last[1], last[0], loc.lat, loc.lng))
+                distanceToNext = Math.round(distCalc(last[1], last[0], snapped.lat, snapped.lng))
             }
         }
     }
-    return { instructionIndex, distanceNext }
+
+    let timeToNext = 0
+    let remainingTime = 0
+    let remainingDistance = distanceToNext
+    if (instructionIndex >= 0) {
+        if (instructionIndex > 0) {
+            // proportional estimate the time to the next instruction, TODO use time from path details instead
+            let prevInstruction = instructions[instructionIndex - 1]
+            timeToNext =
+                prevInstruction.distance > 0 ? prevInstruction.time * (distanceToNext / prevInstruction.distance) : 0
+            // console.log('time: ' + prevInstruction.time + ', ' + distanceToNext + ', ' + prevInstruction.distance)
+        }
+        remainingTime = timeToNext
+        remainingDistance = distanceToNext
+        for (let instrIdx = instructionIndex; instrIdx < instructions.length; instrIdx++) {
+            remainingTime += instructions[instrIdx].time
+            remainingDistance += instructions[instrIdx].distance
+        }
+    }
+
+    return { instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance }
 }
 
 export function distCalc(fromLat: number, fromLng: number, toLat: number, toLng: number): number {
@@ -97,7 +122,7 @@ function calcCrossingPointToEdge(
     a_lon_deg: number,
     b_lat_deg: number,
     b_lon_deg: number
-) {
+): Coordinate {
     let shrinkFactor = calcShrinkFactor(a_lat_deg, b_lat_deg)
     let a_lat = a_lat_deg
     let a_lon = a_lon_deg * shrinkFactor

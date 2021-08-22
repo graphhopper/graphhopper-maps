@@ -5,7 +5,6 @@ import { FeatureCollection } from 'geojson'
 import { Layer, Source } from 'react-map-gl'
 import { MapLayer } from '@/layers/MapLayer'
 
-// const currentLocationSourceKey = 'currentLocationSource'
 const currentLocationLayerKey = 'currentLocationLayer'
 
 export default function (coordinate: Coordinate): MapLayer {

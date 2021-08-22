@@ -8,13 +8,14 @@ describe('ViewportStore', () => {
         const initialState: ViewportStoreState = {
             longitude: 10,
             latitude: 45,
+            pitch: 0,
             zoom: 8,
             width: 1400,
             height: 1000,
         }
         {
             // simply set to point
-            const newState = store.reduce(initialState, new SetViewportToPoint({ lng: 13, lat: 48 }, 11))
+            const newState = store.reduce(initialState, new SetViewportToPoint({ lng: 13, lat: 48 }, 11, 0, 0))
             expect(newState.longitude).toEqual(13)
             expect(newState.latitude).toEqual(48)
             expect(newState.zoom).toEqual(11)

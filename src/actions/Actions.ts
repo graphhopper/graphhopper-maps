@@ -130,10 +130,14 @@ export class SetViewport implements Action {
 export class SetViewportToPoint implements Action {
     readonly coordinate: Coordinate
     readonly zoom: number
+    readonly pitch: number
+    readonly bearing: number
 
-    constructor(coordinate: Coordinate, zoom: number) {
+    constructor(coordinate: Coordinate, zoom: number, pitch: number, bearing: number) {
         this.coordinate = coordinate
         this.zoom = zoom
+        this.pitch = pitch
+        this.bearing = bearing
     }
 }
 

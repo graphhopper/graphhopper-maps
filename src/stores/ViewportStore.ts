@@ -18,6 +18,7 @@ export interface ViewportStoreState {
     longitude: number
     latitude: number
     zoom: number
+    pitch: number
     width: number
     height: number
     altitude?: number
@@ -50,6 +51,7 @@ export default class ViewportStore extends Store<ViewportStoreState> {
             longitude: 11,
             latitude: 48,
             zoom: 5,
+            pitch: 0,
         }
     }
     reduce(state: ViewportStoreState, action: Action): ViewportStoreState {
@@ -68,6 +70,8 @@ export default class ViewportStore extends Store<ViewportStoreState> {
                     longitude: newCoord.lng,
                     latitude: newCoord.lat,
                     zoom: action.zoom,
+                    bearing: action.bearing,
+                    pitch: action.pitch,
                 }
         } else if (action instanceof InfoReceived) {
             return calculateLatLngFromBbox(state, action.result.bbox, isSmallScreen)

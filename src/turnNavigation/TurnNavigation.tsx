@@ -7,6 +7,7 @@ import styles from '@/turnNavigation/TurnNavigation.module.css'
 import endNavigation from '@/turnNavigation/end_turn_navigation.png'
 import { getLocationStore } from '@/stores/Stores'
 import { LocationStoreState } from '@/stores/LocationStore'
+import { tr } from '@/translation/Translation'
 
 type TurnNavigationProps = {
     path: Path
@@ -17,7 +18,12 @@ export default function ({ path, location }: TurnNavigationProps) {
     let currentLocation = location.coordinate
     if (currentLocation.lat == 0 && currentLocation.lng == 0) return <span>Searching GPS...</span>
 
-    const { instructionIndex, distanceNext } = getCurrentInstruction(path.instructions, currentLocation)
+    const { instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance } = getCurrentInstruction(
+        path.instructions,
+        currentLocation
+    )
+
+    console.log('remaining distance: ' + remainingDistance + ', time: ' + remainingTime)
 
     // TODO too far from route - recalculate?
     if (instructionIndex < 0) return <>Cannot find instruction</>
@@ -26,7 +32,7 @@ export default function ({ path, location }: TurnNavigationProps) {
 
     // TODO better approximation via estimating taken time
     const arrivalDate = new Date()
-    arrivalDate.setMilliseconds(arrivalDate.getSeconds() + path.time)
+    arrivalDate.setMilliseconds(arrivalDate.getSeconds() + remainingTime)
     const min = arrivalDate.getMinutes()
     return (
         <>
@@ -36,16 +42,17 @@ export default function ({ path, location }: TurnNavigationProps) {
                         <div>
                             <img src={getSignName(nextInstruction.sign, instructionIndex)} alt={'turn instruction'} />
                         </div>
-                        <div>{metersToText(distanceNext)}</div>
+                        <div>{metersToText(distanceToNext)}</div>
+                        <div>{milliSecondsToText(timeToNext)}</div>
                     </div>
                     <div className={styles.turnText}>{nextInstruction.text}</div>
                 </div>
                 <div className={styles.arrival}>
                     <div className={styles.arrival_date}>
-                        {arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)} Uhr
+                        {arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min) + ' ' + tr('Uhr')}
                     </div>
-                    <div>{milliSecondsToText(path.time)}</div>
-                    <div>{metersToText(path.distance)}</div>
+                    <div>{milliSecondsToText(remainingTime)}</div>
+                    <div>{metersToText(remainingDistance)}</div>
                     <div onClick={() => getLocationStore().stop()}>
                         <img className={styles.navicon} src={endNavigation} />
                     </div>
