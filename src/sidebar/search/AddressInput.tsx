@@ -143,7 +143,7 @@ function selectHit(props: AddressInputProps, hit: GeocodingHit) {
                 props.onAddressSelected({ ...hit, name: '' })
             },
             // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
-            { timeout: 300_000 }
+            { timeout: 120_000 }
         )
     } else {
         props.onAddressSelected(hit)

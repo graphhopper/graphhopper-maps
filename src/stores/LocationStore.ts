@@ -94,14 +94,6 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     public initReal() {
-        try {
-            let el = document.documentElement
-            let requestFullscreenFct = el.requestFullscreen
-            requestFullscreenFct.call(el)
-        } catch (e) {
-            console.log(e)
-        }
-
         this.started = true
         if (!this.noSleep) this.noSleep = new NoSleep()
         this.noSleep.enable()
@@ -113,7 +105,11 @@ export default class LocationStore extends Store<LocationStoreState> {
             // force calling clearWatch can help to find GPS fix more reliable in android firefox
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
-            let options = { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 }
+            let options = {
+                timeout: 120_000,
+                // maximumAge is not a problem here like with getCurrentPosition but let's use identical settings
+                // enableHighAccuracy: false
+            }
             this.watchId = navigator.geolocation.watchPosition(
                 this.locationUpdate,
                 err => {
@@ -121,6 +117,13 @@ export default class LocationStore extends Store<LocationStoreState> {
                 },
                 options
             )
+            try {
+                let el = document.documentElement
+                let requestFullscreenFct = el.requestFullscreen
+                requestFullscreenFct.call(el)
+            } catch (e) {
+                console.log(e)
+            }
         }
     }
 
