@@ -16,6 +16,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     private interval: any
     private noSleep: any
     private speechSynthesizer: SpeechSynthesizer
+    private started: boolean = false
 
     constructor(speechSynthesizer: SpeechSynthesizer) {
         super()
@@ -42,6 +43,7 @@ export default class LocationStore extends Store<LocationStoreState> {
 
     // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car
     public initFake() {
+        this.started = true
         this.speechSynthesizer.synthesize(tr('fake_welcome'))
 
         // TODO randomize a route
@@ -92,6 +94,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     public initReal() {
+        this.started = true
         if (!this.noSleep) this.noSleep = new NoSleep()
         this.noSleep.enable()
         if (!navigator.geolocation) {
@@ -105,8 +108,8 @@ export default class LocationStore extends Store<LocationStoreState> {
             let options = { enableHighAccuracy: false, timeout: 5000, maximumAge: 5000 }
             this.watchId = navigator.geolocation.watchPosition(
                 this.locationUpdate,
-                function (err) {
-                    Dispatcher.dispatch(new ErrorAction('location watch error: ' + err.message))
+                err => {
+                    if (this.started) Dispatcher.dispatch(new ErrorAction('location watch error: ' + err.message))
                 },
                 options
             )
@@ -114,6 +117,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     public stop() {
+        this.started = false
         if (this.interval) clearInterval(this.interval)
 
         if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
