@@ -193,16 +193,16 @@ function SmallScreenLayout({ query, route, location, viewport, mapLayers, error,
                     <MapOptions {...mapOptions} />
                 </div>
             </div>
-            {location.turnNavigation ? (
-                <div className={styles.turnNavigation}>
-                    <TurnNavigation path={route.selectedPath} location={location} />
-                </div>
-            ) : (
+            {location.turnNavigation ? null : (
                 <div className={styles.smallScreenSidebar}>
                     <MobileSidebar info={info} query={query} route={route} error={error} />
                 </div>
             )}
-            {!location.turnNavigation ? (
+            {location.turnNavigation ? (
+                <div className={styles.smallScreenRoutingResult}>
+                    <TurnNavigation path={route.selectedPath} location={location} />
+                </div>
+            ) : (
                 <div className={styles.smallScreenRoutingResult}>
                     <RoutingResults
                         paths={route.routingResult.paths}
@@ -210,7 +210,7 @@ function SmallScreenLayout({ query, route, location, viewport, mapLayers, error,
                         currentRequest={query.currentRequest}
                     />
                 </div>
-            ) : null}
+            )}
             {!location.turnNavigation ? (
                 <div className={styles.smallScreenPoweredBy}>
                     <PoweredBy />

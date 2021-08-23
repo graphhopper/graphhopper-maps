@@ -1,36 +1,40 @@
 .turnInfo {
     display: flex;
-    flex-direction: row;
     padding: 0.5rem;
 }
 
 .turnSign img {
-    max-height: 2rem;
+    max-height: 2.5rem;
 }
+
 .turnSign {
+    padding-left: 0.3rem;
     font-size: smaller;
     min-width: 20%;
     flex-direction: column;
-}
-
-.turnText {
-    padding: 0.5rem;
-    flex-direction: column;
-}
-
-.arrival div {
-    padding: 0.5rem;
-}
-.arrival {
-    display: flex;
-    flex-direction: row;
-    font-size: larger;
-}
-
-.arrival_date {
     font-weight: bold;
 }
 
-.navicon {
+.turnText {
+    padding: 0.5rem 0.8rem;
+}
+
+.arrival {
+    width: 100%;
+    display: flex;
+    font-size: larger;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.arrivalDuration {
+    font-weight: bold;
+}
+
+.arrivalTime {
+    padding-left: 1rem;
+}
+
+.endnavicon img {
     max-height: 20px;
 }

@@ -43,20 +43,21 @@ export default function ({ path, location }: TurnNavigationProps) {
                             <img src={getSignName(nextInstruction.sign, instructionIndex)} alt={'turn instruction'} />
                         </div>
                         <div>{metersToText(distanceToNext)}</div>
-                        <div>{milliSecondsToText(timeToNext)}</div>
                     </div>
-                    <div className={styles.turnText}>{nextInstruction.text}</div>
+                    <div className={styles.arrival}>
+                        <div>
+                            <div className={styles.arrivalDuration}>{milliSecondsToText(remainingTime)}</div>
+                            <div>{metersToText(remainingDistance)}</div>
+                        </div>
+                        <div className={styles.arrivalTime}>
+                            {arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}
+                        </div>
+                        <div className={styles.endnavicon} onClick={() => getLocationStore().stop()}>
+                            <img src={endNavigation} />
+                        </div>
+                    </div>
                 </div>
-                <div className={styles.arrival}>
-                    <div className={styles.arrival_date}>
-                        {arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min) + ' ' + tr('Uhr')}
-                    </div>
-                    <div>{milliSecondsToText(remainingTime)}</div>
-                    <div>{metersToText(remainingDistance)}</div>
-                    <div onClick={() => getLocationStore().stop()}>
-                        <img className={styles.navicon} src={endNavigation} />
-                    </div>
-                </div>
+                <div className={styles.turnText}>{nextInstruction.text}</div>
             </div>
         </>
     )
