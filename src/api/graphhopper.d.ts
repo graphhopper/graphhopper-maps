@@ -81,6 +81,7 @@ export interface Instruction {
     readonly points: number[][]
     readonly sign: number
     readonly text: string
+    readonly street_name: string
     readonly time: number
 }
 

@@ -57,7 +57,7 @@ export default function ({ path, location }: TurnNavigationProps) {
                         </div>
                     </div>
                 </div>
-                <div className={styles.turnText}>{nextInstruction.text}</div>
+                <div className={styles.turnText}>{nextInstruction.street_name}</div>
             </div>
         </>
     )
