@@ -51,6 +51,7 @@ export default class ViewportStore extends Store<ViewportStoreState> {
             longitude: 11,
             latitude: 48,
             zoom: 5,
+            bearing: 0,
             pitch: 0,
         }
     }
