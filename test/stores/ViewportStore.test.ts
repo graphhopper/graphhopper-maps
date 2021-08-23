@@ -9,6 +9,7 @@ describe('ViewportStore', () => {
             longitude: 10,
             latitude: 45,
             pitch: 0,
+            bearing: 0,
             zoom: 8,
             width: 1400,
             height: 1000,

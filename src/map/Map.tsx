@@ -46,8 +46,8 @@ export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapP
                 setPopupCoordinate(null)
                 // restrict zoom/pan such that we never see empty space left of/right of/above/under the map
                 const bounds = new WebMercatorViewport(nextViewport).getBounds()
-                if (bounds[0][0] < -180 || bounds[0][1] < -90 || bounds[1][0] > 180 || bounds[1][1] > 90) return
-                Dispatcher.dispatch(new SetViewport(nextViewport))
+                if (bounds[0][0] < -180 || bounds[0][1] < -90 || bounds[1][0] > 180 || bounds[1][1] > 90)
+                    return Dispatcher.dispatch(new SetViewport(nextViewport))
             }}
             // todo: minor glitch: when we hover the map before the path got loaded we get an error in the console
             interactiveLayerIds={interactiveLayerIds}

@@ -19,10 +19,10 @@ export interface ViewportStoreState {
     latitude: number
     zoom: number
     pitch: number
+    bearing: number
     width: number
     height: number
     altitude?: number
-    bearing?: number
     minZoom?: number
     maxZoom?: number
     minPitch?: number
