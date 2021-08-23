@@ -94,6 +94,14 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     public initReal() {
+        try {
+            let el = document.documentElement
+            let requestFullscreenFct = el.requestFullscreen
+            requestFullscreenFct.call(el)
+        } catch (e) {
+            console.log(e)
+        }
+
         this.started = true
         if (!this.noSleep) this.noSleep = new NoSleep()
         this.noSleep.enable()
@@ -117,6 +125,8 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     public stop() {
+        if (document.fullscreenElement) document.exitFullscreen()
+
         this.started = false
         if (this.interval) clearInterval(this.interval)
 
