@@ -62,6 +62,8 @@ export default class ViewportStore extends Store<ViewportStoreState> {
         } else if (action instanceof SetViewportToPoint) {
             let newCoord = action.coordinate
             if (
+                action.bearing != state.bearing ||
+                action.pitch != state.pitch ||
                 action.zoom != state.zoom ||
                 // avoid jitter a bit if location is permanently updated
                 distCalc(newCoord.lat, newCoord.lng, state.latitude, state.longitude) > 5
