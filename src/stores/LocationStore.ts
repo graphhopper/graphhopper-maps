@@ -15,12 +15,16 @@ export default class LocationStore extends Store<LocationStoreState> {
     private watchId: any = undefined
     private interval: any
     private noSleep: any
-    private speechSynthesizer: SpeechSynthesizer
+    private readonly speechSynthesizer: SpeechSynthesizer
     private started: boolean = false
 
     constructor(speechSynthesizer: SpeechSynthesizer) {
         super()
         this.speechSynthesizer = speechSynthesizer
+    }
+
+    public getSpeechSynthesizer(): SpeechSynthesizer {
+        return this.speechSynthesizer
     }
 
     protected getInitialState(): LocationStoreState {

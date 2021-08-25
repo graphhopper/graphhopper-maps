@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Path, Instruction } from '@/api/graphhopper'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import { getSignName } from '@/sidebar/instructions/Instructions'
@@ -7,7 +7,6 @@ import styles from '@/turnNavigation/TurnNavigation.module.css'
 import endNavigation from '@/turnNavigation/end_turn_navigation.png'
 import { getLocationStore } from '@/stores/Stores'
 import { LocationStoreState } from '@/stores/LocationStore'
-import { tr } from '@/translation/Translation'
 
 type TurnNavigationProps = {
     path: Path
@@ -29,6 +28,13 @@ export default function ({ path, location }: TurnNavigationProps) {
     if (instructionIndex < 0) return <>Cannot find instruction</>
 
     const nextInstruction: Instruction = path.instructions[instructionIndex]
+
+    // after render if index changed and distance is close next instruction speak text out loud
+    const [oldIndex] = useState(-1)
+    useEffect(() => {
+        if (distanceToNext < 40 && oldIndex != instructionIndex)
+            getLocationStore().getSpeechSynthesizer().synthesize(nextInstruction.text)
+    }, [oldIndex, distanceToNext])
 
     // TODO better approximation via estimating taken time
     const arrivalDate = new Date()
