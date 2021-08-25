@@ -9,6 +9,7 @@ import { tr } from '@/translation/Translation'
 export interface LocationStoreState {
     turnNavigation: boolean
     coordinate: Coordinate
+    speed: number
 }
 
 export default class LocationStore extends Store<LocationStoreState> {
@@ -31,6 +32,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         return {
             turnNavigation: false,
             coordinate: { lat: 0, lng: 0 },
+            speed: 0,
         }
     }
 
@@ -40,6 +42,7 @@ export default class LocationStore extends Store<LocationStoreState> {
             return {
                 turnNavigation: action.turnNavigation,
                 coordinate: action.coordinate,
+                speed: action.speed,
             }
         }
         return state
@@ -52,19 +55,19 @@ export default class LocationStore extends Store<LocationStoreState> {
 
         // TODO randomize a route
         const latlon: number[][] = [
-            [51.439291, 14.245254, 180],
-            [51.438989, 14.245405, 180],
-            [51.438895, 14.245191, 180],
-            [51.438694, 14.245577, 90],
-            [51.438668, 14.246092, 90],
-            [51.438226, 14.246972, 180],
-            [51.436795, 14.245921, 180],
-            [51.435029, 14.243259, 270],
-            [51.435203, 14.241006, 270],
-            [51.434788, 14.238882, 180],
-            [51.434146, 14.237745, 270],
-            [51.433959, 14.235985, 180],
-            [51.43322, 14.2349991, 270],
+            [51.439291, 14.245254, 180, 0],
+            [51.438989, 14.245405, 180, 10],
+            [51.438895, 14.245191, 180, 10],
+            [51.438694, 14.245577, 90, 30],
+            [51.438668, 14.246092, 90, 30],
+            [51.438226, 14.246972, 180, 40],
+            [51.436795, 14.245921, 180, 40],
+            [51.435029, 14.243259, 270, 40],
+            [51.435203, 14.241006, 270, 35],
+            [51.434788, 14.238882, 180, 20],
+            [51.434146, 14.237745, 270, 10],
+            [51.433959, 14.235985, 180, 20],
+            [51.43322, 14.2349991, 270, 10],
         ]
         let currentIndex: number = 0
         this.locationUpdate({
@@ -72,6 +75,7 @@ export default class LocationStore extends Store<LocationStoreState> {
                 latitude: latlon[currentIndex][0],
                 longitude: latlon[currentIndex][1],
                 heading: latlon[currentIndex][2],
+                speed: latlon[currentIndex][3],
             },
         })
 
@@ -84,6 +88,7 @@ export default class LocationStore extends Store<LocationStoreState> {
                     latitude: latlon[currentIndex][0],
                     longitude: latlon[currentIndex][1],
                     heading: latlon[currentIndex][2],
+                    speed: latlon[currentIndex][3],
                 },
             })
         }, 3000)
@@ -92,7 +97,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     private locationUpdate(pos: any) {
         console.log('locationUpdate = success handler')
         let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        Dispatcher.dispatch(new LocationUpdate(c, true))
+        Dispatcher.dispatch(new LocationUpdate(c, true, pos.coords.speed))
         let bearing: number = pos.coords.heading
         if (Number.isNaN(bearing)) bearing = 0
         Dispatcher.dispatch(new SetViewportToPoint(c, 17, 50, bearing))
@@ -144,7 +149,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         Dispatcher.dispatch(new SetViewportToPoint(this.state.coordinate, 15, 0, 0))
 
         // directly writing the state does not work: this.state.turnNavigation = false
-        Dispatcher.dispatch(new LocationUpdate({ lat: 0, lng: 0 }, false))
+        Dispatcher.dispatch(new LocationUpdate({ lat: 0, lng: 0 }, false, 0))
 
         if (this.noSleep) this.noSleep.disable()
 

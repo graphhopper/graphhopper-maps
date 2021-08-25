@@ -17,10 +17,12 @@ export class InfoReceived implements Action {
 export class LocationUpdate implements Action {
     readonly coordinate: Coordinate
     readonly turnNavigation: boolean
+    readonly speed: number
 
-    constructor(coordinate: Coordinate, turnNavigation: boolean) {
+    constructor(coordinate: Coordinate, turnNavigation: boolean, speed: number) {
         this.coordinate = coordinate
         this.turnNavigation = turnNavigation
+        this.speed = speed
     }
 }
 
