@@ -52,11 +52,7 @@ export default function ({ path, location }: TurnNavigationProps) {
         )
         dispatch({ index: instructionIndex, distanceToNext: distanceToNext })
 
-        if (
-            sound &&
-            distanceToNext < 40 &&
-            ((distanceToNext < 40 && state.distanceToNext > 40) || instructionIndex != state.index)
-        )
+        if (sound && distanceToNext < 40 && (state.distanceToNext > 40 || instructionIndex != state.index))
             getLocationStore().getSpeechSynthesizer().synthesize(nextInstruction.text)
     }, [instructionIndex, distanceToNext])
 
