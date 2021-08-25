@@ -44,20 +44,22 @@ export default function ({ path, location }: TurnNavigationProps) {
                         </div>
                         <div>{metersToText(distanceToNext)}</div>
                     </div>
-                    <div className={styles.arrival}>
-                        <div>
-                            <div className={styles.arrivalDuration}>{milliSecondsToText(remainingTime)}</div>
-                            <div>{metersToText(remainingDistance)}</div>
+                    <div className={styles.turnInfoRightSide}>
+                        <div className={styles.arrival}>
+                            <div>
+                                <div className={styles.arrivalDuration}>{milliSecondsToText(remainingTime)}</div>
+                                <div>{metersToText(remainingDistance)}</div>
+                            </div>
+                            <div className={styles.arrivalTime}>
+                                {arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}
+                            </div>
+                            <div className={styles.endnavicon} onClick={() => getLocationStore().stop()}>
+                                <img src={endNavigation} />
+                            </div>
                         </div>
-                        <div className={styles.arrivalTime}>
-                            {arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}
-                        </div>
-                        <div className={styles.endnavicon} onClick={() => getLocationStore().stop()}>
-                            <img src={endNavigation} />
-                        </div>
+                        <div className={styles.turnText}>{nextInstruction.street_name}</div>
                     </div>
                 </div>
-                <div className={styles.turnText}>{nextInstruction.street_name}</div>
             </div>
         </>
     )

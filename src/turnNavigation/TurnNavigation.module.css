@@ -3,24 +3,25 @@
     padding: 0.5rem;
 }
 
+.turnInfoRightSide {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
 .turnSign img {
-    max-height: 2.5rem;
+    max-height: 4rem;
 }
 
 .turnSign {
     padding-left: 0.3rem;
-    font-size: smaller;
-    min-width: 20%;
+    min-width: 25%;
     flex-direction: column;
     font-weight: bold;
 }
 
-.turnText {
-    padding: 0.5rem 0.8rem;
-}
-
 .arrival {
-    width: 100%;
     display: flex;
     font-size: larger;
     flex-direction: row;
