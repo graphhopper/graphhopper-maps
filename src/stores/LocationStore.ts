@@ -54,6 +54,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         const latlon: number[][] = [
             [51.439291, 14.245254, 180],
             [51.438989, 14.245405, 180],
+            [51.438895, 14.245191, 180],
             [51.438694, 14.245577, 90],
             [51.438668, 14.246092, 90],
             [51.438226, 14.246972, 180],

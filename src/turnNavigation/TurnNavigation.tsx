@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useReducer, useEffect } from 'react'
 import { Path, Instruction } from '@/api/graphhopper'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import { getSignName } from '@/sidebar/instructions/Instructions'
@@ -32,13 +32,33 @@ export default function ({ path, location }: TurnNavigationProps) {
 
     const nextInstruction: Instruction = path.instructions[instructionIndex]
 
-    // after render if index changed and distance is close next instruction speak text out loud
-    const [oldIndex] = useState(-1)
     const [sound, setSound] = useState(true)
+    // not sure how to access old state with useState alone
+    function reducer(
+        state: { distanceToNext: number; index: number },
+        action: { distanceToNext: number; index: number }
+    ) {
+        return action
+    }
+    const [state, dispatch] = useReducer(reducer, { index: -1, distanceToNext: -1 })
+
+    // after render if index changed and distance is close next instruction speak text out loud
     useEffect(() => {
-        if (distanceToNext < 40 && oldIndex != instructionIndex && sound)
+        console.log(
+            'useEffect',
+            state,
+            { index: instructionIndex, distanceToNext: distanceToNext },
+            nextInstruction.text
+        )
+        dispatch({ index: instructionIndex, distanceToNext: distanceToNext })
+
+        if (
+            sound &&
+            distanceToNext < 40 &&
+            ((distanceToNext < 40 && state.distanceToNext > 40) || instructionIndex != state.index)
+        )
             getLocationStore().getSpeechSynthesizer().synthesize(nextInstruction.text)
-    }, [oldIndex, distanceToNext])
+    }, [instructionIndex, distanceToNext])
 
     // TODO better approximation via estimating taken time
     const arrivalDate = new Date()
