@@ -45,7 +45,7 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
                         <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
                     </div>
                     <div>
-                        <img onClick={() => getLocationStore().initReal()} src={startNavigation} />
+                        <img onClick={() => getLocationStore().initFake()} src={startNavigation} />
                     </div>
                     {isSelected && (
                         <PlainButton className={buttonClass} onClick={() => setExpanded(!isExpanded)}>

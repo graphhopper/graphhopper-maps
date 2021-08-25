@@ -5,8 +5,11 @@ import { getSignName } from '@/sidebar/instructions/Instructions'
 import { getCurrentInstruction } from './GeoMethods'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
 import endNavigation from '@/turnNavigation/end_turn_navigation.png'
+import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
+import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
 import { getLocationStore } from '@/stores/Stores'
 import { LocationStoreState } from '@/stores/LocationStore'
+import PlainButton from '@/PlainButton'
 
 type TurnNavigationProps = {
     path: Path
@@ -31,8 +34,9 @@ export default function ({ path, location }: TurnNavigationProps) {
 
     // after render if index changed and distance is close next instruction speak text out loud
     const [oldIndex] = useState(-1)
+    const [sound, setSound] = useState(true)
     useEffect(() => {
-        if (distanceToNext < 40 && oldIndex != instructionIndex)
+        if (distanceToNext < 40 && oldIndex != instructionIndex && sound)
             getLocationStore().getSpeechSynthesizer().synthesize(nextInstruction.text)
     }, [oldIndex, distanceToNext])
 
@@ -52,6 +56,9 @@ export default function ({ path, location }: TurnNavigationProps) {
                     </div>
                     <div className={styles.turnInfoRightSide}>
                         <div className={styles.arrival}>
+                            <PlainButton onClick={() => setSound(!sound)}>
+                                {sound ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
+                            </PlainButton>
                             <div>
                                 <div className={styles.arrivalDuration}>{milliSecondsToText(remainingTime)}</div>
                                 <div>{metersToText(remainingDistance)}</div>

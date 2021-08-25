@@ -6,5 +6,5 @@ Copyright 2020 - 2021 GraphHopper GmbH
 
 It includes the following software and creative work:
 
- * see package.json for the direct dependencies
- * "my location" image from Google Fonts - Apache License 2.0
+-   see package.json for the direct dependencies
+-   "my location" and "volume up/off" images from Google Fonts - Apache License 2.0
