@@ -82,7 +82,7 @@ export default function ({ path, location }: TurnNavigationProps) {
                             <div className={styles.arrivalTime}>
                                 <div>{arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}</div>
                                 <div>
-                                    {Math.round(location.speed)} <small>km/h</small>
+                                    {Math.round(location.speed * 3.6)} <small>km/h</small>
                                 </div>
                             </div>
                             <div className={styles.endnavicon} onClick={() => getLocationStore().stop()}>

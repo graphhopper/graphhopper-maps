@@ -22,7 +22,7 @@ export class LocationUpdate implements Action {
     constructor(coordinate: Coordinate, turnNavigation: boolean, speed: number) {
         this.coordinate = coordinate
         this.turnNavigation = turnNavigation
-        this.speed = speed
+        this.speed = !speed || speed == null ? 0 : speed
     }
 }
 
