@@ -56,13 +56,19 @@ export default class ViewportStore extends Store<ViewportStoreState> {
         }
     }
     reduce(state: ViewportStoreState, action: Action): ViewportStoreState {
+        console.log('ViewportStore.reduce', Object.getPrototypeOf(action).constructor.name, action)
         const isSmallScreen = this.isSmallScreenQuery()
         if (action instanceof SetViewport) {
             return action.viewport
         } else if (action instanceof SetViewportToPoint) {
+            // if bearing is null it would cause an exception "bearing must be supplied for transition" while dragging the current location
+            // out of the current view port and the complete screen gets gray after that although location updates still happen
+            let bearing = action.bearing
+            if (bearing == null) bearing = action.pitch > 0 ? state.bearing : 0 // use old bearing if turn navigation (i.e. pitch > 0)
+
             let newCoord = action.coordinate
             if (
-                action.bearing != state.bearing ||
+                bearing != state.bearing ||
                 action.pitch != state.pitch ||
                 action.zoom != state.zoom ||
                 // avoid jitter a bit if location is permanently updated
@@ -73,7 +79,7 @@ export default class ViewportStore extends Store<ViewportStoreState> {
                     longitude: newCoord.lng,
                     latitude: newCoord.lat,
                     zoom: action.zoom,
-                    bearing: action.bearing,
+                    bearing: bearing,
                     pitch: action.pitch,
                 }
         } else if (action instanceof InfoReceived) {

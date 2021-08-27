@@ -38,12 +38,8 @@ export default class LocationStore extends Store<LocationStoreState> {
 
     reduce(state: LocationStoreState, action: Action): LocationStoreState {
         if (action instanceof LocationUpdate) {
-            console.log('LocationUpdate {}', action)
-            return {
-                turnNavigation: action.turnNavigation,
-                coordinate: action.coordinate,
-                speed: action.speed,
-            }
+            console.log('LocationUpdate action {}', action.location)
+            return action.location
         }
         return state
     }
@@ -95,12 +91,14 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     private locationUpdate(pos: any) {
-        console.log('locationUpdate = success handler')
+        // TODO NOW: 'this is undefined' if called from watchPosition: if (!this.started) return
+
         let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        Dispatcher.dispatch(new LocationUpdate(c, true, pos.coords.speed))
+        Dispatcher.dispatch(new LocationUpdate({ coordinate: c, turnNavigation: true, speed: pos.coords.speed }))
         let bearing: number = pos.coords.heading
-        if (Number.isNaN(bearing)) bearing = 0
-        Dispatcher.dispatch(new SetViewportToPoint(c, 17, 50, bearing))
+
+        if (Number.isNaN(bearing)) console.log('skip dispatching SetViewportToPoint because bearing is ' + bearing)
+        else Dispatcher.dispatch(new SetViewportToPoint(c, 17, 50, bearing))
     }
 
     public initReal() {
@@ -110,8 +108,8 @@ export default class LocationStore extends Store<LocationStoreState> {
         if (!navigator.geolocation) {
             console.log('location not supported. In firefox I had to set geo.enabled=true in about:config')
         } else {
-            console.log('location init')
-            this.speechSynthesizer.synthesize(tr('welcome'))
+            console.log('location init ', this.watchId)
+            // this.speechSynthesizer.synthesize(tr('welcome'))
             // force calling clearWatch can help to find GPS fix more reliable in android firefox
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
@@ -138,6 +136,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     public stop() {
+        console.log('LocationStore.stop', this.watchId, this.interval)
         if (document.fullscreenElement) document.exitFullscreen()
 
         this.started = false
@@ -149,10 +148,8 @@ export default class LocationStore extends Store<LocationStoreState> {
         Dispatcher.dispatch(new SetViewportToPoint(this.state.coordinate, 15, 0, 0))
 
         // directly writing the state does not work: this.state.turnNavigation = false
-        Dispatcher.dispatch(new LocationUpdate({ lat: 0, lng: 0 }, false, 0))
+        Dispatcher.dispatch(new LocationUpdate({ coordinate: { lat: 0, lng: 0 }, turnNavigation: false, speed: 0 }))
 
         if (this.noSleep) this.noSleep.disable()
-
-        console.log('stopped location updates ' + this.watchId + ', ' + this.interval)
     }
 }

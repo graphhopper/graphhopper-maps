@@ -4,6 +4,7 @@ import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from 
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 import { ViewportStoreState } from '@/stores/ViewportStore'
+import { LocationStoreState } from '@/stores/LocationStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -13,16 +14,11 @@ export class InfoReceived implements Action {
     }
 }
 
-// TODO identical to LocationStoreState?
 export class LocationUpdate implements Action {
-    readonly coordinate: Coordinate
-    readonly turnNavigation: boolean
-    readonly speed: number
+    readonly location: LocationStoreState
 
-    constructor(coordinate: Coordinate, turnNavigation: boolean, speed: number) {
-        this.coordinate = coordinate
-        this.turnNavigation = turnNavigation
-        this.speed = !speed || speed == null ? 0 : speed
+    constructor(location: LocationStoreState) {
+        this.location = location
     }
 }
 

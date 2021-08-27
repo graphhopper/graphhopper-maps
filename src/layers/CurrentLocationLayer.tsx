@@ -20,7 +20,7 @@ export default function (coordinate: Coordinate): MapLayer {
     }
 
     return {
-        interactiveLayerIds: [currentLocationLayerKey],
+        interactiveLayerIds: [],
         onClick: (feature: any) => {},
         layer: (
             <Source type={'geojson'} data={featureCollection}>
