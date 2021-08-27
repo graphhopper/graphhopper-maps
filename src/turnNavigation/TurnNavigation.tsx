@@ -35,12 +35,12 @@ export default function ({ path, location }: TurnNavigationProps) {
     const [sound, setSound] = useState(true)
     // not sure how to access old state with useState alone
     function reducer(
-        state: { distanceToNext: number; index: number },
-        action: { distanceToNext: number; index: number }
+        state: { distanceToNext: number; index: number; spokeText: string },
+        action: { distanceToNext: number; index: number; spokeText: string }
     ) {
         return action
     }
-    const [state, dispatch] = useReducer(reducer, { index: -1, distanceToNext: -1 })
+    const [state, dispatch] = useReducer(reducer, { index: -1, distanceToNext: -1, spokeText: '' })
 
     // after render if index changed and distance is close next instruction speak text out loud
     useEffect(() => {
@@ -50,10 +50,24 @@ export default function ({ path, location }: TurnNavigationProps) {
             { index: instructionIndex, distanceToNext: distanceToNext },
             nextInstruction.text
         )
-        dispatch({ index: instructionIndex, distanceToNext: distanceToNext })
 
-        if (sound && distanceToNext < 40 && (state.distanceToNext > 40 || instructionIndex != state.index))
+        let info =
+            'dist=' +
+            distanceToNext +
+            '(' +
+            state.distanceToNext +
+            '), idx=' +
+            instructionIndex +
+            '(' +
+            state.index +
+            ')'
+        let nowText = '<no voice>, ' + info
+        if (sound && distanceToNext < 40 && (state.distanceToNext > 40 || instructionIndex != state.index)) {
             getLocationStore().getSpeechSynthesizer().synthesize(nextInstruction.text)
+            nowText = nextInstruction.text + ', ' + info
+        }
+
+        dispatch({ index: instructionIndex, distanceToNext: distanceToNext, spokeText: nowText })
     }, [instructionIndex, distanceToNext])
 
     // TODO better approximation via estimating taken time
@@ -89,7 +103,7 @@ export default function ({ path, location }: TurnNavigationProps) {
                                 <img src={endNavigation} />
                             </div>
                         </div>
-                        <div className={styles.turnText}>{nextInstruction.street_name}</div>
+                        <div className={styles.turnText}>{state.spokeText}</div>
                     </div>
                 </div>
             </div>
