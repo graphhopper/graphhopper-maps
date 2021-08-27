@@ -4,7 +4,6 @@ import { ErrorAction, LocationUpdate, SetViewportToPoint } from '@/actions/Actio
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
-import { tr } from '@/translation/Translation'
 
 export interface LocationStoreState {
     turnNavigation: boolean
@@ -47,7 +46,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     public initFake() {
         this.started = true
 
-        let route = 2
+        let route = 1
         let latlon: number[][]
         if (route == 1) {
             // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car

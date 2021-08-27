@@ -35,14 +35,14 @@ export default function ({ path, location }: TurnNavigationProps) {
     const [sound, setSound] = useState(true)
     // not sure how to access old state with useState alone
     function reducer(
-        state: { distanceToNext: number; index: number; spokeText: string },
-        action: { distanceToNext: number; index: number; spokeText: string }
+        state: { distanceToNext: number; index: number; text: string },
+        action: { distanceToNext: number; index: number; text: string }
     ) {
         return action
     }
-    const [state, dispatch] = useReducer(reducer, { index: -1, distanceToNext: -1, spokeText: '' })
+    const [state, dispatch] = useReducer(reducer, { index: -1, distanceToNext: -1, text: '' })
 
-    // after render if index changed and distance is close next instruction speak text out loud
+    // speak text out loud after render only if index changed and distance is close next instruction
     useEffect(() => {
         console.log(
             'useEffect',
@@ -51,23 +51,22 @@ export default function ({ path, location }: TurnNavigationProps) {
             nextInstruction.text
         )
 
-        let info =
-            'dist=' +
-            distanceToNext +
-            '(' +
-            state.distanceToNext +
-            '), idx=' +
-            instructionIndex +
-            '(' +
-            state.index +
-            ')'
-        let nowText = '<no voice>, ' + info
-        if (sound && distanceToNext <= 40 && (state.distanceToNext > 40 || instructionIndex != state.index)) {
-            getLocationStore().getSpeechSynthesizer().synthesize(nextInstruction.text)
-            nowText = nextInstruction.text + ', ' + info
+        let text = nextInstruction.street_name
+        if (sound) {
+            // making closeDistance dependent on location.speed is tricky because then it can change while driving, so pick the constant average speed
+            let averageSpeed = (path.distance / (path.time / 1000)) * 3.6
+            let closeDistance = 40 + 2 * Math.round(averageSpeed / 10) * 10
+            if (
+                distanceToNext <= closeDistance &&
+                (state.distanceToNext > closeDistance || instructionIndex != state.index)
+            ) {
+                getLocationStore().getSpeechSynthesizer().synthesize(nextInstruction.text)
+                //TODO enable debugging to UI via URL param:
+                //text = closeDistance + ', ' + distanceToNext + ', ' + instructionIndex
+            }
         }
 
-        dispatch({ index: instructionIndex, distanceToNext: distanceToNext, spokeText: nowText })
+        dispatch({ index: instructionIndex, distanceToNext: distanceToNext, text: text })
     }, [instructionIndex, distanceToNext])
 
     // TODO better approximation via estimating taken time
@@ -103,7 +102,7 @@ export default function ({ path, location }: TurnNavigationProps) {
                                 <img src={endNavigation} />
                             </div>
                         </div>
-                        <div className={styles.turnText}>{state.spokeText}</div>
+                        <div className={styles.turnText}>{state.text}</div>
                     </div>
                 </div>
             </div>
