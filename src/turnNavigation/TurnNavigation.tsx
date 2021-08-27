@@ -69,7 +69,6 @@ export default function ({ path, location }: TurnNavigationProps) {
         dispatch({ index: instructionIndex, distanceToNext: distanceToNext, text: text })
     }, [instructionIndex, distanceToNext])
 
-    // TODO better approximation via estimating taken time
     const arrivalDate = new Date()
     arrivalDate.setMilliseconds(arrivalDate.getSeconds() + remainingTime)
     const min = arrivalDate.getMinutes()
