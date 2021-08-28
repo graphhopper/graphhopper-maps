@@ -55,7 +55,7 @@ export default function ({ path, location }: TurnNavigationProps) {
         if (sound) {
             // making closeDistance dependent on location.speed is tricky because then it can change while driving, so pick the constant average speed
             let averageSpeed = (path.distance / (path.time / 1000)) * 3.6
-            let closeDistance = 40 + 2 * Math.round(averageSpeed / 10) * 10
+            let closeDistance = 10 + 2 * Math.round(averageSpeed / 5) * 5
             if (
                 distanceToNext <= closeDistance &&
                 (state.distanceToNext > closeDistance || instructionIndex != state.index)
