@@ -4,6 +4,7 @@ import Dispatcher, { Action } from '../src/stores/Dispatcher'
 import Store from '../src/stores/Store'
 import { AddPoint, SetVehicleProfile } from '../src/actions/Actions'
 import { RoutingProfile } from '../src/api/graphhopper'
+import { MapOptionsStoreState } from '../src/stores/MapOptionsStore'
 
 interface TestState {
     points: Coordinate[]
@@ -38,6 +39,7 @@ class TestStore extends Store<TestState> {
 afterEach(() => Dispatcher.clear())
 
 describe('parseUrl', () => {
+    let emptyMapStore = { styleOptions: [], selectedStyle: undefined, isMapLoaded: false }
     it('should parse parameters from a url', () => {
         const profile = 'car'
         const point1 = [50.67724646887518, 7.275303695325306] as [number, number]
@@ -47,13 +49,17 @@ describe('parseUrl', () => {
         const store = new TestStore()
         Dispatcher.register(store)
 
-        parseUrl(url, {
-            queryPoints: [],
-            nextQueryPointId: 0,
-            currentRequest: { subRequests: [] },
-            maxAlternativeRoutes: 1,
-            routingProfile: store.state.profile,
-        })
+        parseUrl(
+            url,
+            {
+                queryPoints: [],
+                nextQueryPointId: 0,
+                currentRequest: { subRequests: [] },
+                maxAlternativeRoutes: 1,
+                routingProfile: store.state.profile,
+            },
+            getMapStoreState()
+        )
 
         expect(store.state.points.length).toEqual(2)
         expect(store.state.points[0]).toEqual({ lat: point1[0], lng: point1[1] })
@@ -75,7 +81,7 @@ describe('parseUrl', () => {
             },
         })
 
-        parseUrl(url, getQueryStoreState())
+        parseUrl(url, getQueryStoreState(), getMapStoreState())
 
         expect(profileFromAction!.name).toEqual('car')
     })
@@ -96,7 +102,7 @@ describe('parseUrl', () => {
             },
         })
 
-        parseUrl(url, getQueryStoreState())
+        parseUrl(url, getQueryStoreState(), getMapStoreState())
 
         expect(profileFromAction!.name).toEqual(profile)
     })
@@ -105,7 +111,7 @@ describe('parseUrl', () => {
         const point1 = [50.67724646887518, 7.275303695325306, 1.0]
         const url = `http://localhost:3000/?point=${point1.join(',')}`
 
-        expect(() => parseUrl(url, getQueryStoreState())).toThrowError()
+        expect(() => parseUrl(url, getQueryStoreState(), getMapStoreState())).toThrowError()
     })
 })
 
@@ -118,16 +124,21 @@ describe('createUrl', () => {
         expectedUrl.searchParams.append('point', point1.join(','))
         expectedUrl.searchParams.append('point', point2.join(','))
         expectedUrl.searchParams.append('profile', profile)
+        expectedUrl.searchParams.append('layer', 'Fake')
 
         const emptyState = getQueryStoreState()
 
-        const result = createUrl(expectedUrl.origin, {
-            routingProfile: { ...emptyState.routingProfile, name: profile },
-            nextQueryPointId: 0,
-            maxAlternativeRoutes: 1,
-            currentRequest: { subRequests: [] },
-            queryPoints: [coordinateToQueryPoint(point1, 1), coordinateToQueryPoint(point2, 2)],
-        })
+        const result = createUrl(
+            expectedUrl.origin,
+            {
+                routingProfile: { ...emptyState.routingProfile, name: profile },
+                nextQueryPointId: 0,
+                maxAlternativeRoutes: 1,
+                currentRequest: { subRequests: [] },
+                queryPoints: [coordinateToQueryPoint(point1, 1), coordinateToQueryPoint(point2, 2)],
+            },
+            getMapStoreState()
+        )
 
         expect(result).toEqual(expectedUrl)
     })
@@ -140,6 +151,14 @@ function getQueryStoreState(): QueryStoreState {
         currentRequest: { subRequests: [] },
         maxAlternativeRoutes: 1,
         routingProfile: { name: '' },
+    }
+}
+
+function getMapStoreState(): MapOptionsStoreState {
+    return {
+        styleOptions: [],
+        selectedStyle: { name: 'Fake', type: 'vector', url: '', attribution: '' },
+        isMapLoaded: false,
     }
 }
 
