@@ -1,11 +1,13 @@
 import { coordinateToText } from '@/Converters'
 import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, RemovePoint, SetVehicleProfile } from '@/actions/Actions'
+import { AddPoint, RemovePoint, SelectMapStyle, SetVehicleProfile } from '@/actions/Actions'
+import { MapOptionsStoreState, StyleOption } from './stores/MapOptionsStore'
 
-export function parseUrl(href: string, currentState: QueryStoreState) {
+export function parseUrl(href: string, currentState: QueryStoreState, mapState: MapOptionsStoreState) {
     const url = new URL(href)
     parseRoutingProfile(url)
+    parseLayer(url, mapState.styleOptions)
     parsePoints(url, currentState.queryPoints)
 }
 
@@ -44,6 +46,12 @@ function parsePoints(url: URL, queryPointsFromStore: QueryPoint[]) {
     }
 }
 
+function parseLayer(url: URL, options: StyleOption[]) {
+    let layer = url.searchParams.get('layer')
+    const option = options.find(option => option.name === layer)
+    if (option) Dispatcher.dispatch(new SelectMapStyle(option))
+}
+
 function parseRoutingProfile(url: URL) {
     let profileKey = url.searchParams.get('profile')
     if (!profileKey) profileKey = 'car'
@@ -59,14 +67,15 @@ function parseNumber(value: string) {
     return Number.isNaN(number) ? 0 : number
 }
 
-export function createUrl(baseUrl: string, state: QueryStoreState) {
+export function createUrl(baseUrl: string, queryState: QueryStoreState, mapState: MapOptionsStoreState) {
     const result = new URL(baseUrl)
-    state.queryPoints
+    queryState.queryPoints
         .filter(point => point.isInitialized)
         .map(point => coordinateToText(point.coordinate))
         .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
-    result.searchParams.append('profile', state.routingProfile.name)
+    result.searchParams.append('profile', queryState.routingProfile.name)
+    result.searchParams.append('layer', mapState.selectedStyle.name)
 
     return result
 }
