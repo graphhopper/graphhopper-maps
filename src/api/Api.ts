@@ -37,7 +37,7 @@ export const ghKey = config.keys.graphhopper
 export const ghApi = config.api
 
 export class ApiImpl implements Api {
-    private readonly apiKey: string
+    private apiKey: string
     private readonly apiAddress: string
 
     constructor() {
@@ -56,6 +56,10 @@ export class ApiImpl implements Api {
         } else {
             throw new Error('Could not connect to the Service. Try to reload!')
         }
+    }
+
+    setAPIKey(key: string | null) {
+        if (key) this.apiKey = key
     }
 
     infoWithDispatch() {

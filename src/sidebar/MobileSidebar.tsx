@@ -7,15 +7,17 @@ import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { useMediaQuery } from 'react-responsive'
+import Api from '@/api/Api'
 
 type MobileSidebarProps = {
     query: QueryStoreState
     route: RouteStoreState
+    api: Api
     info: ApiInfo
     error: ErrorStoreState
 }
 
-export default function ({ query, route, info, error }: MobileSidebarProps) {
+export default function ({ query, route, api, info, error }: MobileSidebarProps) {
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
     const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen && hasResult(route))
@@ -52,6 +54,7 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                 ) : (
                     <SearchView
                         points={query.queryPoints}
+                        api={api}
                         routingProfiles={info.profiles}
                         selectedProfile={query.routingProfile}
                     />
@@ -68,6 +71,7 @@ function hasResult(route: RouteStoreState) {
 
 function SearchView(props: {
     points: QueryPoint[]
+    api: Api
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
 }) {
@@ -75,6 +79,7 @@ function SearchView(props: {
         <div className={styles.btnCloseContainer}>
             <Search
                 points={props.points}
+                api={props.api}
                 routingProfiles={props.routingProfiles}
                 selectedProfile={props.selectedProfile}
                 autofocus={false}

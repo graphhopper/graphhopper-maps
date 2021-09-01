@@ -66,6 +66,10 @@ export default class QueryStore extends Store<QueryStoreState> {
         this.api = api
     }
 
+    getAPI(): Api {
+        return this.api
+    }
+
     protected getInitialState(): QueryStoreState {
         return {
             queryPoints: [

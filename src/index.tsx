@@ -52,6 +52,7 @@ Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getViewportStore())
 
+api.setAPIKey(new URL(window.location.href).searchParams.get('key')) // allow overwriting GraphHopper API key via URL parameter
 api.infoWithDispatch() // get infos about the api as soon as possible
 
 // hook up the navbar to the query store and vice versa
