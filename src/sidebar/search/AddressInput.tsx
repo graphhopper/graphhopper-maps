@@ -4,7 +4,7 @@ import { GeocodingHit } from '@/api/graphhopper'
 import GeocodingResult from '@/sidebar/search/GeocodingResult'
 
 import styles from './AddressInput.module.css'
-import Api, { ApiImpl } from '@/api/Api'
+import Api from '@/api/Api'
 import { tr } from '@/translation/Translation'
 
 export interface AddressInputProps {
