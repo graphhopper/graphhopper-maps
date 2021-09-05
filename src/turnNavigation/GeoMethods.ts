@@ -152,3 +152,8 @@ function calcCrossingPointToEdge(
     let c_lat = a_lat + factor * delta_lat
     return { lat: c_lat, lng: c_lon / shrinkFactor }
 }
+
+export function calcOrientation(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    let shrinkFactor = Math.cos(toRadians((lat1 + lat2) / 2))
+    return Math.atan2(lat2 - lat1, shrinkFactor * (lon2 - lon1))
+}

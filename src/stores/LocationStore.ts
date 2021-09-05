@@ -4,6 +4,8 @@ import { ErrorAction, LocationUpdate, SetViewportToPoint } from '@/actions/Actio
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
+import { ApiImpl } from '@/api/Api'
+import { calcOrientation } from '@/turnNavigation/GeoMethods'
 
 export interface LocationStoreState {
     turnNavigation: boolean
@@ -11,6 +13,8 @@ export interface LocationStoreState {
     speed: number
 }
 
+// TODO investigate what we can learn from https://github.com/visgl/react-map-gl/blob/master/docs/api-reference/geolocate-control.md
+// TODO include compass in map https://github.com/visgl/react-map-gl/blob/master/docs/api-reference/navigation-control.md
 export default class LocationStore extends Store<LocationStoreState> {
     private watchId: any = undefined
     private interval: any
@@ -43,41 +47,37 @@ export default class LocationStore extends Store<LocationStoreState> {
         return state
     }
 
-    public initFake() {
+    public async initFake() {
         this.started = true
 
-        let route = 1
-        let latlon: number[][]
-        if (route == 1) {
-            // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car
-            latlon = [
-                [51.439291, 14.245254, 180, 0],
-                [51.438989, 14.245405, 180, 3],
-                [51.438895, 14.245191, 180, 3],
-                [51.438694, 14.245577, 90, 8],
-                [51.438668, 14.246092, 90, 8],
-                [51.438226, 14.246972, 180, 11],
-                [51.436795, 14.245921, 180, 11],
-                [51.435029, 14.243259, 270, 11],
-                [51.435203, 14.241006, 270, 10],
-                [51.434788, 14.238882, 180, 4],
-                [51.434146, 14.237745, 270, 2],
-                [51.433959, 14.235985, 180, 5],
-                [51.43322, 14.2349991, 270, 3],
-            ]
-        } else {
-            // http://localhost:3000/?point=51.438818%2C14.243717&point=51.437858%2C14.244785&point=51.438181%2C14.242442&profile=foot
-            latlon = [
-                [51.4388, 14.243857, 110, 1],
-                [51.438727, 14.244184, 200, 1],
-                [51.43836, 14.243954, 200, 1],
-                [51.438176, 14.244002, 120, 1],
-                [51.438108, 14.244266, 120, 1],
-                [51.43801, 14.244584, 120, 1],
-                [51.43791, 14.244783, 150, 1],
-                [51.437733, 14.244692, 210, 2],
-            ]
+        // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car
+        let api = new ApiImpl()
+        let response = await api.route({
+            points: [
+                [14.245254, 51.439291],
+                [14.234999, 51.43322],
+            ],
+            profile: 'car',
+            maxAlternativeRoutes: 0,
+        })
+
+        // TODO: skip too close points and interpolate if too big distance
+        let coords: number[][] = response.paths[0].points.coordinates
+        let latlon: number[][] = new Array(coords.length)
+
+        for (let idx = 0; idx < coords.length; idx++) {
+            // very ugly: in JS it is not initializable with a seed
+            let lat = coords[idx][1] + 0.0001 * Math.random(), // approx +-5m ?
+                lon = coords[idx][0] + 0.0001 * Math.random()
+            let heading = 180
+            if (idx > 0) {
+                let prevLat = coords[idx - 1][1],
+                    prevLon = coords[idx - 1][0]
+                heading = ((3 * Math.PI) / 2 - calcOrientation(lat, lon, prevLat, prevLon)) * 57.29577951308232 // factor 57.29... to convert radion to degrees
+            }
+            latlon[idx] = [lat, lon, heading, 4]
         }
+
         let currentIndex: number = 0
         this.locationUpdate({
             coords: {
