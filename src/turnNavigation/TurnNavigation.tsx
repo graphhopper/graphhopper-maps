@@ -10,6 +10,7 @@ import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
 import { getLocationStore } from '@/stores/Stores'
 import { LocationStoreState } from '@/stores/LocationStore'
 import PlainButton from '@/PlainButton'
+import { tr } from '@/translation/Translation'
 
 type TurnNavigationProps = {
     path: Path
@@ -53,16 +54,30 @@ export default function ({ path, location }: TurnNavigationProps) {
 
         let text = nextInstruction.street_name
         if (sound) {
-            // making closeDistance dependent on location.speed is tricky because then it can change while driving, so pick the constant average speed
+            // making lastAnnounceDistance dependent on location.speed is tricky because then it can change while driving, so pick the constant average speed
+            // TODO use instruction average speed of current+next instruction instead of whole path
             let averageSpeed = (path.distance / (path.time / 1000)) * 3.6
-            let closeDistance = 10 + 2 * Math.round(averageSpeed / 5) * 5
+            let lastAnnounceDistance = 10 + 2 * Math.round(averageSpeed / 5) * 5
+
+            // text = '' + averageSpeed + ', ' + distanceToNext
+
             if (
-                distanceToNext <= closeDistance &&
-                (state.distanceToNext > closeDistance || instructionIndex != state.index)
+                distanceToNext <= lastAnnounceDistance &&
+                (state.distanceToNext > lastAnnounceDistance || instructionIndex != state.index)
             ) {
                 getLocationStore().getSpeechSynthesizer().synthesize(nextInstruction.text)
-                //TODO enable debugging to UI via URL param:
-                //text = closeDistance + ', ' + distanceToNext + ', ' + instructionIndex
+            }
+
+            let firstAnnounceDistance = 1150
+            if (
+                averageSpeed > 15 && // two announcements only if faster speed
+                distanceToNext > 800 && // do not interfer with last announcement. also "1 km" should stay valid (approximately)
+                distanceToNext <= firstAnnounceDistance &&
+                (state.distanceToNext > firstAnnounceDistance || instructionIndex != state.index)
+            ) {
+                getLocationStore()
+                    .getSpeechSynthesizer()
+                    .synthesize(tr('in_km_singular') + ' ' + nextInstruction.text)
             }
         }
 
