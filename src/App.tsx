@@ -125,51 +125,56 @@ interface LayoutProps {
 }
 
 function LargeScreenLayout({ query, route, location, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
-    return (
+    return location.turnNavigation ? (
         <>
             <div className={styles.map}>
-                {
-                    <MapComponent
-                        viewport={viewport}
-                        styleOption={mapOptions.selectedStyle}
-                        queryPoints={query.queryPoints}
-                        mapLayers={mapLayers}
-                    />
-                }
+                <MapComponent
+                    viewport={viewport}
+                    styleOption={mapOptions.selectedStyle}
+                    queryPoints={query.queryPoints}
+                    mapLayers={mapLayers}
+                />
+            </div>
+            <div className={styles.turnNavigation}>
+                <TurnNavigation path={route.selectedPath} location={location} />
+            </div>
+        </>
+    ) : (
+        <>
+            <div className={styles.map}>
+                <MapComponent
+                    viewport={viewport}
+                    styleOption={mapOptions.selectedStyle}
+                    queryPoints={query.queryPoints}
+                    mapLayers={mapLayers}
+                />
             </div>
             <div className={styles.mapOptions}>
                 <MapOptions {...mapOptions} />
             </div>
-            {location.turnNavigation ? (
-                <div className={styles.turnNavigation}>
-                    <TurnNavigation path={route.selectedPath} location={location} />
-                </div>
-            ) : (
-                <div className={styles.sidebar}>
-                    <div className={styles.sidebarContent}>
-                        <div className={styles.search}>
-                            <Search
-                                points={query.queryPoints}
-                                routingProfiles={info.profiles}
-                                selectedProfile={query.routingProfile}
-                                autofocus={true}
-                            />
-                        </div>
-                        <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
-                        <div className={styles.routingResult}>
-                            <RoutingResults
-                                paths={route.routingResult.paths}
-                                selectedPath={route.selectedPath}
-                                currentRequest={query.currentRequest}
-                            />
-                        </div>
-                        <div className={styles.poweredBy}>
-                            <PoweredBy />
-                        </div>
+            <div className={styles.sidebar}>
+                <div className={styles.sidebarContent}>
+                    <div className={styles.search}>
+                        <Search
+                            points={query.queryPoints}
+                            routingProfiles={info.profiles}
+                            selectedProfile={query.routingProfile}
+                            autofocus={true}
+                        />
+                    </div>
+                    <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
+                    <div className={styles.routingResult}>
+                        <RoutingResults
+                            paths={route.routingResult.paths}
+                            selectedPath={route.selectedPath}
+                            currentRequest={query.currentRequest}
+                        />
+                    </div>
+                    <div className={styles.poweredBy}>
+                        <PoweredBy />
                     </div>
                 </div>
-            )}
-
+            </div>
             <div className={styles.pathDetails}>
                 <PathDetails selectedPath={route.selectedPath} />
             </div>
@@ -178,7 +183,21 @@ function LargeScreenLayout({ query, route, location, viewport, mapLayers, error,
 }
 
 function SmallScreenLayout({ query, route, location, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
-    return (
+    return location.turnNavigation ? (
+        <>
+            <div className={styles.smallScreenMap}>
+                <MapComponent
+                    viewport={viewport}
+                    queryPoints={query.queryPoints}
+                    styleOption={mapOptions.selectedStyle}
+                    mapLayers={mapLayers}
+                />
+            </div>
+            <div className={styles.smallScreenRoutingResult}>
+                <TurnNavigation path={route.selectedPath} location={location} />
+            </div>
+        </>
+    ) : (
         <>
             <div className={styles.smallScreenMap}>
                 <MapComponent
@@ -193,29 +212,19 @@ function SmallScreenLayout({ query, route, location, viewport, mapLayers, error,
                     <MapOptions {...mapOptions} />
                 </div>
             </div>
-            {location.turnNavigation ? null : (
-                <div className={styles.smallScreenSidebar}>
-                    <MobileSidebar info={info} query={query} route={route} error={error} />
-                </div>
-            )}
-            {location.turnNavigation ? (
-                <div className={styles.smallScreenRoutingResult}>
-                    <TurnNavigation path={route.selectedPath} location={location} />
-                </div>
-            ) : (
-                <div className={styles.smallScreenRoutingResult}>
-                    <RoutingResults
-                        paths={route.routingResult.paths}
-                        selectedPath={route.selectedPath}
-                        currentRequest={query.currentRequest}
-                    />
-                </div>
-            )}
-            {!location.turnNavigation ? (
-                <div className={styles.smallScreenPoweredBy}>
-                    <PoweredBy />
-                </div>
-            ) : null}
+            <div className={styles.smallScreenSidebar}>
+                <MobileSidebar info={info} query={query} route={route} error={error} />
+            </div>
+            <div className={styles.smallScreenRoutingResult}>
+                <RoutingResults
+                    paths={route.routingResult.paths}
+                    selectedPath={route.selectedPath}
+                    currentRequest={query.currentRequest}
+                />
+            </div>
+            <div className={styles.smallScreenPoweredBy}>
+                <PoweredBy />
+            </div>
         </>
     )
 }
