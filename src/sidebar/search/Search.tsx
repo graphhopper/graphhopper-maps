@@ -11,17 +11,14 @@ import { RoutingProfile } from '@/api/graphhopper'
 
 import AddressInput from '@/sidebar/search/AddressInput'
 import { convertToQueryText } from '@/Converters'
-import Api from '@/api/Api'
 
 export default function Search({
     points,
-    api,
     routingProfiles,
     selectedProfile,
     autofocus,
 }: {
     points: QueryPoint[]
-    api: Api
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
     autofocus: boolean
@@ -33,7 +30,6 @@ export default function Search({
                 <SearchBox
                     key={point.id}
                     point={point}
-                    api={api}
                     deletable={points.length > 2}
                     onChange={() => {
                         Dispatcher.dispatch(new ClearRoute())
@@ -55,13 +51,11 @@ export default function Search({
 
 const SearchBox = ({
     point,
-    api,
     onChange,
     deletable,
     autofocus,
 }: {
     point: QueryPoint
-    api: Api
     deletable: boolean
     onChange: (value: string) => void
     autofocus: boolean
@@ -73,7 +67,6 @@ const SearchBox = ({
                 <AddressInput
                     point={point}
                     autofocus={autofocus}
-                    api={api}
                     onCancel={() => console.log('cancel')}
                     onAddressSelected={hit =>
                         Dispatcher.dispatch(

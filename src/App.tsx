@@ -28,10 +28,8 @@ import createPathDetailsLayer from '@/layers/PathDetailsLayer'
 import createQueryPointsLayer from '@/layers/QueryPointsLayer'
 import createPathsLayer from '@/layers/PathsLayer'
 import { MapLayer } from '@/layers/MapLayer'
-import Api from './api/Api'
 
 export default function App() {
-    const api = getQueryStore().getAPI()
     const [query, setQuery] = useState(getQueryStore().state)
     const [info, setInfo] = useState(getApiInfoStore().state)
     const [route, setRoute] = useState(getRouteStore().state)
@@ -86,7 +84,6 @@ export default function App() {
                     mapLayers={mapLayers}
                     mapOptions={mapOptions}
                     error={error}
-                    api={api}
                     info={info}
                 />
             ) : (
@@ -97,7 +94,6 @@ export default function App() {
                     mapLayers={mapLayers}
                     mapOptions={mapOptions}
                     error={error}
-                    api={api}
                     info={info}
                 />
             )}
@@ -112,11 +108,10 @@ interface LayoutProps {
     mapLayers: MapLayer[]
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
-    api: Api
     info: ApiInfo
 }
 
-function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, api, info }: LayoutProps) {
+function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
     return (
         <>
             <div className={styles.map}>
@@ -137,7 +132,6 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
                     <div className={styles.search}>
                         <Search
                             points={query.queryPoints}
-                            api={api}
                             routingProfiles={info.profiles}
                             selectedProfile={query.routingProfile}
                             autofocus={true}
@@ -163,7 +157,7 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
     )
 }
 
-function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, api, info }: LayoutProps) {
+function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenMap}>
@@ -180,7 +174,7 @@ function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOption
                 </div>
             </div>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar info={info} query={query} route={route} api={api} error={error} />
+                <MobileSidebar info={info} query={query} route={route} error={error} />
             </div>
             <div className={styles.smallScreenRoutingResult}>
                 <RoutingResults
