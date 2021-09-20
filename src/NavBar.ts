@@ -3,6 +3,8 @@ import { coordinateToText } from '@/Converters'
 import { RoutingProfile } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, RemovePoint, SetVehicleProfile } from '@/actions/Actions'
+// import the window like this so that it can be mocked during testing
+import { window } from '@/Window'
 
 export interface AppContext {
     addEventListener(type: string, listener: () => void): void
@@ -13,14 +15,12 @@ export interface AppContext {
 
 export default class NavBar {
     private readonly queryStore: QueryStore
-    private readonly appContext: AppContext
     private isIgnoreQueryStoreUpdates = false
 
-    constructor(queryStore: QueryStore, appContext: AppContext) {
+    constructor(queryStore: QueryStore /* appContext: AppContext */) {
         this.queryStore = queryStore
         this.queryStore.register(() => this.onQueryStoreChanged())
-        this.appContext = appContext
-        appContext.addEventListener('popstate', () => this.parseUrlAndReplaceQuery())
+        window.addEventListener('popstate', () => this.parseUrlAndReplaceQuery())
     }
 
     private static createUrl(baseUrl: string, state: QueryStoreState) {
@@ -85,7 +85,8 @@ export default class NavBar {
     parseUrlAndReplaceQuery() {
         this.isIgnoreQueryStoreUpdates = true
 
-        const parseResult = NavBar.parseUrl(this.appContext.location.href)
+        //const parseResult = NavBar.parseUrl(this.appContext.location.href)
+        const parseResult = NavBar.parseUrl(window.location.href)
 
         // remove old query points
         this.queryStore.state.queryPoints.forEach(point => Dispatcher.dispatch(new RemovePoint(point)))
@@ -108,10 +109,11 @@ export default class NavBar {
         if (this.isIgnoreQueryStoreUpdates) return
 
         const newHref = NavBar.createUrl(
-            this.appContext.location.origin + this.appContext.location.pathname,
+            //this.appContext.location.origin + this.appContext.location.pathname,
+            window.location.origin + window.location.pathname,
             this.queryStore.state
         ).toString()
 
-        if (newHref !== this.appContext.location.href) this.appContext.history.pushState('last state', '', newHref)
+        if (newHref !== window.location.href) window.history.pushState('last state', '', newHref)
     }
 }
