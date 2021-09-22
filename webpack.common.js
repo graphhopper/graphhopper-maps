@@ -24,7 +24,7 @@ module.exports = {
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'src'),
-            config$: config
+            config$: config,
         },
         extensions: ['.ts', '.tsx', '.js', '.json', '.css', '.svg'],
     },

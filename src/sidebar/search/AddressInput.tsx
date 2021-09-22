@@ -23,10 +23,7 @@ export default function AddressInput(props: AddressInputProps) {
     // container for geocoding results which get set by the geocoder class and set to empty if the undelying query point gets changed from outside
     const [geocodingResults, setGeocodingResults] = useState<GeocodingHit[]>([])
     const [geocoder] = useState(new Geocoder(hits => setGeocodingResults(hits)))
-    useEffect(() => {
-        setGeocodingResults([])
-        //setFullscreen(false)
-    }, [props.point])
+    useEffect(() => setGeocodingResults([]), [props.point])
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
@@ -49,6 +46,7 @@ export default function AddressInput(props: AddressInputProps) {
                     setHighlightedResult(i => calculateHighlightedIndex(geocodingResults.length, i, 1))
                     break
                 case 'Enter':
+                case 'Tab':
                     // by default use the first result, otherwise the highlighted one
                     const index = highlightedResult >= 0 ? highlightedResult : 0
                     // it seems like the order of the following two statments is important...
@@ -60,9 +58,9 @@ export default function AddressInput(props: AddressInputProps) {
         [geocodingResults, highlightedResult]
     )
 
-    // toggle fullscreen display on small screens
-    const [fullscreen, setFullscreen] = useState(false)
-    const containerClass = fullscreen ? styles.container + ' ' + styles.fullscreen : styles.container
+    // keep track of focus and toggle fullscreen display on small screens
+    const [hasFocus, setHasFocus] = useState(false)
+    const containerClass = hasFocus ? styles.container + ' ' + styles.fullscreen : styles.container
     const type = props.point.type
 
     return (
@@ -78,17 +76,22 @@ export default function AddressInput(props: AddressInputProps) {
                         props.onChange(e.target.value)
                     }}
                     onKeyDown={onKeypress}
-                    onFocus={() => setFullscreen(true)}
+                    onFocus={event => {
+                        setHasFocus(true)
+                        event.target.select()
+                    }}
                     onBlur={() => {
-                        setFullscreen(false)
+                        geocoder.cancel()
+                        setHasFocus(false)
                         setGeocodingResults([])
                     }}
                     value={text}
+                    autoFocus={props.autofocus}
                     placeholder={tr(
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
                     )}
                 />
-                <button className={styles.btnClose} onClick={() => setFullscreen(false)}>
+                <button className={styles.btnClose} onClick={() => setHasFocus(false)}>
                     Close
                 </button>
             </div>
@@ -133,6 +136,11 @@ class Geocoder {
 
     request(query: string) {
         this.requestAsync(query).then(() => {})
+    }
+
+    cancel() {
+        // invalidates last request if there is one
+        this.getNextId()
     }
 
     async requestAsync(query: string) {
