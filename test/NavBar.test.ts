@@ -1,13 +1,13 @@
-import NavBar from '../src/NavBar'
+import NavBar from "@/NavBar"
 import QueryStore, { QueryPoint, QueryPointType } from '../src/stores/QueryStore'
 import DummyApi from './DummyApi'
-import { SetPoint, SetVehicleProfile } from '../src/actions/Actions'
-import Dispatcher from '../src/stores/Dispatcher'
-import { coordinateToText } from '../src/Converters'
+import { SetPoint, SetVehicleProfile } from '@/actions/Actions'
+import Dispatcher from '@/stores/Dispatcher'
+import { coordinateToText } from '@/Converters'
 
 // import the window and mock it with jest
-import { window } from '../src/Window'
-jest.mock('../src/window', () => ({
+import { window } from '@/Window'
+jest.mock('@/Window', () => ({
     window: {
         location: {
             origin: 'https://current.origin',
