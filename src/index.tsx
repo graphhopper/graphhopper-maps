@@ -24,7 +24,8 @@ import PathDetailsStore from '@/stores/PathDetailsStore'
 import ViewportStore from '@/stores/ViewportStore'
 import NavBar from '@/NavBar'
 
-setTranslation(navigator.language)
+let locale = new URL(window.location.href).searchParams.get('locale')
+setTranslation(locale || navigator.language)
 
 // set up state management
 const api = new ApiImpl()
@@ -55,7 +56,7 @@ Dispatcher.register(getViewportStore())
 api.infoWithDispatch() // get infos about the api as soon as possible
 
 // hook up the navbar to the query store and vice versa
-const navBar = new NavBar(getQueryStore())
+const navBar = new NavBar(getQueryStore(), getMapOptionsStore())
 // parse the initial url
 navBar.parseUrlAndReplaceQuery()
 
