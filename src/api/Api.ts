@@ -15,7 +15,6 @@ import {
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
-import config from 'config'
 
 interface ApiProfile {
     name: string
@@ -33,16 +32,24 @@ export default interface Api {
     geocode(query: string): Promise<GeocodingResult>
 }
 
-export const ghKey = config.keys.graphhopper
-export const ghApi = config.api
+let api: Api | undefined
 
-export class ApiImpl implements Api {
-    private apiKey: string
+export function setApi(apiAddress: string, apiKey: string) {
+    api = new ApiImpl(apiAddress, apiKey)
+}
+
+export function getApi() {
+    if (!api) throw Error('Api must be initialized before it can be used. Use "setApi" when starting the app')
+    return api
+}
+
+class ApiImpl implements Api {
+    private readonly apiKey: string
     private readonly apiAddress: string
 
-    constructor() {
-        this.apiKey = ghKey
-        this.apiAddress = ghApi
+    constructor(apiAddress: string, apiKey: string) {
+        this.apiAddress = apiAddress
+        this.apiKey = apiKey
     }
 
     async info(): Promise<ApiInfo> {
@@ -56,10 +63,6 @@ export class ApiImpl implements Api {
         } else {
             throw new Error('Could not connect to the Service. Try to reload!')
         }
-    }
-
-    setAPIKey(key: string | null) {
-        if (key) this.apiKey = key
     }
 
     infoWithDispatch() {

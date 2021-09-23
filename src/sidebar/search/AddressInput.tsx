@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
-import { getQueryStore } from '@/stores/Stores'
 import { GeocodingHit } from '@/api/graphhopper'
 import GeocodingResult from '@/sidebar/search/GeocodingResult'
 
 import styles from './AddressInput.module.css'
-import Api from '@/api/Api'
+import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 
 export interface AddressInputProps {
@@ -23,7 +22,7 @@ export default function AddressInput(props: AddressInputProps) {
 
     // container for geocoding results which get set by the geocoder class and set to empty if the undelying query point gets changed from outside
     const [geocodingResults, setGeocodingResults] = useState<GeocodingHit[]>([])
-    const [geocoder] = useState(new Geocoder(getQueryStore().getAPI(), hits => setGeocodingResults(hits)))
+    const [geocoder] = useState(new Geocoder(getApi(), hits => setGeocodingResults(hits)))
     useEffect(() => setGeocodingResults([]), [props.point])
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
