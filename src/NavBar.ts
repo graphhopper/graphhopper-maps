@@ -1,6 +1,13 @@
+import QueryStore, { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
+import { coordinateToText } from '@/Converters'
+import { RoutingProfile } from '@/api/graphhopper'
+import Dispatcher from '@/stores/Dispatcher'
+import { AddPoint, RemovePoint, SetVehicleProfile } from '@/actions/Actions'
+// import the window like this so that it can be mocked during testing
+import { window } from '@/Window'
 import QueryStore from '@/stores/QueryStore'
 import * as QueryUrl from '@/QueryUrl'
-import MapOptionsStore from './stores/MapOptionsStore'
+import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
 
 export interface AppContext {
     addEventListener(type: string, listener: () => void): void
@@ -8,36 +15,110 @@ export interface AppContext {
     readonly history: History
 }
 export default class NavBar {
-    private readonly appContext: AppContext
     private readonly queryStore: QueryStore
     private readonly mapStore: MapOptionsStore
     private isIgnoreQueryStoreUpdates = false
 
-    constructor(appContext: AppContext, queryStore: QueryStore, mapStore: MapOptionsStore) {
-        this.appContext = appContext
-        appContext.addEventListener('popstate', () => this.parseUrl())
+    constructor(queryStore: QueryStore, mapStore: MapOptionsStore) {
         this.queryStore = queryStore
         this.queryStore.register(() => this.onQueryStateChanged())
         this.mapStore = mapStore
         this.mapStore.register(() => this.onQueryStateChanged())
+        window.addEventListener('popstate', () => this.parseUrlAndReplaceQuery())
     }
 
-    parseUrl() {
+    private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState) {
+        const result = new URL(baseUrl)
+        queryStoreState.queryPoints
+            .filter(point => point.isInitialized)
+            .map(point => coordinateToText(point.coordinate))
+            .forEach(pointAsString => result.searchParams.append('point', pointAsString))
+
+        result.searchParams.append('profile', queryStoreState.routingProfile.name)
+
+        return result
+    }
+
+    private static parseUrl(href: string): { points: QueryPoint[]; profile: RoutingProfile } {
+        const url = new URL(href)
+
+        return {
+            points: NavBar.parsePoints(url),
+            profile: { name: NavBar.parseProfile(url) },
+            // TODO add map layer parsing
+        }
+    }
+
+    private static parsePoints(url: URL) {
+        return url.searchParams
+            .getAll('point')
+            .map(parameter => {
+                const split = parameter.split(',')
+                if (split.length !== 2)
+                    throw Error(
+                        'Could not parse url parameter point: ' +
+                            parameter +
+                            ' Think about what to do instead of crashing'
+                    )
+                return { lat: NavBar.parseNumber(split[0]), lng: NavBar.parseNumber(split[1]) }
+            })
+            .map(
+                (coordinate, i): QueryPoint => {
+                    return {
+                        coordinate: coordinate,
+                        isInitialized: true,
+                        id: i,
+                        queryText: '',
+                        color: '',
+                        type: QueryPointType.Via,
+                    }
+                }
+            )
+    }
+
+    private static parseProfile(url: URL) {
+        let profileKey = url.searchParams.get('profile')
+        if (!profileKey) profileKey = 'car'
+        return profileKey
+    }
+
+    private static parseNumber(value: string) {
+        const number = Number.parseFloat(value)
+        return Number.isNaN(number) ? 0 : number
+    }
+
+    parseUrlAndReplaceQuery() {
         this.isIgnoreQueryStoreUpdates = true
-        QueryUrl.parseUrl(this.appContext.location.href, this.queryStore.state, this.mapStore.state)
+
+        //const parseResult = NavBar.parseUrl(this.appContext.location.href)
+        const parseResult = NavBar.parseUrl(window.location.href)
+
+        // remove old query points
+        this.queryStore.state.queryPoints.forEach(point => Dispatcher.dispatch(new RemovePoint(point)))
+
+        // add parsed points
+        parseResult.points.forEach((point, i) => Dispatcher.dispatch(new AddPoint(i, point.coordinate, true)))
+
+        // assuming that at least two points should be present add un-initialized points if necessary
+        for (let i = this.queryStore.state.queryPoints.length; i < 2; i++) {
+            Dispatcher.dispatch(new AddPoint(i, { lat: 0, lng: 0 }, false))
+        }
+
+        // add routing profile
+        Dispatcher.dispatch(new SetVehicleProfile(parseResult.profile))
+
         this.isIgnoreQueryStoreUpdates = false
     }
 
     private onQueryStateChanged() {
         if (this.isIgnoreQueryStoreUpdates) return
 
-        const newHref = QueryUrl.createUrl(
-            this.appContext.location.origin + this.appContext.location.pathname,
+        const newHref = NavBar.createUrl(
+            window.location.origin + window.location.pathname,
             this.queryStore.state,
             this.mapStore.state
         ).toString()
 
-        if (newHref !== this.appContext.location.href)
-            this.appContext.history.pushState('last state', '', newHref.toString())
+        if (newHref !== window.location.href) window.history.pushState('last state', '', newHref)
     }
 }
