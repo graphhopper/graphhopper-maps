@@ -43,7 +43,11 @@ export function getApi() {
     return api
 }
 
-class ApiImpl implements Api {
+/**
+ * Exporting this so that it can be tested directly. Don't know how to properly set this up in typescript, so that the
+ * class could be tested but is not available for usage in the app. In Java one would make this package private I guess.
+ */
+export class ApiImpl implements Api {
     private readonly apiKey: string
     private readonly apiAddress: string
 
