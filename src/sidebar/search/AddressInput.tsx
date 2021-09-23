@@ -4,7 +4,7 @@ import { GeocodingHit } from '@/api/graphhopper'
 import GeocodingResult from '@/sidebar/search/GeocodingResult'
 
 import styles from './AddressInput.module.css'
-import { ApiImpl } from '@/api/Api'
+import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 
 export interface AddressInputProps {
@@ -22,7 +22,7 @@ export default function AddressInput(props: AddressInputProps) {
 
     // container for geocoding results which get set by the geocoder class and set to empty if the undelying query point gets changed from outside
     const [geocodingResults, setGeocodingResults] = useState<GeocodingHit[]>([])
-    const [geocoder] = useState(new Geocoder(hits => setGeocodingResults(hits)))
+    const [geocoder] = useState(new Geocoder(getApi(), hits => setGeocodingResults(hits)))
     useEffect(() => setGeocodingResults([]), [props.point])
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
@@ -127,10 +127,11 @@ function calculateHighlightedIndex(length: number, currentIndex: number, increme
 class Geocoder {
     private requestId = 0
     private readonly timeout = new Timout(200)
-    private readonly api = new ApiImpl()
+    private readonly api: Api
     private readonly onSuccess: (hits: GeocodingHit[]) => void
 
-    constructor(onSuccess: (hits: GeocodingHit[]) => void) {
+    constructor(api: Api, onSuccess: (hits: GeocodingHit[]) => void) {
+        this.api = api
         this.onSuccess = onSuccess
     }
 

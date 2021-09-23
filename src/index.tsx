@@ -17,19 +17,20 @@ import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
 import QueryStore from '@/stores/QueryStore'
-import { ApiImpl } from '@/api/Api'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
 import ViewportStore from '@/stores/ViewportStore'
 import NavBar from '@/NavBar'
+import * as config from 'config'
+import { getApi, setApi } from '@/api/Api'
 
 let locale = new URL(window.location.href).searchParams.get('locale')
 setTranslation(locale || navigator.language)
 
 // set up state management
-const api = new ApiImpl()
-const queryStore = new QueryStore(api)
+setApi(config.api, getApiKey())
+const queryStore = new QueryStore(getApi())
 const routeStore = new RouteStore(queryStore)
 
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
@@ -53,7 +54,7 @@ Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getViewportStore())
 
-api.infoWithDispatch() // get infos about the api as soon as possible
+getApi().infoWithDispatch() // get infos about the api as soon as possible
 
 // hook up the navbar to the query store and vice versa
 const navBar = new NavBar(getQueryStore(), getMapOptionsStore())
@@ -67,3 +68,9 @@ root.style.height = '100%'
 document.body.appendChild(root)
 
 ReactDOM.render(<App />, root)
+
+function getApiKey() {
+    const url = new URL(window.location.href)
+    // use graphhopper api key from url or try using one from the config
+    return url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
+}
