@@ -1,19 +1,12 @@
-import QueryStore, { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import { coordinateToText } from '@/Converters'
 import { RoutingProfile } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, RemovePoint, SetVehicleProfile } from '@/actions/Actions'
+import { AddPoint, RemovePoint, SelectMapStyle, SetVehicleProfile } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
-import QueryStore from '@/stores/QueryStore'
-import * as QueryUrl from '@/QueryUrl'
-import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
+import QueryStore, { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
+import MapOptionsStore, { MapOptionsStoreState, StyleOption } from './stores/MapOptionsStore'
 
-export interface AppContext {
-    addEventListener(type: string, listener: () => void): void
-    readonly location: Location
-    readonly history: History
-}
 export default class NavBar {
     private readonly queryStore: QueryStore
     private readonly mapStore: MapOptionsStore
@@ -35,17 +28,18 @@ export default class NavBar {
             .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
+        result.searchParams.append('layer', mapState.selectedStyle.name)
 
         return result
     }
 
-    private static parseUrl(href: string): { points: QueryPoint[]; profile: RoutingProfile } {
+    private parseUrl(href: string): { points: QueryPoint[]; profile: RoutingProfile; styleOption: StyleOption } {
         const url = new URL(href)
 
         return {
             points: NavBar.parsePoints(url),
             profile: { name: NavBar.parseProfile(url) },
-            // TODO add map layer parsing
+            styleOption: this.parseLayer(url),
         }
     }
 
@@ -82,6 +76,12 @@ export default class NavBar {
         return profileKey
     }
 
+    private parseLayer(url: URL) {
+        let layer = url.searchParams.get('layer')
+        const option = this.mapStore.state.styleOptions.find(option => option.name === layer)
+        return option ? option : this.mapStore.state.selectedStyle
+    }
+
     private static parseNumber(value: string) {
         const number = Number.parseFloat(value)
         return Number.isNaN(number) ? 0 : number
@@ -91,7 +91,7 @@ export default class NavBar {
         this.isIgnoreQueryStoreUpdates = true
 
         //const parseResult = NavBar.parseUrl(this.appContext.location.href)
-        const parseResult = NavBar.parseUrl(window.location.href)
+        const parseResult = this.parseUrl(window.location.href)
 
         // remove old query points
         this.queryStore.state.queryPoints.forEach(point => Dispatcher.dispatch(new RemovePoint(point)))
@@ -106,6 +106,9 @@ export default class NavBar {
 
         // add routing profile
         Dispatcher.dispatch(new SetVehicleProfile(parseResult.profile))
+
+        // add map style
+        Dispatcher.dispatch(new SelectMapStyle(parseResult.styleOption))
 
         this.isIgnoreQueryStoreUpdates = false
     }
