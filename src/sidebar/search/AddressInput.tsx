@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { GeocodingHit } from '@/api/graphhopper'
-import { ErrorAction, SetPoint } from '@/actions/Actions'
+import { ErrorAction } from '@/actions/Actions'
 import GeocodingResult from '@/sidebar/search/GeocodingResult'
 import Dispatcher from '@/stores/Dispatcher'
 
@@ -26,6 +26,16 @@ export default function AddressInput(props: AddressInputProps) {
     const [geocodingResults, setGeocodingResults] = useState<GeocodingHit[]>([])
     const [geocoder] = useState(new Geocoder(hits => setGeocodingResults(hits)))
     useEffect(() => setGeocodingResults([]), [props.point])
+    useEffect(() => {
+        if (hasFocus && text.length == 0 && geocodingResults.length === 0) {
+            const locationHit = {
+                osm_id: 'current_location', // required for React (for the "key" attribute of the list)
+                name: tr('current_location'),
+                osm_type: 'current_location', // required to internally identify the special geocoding result
+            } as GeocodingHit
+            setGeocodingResults([locationHit])
+        }
+    })
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
@@ -65,12 +75,6 @@ export default function AddressInput(props: AddressInputProps) {
     const [hasFocus, setHasFocus] = useState(false)
     const containerClass = hasFocus ? styles.container + ' ' + styles.fullscreen : styles.container
     const type = props.point.type
-    if (hasFocus && text.length == 0 && geocodingResults.length == 0)
-        geocodingResults.push({
-            osm_id: 'current_location', // required for React (for the "key" attribute of the list)
-            name: tr('current_location'),
-            osm_type: 'current_location', // required to internally identify the special geocoding result
-        } as GeocodingHit)
 
     return (
         <div className={containerClass}>
