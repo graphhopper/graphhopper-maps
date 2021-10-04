@@ -29,9 +29,9 @@ export interface AutocompleteProps {
 
 export default function Autocomplete({ items, highlightedItem, onSelect }: AutocompleteProps) {
     return (
-        <ul className={styles.geocodingList}>
+        <ul>
             {items.map(item => (
-                <li className={styles.geocodingListItem}>{mapToComponent(item, highlightedItem === item, onSelect)}</li>
+                <li className={styles.autocompleteItem}>{mapToComponent(item, highlightedItem === item, onSelect)}</li>
             ))}
         </ul>
     )
@@ -62,8 +62,8 @@ export function SelectCurrentLocation({
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
             <div className={styles.currentLocationEntry}>
-                <CurrentLocationIcon className={styles.currentLocationIcon} fill="#5b616a" />
-                <span className={styles.geocodingEntryMain}>{tr('current_location')}</span>
+                <CurrentLocationIcon fill="#5b616a" />
+                <span className={styles.mainText}>{tr('current_location')}</span>
             </div>
         </AutocompleteEntry>
     )
@@ -81,7 +81,7 @@ function GeocodingEntry({
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
             <div className={styles.geocodingEntry}>
-                <span className={styles.geocodingEntryMain}>{convertToMainText(item.hit)}</span>
+                <span className={styles.mainText}>{convertToMainText(item.hit)}</span>
                 <span>{convertToSecondaryText(item.hit)}</span>
             </div>
         </AutocompleteEntry>
@@ -98,9 +98,7 @@ function AutocompleteEntry({
     onSelect: () => void
 }) {
     const [isCancelled, setIsCancelled] = useState(false)
-    const className = isHighlighted
-        ? styles.selectableGeocodingEntry + ' ' + styles.highlightedGeocodingEntry
-        : styles.selectableGeocodingEntry
+    const className = isHighlighted ? styles.selectableItem + ' ' + styles.highlightedItem : styles.selectableItem
     return (
         <button
             className={className}
