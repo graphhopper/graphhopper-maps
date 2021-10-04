@@ -11,7 +11,7 @@ import Autocomplete, {
 import Dispatcher from '@/stores/Dispatcher'
 
 import styles from './AddressInput.module.css'
-import { ApiImpl } from '@/api/Api'
+import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import { convertToQueryText } from '@/Converters'
 
@@ -33,7 +33,7 @@ export default function AddressInput(props: AddressInputProps) {
     // empty
     const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>([])
     const [geocoder] = useState(
-        new Geocoder(hits => {
+        new Geocoder(getApi(), hits => {
             const items = hits.map(hit => {
                 return { type: 'geocoding', hit: hit } as GeocodingItem
             })
@@ -102,7 +102,10 @@ export default function AddressInput(props: AddressInputProps) {
                         props.onChange(e.target.value)
                     }}
                     onKeyDown={onKeypress}
-                    onFocus={() => setHasFocus(true)}
+                    onFocus={event => {
+                        setHasFocus(true)
+                        event.target.select()
+                    }}
                     onBlur={() => {
                         geocoder.cancel()
                         setHasFocus(false)
@@ -178,10 +181,11 @@ function calculateHighlightedIndex(length: number, currentIndex: number, increme
 class Geocoder {
     private requestId = 0
     private readonly timeout = new Timout(200)
-    private readonly api = new ApiImpl()
+    private readonly api: Api
     private readonly onSuccess: (hits: GeocodingHit[]) => void
 
-    constructor(onSuccess: (hits: GeocodingHit[]) => void) {
+    constructor(api: Api, onSuccess: (hits: GeocodingHit[]) => void) {
+        this.api = api
         this.onSuccess = onSuccess
     }
 
