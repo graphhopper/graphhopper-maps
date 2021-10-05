@@ -15,6 +15,12 @@
     height: 1.5rem;
 }
 
+.sign > svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
 .mainText {
     margin-top: 1rem;
 }

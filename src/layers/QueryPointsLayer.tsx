@@ -41,7 +41,7 @@ function createQueryPointMarkers(queryPoints: QueryPoint[]) {
                 <MarkerComponent
                     color={indexPoint.point.color}
                     number={indexPoint.point.type === QueryPointType.Via ? i : undefined}
-                    size={40}
+                    size={35}
                 />
             </Marker>
         ))
