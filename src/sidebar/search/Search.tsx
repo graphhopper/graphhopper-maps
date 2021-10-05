@@ -10,6 +10,7 @@ import PlainButton from '@/PlainButton'
 import { RoutingProfile } from '@/api/graphhopper'
 
 import AddressInput from '@/sidebar/search/AddressInput'
+import { MarkerComponent } from '@/map/Marker'
 
 export default function Search({
     points,
@@ -61,7 +62,9 @@ const SearchBox = ({
 }) => {
     return (
         <>
-            <div className={styles.dot} style={{ backgroundColor: point.color }} />
+            <div className={styles.markerContainer}>
+                <MarkerComponent color={point.color} />
+            </div>
             <div className={styles.searchBoxInput}>
                 <AddressInput
                     point={point}

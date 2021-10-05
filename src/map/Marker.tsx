@@ -12,15 +12,15 @@ const markerStyle = {
 
 interface MarkerProps {
     color: string
-    number: number | null
+    number?: number
+    size?: number
 }
 
 /**
  * This component draws a marker. If a number is passed, the white circle of the marker is larger and displays the
  * number. Otherwise the default marker from https://fontawesome.com/v5.15/icons/map-marker-alt?style=solid is taken
  */
-export function MarkerComponent({ color, number }: MarkerProps) {
-    const size = 40
+export function MarkerComponent({ color, number, size = 0 }: MarkerProps) {
     return (
         <svg
             aria-hidden="true"
@@ -32,13 +32,13 @@ export function MarkerComponent({ color, number }: MarkerProps) {
             style={{ ...markerStyle, fill: color, transform: `translate(${-size / 2}px, ${-size}px` }}
         >
             <path d={MARKER_PATH} />
-            {number === null ? (
+            {number === undefined ? (
                 <path d={INNER_CIRCLE} fill="white" />
             ) : (
                 <circle cx="192" cy="190" r="120" fill="white" />
             )}
             <text x="50%" y="47%" textAnchor="middle" style={{ fontSize: 150 }} fill="black">
-                {number !== null ? number : ''}
+                {number !== undefined ? number : ''}
             </text>
         </svg>
     )

@@ -56,7 +56,7 @@
     font-size: small;
 }
 
-.dot {
+.markerContainer {
     align-self: center;
     justify-self: center;
     border-radius: 50%;
