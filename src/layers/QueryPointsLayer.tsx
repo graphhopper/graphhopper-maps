@@ -1,4 +1,4 @@
-import { QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Marker } from 'react-map-gl'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
@@ -21,24 +21,27 @@ function createQueryPointMarkers(queryPoints: QueryPoint[]) {
             return { index: i, point: point }
         })
         .filter(indexPoint => indexPoint.point.isInitialized)
-        .map((indexPoint, i) => (
-            <Marker
-                key={i}
-                longitude={indexPoint.point.coordinate.lng}
-                latitude={indexPoint.point.coordinate.lat}
-                draggable={true}
-                onDragEnd={(e: any) => {
-                    const coordinate = { lng: e.lngLat[0], lat: e.lngLat[1] }
-                    Dispatcher.dispatch(
-                        new SetPoint({
-                            ...indexPoint.point,
-                            coordinate,
-                            queryText: coordinateToText(coordinate),
-                        })
-                    )
-                }}
-            >
-                <MarkerComponent color={indexPoint.point.color} />
-            </Marker>
-        ))
+        .map((indexPoint, i) => {
+            const markerNumber = indexPoint.point.type === QueryPointType.Via ? i : null
+            return (
+                <Marker
+                    key={i}
+                    longitude={indexPoint.point.coordinate.lng}
+                    latitude={indexPoint.point.coordinate.lat}
+                    draggable={true}
+                    onDragEnd={(e: any) => {
+                        const coordinate = { lng: e.lngLat[0], lat: e.lngLat[1] }
+                        Dispatcher.dispatch(
+                            new SetPoint({
+                                ...indexPoint.point,
+                                coordinate,
+                                queryText: coordinateToText(coordinate),
+                            })
+                        )
+                    }}
+                >
+                    <MarkerComponent color={indexPoint.point.color} number={markerNumber} />
+                </Marker>
+            )
+        })
 }

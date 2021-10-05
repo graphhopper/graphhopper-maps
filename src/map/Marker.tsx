@@ -1,8 +1,9 @@
 import React from 'react'
 
-const MARKER_PATH = `M20.2,15.7L20.2,15.7c1.1-1.6,1.8-3.6,1.8-5.7c0-5.6-4.5-10-10-10S2,4.5,2,10c0,2,0.6,3.9,1.6,5.4c0,0.1,0.1,0.2,0.2,0.3
-  c0,0,0.1,0.1,0.1,0.2c0.2,0.3,0.4,0.6,0.7,0.9c2.6,3.1,7.4,7.6,7.4,7.6s4.8-4.5,7.4-7.5c0.2-0.3,0.5-0.6,0.7-0.9
-  C20.1,15.8,20.2,15.8,20.2,15.7z`
+const MARKER_PATH =
+    'M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0z'
+const INNER_CIRCLE = 'M192 272c44.183 0 80-35.817 80-80s-35.817-80-80-80-80 35.817-80 80 35.817 80 80 80z'
+// inner circle? M192 272c44.183 0 80-35.817 80-80s-35.817-80-80-80-80 35.817-80 80 35.817 80 80 80z
 
 const markerStyle = {
     cursor: 'pointer',
@@ -11,17 +12,34 @@ const markerStyle = {
 
 interface MarkerProps {
     color: string
+    number: number | null
 }
 
-export function MarkerComponent({ color }: MarkerProps) {
-    const size = 20
+/**
+ * This component draws a marker. If a number is passed, the white circle of the marker is larger and displays the
+ * number. Otherwise the default marker from https://fontawesome.com/v5.15/icons/map-marker-alt?style=solid is taken
+ */
+export function MarkerComponent({ color, number }: MarkerProps) {
+    const size = 40
     return (
         <svg
+            aria-hidden="true"
+            focusable="false"
+            role="img"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 384 512"
             height={size}
-            viewBox={'0 0 24 24'}
             style={{ ...markerStyle, fill: color, transform: `translate(${-size / 2}px, ${-size}px` }}
         >
             <path d={MARKER_PATH} />
+            {number === null ? (
+                <path d={INNER_CIRCLE} fill="white" />
+            ) : (
+                <circle cx="192" cy="190" r="120" fill="white" />
+            )}
+            <text x="50%" y="47%" textAnchor="middle" style={{ fontSize: 150 }} fill="black">
+                {number !== null ? number : ''}
+            </text>
         </svg>
     )
 }
