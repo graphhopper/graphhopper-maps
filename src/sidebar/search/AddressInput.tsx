@@ -28,7 +28,7 @@ export default function AddressInput(props: AddressInputProps) {
     const [text, setText] = useState(props.point.queryText)
     useEffect(() => setText(props.point.queryText), [props.point.queryText])
 
-    // container for geocoding results which get set by the geocoder class and set to empty if the undelying query point gets changed from outside
+    // container for geocoding results which get set by the geocoder class and set to empty if the underlying query point gets changed from outside
     // also gets filled with an item to select the current location as input if input has focus and geocoding results are
     // empty
     const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>([])
@@ -147,7 +147,7 @@ function onAutocompleteSelected(
         onSelect(convertToQueryText(item.hit), item.hit.point)
     } else {
         if (!navigator.geolocation) {
-            Dispatcher.dispatch(new ErrorAction('Location search not available in this browser'))
+            Dispatcher.dispatch(new ErrorAction('Geolocation is not supported in this browser'))
             return
         }
 
