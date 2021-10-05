@@ -152,7 +152,6 @@ function onAutocompleteSelected(
         }
 
         onSelect(tr('searching_location') + ' ...', undefined)
-        // TODO: getCurrentPosition() and watchPosition() might interfer (call clearWatch properly or test if current location already exists)
         navigator.geolocation.getCurrentPosition(
             position => {
                 onSelect(tr('current_location'), { lat: position.coords.latitude, lng: position.coords.longitude })
