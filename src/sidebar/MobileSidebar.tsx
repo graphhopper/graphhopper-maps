@@ -7,6 +7,7 @@ import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { useMediaQuery } from 'react-responsive'
+import { MarkerComponent } from '@/map/Marker'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -101,7 +102,9 @@ function SmallQueryPoint({ text, color, position }: { text: string; color: strin
     // @ts-ignore
     return (
         <div className={styles.mapViewPoint}>
-            <div className={styles.dot} style={{ backgroundColor: color }} />
+            <div className={styles.markerContainer}>
+                <MarkerComponent color={color} />
+            </div>
             <span className={getClassName(position)}>{text}</span>
         </div>
     )
