@@ -118,7 +118,7 @@ export class ApiImpl implements Api {
         } else if (response.status === 400) {
             const errorResult = (await response.json()) as ErrorResponse
             let message = errorResult.message
-            if (errorResult.hints.length > 0)
+            if (errorResult.hints && errorResult.hints.length > 0)
                 message +=
                     (message ? message + ' and ' : '') +
                     (errorResult.hints as any[]).map(hint => hint.message).join(' and ')

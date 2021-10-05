@@ -193,7 +193,11 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private routeIfAllPointsSet(state: QueryStoreState): QueryStoreState {
-        if (state.queryPoints.length > 1 && state.queryPoints.every(point => point.isInitialized)) {
+        if (
+            state.queryPoints.length > 1 &&
+            state.queryPoints.every(point => point.isInitialized) &&
+            state.routingProfile.name
+        ) {
             const requests = [
                 QueryStore.buildRouteRequest({
                     ...state,
