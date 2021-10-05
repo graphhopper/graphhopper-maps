@@ -1,11 +1,8 @@
-.geocodingList {
-}
-
-.geocodingListItem:not(:last-child) {
+.autocompleteItem:not(:last-child) {
     border-bottom: 1px lightgray solid;
 }
 
-.selectableGeocodingEntry {
+.selectableItem {
     display: block;
     width: 100%;
     border: none;
@@ -18,13 +15,21 @@
     overflow: hidden;
 }
 
-.highlightedGeocodingEntry,
-.selectableGeocodingEntry:hover {
+.highlightedItem,
+.selectableItem:hover {
     background-color: #ececec;
 }
 
-.selectableGeocodingEntry:active {
+.selectableItem:active {
     background-color: #c6c6c6;
+}
+
+.currentLocationEntry {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0.5rem;
 }
 
 .geocodingEntry {
@@ -34,6 +39,6 @@
     margin: 0.5rem 0.5rem;
 }
 
-.geocodingEntryMain {
+.mainText {
     font-weight: bold;
 }
