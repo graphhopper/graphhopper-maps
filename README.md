@@ -13,4 +13,4 @@ Get started:
  * npm install
  * npm run serve
  * open browser at http://0.0.0.0:3000/
- * development deploys are at http://gh-maps-react.s3-website.eu-central-1.amazonaws.com/master/. (Replace 'master' with the actual branch name)
+ * development deploys are at http://gh-maps-react.s3-website.eu-central-1.amazonaws.com/master/. (Replace 'master' with the actual branch name) 

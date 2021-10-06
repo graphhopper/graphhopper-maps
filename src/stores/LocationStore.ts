@@ -6,6 +6,7 @@ import NoSleep from 'nosleep.js'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 import { ApiImpl } from '@/api/Api'
 import { calcOrientation } from '@/turnNavigation/GeoMethods'
+import * as config from 'config'
 
 export interface LocationStoreState {
     turnNavigation: boolean
@@ -51,7 +52,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         this.started = true
 
         // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car
-        let api = new ApiImpl()
+        let api = new ApiImpl(config.api, config.keys.graphhopper)
         let response = await api.route({
             points: [
                 [14.245254, 51.439291],

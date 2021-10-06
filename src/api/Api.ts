@@ -15,7 +15,6 @@ import {
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
-import config from 'config'
 
 interface ApiProfile {
     name: string
@@ -33,16 +32,28 @@ export default interface Api {
     geocode(query: string): Promise<GeocodingResult>
 }
 
-export const ghKey = config.keys.graphhopper
-export const ghApi = config.api
+let api: Api | undefined
 
+export function setApi(apiAddress: string, apiKey: string) {
+    api = new ApiImpl(apiAddress, apiKey)
+}
+
+export function getApi() {
+    if (!api) throw Error('Api must be initialized before it can be used. Use "setApi" when starting the app')
+    return api
+}
+
+/**
+ * Exporting this so that it can be tested directly. Don't know how to properly set this up in typescript, so that the
+ * class could be tested but is not available for usage in the app. In Java one would make this package private I guess.
+ */
 export class ApiImpl implements Api {
     private readonly apiKey: string
     private readonly apiAddress: string
 
-    constructor() {
-        this.apiKey = ghKey
-        this.apiAddress = ghApi
+    constructor(apiAddress: string, apiKey: string) {
+        this.apiAddress = apiAddress
+        this.apiKey = apiKey
     }
 
     async info(): Promise<ApiInfo> {

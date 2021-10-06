@@ -1,19 +1,25 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { GeocodingHit } from '@/api/graphhopper'
 import { ErrorAction } from '@/actions/Actions'
-import GeocodingResult from '@/sidebar/search/GeocodingResult'
+import Autocomplete, {
+    AutocompleteItem,
+    GeocodingItem,
+    isGeocodingItem,
+    SelectCurrentLocationItem,
+} from '@/sidebar/search/AddressInputAutocomplete'
 import Dispatcher from '@/stores/Dispatcher'
 
 import styles from './AddressInput.module.css'
-import { ApiImpl } from '@/api/Api'
+import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
+import { convertToQueryText } from '@/Converters'
 
 export interface AddressInputProps {
     point: QueryPoint
     autofocus: boolean
     onCancel: () => void
-    onAddressSelected: (hit: GeocodingHit) => void
+    onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
     onChange: (value: string) => void
 }
 
@@ -22,15 +28,32 @@ export default function AddressInput(props: AddressInputProps) {
     const [text, setText] = useState(props.point.queryText)
     useEffect(() => setText(props.point.queryText), [props.point.queryText])
 
-    // container for geocoding results which get set by the geocoder class and set to empty if the undelying query point gets changed from outside
-    const [geocodingResults, setGeocodingResults] = useState<GeocodingHit[]>([])
-    const [geocoder] = useState(new Geocoder(hits => setGeocodingResults(hits)))
-    useEffect(() => setGeocodingResults([]), [props.point])
+    // container for geocoding results which get set by the geocoder class and set to empty if the underlying query point gets changed from outside
+    // also gets filled with an item to select the current location as input if input has focus and geocoding results are
+    // empty
+    const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>([])
+    const [geocoder] = useState(
+        new Geocoder(getApi(), hits => {
+            const items = hits.map(hit => {
+                return { type: 'geocoding', hit: hit } as GeocodingItem
+            })
+            setAutocompleteItems(items)
+        })
+    )
+    useEffect(() => setAutocompleteItems([]), [props.point])
+    useEffect(() => {
+        if (hasFocus && text.length == 0 && autocompleteItems.length === 0) {
+            const locationItem: SelectCurrentLocationItem = {
+                type: 'currentLocation',
+            }
+            setAutocompleteItems([locationItem])
+        }
+    }, [autocompleteItems])
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
     const [highlightedResult, setHighlightedResult] = useState<number>(-1)
-    useEffect(() => setHighlightedResult(-1), [geocodingResults])
+    useEffect(() => setHighlightedResult(-1), [autocompleteItems])
     const searchInput = useRef<HTMLInputElement>(null)
     const onKeypress = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -38,14 +61,14 @@ export default function AddressInput(props: AddressInputProps) {
                 searchInput.current!.blur()
                 return
             }
-            if (geocodingResults.length === 0) return
+            if (autocompleteItems.length === 0) return
 
             switch (event.key) {
                 case 'ArrowUp':
-                    setHighlightedResult(i => calculateHighlightedIndex(geocodingResults.length, i, -1))
+                    setHighlightedResult(i => calculateHighlightedIndex(autocompleteItems.length, i, -1))
                     break
                 case 'ArrowDown':
-                    setHighlightedResult(i => calculateHighlightedIndex(geocodingResults.length, i, 1))
+                    setHighlightedResult(i => calculateHighlightedIndex(autocompleteItems.length, i, 1))
                     break
                 case 'Enter':
                 case 'Tab':
@@ -54,23 +77,17 @@ export default function AddressInput(props: AddressInputProps) {
 
                     // it seems like the order of the blur and onAddressSelected statement is important...
                     searchInput.current!.blur()
-                    selectHit(props, geocodingResults[index])
+                    onAutocompleteSelected(autocompleteItems[index], props.onAddressSelected)
                     break
             }
         },
-        [geocodingResults, highlightedResult]
+        [autocompleteItems, highlightedResult]
     )
 
     // keep track of focus and toggle fullscreen display on small screens
     const [hasFocus, setHasFocus] = useState(false)
     const containerClass = hasFocus ? styles.container + ' ' + styles.fullscreen : styles.container
     const type = props.point.type
-    if (hasFocus && text.length == 0 && geocodingResults.length == 0)
-        geocodingResults.push({
-            osm_id: 'current_location', // required for React (for the "key" attribute of the list)
-            name: tr('current_location'),
-            osm_type: 'current_location', // required to internally identify the special geocoding result
-        } as GeocodingHit)
 
     return (
         <div className={containerClass}>
@@ -92,7 +109,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onBlur={() => {
                         geocoder.cancel()
                         setHasFocus(false)
-                        setGeocodingResults([])
+                        setAutocompleteItems([])
                     }}
                     value={text}
                     autoFocus={props.autofocus}
@@ -105,15 +122,15 @@ export default function AddressInput(props: AddressInputProps) {
                 </button>
             </div>
 
-            {geocodingResults.length > 0 && (
+            {autocompleteItems.length > 0 && (
                 <div className={styles.popup}>
-                    <GeocodingResult
-                        hits={geocodingResults}
-                        highlightedHit={geocodingResults[highlightedResult]}
-                        onSelectHit={hit => {
+                    <Autocomplete
+                        items={autocompleteItems}
+                        highlightedItem={autocompleteItems[highlightedResult]}
+                        onSelect={item => {
                             // it seems like the order of the blur and onAddressSelected statement is important...
                             searchInput.current!.blur()
-                            selectHit(props, hit)
+                            onAutocompleteSelected(item, props.onAddressSelected)
                         }}
                     />
                 </div>
@@ -122,31 +139,30 @@ export default function AddressInput(props: AddressInputProps) {
     )
 }
 
-function selectHit(props: AddressInputProps, hit: GeocodingHit) {
-    if (hit.osm_type === 'current_location') {
+function onAutocompleteSelected(
+    item: AutocompleteItem,
+    onSelect: (queryText: string, coordinate: Coordinate | undefined) => void
+) {
+    if (isGeocodingItem(item)) {
+        onSelect(convertToQueryText(item.hit), item.hit.point)
+    } else {
         if (!navigator.geolocation) {
-            Dispatcher.dispatch(new ErrorAction('Location search not available in this browser'))
+            Dispatcher.dispatch(new ErrorAction('Geolocation is not supported in this browser'))
             return
         }
 
-        props.onAddressSelected({ ...hit, name: tr('searching_location') + ' ...' })
-        // TODO: getCurrentPosition() and watchPosition() might interfer (call clearWatch properly or test if current location already exists)
+        onSelect(tr('searching_location') + ' ...', undefined)
         navigator.geolocation.getCurrentPosition(
             position => {
-                props.onAddressSelected({
-                    ...hit,
-                    point: { lat: position.coords.latitude, lng: position.coords.longitude },
-                })
+                onSelect(tr('current_location'), { lat: position.coords.latitude, lng: position.coords.longitude })
             },
             error => {
                 Dispatcher.dispatch(new ErrorAction(tr('searching_location_failed') + ': ' + error.message))
-                props.onAddressSelected({ ...hit, name: '' })
+                onSelect('', undefined)
             },
             // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
-            { timeout: 120_000 }
+            { timeout: 300_000 }
         )
-    } else {
-        props.onAddressSelected(hit)
     }
 }
 
@@ -164,10 +180,11 @@ function calculateHighlightedIndex(length: number, currentIndex: number, increme
 class Geocoder {
     private requestId = 0
     private readonly timeout = new Timout(200)
-    private readonly api = new ApiImpl()
+    private readonly api: Api
     private readonly onSuccess: (hits: GeocodingHit[]) => void
 
-    constructor(onSuccess: (hits: GeocodingHit[]) => void) {
+    constructor(api: Api, onSuccess: (hits: GeocodingHit[]) => void) {
+        this.api = api
         this.onSuccess = onSuccess
     }
 
