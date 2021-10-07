@@ -60,18 +60,21 @@ describe('QueryStore', () => {
 
             expect(state.queryPoints[0]).toEqual(point)
         })
-        it('should only send a route request if all points are initialized', () => {
+        it('should only send a route request if all parameters are initialized', () => {
             let counter = 0
             const store = new QueryStore(new ApiMock(() => counter++))
             let state = {
                 ...store.state,
                 maxAlternativeRoutes: 1,
-                routingProfile: { name: 'car' },
             }
 
             for (const point of store.state.queryPoints) {
                 state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
             }
+
+            // the store should not send anything unless points and routing profile are specified
+            expect(counter).toEqual(0)
+            state = store.reduce(state, new SetVehicleProfile({ name: 'car' }))
 
             expect(state.queryPoints.every(point => point.isInitialized)).toBeTruthy()
             expect(counter).toEqual(1)
