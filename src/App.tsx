@@ -129,14 +129,12 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
             </div>
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent}>
-                    <div className={styles.search}>
-                        <Search
-                            points={query.queryPoints}
-                            routingProfiles={info.profiles}
-                            selectedProfile={query.routingProfile}
-                            autofocus={true}
-                        />
-                    </div>
+                    <Search
+                        points={query.queryPoints}
+                        routingProfiles={info.profiles}
+                        selectedProfile={query.routingProfile}
+                        autofocus={true}
+                    />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <div className={styles.routingResult}>
                         <RoutingResults

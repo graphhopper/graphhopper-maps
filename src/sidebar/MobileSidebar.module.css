@@ -59,7 +59,7 @@
 .markerContainer {
     align-self: center;
     justify-self: center;
-    width: 0.8rem;
+    width: 0.6rem;
     margin-right: 0.5rem;
     flex-shrink: 0;
 }

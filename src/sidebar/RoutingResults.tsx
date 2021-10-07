@@ -18,11 +18,7 @@ export interface RoutingResultsProps {
 
 export default function RoutingResults(props: RoutingResultsProps) {
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
-    return (
-        <div className={styles.resultListContainer}>
-            <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
-        </div>
-    )
+    return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
 }
 
 function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }) {
