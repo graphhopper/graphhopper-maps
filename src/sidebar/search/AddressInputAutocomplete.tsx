@@ -30,8 +30,10 @@ export interface AutocompleteProps {
 export default function Autocomplete({ items, highlightedItem, onSelect }: AutocompleteProps) {
     return (
         <ul>
-            {items.map(item => (
-                <li className={styles.autocompleteItem}>{mapToComponent(item, highlightedItem === item, onSelect)}</li>
+            {items.map((item, i) => (
+                <li key={i} className={styles.autocompleteItem}>
+                    {mapToComponent(item, highlightedItem === item, onSelect)}
+                </li>
             ))}
         </ul>
     )
