@@ -1,12 +1,6 @@
 import Api from '@/api/Api'
-import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult } from '../../src/api/graphhopper'
-import QueryStore, {
-    QueryPoint,
-    QueryPointType,
-    QueryStoreState,
-    RequestState,
-    SubRequest,
-} from '../../src/stores/QueryStore'
+import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult } from '@/api/graphhopper'
+import QueryStore, { QueryPoint, QueryPointType, QueryStoreState, RequestState, SubRequest } from '@/stores/QueryStore'
 import {
     AddPoint,
     ClearPoints,
@@ -17,7 +11,7 @@ import {
     RouteRequestSuccess,
     SetPoint,
     SetVehicleProfile,
-} from '../../src/actions/Actions'
+} from '@/actions/Actions'
 
 class ApiMock implements Api {
     private readonly callback: { (args: RoutingArgs): void }
@@ -57,8 +51,12 @@ describe('QueryStore', () => {
                 ...store.state.queryPoints[0],
                 isInitialized: true,
             }
+            const storeState = {
+                ...store.state,
+                routingProfile: { name: 'car' },
+            }
 
-            const state = store.reduce(store.state, new SetPoint(point))
+            const state = store.reduce(storeState, new SetPoint(point))
 
             expect(state.queryPoints[0]).toEqual(point)
         })
@@ -68,6 +66,7 @@ describe('QueryStore', () => {
             let state = {
                 ...store.state,
                 maxAlternativeRoutes: 1,
+                routingProfile: { name: 'car' },
             }
 
             for (const point of store.state.queryPoints) {
@@ -81,7 +80,10 @@ describe('QueryStore', () => {
             const requestArgs: RoutingArgs[] = []
             const store = new QueryStore(new ApiMock(args => requestArgs.push(args)))
 
-            let state = store.state
+            let state = {
+                ...store.state,
+                routingProfile: { name: 'car' },
+            }
             for (const point of store.state.queryPoints) {
                 state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
             }
@@ -95,7 +97,10 @@ describe('QueryStore', () => {
             const requestArgs: RoutingArgs[] = []
             const store = new QueryStore(new ApiMock(args => requestArgs.push(args)))
 
-            let state = store.state
+            let state = {
+                ...store.state,
+                routingProfile: { name: 'car' },
+            }
             state.queryPoints.push({ ...state.queryPoints[0], id: 2 })
             for (const point of store.state.queryPoints) {
                 state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
@@ -177,6 +182,7 @@ describe('QueryStore', () => {
             const state = {
                 ...store.state,
                 queryPoints: initializedPoints,
+                routingProfile: { name: 'car' },
             }
 
             const newState = store.reduce(state, new AddPoint(atIndex, { lat: 1, lng: 1 }, true))
@@ -205,6 +211,7 @@ describe('QueryStore', () => {
                 ...store.state,
                 queryPoints: initializedPoints,
                 maxAlternativeRoutes: 1,
+                routingProfile: { name: 'car' },
             }
 
             const lastState = store.reduce(state, new RemovePoint(thirdPoint))
