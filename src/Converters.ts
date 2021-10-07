@@ -49,3 +49,14 @@ function convertToCountry(hit: GeocodingHit, prefix: string) {
 export function coordinateToText(coord: Coordinate): string {
     return Math.round(coord.lat * 1e6) / 1e6 + ',' + Math.round(coord.lng * 1e6) / 1e6
 }
+
+export function textToCoordinate(text: string): Coordinate {
+    const split = text.split(/[,|;| |-|\/]/)
+
+    if (split.length !== 2) throw Error('must be two elements')
+
+    return {
+        lat: Number.parseFloat(split[0]),
+        lng: Number.parseFloat(split[1]),
+    }
+}

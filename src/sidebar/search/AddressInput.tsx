@@ -13,7 +13,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import styles from './AddressInput.module.css'
 import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
-import { convertToQueryText } from '@/Converters'
+import { convertToQueryText, textToCoordinate } from '@/Converters'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -61,7 +61,6 @@ export default function AddressInput(props: AddressInputProps) {
                 searchInput.current!.blur()
                 return
             }
-            if (autocompleteItems.length === 0) return
 
             switch (event.key) {
                 case 'ArrowUp':
@@ -72,12 +71,22 @@ export default function AddressInput(props: AddressInputProps) {
                     break
                 case 'Enter':
                 case 'Tab':
+                    if (autocompleteItems.length === 0) {
+                        try {
+                            const coord = textToCoordinate(text)
+                            props.onAddressSelected(text, coord)
+                            break
+                        } catch (e) {
+                            // nothing
+                        }
+                    }
                     // by default use the first result, otherwise the highlighted one
                     const index = highlightedResult >= 0 ? highlightedResult : 0
 
                     // it seems like the order of the blur and onAddressSelected statement is important...
                     searchInput.current!.blur()
                     onAutocompleteSelected(autocompleteItems[index], props.onAddressSelected)
+
                     break
             }
         },
