@@ -39,10 +39,12 @@ export function PopupComponent({
     }
 
     const disableViaPoint = function (points: QueryPoint[]) {
-        return (
-            points.length >= 5 &&
-            points.filter(point => point.type === QueryPointType.Via).every(point => point.isInitialized)
-        )
+        const viaPoints = points.filter(point => point.type === QueryPointType.Via)
+        if (viaPoints.length !== 0) {
+            return viaPoints.every(point => !point.isInitialized)
+        } else {
+            return false
+        }
     }
 
     return (

@@ -1,4 +1,4 @@
-import { QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Marker } from 'react-map-gl'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
@@ -38,7 +38,11 @@ function createQueryPointMarkers(queryPoints: QueryPoint[]) {
                     )
                 }}
             >
-                <MarkerComponent color={indexPoint.point.color} />
+                <MarkerComponent
+                    color={indexPoint.point.color}
+                    number={indexPoint.point.type === QueryPointType.Via ? i : undefined}
+                    size={35}
+                />
             </Marker>
         ))
 }
