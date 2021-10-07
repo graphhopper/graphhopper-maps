@@ -28,6 +28,9 @@ export default function AddressInput(props: AddressInputProps) {
     const [text, setText] = useState(props.point.queryText)
     useEffect(() => setText(props.point.queryText), [props.point.queryText])
 
+    // keep track of focus and toggle fullscreen display on small screens
+    const [hasFocus, setHasFocus] = useState(false)
+
     // container for geocoding results which get set by the geocoder class and set to empty if the underlying query point gets changed from outside
     // also gets filled with an item to select the current location as input if input has focus and geocoding results are
     // empty
@@ -48,7 +51,7 @@ export default function AddressInput(props: AddressInputProps) {
             }
             setAutocompleteItems([locationItem])
         }
-    }, [autocompleteItems])
+    }, [autocompleteItems, hasFocus])
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
@@ -84,8 +87,6 @@ export default function AddressInput(props: AddressInputProps) {
         [autocompleteItems, highlightedResult]
     )
 
-    // keep track of focus and toggle fullscreen display on small screens
-    const [hasFocus, setHasFocus] = useState(false)
     const containerClass = hasFocus ? styles.container + ' ' + styles.fullscreen : styles.container
     const type = props.point.type
 
