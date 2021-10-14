@@ -45,7 +45,10 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
                         <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
                     </div>
                     <div>
-                        <img onClick={() => getLocationStore().initReal()} src={startNavigation} />
+                        <img onClick={() => {
+                            if(isFakeRequested()) getLocationStore().initFake()
+                            else getLocationStore().initReal()
+                        }} src={startNavigation} />
                     </div>
                     {isSelected && (
                         <PlainButton className={buttonClass} onClick={() => setExpanded(!isExpanded)}>
@@ -57,6 +60,21 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
             {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
     )
+}
+
+export function isFakeRequested() {
+    var query = window.location.search.substring(1);
+    console.log(query)
+    var vars = query.split("&");
+    console.log(vars)
+    for (var i=0;i<vars.length;i++) {
+        console.log(vars[i]) 
+        if(vars[i].includes("fake")) {
+            console.log("found fake")
+            return true;
+        }
+    }
+    return(false);
 }
 
 function RoutingResultPlacelholder() {

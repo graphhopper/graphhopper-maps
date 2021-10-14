@@ -6,6 +6,7 @@ import { AddPoint, RemovePoint, SelectMapStyle, SetVehicleProfile } from '@/acti
 import { window } from '@/Window'
 import QueryStore, { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState, StyleOption } from './stores/MapOptionsStore'
+import * as RoutingResults from '@/sidebar/RoutingResults'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
@@ -22,6 +23,7 @@ export default class NavBar {
 
     private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState) {
         const result = new URL(baseUrl)
+        const usesFake = RoutingResults.isFakeRequested()
         queryStoreState.queryPoints
             .filter(point => point.isInitialized)
             .map(point => coordinateToText(point.coordinate))
@@ -29,6 +31,7 @@ export default class NavBar {
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
+        if(usesFake) result.searchParams.append('fake', "69")
 
         return result
     }
@@ -125,3 +128,4 @@ export default class NavBar {
         if (newHref !== window.location.href) window.history.pushState('last state', '', newHref)
     }
 }
+
