@@ -62,6 +62,7 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
     )
 }
 
+// Used in RoutingResults.tsx and NavBar.ts for development purposes
 export function isFakeRequested() {
     var query = window.location.search.substring(1);
     console.log(query)
