@@ -230,16 +230,17 @@ describe('QueryStore', () => {
         it('return unchanged state if routing profile was already set', () => {
             const store = new QueryStore(new ApiMock(() => {}))
 
+            const profile = 'some-profile'
             const state: QueryStoreState = {
                 ...store.state,
                 routingProfile: {
-                    name: 'some-value',
+                    name: profile,
                 },
             }
             const newState = store.reduce(
                 state,
                 new InfoReceived({
-                    profiles: [],
+                    profiles: [{ name: 'some-other-profile' }, { name: profile }],
                     elevation: true,
                     version: '',
                     import_date: '',
@@ -249,11 +250,35 @@ describe('QueryStore', () => {
 
             expect(newState).toEqual(state)
         })
-        it('should set car as default routing mode', () => {
+        it('should use the first profile if profile was already set but not in info action', () => {
+            const store = new QueryStore(new ApiMock(() => {}))
+
+            const presetProfile = 'some-profile'
+            const firstProfileFromInfo = 'first-from-info'
+            const state: QueryStoreState = {
+                ...store.state,
+                routingProfile: {
+                    name: presetProfile,
+                },
+            }
+            const newState = store.reduce(
+                state,
+                new InfoReceived({
+                    profiles: [{ name: firstProfileFromInfo }, { name: 'other-profile-from-info' }],
+                    elevation: true,
+                    version: '',
+                    import_date: '',
+                    bbox: [0, 0, 0, 0],
+                })
+            )
+
+            expect(newState.routingProfile.name).toEqual(firstProfileFromInfo)
+        })
+        it('should use the first profile received from info endpoint', () => {
             const store = new QueryStore(new ApiMock(() => {}))
             const state: QueryStoreState = store.state
             const expectedProfile = {
-                name: 'car',
+                name: 'some-name',
                 import_date: 'some_date',
                 elevation: false,
                 version: 'some-version',
