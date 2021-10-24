@@ -72,8 +72,7 @@ export default class NavBar {
 
     private static parseProfile(url: URL) {
         let profileKey = url.searchParams.get('profile')
-        if (!profileKey) profileKey = 'car'
-        return profileKey
+        return profileKey ? profileKey : ''
     }
 
     private parseLayer(url: URL) {
