@@ -49,3 +49,18 @@ function convertToCountry(hit: GeocodingHit, prefix: string) {
 export function coordinateToText(coord: Coordinate): string {
     return Math.round(coord.lat * 1e6) / 1e6 + ',' + Math.round(coord.lng * 1e6) / 1e6
 }
+
+export function textToCoordinate(text: string): Coordinate | null {
+    // this splits the string at ',' or ' '. The filter filters out empty results
+    // in case something like 1.0, 2.0 was supplied.
+    const split = text.split(/[,| s]/).filter(s => s)
+
+    if (split.length !== 2) return null
+
+    const result = {
+        lat: Number.parseFloat(split[0]),
+        lng: Number.parseFloat(split[1]),
+    }
+
+    return isNaN(result.lng) || isNaN(result.lat) ? null : result
+}

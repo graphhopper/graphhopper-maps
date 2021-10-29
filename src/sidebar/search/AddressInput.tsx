@@ -13,7 +13,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import styles from './AddressInput.module.css'
 import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
-import { convertToQueryText } from '@/Converters'
+import { convertToQueryText, textToCoordinate } from '@/Converters'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -64,7 +64,6 @@ export default function AddressInput(props: AddressInputProps) {
                 searchInput.current!.blur()
                 return
             }
-            if (autocompleteItems.length === 0) return
 
             switch (event.key) {
                 case 'ArrowUp':
@@ -75,12 +74,16 @@ export default function AddressInput(props: AddressInputProps) {
                     break
                 case 'Enter':
                 case 'Tab':
-                    // by default use the first result, otherwise the highlighted one
-                    const index = highlightedResult >= 0 ? highlightedResult : 0
-
-                    // it seems like the order of the blur and onAddressSelected statement is important...
+                    // try to parse input as coordinate. Otherwise use autocomplete results
+                    const coordinate = textToCoordinate(text)
+                    if (coordinate) {
+                        props.onAddressSelected(text, coordinate)
+                    } else if (autocompleteItems.length !== 0) {
+                        // by default use the first result, otherwise the highlighted one
+                        const index = highlightedResult >= 0 ? highlightedResult : 0
+                        onAutocompleteSelected(autocompleteItems[index], props.onAddressSelected)
+                    }
                     searchInput.current!.blur()
-                    onAutocompleteSelected(autocompleteItems[index], props.onAddressSelected)
                     break
             }
         },
@@ -99,7 +102,8 @@ export default function AddressInput(props: AddressInputProps) {
                     ref={searchInput}
                     onChange={e => {
                         setText(e.target.value)
-                        geocoder.request(e.target.value)
+                        const coordinate = textToCoordinate(e.target.value)
+                        if (!coordinate) geocoder.request(e.target.value)
                         props.onChange(e.target.value)
                     }}
                     onKeyDown={onKeypress}
@@ -129,7 +133,6 @@ export default function AddressInput(props: AddressInputProps) {
                         items={autocompleteItems}
                         highlightedItem={autocompleteItems[highlightedResult]}
                         onSelect={item => {
-                            // it seems like the order of the blur and onAddressSelected statement is important...
                             searchInput.current!.blur()
                             onAutocompleteSelected(item, props.onAddressSelected)
                         }}
