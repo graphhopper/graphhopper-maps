@@ -6,7 +6,8 @@ import { AddPoint, RemovePoint, SelectMapStyle, SetVehicleProfile } from '@/acti
 import { window } from '@/Window'
 import QueryStore, { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState, StyleOption } from './stores/MapOptionsStore'
-import * as RoutingResults from '@/sidebar/RoutingResults'
+
+export let fakeNavi: boolean = false
 
 export default class NavBar {
     private readonly queryStore: QueryStore
@@ -23,7 +24,6 @@ export default class NavBar {
 
     private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState) {
         const result = new URL(baseUrl)
-        const usesFake = RoutingResults.isFakeRequested()
         queryStoreState.queryPoints
             .filter(point => point.isInitialized)
             .map(point => coordinateToText(point.coordinate))
@@ -31,13 +31,16 @@ export default class NavBar {
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
-        if(usesFake) result.searchParams.append('fake', "69")
+        if(fakeNavi) result.searchParams.append('fake', "69")
 
         return result
     }
 
     private parseUrl(href: string): { points: QueryPoint[]; profile: RoutingProfile; styleOption: StyleOption } {
         const url = new URL(href)
+
+        //Update fake Navi
+        fakeNavi = url.searchParams.get("fake") != null;
 
         return {
             points: NavBar.parsePoints(url),

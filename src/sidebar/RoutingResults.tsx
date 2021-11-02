@@ -33,7 +33,8 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
-
+    const fakeNavi: boolean = new URL(window.location.toString()).searchParams.get("fake") != null
+    
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
 
     return (
@@ -46,7 +47,7 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
                     </div>
                     <div>
                         <img onClick={() => {
-                            if(isFakeRequested()) getLocationStore().initFake()
+                            if(fakeNavi) getLocationStore().initFake()
                             else getLocationStore().initReal()
                         }} src={startNavigation} />
                     </div>
@@ -60,22 +61,6 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
             {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
     )
-}
-
-// Used in RoutingResults.tsx and NavBar.ts for development purposes
-export function isFakeRequested() {
-    var query = window.location.search.substring(1);
-    console.log(query)
-    var vars = query.split("&");
-    console.log(vars)
-    for (var i=0;i<vars.length;i++) {
-        console.log(vars[i]) 
-        if(vars[i].includes("fake")) {
-            console.log("found fake")
-            return true;
-        }
-    }
-    return(false);
 }
 
 function RoutingResultPlacelholder() {
