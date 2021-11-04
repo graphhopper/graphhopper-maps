@@ -7,7 +7,7 @@ import { window } from '@/Window'
 import QueryStore, { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState, StyleOption } from './stores/MapOptionsStore'
 
-export let fakeNavi: boolean = false
+let fakeNavi: boolean = false
 
 export default class NavBar {
     private readonly queryStore: QueryStore
