@@ -7,8 +7,6 @@ import { window } from '@/Window'
 import QueryStore, { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState, StyleOption } from './stores/MapOptionsStore'
 
-let fakeNavi: boolean = false
-
 export default class NavBar {
     private readonly queryStore: QueryStore
     private readonly mapStore: MapOptionsStore
@@ -31,16 +29,13 @@ export default class NavBar {
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
-        if(fakeNavi) result.searchParams.append('fake', "69")
+        if(new URL(window.location.toString()).searchParams.get("fake") != null) result.searchParams.append('fake', "69")
 
         return result
     }
 
     private parseUrl(href: string): { points: QueryPoint[]; profile: RoutingProfile; styleOption: StyleOption } {
         const url = new URL(href)
-
-        //Update fake Navi
-        fakeNavi = url.searchParams.get("fake") != null;
 
         return {
             points: NavBar.parsePoints(url),
