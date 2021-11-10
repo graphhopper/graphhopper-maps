@@ -10,6 +10,7 @@ Get started:
  * copy config.js to config-local.js and enter your GraphHopper API key for routing (get it at https://www.graphhopper.com)
    or change the 'api' field and point it at your local GraphHopper server, e.g. `api: http://localhost:8989/`.
  * optional: setup api keys for the other tile providers, see MapOptionsStore.ts. you can also change the default tile layer in config-local.js
+ * make sure node/npm is installed. we recommend using the gallium LTS (node v16.13.0 & npm v8.1.0)
  * npm install
  * npm run serve
  * open browser at http://0.0.0.0:3000/
