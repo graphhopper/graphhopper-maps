@@ -1,3 +1,8 @@
 .contextMenu {
     z-index: 3;
 }
+
+.mapContainer{
+    height: 100%;
+    width: 100%;
+}

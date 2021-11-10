@@ -10,6 +10,7 @@ import {
     getRouteStore,
     getViewportStore,
 } from '@/stores/Stores'
+import MapComponent from '@/map/Map'
 import { ApiInfo } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
 import MobileSidebar from '@/sidebar/MobileSidebar'
@@ -115,6 +116,12 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
         <>
             <div className={styles.map}>
                 {
+                    <MapComponent
+                        viewport={viewport}
+                        styleOption={mapOptions.selectedStyle}
+                        queryPoints={query.queryPoints}
+                        mapLayers={mapLayers}
+                    />
                 }
             </div>
             <div className={styles.mapOptions}>
@@ -152,6 +159,12 @@ function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOption
     return (
         <>
             <div className={styles.smallScreenMap}>
+                <MapComponent
+                    viewport={viewport}
+                    queryPoints={query.queryPoints}
+                    styleOption={mapOptions.selectedStyle}
+                    mapLayers={mapLayers}
+                />
             </div>
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.smallScreenMapOptionsContent}>
