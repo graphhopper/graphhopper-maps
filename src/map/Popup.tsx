@@ -4,14 +4,18 @@ import styles from './Popup.module.css'
 import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, SetPoint, SetViewportToPoint } from '@/actions/Actions'
+import { RouteStoreState } from '@/stores/RouteStore'
+import { findNextWayPoint } from '@/map/findNextWayPoint'
 
 export function PopupComponent({
     coordinate,
     queryPoints,
+    route,
     onSelect,
 }: {
     coordinate: Coordinate
     queryPoints: QueryPoint[]
+    route: RouteStoreState
     onSelect: () => void
 }) {
     const dispatchSetPoint = function (point: QueryPoint, coordinate: Coordinate) {
@@ -26,7 +30,7 @@ export function PopupComponent({
         )
     }
 
-    const setViaPoint = function (points: QueryPoint[]) {
+    const setViaPoint = function (points: QueryPoint[], route: RouteStoreState) {
         const viaPoints = points.filter(point => point.type === QueryPointType.Via)
         const point = viaPoints.find(point => !point.isInitialized)
         onSelect()
@@ -34,7 +38,19 @@ export function PopupComponent({
         if (point) {
             dispatchSetPoint(point, coordinate)
         } else {
-            Dispatcher.dispatch(new AddPoint(viaPoints.length + 1, coordinate, true))
+            const routes = route.routingResult.paths.map(p => {
+                return {
+                    coordinates: p.points.coordinates.map(pos => {
+                        return { lat: pos[1], lng: pos[0] }
+                    }),
+                    wayPoints: p.snapped_waypoints.coordinates.map(pos => {
+                        return { lat: pos[1], lng: pos[0] }
+                    }),
+                }
+            })
+            // we silently assume the way points are the same for all routes (and they are)
+            const index = findNextWayPoint(routes, coordinate).nextWayPoint
+            Dispatcher.dispatch(new AddPoint(index, coordinate, true))
         }
     }
 
@@ -55,7 +71,7 @@ export function PopupComponent({
             <button
                 className={styles.entry}
                 disabled={disableViaPoint(queryPoints)}
-                onClick={() => setViaPoint(queryPoints)}
+                onClick={() => setViaPoint(queryPoints, route)}
             >
                 Via here
             </button>

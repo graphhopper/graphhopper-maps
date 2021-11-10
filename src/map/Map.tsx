@@ -9,15 +9,17 @@ import { ViewportStoreState } from '@/stores/ViewportStore'
 import { PopupComponent } from '@/map/Popup'
 import { MapLayer } from '@/layers/MapLayer'
 import styles from './Map.module.css'
+import { RouteStoreState } from '@/stores/RouteStore'
 
 type MapProps = {
     viewport: ViewportStoreState
     queryPoints: QueryPoint[]
     styleOption: StyleOption
+    route: RouteStoreState
     mapLayers: MapLayer[]
 }
 
-export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapProps) {
+export default function ({ viewport, styleOption, queryPoints, route, mapLayers }: MapProps) {
     const [popupCoordinate, setPopupCoordinate] = useState<Coordinate | null>(null)
     const longTouchHandler = new LongTouchHandler(e => setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] }))
 
@@ -72,6 +74,7 @@ export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapP
                     <PopupComponent
                         coordinate={popupCoordinate}
                         queryPoints={queryPoints}
+                        route={route}
                         onSelect={() => setPopupCoordinate(null)}
                     />
                 </Popup>
