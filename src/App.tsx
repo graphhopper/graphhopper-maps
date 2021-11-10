@@ -10,7 +10,6 @@ import {
     getRouteStore,
     getViewportStore,
 } from '@/stores/Stores'
-import MapComponent from '@/map/Map'
 import { ApiInfo } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
 import MobileSidebar from '@/sidebar/MobileSidebar'
@@ -24,9 +23,9 @@ import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { ViewportStoreState } from '@/stores/ViewportStore'
-import createPathDetailsLayer from '@/layers/PathDetailsLayer'
-import createQueryPointsLayer from '@/layers/QueryPointsLayer'
-import createPathsLayer from '@/layers/PathsLayer'
+// import createPathDetailsLayer from '@/layers/PathDetailsLayer'
+// import createQueryPointsLayer from '@/layers/QueryPointsLayer'
+// import createPathsLayer from '@/layers/PathsLayer'
 import { MapLayer } from '@/layers/MapLayer'
 
 export default function App() {
@@ -69,10 +68,10 @@ export default function App() {
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
     const mapLayers: MapLayer[] = [
-        createQueryPointsLayer(query.queryPoints),
-        createPathsLayer(route.selectedPath, route.routingResult.paths),
+        // createQueryPointsLayer(query.queryPoints),
+        // createPathsLayer(route.selectedPath, route.routingResult.paths),
     ]
-    if (!isSmallScreen) mapLayers.push(createPathDetailsLayer(pathDetails))
+    // if (!isSmallScreen) mapLayers.push(createPathDetailsLayer(pathDetails))
 
     return (
         <div className={styles.appWrapper}>
@@ -116,12 +115,6 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
         <>
             <div className={styles.map}>
                 {
-                    <MapComponent
-                        viewport={viewport}
-                        styleOption={mapOptions.selectedStyle}
-                        queryPoints={query.queryPoints}
-                        mapLayers={mapLayers}
-                    />
                 }
             </div>
             <div className={styles.mapOptions}>
@@ -159,12 +152,6 @@ function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOption
     return (
         <>
             <div className={styles.smallScreenMap}>
-                <MapComponent
-                    viewport={viewport}
-                    queryPoints={query.queryPoints}
-                    styleOption={mapOptions.selectedStyle}
-                    mapLayers={mapLayers}
-                />
             </div>
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.smallScreenMapOptionsContent}>

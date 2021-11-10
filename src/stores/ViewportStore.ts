@@ -8,8 +8,6 @@ import {
     SetViewport,
     SetViewportToPoint,
 } from '@/actions/Actions'
-import { FlyToInterpolator, WebMercatorViewport } from 'react-map-gl'
-import TransitionInterpolator from 'react-map-gl/src/utils/transition/transition-interpolator'
 import { Bbox } from '@/api/graphhopper'
 import RouteStore from '@/stores/RouteStore'
 
@@ -27,7 +25,6 @@ export interface ViewportStoreState {
     maxPitch?: number
     transitionDuration?: number
     transitionEasing?: Function
-    transitionInterpolator?: TransitionInterpolator
     transitionInterruption?: number
 }
 
@@ -87,18 +84,12 @@ function calculateLatLngFromBbox(state: ViewportStoreState, bbox: Bbox, isSmallS
         [Math.max(-179, bbox[0]), Math.max(-89, bbox[1])],
         [Math.min(179, bbox[2]), Math.min(89, bbox[3])],
     ]
-    const { longitude, latitude, zoom } = new WebMercatorViewport({
-        width: state.width,
-        height: state.height,
-    }).fitBounds(bounds, {
-        padding: getPadding(state.width, state.height, isSmallScreen),
-    })
+    const { longitude, latitude, zoom } = { longitude: 0, latitude: 0, zoom: 10}
     return {
         ...state,
         longitude,
         latitude,
         transitionDuration: 500,
-        transitionInterpolator: new FlyToInterpolator(),
         // there is also this option:
         // transitionEasing: (t : any) => t,
         // todo: we could also use speed/auto instead
