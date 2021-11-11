@@ -21,6 +21,7 @@ type MapProps = {
 }
 
 export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapProps) {
+
     const [map, setMap] = useState<Map>()
     const mapElement = useRef<any>()
 
