@@ -84,7 +84,7 @@ function calculateLatLngFromBbox(state: ViewportStoreState, bbox: Bbox, isSmallS
         [Math.max(-179, bbox[0]), Math.max(-89, bbox[1])],
         [Math.min(179, bbox[2]), Math.min(89, bbox[3])],
     ]
-    const { longitude, latitude, zoom } = { longitude: 0, latitude: 0, zoom: 10}
+    const { longitude, latitude, zoom } = { longitude: 0, latitude: 0, zoom: 10 }
     return {
         ...state,
         longitude,

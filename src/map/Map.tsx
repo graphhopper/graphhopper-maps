@@ -16,7 +16,7 @@ type MapProps = {
     mapLayers: MapLayer[]
 }
 
-export default function({ viewport, styleOption, queryPoints, mapLayers }: MapProps) {
+export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapProps) {
     const [map, setMap] = useState<Map>()
     const mapElement = useRef<any>()
 
@@ -25,19 +25,17 @@ export default function({ viewport, styleOption, queryPoints, mapLayers }: MapPr
             target: mapElement.current,
             layers: [
                 new TileLayer({
-                    source: new OSM()
-                })
+                    source: new OSM(),
+                }),
             ],
             view: new View({
                 multiWorld: false,
                 constrainResolution: true,
                 center: fromLonLat([11.6, 49.6]),
-                zoom: 10
-            })
+                zoom: 10,
+            }),
         })
         setMap(initialMap)
     }, [])
-    return (
-        <div ref={mapElement} className={styles.mapContainer} />
-    )
+    return <div ref={mapElement} className={styles.mapContainer} />
 }
