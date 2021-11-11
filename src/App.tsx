@@ -5,12 +5,13 @@ import {
     getApiInfoStore,
     getErrorStore,
     getMapOptionsStore,
+    getMapStore,
     getPathDetailsStore,
     getQueryStore,
     getRouteStore,
     getViewportStore,
 } from '@/stores/Stores'
-import MapComponent from '@/map/Map'
+import MapComponent from '@/map/MapComponent'
 import { ApiInfo } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
 import MobileSidebar from '@/sidebar/MobileSidebar'
@@ -23,11 +24,12 @@ import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
-import { ViewportStoreState } from '@/stores/ViewportStore'
+import BackgroundLayer from '@/layers/BackgroundLayer'
 // import createPathDetailsLayer from '@/layers/PathDetailsLayer'
 // import createQueryPointsLayer from '@/layers/QueryPointsLayer'
 // import createPathsLayer from '@/layers/PathsLayer'
 import { MapLayer } from '@/layers/MapLayer'
+import { MapStoreState } from '@/stores/MapStore'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -37,6 +39,7 @@ export default function App() {
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
     const [viewport, setViewport] = useState(getViewportStore().state)
+    const [map, setMap] = useState(getMapStore().state)
 
     useEffect(() => {
         const onQueryChanged = () => setQuery(getQueryStore().state)
@@ -46,6 +49,7 @@ export default function App() {
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
         const onViewportChanged = () => setViewport(getViewportStore().state)
+        const onMapChanged = () => setMap(getMapStore().state)
 
         getQueryStore().register(onQueryChanged)
         getApiInfoStore().register(onInfoChanged)
@@ -54,6 +58,7 @@ export default function App() {
         getMapOptionsStore().register(onMapOptionsChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
         getViewportStore().register(onViewportChanged)
+        getMapStore().register(onMapChanged)
 
         return () => {
             getQueryStore().deregister(onQueryChanged)
@@ -63,6 +68,7 @@ export default function App() {
             getMapOptionsStore().deregister(onMapOptionsChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getViewportStore().deregister(onViewportChanged)
+            getMapStore().deregister(onMapChanged)
         }
     })
 
@@ -76,12 +82,16 @@ export default function App() {
 
     return (
         <div className={styles.appWrapper}>
+            {/* viewport={viewport}*/}
+            {/* queryPoints={query.queryPoints}*/}
+            {/* styleOption={mapOptions.selectedStyle}*/}
+            {/* mapLayers={mapLayers}*/}
+            <BackgroundLayer map={map.map} styleOption={mapOptions.selectedStyle} />
             {isSmallScreen ? (
                 <SmallScreenLayout
                     query={query}
                     route={route}
-                    viewport={viewport}
-                    mapLayers={mapLayers}
+                    map={map}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
@@ -90,8 +100,7 @@ export default function App() {
                 <LargeScreenLayout
                     query={query}
                     route={route}
-                    viewport={viewport}
-                    mapLayers={mapLayers}
+                    map={map}
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
@@ -104,26 +113,16 @@ export default function App() {
 interface LayoutProps {
     query: QueryStoreState
     route: RouteStoreState
-    viewport: ViewportStoreState
-    mapLayers: MapLayer[]
+    map: MapStoreState
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     info: ApiInfo
 }
 
-function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
+function LargeScreenLayout({ query, route, map, error, mapOptions, info }: LayoutProps) {
     return (
         <>
-            <div className={styles.map}>
-                {
-                    <MapComponent
-                        viewport={viewport}
-                        styleOption={mapOptions.selectedStyle}
-                        queryPoints={query.queryPoints}
-                        mapLayers={mapLayers}
-                    />
-                }
-            </div>
+            <div className={styles.map}>{<MapComponent map={map.map} />}</div>
             <div className={styles.mapOptions}>
                 <MapOptions {...mapOptions} />
             </div>
@@ -155,16 +154,11 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
     )
 }
 
-function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions, info }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenMap}>
-                <MapComponent
-                    viewport={viewport}
-                    queryPoints={query.queryPoints}
-                    styleOption={mapOptions.selectedStyle}
-                    mapLayers={mapLayers}
-                />
+                <MapComponent map={map.map} />
             </div>
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.smallScreenMapOptionsContent}>

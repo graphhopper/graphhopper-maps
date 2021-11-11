@@ -7,6 +7,7 @@ import {
     getApiInfoStore,
     getErrorStore,
     getMapOptionsStore,
+    getMapStore,
     getPathDetailsStore,
     getQueryStore,
     getRouteStore,
@@ -24,6 +25,7 @@ import ViewportStore from '@/stores/ViewportStore'
 import NavBar from '@/NavBar'
 import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
+import MapStore from '@/stores/MapStore'
 
 let locale = new URL(window.location.href).searchParams.get('locale')
 setTranslation(locale || navigator.language)
@@ -43,6 +45,7 @@ setStores({
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
     viewportStore: new ViewportStore(routeStore, () => smallScreenMediaQuery.matches),
+    mapStore: new MapStore(),
 })
 
 // register stores at dispatcher to receive actions
@@ -53,6 +56,7 @@ Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getViewportStore())
+Dispatcher.register(getMapStore())
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible
 
