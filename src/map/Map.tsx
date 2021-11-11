@@ -11,6 +11,7 @@ import { fromLonLat } from 'ol/proj'
 import Dispatcher from '@/stores/Dispatcher'
 import { MapIsLoaded, SelectMapStyle } from '@/actions/Actions'
 import addLayers from 'ol-mapbox-style'
+import { Group } from 'ol/layer'
 
 type MapProps = {
     viewport: ViewportStoreState
@@ -25,7 +26,8 @@ export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapP
 
     useEffect(() => {
         if (!map) return
-        map.getLayers().forEach(l => map.removeLayer(l))
+        // remove all layers (map.getLayers(l => map.removeLayer(l)) is not ok because it modifies the collection that is being iterated)
+        map.setLayerGroup(new Group());
         if (styleOption.type === 'vector') {
             addLayers(map, styleOption.url)
         } else {
