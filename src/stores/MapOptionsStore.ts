@@ -188,10 +188,9 @@ const styleOptions: StyleOption[] = [
     kurviger,
     mapillion,
     osmDe,
-    // The original client has these but those options yield cors errors with mapbox yields a cors error
-    // lyrk,
-    // wanderreitkarte,
-    // This works but is extremely slow with mapbox
+    lyrk,
+    wanderreitkarte,
+    // This one is extremely slow with mapbox and openlayers?!
     // sorbian
 ]
 
