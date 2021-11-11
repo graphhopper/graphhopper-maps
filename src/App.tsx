@@ -25,11 +25,9 @@ import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import BackgroundLayer from '@/layers/BackgroundLayer'
-// import createPathDetailsLayer from '@/layers/PathDetailsLayer'
-// import createQueryPointsLayer from '@/layers/QueryPointsLayer'
-// import createPathsLayer from '@/layers/PathsLayer'
-import { MapLayer } from '@/layers/MapLayer'
 import { MapStoreState } from '@/stores/MapStore'
+import QueryPointsLayer from '@/layers/QueryPointsLayer'
+import PathsLayer from '@/layers/PathsLayer'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -73,20 +71,12 @@ export default function App() {
     })
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
-
-    const mapLayers: MapLayer[] = [
-        // createQueryPointsLayer(query.queryPoints),
-        // createPathsLayer(route.selectedPath, route.routingResult.paths),
-    ]
-    // if (!isSmallScreen) mapLayers.push(createPathDetailsLayer(pathDetails))
-
     return (
         <div className={styles.appWrapper}>
-            {/* viewport={viewport}*/}
-            {/* queryPoints={query.queryPoints}*/}
-            {/* styleOption={mapOptions.selectedStyle}*/}
-            {/* mapLayers={mapLayers}*/}
+            {/*todo: add path details layer (and only if !isSmallScreen)*/}
             <BackgroundLayer map={map.map} styleOption={mapOptions.selectedStyle} />
+            <PathsLayer map={map.map} paths={route.routingResult.paths} selectedPath={route.selectedPath} />
+            <QueryPointsLayer map={map.map} queryPoints={query.queryPoints} />
             {isSmallScreen ? (
                 <SmallScreenLayout
                     query={query}

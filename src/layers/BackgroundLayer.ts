@@ -18,13 +18,13 @@ export default function ({ map, styleOption }: BackgroundLayerProps) {
             addLayers(map, styleOption.url)
         } else {
             const rasterStyle = styleOption as RasterStyle
-            map.addLayer(
-                new TileLayer({
-                    source: new XYZ({
-                        urls: rasterStyle.url,
-                    }),
-                })
-            )
+            const tileLayer = new TileLayer({
+                source: new XYZ({
+                    urls: rasterStyle.url,
+                }),
+            })
+            tileLayer.set('background-raster-layer', true)
+            map.addLayer(tileLayer)
         }
         return () => {
             removeBackgroundLayers(map)
@@ -35,6 +35,12 @@ export default function ({ map, styleOption }: BackgroundLayerProps) {
 }
 
 function removeBackgroundLayers(map: Map) {
-    // remove all layers (map.getLayers(l => map.removeLayer(l)) is not ok because it modifies the collection that is being iterated)
-    map.setLayerGroup(new Group())
+    const backgroundLayers = map
+        .getLayers()
+        .getArray()
+        .filter(l => {
+            // vector layers added via olms#addLayers have the mapbox-source key
+            return l.get('mapbox-source') || l.get('background-raster-layer')
+        })
+    backgroundLayers.forEach(l => map.removeLayer(l))
 }
