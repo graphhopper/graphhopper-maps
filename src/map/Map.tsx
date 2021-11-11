@@ -1,13 +1,15 @@
 import styles from '@/map/Map.module.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import React, { useEffect, useRef, useState } from 'react'
-import { StyleOption } from '@/stores/MapOptionsStore'
+import { RasterStyle, StyleOption } from '@/stores/MapOptionsStore'
 import { ViewportStoreState } from '@/stores/ViewportStore'
 import { MapLayer } from '@/layers/MapLayer'
 import { Map, View } from 'ol'
-import { OSM } from 'ol/source'
+import { XYZ } from 'ol/source'
 import TileLayer from 'ol/layer/Tile'
 import { fromLonLat } from 'ol/proj'
+import Dispatcher from '@/stores/Dispatcher'
+import { MapIsLoaded } from '@/actions/Actions'
 
 type MapProps = {
     viewport: ViewportStoreState
@@ -21,19 +23,33 @@ export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapP
     const mapElement = useRef<any>()
 
     useEffect(() => {
+        if (!map) return
+        map.getLayers().forEach(l => map.removeLayer(l))
+        if (styleOption.type === 'vector') console.log('vector not supported')
+        else {
+            const rasterStyle = styleOption as RasterStyle
+            map.addLayer(
+                new TileLayer({
+                    source: new XYZ({
+                        urls: rasterStyle.url,
+                    }),
+                })
+            )
+        }
+    }, [styleOption])
+
+    useEffect(() => {
         const initialMap = new Map({
             target: mapElement.current,
-            layers: [
-                new TileLayer({
-                    source: new OSM(),
-                }),
-            ],
             view: new View({
                 multiWorld: false,
                 constrainResolution: true,
                 center: fromLonLat([11.6, 49.6]),
                 zoom: 10,
             }),
+        })
+        initialMap.once('postrender', () => {
+            Dispatcher.dispatch(new MapIsLoaded())
         })
         setMap(initialMap)
     }, [])
