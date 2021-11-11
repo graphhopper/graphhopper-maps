@@ -35,7 +35,8 @@ export default class MapStore extends Store<MapStoreState> {
                 // todo: initial values do not really matter, because we immediately update the state?!..
                 center: fromLonLat([11, 48]),
                 zoom: 5
-            })
+            }),
+            controls: []
         })
         map.once('postrender', () => {
             Dispatcher.dispatch(new MapIsLoaded())

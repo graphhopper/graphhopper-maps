@@ -12,6 +12,7 @@ interface BackgroundLayerProps {
 }
 
 export default function ({ map, styleOption }: BackgroundLayerProps) {
+    // todo: still missing attributions, but also tile size setting etc.
     useEffect(() => {
         removeBackgroundLayers(map)
         if (styleOption.type === 'vector') {
