@@ -11,7 +11,6 @@ import {
     getPathDetailsStore,
     getQueryStore,
     getRouteStore,
-    getViewportStore,
     setStores,
 } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
@@ -21,7 +20,6 @@ import QueryStore from '@/stores/QueryStore'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
-import ViewportStore from '@/stores/ViewportStore'
 import NavBar from '@/NavBar'
 import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
@@ -44,8 +42,7 @@ setStores({
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
-    viewportStore: new ViewportStore(routeStore, () => smallScreenMediaQuery.matches),
-    mapStore: new MapStore(),
+    mapStore: new MapStore(routeStore, () => smallScreenMediaQuery.matches),
 })
 
 // register stores at dispatcher to receive actions
@@ -55,7 +52,6 @@ Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
-Dispatcher.register(getViewportStore())
 Dispatcher.register(getMapStore())
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible

@@ -3,7 +3,7 @@ import { coordinateToText } from '@/Converters'
 import styles from './Popup.module.css'
 import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, SetPoint, SetViewportToPoint } from '@/actions/Actions'
+import { AddPoint, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
 
 export function PopupComponent({
     coordinate,
@@ -69,7 +69,7 @@ export function PopupComponent({
                 className={styles.entry}
                 onClick={() => {
                     onSelect()
-                    Dispatcher.dispatch(new SetViewportToPoint(coordinate, 8))
+                    Dispatcher.dispatch(new ZoomMapToPoint(coordinate, 8))
                 }}
             >
                 Center map

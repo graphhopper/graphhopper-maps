@@ -9,7 +9,6 @@ import {
     getPathDetailsStore,
     getQueryStore,
     getRouteStore,
-    getViewportStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
 import { ApiInfo } from '@/api/graphhopper'
@@ -36,7 +35,6 @@ export default function App() {
     const [error, setError] = useState(getErrorStore().state)
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
-    const [viewport, setViewport] = useState(getViewportStore().state)
     const [map, setMap] = useState(getMapStore().state)
 
     useEffect(() => {
@@ -46,7 +44,6 @@ export default function App() {
         const onErrorChanged = () => setError(getErrorStore().state)
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
-        const onViewportChanged = () => setViewport(getViewportStore().state)
         const onMapChanged = () => setMap(getMapStore().state)
 
         getQueryStore().register(onQueryChanged)
@@ -55,7 +52,6 @@ export default function App() {
         getErrorStore().register(onErrorChanged)
         getMapOptionsStore().register(onMapOptionsChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
-        getViewportStore().register(onViewportChanged)
         getMapStore().register(onMapChanged)
 
         return () => {
@@ -65,7 +61,6 @@ export default function App() {
             getErrorStore().deregister(onErrorChanged)
             getMapOptionsStore().deregister(onMapOptionsChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
-            getViewportStore().deregister(onViewportChanged)
             getMapStore().deregister(onMapChanged)
         }
     })
