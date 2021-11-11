@@ -9,7 +9,8 @@ import { XYZ } from 'ol/source'
 import TileLayer from 'ol/layer/Tile'
 import { fromLonLat } from 'ol/proj'
 import Dispatcher from '@/stores/Dispatcher'
-import { MapIsLoaded } from '@/actions/Actions'
+import { MapIsLoaded, SelectMapStyle } from '@/actions/Actions'
+import addLayers from 'ol-mapbox-style'
 
 type MapProps = {
     viewport: ViewportStoreState
@@ -25,8 +26,9 @@ export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapP
     useEffect(() => {
         if (!map) return
         map.getLayers().forEach(l => map.removeLayer(l))
-        if (styleOption.type === 'vector') console.log('vector not supported')
-        else {
+        if (styleOption.type === 'vector') {
+            addLayers(map, styleOption.url)
+        } else {
             const rasterStyle = styleOption as RasterStyle
             map.addLayer(
                 new TileLayer({
@@ -50,6 +52,8 @@ export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapP
         })
         initialMap.once('postrender', () => {
             Dispatcher.dispatch(new MapIsLoaded())
+            // our useEffect for styleOption does nothing when the map is not initialized yet, so here we trigger it again
+            Dispatcher.dispatch(new SelectMapStyle({...styleOption}))
         })
         setMap(initialMap)
     }, [])
