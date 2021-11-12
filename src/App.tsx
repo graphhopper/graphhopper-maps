@@ -69,6 +69,8 @@ export default function App() {
     return (
         <div className={styles.appWrapper}>
             {/*todo: add path details layer (and only if !isSmallScreen)*/}
+            {/* maybe the map layers do not need to be components at all and all they really are are useEffects that
+                update depending on some of the app state (like query points, selectedPath etc.))*/}
             <BackgroundLayer map={map.map} styleOption={mapOptions.selectedStyle} />
             <PathsLayer map={map.map} paths={route.routingResult.paths} selectedPath={route.selectedPath} />
             <QueryPointsLayer map={map.map} queryPoints={query.queryPoints} />

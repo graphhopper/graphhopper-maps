@@ -1,6 +1,5 @@
 import { Map } from 'ol'
 import { useEffect } from 'react'
-import { Group } from 'ol/layer'
 import { RasterStyle, StyleOption } from '@/stores/MapOptionsStore'
 import TileLayer from 'ol/layer/Tile'
 import { XYZ } from 'ol/source'
@@ -13,6 +12,8 @@ interface BackgroundLayerProps {
 
 export default function ({ map, styleOption }: BackgroundLayerProps) {
     // todo: still missing attributions, but also tile size setting etc.
+    // todo: do we need useEffect (to remove the layers) here? and do we even need to treat the layers as react components?
+    //       all they really do is attach some things to the map... and they do not correspond to any DOM elements
     useEffect(() => {
         removeBackgroundLayers(map)
         if (styleOption.type === 'vector') {
