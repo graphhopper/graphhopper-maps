@@ -7,6 +7,10 @@ import VectorSource from 'ol/source/Vector'
 import { GeoJSON } from 'ol/format'
 import { Stroke, Style } from 'ol/style'
 import { fromLonLat } from 'ol/proj'
+import { Select } from 'ol/interaction'
+import { click } from 'ol/events/condition'
+import Dispatcher from '@/stores/Dispatcher'
+import { SetSelectedPath } from '@/actions/Actions'
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -19,6 +23,8 @@ interface PathsLayerProps {
 
 export default function ({ map, selectedPath, paths }: PathsLayerProps) {
     // todo: add click interaction (click paths to select)
+    // todo: do not remove paths if only the *selected* path has changed?! in master the paths do not disappear when
+    // another one is selected
     removePathLayers(map)
 
     const currentPaths = paths
@@ -47,6 +53,25 @@ export default function ({ map, selectedPath, paths }: PathsLayerProps) {
     pathsLayer.set(pathsLayerKey, true)
     pathsLayer.setZIndex(2)
     map.addLayer(pathsLayer)
+
+    // allow click-selection of alternative paths
+    map.getInteractions()
+        .getArray()
+        .filter(i => i.get('gh:select_path_interaction'))
+        .forEach(i => map.removeInteraction(i))
+    const select = new Select({
+        condition: click,
+        layers: [pathsLayer],
+        style: null,
+        hitTolerance: 5,
+    })
+    select.on('select', e => {
+        const index = (e as any).selected[0].getProperties().index
+        const path = currentPaths.find(p => p.index === index)
+        Dispatcher.dispatch(new SetSelectedPath(path!.path))
+    })
+    select.set('gh:select_path_interaction', true)
+    map.addInteraction(select)
 
     const selectedPathLayer = new VectorLayer({
         source: new VectorSource({
