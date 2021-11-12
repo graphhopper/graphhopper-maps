@@ -48,7 +48,9 @@ export function PopupComponent({
                     }),
                 }
             })
-            // we silently assume the way points are the same for all routes (and they are)
+            // note that we can use the index returned by findNextWayPoint no matter which route alternative was found
+            // to be closest to the clicked location, because for every route the n-th snapped_waypoint corresponds to
+            // the n-th query point
             const index = findNextWayPoint(routes, coordinate).nextWayPoint
             Dispatcher.dispatch(new AddPoint(index, coordinate, true))
         }
