@@ -8,7 +8,7 @@ import {
     PathDetailsRangeSelected,
     RouteRequestSuccess,
     SetSelectedPath,
-    ZoomMapToPoint
+    ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
@@ -34,15 +34,15 @@ export default class MapStore extends Store<MapStoreState> {
                 constrainResolution: true,
                 // todo: initial values do not really matter, because we immediately update the state?!..
                 center: fromLonLat([11, 48]),
-                zoom: 5
+                zoom: 5,
             }),
-            controls: []
+            controls: [],
         })
         map.once('postrender', () => {
             Dispatcher.dispatch(new MapIsLoaded())
         })
         return {
-            map
+            map,
         }
     }
 
@@ -77,10 +77,8 @@ function fitBounds(map: Map, bbox: Bbox, isSmallScreen: boolean) {
     const sw = fromLonLat([bbox[0], bbox[1]])
     const ne = fromLonLat([bbox[2], bbox[3]])
     map.getView().fit([sw[0], sw[1], ne[0], ne[1]], {
-        padding: isSmallScreen
-            ? [200, 16, 32, 16]
-            : [100, 100, 300, 500],
+        padding: isSmallScreen ? [200, 16, 32, 16] : [100, 100, 300, 500],
         // todo: advanced transition like transition easing, interpolation, duration=auto etc.?
-        duration: 500
+        duration: 500,
     })
 }
