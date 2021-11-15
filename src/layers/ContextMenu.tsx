@@ -24,14 +24,14 @@ export default function ({ map, queryPoints }: ContextMenuProps) {
         setOverlay(overlay)
         map.addOverlay(overlay)
 
-        const onMenuEvent = (e : any) => {
+        const onMenuEvent = (e: any) => {
             e.preventDefault()
             const coordinate = map.getEventCoordinate(e)
             const lonLat = toLonLat(coordinate)
             setMenuCoordinate({ lng: lonLat[0], lat: lonLat[1] })
             overlay.setPosition(coordinate)
         }
-        const longTouchHandler = new LongTouchHandler((e) => onMenuEvent(e))
+        const longTouchHandler = new LongTouchHandler(e => onMenuEvent(e))
 
         map.once('change:target', () => {
             // we cannot listen to right-click simply using map.on('contextmenu') and need to add the listener to
@@ -60,15 +60,15 @@ export default function ({ map, queryPoints }: ContextMenuProps) {
 }
 
 class LongTouchHandler {
-    private readonly callback: (e : any) => void
+    private readonly callback: (e: any) => void
     private currentTimeout: number = 0
-    private currentEvent? : any
+    private currentEvent?: any
 
-    constructor(onLongTouch: (e : any) => void) {
+    constructor(onLongTouch: (e: any) => void) {
         this.callback = onLongTouch
     }
 
-    onTouchStart(e : any) {
+    onTouchStart(e: any) {
         this.currentEvent = e
         this.currentTimeout = window.setTimeout(() => {
             console.log('long touch')
