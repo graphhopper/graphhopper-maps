@@ -15,7 +15,7 @@ interface QueryPointsLayerProps {
     queryPoints: QueryPoint[]
 }
 
-export default function ({ map, queryPoints }: QueryPointsLayerProps) {
+export default function QueryPointsLayer({ map, queryPoints }: QueryPointsLayerProps) {
     map.getLayers()
         .getArray()
         .filter(l => l.get('gh:query_points'))

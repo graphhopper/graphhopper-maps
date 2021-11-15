@@ -10,7 +10,7 @@ interface ContextMenuProps {
     queryPoints: QueryPoint[]
 }
 
-export default function ({ map, queryPoints }: ContextMenuProps) {
+export default function ContextMenu({ map, queryPoints }: ContextMenuProps) {
     const [menuCoordinate, setMenuCoordinate] = useState<Coordinate | null>(null)
     const [overlay, setOverlay] = useState<Overlay | undefined>()
 

@@ -21,7 +21,7 @@ interface PathsLayerProps {
     paths: Path[]
 }
 
-export default function ({ map, selectedPath, paths }: PathsLayerProps) {
+export default function PathsLayer({ map, selectedPath, paths }: PathsLayerProps) {
     // todo: add click interaction (click paths to select)
     // todo: do not remove paths if only the *selected* path has changed?! in master the paths do not disappear when
     // another one is selected
