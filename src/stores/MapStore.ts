@@ -12,6 +12,7 @@ import {
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
+import { defaults as defaultControls } from 'ol/control'
 
 export interface MapStoreState {
     map: Map
@@ -36,7 +37,14 @@ export default class MapStore extends Store<MapStoreState> {
                 center: fromLonLat([11, 48]),
                 zoom: 5,
             }),
-            controls: [],
+            controls: defaultControls({
+                zoom: false,
+                rotate: false,
+                attribution: true,
+                attributionOptions: {
+                    collapsible: false,
+                },
+            }),
         })
         map.once('postrender', () => {
             Dispatcher.dispatch(new MapIsLoaded())

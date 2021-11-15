@@ -23,6 +23,7 @@ export default function ({ map, styleOption }: BackgroundLayerProps) {
             const tileLayer = new TileLayer({
                 source: new XYZ({
                     urls: rasterStyle.url,
+                    attributions: [rasterStyle.attribution],
                 }),
             })
             tileLayer.set('background-raster-layer', true)
