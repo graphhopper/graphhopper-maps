@@ -28,6 +28,7 @@ import { MapStoreState } from '@/stores/MapStore'
 import QueryPointsLayer from '@/layers/QueryPointsLayer'
 import PathsLayer from '@/layers/PathsLayer'
 import ContextMenu from '@/layers/ContextMenu'
+import PathDetailsLayer from '@/layers/PathDetailsLayer'
 
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
@@ -75,6 +76,7 @@ export default function App() {
             <BackgroundLayer map={map.map} styleOption={mapOptions.selectedStyle} />
             <PathsLayer map={map.map} paths={route.routingResult.paths} selectedPath={route.selectedPath} />
             <QueryPointsLayer map={map.map} queryPoints={query.queryPoints} />
+            <PathDetailsLayer map={map.map} pathDetails={pathDetails} />
             <ContextMenu map={map.map} route={route} queryPoints={query.queryPoints} />
             {isSmallScreen ? (
                 <SmallScreenLayout
