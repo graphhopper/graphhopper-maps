@@ -75,7 +75,7 @@ export default function App() {
             <BackgroundLayer map={map.map} styleOption={mapOptions.selectedStyle} />
             <PathsLayer map={map.map} paths={route.routingResult.paths} selectedPath={route.selectedPath} />
             <QueryPointsLayer map={map.map} queryPoints={query.queryPoints} />
-            <ContextMenu map={map.map} queryPoints={query.queryPoints} />
+            <ContextMenu map={map.map} route={route} queryPoints={query.queryPoints} />
             {isSmallScreen ? (
                 <SmallScreenLayout
                     query={query}

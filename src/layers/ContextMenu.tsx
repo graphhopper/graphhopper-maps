@@ -4,13 +4,15 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { toLonLat } from 'ol/proj'
 import styles from '@/layers/ContextMenu.module.css'
+import { RouteStoreState } from '@/stores/RouteStore'
 
 interface ContextMenuProps {
     map: Map
+    route: RouteStoreState
     queryPoints: QueryPoint[]
 }
 
-export default function ContextMenu({ map, queryPoints }: ContextMenuProps) {
+export default function ContextMenu({ map, route, queryPoints }: ContextMenuProps) {
     const [menuCoordinate, setMenuCoordinate] = useState<Coordinate | null>(null)
     const [overlay, setOverlay] = useState<Overlay | undefined>()
 
@@ -49,6 +51,7 @@ export default function ContextMenu({ map, queryPoints }: ContextMenuProps) {
                 <PopupComponent
                     coordinate={menuCoordinate!}
                     queryPoints={queryPoints}
+                    route={route}
                     onSelect={() => {
                         overlay?.setPosition(undefined)
                         setMenuCoordinate(null)
