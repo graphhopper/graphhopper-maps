@@ -120,6 +120,7 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
                         viewport={viewport}
                         styleOption={mapOptions.selectedStyle}
                         queryPoints={query.queryPoints}
+                        route={route}
                         mapLayers={mapLayers}
                     />
                 }
@@ -163,6 +164,7 @@ function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOption
                     viewport={viewport}
                     queryPoints={query.queryPoints}
                     styleOption={mapOptions.selectedStyle}
+                    route={route}
                     mapLayers={mapLayers}
                 />
             </div>
