@@ -63,7 +63,6 @@ export default class MapStore extends Store<MapStoreState> {
         } else if (action instanceof InfoReceived) {
             fitBounds(state.map, action.result.bbox, isSmallScreen)
         } else if (action instanceof RouteRequestSuccess) {
-            // todo: is this comment still valid?
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well but then we would have to make sure that the route
             // store digests this action first, which our Dispatcher can't at the moment.

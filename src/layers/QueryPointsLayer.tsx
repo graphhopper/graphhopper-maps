@@ -48,12 +48,14 @@ export default function QueryPointsLayer({ map, queryPoints }: QueryPointsLayerP
     })
     queryPointsLayer.set('gh:query_points', true)
     queryPointsLayer.setZIndex(2)
-    queryPointsLayer.setStyle(feature =>
-        new Style({
-            image: new Icon({
-                src: 'data:image/svg+xml;utf8,' + createSvg(feature.get('gh:marker_props'))
+    queryPointsLayer.setStyle(
+        feature =>
+            new Style({
+                image: new Icon({
+                    src: 'data:image/svg+xml;utf8,' + createSvg(feature.get('gh:marker_props')),
+                }),
             })
-        }))
+    )
     map.addLayer(queryPointsLayer)
 
     map.getInteractions()

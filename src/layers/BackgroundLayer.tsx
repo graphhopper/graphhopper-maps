@@ -11,7 +11,6 @@ interface BackgroundLayerProps {
 }
 
 export default function BackgroundLayer({ map, styleOption }: BackgroundLayerProps) {
-    // todo: still missing attributions, but also tile size setting etc.
     // todo: do we need useEffect (to remove the layers) here? and do we even need to treat the layers as react components?
     //       all they really do is attach some things to the map... and they do not correspond to any DOM elements
     useEffect(() => {
@@ -23,6 +22,7 @@ export default function BackgroundLayer({ map, styleOption }: BackgroundLayerPro
             const tileLayer = new TileLayer({
                 source: new XYZ({
                     urls: rasterStyle.url,
+                    // todo: do we need tile size and/or max zoom?
                     attributions: [rasterStyle.attribution],
                 }),
             })

@@ -53,7 +53,7 @@ export default function PathsLayer({ map, selectedPath, paths }: PathsLayerProps
     pathsLayer.setZIndex(1)
     map.addLayer(pathsLayer)
 
-    // allow click-selection of alternative paths
+    // select an alternative path if clicked
     map.getInteractions()
         .getArray()
         .filter(i => i.get('gh:select_path_interaction'))

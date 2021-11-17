@@ -70,12 +70,12 @@ export default function App() {
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <div className={styles.appWrapper}>
-            {/*todo: add path details layer (and only if !isSmallScreen)*/}
-            {/* maybe the map layers do not need to be components at all and all they really are are useEffects that
+            {/* todo: maybe the map layers do not need to be components at all and all they really are are useEffects that
                 update depending on some of the app state (like query points, selectedPath etc.))*/}
             <BackgroundLayer map={map.map} styleOption={mapOptions.selectedStyle} />
             <PathsLayer map={map.map} paths={route.routingResult.paths} selectedPath={route.selectedPath} />
             <QueryPointsLayer map={map.map} queryPoints={query.queryPoints} />
+            {/*todo: hide path details layer for small screens*/}
             <PathDetailsLayer map={map.map} pathDetails={pathDetails} />
             <ContextMenu map={map.map} route={route} queryPoints={query.queryPoints} />
             {isSmallScreen ? (
