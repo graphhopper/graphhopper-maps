@@ -29,6 +29,10 @@ export default function BackgroundLayer({ map, styleOption }: BackgroundLayerPro
             tileLayer.set('background-raster-layer', true)
             map.addLayer(tileLayer)
         }
+        map.on('pointermove', function (evt) {
+            const onFeature = map.forEachFeatureAtPixel(evt.pixel, () => true)
+            map.getTargetElement().style.cursor = onFeature ? 'pointer' : 'grab'
+        })
         return () => {
             removeBackgroundLayers(map)
         }

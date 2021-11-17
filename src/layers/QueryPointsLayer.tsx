@@ -38,7 +38,6 @@ export default function QueryPointsLayer({ map, queryPoints }: QueryPointsLayerP
                 number: indexPoint.point.type == QueryPointType.Via ? i : undefined,
                 size: 35,
             })
-            // todo: use svg markers, setStyle()
             return feature
         })
     const queryPointsLayer = new VectorLayer({
@@ -66,6 +65,7 @@ export default function QueryPointsLayer({ map, queryPoints }: QueryPointsLayerP
     const modify = new Modify({
         hitDetection: queryPointsLayer,
         source: queryPointsLayer.getSource(),
+        style: [],
     })
     modify.on('modifyend', e => {
         const feature = (e as any).features.getArray()[0]
