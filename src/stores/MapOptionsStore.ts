@@ -56,6 +56,7 @@ const osmOrg: RasterStyle = {
         'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
     ],
     attribution: osmAttribution,
+    maxZoom: 19
 }
 const omniscale: RasterStyle = {
     name: 'Omniscale',
@@ -132,6 +133,7 @@ const kurviger: RasterStyle = {
     attribution:
         osmAttribution +
         ',&copy; <a href="https://kurviger.de/" target="_blank">Kurviger</a> &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
+    maxZoom: 22
 }
 const mapillion: VectorStyle = {
     name: 'Mapilion',
@@ -150,12 +152,14 @@ const osmDe: RasterStyle = {
         'https://c.tile.openstreetmap.de/{z}/{x}/{y}.png',
     ],
     attribution: osmAttribution,
+    maxZoom: 18
 }
 const lyrk: RasterStyle = {
     name: 'Lyrk',
     type: 'raster',
     url: ['https://tiles.lyrk.org/lr/{z}/{x}/{y}?apikey=6e8cfef737a140e2a58c8122aaa26077'],
     attribution: osmAttribution + ', <a href="https://geodienste.lyrk.de/">Lyrk</a>',
+    maxZoom: 15
 }
 const wanderreitkarte: RasterStyle = {
     name: 'WanderReitKarte',
@@ -167,6 +171,7 @@ const wanderreitkarte: RasterStyle = {
         'https://topo4.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
     ],
     attribution: osmAttribution + ', <a href="https://wanderreitkarte.de" target="_blank">WanderReitKarte</a>',
+    maxZoom: 18
 }
 const sorbian: RasterStyle = {
     name: 'Sorbian Language',

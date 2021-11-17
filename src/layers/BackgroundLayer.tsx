@@ -22,7 +22,8 @@ export default function BackgroundLayer({ map, styleOption }: BackgroundLayerPro
             const tileLayer = new TileLayer({
                 source: new XYZ({
                     urls: rasterStyle.url,
-                    // todo: do we need tile size and/or max zoom?
+                    maxZoom: rasterStyle.maxZoom,
+                    tileSize: 256,
                     attributions: [rasterStyle.attribution],
                 }),
             })
