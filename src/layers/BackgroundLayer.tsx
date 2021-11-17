@@ -1,4 +1,4 @@
-import { Map } from 'ol'
+import { Feature, Map } from 'ol'
 import { useEffect } from 'react'
 import { RasterStyle, StyleOption } from '@/stores/MapOptionsStore'
 import TileLayer from 'ol/layer/Tile'
@@ -30,8 +30,10 @@ export default function BackgroundLayer({ map, styleOption }: BackgroundLayerPro
             map.addLayer(tileLayer)
         }
         map.on('pointermove', function (evt) {
-            const onFeature = map.forEachFeatureAtPixel(evt.pixel, () => true)
-            map.getTargetElement().style.cursor = onFeature ? 'pointer' : 'grab'
+            const features = map.getFeaturesAtPixel(evt.pixel)
+            // features can also contain 'RenderFeatures' for vector tiles, but in this case the cursor should not change
+            const atFeature = features.some(f => f instanceof Feature)
+            map.getTargetElement().style.cursor = atFeature ? 'pointer' : 'grab'
         })
         return () => {
             removeBackgroundLayers(map)
