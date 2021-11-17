@@ -1,5 +1,5 @@
 import { Feature, Map } from 'ol'
-import { QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import React from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
@@ -9,6 +9,8 @@ import { Modify } from 'ol/interaction'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
 import { coordinateToText } from '@/Converters'
+import { Icon, Style } from 'ol/style'
+import { createSvg } from '@/layers/createMarkerSVG'
 
 interface QueryPointsLayerProps {
     map: Map
@@ -31,6 +33,11 @@ export default function QueryPointsLayer({ map, queryPoints }: QueryPointsLayerP
                 geometry: new Point(fromLonLat([indexPoint.point.coordinate.lng, indexPoint.point.coordinate.lat])),
             })
             feature.set('gh:query_point', indexPoint.point)
+            feature.set('gh:marker_props', {
+                color: indexPoint.point.color,
+                number: indexPoint.point.type == QueryPointType.Via ? i : undefined,
+                size: 35,
+            })
             // todo: use svg markers, setStyle()
             return feature
         })
@@ -40,7 +47,13 @@ export default function QueryPointsLayer({ map, queryPoints }: QueryPointsLayerP
         }),
     })
     queryPointsLayer.set('gh:query_points', true)
-    queryPointsLayer.setZIndex(1)
+    queryPointsLayer.setZIndex(2)
+    queryPointsLayer.setStyle(feature =>
+        new Style({
+            image: new Icon({
+                src: 'data:image/svg+xml;utf8,' + createSvg(feature.get('gh:marker_props'))
+            })
+        }))
     map.addLayer(queryPointsLayer)
 
     map.getInteractions()

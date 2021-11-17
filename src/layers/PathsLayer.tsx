@@ -50,7 +50,7 @@ export default function PathsLayer({ map, selectedPath, paths }: PathsLayerProps
         opacity: 0.8,
     })
     pathsLayer.set(pathsLayerKey, true)
-    pathsLayer.setZIndex(2)
+    pathsLayer.setZIndex(1)
     map.addLayer(pathsLayer)
 
     // allow click-selection of alternative paths
