@@ -114,27 +114,13 @@ interface LayoutProps {
 function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
     return (
         <>
-            <div className={styles.map}>
-                {
-                    <MapComponent
-                        viewport={viewport}
-                        styleOption={mapOptions.selectedStyle}
-                        queryPoints={query.queryPoints}
-                        route={route}
-                        mapLayers={mapLayers}
-                    />
-                }
-            </div>
-            <div className={styles.mapOptions}>
-                <MapOptions {...mapOptions} />
-            </div>
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent}>
                     <Search
                         points={query.queryPoints}
                         routingProfiles={info.profiles}
                         selectedProfile={query.routingProfile}
-                        autofocus={true}
+                        autofocus={false}
                     />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <div className={styles.routingResult}>
@@ -149,6 +135,21 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
                     </div>
                 </div>
             </div>
+            <div className={styles.map}>
+                {
+                    <MapComponent
+                        viewport={viewport}
+                        styleOption={mapOptions.selectedStyle}
+                        queryPoints={query.queryPoints}
+                        route={route}
+                        mapLayers={mapLayers}
+                    />
+                }
+            </div>
+            <div className={styles.mapOptions}>
+                <MapOptions {...mapOptions} />
+            </div>
+
             <div className={styles.pathDetails}>
                 <PathDetails selectedPath={route.selectedPath} />
             </div>

@@ -1,16 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RoutingProfiles from '@/sidebar/search/RoutingProfiles'
 import RemoveIcon from '../times-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import PlainButton from '@/PlainButton'
-import { RoutingProfile } from '@/api/graphhopper'
+import { GeocodingHit, RoutingProfile } from '@/api/graphhopper'
 
-import AddressInput from '@/sidebar/search/AddressInput'
+import AddressInput, { Geocoder } from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
+import { convertToQueryText, textToCoordinate } from '@/Converters'
+import Api, { getApi } from '@/api/Api'
+import Autocomplete, {
+    AutocompleteItem,
+    GeocodingItem,
+    isGeocodingItem,
+} from '@/sidebar/search/AddressInputAutocomplete'
 
 export default function Search({
     points,
@@ -23,7 +30,48 @@ export default function Search({
     selectedProfile: RoutingProfile
     autofocus: boolean
 }) {
-    points.every(point => point.isInitialized)
+    const [currentQueryText, setCurrentQueryText] = useState('')
+    const [currentQueryPoint, setCurrentQueryPoint] = useState<QueryPoint | null>(null)
+    return currentQueryText ? (
+        <FullSizeAutocomplete
+            query={currentQueryText}
+            onSelect={(text, coordinate) => {
+                setCurrentQueryText('')
+                setCurrentQueryPoint(null)
+                Dispatcher.dispatch(
+                    coordinate
+                        ? new SetPoint({
+                              ...currentQueryPoint!,
+                              isInitialized: true,
+                              queryText: text,
+                              coordinate: coordinate,
+                          })
+                        : new SetPoint({
+                              ...currentQueryPoint!,
+                              isInitialized: false,
+                              queryText: text,
+                          })
+                )
+            }}
+        />
+    ) : (
+        <div className={styles.searchBox}>
+            {points.map(point => (
+                <PointSearch
+                    key={point.id}
+                    point={point}
+                    deletable={points.length > 2}
+                    onChange={value => {
+                        setCurrentQueryPoint(point)
+                        setCurrentQueryText(value)
+                        Dispatcher.dispatch(new ClearRoute())
+                        Dispatcher.dispatch(new InvalidatePoint(point))
+                    }}
+                />
+            ))}
+        </div>
+    )
+    /*
     return (
         <div className={styles.searchBox}>
             {points.map(point => (
@@ -46,6 +94,82 @@ export default function Search({
             </PlainButton>
             <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
         </div>
+    )
+
+     */
+}
+
+function FullSizeAutocomplete({
+    query,
+    onSelect,
+}: {
+    query: string
+    onSelect: (queryText: string, coordinate: Coordinate) => void
+}) {
+    const [value, setValue] = useState(query)
+
+    const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>([])
+    const [geocoder] = useState(
+        new Geocoder(getApi(), hits => {
+            const items = hits.map(hit => {
+                return { type: 'geocoding', hit: hit } as GeocodingItem
+            })
+            setAutocompleteItems(items)
+        })
+    )
+
+    function handleChange(value: string) {
+        setValue(value)
+        const coordinate = textToCoordinate(value)
+        if (!coordinate) geocoder.request(value)
+    }
+
+    return (
+        <div>
+            <input type="text" autoFocus value={value} onChange={e => handleChange(e.target.value)} />
+            {autocompleteItems.length > 0 && (
+                <Autocomplete
+                    items={autocompleteItems}
+                    highlightedItem={autocompleteItems[0]}
+                    onSelect={item => {
+                        if (isGeocodingItem(item)) onSelect(convertToQueryText(item.hit), item.hit.point)
+                    }}
+                />
+            )}
+        </div>
+    )
+}
+
+function PointSearch({
+    point,
+    deletable,
+    onChange,
+}: {
+    point: QueryPoint
+    deletable: boolean
+    onChange: (value: string) => void
+}) {
+    return (
+        <>
+            <div className={styles.markerContainer}>
+                <MarkerComponent color={point.color} />
+            </div>
+            <input
+                type="text"
+                defaultValue={point.queryText}
+                onChange={e => {
+                    onChange(e.target.value)
+                }}
+            />
+            {deletable && (
+                <PlainButton
+                    onClick={() => Dispatcher.dispatch(new RemovePoint(point))}
+                    className={styles.removeSearchBox}
+                >
+                    <RemoveIcon />
+                </PlainButton>
+            )}
+        </>
     )
 }
 

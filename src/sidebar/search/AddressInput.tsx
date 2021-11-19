@@ -44,7 +44,7 @@ export default function AddressInput(props: AddressInputProps) {
         })
     )
     useEffect(() => setAutocompleteItems([]), [props.point])
-    useEffect(() => {
+    /*   useEffect(() => {
         if (hasFocus && text.length == 0 && autocompleteItems.length === 0) {
             const locationItem: SelectCurrentLocationItem = {
                 type: 'currentLocation',
@@ -52,6 +52,8 @@ export default function AddressInput(props: AddressInputProps) {
             setAutocompleteItems([locationItem])
         }
     }, [autocompleteItems, hasFocus])
+    
+  */
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
@@ -181,7 +183,7 @@ function calculateHighlightedIndex(length: number, currentIndex: number, increme
  * This could definitely be achieved with an effect. But after trying for a while I saved some money and wrote it the
  * Way I know. If we hire an 10+ react developer, this should be changed.
  */
-class Geocoder {
+export class Geocoder {
     private requestId = 0
     private readonly timeout = new Timout(200)
     private readonly api: Api
