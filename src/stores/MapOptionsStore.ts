@@ -28,6 +28,7 @@ export interface StyleOption {
 export interface RasterStyle extends StyleOption {
     type: 'raster'
     url: string[]
+    tilePixelRatio?: number
 }
 
 export interface VectorStyle extends StyleOption {
@@ -84,6 +85,7 @@ const tfTransport: RasterStyle = {
     attribution:
         osmAttribution +
         ', <a href="https://www.thunderforest.com/maps/transport/" target="_blank">Thunderforest Transport</a>',
+    tilePixelRatio: 2
 }
 const tfCycle: RasterStyle = {
     name: 'TF Cycle',
@@ -96,6 +98,7 @@ const tfCycle: RasterStyle = {
     attribution:
         osmAttribution +
         ', <a href="https://www.thunderforest.com/maps/opencyclemap/" target="_blank">Thunderforest Cycle</a>',
+    tilePixelRatio: 2
 }
 const tfOutdoors: RasterStyle = {
     name: 'TF Outdoors',
@@ -108,6 +111,7 @@ const tfOutdoors: RasterStyle = {
     attribution:
         osmAttribution +
         ', <a href="https://www.thunderforest.com/maps/outdoors/" target="_blank">Thunderforest Outdoors</a>',
+    tilePixelRatio: 2
 }
 const tfAtlas: RasterStyle = {
     name: 'TF Atlas',
@@ -119,6 +123,7 @@ const tfAtlas: RasterStyle = {
     ],
     attribution:
         osmAttribution + ', <a href="https://thunderforest.com/maps/atlas/" target="_blank">Thunderforest Atlas</a>',
+    tilePixelRatio: 2
 }
 const kurviger: RasterStyle = {
     name: 'Kurviger Liberty',
@@ -133,7 +138,8 @@ const kurviger: RasterStyle = {
     attribution:
         osmAttribution +
         ',&copy; <a href="https://kurviger.de/" target="_blank">Kurviger</a> &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
-    maxZoom: 22
+    maxZoom: 22,
+    tilePixelRatio: 2
 }
 const mapillion: VectorStyle = {
     name: 'Mapilion',

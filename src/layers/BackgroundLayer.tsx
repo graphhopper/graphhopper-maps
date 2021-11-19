@@ -23,8 +23,8 @@ export default function BackgroundLayer({ map, styleOption }: BackgroundLayerPro
                 source: new XYZ({
                     urls: rasterStyle.url,
                     maxZoom: rasterStyle.maxZoom,
-                    tileSize: 256,
                     attributions: [rasterStyle.attribution],
+                    tilePixelRatio: rasterStyle.tilePixelRatio
                 }),
             })
             tileLayer.set('background-raster-layer', true)
