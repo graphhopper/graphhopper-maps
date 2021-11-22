@@ -29,7 +29,7 @@ export interface AutocompleteProps {
 
 export default function Autocomplete({ items, highlightedItem, onSelect }: AutocompleteProps) {
     return (
-        <ul>
+        <ul className={styles.autocompleteList}>
             {items.map((item, i) => (
                 <li key={i} className={styles.autocompleteItem}>
                     {mapToComponent(item, highlightedItem === item, onSelect)}

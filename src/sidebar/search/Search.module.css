@@ -39,6 +39,18 @@
     max-height: 1rem; /* this fixes big buttons on older ios devices */
 }
 
+.pointInput {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #5b616a;
+    border-radius: 0.2rem;
+    -webkit-appearance: none;
+
+    grid-column: 2 / span 2;
+}
+
 .markerContainer {
     grid-column: 1 / span 1;
     align-self: center;

@@ -72,6 +72,9 @@ function SearchView(props: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
 }) {
+    //TODO this is quatsch.
+    const ref = useRef(null)
+
     return (
         <div className={styles.btnCloseContainer}>
             <Search
@@ -79,6 +82,7 @@ function SearchView(props: {
                 routingProfiles={props.routingProfiles}
                 selectedProfile={props.selectedProfile}
                 autofocus={false}
+                portalRoot={ref.current!}
             />
         </div>
     )

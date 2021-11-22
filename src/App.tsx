@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
@@ -112,19 +112,10 @@ interface LayoutProps {
 }
 
 function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
+    const portalRoot = useRef(null)
+
     return (
         <>
-            <div className={styles.map}>
-                {
-                    <MapComponent
-                        viewport={viewport}
-                        styleOption={mapOptions.selectedStyle}
-                        queryPoints={query.queryPoints}
-                        route={route}
-                        mapLayers={mapLayers}
-                    />
-                }
-            </div>
             <div className={styles.mapOptions}>
                 <MapOptions {...mapOptions} />
             </div>
@@ -135,6 +126,7 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
                         routingProfiles={info.profiles}
                         selectedProfile={query.routingProfile}
                         autofocus={true}
+                        portalRoot={portalRoot.current!}
                     />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <div className={styles.routingResult}>
@@ -149,8 +141,18 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
                     </div>
                 </div>
             </div>
+            <div className={styles.autofillContainer} ref={portalRoot}></div>
             <div className={styles.pathDetails}>
                 <PathDetails selectedPath={route.selectedPath} />
+            </div>
+            <div className={styles.map}>
+                <MapComponent
+                    viewport={viewport}
+                    styleOption={mapOptions.selectedStyle}
+                    queryPoints={query.queryPoints}
+                    route={route}
+                    mapLayers={mapLayers}
+                />
             </div>
         </>
     )
