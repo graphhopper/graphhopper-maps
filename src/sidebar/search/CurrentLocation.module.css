@@ -1,0 +1,8 @@
+/*
+This only works as long as this component is used at only a single place. Leave it like this for now
+ */
+.btn {
+    grid-column: 4;
+    width: 1rem;
+    justify-self: center;
+}

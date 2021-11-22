@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
-import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
+import { AddPoint, ClearRoute, ErrorAction, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RoutingProfiles from '@/sidebar/search/RoutingProfiles'
-import RemoveIcon from '../times-solid.svg'
+import RemoveIcon from '@/sidebar/search/times-circle-solid.svg'
+import CurrentLocationIcon from '@/sidebar/search/current-location.svg'
 import AddIcon from './plus-circle-solid.svg'
+import ArrowLeft from './arrow-left-solid.svg'
 import PlainButton from '@/PlainButton'
 import { GeocodingHit, RoutingProfile } from '@/api/graphhopper'
 
@@ -18,6 +20,8 @@ import Autocomplete, {
     GeocodingItem,
     isGeocodingItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
+import CurrentLocation from '@/sidebar/search/CurrentLocation'
+import { tr } from '@/translation/Translation'
 
 export default function Search({
     points,
@@ -31,23 +35,22 @@ export default function Search({
     autofocus: boolean
 }) {
     const [currentQueryText, setCurrentQueryText] = useState('')
-    const [currentQueryPoint, setCurrentQueryPoint] = useState<QueryPoint | null>(null)
+    const [lastSelectedPoint, setLastSelectedPoint] = useState<QueryPoint | null>(null)
     return currentQueryText ? (
         <FullSizeAutocomplete
             query={currentQueryText}
             onSelect={(text, coordinate) => {
                 setCurrentQueryText('')
-                setCurrentQueryPoint(null)
                 Dispatcher.dispatch(
                     coordinate
                         ? new SetPoint({
-                              ...currentQueryPoint!,
+                              ...lastSelectedPoint!,
                               isInitialized: true,
                               queryText: text,
                               coordinate: coordinate,
                           })
                         : new SetPoint({
-                              ...currentQueryPoint!,
+                              ...lastSelectedPoint!,
                               isInitialized: false,
                               queryText: text,
                           })
@@ -61,16 +64,25 @@ export default function Search({
                     key={point.id}
                     point={point}
                     deletable={points.length > 2}
+                    focus={point.id === lastSelectedPoint?.id}
                     onChange={value => {
-                        setCurrentQueryPoint(point)
+                        setLastSelectedPoint(point)
                         setCurrentQueryText(value)
                         Dispatcher.dispatch(new ClearRoute())
                         Dispatcher.dispatch(new InvalidatePoint(point))
                     }}
                 />
             ))}
+            <PlainButton
+                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
+                className={styles.addSearchBox}
+            >
+                <AddIcon />
+            </PlainButton>
+            <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
         </div>
     )
+
     /*
     return (
         <div className={styles.searchBox}>
@@ -104,9 +116,12 @@ function FullSizeAutocomplete({
     onSelect,
 }: {
     query: string
-    onSelect: (queryText: string, coordinate: Coordinate) => void
+    onSelect: (queryText: string, coordinate: Coordinate | null) => void
 }) {
     const [value, setValue] = useState(query)
+    useEffect(() => {
+        if (!value) onSelect('', null)
+    }, [value])
 
     const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>([])
     const [geocoder] = useState(
@@ -118,35 +133,92 @@ function FullSizeAutocomplete({
         })
     )
 
+    const [highlightedResult, setHighlightedResult] = useState<number>(-1)
+    useEffect(() => setHighlightedResult(-1), [autocompleteItems])
+    const onKeypress = useCallback(
+        (event: React.KeyboardEvent<HTMLInputElement>) => {
+            if (event.key === 'Escape') {
+                onSelect(value, null)
+                return
+            }
+
+            switch (event.key) {
+                case 'ArrowUp':
+                    setHighlightedResult(i => calculateHighlightedIndex(autocompleteItems.length, i, -1))
+                    break
+                case 'ArrowDown':
+                    setHighlightedResult(i => calculateHighlightedIndex(autocompleteItems.length, i, 1))
+                    break
+                case 'Enter':
+                case 'Tab':
+                    // try to parse input as coordinate. Otherwise use autocomplete results
+                    const coordinate = textToCoordinate(value)
+                    if (coordinate) {
+                        console.log('selecting coordinate')
+                        onSelect(value, coordinate)
+                    } else if (autocompleteItems.length !== 0) {
+                        // by default use the first result, otherwise the highlighted one
+                        const index = highlightedResult >= 0 ? highlightedResult : 0
+                        const item = autocompleteItems[index] as GeocodingItem
+                        onSelect(convertToQueryText(item.hit), item.hit.point)
+                    }
+                    break
+            }
+        },
+        [autocompleteItems, highlightedResult, value]
+    )
+
     function handleChange(value: string) {
         setValue(value)
         const coordinate = textToCoordinate(value)
         if (!coordinate) geocoder.request(value)
+        else console.log('is coordinate')
     }
 
     return (
-        <div>
-            <input type="text" autoFocus value={value} onChange={e => handleChange(e.target.value)} />
+        <div className={styles.fullsizeAutocomplete}>
+            <PlainButton className={styles.autocompleteBack} onClick={() => onSelect(value, null)}>
+                <ArrowLeft />
+            </PlainButton>
+            <input
+                className={styles.pointInput}
+                type="text"
+                autoFocus
+                value={value}
+                onChange={e => handleChange(e.target.value)}
+                onKeyDown={onKeypress}
+            />
             {autocompleteItems.length > 0 && (
-                <Autocomplete
-                    items={autocompleteItems}
-                    highlightedItem={autocompleteItems[0]}
-                    onSelect={item => {
-                        if (isGeocodingItem(item)) onSelect(convertToQueryText(item.hit), item.hit.point)
-                    }}
-                />
+                <div className={styles.autocompleteList}>
+                    <Autocomplete
+                        items={autocompleteItems}
+                        highlightedItem={autocompleteItems[highlightedResult]}
+                        onSelect={item => {
+                            if (isGeocodingItem(item)) onSelect(convertToQueryText(item.hit), item.hit.point)
+                        }}
+                    />
+                </div>
             )}
         </div>
     )
 }
 
+function calculateHighlightedIndex(length: number, currentIndex: number, incrementBy: number) {
+    const nextIndex = currentIndex + incrementBy
+    if (nextIndex >= length) return 0
+    if (nextIndex < 0) return length - 1
+    return nextIndex
+}
+
 function PointSearch({
     point,
     deletable,
+    focus,
     onChange,
 }: {
     point: QueryPoint
     deletable: boolean
+    focus: boolean
     onChange: (value: string) => void
 }) {
     return (
@@ -155,11 +227,40 @@ function PointSearch({
                 <MarkerComponent color={point.color} />
             </div>
             <input
+                className={styles.pointInput}
                 type="text"
+                autoFocus={focus}
                 defaultValue={point.queryText}
                 onChange={e => {
                     onChange(e.target.value)
                 }}
+                onFocus={event => {
+                    event.target.select()
+                }}
+            />
+            <CurrentLocation
+                onSuccess={(text, coordinate) =>
+                    Dispatcher.dispatch(
+                        new SetPoint({
+                            ...point,
+                            isInitialized: true,
+                            queryText: text,
+                            coordinate: coordinate,
+                        })
+                    )
+                }
+                onStartSearching={() =>
+                    Dispatcher.dispatch(
+                        new SetPoint({
+                            ...point,
+                            isInitialized: false,
+                            queryText: tr('searching_location'),
+                        })
+                    )
+                }
+                onError={message =>
+                    Dispatcher.dispatch(new ErrorAction(tr('searching_location_failed') + ': ' + message))
+                }
             />
             {deletable && (
                 <PlainButton

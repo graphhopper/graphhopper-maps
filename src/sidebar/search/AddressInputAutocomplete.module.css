@@ -29,14 +29,14 @@
     flex-direction: row;
     align-items: center;
     gap: 0.5rem;
-    margin: 0.5rem 0.5rem;
+    margin: 0.5rem 0;
 }
 
 .geocodingEntry {
     display: flex;
     flex-direction: column;
     text-align: start;
-    margin: 0.5rem 0.5rem;
+    margin: 0.5rem 0;
 }
 
 .mainText {
