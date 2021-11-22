@@ -33,9 +33,8 @@ export default class MapStore extends Store<MapStoreState> {
             view: new View({
                 multiWorld: false,
                 constrainResolution: true,
-                // todo: initial values do not really matter, because we immediately update the state?!..
-                center: fromLonLat([11, 48]),
-                zoom: 5,
+                center: fromLonLat([10, 10]),
+                zoom: 2,
             }),
             controls: defaultControls({
                 zoom: false,
@@ -60,8 +59,6 @@ export default class MapStore extends Store<MapStoreState> {
         if (action instanceof ZoomMapToPoint) {
             state.map.getView().setCenter(fromLonLat([action.coordinate.lng, action.coordinate.lat]))
             state.map.getView().setZoom(action.zoom)
-        } else if (action instanceof InfoReceived) {
-            fitBounds(state.map, action.result.bbox, isSmallScreen)
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well but then we would have to make sure that the route
@@ -85,7 +82,5 @@ function fitBounds(map: Map, bbox: Bbox, isSmallScreen: boolean) {
     const ne = fromLonLat([bbox[2], bbox[3]])
     map.getView().fit([sw[0], sw[1], ne[0], ne[1]], {
         padding: isSmallScreen ? [200, 16, 32, 16] : [100, 100, 300, 500],
-        // todo: advanced transition like transition easing, interpolation, duration=auto etc.?
-        duration: 500,
     })
 }
