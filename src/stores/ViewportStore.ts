@@ -43,13 +43,12 @@ export default class ViewportStore extends Store<ViewportStoreState> {
 
     protected getInitialState(): ViewportStoreState {
         return {
-            // todo: initial values do not really matter, because we immediately update the state?!..
             width: 800,
             height: 600,
-            longitude: 11,
-            latitude: 48,
-            zoom: 5,
-        }
+            longitude: 10,
+            latitude: 10,
+            zoom: 2,
+        } as ViewportStoreState
     }
     reduce(state: ViewportStoreState, action: Action): ViewportStoreState {
         const isSmallScreen = this.isSmallScreenQuery()
@@ -62,8 +61,6 @@ export default class ViewportStore extends Store<ViewportStoreState> {
                 latitude: action.coordinate.lat,
                 zoom: action.zoom,
             }
-        } else if (action instanceof InfoReceived) {
-            return calculateLatLngFromBbox(state, action.result.bbox, isSmallScreen)
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well but then we would have to make sure that the route
@@ -97,15 +94,7 @@ function calculateLatLngFromBbox(state: ViewportStoreState, bbox: Bbox, isSmallS
         ...state,
         longitude,
         latitude,
-        transitionDuration: 500,
-        transitionInterpolator: new FlyToInterpolator(),
-        // there is also this option:
-        // transitionEasing: (t : any) => t,
-        // todo: we could also use speed/auto instead
-        // transitionInterpolator: new FlyToInterpolator({speed: 1.2}),
-        // transitionDuration: 'auto'
-        // todo: for some reason fitbounds can return zoom < 0 and the map is not visible when we load the
-        //       map without path
+        // for some reason fitbounds can return zoom < 0 and the map is not visible when we load the map without path
         zoom: Math.max(0, zoom),
     }
 }
