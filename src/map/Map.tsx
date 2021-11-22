@@ -37,9 +37,14 @@ export default function ({ viewport, styleOption, queryPoints, route, mapLayers 
             {...viewport}
             width="100%"
             height="100%"
-            mapOptions={{
-                renderWorldCopies: false,
-            }}
+            mapOptions={
+                {
+                    renderWorldCopies: false,
+                    // need as any (and transitionEasing) to skip required (but not required) container name
+                    // will probably be fixed in next react-map-gl version, see here: https://github.com/visgl/react-map-gl/pull/1603
+                } as any
+            }
+            transitionEasing={t => t}
             onLoad={() => Dispatcher.dispatch(new MapIsLoaded())}
             onViewportChange={(nextViewport: ViewportStoreState) => {
                 // close the context menu when we move the map
