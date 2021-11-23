@@ -17,6 +17,7 @@ import { convertToQueryText, textToCoordinate } from '@/Converters'
 import Api, { getApi } from '@/api/Api'
 import Autocomplete, {
     AutocompleteItem,
+    EmptyItem,
     GeocodingItem,
     isGeocodingItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
@@ -123,12 +124,14 @@ function FullSizeAutocomplete({
         if (!value) onSelect('', null)
     }, [value])
 
-    const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>([])
+    const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>(getEmptyAutocompleteItems)
     const [geocoder] = useState(
         new Geocoder(getApi(), hits => {
-            const items = hits.map(hit => {
-                return { type: 'geocoding', hit: hit } as GeocodingItem
-            })
+            const items = getEmptyAutocompleteItems()
+            for (let i = 0; i < hits.length; i++) {
+                items[i] = { type: 'geocoding', hit: hits[i] } as GeocodingItem
+            }
+
             setAutocompleteItems(items)
         })
     )
@@ -203,6 +206,21 @@ function FullSizeAutocomplete({
     )
 }
 
+function getEmptyAutocompleteItems(): AutocompleteItem[] {
+    const result: AutocompleteItem[] = []
+    for (let i = 0; i < 5; i++) {
+        result.push({
+            type: 'empty',
+        })
+    }
+
+    result.push({
+        type: 'currentLocation',
+    })
+
+    return result
+}
+
 function calculateHighlightedIndex(length: number, currentIndex: number, incrementBy: number) {
     const nextIndex = currentIndex + incrementBy
     if (nextIndex >= length) return 0
@@ -237,30 +255,6 @@ function PointSearch({
                 onFocus={event => {
                     event.target.select()
                 }}
-            />
-            <CurrentLocation
-                onSuccess={(text, coordinate) =>
-                    Dispatcher.dispatch(
-                        new SetPoint({
-                            ...point,
-                            isInitialized: true,
-                            queryText: text,
-                            coordinate: coordinate,
-                        })
-                    )
-                }
-                onStartSearching={() =>
-                    Dispatcher.dispatch(
-                        new SetPoint({
-                            ...point,
-                            isInitialized: false,
-                            queryText: tr('searching_location'),
-                        })
-                    )
-                }
-                onError={message =>
-                    Dispatcher.dispatch(new ErrorAction(tr('searching_location_failed') + ': ' + message))
-                }
             />
             {deletable && (
                 <PlainButton

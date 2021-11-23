@@ -5,7 +5,7 @@ import CurrentLocationIcon from './current-location.svg'
 import { tr } from '@/translation/Translation'
 
 export interface AutocompleteItem {
-    type: 'geocoding' | 'currentLocation'
+    type: 'geocoding' | 'currentLocation' | 'empty'
 }
 
 export interface GeocodingItem extends AutocompleteItem {
@@ -17,8 +17,16 @@ export interface SelectCurrentLocationItem extends AutocompleteItem {
     type: 'currentLocation'
 }
 
+export interface EmptyItem extends AutocompleteItem {
+    type: 'empty'
+}
+
 export function isGeocodingItem(item: AutocompleteItem): item is GeocodingItem {
     return (item as GeocodingItem).type === 'geocoding'
+}
+
+export function isEmptyItem(item: EmptyItem): item is EmptyItem {
+    return (item as EmptyItem).type === 'empty'
 }
 
 export interface AutocompleteProps {
@@ -47,9 +55,23 @@ function mapToComponent(item: AutocompleteItem, isHighlighted: boolean, onSelect
         case 'currentLocation':
             const locationItem = item as SelectCurrentLocationItem
             return <SelectCurrentLocation item={locationItem} isHighlighted={isHighlighted} onSelect={onSelect} />
+        case 'empty':
+            const emptyItem = item as EmptyItem
+            return <EmptyEntry isHighlighted={false} />
         default:
             throw Error('Unsupported item type: ' + item.type)
     }
+}
+
+function EmptyEntry({ isHighlighted }: { isHighlighted: boolean }) {
+    return (
+        <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => {}}>
+            <div className={styles.geocodingEntry}>
+                <span className={styles.mainText}>&nbsp;</span>
+                <span>&nbsp;</span>
+            </div>
+        </AutocompleteEntry>
+    )
 }
 
 export function SelectCurrentLocation({
@@ -64,7 +86,9 @@ export function SelectCurrentLocation({
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
             <div className={styles.currentLocationEntry}>
-                <CurrentLocationIcon fill="#5b616a" />
+                <div style={{ width: '1rem', display: 'flex', alignItems: 'center' }}>
+                    <CurrentLocationIcon fill="#5b616a" />
+                </div>
                 <span className={styles.mainText}>{tr('current_location')}</span>
             </div>
         </AutocompleteEntry>

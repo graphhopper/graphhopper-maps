@@ -25,14 +25,9 @@
     -webkit-appearance: none;
 }
 
-.currentLocation {
-    grid-column: 4;
-    width: 1rem;
-    justify-self: center;
-}
 
 .removeSearchBox {
-    grid-column: 5;
+    grid-column: 4;
     width: 1rem;
     justify-self: center;
 }
