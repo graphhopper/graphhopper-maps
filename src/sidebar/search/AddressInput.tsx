@@ -62,7 +62,7 @@ function Portal({ children, rect }: { children: ReactNode; rect: DOMRect }) {
         const rootRect = root.current!.getBoundingClientRect()
         const emptySpace = rootRect.bottom - rect.bottom
 
-        emptySpace > 370
+        emptySpace > 300
             ? applyStyleBelow(rect, rootRect, container.current)
             : applyStyleAbove(rect, rootRect, container.current)
     }, [rect])
