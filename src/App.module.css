@@ -25,6 +25,19 @@
     align-self: stretch;
 }
 
+.popupContainer {
+    grid-column: 1 / span 1;
+    grid-row: 1 /span 1;
+    background-color: transparent;
+    pointer-events: none;
+    z-index: 2;
+    align-self: stretch;
+
+    margin: 0.5rem 0.5rem 1.5rem 0.5rem;
+    overflow: hidden;
+    position: relative;
+}
+
 .sidebarContent {
     display: flex;
     flex-direction: column;

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { DOMElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { GeocodingHit } from '@/api/graphhopper'
 import { ErrorAction } from '@/actions/Actions'
@@ -14,6 +14,9 @@ import styles from './AddressInput.module.css'
 import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import { convertToQueryText, textToCoordinate } from '@/Converters'
+import { createPortal } from 'react-dom'
+import { Simulate } from 'react-dom/test-utils'
+import emptied = Simulate.emptied
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -21,6 +24,51 @@ export interface AddressInputProps {
     onCancel: () => void
     onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
     onChange: (value: string) => void
+}
+
+function Portal({ children, rect }: { children: ReactNode; rect: DOMRect }) {
+    const container = useRef<HTMLElement>(document.createElement('div'))
+    const root = useRef<HTMLElement>(document.getElementById('popup-root'))
+
+    function applyStyleAbove(rect: DOMRect, rootRect: DOMRect, element: HTMLElement) {
+        const offsetY = rootRect.bottom - rect.bottom
+        const offsetX = rect.left - rootRect.left
+
+        console.log(offsetY)
+
+        element.style.position = 'absolute'
+        element.style.bottom = offsetY + 'px'
+        element.style.left = offsetX + 'px'
+        element.style.width = rect.width + 'px'
+        element.style.pointerEvents = 'all'
+    }
+
+    function applyStyleBelow(rect: DOMRect, rootRect: DOMRect, element: HTMLElement) {
+        const offsetY = rect.bottom - rootRect.top
+        const offsetX = rect.left - rootRect.left
+
+        element.style.position = 'absolute'
+        element.style.top = offsetY + 'px'
+        element.style.left = offsetX + 'px'
+        element.style.width = rect.width + 'px'
+        element.style.pointerEvents = 'all'
+    }
+
+    useEffect(() => {
+        const rootRect = root.current!.getBoundingClientRect()
+        const emptySpace = rootRect.bottom - rect.bottom
+
+        emptySpace > 370
+            ? applyStyleBelow(rect, rootRect, container.current)
+            : applyStyleAbove(rect, rootRect, container.current)
+        root.current!.appendChild(container.current)
+
+        return () => {
+            root.current!.removeChild(container.current)
+        }
+    }, [container, rect])
+
+    return createPortal(children, container.current)
 }
 
 export default function AddressInput(props: AddressInputProps) {
@@ -58,6 +106,26 @@ export default function AddressInput(props: AddressInputProps) {
     const [highlightedResult, setHighlightedResult] = useState<number>(-1)
     useEffect(() => setHighlightedResult(-1), [autocompleteItems])
     const searchInput = useRef<HTMLInputElement>(null)
+    const [rect, setRect] = useState(DOMRect.fromRect())
+    useEffect(() => {
+        setRect(searchInput.current!.getBoundingClientRect())
+    }, [searchInput, autocompleteItems])
+    useEffect(() => {
+        const handle = () => {
+            setRect(searchInput.current!.getBoundingClientRect())
+        }
+        const scrollContainer = document.getElementById('sidebar-content')
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', handle, { passive: true })
+        }
+
+        return () => {
+            if (scrollContainer) {
+                scrollContainer.removeEventListener('scroll', handle)
+            }
+        }
+    }, [])
+
     const onKeypress = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.key === 'Escape') {
@@ -114,7 +182,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onBlur={() => {
                         geocoder.cancel()
                         setHasFocus(false)
-                        setAutocompleteItems([])
+                        //setAutocompleteItems([])
                     }}
                     value={text}
                     autoFocus={props.autofocus}
@@ -128,16 +196,18 @@ export default function AddressInput(props: AddressInputProps) {
             </div>
 
             {autocompleteItems.length > 0 && (
-                <div className={styles.popup}>
-                    <Autocomplete
-                        items={autocompleteItems}
-                        highlightedItem={autocompleteItems[highlightedResult]}
-                        onSelect={item => {
-                            searchInput.current!.blur()
-                            onAutocompleteSelected(item, props.onAddressSelected)
-                        }}
-                    />
-                </div>
+                <Portal rect={rect}>
+                    <div className={styles.popup}>
+                        <Autocomplete
+                            items={autocompleteItems}
+                            highlightedItem={autocompleteItems[highlightedResult]}
+                            onSelect={item => {
+                                searchInput.current!.blur()
+                                onAutocompleteSelected(item, props.onAddressSelected)
+                            }}
+                        />
+                    </div>
+                </Portal>
             )}
         </div>
     )
