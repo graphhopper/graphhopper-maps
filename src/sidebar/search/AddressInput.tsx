@@ -1,4 +1,4 @@
-import React, { DOMElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { GeocodingHit } from '@/api/graphhopper'
 import { ErrorAction } from '@/actions/Actions'
@@ -15,8 +15,6 @@ import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import { convertToQueryText, textToCoordinate } from '@/Converters'
 import { createPortal } from 'react-dom'
-import { Simulate } from 'react-dom/test-utils'
-import emptied = Simulate.emptied
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -31,10 +29,8 @@ function Portal({ children, rect }: { children: ReactNode; rect: DOMRect }) {
     const root = useRef<HTMLElement>(document.getElementById('popup-root'))
 
     function applyStyleAbove(rect: DOMRect, rootRect: DOMRect, element: HTMLElement) {
-        const offsetY = rootRect.bottom - rect.bottom
+        const offsetY = rootRect.bottom - rect.bottom + rect.height
         const offsetX = rect.left - rootRect.left
-
-        console.log(offsetY)
 
         element.style.position = 'absolute'
         element.style.bottom = offsetY + 'px'
@@ -55,18 +51,21 @@ function Portal({ children, rect }: { children: ReactNode; rect: DOMRect }) {
     }
 
     useEffect(() => {
+        root.current!.appendChild(container.current)
+
+        return () => {
+            root.current!.removeChild(container.current)
+        }
+    }, [container])
+
+    useEffect(() => {
         const rootRect = root.current!.getBoundingClientRect()
         const emptySpace = rootRect.bottom - rect.bottom
 
         emptySpace > 370
             ? applyStyleBelow(rect, rootRect, container.current)
             : applyStyleAbove(rect, rootRect, container.current)
-        root.current!.appendChild(container.current)
-
-        return () => {
-            root.current!.removeChild(container.current)
-        }
-    }, [container, rect])
+    }, [rect])
 
     return createPortal(children, container.current)
 }
