@@ -60,25 +60,7 @@ export default function AddressInput(props: AddressInputProps) {
     const [highlightedResult, setHighlightedResult] = useState<number>(-1)
     useEffect(() => setHighlightedResult(-1), [autocompleteItems])
     const searchInput = useRef<HTMLInputElement>(null)
-    const [rect, setRect] = useState(DOMRect.fromRect())
-    useEffect(() => {
-        setRect(searchInput.current!.getBoundingClientRect())
-    }, [searchInput, autocompleteItems])
-    useEffect(() => {
-        const handle = () => {
-            setRect(searchInput.current!.getBoundingClientRect())
-        }
-        const scrollContainer = document.getElementById('sidebar-content')
-        if (scrollContainer) {
-            scrollContainer.addEventListener('scroll', handle, { passive: true })
-        }
-
-        return () => {
-            if (scrollContainer) {
-                scrollContainer.removeEventListener('scroll', handle)
-            }
-        }
-    }, [])
+    const rect = useRect('sidebar-content', searchInput.current!)
 
     const onKeypress = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -100,7 +82,7 @@ export default function AddressInput(props: AddressInputProps) {
                     const coordinate = textToCoordinate(text)
                     if (coordinate) {
                         props.onAddressSelected(text, coordinate)
-                    } else if (autocompleteItems.length !== 0) {
+                    } else if (autocompleteItems.length > 1) {
                         // by default use the first result, otherwise the highlighted one
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         onAutocompleteSelected(autocompleteItems[index], props.onAddressSelected)
@@ -179,6 +161,32 @@ function ResponsiveAutocomplete({ rect, children }: { rect: DOMRect; children: R
             )}
         </>
     )
+}
+
+function useRect(scrollContainerId: string, element: HTMLElement) {
+    const [rect, setRect] = useState(DOMRect.fromRect())
+
+    useEffect(() => {
+        if (element) setRect(element.getBoundingClientRect())
+    }, [element])
+
+    useEffect(() => {
+        const handle = () => {
+            setRect(element.getBoundingClientRect())
+        }
+        const scrollContainer = document.getElementById('sidebar-content')
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', handle, { passive: true })
+        }
+
+        return () => {
+            if (scrollContainer) {
+                scrollContainer.removeEventListener('scroll', handle)
+            }
+        }
+    }, [element])
+
+    return rect
 }
 
 function onAutocompleteSelected(
