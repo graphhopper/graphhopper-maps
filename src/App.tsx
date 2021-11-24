@@ -159,6 +159,9 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
 function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOptions, info }: LayoutProps) {
     return (
         <>
+            <div className={styles.smallScreenSidebar}>
+                <MobileSidebar info={info} query={query} route={route} error={error} />
+            </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent
                     viewport={viewport}
@@ -173,9 +176,7 @@ function SmallScreenLayout({ query, route, viewport, mapLayers, error, mapOption
                     <MapOptions {...mapOptions} />
                 </div>
             </div>
-            <div className={styles.smallScreenSidebar}>
-                <MobileSidebar info={info} query={query} route={route} error={error} />
-            </div>
+
             <div className={styles.smallScreenRoutingResult}>
                 <RoutingResults
                     paths={route.routingResult.paths}

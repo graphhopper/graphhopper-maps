@@ -1,0 +1,9 @@
+.popup {
+    box-sizing: border-box;
+    background: white;
+    border: solid 1px lightgray;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 0.2rem;
+    position: absolute;
+    pointer-events: all;
+}

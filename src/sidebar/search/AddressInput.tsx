@@ -14,7 +14,8 @@ import styles from './AddressInput.module.css'
 import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import { convertToQueryText, textToCoordinate } from '@/Converters'
-import { createPortal } from 'react-dom'
+import { useMediaQuery } from 'react-responsive'
+import PopUp from '@/sidebar/search/PopUp'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -22,52 +23,6 @@ export interface AddressInputProps {
     onCancel: () => void
     onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
     onChange: (value: string) => void
-}
-
-function Portal({ children, rect }: { children: ReactNode; rect: DOMRect }) {
-    const container = useRef<HTMLElement>(document.createElement('div'))
-    const root = useRef<HTMLElement>(document.getElementById('popup-root'))
-
-    function applyStyleAbove(rect: DOMRect, rootRect: DOMRect, element: HTMLElement) {
-        const offsetY = rootRect.bottom - rect.bottom + rect.height
-        const offsetX = rect.left - rootRect.left
-
-        element.style.position = 'absolute'
-        element.style.bottom = offsetY + 'px'
-        element.style.left = offsetX + 'px'
-        element.style.width = rect.width + 'px'
-        element.style.pointerEvents = 'all'
-    }
-
-    function applyStyleBelow(rect: DOMRect, rootRect: DOMRect, element: HTMLElement) {
-        const offsetY = rect.bottom - rootRect.top
-        const offsetX = rect.left - rootRect.left
-
-        element.style.position = 'absolute'
-        element.style.top = offsetY + 'px'
-        element.style.left = offsetX + 'px'
-        element.style.width = rect.width + 'px'
-        element.style.pointerEvents = 'all'
-    }
-
-    useEffect(() => {
-        root.current!.appendChild(container.current)
-
-        return () => {
-            root.current!.removeChild(container.current)
-        }
-    }, [container])
-
-    useEffect(() => {
-        const rootRect = root.current!.getBoundingClientRect()
-        const emptySpace = rootRect.bottom - rect.bottom
-
-        emptySpace > 300
-            ? applyStyleBelow(rect, rootRect, container.current)
-            : applyStyleAbove(rect, rootRect, container.current)
-    }, [rect])
-
-    return createPortal(children, container.current)
 }
 
 export default function AddressInput(props: AddressInputProps) {
@@ -158,6 +113,7 @@ export default function AddressInput(props: AddressInputProps) {
     )
 
     const containerClass = hasFocus ? styles.container + ' ' + styles.fullscreen : styles.container
+
     const type = props.point.type
 
     return (
@@ -181,7 +137,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onBlur={() => {
                         geocoder.cancel()
                         setHasFocus(false)
-                        //setAutocompleteItems([])
+                        setAutocompleteItems([])
                     }}
                     value={text}
                     autoFocus={props.autofocus}
@@ -195,20 +151,33 @@ export default function AddressInput(props: AddressInputProps) {
             </div>
 
             {autocompleteItems.length > 0 && (
-                <Portal rect={rect}>
-                    <div className={styles.popup}>
-                        <Autocomplete
-                            items={autocompleteItems}
-                            highlightedItem={autocompleteItems[highlightedResult]}
-                            onSelect={item => {
-                                searchInput.current!.blur()
-                                onAutocompleteSelected(item, props.onAddressSelected)
-                            }}
-                        />
-                    </div>
-                </Portal>
+                <ResponsiveAutocomplete rect={rect}>
+                    <Autocomplete
+                        items={autocompleteItems}
+                        highlightedItem={autocompleteItems[highlightedResult]}
+                        onSelect={item => {
+                            searchInput.current!.blur()
+                            onAutocompleteSelected(item, props.onAddressSelected)
+                        }}
+                    />
+                </ResponsiveAutocomplete>
             )}
         </div>
+    )
+}
+
+function ResponsiveAutocomplete({ rect, children }: { rect: DOMRect; children: ReactNode }): JSX.Element {
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+    return (
+        <>
+            {isSmallScreen ? (
+                children
+            ) : (
+                <PopUp rect={rect} keepClearAtBottom={300}>
+                    {children}
+                </PopUp>
+            )}
+        </>
     )
 }
 

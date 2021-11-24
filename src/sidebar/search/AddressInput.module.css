@@ -22,16 +22,6 @@
     -webkit-appearance: none;
 }
 
-.popup {
-    box-sizing: border-box;
-    width: 100%;
-    background: white;
-    z-index: 1000;
-    border: solid 1px lightgray;
-    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 0.2rem;
-}
-
 @media (max-width: 44rem) {
     .fullscreen {
         position: fixed;
@@ -53,11 +43,5 @@
         align-self: stretch;
         justify-self: stretch;
         align-items: center;
-    }
-
-    .fullscreen .popup {
-        position: static;
-        box-shadow: none;
-        border: none;
     }
 }
