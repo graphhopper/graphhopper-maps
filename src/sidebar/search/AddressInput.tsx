@@ -82,7 +82,10 @@ export default function AddressInput(props: AddressInputProps) {
                     const coordinate = textToCoordinate(text)
                     if (coordinate) {
                         props.onAddressSelected(text, coordinate)
-                    } else if (autocompleteItems.length > 1) {
+                    } else if (
+                        autocompleteItems.length > 0 &&
+                        autocompleteItems.every(item => item.type === 'geocoding')
+                    ) {
                         // by default use the first result, otherwise the highlighted one
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         onAutocompleteSelected(autocompleteItems[index], props.onAddressSelected)
