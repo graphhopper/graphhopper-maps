@@ -16,6 +16,7 @@ import { tr } from '@/translation/Translation'
 import { convertToQueryText, textToCoordinate } from '@/Converters'
 import { useMediaQuery } from 'react-responsive'
 import PopUp from '@/sidebar/search/PopUp'
+import PlainButton from '@/PlainButton'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -129,9 +130,9 @@ export default function AddressInput(props: AddressInputProps) {
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
                     )}
                 />
-                <button className={styles.btnClose} onClick={() => setHasFocus(false)}>
-                    Close
-                </button>
+                <PlainButton className={styles.btnClose} onClick={() => setHasFocus(false)}>
+                    {tr('Cancel')}
+                </PlainButton>
             </div>
 
             {autocompleteItems.length > 0 && (
@@ -157,7 +158,7 @@ function ResponsiveAutocomplete({ inputRef, children }: { inputRef: HTMLElement;
             {isSmallScreen ? (
                 children
             ) : (
-                <PopUp inputElement={inputRef} keepClearAtBottom={300}>
+                <PopUp inputElement={inputRef} keepClearAtBottom={270}>
                     {children}
                 </PopUp>
             )}

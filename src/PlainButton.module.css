@@ -4,10 +4,12 @@
     margin: 0;
     background-color: inherit;
     color: #5b616a;
+    font-size: 1rem;
 }
 
 .button:hover {
     cursor: pointer;
+    color: #2a2b31;
 }
 
 .button:active {
