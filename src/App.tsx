@@ -29,6 +29,9 @@ import createQueryPointsLayer from '@/layers/QueryPointsLayer'
 import createPathsLayer from '@/layers/PathsLayer'
 import { MapLayer } from '@/layers/MapLayer'
 
+export const POPUP_CONTAINER_ID = 'popup-container'
+export const SIDEBAR_CONTENT_ID = 'sidebar-content'
+
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
     const [info, setInfo] = useState(getApiInfoStore().state)
@@ -115,7 +118,7 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
     return (
         <>
             <div className={styles.sidebar}>
-                <div className={styles.sidebarContent} id="sidebar-content">
+                <div className={styles.sidebarContent} id={SIDEBAR_CONTENT_ID}>
                     <Search
                         points={query.queryPoints}
                         routingProfiles={info.profiles}
@@ -135,7 +138,7 @@ function LargeScreenLayout({ query, route, viewport, mapLayers, error, mapOption
                     </div>
                 </div>
             </div>
-            <div className={styles.popupContainer} id="popup-root" />
+            <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
             <div className={styles.map}>
                 <MapComponent
                     viewport={viewport}

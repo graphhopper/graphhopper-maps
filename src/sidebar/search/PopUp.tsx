@@ -1,16 +1,18 @@
-import { ReactNode, useEffect, useRef } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import styles from './PopUp.module.css'
+import { POPUP_CONTAINER_ID, SIDEBAR_CONTENT_ID } from '@/App'
 
 export interface PopUpProps {
     children: ReactNode
-    rect: DOMRect
     keepClearAtBottom: number
+    inputElement: HTMLElement
 }
 
-export default function PopUp({ children, rect, keepClearAtBottom }: PopUpProps) {
+export default function PopUp({ children, inputElement, keepClearAtBottom }: PopUpProps) {
     const container = useRef<HTMLElement>(document.createElement('div'))
-    const root = useRef<HTMLElement>(document.getElementById('popup-root'))
+    const root = useRef<HTMLElement>(document.getElementById(POPUP_CONTAINER_ID))
+    const rect = useRect(SIDEBAR_CONTENT_ID, inputElement)
 
     function applyStyleAbove(rect: DOMRect, rootRect: DOMRect, element: HTMLElement) {
         const offsetY = rootRect.bottom - rect.bottom + rect.height
@@ -51,4 +53,30 @@ export default function PopUp({ children, rect, keepClearAtBottom }: PopUpProps)
     }, [rect])
 
     return createPortal(children, container.current)
+}
+
+export function useRect(scrollContainerId: string, element: HTMLElement) {
+    const [rect, setRect] = useState(DOMRect.fromRect())
+
+    useEffect(() => {
+        if (element) setRect(element.getBoundingClientRect())
+    }, [element])
+
+    useEffect(() => {
+        const handle = () => {
+            setRect(element.getBoundingClientRect())
+        }
+        const scrollContainer = document.getElementById(scrollContainerId)
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', handle, { passive: true })
+        }
+
+        return () => {
+            if (scrollContainer) {
+                scrollContainer.removeEventListener('scroll', handle)
+            }
+        }
+    }, [element])
+
+    return rect
 }
