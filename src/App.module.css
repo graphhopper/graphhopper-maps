@@ -25,6 +25,19 @@
     align-self: stretch;
 }
 
+.popupContainer {
+    grid-column: 1 / span 1;
+    grid-row: 1 / span 1;
+    background-color: transparent;
+    pointer-events: none;
+    z-index: 2;
+    align-self: stretch;
+
+    margin: 0 0.5rem 0 0.5rem;
+    overflow: hidden;
+    position: relative;
+}
+
 .sidebarContent {
     display: flex;
     flex-direction: column;
@@ -35,10 +48,6 @@
 
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
     pointer-events: all;
-    overflow: auto;
-}
-
-.routingResult {
     overflow: auto;
 }
 
