@@ -30,6 +30,9 @@ import PathsLayer from '@/layers/PathsLayer'
 import ContextMenu from '@/layers/ContextMenu'
 import PathDetailsLayer from '@/layers/PathDetailsLayer'
 
+export const POPUP_CONTAINER_ID = 'popup-container'
+export const SIDEBAR_CONTENT_ID = 'sidebar-content'
+
 export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
     const [info, setInfo] = useState(getApiInfoStore().state)
@@ -113,17 +116,13 @@ interface LayoutProps {
 function LargeScreenLayout({ query, route, map, error, mapOptions, info }: LayoutProps) {
     return (
         <>
-            <div className={styles.map}>{<MapComponent map={map.map} />}</div>
-            <div className={styles.mapOptions}>
-                <MapOptions {...mapOptions} />
-            </div>
             <div className={styles.sidebar}>
-                <div className={styles.sidebarContent}>
+                <div className={styles.sidebarContent} id={SIDEBAR_CONTENT_ID}>
                     <Search
                         points={query.queryPoints}
                         routingProfiles={info.profiles}
                         selectedProfile={query.routingProfile}
-                        autofocus={true}
+                        autofocus={false}
                     />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <div className={styles.routingResult}>
@@ -138,6 +137,12 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                     </div>
                 </div>
             </div>
+            <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
+            <div className={styles.map}><MapComponent map={map.map} /></div>
+            <div className={styles.mapOptions}>
+                <MapOptions {...mapOptions} />
+            </div>
+
             <div className={styles.pathDetails}>
                 <PathDetails selectedPath={route.selectedPath} />
             </div>
@@ -148,6 +153,9 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
 function SmallScreenLayout({ query, route, map, error, mapOptions, info }: LayoutProps) {
     return (
         <>
+            <div className={styles.smallScreenSidebar}>
+                <MobileSidebar info={info} query={query} route={route} error={error} />
+            </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map.map} />
             </div>
@@ -156,9 +164,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                     <MapOptions {...mapOptions} />
                 </div>
             </div>
-            <div className={styles.smallScreenSidebar}>
-                <MobileSidebar info={info} query={query} route={route} error={error} />
-            </div>
+
             <div className={styles.smallScreenRoutingResult}>
                 <RoutingResults
                     paths={route.routingResult.paths}

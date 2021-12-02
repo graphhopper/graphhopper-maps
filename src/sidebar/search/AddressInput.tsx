@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { GeocodingHit } from '@/api/graphhopper'
 import { ErrorAction } from '@/actions/Actions'
@@ -14,6 +14,9 @@ import styles from './AddressInput.module.css'
 import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import { convertToQueryText, textToCoordinate } from '@/Converters'
+import { useMediaQuery } from 'react-responsive'
+import PopUp from '@/sidebar/search/PopUp'
+import PlainButton from '@/PlainButton'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -58,6 +61,7 @@ export default function AddressInput(props: AddressInputProps) {
     const [highlightedResult, setHighlightedResult] = useState<number>(-1)
     useEffect(() => setHighlightedResult(-1), [autocompleteItems])
     const searchInput = useRef<HTMLInputElement>(null)
+
     const onKeypress = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.key === 'Escape') {
@@ -78,7 +82,10 @@ export default function AddressInput(props: AddressInputProps) {
                     const coordinate = textToCoordinate(text)
                     if (coordinate) {
                         props.onAddressSelected(text, coordinate)
-                    } else if (autocompleteItems.length !== 0) {
+                    } else if (
+                        autocompleteItems.length > 0 &&
+                        autocompleteItems.every(item => item.type === 'geocoding')
+                    ) {
                         // by default use the first result, otherwise the highlighted one
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         onAutocompleteSelected(autocompleteItems[index], props.onAddressSelected)
@@ -91,6 +98,7 @@ export default function AddressInput(props: AddressInputProps) {
     )
 
     const containerClass = hasFocus ? styles.container + ' ' + styles.fullscreen : styles.container
+
     const type = props.point.type
 
     return (
@@ -122,13 +130,13 @@ export default function AddressInput(props: AddressInputProps) {
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
                     )}
                 />
-                <button className={styles.btnClose} onClick={() => setHasFocus(false)}>
-                    Close
-                </button>
+                <PlainButton className={styles.btnClose} onClick={() => setHasFocus(false)}>
+                    {tr('Cancel')}
+                </PlainButton>
             </div>
 
             {autocompleteItems.length > 0 && (
-                <div className={styles.popup}>
+                <ResponsiveAutocomplete inputRef={searchInput.current!}>
                     <Autocomplete
                         items={autocompleteItems}
                         highlightedItem={autocompleteItems[highlightedResult]}
@@ -137,9 +145,24 @@ export default function AddressInput(props: AddressInputProps) {
                             onAutocompleteSelected(item, props.onAddressSelected)
                         }}
                     />
-                </div>
+                </ResponsiveAutocomplete>
             )}
         </div>
+    )
+}
+
+function ResponsiveAutocomplete({ inputRef, children }: { inputRef: HTMLElement; children: ReactNode }): JSX.Element {
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+    return (
+        <>
+            {isSmallScreen ? (
+                children
+            ) : (
+                <PopUp inputElement={inputRef} keepClearAtBottom={270}>
+                    {children}
+                </PopUp>
+            )}
+        </>
     )
 }
 
