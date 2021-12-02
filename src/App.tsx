@@ -138,7 +138,9 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                 </div>
             </div>
             <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
-            <div className={styles.map}><MapComponent map={map.map} /></div>
+            <div className={styles.map}>
+                <MapComponent map={map.map} />
+            </div>
             <div className={styles.mapOptions}>
                 <MapOptions {...mapOptions} />
             </div>

@@ -24,7 +24,7 @@ export default function BackgroundLayer({ map, styleOption }: BackgroundLayerPro
                     urls: rasterStyle.url,
                     maxZoom: rasterStyle.maxZoom,
                     attributions: [rasterStyle.attribution],
-                    tilePixelRatio: rasterStyle.tilePixelRatio
+                    tilePixelRatio: rasterStyle.tilePixelRatio,
                 }),
             })
             tileLayer.set('background-raster-layer', true)
