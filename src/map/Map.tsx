@@ -10,16 +10,18 @@ import { PopupComponent } from '@/map/Popup'
 import { MapLayer } from '@/layers/MapLayer'
 import styles from './Map.module.css'
 import { LocationStoreState } from '@/stores/LocationStore'
+import { RouteStoreState } from '@/stores/RouteStore'
 
 type MapProps = {
     viewport: ViewportStoreState
     queryPoints: QueryPoint[]
     styleOption: StyleOption
+    route: RouteStoreState
     mapLayers: MapLayer[]
     location?: LocationStoreState
 }
 
-export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapProps) {
+export default function ({ viewport, styleOption, queryPoints, route, mapLayers }: MapProps) {
     const [popupCoordinate, setPopupCoordinate] = useState<Coordinate | null>(null)
     const longTouchHandler = new LongTouchHandler(e => setPopupCoordinate({ lng: e.lngLat[0], lat: e.lngLat[1] }))
 
@@ -37,19 +39,22 @@ export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapP
             {...viewport}
             width="100%"
             height="100%"
-            mapOptions={{
-                renderWorldCopies: false,
-            }}
+            mapOptions={
+                {
+                    renderWorldCopies: false,
+                    // need as any (and transitionEasing) to skip required (but not required) container name
+                    // will probably be fixed in next react-map-gl version, see here: https://github.com/visgl/react-map-gl/pull/1603
+                } as any
+            }
+            transitionEasing={t => t}
             onLoad={() => Dispatcher.dispatch(new MapIsLoaded())}
             onViewportChange={(nextViewport: ViewportStoreState) => {
                 // close the context menu when we move the map
                 setPopupCoordinate(null)
-
-                // TODO NOW bearing and/or pitch makes problems together with this restriction:
                 // restrict zoom/pan such that we never see empty space left of/right of/above/under the map
-                // const bounds = new WebMercatorViewport(nextViewport).getBounds()
-                // if (bounds[0][0] < -180 || bounds[0][1] < -90 || bounds[1][0] > 180 || bounds[1][1] > 90)
-                return Dispatcher.dispatch(new SetViewport(nextViewport))
+                const bounds = new WebMercatorViewport(nextViewport).getBounds()
+                if (bounds[0][0] < -180 || bounds[0][1] < -90 || bounds[1][0] > 180 || bounds[1][1] > 90) return
+                Dispatcher.dispatch(new SetViewport(nextViewport))
             }}
             // todo: minor glitch: when we hover the map before the path got loaded we get an error in the console
             interactiveLayerIds={interactiveLayerIds}
@@ -76,6 +81,7 @@ export default function ({ viewport, styleOption, queryPoints, mapLayers }: MapP
                     <PopupComponent
                         coordinate={popupCoordinate}
                         queryPoints={queryPoints}
+                        route={route}
                         onSelect={() => setPopupCoordinate(null)}
                     />
                 </Popup>

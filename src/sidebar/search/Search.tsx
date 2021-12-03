@@ -4,12 +4,13 @@ import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RoutingProfiles from '@/sidebar/search/RoutingProfiles'
-import RemoveIcon from '../times-solid.svg'
+import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import PlainButton from '@/PlainButton'
 import { RoutingProfile } from '@/api/graphhopper'
 
 import AddressInput from '@/sidebar/search/AddressInput'
+import { MarkerComponent } from '@/map/Marker'
 
 export default function Search({
     points,
@@ -61,7 +62,9 @@ const SearchBox = ({
 }) => {
     return (
         <>
-            <div className={styles.dot} style={{ backgroundColor: point.color }} />
+            <div className={styles.markerContainer}>
+                <MarkerComponent color={point.color} />
+            </div>
             <div className={styles.searchBoxInput}>
                 <AddressInput
                     point={point}

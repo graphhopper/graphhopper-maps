@@ -30,8 +30,10 @@ export interface AutocompleteProps {
 export default function Autocomplete({ items, highlightedItem, onSelect }: AutocompleteProps) {
     return (
         <ul>
-            {items.map(item => (
-                <li className={styles.autocompleteItem}>{mapToComponent(item, highlightedItem === item, onSelect)}</li>
+            {items.map((item, i) => (
+                <li key={i} className={styles.autocompleteItem}>
+                    {mapToComponent(item, highlightedItem === item, onSelect)}
+                </li>
             ))}
         </ul>
     )
@@ -62,7 +64,9 @@ export function SelectCurrentLocation({
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
             <div className={styles.currentLocationEntry}>
-                <CurrentLocationIcon fill="#5b616a" />
+                <div className={styles.currentLocationIcon}>
+                    <CurrentLocationIcon />
+                </div>
                 <span className={styles.mainText}>{tr('current_location')}</span>
             </div>
         </AutocompleteEntry>
@@ -82,7 +86,7 @@ function GeocodingEntry({
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
             <div className={styles.geocodingEntry}>
                 <span className={styles.mainText}>{convertToMainText(item.hit)}</span>
-                <span>{convertToSecondaryText(item.hit)}</span>
+                <span className={styles.secondaryText}>{convertToSecondaryText(item.hit)}</span>
             </div>
         </AutocompleteEntry>
     )

@@ -11,9 +11,6 @@ import continueImg from './continue.png'
 import slightRight from './slight_right.png'
 import right from './right.png'
 import sharpRight from './sharp_right.png'
-import markerIconRed from './marker-icon-red.png'
-import markerIconBlue from './marker-icon-blue.png'
-import markerIconGreen from './marker-icon-green.png'
 import roundabout from './roundabout.png'
 import keepRight from './keep_right.png'
 import uTurnRight from './u_turn_right.png'
@@ -22,6 +19,8 @@ import ptTransferTo from './pt_transfer_to.png'
 import ptEndTrip from './pt_end_trip.png'
 import { metersToText } from '@/Converters'
 import { Instruction } from '@/api/graphhopper'
+import { MarkerComponent } from '@/map/Marker'
+import QueryStore, { QueryPointType } from '@/stores/QueryStore'
 
 export default function (props: { instructions: Instruction[] }) {
     return (
@@ -36,16 +35,35 @@ export default function (props: { instructions: Instruction[] }) {
 const Line = function ({ instruction, index }: { instruction: Instruction; index: number }) {
     return (
         <li className={styles.instruction}>
-            <img className={styles.sign} src={getSignName(instruction.sign, index)} alt={'turn instruction'} />
+            {getTurnSign(instruction.sign, index)}
             <span className={styles.mainText}>{instruction.text}</span>
             <span className={styles.distance}>{metersToText(instruction.distance)}</span>
         </li>
     )
 }
 
-export function getSignName(sign: number, index: number) {
-    if (index === 0) return markerIconGreen
+function getTurnSign(sign: number, index: number) {
+    // from, via and to signs are special
+    if (index === 0 || sign === 4 || sign === 5) {
+        let markerColor
+        if (index === 0) {
+            markerColor = QueryStore.getMarkerColor(QueryPointType.From)
+        } else if (sign === 4) {
+            markerColor = QueryStore.getMarkerColor(QueryPointType.To)
+        } else {
+            markerColor = QueryStore.getMarkerColor(QueryPointType.Via)
+        }
 
+        return (
+            <div className={styles.sign}>
+                <MarkerComponent color={markerColor} />
+            </div>
+        )
+    }
+    return <img className={styles.sign} src={getSignName(sign, index)} alt={'turn instruction'} />
+}
+
+export function getSignName(sign: number, index: number) {
     switch (sign) {
         case -98:
             return uTurn
@@ -67,10 +85,6 @@ export function getSignName(sign: number, index: number) {
             return right
         case 3:
             return sharpRight
-        case 4:
-            return markerIconRed
-        case 5:
-            return markerIconBlue
         case 6:
             return roundabout
         case 7:

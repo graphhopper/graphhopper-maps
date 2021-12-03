@@ -1,12 +1,6 @@
 import Api from '@/api/Api'
-import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult } from '../../src/api/graphhopper'
-import QueryStore, {
-    QueryPoint,
-    QueryPointType,
-    QueryStoreState,
-    RequestState,
-    SubRequest,
-} from '../../src/stores/QueryStore'
+import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult } from '@/api/graphhopper'
+import QueryStore, { QueryPoint, QueryPointType, QueryStoreState, RequestState, SubRequest } from '@/stores/QueryStore'
 import {
     AddPoint,
     ClearPoints,
@@ -17,7 +11,7 @@ import {
     RouteRequestSuccess,
     SetPoint,
     SetVehicleProfile,
-} from '../../src/actions/Actions'
+} from '@/actions/Actions'
 
 class ApiMock implements Api {
     private readonly callback: { (args: RoutingArgs): void }
@@ -57,12 +51,16 @@ describe('QueryStore', () => {
                 ...store.state.queryPoints[0],
                 isInitialized: true,
             }
+            const storeState = {
+                ...store.state,
+                routingProfile: { name: 'car' },
+            }
 
-            const state = store.reduce(store.state, new SetPoint(point))
+            const state = store.reduce(storeState, new SetPoint(point))
 
             expect(state.queryPoints[0]).toEqual(point)
         })
-        it('should only send a route request if all points are initialized', () => {
+        it('should only send a route request if all parameters are initialized', () => {
             let counter = 0
             const store = new QueryStore(new ApiMock(() => counter++))
             let state = {
@@ -74,6 +72,10 @@ describe('QueryStore', () => {
                 state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
             }
 
+            // the store should not send anything unless points and routing profile are specified
+            expect(counter).toEqual(0)
+            state = store.reduce(state, new SetVehicleProfile({ name: 'car' }))
+
             expect(state.queryPoints.every(point => point.isInitialized)).toBeTruthy()
             expect(counter).toEqual(1)
         })
@@ -81,7 +83,10 @@ describe('QueryStore', () => {
             const requestArgs: RoutingArgs[] = []
             const store = new QueryStore(new ApiMock(args => requestArgs.push(args)))
 
-            let state = store.state
+            let state = {
+                ...store.state,
+                routingProfile: { name: 'car' },
+            }
             for (const point of store.state.queryPoints) {
                 state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
             }
@@ -95,7 +100,10 @@ describe('QueryStore', () => {
             const requestArgs: RoutingArgs[] = []
             const store = new QueryStore(new ApiMock(args => requestArgs.push(args)))
 
-            let state = store.state
+            let state = {
+                ...store.state,
+                routingProfile: { name: 'car' },
+            }
             state.queryPoints.push({ ...state.queryPoints[0], id: 2 })
             for (const point of store.state.queryPoints) {
                 state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
@@ -177,6 +185,7 @@ describe('QueryStore', () => {
             const state = {
                 ...store.state,
                 queryPoints: initializedPoints,
+                routingProfile: { name: 'car' },
             }
 
             const newState = store.reduce(state, new AddPoint(atIndex, { lat: 1, lng: 1 }, true))
@@ -205,6 +214,7 @@ describe('QueryStore', () => {
                 ...store.state,
                 queryPoints: initializedPoints,
                 maxAlternativeRoutes: 1,
+                routingProfile: { name: 'car' },
             }
 
             const lastState = store.reduce(state, new RemovePoint(thirdPoint))
@@ -220,16 +230,17 @@ describe('QueryStore', () => {
         it('return unchanged state if routing profile was already set', () => {
             const store = new QueryStore(new ApiMock(() => {}))
 
+            const profile = 'some-profile'
             const state: QueryStoreState = {
                 ...store.state,
                 routingProfile: {
-                    name: 'some-value',
+                    name: profile,
                 },
             }
             const newState = store.reduce(
                 state,
                 new InfoReceived({
-                    profiles: [],
+                    profiles: [{ name: 'some-other-profile' }, { name: profile }],
                     elevation: true,
                     version: '',
                     import_date: '',
@@ -239,11 +250,35 @@ describe('QueryStore', () => {
 
             expect(newState).toEqual(state)
         })
-        it('should set car as default routing mode', () => {
+        it('should use the first profile if profile was already set but not in info action', () => {
+            const store = new QueryStore(new ApiMock(() => {}))
+
+            const presetProfile = 'some-profile'
+            const firstProfileFromInfo = 'first-from-info'
+            const state: QueryStoreState = {
+                ...store.state,
+                routingProfile: {
+                    name: presetProfile,
+                },
+            }
+            const newState = store.reduce(
+                state,
+                new InfoReceived({
+                    profiles: [{ name: firstProfileFromInfo }, { name: 'other-profile-from-info' }],
+                    elevation: true,
+                    version: '',
+                    import_date: '',
+                    bbox: [0, 0, 0, 0],
+                })
+            )
+
+            expect(newState.routingProfile.name).toEqual(firstProfileFromInfo)
+        })
+        it('should use the first profile received from info endpoint', () => {
             const store = new QueryStore(new ApiMock(() => {}))
             const state: QueryStoreState = store.state
             const expectedProfile = {
-                name: 'car',
+                name: 'some-name',
                 import_date: 'some_date',
                 elevation: false,
                 version: 'some-version',

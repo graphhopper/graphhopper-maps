@@ -9,6 +9,7 @@ import { coordinateToText } from '@/Converters'
 import { window } from '@/Window'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import * as config from 'config'
+
 jest.mock('@/Window', () => ({
     window: {
         location: {
@@ -109,7 +110,7 @@ describe('NavBar', function () {
         expect(url.toString()).toEqual(window.location.href)
     })
 
-    it('should parse the url and set defaults for profile and layer if not provided', () => {
+    it('should parse the url and set defaults for layer if not provided', () => {
         window.location = {
             ...window.location,
             href: 'https://origin.com',
@@ -129,7 +130,7 @@ describe('NavBar', function () {
         expect(queryStore.state.queryPoints.length).toEqual(2)
         expect(queryStore.state.queryPoints[0].isInitialized).toEqual(false)
         expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
-        expect(queryStore.state.routingProfile.name).toEqual('car') // this will change at some point
+        expect(queryStore.state.routingProfile.name).toEqual('')
 
         expect(mapStore.state.selectedStyle.name).toEqual(config.defaultTiles)
     })
