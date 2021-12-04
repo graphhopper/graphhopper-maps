@@ -151,9 +151,11 @@ function createColorMapping(detail: PathDetails): (attributeType: any) => { text
     }
 }
 
-function inspectDetail(
-    detail: PathDetails
-): { numeric: boolean; minVal: number | undefined; maxVal: number | undefined } {
+function inspectDetail(detail: PathDetails): {
+    numeric: boolean
+    minVal: number | undefined
+    maxVal: number | undefined
+} {
     // we check if all detail values are numeric
     const numbers = new Set()
     let minVal, maxVal

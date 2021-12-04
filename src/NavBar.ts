@@ -56,18 +56,16 @@ export default class NavBar {
                     )
                 return { lat: NavBar.parseNumber(split[0]), lng: NavBar.parseNumber(split[1]) }
             })
-            .map(
-                (coordinate, i): QueryPoint => {
-                    return {
-                        coordinate: coordinate,
-                        isInitialized: true,
-                        id: i,
-                        queryText: '',
-                        color: '',
-                        type: QueryPointType.Via,
-                    }
+            .map((coordinate, i): QueryPoint => {
+                return {
+                    coordinate: coordinate,
+                    isInitialized: true,
+                    id: i,
+                    queryText: '',
+                    color: '',
+                    type: QueryPointType.Via,
                 }
-            )
+            })
     }
 
     private static parseProfile(url: URL) {
