@@ -43,7 +43,7 @@ export default class NavBar {
         }
     }
 
-    private static parsePoints(url: URL) {
+    public static parsePoints(url: URL) {
         return url.searchParams
             .getAll('point')
             .map(parameter => {

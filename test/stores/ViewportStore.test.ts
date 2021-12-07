@@ -4,7 +4,7 @@ import { PathDetailsRangeSelected, RouteRequestSuccess, SetViewportToPoint } fro
 describe('ViewportStore', () => {
     it('should update state correctly', () => {
         const routeStore = {} as any
-        const store = new ViewportStore(routeStore, () => false)
+        const store = new ViewportStore(routeStore, [-180, -90, 180, 90], () => false)
         const initialState: ViewportStoreState = {
             longitude: 10,
             latitude: 45,

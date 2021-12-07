@@ -24,6 +24,7 @@ import ViewportStore from '@/stores/ViewportStore'
 import NavBar from '@/NavBar'
 import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
+import { Bbox } from '@/api/graphhopper'
 
 let locale = new URL(window.location.href).searchParams.get('locale')
 setTranslation(locale || navigator.language)
@@ -34,6 +35,7 @@ const queryStore = new QueryStore(getApi())
 const routeStore = new RouteStore(queryStore)
 
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
+const urlBBox = parseURLBBox()
 
 setStores({
     queryStore: queryStore,
@@ -42,7 +44,7 @@ setStores({
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
-    viewportStore: new ViewportStore(routeStore, () => smallScreenMediaQuery.matches),
+    viewportStore: new ViewportStore(routeStore, urlBBox, () => smallScreenMediaQuery.matches),
 })
 
 // register stores at dispatcher to receive actions
@@ -73,4 +75,20 @@ function getApiKey() {
     const url = new URL(window.location.href)
     // use graphhopper api key from url or try using one from the config
     return url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
+}
+
+function parseURLBBox() : Bbox | null {
+    const bbox : Bbox = NavBar.parsePoints(new URL(window.location.href))
+        .map(r => r.coordinate)
+        .reduce(
+            (res: Bbox, c) => [
+                Math.min(res[0], c.lng),
+                Math.min(res[1], c.lat),
+                Math.max(res[2], c.lng),
+                Math.max(res[3], c.lat),
+            ],
+            [180, 90, -180, -90] as Bbox
+        )
+    // return null if the bbox is not valid, e.g. if no url points were given at all
+    return bbox[0] < bbox[2] && bbox[1] < bbox[3] ? bbox : null
 }
