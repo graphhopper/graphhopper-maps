@@ -1,5 +1,45 @@
-import { Instruction } from '@/api/graphhopper'
-import { Coordinate } from '@/stores/QueryStore'
+import {Instruction, Path} from '@/api/graphhopper'
+import {Coordinate} from '@/stores/QueryStore'
+
+export function getCurrentDetails(path: Path, location: Coordinate, details: [number, number, number][][]): number[] {
+    let smallestDist = Number.MAX_VALUE
+    const points = path.points.coordinates
+    let foundIndex = -1
+
+    for (let pIdx = 0; pIdx < points.length; pIdx++) {
+        const p: number[] = points[pIdx]
+        let snapped = {lat: p[1], lng: p[0]}
+        let dist = distCalc(p[1], p[0], location.lat, location.lng)
+
+        if (pIdx + 1 < points.length) {
+            const next: number[] = points[pIdx + 1]
+            if (validEdgeDistance(location.lat, location.lng, p[1], p[0], next[1], next[0])) {
+                snapped = calcCrossingPointToEdge(location.lat, location.lng, p[1], p[0], next[1], next[0])
+                dist = Math.min(dist, distCalc(snapped.lat, snapped.lng, location.lat, location.lng))
+            }
+        }
+
+        if (dist < smallestDist) {
+            smallestDist = dist
+            foundIndex = pIdx
+        }
+    }
+    if (foundIndex < 0) return []
+
+    let result = [];
+    for (let i = 0; i < details.length; i++) {
+        let detailOnPath = details[i]
+        for (let d = 0; d < detailOnPath.length; d++) {
+            let [from, to, val] = detailOnPath[d];
+            if (foundIndex >= from && foundIndex <= to) {
+                result.push(val)
+                break
+            }
+        }
+    }
+
+    return result
+}
 
 export function getCurrentInstruction(
     instructions: Instruction[],
@@ -20,9 +60,9 @@ export function getCurrentInstruction(
 
         for (let pIdx = 0; pIdx < points.length; pIdx++) {
             const p: number[] = points[pIdx]
-            let snapped = { lat: p[1], lng: p[0] }
+            let snapped = {lat: p[1], lng: p[0]}
             let dist = distCalc(p[1], p[0], location.lat, location.lng)
-            // calulate the snapped point, TODO use first point of next instruction for "next" if last point of current instruction
+            // calculate the snapped point, TODO use first point of next instruction for "next" if last point of current instruction
             if (pIdx + 1 < points.length) {
                 const next: number[] = points[pIdx + 1]
                 if (validEdgeDistance(location.lat, location.lng, p[1], p[0], next[1], next[0])) {
@@ -60,7 +100,7 @@ export function getCurrentInstruction(
         }
     }
 
-    return { instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance }
+    return {instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance}
 }
 
 export function distCalc(fromLat: number, fromLng: number, toLat: number, toLng: number): number {
@@ -138,11 +178,11 @@ function calcCrossingPointToEdge(
 
     if (delta_lat == 0)
         // special case: horizontal edge
-        return { lat: a_lat_deg, lng: r_lon_deg }
+        return {lat: a_lat_deg, lng: r_lon_deg}
 
     if (delta_lon == 0)
         // special case: vertical edge
-        return { lat: r_lat_deg, lng: a_lon_deg }
+        return {lat: r_lat_deg, lng: a_lon_deg}
 
     let norm = delta_lon * delta_lon + delta_lat * delta_lat
     let factor = ((r_lon - a_lon) * delta_lon + (r_lat - a_lat) * delta_lat) / norm
@@ -150,7 +190,7 @@ function calcCrossingPointToEdge(
     // x,y is projection of r onto segment a-b
     let c_lon = a_lon + factor * delta_lon
     let c_lat = a_lat + factor * delta_lat
-    return { lat: c_lat, lng: c_lon / shrinkFactor }
+    return {lat: c_lat, lng: c_lon / shrinkFactor}
 }
 
 export function calcOrientation(lat1: number, lon1: number, lat2: number, lon2: number): number {

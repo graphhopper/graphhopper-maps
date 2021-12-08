@@ -2,22 +2,22 @@ import React, { useState, useReducer, useEffect } from 'react'
 import { Path, Instruction } from '@/api/graphhopper'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import { getTurnSign } from '@/sidebar/instructions/Instructions'
-import { getCurrentInstruction } from './GeoMethods'
+import {getCurrentDetails, getCurrentInstruction} from './GeoMethods'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
 import endNavigation from '@/turnNavigation/end_turn_navigation.png'
 import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
 import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
 import { getLocationStore } from '@/stores/Stores'
 import { LocationStoreState } from '@/stores/LocationStore'
-import PlainButton from '@/PlainButton'
 import { tr } from '@/translation/Translation'
 
 type TurnNavigationProps = {
     path: Path
     location: LocationStoreState
+    sound: boolean
 }
 
-export default function ({ path, location }: TurnNavigationProps) {
+export default function ({ path, location, sound }: TurnNavigationProps) {
     let currentLocation = location.coordinate
     if (currentLocation.lat == 0 && currentLocation.lng == 0) return <span>Searching GPS...</span>
 
@@ -26,14 +26,15 @@ export default function ({ path, location }: TurnNavigationProps) {
         currentLocation
     )
 
-    console.log('remaining distance: ' + remainingDistance + ', time: ' + remainingTime)
+    let details : number[] = getCurrentDetails(path, currentLocation, [path.details.average_speed, path.details.max_speed]);
+
+    console.log('remaining distance: ' + remainingDistance + ', time: ' + remainingTime + ', details: ' + details)
 
     // TODO too far from route - recalculate?
     if (instructionIndex < 0) return <>Cannot find instruction</>
 
     const nextInstruction: Instruction = path.instructions[instructionIndex]
 
-    const [sound, setSound] = useState(true)
     // not sure how to access old state with useState alone
     function reducer(
         state: { distanceToNext: number; index: number; text: string },
@@ -59,8 +60,6 @@ export default function ({ path, location }: TurnNavigationProps) {
             let averageSpeed = (path.distance / (path.time / 1000)) * 3.6
             let lastAnnounceDistance = 10 + 2 * Math.round(averageSpeed / 5) * 5
 
-            // text = '' + averageSpeed + ', ' + distanceToNext
-
             if (
                 distanceToNext <= lastAnnounceDistance &&
                 (state.distanceToNext > lastAnnounceDistance || instructionIndex != state.index)
@@ -71,13 +70,16 @@ export default function ({ path, location }: TurnNavigationProps) {
             let firstAnnounceDistance = 1150
             if (
                 averageSpeed > 15 && // two announcements only if faster speed
-                distanceToNext > 800 && // do not interfer with last announcement. also "1 km" should stay valid (approximately)
+                distanceToNext > (lastAnnounceDistance + 50) && // do not interfere with last announcement. also "1 km" should stay valid (approximately)
                 distanceToNext <= firstAnnounceDistance &&
                 (state.distanceToNext > firstAnnounceDistance || instructionIndex != state.index)
             ) {
+                let inString = distanceToNext > 800 ? tr('in_km_singular')
+                    : tr("in_m", ["" + Math.round(distanceToNext / 100) * 100])
+                console.log(inString + ' ' + nextInstruction.text)
                 getLocationStore()
                     .getSpeechSynthesizer()
-                    .synthesize(tr('in_km_singular') + ' ' + nextInstruction.text)
+                    .synthesize(inString + ' ' + nextInstruction.text)
             }
         }
 
@@ -85,6 +87,7 @@ export default function ({ path, location }: TurnNavigationProps) {
     }, [instructionIndex, distanceToNext])
 
     const arrivalDate = new Date()
+    const currentSpeed = Math.round(location.speed * 3.6)
     arrivalDate.setMilliseconds(arrivalDate.getSeconds() + remainingTime)
     const min = arrivalDate.getMinutes()
     return (
@@ -99,9 +102,6 @@ export default function ({ path, location }: TurnNavigationProps) {
                     </div>
                     <div className={styles.turnInfoRightSide}>
                         <div className={styles.arrival}>
-                            <PlainButton onClick={() => setSound(!sound)}>
-                                {sound ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
-                            </PlainButton>
                             <div>
                                 <div className={styles.arrivalDuration}>{milliSecondsToText(remainingTime)}</div>
                                 <div>{metersToText(remainingDistance)}</div>
@@ -109,7 +109,7 @@ export default function ({ path, location }: TurnNavigationProps) {
                             <div className={styles.arrivalTime}>
                                 <div>{arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}</div>
                                 <div>
-                                    {Math.round(location.speed * 3.6)} <small>km/h</small>
+                                    {currentSpeed} <small>km/h</small>
                                 </div>
                             </div>
                             <div className={styles.endnavicon} onClick={() => getLocationStore().stop()}>

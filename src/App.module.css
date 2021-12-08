@@ -87,6 +87,17 @@
     pointer-events: none;
 }
 
+.volume {
+    grid-column: 3 / span 1;
+    grid-row: 1 / span 1;
+    padding: 5px 5px 3px 7px;
+    height: 30px;
+    z-index: 2;
+    background-color: white;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+}
+
 .smallScreenMap {
     grid-row: 1 / span 3;
     grid-column: 1 / span 1;
@@ -123,6 +134,17 @@
     margin: 0;
     z-index: 2;
     background-color: white;
+}
+
+.smallScreenVolume {
+    grid-column: 1 / span 1;
+    grid-row: 1 / span 1;
+    padding: 5px 4px 3px 7px;
+    width: 30px;
+    z-index: 2;
+    background-color: white;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
 }
 
 .smallScreenPoweredBy {

@@ -26,6 +26,7 @@ export default class RouteStore extends Store<RouteStoreState> {
             ascend: 0,
             descend: 0,
             details: {
+                average_speed: [],
                 max_speed: [],
                 street_name: [],
                 toll: [],

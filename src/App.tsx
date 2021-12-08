@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {Dispatch, useEffect, useState} from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
@@ -32,6 +32,9 @@ import createPathsLayer from '@/layers/PathsLayer'
 import createCurrentLocationLayer from '@/layers/CurrentLocationLayer'
 import {MapLayer} from '@/layers/MapLayer'
 import {LocationStoreState} from './stores/LocationStore'
+import VolumeUpIcon from "@/turnNavigation/volume_up.svg";
+import VolumeOffIcon from "@/turnNavigation/volume_off.svg";
+import PlainButton from "@/PlainButton";
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -128,6 +131,7 @@ interface LayoutProps {
 }
 
 function LargeScreenLayout({query, route, location, viewport, mapLayers, error, mapOptions, info}: LayoutProps) {
+    let [sound, setSound] = useState(true);
     return (
         location.turnNavigation ?
             <>
@@ -141,7 +145,12 @@ function LargeScreenLayout({query, route, location, viewport, mapLayers, error, 
                     />
                 </div>
                 <div className={styles.turnNavigation}>
-                    <TurnNavigation path={route.selectedPath} location={location}/>
+                    <TurnNavigation path={route.selectedPath} location={location} sound={sound}/>
+                </div>
+                <div className={styles.volume}>
+                    <PlainButton onClick={() => setSound(!sound)}>
+                        {sound ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
+                    </PlainButton>
                 </div>
             </>
             :
@@ -189,6 +198,7 @@ function LargeScreenLayout({query, route, location, viewport, mapLayers, error, 
 }
 
 function SmallScreenLayout({query, route, location, viewport, mapLayers, error, mapOptions, info}: LayoutProps) {
+    let [sound, setSound] = useState(true);
     return (location.turnNavigation ?
             <>
                 <div className={styles.smallScreenMap}>
@@ -200,8 +210,13 @@ function SmallScreenLayout({query, route, location, viewport, mapLayers, error, 
                         mapLayers={mapLayers}
                     />
                 </div>
+                <div className={styles.smallScreenVolume}>
+                    <PlainButton onClick={() => setSound(!sound)}>
+                        {sound ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
+                    </PlainButton>
+                </div>
                 <div className={styles.smallScreenRoutingResult}>
-                    <TurnNavigation path={route.selectedPath} location={location}/>
+                    <TurnNavigation path={route.selectedPath} location={location} sound={sound}/>
                 </div>
             </>
             :

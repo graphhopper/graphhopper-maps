@@ -89,6 +89,7 @@ interface Details {
     readonly street_name: [number, number, string][]
     readonly toll: [number, number, string][]
     readonly max_speed: [number, number, number][]
+    readonly average_speed: [number, number, number][]
 }
 
 export interface GeocodingResult {
