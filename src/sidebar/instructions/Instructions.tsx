@@ -42,7 +42,7 @@ const Line = function ({ instruction, index }: { instruction: Instruction; index
     )
 }
 
-function getTurnSign(sign: number, index: number) {
+export function getTurnSign(sign: number, index: number) {
     // from, via and to signs are special
     if (index === 0 || sign === 4 || sign === 5) {
         let markerColor
