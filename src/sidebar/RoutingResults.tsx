@@ -29,7 +29,8 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
-
+    const fakeNavi: boolean = new URL(window.location.toString()).searchParams.get("fake") != null
+    
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
 
     return (
@@ -41,7 +42,10 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
                         <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
                     </div>
                     <div>
-                        <img onClick={() => getLocationStore().initReal()} src={startNavigation} />
+                        <img onClick={() => {
+                            if(fakeNavi) getLocationStore().initFake()
+                            else getLocationStore().initReal()
+                        }} src={startNavigation} />
                     </div>
                     {isSelected && (
                         <PlainButton className={buttonClass} onClick={() => setExpanded(!isExpanded)}>

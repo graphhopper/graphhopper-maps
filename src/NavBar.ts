@@ -29,6 +29,7 @@ export default class NavBar {
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
+        if((new URL(window.location.toString()).searchParams.get('fake')) != null) result.searchParams.append('fake', true)
 
         return result
     }
@@ -124,3 +125,4 @@ export default class NavBar {
         if (newHref !== window.location.href) window.history.pushState('last state', '', newHref)
     }
 }
+
