@@ -22,10 +22,15 @@ export default class LocationStore extends Store<LocationStoreState> {
     private noSleep: any
     private readonly speechSynthesizer: SpeechSynthesizer
     private started: boolean = false
+    private fakeNavi = false
 
     constructor(speechSynthesizer: SpeechSynthesizer) {
         super()
         this.speechSynthesizer = speechSynthesizer
+    }
+
+    setFake(fake: boolean) {
+        this.fakeNavi = fake
     }
 
     public getSpeechSynthesizer(): SpeechSynthesizer {
@@ -48,7 +53,13 @@ export default class LocationStore extends Store<LocationStoreState> {
         return state
     }
 
-    public async initFake() {
+    public async init() {
+        if(this.fakeNavi) await this.initFake()
+        else this.initReal()
+    }
+
+    private async initFake() {
+        console.log("started fake GPS injection")
         this.started = true
 
         // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car
@@ -115,7 +126,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         else Dispatcher.dispatch(new SetViewportToPoint(c, 17, 50, bearing))
     }
 
-    public initReal() {
+    private initReal() {
         this.started = true
         if (!this.noSleep) this.noSleep = new NoSleep()
         this.noSleep.enable()

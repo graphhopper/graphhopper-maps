@@ -28,7 +28,9 @@ import NavBar from '@/NavBar'
 import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
 
-let locale = new URL(window.location.href).searchParams.get('locale')
+let url = new URL(window.location.href);
+let fake = url.searchParams.get('fake')
+let locale = url.searchParams.get('locale')
 setTranslation(locale || navigator.language)
 
 let speechSynthesizer = new SpeechSynthesizer(navigator.language)
@@ -49,6 +51,8 @@ setStores({
     pathDetailsStore: new PathDetailsStore(),
     viewportStore: new ViewportStore(routeStore, () => smallScreenMediaQuery.matches),
 })
+
+getLocationStore().setFake(fake !== null)
 
 // register stores at dispatcher to receive actions
 Dispatcher.register(getQueryStore())
@@ -76,7 +80,6 @@ document.body.appendChild(root)
 ReactDOM.render(<App />, root)
 
 function getApiKey() {
-    const url = new URL(window.location.href)
     // use graphhopper api key from url or try using one from the config
     return url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
 }

@@ -29,7 +29,6 @@ export default class NavBar {
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
-        if(!result.searchParams.has('fake')) result.searchParams.append('fake', "true")
 
         return result
     }
