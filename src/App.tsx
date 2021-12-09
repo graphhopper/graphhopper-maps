@@ -1,4 +1,4 @@
-import React, {Dispatch, useEffect, useState} from 'react'
+import React, {Dispatch, SetStateAction, useEffect, useState} from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
@@ -89,7 +89,8 @@ export default function App() {
     if (location.coordinate.lat != 0 && location.coordinate.lng != 0)
         mapLayers.push(createCurrentLocationLayer(location.coordinate))
     if (!isSmallScreen) mapLayers.push(createPathDetailsLayer(pathDetails))
-
+    // keep sound state even when screen size changes (like rotating)
+    let sounds = useState(true);
     return (
         <div className={styles.appWrapper}>
             {isSmallScreen ? (
@@ -102,6 +103,7 @@ export default function App() {
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
+                    sounds={sounds}
                 />
             ) : (
                 <LargeScreenLayout
@@ -113,6 +115,7 @@ export default function App() {
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
+                    sounds={sounds}
                 />
             )}
         </div>
@@ -128,10 +131,11 @@ interface LayoutProps {
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     info: ApiInfo
+    sounds: [boolean, Dispatch<any>]
 }
 
-function LargeScreenLayout({query, route, location, viewport, mapLayers, error, mapOptions, info}: LayoutProps) {
-    let [sound, setSound] = useState(true);
+function LargeScreenLayout({query, route, location, viewport, mapLayers, error, mapOptions, info, sounds}: LayoutProps) {
+    let [sound, setSound] = sounds
     return (
         location.turnNavigation ?
             <>
@@ -197,8 +201,8 @@ function LargeScreenLayout({query, route, location, viewport, mapLayers, error, 
     )
 }
 
-function SmallScreenLayout({query, route, location, viewport, mapLayers, error, mapOptions, info}: LayoutProps) {
-    let [sound, setSound] = useState(true);
+function SmallScreenLayout({query, route, location, viewport, mapLayers, error, mapOptions, info, sounds}: LayoutProps) {
+    let [sound, setSound] = sounds
     return (location.turnNavigation ?
             <>
                 <div className={styles.smallScreenMap}>

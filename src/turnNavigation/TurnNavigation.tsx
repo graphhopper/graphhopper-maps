@@ -1,4 +1,4 @@
-import React, {useEffect, useReducer} from 'react'
+import React, {useEffect, useReducer, useState} from 'react'
 import {Instruction, Path} from '@/api/graphhopper'
 import {metersToText, milliSecondsToText} from '@/Converters'
 import {getTurnSign} from '@/sidebar/instructions/Instructions'
@@ -24,8 +24,8 @@ export default function ({path, location, sound}: TurnNavigationProps) {
         currentLocation
     )
 
-    let [estimatedAvgSpeed, maxSpeed, surface] = getCurrentDetails(path, currentLocation,
-        [path.details.average_speed, path.details.max_speed, path.details.surface]);
+    let [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, currentLocation,
+        [path.details.average_speed, path.details.max_speed, path.details.surface, path.details.road_class]);
 
     estimatedAvgSpeed = Math.round(estimatedAvgSpeed)
     console.log('remaining distance: ' + remainingDistance + ', time: ' + remainingTime + ', avg: ' + estimatedAvgSpeed + ", max: " + maxSpeed)
@@ -43,6 +43,8 @@ export default function ({path, location, sound}: TurnNavigationProps) {
         return action
     }
 
+    let [showTime, setShowTime] = useState(true);
+    let [showDebug, setShowDebug] = useState(false);
     const [state, dispatch] = useReducer(reducer, {index: -1, distanceToNext: -1, text: ''})
 
     // speak text out loud after render only if index changed and distance is close next instruction
@@ -96,11 +98,6 @@ export default function ({path, location, sound}: TurnNavigationProps) {
             <div>
                 <div className={styles.turnInfo}>
                     <div className={styles.turnSign}>
-                        {
-                            maxSpeed == null
-                                ? <div className={styles.maxSpeedEmpty}></div>
-                                : <div className={styles.maxSpeed}>{Math.round(maxSpeed)}</div>
-                        }
                         <div>
                             {getTurnSign(nextInstruction.sign, instructionIndex)}
                         </div>
@@ -108,15 +105,35 @@ export default function ({path, location, sound}: TurnNavigationProps) {
                     </div>
                     <div className={styles.turnInfoRightSide}>
                         <div className={styles.arrival}>
-                            <div>
-                                <div className={styles.arrivalDuration}>{milliSecondsToText(remainingTime)}</div>
-                                <div>{metersToText(remainingDistance)}</div>
+                            <div onClick={() => setShowTime(!showTime)}>
+                                {showTime
+                                    ? <div>{arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}
+                                        <svg width="30" height="8">
+                                            <circle cx="5" cy="4" r="3"/>
+                                            <circle cx="20" cy="4" r="3.5" stroke="black" fill="white"/>
+                                        </svg>
+                                    </div>
+                                    : <div className={styles.arrivalDuration}>{milliSecondsToText(remainingTime)}
+                                        <svg width="30" height="8">
+                                            <circle cx="5" cy="4" r="3" stroke="black" fill="white"/>
+                                            <circle cx="20" cy="4" r="3.5"/>
+                                        </svg>
+                                    </div>
+                                }
+                                <div className={styles.remainingDistance}>{metersToText(remainingDistance)}</div>
                             </div>
-                            <div className={styles.arrivalTime}>
-                                <div>{arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}</div>
-                                <div>{currentSpeed} <small>km/h ({estimatedAvgSpeed})</small></div>
+                            <div className={styles.secondCol} onClick={() => setShowDebug(!showDebug)}>
+                                <div>{currentSpeed} km/h</div>
+                                { maxSpeed != null ? <div className={styles.maxSpeed}>{Math.round(maxSpeed)}</div> : null }
+                                { showDebug ?
+                                    <div className={styles.debug}>
+                                        <div>s={estimatedAvgSpeed}</div>
+                                        <div>{surface}</div>
+                                        <div>{roadClass}</div>
+                                    </div>: null
+                                }
                             </div>
-                            <div className={styles.endnavicon} onClick={() => getLocationStore().stop()}>
+                            <div className={styles.thirdCol} onClick={() => getLocationStore().stop()}>
                                 <img src={endNavigation}/>
                             </div>
                         </div>

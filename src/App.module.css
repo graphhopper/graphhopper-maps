@@ -4,7 +4,7 @@
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: 25rem 1fr auto;
+    grid-template-columns: 27rem 1fr auto;
     grid-template-rows: 100%;
     justify-content: space-between;
     overflow: auto;
@@ -55,7 +55,7 @@
     grid-column: 1 / span 1;
     grid-row: 1 / span 1;
     z-index: 5;
-    max-height: 8em;
+    max-height: 7.5em;
 
     margin: 0.5rem;
     padding: 0.5rem;
@@ -137,8 +137,8 @@
 }
 
 .smallScreenVolume {
-    grid-column: 1 / span 1;
     grid-row: 1 / span 1;
+    grid-column: 1 / span 1;
     padding: 5px 4px 3px 7px;
     width: 30px;
     z-index: 2;

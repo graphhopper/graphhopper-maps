@@ -28,6 +28,7 @@ export default class RouteStore extends Store<RouteStoreState> {
             details: {
                 surface: [],
                 road_environment: [],
+                road_class: [],
                 average_speed: [],
                 max_speed: [],
                 street_name: [],
