@@ -7,7 +7,7 @@ const develop = {
     mode: 'development',
     devtool: 'source-map',
     devServer: {
-        contentBase: path.resolve(__dirname, 'dist'),
+        static: path.resolve(__dirname, 'dist'),
         https: false,
         port: 3000,
         host: '0.0.0.0',

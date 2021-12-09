@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { GeocodingHit } from '@/api/graphhopper'
 import { ErrorAction } from '@/actions/Actions'
@@ -13,7 +13,10 @@ import Dispatcher from '@/stores/Dispatcher'
 import styles from './AddressInput.module.css'
 import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
-import { convertToQueryText } from '@/Converters'
+import { convertToQueryText, textToCoordinate } from '@/Converters'
+import { useMediaQuery } from 'react-responsive'
+import PopUp from '@/sidebar/search/PopUp'
+import PlainButton from '@/PlainButton'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -27,6 +30,9 @@ export default function AddressInput(props: AddressInputProps) {
     // controlled component pattern with initial value set from props
     const [text, setText] = useState(props.point.queryText)
     useEffect(() => setText(props.point.queryText), [props.point.queryText])
+
+    // keep track of focus and toggle fullscreen display on small screens
+    const [hasFocus, setHasFocus] = useState(false)
 
     // container for geocoding results which get set by the geocoder class and set to empty if the underlying query point gets changed from outside
     // also gets filled with an item to select the current location as input if input has focus and geocoding results are
@@ -48,20 +54,20 @@ export default function AddressInput(props: AddressInputProps) {
             }
             setAutocompleteItems([locationItem])
         }
-    }, [autocompleteItems])
+    }, [autocompleteItems, hasFocus])
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
     const [highlightedResult, setHighlightedResult] = useState<number>(-1)
     useEffect(() => setHighlightedResult(-1), [autocompleteItems])
     const searchInput = useRef<HTMLInputElement>(null)
+
     const onKeypress = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.key === 'Escape') {
                 searchInput.current!.blur()
                 return
             }
-            if (autocompleteItems.length === 0) return
 
             switch (event.key) {
                 case 'ArrowUp':
@@ -72,21 +78,27 @@ export default function AddressInput(props: AddressInputProps) {
                     break
                 case 'Enter':
                 case 'Tab':
-                    // by default use the first result, otherwise the highlighted one
-                    const index = highlightedResult >= 0 ? highlightedResult : 0
-
-                    // it seems like the order of the blur and onAddressSelected statement is important...
+                    // try to parse input as coordinate. Otherwise use autocomplete results
+                    const coordinate = textToCoordinate(text)
+                    if (coordinate) {
+                        props.onAddressSelected(text, coordinate)
+                    } else if (
+                        autocompleteItems.length > 0 &&
+                        autocompleteItems.every(item => item.type === 'geocoding')
+                    ) {
+                        // by default use the first result, otherwise the highlighted one
+                        const index = highlightedResult >= 0 ? highlightedResult : 0
+                        onAutocompleteSelected(autocompleteItems[index], props.onAddressSelected)
+                    }
                     searchInput.current!.blur()
-                    onAutocompleteSelected(autocompleteItems[index], props.onAddressSelected)
                     break
             }
         },
         [autocompleteItems, highlightedResult]
     )
 
-    // keep track of focus and toggle fullscreen display on small screens
-    const [hasFocus, setHasFocus] = useState(false)
     const containerClass = hasFocus ? styles.container + ' ' + styles.fullscreen : styles.container
+
     const type = props.point.type
 
     return (
@@ -98,7 +110,8 @@ export default function AddressInput(props: AddressInputProps) {
                     ref={searchInput}
                     onChange={e => {
                         setText(e.target.value)
-                        geocoder.request(e.target.value)
+                        const coordinate = textToCoordinate(e.target.value)
+                        if (!coordinate) geocoder.request(e.target.value)
                         props.onChange(e.target.value)
                     }}
                     onKeyDown={onKeypress}
@@ -117,25 +130,39 @@ export default function AddressInput(props: AddressInputProps) {
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
                     )}
                 />
-                <button className={styles.btnClose} onClick={() => setHasFocus(false)}>
-                    Close
-                </button>
+                <PlainButton className={styles.btnClose} onClick={() => setHasFocus(false)}>
+                    {tr('Cancel')}
+                </PlainButton>
             </div>
 
             {autocompleteItems.length > 0 && (
-                <div className={styles.popup}>
+                <ResponsiveAutocomplete inputRef={searchInput.current!}>
                     <Autocomplete
                         items={autocompleteItems}
                         highlightedItem={autocompleteItems[highlightedResult]}
                         onSelect={item => {
-                            // it seems like the order of the blur and onAddressSelected statement is important...
                             searchInput.current!.blur()
                             onAutocompleteSelected(item, props.onAddressSelected)
                         }}
                     />
-                </div>
+                </ResponsiveAutocomplete>
             )}
         </div>
+    )
+}
+
+function ResponsiveAutocomplete({ inputRef, children }: { inputRef: HTMLElement; children: ReactNode }): JSX.Element {
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+    return (
+        <>
+            {isSmallScreen ? (
+                children
+            ) : (
+                <PopUp inputElement={inputRef} keepClearAtBottom={270}>
+                    {children}
+                </PopUp>
+            )}
+        </>
     )
 }
 

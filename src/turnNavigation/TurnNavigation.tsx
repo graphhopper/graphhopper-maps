@@ -1,7 +1,7 @@
 import React, { useState, useReducer, useEffect } from 'react'
 import { Path, Instruction } from '@/api/graphhopper'
 import { metersToText, milliSecondsToText } from '@/Converters'
-import { getSignName } from '@/sidebar/instructions/Instructions'
+import { getTurnSign } from '@/sidebar/instructions/Instructions'
 import { getCurrentInstruction } from './GeoMethods'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
 import endNavigation from '@/turnNavigation/end_turn_navigation.png'
@@ -93,7 +93,7 @@ export default function ({ path, location }: TurnNavigationProps) {
                 <div className={styles.turnInfo}>
                     <div className={styles.turnSign}>
                         <div>
-                            <img src={getSignName(nextInstruction.sign, instructionIndex)} alt={'turn instruction'} />
+                            {getTurnSign(nextInstruction.sign, instructionIndex)}
                         </div>
                         <div>{metersToText(distanceToNext)}</div>
                     </div>

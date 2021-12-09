@@ -17,36 +17,26 @@
 
 .removeSearchBox {
     grid-column: 4;
-    width: 0.8rem;
+    width: 1rem;
     justify-self: center;
-}
-
-.removeSearchBox svg {
-    display: block;
 }
 
 .addSearchBox {
     grid-column: 1 / span 2;
     justify-self: start;
-    align-items: center;
-    display: grid;
-    grid-template-columns: 1rem auto;
-    grid-column-gap: 0.3rem;
+    width: 1rem;
 }
 
-.addSearchBox svg {
-    width: 100%;
-    max-height: 1rem; /* this fixes big buttons on older ios devices */
-}
-
-.dot {
+.markerContainer {
     grid-column: 1 / span 1;
     align-self: center;
     justify-self: center;
-    border-radius: 50%;
-    height: 0.75rem;
-    width: 0.75rem;
-    border: rgb(100, 100, 100) 0.125rem solid;
+    width: 1rem;
+}
+
+.markerContainer > svg {
+    height: 100%;
+    width: 100%;
 }
 
 .searchOptions {
