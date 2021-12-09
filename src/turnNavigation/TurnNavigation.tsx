@@ -24,9 +24,11 @@ export default function ({path, location, sound}: TurnNavigationProps) {
         currentLocation
     )
 
-    let [calculatedAvgSpeed, maxSpeed] = getCurrentDetails(path, currentLocation, [path.details.average_speed, path.details.max_speed]);
+    let [estimatedAvgSpeed, maxSpeed, surface] = getCurrentDetails(path, currentLocation,
+        [path.details.average_speed, path.details.max_speed, path.details.surface]);
 
-    console.log('remaining distance: ' + remainingDistance + ', time: ' + remainingTime + ', avg: ' + calculatedAvgSpeed + ", max: " + maxSpeed)
+    estimatedAvgSpeed = Math.round(estimatedAvgSpeed)
+    console.log('remaining distance: ' + remainingDistance + ', time: ' + remainingTime + ', avg: ' + estimatedAvgSpeed + ", max: " + maxSpeed)
 
     // TODO too far from route - recalculate?
     if (instructionIndex < 0) return <>Cannot find instruction</>
@@ -112,10 +114,7 @@ export default function ({path, location, sound}: TurnNavigationProps) {
                             </div>
                             <div className={styles.arrivalTime}>
                                 <div>{arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}</div>
-                                <div>{currentSpeed} <small>km/h</small></div>
-                            </div>
-                            <div className={styles.details}>
-                                <div>{Math.round(calculatedAvgSpeed)}</div>
+                                <div>{currentSpeed} <small>km/h ({estimatedAvgSpeed})</small></div>
                             </div>
                             <div className={styles.endnavicon} onClick={() => getLocationStore().stop()}>
                                 <img src={endNavigation}/>

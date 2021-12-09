@@ -87,6 +87,8 @@ export interface Instruction {
 
 interface Details {
     readonly street_name: [number, number, string][]
+    readonly surface: [number, number, string][]
+    readonly road_environment: [number, number, string][]
     readonly toll: [number, number, string][]
     readonly max_speed: [number, number, number][]
     readonly average_speed: [number, number, number][]

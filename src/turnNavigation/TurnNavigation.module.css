@@ -41,6 +41,10 @@
     max-height: 20px;
 }
 
+.details  {
+
+}
+
 .maxSpeedEmpty, .maxSpeed {
     padding: 6px 6px 0px 6px; /* oben, rechts, unten, links*/
     font-size: 20px;

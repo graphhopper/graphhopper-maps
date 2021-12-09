@@ -1,7 +1,7 @@
 import {Instruction, Path} from '@/api/graphhopper'
 import {Coordinate} from '@/stores/QueryStore'
 
-export function getCurrentDetails(path: Path, location: Coordinate, details: [number, number, number][][]): number[] {
+export function getCurrentDetails(path: Path, location: Coordinate, details: [any, any, any][][]): number[] {
     let smallestDist = Number.MAX_VALUE
     const points = path.points.coordinates
     let foundIndex = -1
