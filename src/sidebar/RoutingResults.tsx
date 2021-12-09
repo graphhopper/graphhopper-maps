@@ -29,7 +29,7 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
-    const fakeNavi: boolean = new URL(window.location.toString()).searchParams.get("fake") != null
+    const fakeNavi: boolean = new URL(window.location.href).searchParams.has('fake')
     
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
 
