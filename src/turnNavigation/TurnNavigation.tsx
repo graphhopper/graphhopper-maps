@@ -1,15 +1,13 @@
-import React, { useState, useReducer, useEffect } from 'react'
-import { Path, Instruction } from '@/api/graphhopper'
-import { metersToText, milliSecondsToText } from '@/Converters'
-import { getTurnSign } from '@/sidebar/instructions/Instructions'
+import React, {useEffect, useReducer} from 'react'
+import {Instruction, Path} from '@/api/graphhopper'
+import {metersToText, milliSecondsToText} from '@/Converters'
+import {getTurnSign} from '@/sidebar/instructions/Instructions'
 import {getCurrentDetails, getCurrentInstruction} from './GeoMethods'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
 import endNavigation from '@/turnNavigation/end_turn_navigation.png'
-import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
-import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
-import { getLocationStore } from '@/stores/Stores'
-import { LocationStoreState } from '@/stores/LocationStore'
-import { tr } from '@/translation/Translation'
+import {getLocationStore} from '@/stores/Stores'
+import {LocationStoreState} from '@/stores/LocationStore'
+import {tr} from '@/translation/Translation'
 
 type TurnNavigationProps = {
     path: Path
@@ -17,18 +15,18 @@ type TurnNavigationProps = {
     sound: boolean
 }
 
-export default function ({ path, location, sound }: TurnNavigationProps) {
+export default function ({path, location, sound}: TurnNavigationProps) {
     let currentLocation = location.coordinate
     if (currentLocation.lat == 0 && currentLocation.lng == 0) return <span>Searching GPS...</span>
 
-    const { instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance } = getCurrentInstruction(
+    const {instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance} = getCurrentInstruction(
         path.instructions,
         currentLocation
     )
 
-    let details : number[] = getCurrentDetails(path, currentLocation, [path.details.average_speed, path.details.max_speed]);
+    let [calculatedAvgSpeed, maxSpeed] = getCurrentDetails(path, currentLocation, [path.details.average_speed, path.details.max_speed]);
 
-    console.log('remaining distance: ' + remainingDistance + ', time: ' + remainingTime + ', details: ' + details)
+    console.log('remaining distance: ' + remainingDistance + ', time: ' + remainingTime + ', avg: ' + calculatedAvgSpeed + ", max: " + maxSpeed)
 
     // TODO too far from route - recalculate?
     if (instructionIndex < 0) return <>Cannot find instruction</>
@@ -42,14 +40,15 @@ export default function ({ path, location, sound }: TurnNavigationProps) {
     ) {
         return action
     }
-    const [state, dispatch] = useReducer(reducer, { index: -1, distanceToNext: -1, text: '' })
+
+    const [state, dispatch] = useReducer(reducer, {index: -1, distanceToNext: -1, text: ''})
 
     // speak text out loud after render only if index changed and distance is close next instruction
     useEffect(() => {
         console.log(
             'useEffect',
             state,
-            { index: instructionIndex, distanceToNext: distanceToNext },
+            {index: instructionIndex, distanceToNext: distanceToNext},
             nextInstruction.text
         )
 
@@ -83,7 +82,7 @@ export default function ({ path, location, sound }: TurnNavigationProps) {
             }
         }
 
-        dispatch({ index: instructionIndex, distanceToNext: distanceToNext, text: text })
+        dispatch({index: instructionIndex, distanceToNext: distanceToNext, text: text})
     }, [instructionIndex, distanceToNext])
 
     const arrivalDate = new Date()
@@ -95,6 +94,11 @@ export default function ({ path, location, sound }: TurnNavigationProps) {
             <div>
                 <div className={styles.turnInfo}>
                     <div className={styles.turnSign}>
+                        {
+                            maxSpeed == null
+                                ? <div className={styles.maxSpeedEmpty}></div>
+                                : <div className={styles.maxSpeed}>{Math.round(maxSpeed)}</div>
+                        }
                         <div>
                             {getTurnSign(nextInstruction.sign, instructionIndex)}
                         </div>
@@ -108,12 +112,13 @@ export default function ({ path, location, sound }: TurnNavigationProps) {
                             </div>
                             <div className={styles.arrivalTime}>
                                 <div>{arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}</div>
-                                <div>
-                                    {currentSpeed} <small>km/h</small>
-                                </div>
+                                <div>{currentSpeed} <small>km/h</small></div>
+                            </div>
+                            <div className={styles.details}>
+                                <div>{Math.round(calculatedAvgSpeed)}</div>
                             </div>
                             <div className={styles.endnavicon} onClick={() => getLocationStore().stop()}>
-                                <img src={endNavigation} />
+                                <img src={endNavigation}/>
                             </div>
                         </div>
                         <div className={styles.turnText}>{state.text}</div>
