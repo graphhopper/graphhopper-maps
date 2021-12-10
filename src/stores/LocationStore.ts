@@ -139,9 +139,9 @@ export default class LocationStore extends Store<LocationStoreState> {
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
             let options = {
-                timeout: 120_000,
+                timeout: 300_000,
                 // maximumAge is not a problem here like with getCurrentPosition but let's use identical settings
-                // enableHighAccuracy: false
+                enableHighAccuracy: true
             }
             this.watchId = navigator.geolocation.watchPosition(
                 this.locationUpdate,
