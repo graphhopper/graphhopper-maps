@@ -11,8 +11,8 @@
         "test": "jest"
     },
     "dependencies": {
-        "nosleep.js": "^0.12.0",
         "leaflet.heightgraph": "github:easbar/Leaflet.Heightgraph#82cff7b3013dd73d7221521c5b404ded6439e050",
+        "nosleep.js": "^0.12.0",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "react-map-gl": "^5.3.17",
@@ -39,5 +39,8 @@
         "webpack-cli": "^4.9.1",
         "webpack-dev-server": "^4.5.0",
         "webpack-merge": "^5.8.0"
+    },
+    "optionalDependencies": {
+        "fsevents": "^2.3.2"
     }
 }
