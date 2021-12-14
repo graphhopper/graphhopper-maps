@@ -38,5 +38,8 @@
         "webpack-cli": "^4.9.1",
         "webpack-dev-server": "^4.5.0",
         "webpack-merge": "^5.8.0"
+    },
+    "optionalDependencies": {
+        "fsevents": "^2.3.2"
     }
 }
