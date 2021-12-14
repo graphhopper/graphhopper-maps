@@ -50,7 +50,7 @@ function RoutingResult({ path, isSelected, turnNaviState }: { path: Path; isSele
                                 : <div>
                                     <div>WARNING: This application is highly experimental! Use at your own risk!</div>
                                     <PlainButton className={styles.acceptRiskButton} onClick={() => {
-                                        Dispatcher.dispatch(new TurnNavigationUpdate({acceptedRisk: true, soundEnabled: true} as TurnNavigationState))
+                                        Dispatcher.dispatch(new TurnNavigationUpdate({acceptedRisk: true} as TurnNavigationState))
                                         return getLocationStore().initReal()}
                                     }>I understand and agree</PlainButton>
                                 </div>)

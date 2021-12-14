@@ -23,8 +23,9 @@ export default class TurnNavigationStore extends Store<TurnNavigationState> {
     }
 
     reduce(state: TurnNavigationState, action: Action): TurnNavigationState {
-        if (action instanceof TurnNavigationUpdate)
-            return {...action.update}
+        if (action instanceof TurnNavigationUpdate) {
+            return {...state, ...action.update}
+        }
         return state
     }
 
