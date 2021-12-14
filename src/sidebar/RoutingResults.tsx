@@ -53,7 +53,7 @@ function RoutingResult({ path, isSelected, turnNaviState }: { path: Path; isSele
                                     <PlainButton className={styles.acceptRiskButton} onClick={() => {
                                         Dispatcher.dispatch(new TurnNavigationUpdate({acceptedRisk: true} as TurnNavigationState))
                                         return getLocationStore().initReal()}
-                                    }>I understand and agree</PlainButton>
+                                    }>{tr("accept_risks_after_warning")}</PlainButton>
                                 </div>)
                             : <img onClick={() => turnNaviState.fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()} src={startNavigation}/>
                         }

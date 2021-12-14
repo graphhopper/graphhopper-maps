@@ -51,7 +51,8 @@
 "in_mi":"In %1$s miles",
 "in_ft":"In %1$s feet",
 "for_mi":"for %1$s miles",
-"warning":"WARNING: This application is highly experimental! Use at your own risk!"
+"warning":"WARNING: This application is highly experimental! Use at your own risk!",
+"accept_risks_after_warning":"I understand and agree"
 },
 "ar":{
 "via_hint":"خلال",
@@ -106,7 +107,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "ast":{
 "via_hint":"Pasando per",
@@ -161,7 +163,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "bg":{
 "via_hint":"през",
@@ -216,7 +219,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "bn_BN":{
 "via_hint":"",
@@ -271,7 +275,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "ca":{
 "via_hint":"Passant per",
@@ -326,7 +331,8 @@
 "in_mi":"En %1$s milles",
 "in_ft":"En %1$s peus",
 "for_mi":"per %1$s milles",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "cs_CZ":{
 "via_hint":"Přes ",
@@ -381,7 +387,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "da_DK":{
 "via_hint":"Via",
@@ -436,7 +443,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "de_DE":{
 "via_hint":"Über",
@@ -491,7 +499,8 @@
 "in_mi":"In %1$s Meilen",
 "in_ft":"In %1$s Fuß",
 "for_mi":"für %1$s Meilen",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "el":{
 "via_hint":"Μέσω",
@@ -546,7 +555,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "eo":{
 "via_hint":"Tra",
@@ -601,7 +611,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "es":{
 "via_hint":"Pasando por",
@@ -656,7 +667,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "fa":{
 "via_hint":"با گذر از",
@@ -711,7 +723,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "fil":{
 "via_hint":"",
@@ -766,7 +779,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "fi":{
 "via_hint":"Reittipiste",
@@ -821,7 +835,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "fr_FR":{
 "via_hint":"Via",
@@ -876,7 +891,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "fr_CH":{
 "via_hint":"Via",
@@ -931,7 +947,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "gl":{
 "via_hint":"Vía",
@@ -986,7 +1003,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "he":{
 "via_hint":"דרך",
@@ -1041,7 +1059,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "hr_HR":{
 "via_hint":"Preko",
@@ -1096,7 +1115,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "hsb":{
 "via_hint":"přez",
@@ -1151,7 +1171,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "hu_HU":{
 "via_hint":"Ezen keresztül",
@@ -1206,7 +1227,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "in_ID":{
 "via_hint":"melalui",
@@ -1261,7 +1283,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "it":{
 "via_hint":"attraverso",
@@ -1316,7 +1339,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "ja":{
 "via_hint":"経由",
@@ -1371,7 +1395,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "ko":{
 "via_hint":"경유",
@@ -1426,7 +1451,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "lt_LT":{
 "via_hint":"Per",
@@ -1481,7 +1507,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "ne":{
 "via_hint":"बाट",
@@ -1536,7 +1563,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "nl":{
 "via_hint":"via",
@@ -1591,7 +1619,8 @@
 "in_mi":"Over %1$s mijl",
 "in_ft":"Over %1$s voet",
 "for_mi":"Voor %1$s mijl",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "pl_PL":{
 "via_hint":"Przez",
@@ -1646,7 +1675,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "pt_BR":{
 "via_hint":"Via",
@@ -1701,7 +1731,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "pt_PT":{
 "via_hint":"Por",
@@ -1756,7 +1787,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "ro":{
 "via_hint":"Prin",
@@ -1811,7 +1843,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "ru":{
 "via_hint":"Через",
@@ -1866,7 +1899,8 @@
 "in_mi":"В %1$s милях",
 "in_ft":"В %1$s футах",
 "for_mi":"В %1$s милях",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "sk":{
 "via_hint":"Cez",
@@ -1921,7 +1955,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "sl_SI":{
 "via_hint":"Preko",
@@ -1976,7 +2011,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "sr_RS":{
 "via_hint":"Preko",
@@ -2031,7 +2067,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "sv_SE":{
 "via_hint":"Via",
@@ -2086,7 +2123,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "tr":{
 "via_hint":"Yoluyla",
@@ -2141,7 +2179,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "uk":{
 "via_hint":"через",
@@ -2196,7 +2235,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "vi_VN":{
 "via_hint":"Qua",
@@ -2251,7 +2291,8 @@
 "in_mi":"Trong %1$s dặm",
 "in_ft":"Trong %1$s ft",
 "for_mi":"Khoảng %1$s dặm",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "zh_CN":{
 "via_hint":"途经点",
@@ -2306,7 +2347,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "zh_HK":{
 "via_hint":"途經",
@@ -2361,7 +2403,8 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 },
 "zh_TW":{
 "via_hint":"途經",
@@ -2416,5 +2459,6 @@
 "in_mi":"",
 "in_ft":"",
 "for_mi":"",
-"warning":""
+"warning":"",
+"accept_risks_after_warning":""
 }}
