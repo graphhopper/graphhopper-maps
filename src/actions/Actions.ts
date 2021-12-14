@@ -5,6 +5,7 @@ import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 import { ViewportStoreState } from '@/stores/ViewportStore'
 import { LocationStoreState } from '@/stores/LocationStore'
+import {TurnNavigationState} from "@/stores/TurnNavigationStore";
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -19,6 +20,14 @@ export class LocationUpdate implements Action {
 
     constructor(location: LocationStoreState) {
         this.location = location
+    }
+}
+
+export class TurnNavigationUpdate implements Action {
+    readonly update: TurnNavigationState
+
+    constructor(update: TurnNavigationState) {
+        this.update = update
     }
 }
 

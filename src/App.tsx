@@ -8,7 +8,7 @@ import {
     getMapOptionsStore,
     getPathDetailsStore,
     getQueryStore,
-    getRouteStore,
+    getRouteStore, getTurnNavigationStore,
     getViewportStore,
 } from '@/stores/Stores'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
@@ -35,6 +35,9 @@ import {LocationStoreState} from './stores/LocationStore'
 import VolumeUpIcon from "@/turnNavigation/volume_up.svg";
 import VolumeOffIcon from "@/turnNavigation/volume_off.svg";
 import PlainButton from "@/PlainButton";
+import Dispatcher from "@/stores/Dispatcher";
+import {TurnNavigationUpdate} from "@/actions/Actions";
+import {TurnNavigationState} from "@/stores/TurnNavigationStore";
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -43,6 +46,7 @@ export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
     const [info, setInfo] = useState(getApiInfoStore().state)
     const [route, setRoute] = useState(getRouteStore().state)
+    const [turnNaviState, setTurnNaviState] = useState(getTurnNavigationStore().state)
     const [location, setLocation] = useState(getLocationStore().state)
     const [error, setError] = useState(getErrorStore().state)
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
@@ -55,6 +59,7 @@ export default function App() {
         const onRouteChanged = () => setRoute(getRouteStore().state)
         const onErrorChanged = () => setError(getErrorStore().state)
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
+        const onTurnNavigationStateChanged = () => setTurnNaviState(getTurnNavigationStore().state)
         const onLocationChanged = () => setLocation(getLocationStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
         const onViewportChanged = () => setViewport(getViewportStore().state)
@@ -64,6 +69,7 @@ export default function App() {
         getRouteStore().register(onRouteChanged)
         getErrorStore().register(onErrorChanged)
         getMapOptionsStore().register(onMapOptionsChanged)
+        getTurnNavigationStore().register(onTurnNavigationStateChanged)
         getLocationStore().register(onLocationChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
         getViewportStore().register(onViewportChanged)
@@ -74,6 +80,7 @@ export default function App() {
             getRouteStore().deregister(onRouteChanged)
             getErrorStore().deregister(onErrorChanged)
             getMapOptionsStore().deregister(onMapOptionsChanged)
+            getTurnNavigationStore().deregister(onTurnNavigationStateChanged)
             getLocationStore().deregister(onLocationChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getViewportStore().deregister(onViewportChanged)
@@ -90,7 +97,6 @@ export default function App() {
         mapLayers.push(createCurrentLocationLayer(location.coordinate))
     if (!isSmallScreen) mapLayers.push(createPathDetailsLayer(pathDetails))
     // keep sound state even when screen size changes (like rotating)
-    let sounds = useState(true);
     return (
         <div className={styles.appWrapper}>
             {isSmallScreen ? (
@@ -103,7 +109,7 @@ export default function App() {
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
-                    sounds={sounds}
+                    turnNaviState={turnNaviState}
                 />
             ) : (
                 <LargeScreenLayout
@@ -115,7 +121,7 @@ export default function App() {
                     mapOptions={mapOptions}
                     error={error}
                     info={info}
-                    sounds={sounds}
+                    turnNaviState={turnNaviState}
                 />
             )}
         </div>
@@ -131,11 +137,10 @@ interface LayoutProps {
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     info: ApiInfo
-    sounds: [boolean, Dispatch<any>]
+    turnNaviState: TurnNavigationState
 }
 
-function LargeScreenLayout({query, route, location, viewport, mapLayers, error, mapOptions, info, sounds}: LayoutProps) {
-    let [sound, setSound] = sounds
+function LargeScreenLayout({query, route, location, viewport, mapLayers, error, mapOptions, info, turnNaviState}: LayoutProps) {
     return (
         location.turnNavigation ?
             <>
@@ -149,11 +154,11 @@ function LargeScreenLayout({query, route, location, viewport, mapLayers, error, 
                     />
                 </div>
                 <div className={styles.turnNavigation}>
-                    <TurnNavigation path={route.selectedPath} location={location} sound={sound}/>
+                    <TurnNavigation path={route.selectedPath} location={location} turnNaviState={turnNaviState}/>
                 </div>
                 <div className={styles.volume}>
-                    <PlainButton onClick={() => setSound(!sound)}>
-                        {sound ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
+                    <PlainButton onClick={() => Dispatcher.dispatch(new TurnNavigationUpdate({soundEnabled: !turnNaviState.soundEnabled} as TurnNavigationState))}>
+                        {turnNaviState.soundEnabled ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
                     </PlainButton>
                 </div>
             </>
@@ -173,6 +178,7 @@ function LargeScreenLayout({query, route, location, viewport, mapLayers, error, 
                                 paths={route.routingResult.paths}
                                 selectedPath={route.selectedPath}
                                 currentRequest={query.currentRequest}
+                                turnNaviState={turnNaviState}
                             />
                         </div>
                         <div className={styles.poweredBy}>
@@ -201,8 +207,7 @@ function LargeScreenLayout({query, route, location, viewport, mapLayers, error, 
     )
 }
 
-function SmallScreenLayout({query, route, location, viewport, mapLayers, error, mapOptions, info, sounds}: LayoutProps) {
-    let [sound, setSound] = sounds
+function SmallScreenLayout({query, route, location, viewport, mapLayers, error, mapOptions, info, turnNaviState}: LayoutProps) {
     return (location.turnNavigation ?
             <>
                 <div className={styles.smallScreenMap}>
@@ -215,12 +220,12 @@ function SmallScreenLayout({query, route, location, viewport, mapLayers, error, 
                     />
                 </div>
                 <div className={styles.smallScreenVolume}>
-                    <PlainButton onClick={() => setSound(!sound)}>
-                        {sound ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
+                    <PlainButton onClick={() => Dispatcher.dispatch(new TurnNavigationUpdate({soundEnabled: !turnNaviState.soundEnabled} as TurnNavigationState))}>
+                        {turnNaviState.soundEnabled ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
                     </PlainButton>
                 </div>
                 <div className={styles.smallScreenRoutingResult}>
-                    <TurnNavigation path={route.selectedPath} location={location} sound={sound}/>
+                    <TurnNavigation path={route.selectedPath} location={location} turnNaviState={turnNaviState}/>
                 </div>
             </>
             :
@@ -247,6 +252,7 @@ function SmallScreenLayout({query, route, location, viewport, mapLayers, error, 
                         paths={route.routingResult.paths}
                         selectedPath={route.selectedPath}
                         currentRequest={query.currentRequest}
+                        turnNaviState={turnNaviState}
                     />
                 </div>
                 <div className={styles.smallScreenPoweredBy}>

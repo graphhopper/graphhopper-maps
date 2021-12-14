@@ -6,6 +6,7 @@ import App from '@/App'
 import {
     getApiInfoStore,
     getErrorStore,
+    getTurnNavigationStore,
     getLocationStore,
     getMapOptionsStore,
     getPathDetailsStore,
@@ -20,6 +21,7 @@ import ApiInfoStore from '@/stores/ApiInfoStore'
 import QueryStore from '@/stores/QueryStore'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
+import TurnNavigationStore, {TurnNavigationState} from "@/stores/TurnNavigationStore";
 import LocationStore from '@/stores/LocationStore'
 import { SpeechSynthesizer } from './SpeechSynthesizer'
 import PathDetailsStore from '@/stores/PathDetailsStore'
@@ -27,6 +29,7 @@ import ViewportStore from '@/stores/ViewportStore'
 import NavBar from '@/NavBar'
 import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
+import {TurnNavigationUpdate} from "@/actions/Actions";
 
 let url = new URL(window.location.href);
 let fake = url.searchParams.get('fake')
@@ -47,12 +50,11 @@ setStores({
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
+    turnNavigationStore: new TurnNavigationStore(),
     locationStore: new LocationStore(speechSynthesizer),
     pathDetailsStore: new PathDetailsStore(),
     viewportStore: new ViewportStore(routeStore, () => smallScreenMediaQuery.matches),
 })
-
-getLocationStore().setFake(fake !== null)
 
 // register stores at dispatcher to receive actions
 Dispatcher.register(getQueryStore())
@@ -60,9 +62,12 @@ Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
+Dispatcher.register(getTurnNavigationStore())
 Dispatcher.register(getLocationStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getViewportStore())
+
+Dispatcher.dispatch(new TurnNavigationUpdate({fakeGPS: fake !== null, soundEnabled: fake === null} as TurnNavigationState))
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible
 

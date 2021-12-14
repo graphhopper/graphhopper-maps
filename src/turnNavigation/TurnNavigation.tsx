@@ -8,14 +8,15 @@ import endNavigation from '@/turnNavigation/end_turn_navigation.png'
 import {getLocationStore} from '@/stores/Stores'
 import {LocationStoreState} from '@/stores/LocationStore'
 import {tr} from '@/translation/Translation'
+import {TurnNavigationState} from "@/stores/TurnNavigationStore";
 
 type TurnNavigationProps = {
     path: Path
     location: LocationStoreState
-    sound: boolean
+    turnNaviState: TurnNavigationState
 }
 
-export default function ({path, location, sound}: TurnNavigationProps) {
+export default function ({path, location, turnNaviState}: TurnNavigationProps) {
     let currentLocation = location.coordinate
     if (currentLocation.lat == 0 && currentLocation.lng == 0) return <span>Searching GPS...</span>
 
@@ -57,7 +58,7 @@ export default function ({path, location, sound}: TurnNavigationProps) {
         )
 
         let text = nextInstruction.street_name
-        if (sound) {
+        if (turnNaviState.soundEnabled) {
             // making lastAnnounceDistance dependent on location.speed is tricky because then it can change while driving, so pick the constant average speed
             // TODO use instruction average speed of current+next instruction instead of whole path
             let averageSpeed = (path.distance / (path.time / 1000)) * 3.6

@@ -95,6 +95,14 @@ This is not a very nice duplication but I have to stop now...
     animation-delay: 0.25s;
 }
 
+.acceptRiskButton {
+    float: right;
+    color: #2a2b31;
+    padding: 5px;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0.3rem;
+}
+
 @keyframes pulse {
     from {
         opacity: 0.5;

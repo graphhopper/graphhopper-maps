@@ -1,11 +1,11 @@
-import { Coordinate } from '@/stores/QueryStore'
+import {Coordinate} from '@/stores/QueryStore'
 import Store from '@/stores/Store'
-import { ErrorAction, LocationUpdate, SetViewportToPoint } from '@/actions/Actions'
-import Dispatcher, { Action } from '@/stores/Dispatcher'
+import {ErrorAction, LocationUpdate, SetViewportToPoint, TurnNavigationUpdate} from '@/actions/Actions'
+import Dispatcher, {Action} from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
-import { SpeechSynthesizer } from '@/SpeechSynthesizer'
-import { ApiImpl } from '@/api/Api'
-import { calcOrientation } from '@/turnNavigation/GeoMethods'
+import {SpeechSynthesizer} from '@/SpeechSynthesizer'
+import {ApiImpl} from '@/api/Api'
+import {calcOrientation} from '@/turnNavigation/GeoMethods'
 import * as config from 'config'
 
 export interface LocationStoreState {
@@ -22,15 +22,10 @@ export default class LocationStore extends Store<LocationStoreState> {
     private noSleep: any
     private readonly speechSynthesizer: SpeechSynthesizer
     private started: boolean = false
-    private fakeNavi = false
 
     constructor(speechSynthesizer: SpeechSynthesizer) {
         super()
         this.speechSynthesizer = speechSynthesizer
-    }
-
-    setFake(fake: boolean) {
-        this.fakeNavi = fake
     }
 
     public getSpeechSynthesizer(): SpeechSynthesizer {
@@ -40,7 +35,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     protected getInitialState(): LocationStoreState {
         return {
             turnNavigation: false,
-            coordinate: { lat: 0, lng: 0 },
+            coordinate: {lat: 0, lng: 0},
             speed: 0,
         }
     }
@@ -53,16 +48,11 @@ export default class LocationStore extends Store<LocationStoreState> {
         return state
     }
 
-    public async init() {
-        if(this.fakeNavi) await this.initFake()
-        else this.initReal()
-    }
-
-    private async initFake() {
+    public async initFake() {
         console.log("started fake GPS injection")
         this.started = true
 
-        // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car
+        // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car&layer=MapTiler&fake=true
         let api = new ApiImpl(config.api, config.keys.graphhopper)
         let response = await api.route({
             points: [
@@ -118,15 +108,15 @@ export default class LocationStore extends Store<LocationStoreState> {
     private locationUpdate(pos: any) {
         // TODO NOW: 'this is undefined' if called from watchPosition: if (!this.started) return
 
-        let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        Dispatcher.dispatch(new LocationUpdate({ coordinate: c, turnNavigation: true, speed: pos.coords.speed }))
+        let c = {lat: pos.coords.latitude, lng: pos.coords.longitude}
+        Dispatcher.dispatch(new LocationUpdate({coordinate: c, turnNavigation: true, speed: pos.coords.speed}))
         let bearing: number = pos.coords.heading
 
         if (Number.isNaN(bearing)) console.log('skip dispatching SetViewportToPoint because bearing is ' + bearing)
         else Dispatcher.dispatch(new SetViewportToPoint(c, 17, 50, bearing))
     }
 
-    private initReal() {
+    public initReal() {
         this.started = true
         if (!this.noSleep) this.noSleep = new NoSleep()
         this.noSleep.enable()
@@ -173,7 +163,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         Dispatcher.dispatch(new SetViewportToPoint(this.state.coordinate, 15, 0, 0))
 
         // directly writing the state does not work: this.state.turnNavigation = false
-        Dispatcher.dispatch(new LocationUpdate({ coordinate: { lat: 0, lng: 0 }, turnNavigation: false, speed: 0 }))
+        Dispatcher.dispatch(new LocationUpdate({coordinate: {lat: 0, lng: 0}, turnNavigation: false, speed: 0}))
 
         if (this.noSleep) this.noSleep.disable()
     }

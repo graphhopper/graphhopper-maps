@@ -3,7 +3,7 @@ import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import React, { useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetSelectedPath } from '@/actions/Actions'
+import { SetSelectedPath, TurnNavigationUpdate } from '@/actions/Actions'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Arrow from '@/sidebar/chevron-down-solid.svg'
@@ -11,11 +11,13 @@ import Instructions from '@/sidebar/instructions/Instructions'
 import { useMediaQuery } from 'react-responsive'
 import { getLocationStore } from '@/stores/Stores'
 import startNavigation from '@/sidebar/start_turn_navigation.png'
+import { TurnNavigationState } from "@/stores/TurnNavigationStore";
 
 export interface RoutingResultsProps {
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
+    turnNaviState: TurnNavigationState
 }
 
 export default function RoutingResults(props: RoutingResultsProps) {
@@ -23,7 +25,7 @@ export default function RoutingResults(props: RoutingResultsProps) {
     return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
 }
 
-function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }) {
+function RoutingResult({ path, isSelected, turnNaviState }: { path: Path; isSelected: boolean, turnNaviState: TurnNavigationState }) {
     const [isExpanded, setExpanded] = useState(false)
     const buttonClass = isExpanded ? styles.detailsButtonFlipped : styles.detailsButton
     const resultSummaryClass = isSelected
@@ -31,6 +33,7 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
+    let [showRisk, setShowRisk] = useState(false)
 
     return (
         <div className={styles.resultRow}>
@@ -41,7 +44,18 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
                         <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
                     </div>
                     <div>
-                        <img onClick={() => getLocationStore().init()} src={startNavigation} />
+                        {!turnNaviState.acceptedRisk && !turnNaviState.fakeGPS
+                            ? (!showRisk
+                                ? <img onClick={() => setShowRisk(true)} src={startNavigation}/>
+                                : <div>
+                                    <div>WARNING: This application is highly experimental! Use at your own risk!</div>
+                                    <PlainButton className={styles.acceptRiskButton} onClick={() => {
+                                        Dispatcher.dispatch(new TurnNavigationUpdate({acceptedRisk: true, soundEnabled: true} as TurnNavigationState))
+                                        return getLocationStore().initReal()}
+                                    }>I understand and agree</PlainButton>
+                                </div>)
+                            : <img onClick={() => turnNaviState.fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()} src={startNavigation}/>
+                        }
                     </div>
                     {isSelected && (
                         <PlainButton className={buttonClass} onClick={() => setExpanded(!isExpanded)}>
@@ -78,19 +92,19 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
     return paths.length
 }
 
-function createSingletonListContent(props: RoutingResultsProps) {
-    if (props.paths.length > 0) return <RoutingResult path={props.selectedPath} isSelected={true} />
-    if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlacelholder key={1} />
+function createSingletonListContent({ paths, currentRequest, selectedPath, turnNaviState }: RoutingResultsProps) {
+    if (paths.length > 0) return <RoutingResult path={selectedPath} isSelected={true} turnNaviState={turnNaviState} />
+    if (hasPendingRequests(currentRequest.subRequests)) return <RoutingResultPlacelholder key={1} />
     return ''
 }
 
-function createListContent({ paths, currentRequest, selectedPath }: RoutingResultsProps) {
+function createListContent({ paths, currentRequest, selectedPath, turnNaviState }: RoutingResultsProps) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
         if (i < paths.length)
-            result.push(<RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} />)
+            result.push(<RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} turnNaviState={turnNaviState} />)
         else result.push(<RoutingResultPlacelholder key={i} />)
     }
 
