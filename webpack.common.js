@@ -75,7 +75,7 @@ module.exports = {
             },
             {
                 test: /\.png$/i,
-                type: 'asset',
+                type: 'asset/inline',
             },
         ],
     },
