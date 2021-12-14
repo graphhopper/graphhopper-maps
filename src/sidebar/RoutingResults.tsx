@@ -12,6 +12,7 @@ import { useMediaQuery } from 'react-responsive'
 import { getLocationStore } from '@/stores/Stores'
 import startNavigation from '@/sidebar/start_turn_navigation.png'
 import { TurnNavigationState } from "@/stores/TurnNavigationStore";
+import {tr} from "@/translation/Translation";
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -48,7 +49,7 @@ function RoutingResult({ path, isSelected, turnNaviState }: { path: Path; isSele
                             ? (!showRisk
                                 ? <img onClick={() => setShowRisk(true)} src={startNavigation}/>
                                 : <div>
-                                    <div>WARNING: This application is highly experimental! Use at your own risk!</div>
+                                    <div>{tr("warning")}</div>
                                     <PlainButton className={styles.acceptRiskButton} onClick={() => {
                                         Dispatcher.dispatch(new TurnNavigationUpdate({acceptedRisk: true} as TurnNavigationState))
                                         return getLocationStore().initReal()}
