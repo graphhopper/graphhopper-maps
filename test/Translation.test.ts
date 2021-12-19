@@ -19,11 +19,16 @@ describe('translate', () => {
     })
 
     it('should fallback', () => {
-        const trFI = setTranslation('fi', true)
+        const trFI = setTranslation('fil', true)
         expect(trFI.get('drag_to_reorder')).toEqual('Drag to reorder')
 
         // empty string
         const trBN = setTranslation('bn_BN', true)
         expect(trBN.get('search_button')).toEqual('Search')
+    })
+
+    it('finland', () => {
+        const trFI = setTranslation('fi', true)
+        expect(trFI.get('car')).toEqual('Auto')
     })
 })
