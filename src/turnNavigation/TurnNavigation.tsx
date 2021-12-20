@@ -128,7 +128,7 @@ export default function ({path, location, turnNaviState}: TurnNavigationProps) {
                                 { maxSpeed != null ? <div className={styles.maxSpeed}>{Math.round(maxSpeed)}</div> : null }
                                 { showDebug ?
                                     <div className={styles.debug}>
-                                        <div>s={estimatedAvgSpeed}</div>
+                                        <div>{estimatedAvgSpeed}</div>
                                         <div>{surface}</div>
                                         <div>{roadClass}</div>
                                     </div>: null
