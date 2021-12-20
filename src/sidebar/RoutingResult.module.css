@@ -95,6 +95,10 @@ This is not a very nice duplication but I have to stop now...
     animation-delay: 0.25s;
 }
 
+.warning {
+    padding: 5px;
+}
+
 .acceptRiskButton {
     float: right;
     color: #2a2b31;

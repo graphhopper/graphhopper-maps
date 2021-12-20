@@ -48,7 +48,7 @@ function RoutingResult({ path, isSelected, turnNaviState }: { path: Path; isSele
                         {!turnNaviState.acceptedRisk && !turnNaviState.fakeGPS
                             ? (!showRisk
                                 ? <img onClick={() => setShowRisk(true)} src={startNavigation}/>
-                                : <div>
+                                : <div className={styles.warning}>
                                     <div>{tr("warning")}</div>
                                     <PlainButton className={styles.acceptRiskButton} onClick={() => {
                                         Dispatcher.dispatch(new TurnNavigationUpdate({acceptedRisk: true} as TurnNavigationState))
