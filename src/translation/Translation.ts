@@ -37,9 +37,9 @@ export function setTranslation(lang: string, overwrite = false): Translation {
     lang = lang.replace('-', '_')
 
     let json = trJson as Record<string, any>
-    let selectedLang = Object.keys(json).find(property => property.startsWith(lang))
+    let selectedLang = Object.keys(json).find(property => lang == property || property.indexOf("_") > 0 && lang == property.substring(0, property.indexOf("_")))
     if (!selectedLang) {
-        let genericLang = lang.length > 1 ? lang.substr(0, 2) : lang
+        let genericLang = lang.length > 2 ? lang.substring(0, 2) : lang
         selectedLang = Object.keys(json).find(property => property.startsWith(genericLang))
         if (!selectedLang) {
             selectedLang = 'en_US'
