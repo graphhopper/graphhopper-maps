@@ -117,6 +117,14 @@ export class ZoomMapToPoint implements Action {
     }
 }
 
+export class SetInitialBBox implements Action {
+    readonly bbox: Bbox
+
+    constructor(bbox: Bbox) {
+        this.bbox = bbox
+    }
+}
+
 export class PathDetailsHover implements Action {
     readonly pathDetailsPoint: PathDetailsPoint | null
 

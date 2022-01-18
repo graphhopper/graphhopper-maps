@@ -12,7 +12,7 @@ interface BackgroundLayerProps {
 
 export default function BackgroundLayer({ map, styleOption }: BackgroundLayerProps) {
     // todo: do we need useEffect (to remove the layers) here? and do we even need to treat the layers as react components?
-    //       all they really do is attach some things to the map... and they do not correspond to any DOM elements
+    //       all they really do is attach some things to the map... and they do not correspond to any DOM elements either
     useEffect(() => {
         removeBackgroundLayers(map)
         if (styleOption.type === 'vector') {

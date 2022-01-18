@@ -5,9 +5,9 @@ import { fromLonLat } from 'ol/proj'
 import {
     MapIsLoaded,
     PathDetailsRangeSelected,
-    RouteRequestSuccess,
+    RouteRequestSuccess, SetInitialBBox,
     SetSelectedPath,
-    ZoomMapToPoint,
+    ZoomMapToPoint
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
@@ -55,7 +55,9 @@ export default class MapStore extends Store<MapStoreState> {
     reduce(state: MapStoreState, action: Action): MapStoreState {
         // todo: port old ViewportStore.test.ts or otherwise test this
         const isSmallScreen = this.isSmallScreenQuery()
-        if (action instanceof ZoomMapToPoint) {
+        if (action instanceof SetInitialBBox) {
+            fitBounds(state.map, action.bbox, isSmallScreen)
+        } else if (action instanceof ZoomMapToPoint) {
             state.map.getView().setCenter(fromLonLat([action.coordinate.lng, action.coordinate.lat]))
             state.map.getView().setZoom(action.zoom)
         } else if (action instanceof RouteRequestSuccess) {
