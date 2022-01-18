@@ -6,7 +6,7 @@ import { Path } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelected } from '@/actions/Actions'
 import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
-import {Position} from "geojson";
+import { Position } from 'geojson'
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -82,12 +82,8 @@ function onElevationSelected(segments: Coordinate[][]) {
 }
 
 function buildPathDetailsData(selectedPath: Path) {
-    let points = selectedPath.points.coordinates.map((pos: Position) =>
-        pos.length == 2 ? [...pos, 0] : pos
-    )
-    const elevation = createFeatureCollection('Elevation [m]', [
-        createFeature(points, 'elevation'),
-    ])
+    let points = selectedPath.points.coordinates.map((pos: Position) => (pos.length == 2 ? [...pos, 0] : pos))
+    const elevation = createFeatureCollection('Elevation [m]', [createFeature(points, 'elevation')])
     const pathDetails = Object.entries(selectedPath.details).map(([detailName, details]) => {
         const features = details.map(([from, to, value = 'Undefined']: [number, number, string | number]) =>
             createFeature(points.slice(from, to + 1), value)
