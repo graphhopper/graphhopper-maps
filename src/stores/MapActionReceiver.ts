@@ -1,8 +1,7 @@
-import Dispatcher, { Action, ActionReceiver } from '@/stores/Dispatcher'
-import { Map, View } from 'ol'
+import { Action, ActionReceiver } from '@/stores/Dispatcher'
+import { Map } from 'ol'
 import { fromLonLat } from 'ol/proj'
 import {
-    MapIsLoaded,
     PathDetailsRangeSelected,
     RouteRequestSuccess,
     SetInitialBBox,
