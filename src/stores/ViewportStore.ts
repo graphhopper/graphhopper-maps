@@ -3,6 +3,7 @@ import { Action } from '@/stores/Dispatcher'
 import {
     PathDetailsRangeSelected,
     RouteRequestSuccess,
+    SetInitialBBox,
     SetSelectedPath,
     SetViewport,
     SetViewportToPoint,
@@ -34,14 +35,10 @@ export default class ViewportStore extends Store<ViewportStoreState> {
     private readonly routeStore: RouteStore
     private readonly isSmallScreenQuery: () => boolean
 
-    constructor(routeStore: RouteStore, initialBBox: Bbox | null, isSmallScreenQuery: () => boolean) {
+    constructor(routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
         super()
         this.routeStore = routeStore
         this.isSmallScreenQuery = isSmallScreenQuery
-        if (initialBBox) {
-            const updatedState = calculateLatLngFromBbox(this.state, initialBBox, isSmallScreenQuery())
-            super.setState(updatedState)
-        }
     }
 
     protected getInitialState(): ViewportStoreState {
@@ -55,7 +52,9 @@ export default class ViewportStore extends Store<ViewportStoreState> {
     }
     reduce(state: ViewportStoreState, action: Action): ViewportStoreState {
         const isSmallScreen = this.isSmallScreenQuery()
-        if (action instanceof SetViewport) {
+        if (action instanceof SetInitialBBox) {
+            return calculateLatLngFromBbox(state, action.bbox, isSmallScreen)
+        } else if (action instanceof SetViewport) {
             return action.viewport
         } else if (action instanceof SetViewportToPoint) {
             return {
