@@ -23,13 +23,13 @@ import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import useBackgroundLayer from '@/layers/UseBackgroundLayer'
-import { getMapHandle } from '@/stores/MapHandler'
 import useQueryPointsLayer from '@/layers/UseQueryPointsLayer'
 import usePathsLayer from '@/layers/UsePathsLayer'
 import ContextMenu from '@/layers/ContextMenu'
 import usePathDetailsLayer from '@/layers/UsePathDetailsLayer'
 import PathDetailPopup from '@/layers/PathDetailPopup'
 import { Map } from 'ol'
+import { getMap } from '@/map/map'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -42,7 +42,7 @@ export default function App() {
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
 
-    const map = getMapHandle().map
+    const map = getMap()
 
     useEffect(() => {
         const onQueryChanged = () => setQuery(getQueryStore().state)

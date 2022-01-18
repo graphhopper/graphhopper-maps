@@ -22,7 +22,8 @@ import PathDetailsStore from '@/stores/PathDetailsStore'
 import NavBar from '@/NavBar'
 import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
-import { getMapHandle, setMapHandle } from '@/stores/MapHandler'
+import MapActionReceiver from '@/stores/MapActionReceiver'
+import { createMap, getMap, setMap } from '@/map/map'
 
 let locale = new URL(window.location.href).searchParams.get('locale')
 setTranslation(locale || navigator.language)
@@ -41,8 +42,7 @@ setStores({
     pathDetailsStore: new PathDetailsStore(),
 })
 
-const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
-setMapHandle(routeStore, () => smallScreenMediaQuery.matches)
+setMap(createMap())
 
 // register stores at dispatcher to receive actions
 Dispatcher.register(getQueryStore())
@@ -51,7 +51,11 @@ Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
-Dispatcher.register(getMapHandle())
+
+// register map action receiver
+const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
+const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
+Dispatcher.register(mapActionReceiver)
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible
 

@@ -11,47 +11,16 @@ import {
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
-import { defaults as defaultControls } from 'ol/control'
 
-let mapHandle: MapHandler | undefined
-
-export function setMapHandle(routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
-    mapHandle = new MapHandler(routeStore, isSmallScreenQuery)
-}
-
-export function getMapHandle(): MapHandler {
-    if (!mapHandle)
-        throw Error('Map must be initialized before it can be used. Use "setMapHandle" when starting the app')
-    return mapHandle
-}
-
-export default class MapHandler implements ActionReceiver {
+export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
     private readonly routeStore: RouteStore
     private readonly isSmallScreenQuery: () => boolean
 
-    constructor(routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
+    constructor(map: Map, routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
+        this.map = map
         this.routeStore = routeStore
         this.isSmallScreenQuery = isSmallScreenQuery
-        this.map = new Map({
-            view: new View({
-                multiWorld: false,
-                constrainResolution: true,
-                center: fromLonLat([10, 10]),
-                zoom: 2,
-            }),
-            controls: defaultControls({
-                zoom: false,
-                rotate: false,
-                attribution: true,
-                attributionOptions: {
-                    collapsible: false,
-                },
-            }),
-        })
-        this.map.once('postrender', () => {
-            Dispatcher.dispatch(new MapIsLoaded())
-        })
     }
 
     receive(action: Action) {
