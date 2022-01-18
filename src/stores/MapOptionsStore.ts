@@ -213,7 +213,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                 `Could not find tile layer specified in config: '${config.defaultTiles}', using default instead`
             )
         return {
-            selectedStyle: selectedStyle ? selectedStyle : mapTiler,
+            selectedStyle: selectedStyle ? selectedStyle : osmOrg,
             styleOptions,
             isMapLoaded: false,
         }

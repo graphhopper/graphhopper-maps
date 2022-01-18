@@ -3,7 +3,6 @@ import Dispatcher, { Action } from '@/stores/Dispatcher'
 import { Map, View } from 'ol'
 import { fromLonLat } from 'ol/proj'
 import {
-    InfoReceived,
     MapIsLoaded,
     PathDetailsRangeSelected,
     RouteRequestSuccess,
