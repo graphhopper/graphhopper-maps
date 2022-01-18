@@ -34,7 +34,7 @@ function addPathSegmentsLayer(map: Map, pathDetails: PathDetailsStoreState) {
         source: new VectorSource({
             features: new GeoJSON().readFeatures(
                 createHighlightedPathSegments(pathDetails.pathDetailsHighlightedSegments)
-            )
+            ),
         }),
         style: () =>
             new Style({
@@ -43,9 +43,9 @@ function addPathSegmentsLayer(map: Map, pathDetails: PathDetailsStoreState) {
                     color: 'red',
                     width: 4,
                     lineCap: 'round',
-                    lineJoin: 'round'
-                })
-            })
+                    lineJoin: 'round',
+                }),
+            }),
     })
     highlightedPathSegmentsLayer.set(highlightedPathSegmentLayerKey, true)
     highlightedPathSegmentsLayer.setZIndex(3)

@@ -12,7 +12,7 @@ import { coordinateToText } from '@/Converters'
 import { Icon, Style } from 'ol/style'
 import { createSvg } from '@/layers/createMarkerSVG'
 
-export default function useQueryPointsLayer(map : Map, queryPoints: QueryPoint[]) {
+export default function useQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     useEffect(() => {
         removeQueryPoints(map)
         const queryPointsLayer = addQueryPointsLayer(map, queryPoints)
@@ -36,20 +36,20 @@ function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
         .filter(indexPoint => indexPoint.point.isInitialized)
         .map((indexPoint, i) => {
             const feature = new Feature({
-                geometry: new Point(fromLonLat([indexPoint.point.coordinate.lng, indexPoint.point.coordinate.lat]))
+                geometry: new Point(fromLonLat([indexPoint.point.coordinate.lng, indexPoint.point.coordinate.lat])),
             })
             feature.set('gh:query_point', indexPoint.point)
             feature.set('gh:marker_props', {
                 color: indexPoint.point.color,
                 number: indexPoint.point.type == QueryPointType.Via ? i : undefined,
-                size: 35
+                size: 35,
             })
             return feature
         })
     const queryPointsLayer = new VectorLayer({
         source: new VectorSource({
-            features: features
-        })
+            features: features,
+        }),
     })
     queryPointsLayer.set('gh:query_points', true)
     queryPointsLayer.setZIndex(3)
@@ -57,8 +57,8 @@ function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
         feature =>
             new Style({
                 image: new Icon({
-                    src: 'data:image/svg+xml;utf8,' + createSvg(feature.get('gh:marker_props'))
-                })
+                    src: 'data:image/svg+xml;utf8,' + createSvg(feature.get('gh:marker_props')),
+                }),
             })
     )
     map.addLayer(queryPointsLayer)
@@ -76,7 +76,7 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<any>) {
     const modify = new Modify({
         hitDetection: queryPointsLayer,
         source: queryPointsLayer.getSource(),
-        style: []
+        style: [],
     })
     modify.on('modifyend', e => {
         const feature = (e as any).features.getArray()[0]
@@ -87,7 +87,7 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<any>) {
             new SetPoint({
                 ...point,
                 coordinate,
-                queryText: coordinateToText(coordinate)
+                queryText: coordinateToText(coordinate),
             })
         )
     })

@@ -1,5 +1,4 @@
-import Store from '@/stores/Store'
-import Dispatcher, { Action } from '@/stores/Dispatcher'
+import Dispatcher, { Action, ActionReceiver } from '@/stores/Dispatcher'
 import { Map, View } from 'ol'
 import { fromLonLat } from 'ol/proj'
 import {
@@ -14,22 +13,27 @@ import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
 import { defaults as defaultControls } from 'ol/control'
 
-export interface MapStoreState {
-    map: Map
+let mapHandle: MapHandler | undefined
+
+export function setMapHandle(routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
+    mapHandle = new MapHandler(routeStore, isSmallScreenQuery)
 }
 
-export default class MapStore extends Store<MapStoreState> {
+export function getMapHandle(): MapHandler {
+    if (!mapHandle)
+        throw Error('Map must be initialized before it can be used. Use "setMapHandle" when starting the app')
+    return mapHandle
+}
+
+export default class MapHandler implements ActionReceiver {
+    readonly map: Map
     private readonly routeStore: RouteStore
     private readonly isSmallScreenQuery: () => boolean
 
     constructor(routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
-        super()
         this.routeStore = routeStore
         this.isSmallScreenQuery = isSmallScreenQuery
-    }
-
-    protected getInitialState(): MapStoreState {
-        const map = new Map({
+        this.map = new Map({
             view: new View({
                 multiWorld: false,
                 constrainResolution: true,
@@ -45,37 +49,33 @@ export default class MapStore extends Store<MapStoreState> {
                 },
             }),
         })
-        map.once('postrender', () => {
+        this.map.once('postrender', () => {
             Dispatcher.dispatch(new MapIsLoaded())
         })
-        return {
-            map,
-        }
     }
 
-    reduce(state: MapStoreState, action: Action): MapStoreState {
+    receive(action: Action) {
         // todo: port old ViewportStore.test.ts or otherwise test this
         const isSmallScreen = this.isSmallScreenQuery()
         if (action instanceof SetInitialBBox) {
-            fitBounds(state.map, action.bbox, isSmallScreen)
+            fitBounds(this.map, action.bbox, isSmallScreen)
         } else if (action instanceof ZoomMapToPoint) {
-            state.map.getView().setCenter(fromLonLat([action.coordinate.lng, action.coordinate.lat]))
-            state.map.getView().setZoom(action.zoom)
+            this.map.getView().setCenter(fromLonLat([action.coordinate.lng, action.coordinate.lat]))
+            this.map.getView().setZoom(action.zoom)
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well but then we would have to make sure that the route
             // store digests this action first, which our Dispatcher can't at the moment.
-            fitBounds(state.map, action.result.paths[0].bbox!, isSmallScreen)
+            fitBounds(this.map, action.result.paths[0].bbox!, isSmallScreen)
         } else if (action instanceof SetSelectedPath) {
-            fitBounds(state.map, action.path.bbox!, isSmallScreen)
+            fitBounds(this.map, action.path.bbox!, isSmallScreen)
         } else if (action instanceof PathDetailsRangeSelected) {
             // we either use the bbox from the path detail selection or go back to the route bbox when the path details
             // were deselected
             const bbox = action.bbox ? action.bbox : this.routeStore.state.selectedPath.bbox
-            if (bbox) fitBounds(state.map, bbox, isSmallScreen)
+            if (bbox) fitBounds(this.map, bbox, isSmallScreen)
             // if neither has a bbox just fall through to unchanged state
         }
-        return state
     }
 }
 

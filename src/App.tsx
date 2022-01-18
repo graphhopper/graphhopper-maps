@@ -5,7 +5,6 @@ import {
     getApiInfoStore,
     getErrorStore,
     getMapOptionsStore,
-    getMapStore,
     getPathDetailsStore,
     getQueryStore,
     getRouteStore,
@@ -24,12 +23,13 @@ import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import useBackgroundLayer from '@/layers/UseBackgroundLayer'
-import { MapStoreState } from '@/stores/MapStore'
+import { getMapHandle } from '@/stores/MapHandler'
 import useQueryPointsLayer from '@/layers/UseQueryPointsLayer'
 import usePathsLayer from '@/layers/UsePathsLayer'
 import ContextMenu from '@/layers/ContextMenu'
 import usePathDetailsLayer from '@/layers/UsePathDetailsLayer'
 import PathDetailPopup from '@/layers/PathDetailPopup'
+import { Map } from 'ol'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -41,7 +41,8 @@ export default function App() {
     const [error, setError] = useState(getErrorStore().state)
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
-    const [map, setMap] = useState(getMapStore().state)
+
+    const map = getMapHandle().map
 
     useEffect(() => {
         const onQueryChanged = () => setQuery(getQueryStore().state)
@@ -50,7 +51,6 @@ export default function App() {
         const onErrorChanged = () => setError(getErrorStore().state)
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
-        const onMapChanged = () => setMap(getMapStore().state)
 
         getQueryStore().register(onQueryChanged)
         getApiInfoStore().register(onInfoChanged)
@@ -58,7 +58,6 @@ export default function App() {
         getErrorStore().register(onErrorChanged)
         getMapOptionsStore().register(onMapOptionsChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
-        getMapStore().register(onMapChanged)
 
         return () => {
             getQueryStore().deregister(onQueryChanged)
@@ -67,21 +66,20 @@ export default function App() {
             getErrorStore().deregister(onErrorChanged)
             getMapOptionsStore().deregister(onMapOptionsChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
-            getMapStore().deregister(onMapChanged)
         }
     })
 
     // our different map layers
-    useBackgroundLayer(map.map, mapOptions.selectedStyle)
-    usePathsLayer(map.map, route.routingResult.paths, route.selectedPath)
-    useQueryPointsLayer(map.map, query.queryPoints)
-    usePathDetailsLayer(map.map, pathDetails)
+    useBackgroundLayer(map, mapOptions.selectedStyle)
+    usePathsLayer(map, route.routingResult.paths, route.selectedPath)
+    useQueryPointsLayer(map, query.queryPoints)
+    usePathDetailsLayer(map, pathDetails)
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <div className={styles.appWrapper}>
-            <PathDetailPopup map={map.map} pathDetails={pathDetails} />
-            <ContextMenu map={map.map} route={route} queryPoints={query.queryPoints} />
+            <PathDetailPopup map={map} pathDetails={pathDetails} />
+            <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
             {isSmallScreen ? (
                 <SmallScreenLayout
                     query={query}
@@ -108,7 +106,7 @@ export default function App() {
 interface LayoutProps {
     query: QueryStoreState
     route: RouteStoreState
-    map: MapStoreState
+    map: Map
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     info: ApiInfo
@@ -140,7 +138,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
             </div>
             <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
             <div className={styles.map}>
-                <MapComponent map={map.map} />
+                <MapComponent map={map} />
             </div>
             <div className={styles.mapOptions}>
                 <MapOptions {...mapOptions} />
@@ -160,7 +158,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                 <MobileSidebar info={info} query={query} route={route} error={error} />
             </div>
             <div className={styles.smallScreenMap}>
-                <MapComponent map={map.map} />
+                <MapComponent map={map} />
             </div>
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.smallScreenMapOptionsContent}>

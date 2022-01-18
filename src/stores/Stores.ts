@@ -4,7 +4,6 @@ import ApiInfoStore from '@/stores/ApiInfoStore'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
-import MapStore from '@/stores/MapStore'
 
 let queryStore: QueryStore
 let routeStore: RouteStore
@@ -12,7 +11,6 @@ let infoStore: ApiInfoStore
 let errorStore: ErrorStore
 let mapOptionsStore: MapOptionsStore
 let pathDetailsStore: PathDetailsStore
-let mapStore: MapStore
 
 interface StoresInput {
     queryStore: QueryStore
@@ -21,7 +19,6 @@ interface StoresInput {
     errorStore: ErrorStore
     mapOptionsStore: MapOptionsStore
     pathDetailsStore: PathDetailsStore
-    mapStore: MapStore
 }
 
 export const setStores = function (stores: StoresInput) {
@@ -31,7 +28,6 @@ export const setStores = function (stores: StoresInput) {
     errorStore = stores.errorStore
     mapOptionsStore = stores.mapOptionsStore
     pathDetailsStore = stores.pathDetailsStore
-    mapStore = stores.mapStore
 }
 
 export const getQueryStore = () => queryStore
@@ -40,4 +36,3 @@ export const getApiInfoStore = () => infoStore
 export const getErrorStore = () => errorStore
 export const getMapOptionsStore = () => mapOptionsStore
 export const getPathDetailsStore = () => pathDetailsStore
-export const getMapStore = () => mapStore
