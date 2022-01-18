@@ -5,9 +5,10 @@ import { fromLonLat } from 'ol/proj'
 import {
     MapIsLoaded,
     PathDetailsRangeSelected,
-    RouteRequestSuccess, SetInitialBBox,
+    RouteRequestSuccess,
+    SetInitialBBox,
     SetSelectedPath,
-    ZoomMapToPoint
+    ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'

@@ -1,5 +1,5 @@
 import { Map } from 'ol'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { Coordinate } from '@/stores/QueryStore'
 import { FeatureCollection } from 'geojson'
@@ -8,26 +8,33 @@ import VectorSource from 'ol/source/Vector'
 import { Stroke, Style } from 'ol/style'
 import { GeoJSON } from 'ol/format'
 import { fromLonLat } from 'ol/proj'
-import PathDetailPopup from '@/layers/PathDetailPopup'
 
 const highlightedPathSegmentLayerKey = 'highlightedPathSegmentLayer'
 
-interface PathDetailsLayerProps {
-    map: Map
-    pathDetails: PathDetailsStoreState
+export default function usePathDetailsLayer(map: Map, pathDetails: PathDetailsStoreState) {
+    useEffect(() => {
+        removePathSegmentsLayer(map)
+        addPathSegmentsLayer(map, pathDetails)
+        return () => {
+            removePathSegmentsLayer(map)
+        }
+    }, [map, pathDetails])
+    return
 }
 
-export default function PathDetailsLayer({ map, pathDetails }: PathDetailsLayerProps) {
+function removePathSegmentsLayer(map: Map) {
     map.getLayers()
         .getArray()
         .filter(l => l.get(highlightedPathSegmentLayerKey))
         .forEach(l => map.removeLayer(l))
+}
 
+function addPathSegmentsLayer(map: Map, pathDetails: PathDetailsStoreState) {
     const highlightedPathSegmentsLayer = new VectorLayer({
         source: new VectorSource({
             features: new GeoJSON().readFeatures(
                 createHighlightedPathSegments(pathDetails.pathDetailsHighlightedSegments)
-            ),
+            )
         }),
         style: () =>
             new Style({
@@ -36,14 +43,13 @@ export default function PathDetailsLayer({ map, pathDetails }: PathDetailsLayerP
                     color: 'red',
                     width: 4,
                     lineCap: 'round',
-                    lineJoin: 'round',
-                }),
-            }),
+                    lineJoin: 'round'
+                })
+            })
     })
     highlightedPathSegmentsLayer.set(highlightedPathSegmentLayerKey, true)
     highlightedPathSegmentsLayer.setZIndex(3)
     map.addLayer(highlightedPathSegmentsLayer)
-    return <PathDetailPopup map={map} pathDetails={pathDetails} />
 }
 
 function createHighlightedPathSegments(segments: Coordinate[][]) {

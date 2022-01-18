@@ -23,12 +23,13 @@ import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
-import BackgroundLayer from '@/layers/BackgroundLayer'
+import useBackgroundLayer from '@/layers/UseBackgroundLayer'
 import { MapStoreState } from '@/stores/MapStore'
-import QueryPointsLayer from '@/layers/QueryPointsLayer'
-import PathsLayer from '@/layers/PathsLayer'
+import useQueryPointsLayer from '@/layers/UseQueryPointsLayer'
+import usePathsLayer from '@/layers/UsePathsLayer'
 import ContextMenu from '@/layers/ContextMenu'
-import PathDetailsLayer from '@/layers/PathDetailsLayer'
+import usePathDetailsLayer from '@/layers/UsePathDetailsLayer'
+import PathDetailPopup from '@/layers/PathDetailPopup'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -70,16 +71,16 @@ export default function App() {
         }
     })
 
+    // our different map layers
+    useBackgroundLayer(map.map, mapOptions.selectedStyle)
+    usePathsLayer(map.map, route.routingResult.paths, route.selectedPath)
+    useQueryPointsLayer(map.map, query.queryPoints)
+    usePathDetailsLayer(map.map, pathDetails)
+
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <div className={styles.appWrapper}>
-            {/* todo: maybe the map layers do not need to be components at all and all they really are are useEffects that
-                update depending on some of the app state (like query points, selectedPath etc.))*/}
-            <BackgroundLayer map={map.map} styleOption={mapOptions.selectedStyle} />
-            <PathsLayer map={map.map} paths={route.routingResult.paths} selectedPath={route.selectedPath} />
-            <QueryPointsLayer map={map.map} queryPoints={query.queryPoints} />
-            {/*todo: hide path details layer for small screens*/}
-            <PathDetailsLayer map={map.map} pathDetails={pathDetails} />
+            <PathDetailPopup map={map.map} pathDetails={pathDetails} />
             <ContextMenu map={map.map} route={route} queryPoints={query.queryPoints} />
             {isSmallScreen ? (
                 <SmallScreenLayout
