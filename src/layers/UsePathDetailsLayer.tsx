@@ -11,6 +11,10 @@ import { fromLonLat } from 'ol/proj'
 
 const highlightedPathSegmentLayerKey = 'highlightedPathSegmentLayer'
 
+/**
+ * This layer highlights path segments that are above the elevation threshold set by the horizontal line in the
+ * path details diagram.
+ */
 export default function usePathDetailsLayer(map: Map, pathDetails: PathDetailsStoreState) {
     useEffect(() => {
         removePathSegmentsLayer(map)

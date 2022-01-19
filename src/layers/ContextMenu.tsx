@@ -16,11 +16,11 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
     const [menuCoordinate, setMenuCoordinate] = useState<Coordinate | null>(null)
     const [overlay, setOverlay] = useState<Overlay | undefined>()
 
-    const container = useRef()
+    const container = useRef<HTMLDivElement | null>()
 
     useEffect(() => {
         const overlay = new Overlay({
-            element: container.current as any,
+            element: container.current!,
             autoPan: true,
         })
         setOverlay(overlay)

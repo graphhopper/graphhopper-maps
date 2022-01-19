@@ -54,7 +54,6 @@ export interface RoutingProfile {
 }
 
 export interface Path extends BasePath {
-    // todo: do we really need the geojson dependency? it was included in mapbox but its not included in OL
     readonly points: LineString
     readonly snapped_waypoints: LineString
 }
