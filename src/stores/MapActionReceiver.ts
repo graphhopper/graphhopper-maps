@@ -26,7 +26,9 @@ export default class MapActionReceiver implements ActionReceiver {
         // todo: port old ViewportStore.test.ts or otherwise test this
         const isSmallScreen = this.isSmallScreenQuery()
         if (action instanceof SetInitialBBox) {
-            fitBounds(this.map, action.bbox, isSmallScreen)
+            // we estimate the map size to be equal to the window size. we don't know better at this point, because
+            // the map has not been rendered for the first time yet
+            fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
         } else if (action instanceof ZoomMapToPoint) {
             this.map.getView().setCenter(fromLonLat([action.coordinate.lng, action.coordinate.lat]))
             this.map.getView().setZoom(action.zoom)
@@ -47,10 +49,11 @@ export default class MapActionReceiver implements ActionReceiver {
     }
 }
 
-function fitBounds(map: Map, bbox: Bbox, isSmallScreen: boolean) {
+function fitBounds(map: Map, bbox: Bbox, isSmallScreen: boolean, mapSize?: number[]) {
     const sw = fromLonLat([bbox[0], bbox[1]])
     const ne = fromLonLat([bbox[2], bbox[3]])
     map.getView().fit([sw[0], sw[1], ne[0], ne[1]], {
+        size: mapSize ? mapSize : map.getSize(),
         padding: isSmallScreen ? [200, 16, 32, 16] : [100, 100, 300, 500],
     })
 }
