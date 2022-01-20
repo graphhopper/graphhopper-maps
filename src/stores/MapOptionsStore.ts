@@ -187,11 +187,11 @@ const sorbian: RasterStyle = {
 }
 
 const styleOptions: StyleOption[] = [
-    mapTiler,
-    mapTilerSatellite,
-    osmOrg,
     omniscale,
+    osmOrg,
     esriSatellite,
+    mapTilerSatellite,
+    mapTiler,
     tfTransport,
     tfCycle,
     tfOutdoors,
@@ -213,7 +213,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                 `Could not find tile layer specified in config: '${config.defaultTiles}', using default instead`
             )
         return {
-            selectedStyle: selectedStyle ? selectedStyle : osmOrg,
+            selectedStyle: selectedStyle ? selectedStyle : omniscale,
             styleOptions,
             isMapLoaded: false,
         }
