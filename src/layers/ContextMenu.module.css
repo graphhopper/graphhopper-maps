@@ -1,5 +1,5 @@
-/* todo: this is just copy-pasta from https://openlayers.org/en/latest/examples/popup.html, I have no idea what all this means,
-   and the popup looks ugly still, at the very minimum the background color needs to be set though
+/* todo: this was just copy-pasted from https://openlayers.org/en/latest/examples/popup.html.
+   the popup looks ugly still, but at the very minimum the background color needs to be set to make it visible.
    the popup design needs an overhaul anyway... https://github.com/graphhopper/graphhopper-maps/issues/136
    */
 .popup {
