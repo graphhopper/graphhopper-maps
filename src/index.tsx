@@ -10,7 +10,6 @@ import {
     getPathDetailsStore,
     getQueryStore,
     getRouteStore,
-    getViewportStore,
     setStores,
 } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
@@ -20,10 +19,11 @@ import QueryStore from '@/stores/QueryStore'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
-import ViewportStore from '@/stores/ViewportStore'
 import NavBar from '@/NavBar'
 import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
+import MapActionReceiver from '@/stores/MapActionReceiver'
+import { createMap, getMap, setMap } from '@/map/map'
 
 let locale = new URL(window.location.href).searchParams.get('locale')
 setTranslation(locale || navigator.language)
@@ -33,8 +33,6 @@ setApi(config.api, getApiKey())
 const queryStore = new QueryStore(getApi())
 const routeStore = new RouteStore(queryStore)
 
-const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
-
 setStores({
     queryStore: queryStore,
     routeStore: routeStore,
@@ -42,8 +40,9 @@ setStores({
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
-    viewportStore: new ViewportStore(routeStore, () => smallScreenMediaQuery.matches),
 })
+
+setMap(createMap())
 
 // register stores at dispatcher to receive actions
 Dispatcher.register(getQueryStore())
@@ -52,7 +51,11 @@ Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
-Dispatcher.register(getViewportStore())
+
+// register map action receiver
+const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
+const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
+Dispatcher.register(mapActionReceiver)
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible
 

@@ -6,8 +6,6 @@ import { SelectMapStyle } from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
 import LayerImg from './layer-group-solid.svg'
 
-export interface MapOptionsProps {}
-
 export default function (props: MapOptionsStoreState) {
     const [isOpen, setIsOpen] = useState(false)
     return (
