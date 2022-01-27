@@ -49,7 +49,7 @@ const Options = function ({ storeState, notifyChanged }: OptionsProps) {
                         defaultChecked={option === storeState.selectedStyle}
                         disabled={!storeState.isMapLoaded}
                     />
-                    <label htmlFor={option.name}>{option.name}</label>
+                    <label htmlFor={option.name}>{option.name + (option.type === 'vector' ? ' (Vector)' : '')}</label>
                 </div>
             ))}
         </div>
