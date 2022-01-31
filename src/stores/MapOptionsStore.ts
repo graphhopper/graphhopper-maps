@@ -1,6 +1,6 @@
 import Store from '@/stores/Store'
-import {Action} from '@/stores/Dispatcher'
-import {MapIsLoaded, SelectMapStyle} from '@/actions/Actions'
+import { Action } from '@/stores/Dispatcher'
+import { MapIsLoaded, SelectMapStyle } from '@/actions/Actions'
 import config from 'config'
 
 const osApiKey = config.keys.omniscale
@@ -36,11 +36,12 @@ export interface VectorStyle extends StyleOption {
     url: string
 }
 
-const mediaQuery = '(-webkit-min-device-pixel-ratio: 1.5),(min--moz-device-pixel-ratio: 1.5),(-o-min-device-pixel-ratio: 3/2),(min-resolution: 1.5dppx)'
-const isRetina = window.devicePixelRatio > 1 || window.matchMedia && window.matchMedia(mediaQuery).matches
+const mediaQuery =
+    '(-webkit-min-device-pixel-ratio: 1.5),(min--moz-device-pixel-ratio: 1.5),(-o-min-device-pixel-ratio: 3/2),(min-resolution: 1.5dppx)'
+const isRetina = window.devicePixelRatio > 1 || (window.matchMedia && window.matchMedia(mediaQuery).matches)
 // instead of an increased tilePixelRatio we could use tileSize: 512 if less request should be made and overzoom should be sharper
 const tilePixelRatio = isRetina ? 2 : 1
-const retina2x = isRetina ? '@2x' : '';
+const retina2x = isRetina ? '@2x' : ''
 
 const mapTiler: VectorStyle = {
     name: 'MapTiler',
@@ -68,9 +69,11 @@ const osmOrg: RasterStyle = {
 const omniscale: RasterStyle = {
     name: 'Omniscale',
     type: 'raster',
-    url: ['https://maps.omniscale.net/v2/' + osApiKey + '/style.default/{z}/{x}/{y}.png' + (isRetina ? "?hq=true" : "")],
+    url: [
+        'https://maps.omniscale.net/v2/' + osApiKey + '/style.default/{z}/{x}/{y}.png' + (isRetina ? '?hq=true' : ''),
+    ],
     attribution: osmAttribution + ', &copy; <a href="https://maps.omniscale.com/" target="_blank">Omniscale</a>',
-    tilePixelRatio: tilePixelRatio
+    tilePixelRatio: tilePixelRatio,
 }
 const esriSatellite: RasterStyle = {
     name: 'Esri Satellite',
@@ -136,11 +139,26 @@ const kurviger: RasterStyle = {
     name: 'Kurviger Liberty',
     type: 'raster',
     url: [
-        'https://a-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' + retina2x + '.png?key=' + kurvigerApiKey,
-        'https://b-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' + retina2x + '.png?key=' + kurvigerApiKey,
-        'https://c-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' + retina2x + '.png?key=' + kurvigerApiKey,
-        'https://d-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' + retina2x + '.png?key=' + kurvigerApiKey,
-        'https://e-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' + retina2x + '.png?key=' + kurvigerApiKey,
+        'https://a-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' +
+            retina2x +
+            '.png?key=' +
+            kurvigerApiKey,
+        'https://b-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' +
+            retina2x +
+            '.png?key=' +
+            kurvigerApiKey,
+        'https://c-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' +
+            retina2x +
+            '.png?key=' +
+            kurvigerApiKey,
+        'https://d-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' +
+            retina2x +
+            '.png?key=' +
+            kurvigerApiKey,
+        'https://e-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' +
+            retina2x +
+            '.png?key=' +
+            kurvigerApiKey,
     ],
     attribution:
         osmAttribution +
