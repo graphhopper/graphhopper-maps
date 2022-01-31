@@ -135,30 +135,16 @@ const tfAtlas: RasterStyle = {
         osmAttribution + ', <a href="https://thunderforest.com/maps/atlas/" target="_blank">Thunderforest Atlas</a>',
     tilePixelRatio: tilePixelRatio,
 }
+const path = '/raster/styles/kurviger-liberty/{z}/{x}/{y}' + retina2x + '.png?key=' + kurvigerApiKey
 const kurviger: RasterStyle = {
     name: 'Kurviger Liberty',
     type: 'raster',
     url: [
-        'https://a-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' +
-            retina2x +
-            '.png?key=' +
-            kurvigerApiKey,
-        'https://b-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' +
-            retina2x +
-            '.png?key=' +
-            kurvigerApiKey,
-        'https://c-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' +
-            retina2x +
-            '.png?key=' +
-            kurvigerApiKey,
-        'https://d-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' +
-            retina2x +
-            '.png?key=' +
-            kurvigerApiKey,
-        'https://e-tiles.mapilion.com/raster/styles/kurviger-liberty/{z}/{x}/{y}' +
-            retina2x +
-            '.png?key=' +
-            kurvigerApiKey,
+        'https://a-tiles.mapilion.com' + path,
+        'https://b-tiles.mapilion.com' + path,
+        'https://c-tiles.mapilion.com' + path,
+        'https://d-tiles.mapilion.com' + path,
+        'https://e-tiles.mapilion.com' + path,
     ],
     attribution:
         osmAttribution +
