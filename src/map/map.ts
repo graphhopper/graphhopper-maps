@@ -9,6 +9,7 @@ let map: Map | undefined
 export function createMap(): Map {
     map = new Map({
         view: new View({
+            enableRotation: false,
             multiWorld: false,
             constrainResolution: true,
             center: fromLonLat([10, 10]),
@@ -16,7 +17,6 @@ export function createMap(): Map {
         }),
         controls: defaultControls({
             zoom: false,
-            rotate: false,
             attribution: true,
             attributionOptions: {
                 collapsible: false,
