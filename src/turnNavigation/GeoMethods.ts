@@ -31,7 +31,7 @@ export function getCurrentDetails(path: Path, location: Coordinate, details: [an
         let detailOnPath = details[i]
         for (let d = 0; d < detailOnPath.length; d++) {
             let [from, to, val] = detailOnPath[d];
-            if (foundIndex >= from && foundIndex <= to) {
+            if (foundIndex >= from && foundIndex < to || foundIndex == to && d + 1 == detailOnPath.length) {
                 result.push(val)
                 break
             }
