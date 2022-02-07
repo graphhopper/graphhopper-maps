@@ -30,6 +30,7 @@ import usePathDetailsLayer from '@/layers/UsePathDetailsLayer'
 import PathDetailPopup from '@/layers/PathDetailPopup'
 import { Map } from 'ol'
 import { getMap } from '@/map/map'
+import CustomModelBox from '@/sidebar/CustomModelBox'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -123,6 +124,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                         selectedProfile={query.routingProfile}
                         autofocus={false}
                     />
+                    <CustomModelBox model={query.customModel} info={info} />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <div className={styles.routingResult}>
                         <RoutingResults

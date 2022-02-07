@@ -193,6 +193,7 @@ export class ApiImpl implements Api {
             bbox: bbox,
             version: version,
             import_date: import_date,
+            encoded_values: response.encoded_values
         }
     }
 

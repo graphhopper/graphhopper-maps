@@ -1,5 +1,5 @@
 import { Action } from '@/stores/Dispatcher'
-import { Coordinate, QueryPoint } from '@/stores/QueryStore'
+import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
@@ -55,6 +55,14 @@ export class InvalidatePoint implements Action {
 
     constructor(point: QueryPoint) {
         this.point = point
+    }
+}
+
+export class SetCustomModel implements Action {
+    readonly customModel: CustomModel
+
+    constructor(customModel: CustomModel) {
+        this.customModel = customModel
     }
 }
 

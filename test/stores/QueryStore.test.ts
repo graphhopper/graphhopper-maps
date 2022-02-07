@@ -245,6 +245,7 @@ describe('QueryStore', () => {
                     version: '',
                     import_date: '',
                     bbox: [0, 0, 0, 0],
+                    encoded_values: []
                 })
             )
 
@@ -269,6 +270,7 @@ describe('QueryStore', () => {
                     version: '',
                     import_date: '',
                     bbox: [0, 0, 0, 0],
+                    encoded_values: []
                 })
             )
 
@@ -292,6 +294,7 @@ describe('QueryStore', () => {
                     version: '',
                     import_date: '',
                     bbox: [0, 0, 0, 0],
+                    encoded_values: []
                 })
             )
 

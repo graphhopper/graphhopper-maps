@@ -10,6 +10,7 @@ import {
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
+    SetCustomModel,
     SetPoint,
     SetVehicleProfile,
 } from '@/actions/Actions'
@@ -26,6 +27,7 @@ export interface QueryStoreState {
     readonly currentRequest: CurrentRequest
     readonly maxAlternativeRoutes: number
     readonly routingProfile: RoutingProfile
+    readonly customModel: CustomModel
 }
 
 export interface QueryPoint {
@@ -35,6 +37,13 @@ export interface QueryPoint {
     readonly color: string
     readonly id: number
     readonly type: QueryPointType
+}
+
+export interface CustomModel {
+    readonly speed?: object[]
+    readonly priority?: object[]
+    readonly distanceInfluence?: number
+    readonly areas?: object[]
 }
 
 export enum QueryPointType {
@@ -79,6 +88,10 @@ export default class QueryStore extends Store<QueryStoreState> {
             maxAlternativeRoutes: 3,
             routingProfile: {
                 name: '',
+            },
+            customModel: {
+                speed: [],
+                priority: [],
             },
         }
     }
@@ -175,6 +188,11 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
 
             return this.routeIfAllPointsSet(newState)
+        } else if (action instanceof SetCustomModel) {
+            return {
+                ...state,
+                customModel: action.customModel,
+            }
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
         }

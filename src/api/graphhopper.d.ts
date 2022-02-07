@@ -47,6 +47,7 @@ export interface ApiInfo {
     readonly bbox: Bbox
     readonly elevation: boolean
     readonly profiles: RoutingProfile[]
+    readonly encoded_values: object[]
 }
 
 export interface RoutingProfile {

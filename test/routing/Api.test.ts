@@ -32,6 +32,7 @@ describe('info api', () => {
             profiles: [],
             elevation: false,
             version: 'some_version',
+            encoded_values: []
         }
 
         fetchMock.mockResponse(request => {

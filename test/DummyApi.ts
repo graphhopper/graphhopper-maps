@@ -16,6 +16,7 @@ export default class DummyApi implements Api {
             version: '',
             import_date: '',
             profiles: [],
+            encoded_values: []
         })
     }
 
