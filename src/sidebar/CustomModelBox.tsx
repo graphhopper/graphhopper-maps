@@ -6,36 +6,55 @@ import 'custom-model-editor/demo/style.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
 import React, { useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
+import Dispatcher from '@/stores/Dispatcher'
+import { SetCustomModel, SetCustomModelBoxEnabled } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
-import { ApiInfo } from '@/api/graphhopper'
 
-export interface CustomModelBoxProps {
-    model: CustomModel
-    // todo: maybe just the encoded values here ...
-    info: ApiInfo
+const initialCustomModel: CustomModel = {
+    speed: [],
+    priority: [],
 }
 
-export default function CustomModelBox({ model, info }: CustomModelBoxProps) {
+export interface CustomModelBoxProps {
+    enabled: boolean
+    encodedValues: object[]
+}
+
+export default function CustomModelBox({ enabled, encodedValues }: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const divElement = useRef<HTMLDivElement | null>(null)
     useEffect(() => {
-        // start with empty categories, will be set via /info
-        const ed = create({}, (element: any) => divElement.current?.appendChild(element))
-        ed.cm.setSize('100%', '100%')
-        ed.value = JSON.stringify(model, null, 2)
-        setEditor(ed)
+        // we start with empty categories. they will be set later using info
+        const instance = create({}, (element: Node) => divElement.current?.appendChild(element))
+        instance.value = JSON.stringify(initialCustomModel, null, 2)
+        setEditor(instance)
+        instance.validListener = (valid: boolean) => {
+            if (valid) Dispatcher.dispatch(new SetCustomModel(instance.jsonObj, true))
+            else {
+                try {
+                    const customModel = JSON.parse(instance.value)
+                    Dispatcher.dispatch(new SetCustomModel(customModel, false))
+                } catch (e) {
+                    Dispatcher.dispatch(new SetCustomModel(null, false))
+                }
+            }
+        }
+        Dispatcher.dispatch(new SetCustomModel(initialCustomModel, true))
     }, [])
 
     useEffect(() => {
-        // todo: is this needed or is there a better way?
-        if (!editor)
-            return
+        editor?.cm.setSize('100%', '100%')
+    }, [enabled])
+
+    useEffect(() => {
+        if (!editor) return
+
         // todo: maybe do this 'conversion' in Api.ts already and use types from there on
-        const categories : any = {}
-        Object.keys(info.encoded_values).forEach((k : any) => {
-            const v : any = info.encoded_values[k]
-            if (v.length == 2 && v[0] === 'true' && v[1] === 'false') {
+        const categories: any = {}
+        Object.keys(encodedValues).forEach((k: any) => {
+            const v: any = encodedValues[k]
+            if (v.length === 2 && v[0] === 'true' && v[1] === 'false') {
                 categories[k] = { type: 'boolean' }
             } else if (v.length === 2 && v[0] === '>number' && v[1] === '<number') {
                 categories[k] = { type: 'numeric' }
@@ -44,10 +63,22 @@ export default function CustomModelBox({ model, info }: CustomModelBoxProps) {
             }
         })
         editor.categories = categories
-    }, [info])
+    }, [encodedValues])
 
-    useEffect(() => {
-        if (editor) editor.value = JSON.stringify(model, null, 2)
-    }, [model])
-    return <div ref={divElement} className={styles.customModelBox} />
+    return (
+        <>
+            <label>
+                custom
+                <input
+                    type="checkbox"
+                    checked={enabled}
+                    onChange={() => {
+                        Dispatcher.dispatch(new SetCustomModelBoxEnabled(!enabled))
+                    }}
+                />
+            </label>
+            {/*we use 'display: none' instead of conditional rendering to preserve the custom model box's state when it is closed*/}
+            <div ref={divElement} className={styles.customModelBox} style={{ display: enabled ? 'block' : 'none' }} />
+        </>
+    )
 }

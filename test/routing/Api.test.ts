@@ -32,7 +32,7 @@ describe('info api', () => {
             profiles: [],
             elevation: false,
             version: 'some_version',
-            encoded_values: []
+            encoded_values: [],
         }
 
         fetchMock.mockResponse(request => {
@@ -80,6 +80,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'profile',
+            customModel: null,
         }
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
         const ghApi = 'https://some.api/'
@@ -106,6 +107,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
+            customModel: null,
         }
 
         const expectedBody: RoutingRequest = {
@@ -139,6 +141,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 2,
             profile: 'car',
+            customModel: null,
         }
 
         const expectedBody: RoutingRequest = {
@@ -178,6 +181,7 @@ describe('route', () => {
             ],
             maxAlternativeRoutes: 1,
             profile: 'bla',
+            customModel: null,
         }
 
         fetchMock.mockResponseOnce(JSON.stringify(getEmptyResult()))
@@ -198,6 +202,7 @@ describe('route', () => {
             ],
             maxAlternativeRoutes: 1,
             profile: 'bla',
+            customModel: null,
         }
 
         const error: ErrorResponse = {
@@ -220,6 +225,7 @@ describe('route', () => {
             profile: 'car',
             points: [],
             maxAlternativeRoutes: 3,
+            customModel: null,
         }
         fetchMock.mockResponse(() => Promise.resolve({ status: 500 }))
         await expect(new ApiImpl('https://some.api/', 'key').route(args)).rejects.toThrow('Route calculation timed out')
@@ -232,6 +238,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
+            customModel: null,
         }
 
         const expectedBody: RoutingRequest = {

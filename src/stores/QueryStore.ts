@@ -1,16 +1,18 @@
 import { coordinateToText } from '@/Converters'
 import Api from '@/api/Api'
 import Store from '@/stores/Store'
-import { Action } from '@/stores/Dispatcher'
+import Dispatcher, { Action } from '@/stores/Dispatcher'
 import {
     AddPoint,
     ClearPoints,
+    ErrorAction,
     InfoReceived,
     InvalidatePoint,
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
     SetCustomModel,
+    SetCustomModelBoxEnabled,
     SetPoint,
     SetVehicleProfile,
 } from '@/actions/Actions'
@@ -27,7 +29,9 @@ export interface QueryStoreState {
     readonly currentRequest: CurrentRequest
     readonly maxAlternativeRoutes: number
     readonly routingProfile: RoutingProfile
-    readonly customModel: CustomModel
+    readonly customModelEnabled: boolean
+    readonly customModelValid: boolean
+    readonly customModel: CustomModel | null
 }
 
 export interface QueryPoint {
@@ -89,10 +93,9 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
-            customModel: {
-                speed: [],
-                priority: [],
-            },
+            customModelEnabled: false,
+            customModelValid: false,
+            customModel: null,
         }
     }
 
@@ -103,7 +106,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 queryPoints: QueryStore.replacePoint(state.queryPoints, action.point),
             }
 
-            return this.routeIfAllPointsSet(newState)
+            return this.routeIfReady(newState)
         } else if (action instanceof InvalidatePoint) {
             const points = QueryStore.replacePoint(state.queryPoints, {
                 ...action.point,
@@ -153,7 +156,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 queryPoints: newPoints,
             }
 
-            return this.routeIfAllPointsSet(newState)
+            return this.routeIfReady(newState)
         } else if (action instanceof RemovePoint) {
             const newPoints = state.queryPoints
                 .filter(point => point.id !== action.point.id)
@@ -166,7 +169,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 ...state,
                 queryPoints: newPoints,
             }
-            return this.routeIfAllPointsSet(newState)
+            return this.routeIfReady(newState)
         } else if (action instanceof InfoReceived) {
             // this is the case if the vehicle was set in the url. Keep it in this case if the backend supports it
             if (state.routingProfile.name && action.result.profiles.find(p => p.name === state.routingProfile.name))
@@ -187,14 +190,21 @@ export default class QueryStore extends Store<QueryStoreState> {
                 routingProfile: action.profile,
             }
 
-            return this.routeIfAllPointsSet(newState)
+            return this.routeIfReady(newState)
         } else if (action instanceof SetCustomModel) {
             return {
                 ...state,
                 customModel: action.customModel,
+                customModelValid: action.valid,
             }
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
+        } else if (action instanceof SetCustomModelBoxEnabled) {
+            const newState: QueryStoreState = {
+                ...state,
+                customModelEnabled: action.enabled,
+            }
+            return this.routeIfReady(newState)
         }
         return state
     }
@@ -214,8 +224,12 @@ export default class QueryStore extends Store<QueryStoreState> {
         }
     }
 
-    private routeIfAllPointsSet(state: QueryStoreState): QueryStoreState {
-        if (
+    private routeIfReady(state: QueryStoreState): QueryStoreState {
+        if (state.customModelEnabled && !state.customModel)
+            Dispatcher.dispatch(new ErrorAction('Cannot parse custom model'))
+        else if (state.customModelEnabled && state.customModel && !state.customModelValid)
+            Dispatcher.dispatch(new ErrorAction('Invalid custom model'))
+        else if (
             state.queryPoints.length > 1 &&
             state.queryPoints.every(point => point.isInitialized) &&
             state.routingProfile.name
@@ -296,6 +310,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             points: coordinates,
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
+            customModel: state.customModelEnabled ? state.customModel : null,
         }
     }
 

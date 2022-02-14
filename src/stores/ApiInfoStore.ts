@@ -11,7 +11,7 @@ export default class ApiInfoStore extends Store<ApiInfo> {
             profiles: [],
             elevation: false,
             import_date: '',
-            encoded_values: []
+            encoded_values: [],
         }
     }
 

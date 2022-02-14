@@ -1,4 +1,5 @@
 import { LineString } from 'geojson'
+import { CustomModel } from '@/stores/QueryStore'
 
 // minLon, minLat, maxLon, maxLat
 export type Bbox = [number, number, number, number]
@@ -7,6 +8,7 @@ export interface RoutingArgs {
     readonly points: [number, number][]
     readonly profile: string
     readonly maxAlternativeRoutes: number
+    readonly customModel: CustomModel | null
 }
 
 export interface RoutingRequest {
@@ -24,6 +26,7 @@ export interface RoutingRequest {
     algorithm?: 'alternative_route' | 'round_trip'
     snap_preventions?: string[]
     details?: string[]
+    custom_model?: CustomModel
 }
 
 export interface ErrorResponse {

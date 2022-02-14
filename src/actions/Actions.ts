@@ -58,11 +58,21 @@ export class InvalidatePoint implements Action {
     }
 }
 
-export class SetCustomModel implements Action {
-    readonly customModel: CustomModel
+export class SetCustomModelBoxEnabled implements Action {
+    readonly enabled: boolean
 
-    constructor(customModel: CustomModel) {
+    constructor(enabled: boolean) {
+        this.enabled = enabled
+    }
+}
+
+export class SetCustomModel implements Action {
+    readonly customModel: CustomModel | null
+    readonly valid: boolean
+
+    constructor(customModel: CustomModel | null, valid: boolean) {
         this.customModel = customModel
+        this.valid = valid
     }
 }
 
