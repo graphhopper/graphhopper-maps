@@ -12,6 +12,8 @@ import { coordinateToText } from '@/Converters'
 import { Icon, Style } from 'ol/style'
 import { createSvg } from '@/layers/createMarkerSVG'
 
+const MARKER_SIZE = 35
+
 export default function useQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     useEffect(() => {
         removeQueryPoints(map)
@@ -42,7 +44,7 @@ function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
             feature.set('gh:marker_props', {
                 color: indexPoint.point.color,
                 number: indexPoint.point.type == QueryPointType.Via ? i : undefined,
-                size: 35,
+                size: MARKER_SIZE,
             })
             return feature
         })
@@ -58,6 +60,7 @@ function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
             new Style({
                 image: new Icon({
                     src: 'data:image/svg+xml;utf8,' + createSvg(feature.get('gh:marker_props')),
+                    displacement: [0, MARKER_SIZE / 2],
                 }),
             })
     )
