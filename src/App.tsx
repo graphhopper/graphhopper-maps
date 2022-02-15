@@ -30,6 +30,7 @@ import usePathDetailsLayer from '@/layers/UsePathDetailsLayer'
 import PathDetailPopup from '@/layers/PathDetailPopup'
 import { Map } from 'ol'
 import { getMap } from '@/map/map'
+import QueryPoints from '@/layers/QueryPoints'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -72,7 +73,8 @@ export default function App() {
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
-    useQueryPointsLayer(map, query.queryPoints)
+    // todo: remove it when we no longer need it, same with createMarkerSVG.ts
+    // useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
@@ -80,6 +82,7 @@ export default function App() {
         <div className={styles.appWrapper}>
             <PathDetailPopup map={map} pathDetails={pathDetails} />
             <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
+            <QueryPoints map={map} queryPoints={query.queryPoints} />
             {isSmallScreen ? (
                 <SmallScreenLayout
                     query={query}
