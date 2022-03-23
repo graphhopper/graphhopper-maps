@@ -13,6 +13,7 @@ declare module 'config' {
         thunderforest: string,
         kurviger: string,
     }
+    const extraProfiles: object
 }
 declare module 'react-responsive' {
     function useMediaQuery(props: { query: string }): boolean

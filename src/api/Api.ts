@@ -15,6 +15,7 @@ import {
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
+import * as config from 'config'
 
 interface ApiProfile {
     name: string
@@ -155,6 +156,7 @@ export class ApiImpl implements Api {
             points_encoded: true,
             snap_preventions: ['ferry'],
             details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
+            ...(config.extraProfiles ? (config.extraProfiles as any)[args.profile] : {}),
         }
 
         if (args.maxAlternativeRoutes > 1) {

@@ -4,6 +4,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import { tr } from '@/translation/Translation'
+import * as config from 'config'
 
 export default function ({
     routingProfiles,
@@ -12,17 +13,21 @@ export default function ({
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
 }) {
+    const extraRoutingProfiles: RoutingProfile[] = config.extraProfiles
+        ? Object.keys(config.extraProfiles).map(profile => ({ name: profile }))
+        : []
+    const allRoutingProfiles = routingProfiles.concat(extraRoutingProfiles)
     return (
         <select
             className={styles.profileSelect}
             value={getEmoji(selectedProfile) + '\u00a0' + tr(selectedProfile.name)}
             onChange={e => {
                 const selectedIndex = e.target.selectedIndex
-                const routingProfile = routingProfiles[selectedIndex]
+                const routingProfile = allRoutingProfiles[selectedIndex]
                 Dispatcher.dispatch(new SetVehicleProfile(routingProfile))
             }}
         >
-            {routingProfiles.map(profile => (
+            {allRoutingProfiles.map(profile => (
                 <option key={profile.name}>{getEmoji(profile) + '\u00a0' + tr(profile.name)}</option>
             ))}
         </select>
