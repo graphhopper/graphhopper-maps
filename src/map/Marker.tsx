@@ -28,7 +28,7 @@ export function MarkerComponent({ color, number, size = 0 }: MarkerProps) {
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 384 512"
             height={size}
-            style={{ ...markerStyle, fill: color, transform: `translate(${-size / 2}px, ${-size}px` }}
+            style={{ ...markerStyle, fill: color }}
         >
             <path d={MARKER_PATH} />
             {number === undefined ? (
