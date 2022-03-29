@@ -40,6 +40,16 @@ export class AddPoint implements Action {
     }
 }
 
+export class SetRoutingParametersAtOnce implements Action {
+    readonly queryPoints: QueryPoint[]
+    readonly routingProfile: RoutingProfile
+
+    constructor(queryPoints: QueryPoint[], routingProfile: RoutingProfile) {
+        this.queryPoints = queryPoints
+        this.routingProfile = routingProfile
+    }
+}
+
 export class ClearPoints implements Action {}
 
 export class RemovePoint implements Action {
