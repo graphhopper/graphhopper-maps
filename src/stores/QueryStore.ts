@@ -11,6 +11,7 @@ import {
     RouteRequestFailed,
     RouteRequestSuccess,
     SetPoint,
+    SetRoutingParametersAtOnce,
     SetVehicleProfile,
 } from '@/actions/Actions'
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
@@ -84,14 +85,7 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     reduce(state: QueryStoreState, action: Action): QueryStoreState {
-        if (action instanceof SetPoint) {
-            const newState: QueryStoreState = {
-                ...state,
-                queryPoints: QueryStore.replacePoint(state.queryPoints, action.point),
-            }
-
-            return this.routeIfAllPointsSet(newState)
-        } else if (action instanceof InvalidatePoint) {
+        if (action instanceof InvalidatePoint) {
             const points = QueryStore.replacePoint(state.queryPoints, {
                 ...action.point,
                 isInitialized: false,
@@ -114,6 +108,13 @@ export default class QueryStore extends Store<QueryStoreState> {
                 ...state,
                 queryPoints: newPoints,
             }
+        } else if (action instanceof SetPoint) {
+            const newState: QueryStoreState = {
+                ...state,
+                queryPoints: QueryStore.replacePoint(state.queryPoints, action.point),
+            }
+
+            return this.routeIfAllPointsSet(newState)
         } else if (action instanceof AddPoint) {
             const tmp = state.queryPoints.slice()
             const queryText = action.isInitialized ? coordinateToText(action.coordinate) : ''
@@ -141,6 +142,28 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
 
             return this.routeIfAllPointsSet(newState)
+        } else if (action instanceof SetRoutingParametersAtOnce) {
+            // make sure that some things are set correclty, regardless of what was passed in here.
+            const queryPoints = action.queryPoints.map((point, i) => {
+                const type = QueryStore.getPointType(i, action.queryPoints.length)
+                const queryText =
+                    point.isInitialized && !point.queryText ? coordinateToText(point.coordinate) : point.queryText
+                return {
+                    ...point,
+                    id: state.nextQueryPointId + i,
+                    type: type,
+                    color: QueryStore.getMarkerColor(type),
+                    queryText: queryText,
+                }
+            })
+            const nextId = state.nextQueryPointId + queryPoints.length
+
+            return this.routeIfAllPointsSet({
+                ...state,
+                queryPoints: queryPoints,
+                nextQueryPointId: nextId,
+                routingProfile: action.routingProfile,
+            })
         } else if (action instanceof RemovePoint) {
             const newPoints = state.queryPoints
                 .filter(point => point.id !== action.point.id)

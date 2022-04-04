@@ -1,7 +1,7 @@
 import { coordinateToText } from '@/Converters'
 import { Bbox, RoutingProfile } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, RemovePoint, SelectMapStyle, SetInitialBBox, SetVehicleProfile } from '@/actions/Actions'
+import { SelectMapStyle, SetInitialBBox, SetRoutingParametersAtOnce } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
@@ -61,7 +61,7 @@ export default class NavBar {
                     coordinate: coordinate,
                     isInitialized: true,
                     id: i,
-                    queryText: '',
+                    queryText: coordinateToText(coordinate),
                     color: '',
                     type: QueryPointType.Via,
                 }
@@ -95,24 +95,26 @@ export default class NavBar {
         const bbox = this.getBBoxFromUrlPoints(parseResult.points.map(p => p.coordinate))
         if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
 
-        // remove old query points
-        this.queryStore.state.queryPoints.forEach(point => Dispatcher.dispatch(new RemovePoint(point)))
-
-        // add parsed points
-        parseResult.points.forEach((point, i) => Dispatcher.dispatch(new AddPoint(i, point.coordinate, true)))
-
-        // assuming that at least two points should be present add un-initialized points if necessary
-        for (let i = this.queryStore.state.queryPoints.length; i < 2; i++) {
-            Dispatcher.dispatch(new AddPoint(i, { lat: 0, lng: 0 }, false))
-        }
-
-        // add routing profile
-        Dispatcher.dispatch(new SetVehicleProfile(parseResult.profile))
+        // we want either all the points replaced from the url or we just have one and we want to replace the one default
+        // one
+        const points = parseResult.points.length > 2 ? parseResult.points : this.fillPoints(parseResult.points)
+        Dispatcher.dispatch(new SetRoutingParametersAtOnce(points, parseResult.profile))
 
         // add map style
         Dispatcher.dispatch(new SelectMapStyle(parseResult.styleOption))
 
         this.isIgnoreQueryStoreUpdates = false
+    }
+
+    private fillPoints(parsedPoints: QueryPoint[]) {
+        const result: QueryPoint[] = this.queryStore.state.queryPoints
+
+        // assuming that at least two points should be present add un-initialized points if necessary
+        for (let i = 0; i < result.length && i < parsedPoints.length; i++) {
+            result[i] = parsedPoints[i]
+        }
+
+        return result
     }
 
     private onQueryStateChanged() {
