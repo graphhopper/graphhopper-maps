@@ -68,9 +68,12 @@ export default class NavBar {
             })
     }
 
-    private static parseProfile(url: URL) {
-        let profileKey = url.searchParams.get('profile')
-        return profileKey ? profileKey : ''
+    private static parseProfile(url: URL): string {
+        // we can cast to string since we test for presence before
+        if (url.searchParams.has('profile')) return url.searchParams.get('profile') as string
+        if (url.searchParams.has('vehicle')) return url.searchParams.get('vehicle') as string
+
+        return ''
     }
 
     private parseLayer(url: URL) {

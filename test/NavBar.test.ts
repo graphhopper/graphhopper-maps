@@ -203,6 +203,26 @@ describe('NavBar', function () {
         expect(mapStore.state.selectedStyle.name).toEqual(layername)
     })
 
+    it('should parse the url and set routing profile for legacy "vehicle" param', () => {
+        const layername = 'Omniscale'
+        const profileName = 'some-profile-name'
+        const url = new URL(window.location.origin + window.location.pathname)
+        url.searchParams.append('layer', layername)
+        url.searchParams.append('vehicle', profileName)
+        const { queryStore, navBar } = setUpFunctionality()
+
+        window.location = {
+            ...window.location,
+            href: url.toString(),
+        }
+
+        // act
+        navBar.parseUrlAndReplaceQuery()
+
+        // assert
+        expect(queryStore.state.routingProfile.name).toEqual(profileName)
+    })
+
     it('should update the query store state on popstate (back-pressed)', () => {
         const callbacks: { (type: string): void }[] = []
         window.addEventListener = jest.fn((type: any, listener: any) => {
