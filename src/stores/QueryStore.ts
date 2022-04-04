@@ -187,10 +187,10 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             // otherwise select the first entry as default routing mode
             const profile = action.result.profiles[0]
-            return {
+            return this.routeIfAllPointsSet({
                 ...state,
                 routingProfile: profile,
-            }
+            })
         } else if (action instanceof SetVehicleProfile) {
             const newState: QueryStoreState = {
                 ...state,
