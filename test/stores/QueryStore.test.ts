@@ -244,7 +244,7 @@ describe('QueryStore', () => {
             const newState = store.reduce(
                 state,
                 new InfoReceived({
-                    profiles: [{ name: 'some-other-profile' }, { name: profile }],
+                    profiles: [{ name: 'some-other-profile' }],
                     elevation: true,
                     version: '',
                     import_date: '',
@@ -253,34 +253,6 @@ describe('QueryStore', () => {
             )
 
             expect(newState).toEqual(state)
-        })
-        it('should use the first profile if profile was already set but not in info action', () => {
-            const store = new QueryStore(
-                new ApiMock(() => {
-                    fail("no routing request should be issued when profile hasn't changed")
-                })
-            )
-
-            const presetProfile = 'some-profile'
-            const firstProfileFromInfo = 'first-from-info'
-            const state: QueryStoreState = {
-                ...store.state,
-                routingProfile: {
-                    name: presetProfile,
-                },
-            }
-            const newState = store.reduce(
-                state,
-                new InfoReceived({
-                    profiles: [{ name: firstProfileFromInfo }, { name: 'other-profile-from-info' }],
-                    elevation: true,
-                    version: '',
-                    import_date: '',
-                    bbox: [0, 0, 0, 0],
-                })
-            )
-
-            expect(newState.routingProfile.name).toEqual(firstProfileFromInfo)
         })
         it('should use the first profile received from info endpoint', () => {
             const expectedProfile = {

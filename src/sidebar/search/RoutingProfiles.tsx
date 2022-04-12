@@ -13,10 +13,16 @@ export default function ({
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
 }) {
+    console.log('selected profile is: ' + selectedProfile.name)
+
     const extraRoutingProfiles: RoutingProfile[] = config.extraProfiles
         ? Object.keys(config.extraProfiles).map(profile => ({ name: profile }))
         : []
-    const allRoutingProfiles = routingProfiles.concat(extraRoutingProfiles)
+    const b = routingProfiles.concat(extraRoutingProfiles)
+    const allRoutingProfiles = b.find(profile => profile.name === selectedProfile.name)
+        ? b
+        : b.concat([selectedProfile])
+
     return (
         <select
             className={styles.profileSelect}
@@ -55,6 +61,6 @@ function getEmoji(profile: RoutingProfile) {
         case 'racingbike':
             return '🚴‍'
         default:
-            return ''
+            return '🚩'
     }
 }
