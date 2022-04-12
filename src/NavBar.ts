@@ -24,13 +24,18 @@ export default class NavBar {
         const result = new URL(baseUrl)
         queryStoreState.queryPoints
             .filter(point => point.isInitialized)
-            .map(point => coordinateToText(point.coordinate))
+            .map(point => this.pointToParam(point)) //coordinateToText(point.coordinate))
             .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
 
         return result
+    }
+
+    private static pointToParam(point: QueryPoint) {
+        const coordinate = coordinateToText(point.coordinate)
+        return coordinate === point.queryText ? coordinate : coordinate + '_' + point.queryText
     }
 
     private parseUrl(href: string): { points: QueryPoint[]; profile: RoutingProfile; styleOption: StyleOption } {
@@ -44,28 +49,33 @@ export default class NavBar {
     }
 
     private static parsePoints(url: URL) {
-        return url.searchParams
-            .getAll('point')
-            .map(parameter => {
-                const split = parameter.split(',')
-                if (split.length !== 2)
-                    throw Error(
-                        'Could not parse url parameter point: ' +
-                            parameter +
-                            ' Think about what to do instead of crashing'
-                    )
-                return { lat: NavBar.parseNumber(split[0]), lng: NavBar.parseNumber(split[1]) }
-            })
-            .map((coordinate, i): QueryPoint => {
-                return {
-                    coordinate: coordinate,
-                    isInitialized: true,
-                    id: i,
-                    queryText: coordinateToText(coordinate),
-                    color: '',
-                    type: QueryPointType.Via,
-                }
-            })
+        return url.searchParams.getAll('point').map((parameter, i) => {
+            const split = parameter.split('_')
+            if (split.length < 1)
+                throw Error(
+                    'Could not parse url parameter point: ' + parameter + ' Think about what to do instead of crashing'
+                )
+            const coordinate = this.parseCoordinate(split[0])
+            const queryText = split.length >= 2 ? split[1] : coordinateToText(coordinate)
+
+            return {
+                coordinate: coordinate,
+                isInitialized: true,
+                id: i,
+                queryText: queryText,
+                color: '',
+                type: QueryPointType.Via,
+            }
+        })
+    }
+
+    private static parseCoordinate(params: string) {
+        const coordinateParams = params.split(',')
+        if (coordinateParams.length !== 2) throw Error('Could not parse coordinate with value: "' + params[0] + '"')
+        return {
+            lat: NavBar.parseNumber(coordinateParams[0]),
+            lng: NavBar.parseNumber(coordinateParams[1]),
+        }
     }
 
     private static parseProfile(url: URL): string {
