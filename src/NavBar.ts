@@ -1,7 +1,7 @@
 import { coordinateToText } from '@/Converters'
 import { Bbox, RoutingProfile } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { SelectMapStyle, SetInitialBBox, SetRoutingParametersAtOnce } from '@/actions/Actions'
+import { ClearPoints, SelectMapStyle, SetInitialBBox, SetRoutingParametersAtOnce } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
@@ -68,9 +68,12 @@ export default class NavBar {
             })
     }
 
-    private static parseProfile(url: URL) {
-        let profileKey = url.searchParams.get('profile')
-        return profileKey ? profileKey : ''
+    private static parseProfile(url: URL): string {
+        // we can cast to string since we test for presence before
+        if (url.searchParams.has('profile')) return url.searchParams.get('profile') as string
+        if (url.searchParams.has('vehicle')) return url.searchParams.get('vehicle') as string
+
+        return ''
     }
 
     private parseLayer(url: URL) {
@@ -87,7 +90,7 @@ export default class NavBar {
     parseUrlAndReplaceQuery() {
         this.isIgnoreQueryStoreUpdates = true
 
-        //const parseResult = NavBar.parseUrl(this.appContext.location.href)
+        Dispatcher.dispatch(new ClearPoints())
         const parseResult = this.parseUrl(window.location.href)
 
         // estimate map bounds from url points if there are any. this way we prevent loading tiles for the world view
@@ -98,7 +101,8 @@ export default class NavBar {
         // we want either all the points replaced from the url or we just have one and we want to replace the one default
         // one
         const points = parseResult.points.length > 2 ? parseResult.points : this.fillPoints(parseResult.points)
-        Dispatcher.dispatch(new SetRoutingParametersAtOnce(points, parseResult.profile))
+        const profile = parseResult.profile.name ? parseResult.profile : this.queryStore.state.routingProfile
+        Dispatcher.dispatch(new SetRoutingParametersAtOnce(points, profile))
 
         // add map style
         Dispatcher.dispatch(new SelectMapStyle(parseResult.styleOption))

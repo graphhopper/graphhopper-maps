@@ -13,10 +13,18 @@ export default function ({
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
 }) {
+    // this first merges profiles set from config and those received from the backend.
     const extraRoutingProfiles: RoutingProfile[] = config.extraProfiles
         ? Object.keys(config.extraProfiles).map(profile => ({ name: profile }))
         : []
-    const allRoutingProfiles = routingProfiles.concat(extraRoutingProfiles)
+    const validRoutingProfiles = routingProfiles.concat(extraRoutingProfiles)
+
+    // in case the query store has an invalid profile (which we allow, so that an error message can be shown)
+    // this merges the invalid profile into the list, so it can be shown in the select component.
+    const allRoutingProfiles = validRoutingProfiles.find(profile => profile.name === selectedProfile.name)
+        ? validRoutingProfiles
+        : validRoutingProfiles.concat([selectedProfile])
+
     return (
         <select
             className={styles.profileSelect}
@@ -55,6 +63,6 @@ function getEmoji(profile: RoutingProfile) {
         case 'racingbike':
             return '🚴‍'
         default:
-            return ''
+            return '🚩'
     }
 }

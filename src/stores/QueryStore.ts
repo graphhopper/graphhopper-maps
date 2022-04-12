@@ -178,19 +178,15 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
             return this.routeIfAllPointsSet(newState)
         } else if (action instanceof InfoReceived) {
-            // this is the case if the vehicle was set in the url. Keep it in this case if the backend supports it
-            if (state.routingProfile.name && action.result.profiles.find(p => p.name === state.routingProfile.name))
-                return state
-
-            // if we haven't received anything
-            if (action.result.profiles.length <= 0) return state
+            // if a routing profile was in the url keep it regardless. Also, do nothing if no routing profiles were received
+            if (state.routingProfile.name || action.result.profiles.length <= 0) return state
 
             // otherwise select the first entry as default routing mode
             const profile = action.result.profiles[0]
-            return {
+            return this.routeIfAllPointsSet({
                 ...state,
                 routingProfile: profile,
-            }
+            })
         } else if (action instanceof SetVehicleProfile) {
             const newState: QueryStoreState = {
                 ...state,

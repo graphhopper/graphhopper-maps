@@ -23,6 +23,16 @@ jest.mock('@/Window', () => ({
     },
 }))
 
+function setUpFunctionality() {
+    // set up functionality
+    const queryStore = new QueryStore(new DummyApi())
+    const mapStore = new MapOptionsStore()
+    Dispatcher.register(queryStore)
+    Dispatcher.register(mapStore)
+    const navBar = new NavBar(queryStore, mapStore)
+    return { queryStore, mapStore, navBar }
+}
+
 describe('NavBar', function () {
     afterEach(() => {
         jest.resetAllMocks()
@@ -86,12 +96,7 @@ describe('NavBar', function () {
             href: url.toString(),
         }
 
-        // set up functionality
-        const queryStore = new QueryStore(new DummyApi())
-        const mapStore = new MapOptionsStore()
-        Dispatcher.register(queryStore)
-        Dispatcher.register(mapStore)
-        const navBar = new NavBar(queryStore, mapStore)
+        const { queryStore, mapStore, navBar } = setUpFunctionality()
 
         // act
         navBar.parseUrlAndReplaceQuery()
@@ -110,18 +115,57 @@ describe('NavBar', function () {
         expect(url.toString()).toEqual(window.location.href)
     })
 
+    it('should parse the url and set no points when no points are set', () => {
+        window.location = {
+            ...window.location,
+            href: 'https://origin.com',
+        }
+        const { queryStore, navBar } = setUpFunctionality()
+        const point1 = queryStore.state.queryPoints[0]
+        const point2 = queryStore.state.queryPoints[1]
+
+        // act
+        navBar.parseUrlAndReplaceQuery()
+
+        //assert
+        // we still want to have 2 points and they should have the same values as before - the ids are changed though
+        // since the store creates new instances of points regardless what is fed with "setallqyeryparamsatonce"
+        expect(queryStore.state.queryPoints.length).toEqual(2)
+        expect(queryStore.state.queryPoints[0].coordinate).toEqual(point1.coordinate)
+        expect(queryStore.state.queryPoints[1].coordinate).toEqual(point2.coordinate)
+        expect(queryStore.state.queryPoints[0].queryText).toEqual(point1.queryText)
+        expect(queryStore.state.queryPoints[1].queryText).toEqual(point2.queryText)
+    })
+
+    it('should parse the url and invalidate old points', () => {
+        window.location = {
+            ...window.location,
+            href: 'https://origin.com',
+        }
+        const { queryStore, navBar } = setUpFunctionality()
+        Dispatcher.dispatch(
+            new SetPoint({
+                ...queryStore.state.queryPoints[0],
+                isInitialized: true,
+            })
+        )
+
+        //act
+        navBar.parseUrlAndReplaceQuery()
+
+        // assert
+        expect(queryStore.state.queryPoints.length).toEqual(2)
+        expect(queryStore.state.queryPoints[0].isInitialized).toBeFalsy()
+        expect(queryStore.state.queryPoints[1].isInitialized).toBeFalsy()
+    })
+
     it('should parse the url and set defaults for layer if not provided', () => {
         window.location = {
             ...window.location,
             href: 'https://origin.com',
         }
 
-        // set up functionality
-        const queryStore = new QueryStore(new DummyApi())
-        const mapStore = new MapOptionsStore()
-        Dispatcher.register(queryStore)
-        Dispatcher.register(mapStore)
-        const navBar = new NavBar(queryStore, mapStore)
+        const { queryStore, mapStore, navBar } = setUpFunctionality()
 
         // act
         navBar.parseUrlAndReplaceQuery()
@@ -133,6 +177,50 @@ describe('NavBar', function () {
         expect(queryStore.state.routingProfile.name).toEqual('')
 
         expect(mapStore.state.selectedStyle.name).toEqual(config.defaultTiles)
+    })
+
+    it('should parse the url and set defaults for profile if not set', () => {
+        const layername = 'Omniscale'
+        const url = new URL(window.location.origin + window.location.pathname)
+        url.searchParams.append('layer', layername)
+        window.location = {
+            ...window.location,
+            href: url.toString(),
+        }
+
+        const { queryStore, mapStore, navBar } = setUpFunctionality()
+        Dispatcher.dispatch(new SetVehicleProfile({ name: 'some-profile' }))
+        const defaultProfile = queryStore.state.routingProfile
+
+        // act
+        navBar.parseUrlAndReplaceQuery()
+
+        //assert
+        expect(queryStore.state.queryPoints.length).toEqual(2)
+        expect(queryStore.state.queryPoints[0].isInitialized).toEqual(false)
+        expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
+        expect(queryStore.state.routingProfile.name).toEqual(defaultProfile.name)
+        expect(mapStore.state.selectedStyle.name).toEqual(layername)
+    })
+
+    it('should parse the url and set routing profile for legacy "vehicle" param', () => {
+        const layername = 'Omniscale'
+        const profileName = 'some-profile-name'
+        const url = new URL(window.location.origin + window.location.pathname)
+        url.searchParams.append('layer', layername)
+        url.searchParams.append('vehicle', profileName)
+        const { queryStore, navBar } = setUpFunctionality()
+
+        window.location = {
+            ...window.location,
+            href: url.toString(),
+        }
+
+        // act
+        navBar.parseUrlAndReplaceQuery()
+
+        // assert
+        expect(queryStore.state.routingProfile.name).toEqual(profileName)
     })
 
     it('should update the query store state on popstate (back-pressed)', () => {
@@ -162,12 +250,7 @@ describe('NavBar', function () {
             href: url.toString(),
         }
 
-        // set up functionality
-        const queryStore = new QueryStore(new DummyApi())
-        const mapStore = new MapOptionsStore()
-        Dispatcher.register(queryStore)
-        Dispatcher.register(mapStore)
-        new NavBar(queryStore, mapStore)
+        const { queryStore, mapStore } = setUpFunctionality()
 
         // act
         callbacks.forEach(callback => callback('popstate'))
