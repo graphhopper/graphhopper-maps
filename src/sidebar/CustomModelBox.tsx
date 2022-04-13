@@ -4,7 +4,7 @@ import 'codemirror/addon/lint/lint.css'
 // todonow: this belongs to this app and we should not take it from the demo...
 import 'custom-model-editor/demo/style.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
 import { DismissLastError, ErrorAction, SetCustomModel, SetCustomModelBoxEnabled } from '@/actions/Actions'
@@ -23,28 +23,19 @@ export interface CustomModelBoxProps {
 export default function CustomModelBox({ enabled, encodedValues }: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
+    const [isValid, setIsValid] = useState(false)
     const divElement = useRef<HTMLDivElement | null>(null)
+
     useEffect(() => {
         // we start with empty categories. they will be set later using info
         const instance = create({}, (element: Node) => divElement.current?.appendChild(element))
         instance.value = JSON.stringify(initialCustomModel, null, 2)
         setEditor(instance)
         instance.validListener = (valid: boolean) => {
-            if (valid) {
-                Dispatcher.dispatch(new SetCustomModel(instance.jsonObj, true))
-                Dispatcher.dispatch(new DismissLastError())
-            } else {
-                try {
-                    const customModel = JSON.parse(instance.value)
-                    Dispatcher.dispatch(new SetCustomModel(customModel, false))
-                    Dispatcher.dispatch(new ErrorAction('Invalid custom model'))
-                } catch (e) {
-                    Dispatcher.dispatch(new ErrorAction('Cannot parse custom model'))
-                    Dispatcher.dispatch(new SetCustomModel(null, false))
-                }
-            }
+            dispatchCustomModel(instance.value, valid)
+            setIsValid(valid)
         }
-        Dispatcher.dispatch(new SetCustomModel(initialCustomModel, true))
+        dispatchCustomModel(initialCustomModel, true)
     }, [])
 
     useEffect(() => {
@@ -69,6 +60,15 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
         editor.categories = categories
     }, [encodedValues])
 
+    const triggerRouting = useCallback(
+        (event: React.KeyboardEvent<HTMLInputElement>) => {
+            if (event.ctrlKey && event.key === 'Enter') {
+                dispatchCustomModel(editor.value, isValid, true)
+            }
+        },
+        [editor, isValid]
+    )
+
     return (
         <>
             <label>
@@ -85,7 +85,28 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
                 />
             </label>
             {/*we use 'display: none' instead of conditional rendering to preserve the custom model box's state when it is closed*/}
-            <div ref={divElement} className={styles.customModelBox} style={{ display: enabled ? 'block' : 'none' }} />
+            <div
+                ref={divElement}
+                className={styles.customModelBox}
+                style={{ display: enabled ? 'block' : 'none' }}
+                onKeyUp={triggerRouting}
+            />
         </>
     )
+}
+
+function dispatchCustomModel(customModelValue: any, isValid: boolean, withRouteRequest = false) {
+    try {
+        const parsedValue = JSON.parse(customModelValue)
+        if (isValid) {
+            Dispatcher.dispatch(new SetCustomModel(parsedValue, true, withRouteRequest))
+            Dispatcher.dispatch(new DismissLastError())
+        } else {
+            Dispatcher.dispatch(new SetCustomModel(parsedValue, false, withRouteRequest))
+            Dispatcher.dispatch(new ErrorAction('Invalid custom model'))
+        }
+    } catch (e) {
+        Dispatcher.dispatch(new ErrorAction('Cannot parse custom model'))
+        Dispatcher.dispatch(new SetCustomModel(null, false, withRouteRequest))
+    }
 }

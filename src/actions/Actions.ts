@@ -79,10 +79,12 @@ export class SetCustomModelBoxEnabled implements Action {
 export class SetCustomModel implements Action {
     readonly customModel: CustomModel | null
     readonly valid: boolean
+    readonly issueRouteRequest
 
-    constructor(customModel: CustomModel | null, valid: boolean) {
+    constructor(customModel: CustomModel | null, valid: boolean, issueRouteRequest = false) {
         this.customModel = customModel
         this.valid = valid
+        this.issueRouteRequest = issueRouteRequest
     }
 }
 

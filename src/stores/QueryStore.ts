@@ -210,11 +210,14 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             return this.routeIfReady(newState)
         } else if (action instanceof SetCustomModel) {
-            return {
+            const newState: QueryStoreState = {
                 ...state,
                 customModel: action.customModel,
                 customModelValid: action.valid,
             }
+
+            if (action.issueRouteRequest) return this.routeIfReady(newState)
+            else return newState
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
         } else if (action instanceof SetCustomModelBoxEnabled) {
