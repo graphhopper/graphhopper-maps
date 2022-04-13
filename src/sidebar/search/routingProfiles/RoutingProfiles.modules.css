@@ -1,0 +1,33 @@
+.profileSelect {
+    grid-column: 3 / span 1;
+    justify-self: start;
+    font-size: 1rem;
+    border: 1px solid #5b616a;
+    border-radius: 0.2rem;
+    padding: 0.35rem 0.5rem;
+}
+
+.profiles {
+    grid-column: 2 / span 3;
+    display: grid;
+    grid-auto-flow: column;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.profile {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+}
+
+.selectedProfile {
+    background-color: rgba(39, 93, 173, 0.2);
+}
+
+.profileBtn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    padding: 0.3rem;
+}
