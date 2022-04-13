@@ -7,7 +7,7 @@ import styles from '@/sidebar/CustomModelBox.module.css'
 import React, { useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetCustomModel, SetCustomModelBoxEnabled } from '@/actions/Actions'
+import { DismissLastError, ErrorAction, SetCustomModel, SetCustomModelBoxEnabled } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
 
 const initialCustomModel: CustomModel = {
@@ -30,12 +30,16 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
         instance.value = JSON.stringify(initialCustomModel, null, 2)
         setEditor(instance)
         instance.validListener = (valid: boolean) => {
-            if (valid) Dispatcher.dispatch(new SetCustomModel(instance.jsonObj, true))
-            else {
+            if (valid) {
+                Dispatcher.dispatch(new SetCustomModel(instance.jsonObj, true))
+                Dispatcher.dispatch(new DismissLastError())
+            } else {
                 try {
                     const customModel = JSON.parse(instance.value)
                     Dispatcher.dispatch(new SetCustomModel(customModel, false))
+                    Dispatcher.dispatch(new ErrorAction('Invalid custom model'))
                 } catch (e) {
+                    Dispatcher.dispatch(new ErrorAction('Cannot parse custom model'))
                     Dispatcher.dispatch(new SetCustomModel(null, false))
                 }
             }
@@ -73,6 +77,9 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
                     type="checkbox"
                     checked={enabled}
                     onChange={() => {
+                        if (enabled) {
+                            Dispatcher.dispatch(new DismissLastError())
+                        }
                         Dispatcher.dispatch(new SetCustomModelBoxEnabled(!enabled))
                     }}
                 />

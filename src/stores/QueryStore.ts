@@ -243,16 +243,7 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private routeIfReady(state: QueryStoreState): QueryStoreState {
-        // TODO  Put this into the right place.
-      /*  if (state.customModelEnabled && !state.customModel)
-            Dispatcher.dispatch(new ErrorAction('Cannot parse custom model'))
-        else if (state.customModelEnabled && state.customModel && !state.customModelValid)
-            Dispatcher.dispatch(new ErrorAction('Invalid custom model'))
-        else */ if (
-            state.queryPoints.length > 1 &&
-            state.queryPoints.every(point => point.isInitialized) &&
-            state.routingProfile.name
-        ) {
+        if (QueryStore.isReadyToRoute(state)) {
             const requests = [
                 QueryStore.buildRouteRequest({
                     ...state,
@@ -282,6 +273,17 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         subRequests.forEach(subRequest => this.api.routeWithDispatch(subRequest.args))
         return subRequests
+    }
+
+    private static isReadyToRoute(state: QueryStoreState) {
+        // deliberately chose this style of if statements, to make this readable.
+        if (state.customModelEnabled && !state.customModel) return false
+        if (state.customModelEnabled && state.customModel && !state.customModelValid) return false
+        if (state.queryPoints.length <= 1) return false
+        if (!state.queryPoints.every(point => point.isInitialized)) return false
+        if (!state.routingProfile.name) return false
+
+        return true
     }
 
     private static replacePoint(points: QueryPoint[], point: QueryPoint) {
