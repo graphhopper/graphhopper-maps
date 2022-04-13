@@ -1,7 +1,7 @@
 import { coordinateToText } from '@/Converters'
 import { Bbox, RoutingProfile } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, RemovePoint, SelectMapStyle, SetInitialBBox, SetVehicleProfile } from '@/actions/Actions'
+import { ClearPoints, SelectMapStyle, SetInitialBBox, SetRoutingParametersAtOnce } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
@@ -24,13 +24,18 @@ export default class NavBar {
         const result = new URL(baseUrl)
         queryStoreState.queryPoints
             .filter(point => point.isInitialized)
-            .map(point => coordinateToText(point.coordinate))
+            .map(point => this.pointToParam(point)) //coordinateToText(point.coordinate))
             .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
 
         return result
+    }
+
+    private static pointToParam(point: QueryPoint) {
+        const coordinate = coordinateToText(point.coordinate)
+        return coordinate === point.queryText ? coordinate : coordinate + '_' + point.queryText
     }
 
     private parseUrl(href: string): { points: QueryPoint[]; profile: RoutingProfile; styleOption: StyleOption } {
@@ -44,33 +49,41 @@ export default class NavBar {
     }
 
     private static parsePoints(url: URL) {
-        return url.searchParams
-            .getAll('point')
-            .map(parameter => {
-                const split = parameter.split(',')
-                if (split.length !== 2)
-                    throw Error(
-                        'Could not parse url parameter point: ' +
-                            parameter +
-                            ' Think about what to do instead of crashing'
-                    )
-                return { lat: NavBar.parseNumber(split[0]), lng: NavBar.parseNumber(split[1]) }
-            })
-            .map((coordinate, i): QueryPoint => {
-                return {
-                    coordinate: coordinate,
-                    isInitialized: true,
-                    id: i,
-                    queryText: '',
-                    color: '',
-                    type: QueryPointType.Via,
-                }
-            })
+        return url.searchParams.getAll('point').map((parameter, i) => {
+            const split = parameter.split('_')
+            if (split.length < 1)
+                throw Error(
+                    'Could not parse url parameter point: ' + parameter + ' Think about what to do instead of crashing'
+                )
+            const coordinate = this.parseCoordinate(split[0])
+            const queryText = split.length >= 2 ? split[1] : coordinateToText(coordinate)
+
+            return {
+                coordinate: coordinate,
+                isInitialized: true,
+                id: i,
+                queryText: queryText,
+                color: '',
+                type: QueryPointType.Via,
+            }
+        })
     }
 
-    private static parseProfile(url: URL) {
-        let profileKey = url.searchParams.get('profile')
-        return profileKey ? profileKey : ''
+    private static parseCoordinate(params: string) {
+        const coordinateParams = params.split(',')
+        if (coordinateParams.length !== 2) throw Error('Could not parse coordinate with value: "' + params[0] + '"')
+        return {
+            lat: NavBar.parseNumber(coordinateParams[0]),
+            lng: NavBar.parseNumber(coordinateParams[1]),
+        }
+    }
+
+    private static parseProfile(url: URL): string {
+        // we can cast to string since we test for presence before
+        if (url.searchParams.has('profile')) return url.searchParams.get('profile') as string
+        if (url.searchParams.has('vehicle')) return url.searchParams.get('vehicle') as string
+
+        return ''
     }
 
     private parseLayer(url: URL) {
@@ -87,7 +100,7 @@ export default class NavBar {
     parseUrlAndReplaceQuery() {
         this.isIgnoreQueryStoreUpdates = true
 
-        //const parseResult = NavBar.parseUrl(this.appContext.location.href)
+        Dispatcher.dispatch(new ClearPoints())
         const parseResult = this.parseUrl(window.location.href)
 
         // estimate map bounds from url points if there are any. this way we prevent loading tiles for the world view
@@ -95,24 +108,27 @@ export default class NavBar {
         const bbox = this.getBBoxFromUrlPoints(parseResult.points.map(p => p.coordinate))
         if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
 
-        // remove old query points
-        this.queryStore.state.queryPoints.forEach(point => Dispatcher.dispatch(new RemovePoint(point)))
-
-        // add parsed points
-        parseResult.points.forEach((point, i) => Dispatcher.dispatch(new AddPoint(i, point.coordinate, true)))
-
-        // assuming that at least two points should be present add un-initialized points if necessary
-        for (let i = this.queryStore.state.queryPoints.length; i < 2; i++) {
-            Dispatcher.dispatch(new AddPoint(i, { lat: 0, lng: 0 }, false))
-        }
-
-        // add routing profile
-        Dispatcher.dispatch(new SetVehicleProfile(parseResult.profile))
+        // we want either all the points replaced from the url or we just have one and we want to replace the one default
+        // one
+        const points = parseResult.points.length > 2 ? parseResult.points : this.fillPoints(parseResult.points)
+        const profile = parseResult.profile.name ? parseResult.profile : this.queryStore.state.routingProfile
+        Dispatcher.dispatch(new SetRoutingParametersAtOnce(points, profile))
 
         // add map style
         Dispatcher.dispatch(new SelectMapStyle(parseResult.styleOption))
 
         this.isIgnoreQueryStoreUpdates = false
+    }
+
+    private fillPoints(parsedPoints: QueryPoint[]) {
+        const result: QueryPoint[] = this.queryStore.state.queryPoints
+
+        // assuming that at least two points should be present add un-initialized points if necessary
+        for (let i = 0; i < result.length && i < parsedPoints.length; i++) {
+            result[i] = parsedPoints[i]
+        }
+
+        return result
     }
 
     private onQueryStateChanged() {

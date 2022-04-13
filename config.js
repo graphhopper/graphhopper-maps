@@ -13,6 +13,13 @@ module.exports = {
         omniscale: "missing_api_key",
         thunderforest: "missing_api_key",
         kurviger: "missing_api_key"
+    },
+    // use this to add your own profiles. the key of each profile will be used as name and the given fields will
+    // overwrite the fields of the default routing request. e.g.
+    // extraProfiles: { my_car: { profile: undefined, vehicle: car }}
+    // will add a profile named 'my_car' for which we send a request without the profile parameter and an additional
+    // vehicle parameter that is set to 'car'
+    extraProfiles: {
     }
 }
 
