@@ -14,6 +14,7 @@
 
 .selectedProfile {
     background-color: rgba(39, 93, 173, 0.2);
+    color: #275dad;
 }
 
 .profileBtn {

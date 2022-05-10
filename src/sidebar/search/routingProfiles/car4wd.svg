@@ -51,7 +51,7 @@
   <g
      id="icomoon-ignore" />
   <circle
-     style="fill:#000000;stroke-width:0.240918;stop-color:#000000"
+     style="fill:currentcolor;stroke-width:0.240918;stop-color:#000000"
      id="path838"
      cx="207.5804"
      cy="688.35242"
@@ -63,7 +63,7 @@
      cy="726.61487"
      r="116.75639" />
   <circle
-     style="fill:#000000;stroke-width:0.240918;stop-color:#000000"
+     style="fill:currentColor;stroke-width:0.240918;stop-color:#000000"
      id="path838-5"
      cx="751.62927"
      cy="687.7337"

@@ -7,15 +7,13 @@ import { tr } from '@/translation/Translation'
 import * as config from 'config'
 import PlainButton from '@/PlainButton'
 
-import BicycleIcon from './bicycle.svg'
-import BusIcon from './bus.svg'
+import BicycleIcon from './bike.svg'
 import Car4wdIcon from './car4wd.svg'
 import CarIcon from './car.svg'
 import FootIcon from './foot.svg'
 import HikeIcon from './hike.svg'
 import MotorcycleIcon from './motorcycle.svg'
 import MtbBicycleIcon from './mtb-bicycle.svg'
-import PtIcon from './pt.svg'
 import RacingbikeIcon from './racingbike.svg'
 import ScooterIcon from './scooter.svg'
 import SmallTruckIcon from './small_truck.svg'
@@ -81,8 +79,6 @@ function getIcon(profile: RoutingProfile) {
             return <MotorcycleIcon />
         case 'car4wd':
             return <Car4wdIcon />
-        case 'pt':
-            return <PtIcon />
         case 'wheelchair':
             return <WheelchairIcon />
         default:
