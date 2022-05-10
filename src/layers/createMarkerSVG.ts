@@ -19,7 +19,7 @@ export function createSvg({ color, number, size = 0 }: MarkerProps) {
         number === undefined
             ? '<path d="' + INNER_CIRCLE + '" fill="white" />'
             : '<circle cx="192" cy="190" r="120" fill="white" />'
-    }<text x="50%" y="47%" text-anchor="middle" style="font-size: ${150}" fill="black">${
+    }<text x="50%" y="47%" text-anchor="middle" style="font-size: ${150 + 'px'}" fill="black">${
         // todo: the text is not shown in Firefox (only in Chrome) :(
         number !== undefined ? number : ''
     }</text></svg>`
