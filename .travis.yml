@@ -12,7 +12,7 @@ script:
     - echo "$CONFIG_CONTENT" > config-local.js
     - npm run build-debug && npm run test
 
-# install awscli command line tool to sync files to s3
+# install aws-cli command line tool to sync files to s3
 before_deploy: pip install --user awscli
 
 deploy:

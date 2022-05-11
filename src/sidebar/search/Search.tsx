@@ -3,7 +3,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
-import RoutingProfiles from '@/sidebar/search/RoutingProfiles'
+import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import PlainButton from '@/PlainButton'
@@ -26,6 +26,7 @@ export default function Search({
     points.every(point => point.isInitialized)
     return (
         <div className={styles.searchBox}>
+            <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
             {points.map(point => (
                 <SearchBox
                     key={point.id}
@@ -44,7 +45,6 @@ export default function Search({
             >
                 <AddIcon />
             </PlainButton>
-            <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
         </div>
     )
 }

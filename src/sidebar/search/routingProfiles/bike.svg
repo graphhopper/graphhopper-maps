@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="24"
+   height="24"
+   id="svg4460"
+   version="1.1"
+   inkscape:version="1.1.2 (08b2f3d93c, 2022-04-05)"
+   sodipodi:docname="bike.svg"
+   inkscape:export-filename="/home/peterk/Documents/quell/graphhopper/web/src/main/webapp/img/racingbike.png"
+   inkscape:export-xdpi="110"
+   inkscape:export-ydpi="110"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs4462" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="23.713611"
+     inkscape:cx="16.973374"
+     inkscape:cy="11.449121"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="958"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:snap-global="false"
+     inkscape:pagecheckerboard="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4468"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="0,20"
+       id="guide4470" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="4,24"
+       id="guide4472" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="24,13"
+       id="guide4474" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="15,0"
+       id="guide4476" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="23,20"
+       id="guide4478" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="20,23"
+       id="guide4480" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="2,5"
+       id="guide4482" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="7,2"
+       id="guide4484" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata4465">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-1028.3622)">
+    <circle
+       style="stroke-opacity:1;stroke-dasharray:none;stroke-miterlimit:4;stroke-width:1.30522;stroke:currentColor;fill:none;"
+       id="path3037"
+       cx="17.34622"
+       cy="1044.1061"
+       r="3.0922649" />
+    <circle
+       style="stroke-opacity:1;stroke-dasharray:none;stroke-miterlimit:4;stroke-width:1.30522;stroke:currentColor;fill:none;"
+       id="path3037-1"
+       cx="6.7585206"
+       cy="1044.1062"
+       r="3.0922649" />
+    <circle
+       style="stroke-width:0.243187;stroke:none;fill-opacity:1;fill:currentColor;"
+       id="path3037-1-4"
+       cx="12.729268"
+       cy="1033.7065"
+       r="1.1284846" />
+    <path
+       style="stroke-opacity:1;stroke-dasharray:none;stroke-miterlimit:4;stroke-linejoin:round;stroke-linecap:round;stroke-width:1.25956;stroke:currentColor;fill:none;"
+       d="m 10.379938,1040.226 c 2.187604,1.9194 1.379478,3.6556 0.855983,5.4514 0.242652,-0.9295 0.808991,-2.2982 0.760838,-3.1051 -0.233076,-0.9715 -2.2275138,-2.7399 -1.616821,-2.3463 z"
+       id="path3843"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="stroke-opacity:1;stroke-dasharray:none;stroke-miterlimit:4;stroke-linejoin:round;stroke-linecap:round;stroke-width:2.29606;stroke:currentColor;fill:none;"
+       d="m 9.9618652,1039.6803 1.7809448,-3.357 v 0"
+       id="path3845"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
+    <path
+       style="stroke-opacity:1;stroke-dasharray:none;stroke-miterlimit:4;stroke-linejoin:round;stroke-linecap:round;stroke-width:1.20108;stroke:currentColor;fill:none;"
+       d="m 12.150644,1036.1581 2.802445,2.5208"
+       id="path3847"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+  </g>
+</svg>
