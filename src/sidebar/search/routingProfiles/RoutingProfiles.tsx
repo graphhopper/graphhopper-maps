@@ -8,7 +8,7 @@ import * as config from 'config'
 import PlainButton from '@/PlainButton'
 
 import BicycleIcon from './bike.svg'
-import Car4wdIcon from './car4wd.svg'
+//import Car4wdIcon from './car4wd.svg'
 import CarIcon from './car.svg'
 import FootIcon from './foot.svg'
 import HikeIcon from './hike.svg'
@@ -77,8 +77,8 @@ function getIcon(profile: RoutingProfile) {
             return <RacingbikeIcon />
         case 'motorcycle':
             return <MotorcycleIcon />
-        case 'car4wd':
-            return <Car4wdIcon />
+        // case 'car4wd':
+        //     return <Car4wdIcon />
         case 'wheelchair':
             return <WheelchairIcon />
         default:

@@ -26,15 +26,19 @@
      inkscape:window-width="1920"
      inkscape:window-height="958"
      id="namedview19"
-     showgrid="false"
+     showgrid="true"
      inkscape:zoom="30.23935"
-     inkscape:cx="7.1595454"
-     inkscape:cy="8.1846997"
+     inkscape:cx="17.245741"
+     inkscape:cy="11.557788"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
-     inkscape:pagecheckerboard="0" />
+     inkscape:pagecheckerboard="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid834" />
+  </sodipodi:namedview>
   <defs
      id="defs4462">
     <pattern
@@ -70,31 +74,6 @@
   <g
      transform="translate(0,-1028.3622)"
      id="layer1">
-    <g
-       transform="translate(-243.72729,-20.886693)"
-       id="g21618"
-       style="fill:currentColor;fill-opacity:1;stroke:none;stroke-opacity:1">
-      <path
-         style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:0.3;fill:currentColor;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;enable-background:accumulate"
-         d="m 254.75,1053.3622 c -0.9695,0 -1.75,0.7805 -1.75,1.75 0,0.9695 0.85147,1.3859 1.75,1.75 2.1115,0.5909 2.52991,-3.4095 0,-3.5 z"
-         id="path17460"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="cscc" />
-      <g
-         id="g16644"
-         transform="translate(0,-1)"
-         style="fill:currentColor;fill-opacity:1;stroke:none;stroke-opacity:1">
-        <g
-           id="g6646-2"
-           style="display:inline;fill:currentColor;fill-opacity:1;stroke:none;stroke-opacity:1"
-           transform="translate(240,46)">
-          <path
-             id="rect6848-8"
-             d="m 14.875,1008.3622 c -0.9695,0 -1.75,0.7805 -1.75,1.75 0,0.9695 0.7805,1.75 1.75,1.75 0.9695,0 1.75,-0.7805 1.75,-1.75 0,-0.9695 -0.7805,-1.75 -1.75,-1.75 z"
-             style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:currentColor;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-opacity:1;marker:none;enable-background:accumulate" />
-        </g>
-      </g>
-    </g>
     <rect
        style="color:#000000;display:inline;overflow:visible;visibility:visible;opacity:0.5;fill:none;stroke:none;stroke-width:2;marker:none;enable-background:accumulate"
        id="rect22282-3"
@@ -116,9 +95,15 @@
        style="fill:url(#pattern2274);fill-opacity:1;stroke:#444444;stroke-width:3.78;stroke-miterlimit:9;stroke-dasharray:none;stroke-opacity:1" />
     <path
        style="fill:none;fill-opacity:1;stroke:currentColor;stroke-width:1.037;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
-       d="m 11.180146,1040.6926 c -1.8121869,0 -3.281255,1.4694 -3.281255,3.2814 0,1.8121 1.4690681,3.2812 3.281255,3.2812 1.812189,0 3.281257,-1.4691 3.281257,-3.2812 0,-0.8833 -0.349805,-1.6863 -0.91859,-2.2766 -0.596831,-0.6199 -1.434771,-1.0048 -2.362667,-1.0048 z"
+       d="m 11,1041.3622 c -1.8121869,0 -3.281255,1.4694 -3.281255,3.2814 0,1.8121 1.4690681,3.2812 3.281255,3.2812 1.812189,0 3.281257,-1.4691 3.281257,-3.2812 0,-0.8833 -0.349805,-1.6863 -0.91859,-2.2766 -0.596831,-0.6199 -1.434771,-1.0048 -2.362667,-1.0048 z"
        id="path2281"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ssssss" />
+    <circle
+       style="stroke-width:1.33307;fill:currentColor;"
+       id="path1118"
+       cx="11.401512"
+       cy="1034.0375"
+       r="1.75" />
   </g>
 </svg>
