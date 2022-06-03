@@ -1,6 +1,6 @@
-import { Action, ActionReceiver } from '@/stores/Dispatcher'
-import { Map } from 'ol'
-import { fromLonLat } from 'ol/proj'
+import {Action, ActionReceiver} from '@/stores/Dispatcher'
+import {Map} from 'ol'
+import {fromLonLat} from 'ol/proj'
 import {
     PathDetailsRangeSelected,
     RouteRequestSuccess,
@@ -9,7 +9,7 @@ import {
     ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
-import { Bbox } from '@/api/graphhopper'
+import {Bbox} from '@/api/graphhopper'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -46,6 +46,14 @@ export default class MapActionReceiver implements ActionReceiver {
                 widerBBox[2] = Math.max(p[0], widerBBox[2])
                 widerBBox[3] = Math.max(p[1], widerBBox[3])
             });
+            if (widerBBox[2] - widerBBox[0] < 0.001) {
+                widerBBox[0] -= 0.0005
+                widerBBox[2] += 0.0005
+            }
+            if (widerBBox[3] - widerBBox[1] < 0.001) {
+                widerBBox[1] -= 0.0005
+                widerBBox[3] += 0.0005
+            }
             fitBounds(this.map, widerBBox, isSmallScreen)
         } else if (action instanceof SetSelectedPath) {
             fitBounds(this.map, action.path.bbox!, isSmallScreen)
