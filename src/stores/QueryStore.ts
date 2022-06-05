@@ -27,6 +27,7 @@ export interface QueryStoreState {
     readonly currentRequest: CurrentRequest
     readonly maxAlternativeRoutes: number
     readonly routingProfile: RoutingProfile
+    readonly zoom: boolean
 }
 
 export interface QueryPoint {
@@ -81,6 +82,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
+            zoom: true
         }
     }
 
@@ -112,6 +114,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             const newState: QueryStoreState = {
                 ...state,
                 queryPoints: QueryStore.replacePoint(state.queryPoints, action.point),
+                zoom: action.zoom
             }
 
             return this.routeIfAllPointsSet(newState)
@@ -297,6 +300,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             points: coordinates,
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
+            zoom: state.zoom
         }
     }
 

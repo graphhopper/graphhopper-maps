@@ -104,7 +104,7 @@ describe('NavBar', function () {
 
             // modify state of stores which the nav bar depends on
             for (const point of points) {
-                queryStore.receive(new SetPoint(point))
+                queryStore.receive(new SetPoint(point, true))
             }
             queryStore.receive(new SetVehicleProfile(profile))
             mapStore.receive(new SelectMapStyle(style))
@@ -193,7 +193,7 @@ describe('NavBar', function () {
                 new SetPoint({
                     ...queryStore.state.queryPoints[0],
                     isInitialized: true,
-                })
+                }, true)
             )
 
             //act

@@ -26,7 +26,7 @@ export function PopupComponent({
                 coordinate: coordinate,
                 queryText: coordinateToText(coordinate),
                 isInitialized: true,
-            })
+            }, true)
         )
     }
 

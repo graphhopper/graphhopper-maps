@@ -56,7 +56,7 @@ describe('QueryStore', () => {
                 routingProfile: { name: 'car' },
             }
 
-            const state = store.reduce(storeState, new SetPoint(point))
+            const state = store.reduce(storeState, new SetPoint(point, true))
 
             expect(state.queryPoints[0]).toEqual(point)
         })
@@ -69,7 +69,7 @@ describe('QueryStore', () => {
             }
 
             for (const point of store.state.queryPoints) {
-                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
+                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, true))
             }
 
             // the store should not send anything unless points and routing profile are specified
@@ -88,7 +88,7 @@ describe('QueryStore', () => {
                 routingProfile: { name: 'car' },
             }
             for (const point of store.state.queryPoints) {
-                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
+                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, true))
             }
 
             expect(state.queryPoints.every(point => point.isInitialized)).toBeTruthy()
@@ -106,7 +106,7 @@ describe('QueryStore', () => {
             }
             state.queryPoints.push({ ...state.queryPoints[0], id: 2 })
             for (const point of store.state.queryPoints) {
-                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
+                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, true))
             }
 
             expect(state.queryPoints.every(point => point.isInitialized)).toBeTruthy()
@@ -276,14 +276,14 @@ describe('QueryStore', () => {
                 new SetPoint({
                     ...state.queryPoints[0],
                     isInitialized: true,
-                })
+                }, true)
             )
             state = store.reduce(
                 state,
                 new SetPoint({
                     ...state.queryPoints[1],
                     isInitialized: true,
-                })
+                }, true)
             )
             state = store.reduce(
                 state,
@@ -323,6 +323,7 @@ describe('QueryStore', () => {
                 maxAlternativeRoutes: 1,
                 points: [],
                 profile: 'some-profile',
+                zoom: true,
             }
             const subRequest: SubRequest = {
                 state: RequestState.SENT,
@@ -350,6 +351,7 @@ describe('QueryStore', () => {
                 maxAlternativeRoutes: 1,
                 points: [],
                 profile: 'some-profile',
+                zoom: true,
             }
             const subRequest: SubRequest = {
                 state: RequestState.SENT,
