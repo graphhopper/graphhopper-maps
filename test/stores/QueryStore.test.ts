@@ -273,17 +273,23 @@ describe('QueryStore', () => {
             // initialize all query points so that the store will issue a route request.
             state = store.reduce(
                 state,
-                new SetPoint({
-                    ...state.queryPoints[0],
-                    isInitialized: true,
-                }, true)
+                new SetPoint(
+                    {
+                        ...state.queryPoints[0],
+                        isInitialized: true,
+                    },
+                    true
+                )
             )
             state = store.reduce(
                 state,
-                new SetPoint({
-                    ...state.queryPoints[1],
-                    isInitialized: true,
-                }, true)
+                new SetPoint(
+                    {
+                        ...state.queryPoints[1],
+                        isInitialized: true,
+                    },
+                    true
+                )
             )
             state = store.reduce(
                 state,

@@ -190,10 +190,13 @@ describe('NavBar', function () {
                 href: 'https://origin.com',
             }
             Dispatcher.dispatch(
-                new SetPoint({
-                    ...queryStore.state.queryPoints[0],
-                    isInitialized: true,
-                }, true)
+                new SetPoint(
+                    {
+                        ...queryStore.state.queryPoints[0],
+                        isInitialized: true,
+                    },
+                    true
+                )
             )
 
             //act

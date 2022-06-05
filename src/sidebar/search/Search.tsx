@@ -73,17 +73,23 @@ const SearchBox = ({
                     onAddressSelected={(queryText, coordinate) =>
                         Dispatcher.dispatch(
                             coordinate
-                                ? new SetPoint({
-                                      ...point,
-                                      isInitialized: true,
-                                      queryText: queryText,
-                                      coordinate: coordinate,
-                                  },true)
-                                : new SetPoint({
-                                      ...point,
-                                      isInitialized: false,
-                                      queryText: queryText,
-                                  },true)
+                                ? new SetPoint(
+                                      {
+                                          ...point,
+                                          isInitialized: true,
+                                          queryText: queryText,
+                                          coordinate: coordinate,
+                                      },
+                                      true
+                                  )
+                                : new SetPoint(
+                                      {
+                                          ...point,
+                                          isInitialized: false,
+                                          queryText: queryText,
+                                      },
+                                      true
+                                  )
                         )
                     }
                     onChange={onChange}
