@@ -79,6 +79,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'profile',
+            zoom: true,
         }
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
         const ghApi = 'https://some.api/'
@@ -105,6 +106,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
+            zoom: true,
         }
 
         const expectedBody: RoutingRequest = {
@@ -138,6 +140,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 2,
             profile: 'car',
+            zoom: true,
         }
 
         const expectedBody: RoutingRequest = {
@@ -177,6 +180,7 @@ describe('route', () => {
             ],
             maxAlternativeRoutes: 1,
             profile: 'bla',
+            zoom: true,
         }
 
         fetchMock.mockResponseOnce(JSON.stringify(getEmptyResult()))
@@ -197,6 +201,7 @@ describe('route', () => {
             ],
             maxAlternativeRoutes: 1,
             profile: 'bla',
+            zoom: true,
         }
 
         const error: ErrorResponse = {
@@ -219,6 +224,7 @@ describe('route', () => {
             profile: 'car',
             points: [],
             maxAlternativeRoutes: 3,
+            zoom: true,
         }
         fetchMock.mockResponse(() => Promise.resolve({ status: 500 }))
         await expect(new ApiImpl('https://some.api/', 'key').route(args)).rejects.toThrow('Route calculation timed out')
@@ -231,6 +237,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
+            zoom: true,
         }
 
         const expectedBody: RoutingRequest = {

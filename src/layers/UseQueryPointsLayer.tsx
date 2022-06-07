@@ -87,11 +87,14 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<any>) {
         const coordinateLonLat = toLonLat(feature.getGeometry().getCoordinates())
         const coordinate = { lng: coordinateLonLat[0], lat: coordinateLonLat[1] }
         Dispatcher.dispatch(
-            new SetPoint({
-                ...point,
-                coordinate,
-                queryText: coordinateToText(coordinate),
-            })
+            new SetPoint(
+                {
+                    ...point,
+                    coordinate,
+                    queryText: coordinateToText(coordinate),
+                },
+                false
+            )
         )
     })
     modify.set('gh:drag_query_point', true)

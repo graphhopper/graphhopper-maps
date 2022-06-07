@@ -14,9 +14,11 @@ export class InfoReceived implements Action {
 
 export class SetPoint implements Action {
     readonly point: QueryPoint
+    readonly zoom: boolean
 
-    constructor(point: QueryPoint) {
+    constructor(point: QueryPoint, zoom: boolean) {
         this.point = point
+        this.zoom = zoom
     }
 }
 
