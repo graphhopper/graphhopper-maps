@@ -21,12 +21,15 @@ export function PopupComponent({
     const dispatchSetPoint = function (point: QueryPoint, coordinate: Coordinate) {
         onSelect()
         Dispatcher.dispatch(
-            new SetPoint({
-                ...point,
-                coordinate: coordinate,
-                queryText: coordinateToText(coordinate),
-                isInitialized: true,
-            })
+            new SetPoint(
+                {
+                    ...point,
+                    coordinate: coordinate,
+                    queryText: coordinateToText(coordinate),
+                    isInitialized: true,
+                },
+                true
+            )
         )
     }
 

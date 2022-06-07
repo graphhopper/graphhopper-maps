@@ -36,7 +36,6 @@ export default class MapActionReceiver implements ActionReceiver {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well but then we would have to make sure that the route
             // store digests this action first, which our Dispatcher can't at the moment.
-
             let bbox = action.result.paths[0].bbox!
             // minLon, minLat, maxLon, maxLat
             let widerBBox = [bbox[0], bbox[1], bbox[2], bbox[3]] as Bbox
@@ -54,7 +53,7 @@ export default class MapActionReceiver implements ActionReceiver {
                 widerBBox[1] -= 0.0005
                 widerBBox[3] += 0.0005
             }
-            fitBounds(this.map, widerBBox, isSmallScreen)
+            if (action.request.zoom) fitBounds(this.map, widerBBox, isSmallScreen)
         } else if (action instanceof SetSelectedPath) {
             fitBounds(this.map, action.path.bbox!, isSmallScreen)
         } else if (action instanceof PathDetailsRangeSelected) {

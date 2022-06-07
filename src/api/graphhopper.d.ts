@@ -7,6 +7,7 @@ export interface RoutingArgs {
     readonly points: [number, number][]
     readonly profile: string
     readonly maxAlternativeRoutes: number
+    readonly zoom: boolean
 }
 
 export interface RoutingRequest {
