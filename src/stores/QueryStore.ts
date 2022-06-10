@@ -27,6 +27,7 @@ export interface QueryStoreState {
     readonly currentRequest: CurrentRequest
     readonly maxAlternativeRoutes: number
     readonly routingProfile: RoutingProfile
+    // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
 }
 
