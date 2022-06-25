@@ -12,7 +12,7 @@ describe('RouteStore', () => {
 
     describe('clear route information', () => {
         it('should revert to initial state on ClearPoints Action', () => {
-            executeTest(new SetPoint(createEmptyQueryPoint()))
+            executeTest(new SetPoint(createEmptyQueryPoint(), true))
         })
         it('should revert to initial state on ClearRoute Action', () => {
             executeTest(new ClearRoute())

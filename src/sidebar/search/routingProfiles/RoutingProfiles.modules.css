@@ -1,0 +1,29 @@
+.profiles {
+    grid-column: 1 / span 4;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.profile:first-child {
+    margin-left: auto;
+}
+
+.profile:last-child {
+    margin-right: auto;
+}
+
+.selectedProfile {
+    background-color: rgba(39, 93, 173, 0.2);
+    color: #275dad;
+}
+
+.selectedProfile:hover {
+    color: #275dad;
+}
+
+.profileBtn {
+    border-radius: 50%;
+    padding: 0.4rem;
+}

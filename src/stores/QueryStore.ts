@@ -32,6 +32,8 @@ export interface QueryStoreState {
     readonly customModelEnabled: boolean
     readonly customModelValid: boolean
     readonly customModel: CustomModel | null
+    // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
+    readonly zoom: boolean
 }
 
 export interface QueryPoint {
@@ -96,6 +98,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             customModelEnabled: false,
             customModelValid: false,
             customModel: null,
+            zoom: true,
         }
     }
 
@@ -127,6 +130,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             const newState: QueryStoreState = {
                 ...state,
                 queryPoints: QueryStore.replacePoint(state.queryPoints, action.point),
+                zoom: action.zoom,
             }
 
             return this.routeIfReady(newState)
@@ -335,6 +339,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
             customModel: state.customModelEnabled ? state.customModel : null,
+            zoom: state.zoom,
         }
     }
 
