@@ -1,7 +1,7 @@
 declare module '*.css'
 declare module '*.svg'
 declare module '*.png'
-declare module 'leaflet.heightgraph/src/heightgraph'
+declare module 'heightgraph/src/heightgraph'
 
 declare module 'config' {
     const api: string
