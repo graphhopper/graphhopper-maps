@@ -5,3 +5,5 @@
 /dist/
 *~
 config-local.js
+#VS-Code Launch config
+launch.json
