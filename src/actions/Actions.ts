@@ -129,6 +129,14 @@ export class ZoomMapToPoint implements Action {
     }
 }
 
+export class QueryOSM implements Action {
+    readonly coordinate: Coordinate
+
+    constructor(coordinate: Coordinate) {
+        this.coordinate = coordinate
+    }
+}
+
 export class SetInitialBBox implements Action {
     readonly bbox: Bbox
 
