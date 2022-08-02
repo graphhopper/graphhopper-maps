@@ -9,8 +9,9 @@ import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
 import { DismissLastError, ErrorAction, SetCustomModel, SetCustomModelBoxEnabled } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
+import { tr } from '@/translation/Translation'
 
-const initialCustomModel: CustomModel = {
+const exampleCustomModel: CustomModel = {
     speed: [
         {
             if: 'road_class == MOTORWAY',
@@ -43,8 +44,8 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
     useEffect(() => {
         // we start with empty categories. they will be set later using info
         const instance = create({}, (element: Node) => divElement.current?.appendChild(element))
-        instance.value = JSON.stringify(initialCustomModel, null, 2)
         setEditor(instance)
+        setCustomModelExample(instance)
         // todo: minor glitch: if the initial model is invalid we see an 'Invalid custom model' error notification, even
         //       though the custom model box is closed initially
         instance.validListener = (valid: boolean) => {
@@ -79,12 +80,16 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.ctrlKey && event.key === 'Enter') {
                 // using this shortcut we can skip the custom model validation and force sending the request
-                const isValid = true;
+                const isValid = true
                 dispatchCustomModel(editor.value, isValid, true)
             }
         },
         [editor, isValid]
     )
+
+    const setCustomModelExample = (editor: any) => {
+        editor.value = JSON.stringify(exampleCustomModel, null, 2)
+    }
 
     return (
         <>
@@ -108,6 +113,20 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
                 style={{ display: enabled ? 'block' : 'none' }}
                 onKeyUp={triggerRouting}
             />
+            {enabled && (
+                <div>
+                    <a
+                        className={styles.helpLink}
+                        href="https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md"
+                    >
+                        {tr('help')}
+                    </a>
+                    |
+                    <button className={styles.exampleButton} onClick={() => setCustomModelExample(editor)}>
+                        {tr('example')}
+                    </button>
+                </div>
+            )}
         </>
     )
 }

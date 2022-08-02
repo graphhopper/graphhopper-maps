@@ -41,7 +41,9 @@
 "route_request_failed":"Route request failed",
 "current_location":"Current Location",
 "searching_location":"Searching location",
-"searching_location_failed":"Searching location failed"
+"searching_location_failed":"Searching location failed",
+"help":"Help",
+"example":"Example"
 },
 "ar":{
 "via_hint":"خلال",

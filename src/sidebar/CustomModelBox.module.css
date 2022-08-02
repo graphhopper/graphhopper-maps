@@ -1,3 +1,15 @@
 .customModelBox {
     height: 15rem;
 }
+.helpLink {
+    font-size: small;
+    color: #417900;
+}
+.exampleButton {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+    color: #417900;
+}
