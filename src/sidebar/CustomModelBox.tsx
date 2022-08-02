@@ -11,8 +11,22 @@ import { DismissLastError, ErrorAction, SetCustomModel, SetCustomModelBoxEnabled
 import { CustomModel } from '@/stores/QueryStore'
 
 const initialCustomModel: CustomModel = {
-    speed: [],
-    priority: [],
+    speed: [
+        {
+            if: 'road_class == MOTORWAY',
+            multiply_by: '0.0',
+        },
+    ],
+    priority: [
+        {
+            if: 'road_environment == TUNNEL',
+            multiply_by: '0.5',
+        },
+        {
+            if: 'max_weight < 3',
+            multiply_by: '0.0',
+        },
+    ],
 }
 
 export interface CustomModelBoxProps {
@@ -31,11 +45,12 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
         const instance = create({}, (element: Node) => divElement.current?.appendChild(element))
         instance.value = JSON.stringify(initialCustomModel, null, 2)
         setEditor(instance)
+        // todo: minor glitch: if the initial model is invalid we see an 'Invalid custom model' error notification, even
+        //       though the custom model box is closed initially
         instance.validListener = (valid: boolean) => {
             dispatchCustomModel(instance.value, valid)
             setIsValid(valid)
         }
-        dispatchCustomModel(initialCustomModel, true)
     }, [])
 
     useEffect(() => {
@@ -63,6 +78,8 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
     const triggerRouting = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.ctrlKey && event.key === 'Enter') {
+                // using this shortcut we can skip the custom model validation and force sending the request
+                const isValid = true;
                 dispatchCustomModel(editor.value, isValid, true)
             }
         },
