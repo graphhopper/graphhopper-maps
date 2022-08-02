@@ -189,7 +189,7 @@ describe('route', () => {
                     },
                 ],
             },
-            zoom: true
+            zoom: true,
         }
 
         const expectedBody: RoutingRequest = {
