@@ -13,7 +13,17 @@
     cursor: pointer;
     outline: inherit;
     font-size: medium;
+    float: left;
 }
+
+.close {
+    border: none;
+    background: none;
+    position: absolute;
+    top: 0.1em;
+    right: 0.2em;
+}
+
 hr {
     width: 100%;
     margin-left: auto;
