@@ -58,26 +58,3 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
     )
 }
 
-class LongTouchHandler {
-    private readonly callback: (e: any) => void
-    private currentTimeout: number = 0
-    private currentEvent?: any
-
-    constructor(onLongTouch: (e: any) => void) {
-        this.callback = onLongTouch
-    }
-
-    onTouchStart(e: any) {
-        this.currentEvent = e
-        this.currentTimeout = window.setTimeout(() => {
-            console.log('long touch')
-            if (this.currentEvent) this.callback(this.currentEvent)
-        }, 500)
-    }
-
-    onTouchEnd() {
-        console.log('touch end')
-        window.clearTimeout(this.currentTimeout)
-        this.currentEvent = undefined
-    }
-}
