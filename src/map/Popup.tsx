@@ -86,6 +86,7 @@ export function PopupComponent({
             >
                 To here
             </button>
+            <hr/>
             <button
                 className={styles.entry}
                 onClick={() => {
