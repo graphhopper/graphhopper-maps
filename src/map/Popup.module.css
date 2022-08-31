@@ -1,6 +1,7 @@
 .wrapper {
     display: flex;
     flex-direction: column;
+    width: 7em;
 }
 
 .entry {
@@ -8,13 +9,40 @@
     background: none;
     color: inherit;
     font: inherit;
-    /* this compensates the border of mapbox's popup container */
-    padding: 0 10px;
-    margin: 0 -10px;
-    min-height: 1.5rem;
+    text-align: left;
     cursor: pointer;
     outline: inherit;
     font-size: medium;
+    float: left;
+}
+
+.closeBtn:hover {
+    cursor: pointer;
+    color: black;
+}
+.closeBtn {
+    color: gray;
+}
+.closeBtn, .closeBtn:hover{
+    border: none;
+    background: none;
+    position: absolute;
+    top: 0.2em;
+    right: 0.2em;
+
+    width: 20px;
+    align-self: flex-start;
+    flex-shrink: 0;
+}
+
+.closeBtn svg {
+    width: 100%;
+}
+
+hr {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .entry:hover {

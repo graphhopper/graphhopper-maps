@@ -64,7 +64,7 @@ function clampWidth(clientWidth: number) {
 }
 
 /** executed when we hover the mouse over the path details diagram */
-function onPathDetailHover(point: Coordinate, elevation: string, description: string) {
+function onPathDetailHover(point: Coordinate, elevation: number, description: string) {
     Dispatcher.dispatch(new PathDetailsHover(point ? { point, elevation, description } : null))
 }
 
