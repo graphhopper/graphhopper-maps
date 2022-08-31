@@ -6,6 +6,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
+import Cross from '@/sidebar/times-solid.svg'
 
 export function PopupComponent({
     coordinate,
@@ -70,8 +71,8 @@ export function PopupComponent({
 
     return (
         <div className={styles.wrapper}>
-            <button className={styles.close} onClick={() => {onSelect();}}>
-                &times;
+            <button className={styles.closeBtn} onClick={() => {onSelect();}}>
+                <Cross />
             </button>
             <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
                 From here

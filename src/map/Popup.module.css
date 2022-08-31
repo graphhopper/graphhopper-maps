@@ -16,14 +16,27 @@
     float: left;
 }
 
-.close {
+.closeBtn:hover {
+    cursor: pointer;
+    color: black;
+}
+.closeBtn {
+    color: gray;
+}
+.closeBtn, .closeBtn:hover{
     border: none;
     background: none;
     position: absolute;
-    top: 0.1em;
+    top: 0.2em;
     right: 0.2em;
-    color: gray;
-    font-size: larger;
+
+    width: 20px;
+    align-self: flex-start;
+    flex-shrink: 0;
+}
+
+.closeBtn svg {
+    width: 100%;
 }
 
 hr {
