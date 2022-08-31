@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { RasterStyle, StyleOption } from '@/stores/MapOptionsStore'
 import TileLayer from 'ol/layer/Tile'
 import { XYZ } from 'ol/source'
-import addLayers from 'ol-mapbox-style'
+import { apply } from 'ol-mapbox-style'
 
 export default function useBackgroundLayer(map: Map, styleOption: StyleOption) {
     useEffect(() => {
@@ -30,7 +30,7 @@ function removeCurrentBackgroundLayers(map: Map) {
 function addNewBackgroundLayers(map: Map, styleOption: StyleOption) {
     if (styleOption.type === 'vector') {
         // todo: handle promise return value?
-        addLayers(map, styleOption.url)
+        apply(map, styleOption.url)
     } else {
         const rasterStyle = styleOption as RasterStyle
         const tileLayer = new TileLayer({
