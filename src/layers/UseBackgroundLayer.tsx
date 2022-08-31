@@ -51,6 +51,6 @@ function setupMouseInteraction(map: Map) {
         const features = map.getFeaturesAtPixel(evt.pixel)
         // features can also contain 'RenderFeatures' for vector tiles, but in this case the cursor should not change
         const atFeature = features.some(f => f instanceof Feature)
-        map.getTargetElement().style.cursor = atFeature ? 'pointer' : 'grab'
+        map.getTargetElement().style.cursor = atFeature ? 'pointer' : 'default'
     })
 }
