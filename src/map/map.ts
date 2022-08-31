@@ -23,6 +23,7 @@ export function createMap(): Map {
             },
         }),
     })
+    map.getViewport().style.cursor = 'default';
     map.once('postrender', () => {
         Dispatcher.dispatch(new MapIsLoaded())
     })
