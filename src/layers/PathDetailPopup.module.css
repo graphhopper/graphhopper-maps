@@ -4,14 +4,15 @@
    */
 .popup {
     position: absolute;
-    background-color: white;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid #cccccc;
     bottom: 12px;
     left: -50px;
-    min-width: 100px;
+    background-color: white;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    padding: 0 15px 0 15px;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    font-size: small;
+    width: 110px;
 }
 .popup:after,
 .popup:before {

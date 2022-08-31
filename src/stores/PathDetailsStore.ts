@@ -6,7 +6,7 @@ import { Bbox } from '@/api/graphhopper'
 
 export interface PathDetailsPoint {
     point: Coordinate
-    elevation: string
+    elevation: number
     description: string
 }
 

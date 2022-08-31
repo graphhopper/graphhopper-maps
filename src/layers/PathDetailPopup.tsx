@@ -38,7 +38,7 @@ export default function PathDetailPopup({ map, pathDetails }: PathDetailPopupPro
         <div className={styles.popup} ref={container as any}>
             {pathDetails.pathDetailsPoint && (
                 <p>
-                    elevation: {pathDetails.pathDetailsPoint.elevation}
+                    {Math.round(pathDetails.pathDetailsPoint.elevation)}
                     <br />
                     {pathDetails.pathDetailsPoint!.description}
                 </p>
