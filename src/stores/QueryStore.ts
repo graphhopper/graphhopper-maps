@@ -48,8 +48,8 @@ export interface QueryPoint {
 export interface CustomModel {
     readonly speed?: object[]
     readonly priority?: object[]
-    readonly distanceInfluence?: number
-    readonly areas?: object[]
+    readonly distance_influence?: number
+    readonly areas?: object
 }
 
 export enum QueryPointType {

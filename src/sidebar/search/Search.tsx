@@ -11,6 +11,7 @@ import { RoutingProfile } from '@/api/graphhopper'
 
 import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
+import {tr} from "@/translation/Translation";
 
 export default function Search({
     points,
@@ -40,6 +41,7 @@ export default function Search({
                 />
             ))}
             <PlainButton
+                title={tr("Add Stop")}
                 onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
                 className={styles.addSearchBox}
             >
@@ -97,6 +99,7 @@ const SearchBox = ({
             </div>
             {deletable && (
                 <PlainButton
+                    title={tr("Remove Stop")}
                     onClick={() => Dispatcher.dispatch(new RemovePoint(point))}
                     className={styles.removeSearchBox}
                 >

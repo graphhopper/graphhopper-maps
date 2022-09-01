@@ -1,15 +1,83 @@
 .customModelBox {
-    height: 15rem;
+    border-bottom: lightgray solid 1px;
+    border-top: lightgray solid 1px;
+    height: 18rem;
 }
-.helpLink {
-    font-size: small;
-    color: #417900;
+#element::-webkit-scrollbar {
+    display: none;
 }
-.exampleButton {
-    background: none;
-    border: none;
+.enabledSettings svg path, .settings svg path{
+    fill: #5b616a;
+    stroke: #5b616a;
+}
+
+.enabledSettings svg, .settings svg {
+    margin: 0;
     padding: 0;
+    width: 19px;
+    height: auto;
+}
+
+.settings svg {
+    animation-name: reverse_rotate;
+    animation-duration: 0.2s;
+}
+
+.enabledSettings svg {
+    animation-name: setting_rotate;
+    animation-duration: 0.2s;
+}
+
+@keyframes setting_rotate {
+    0% {
+        transform: rotate(0);
+    }
+    100% {
+        transform: rotate(120deg);
+    }
+}
+
+@keyframes reverse_rotate {
+    0% {
+        transform: rotate(120deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
+}
+
+.enabledSettings, .settings {
+    margin-left: 0.3em;
+    border-radius: 50%;
+    padding: 0.2rem;
+    width: 27px;
+}
+
+.examples {
+    outline-color: #368fe8;
+    border: none;
+    border-bottom: #ececec solid 1px;
+    border-right: #ececec solid 1px;
+    border-left: #ececec solid 1px;
+    padding-left: 0;
+    margin-left: 20px;
+    background-color: white;
+    color: rgba(0,60,136,0.7);
+}
+
+.examples option {
+    background-color: white;
+    color: rgba(0,60,136,0.7);
+}
+
+.helpLink {
+    padding-left: 1.2em;
+}
+
+.helpLink, .examples {
     cursor: pointer;
-    text-decoration: underline;
-    color: #417900;
+    color: rgba(0,60,136,0.7);
+    font-family: Arial, serif;
+    font-size: small;
+    text-decoration: none;
 }
