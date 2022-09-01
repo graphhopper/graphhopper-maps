@@ -7,9 +7,14 @@
 #element::-webkit-scrollbar {
     display: none;
 }
-.enabledSettings svg path, .settings svg path{
+.enabledSettings svg path, .settings svg path {
     fill: #5b616a;
     stroke: #5b616a;
+}
+
+.settings:hover svg path{
+    fill: #000000;
+    stroke: #000000;
 }
 
 .enabledSettings svg, .settings svg {
