@@ -24,12 +24,16 @@ import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
 import MapActionReceiver from '@/stores/MapActionReceiver'
 import { createMap, getMap, setMap } from '@/map/map'
+import {SetCustomModel, SetCustomModelBoxEnabled} from "@/actions/Actions";
 
-let locale = new URL(window.location.href).searchParams.get('locale')
+const url = new URL(window.location.href)
+const locale = url.searchParams.get('locale')
 setTranslation(locale || navigator.language)
 
-// set up state management
-setApi(config.api, getApiKey())
+// use graphhopper api key from url or try using one from the config
+const apiKey = url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
+setApi(config.api, apiKey)
+
 const queryStore = new QueryStore(getApi())
 const routeStore = new RouteStore(queryStore)
 
@@ -64,6 +68,12 @@ const navBar = new NavBar(getQueryStore(), getMapOptionsStore())
 // parse the initial url
 navBar.parseUrlAndReplaceQuery()
 
+const customModelStr = url.searchParams.get('custom_model')
+if(customModelStr != null) {
+    Dispatcher.dispatch(new SetCustomModelBoxEnabled(true))
+    Dispatcher.dispatch(new SetCustomModel(JSON.parse(customModelStr), true, true))
+}
+
 // create a div which holds the app and render the 'App' component
 const root = document.createElement('div') as HTMLDivElement
 root.id = 'root'
@@ -72,8 +82,3 @@ document.body.appendChild(root)
 
 ReactDOM.render(<App />, root)
 
-function getApiKey() {
-    const url = new URL(window.location.href)
-    // use graphhopper api key from url or try using one from the config
-    return url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
-}
