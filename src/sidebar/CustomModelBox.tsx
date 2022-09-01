@@ -136,6 +136,7 @@ export default function CustomModelBox({enabled, encodedValues}: CustomModelBoxP
             {enabled && (
                 <div style={{'alignContent': 'center'}}>
                     <a
+                        target="_blank"
                         className={styles.helpLink}
                         href="https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md"
                     >

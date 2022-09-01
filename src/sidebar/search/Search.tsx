@@ -41,11 +41,11 @@ export default function Search({
                 />
             ))}
             <PlainButton
-                title={tr("Add Stop")}
                 onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
                 className={styles.addSearchBox}
             >
                 <AddIcon />
+                <div>{tr("Add Location")}</div>
             </PlainButton>
         </div>
     )
