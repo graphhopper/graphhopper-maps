@@ -4,6 +4,7 @@
     flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
+    padding: 0.1em 0 0.1em 0.3em;
 }
 
 .profile:first-child {
@@ -25,5 +26,6 @@
 
 .profileBtn {
     border-radius: 50%;
-    padding: 0.4rem;
+    padding: 0.45rem;
+    outline-color: #368fe8; /* doesn't work for firefox? force blue for chrome too */
 }
