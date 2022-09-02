@@ -14,7 +14,7 @@ import SettingsSVG from './settings.svg'
 import SettingsClickedSVG from './settings-clicked.svg'
 import PlainButton from "@/PlainButton";
 
-const examples: { [key: string]: CustomModel } = {
+const examples: {[key: string]: CustomModel} = {
     empty: {
         distance_influence: 70,
         speed: [],
@@ -57,10 +57,9 @@ const examples: { [key: string]: CustomModel } = {
 export interface CustomModelBoxProps {
     enabled: boolean
     encodedValues: object[]
-    customModel: CustomModel | null
 }
 
-export default function CustomModelBox({enabled, encodedValues, customModel}: CustomModelBoxProps) {
+export default function CustomModelBox({enabled, encodedValues}: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)
@@ -70,12 +69,7 @@ export default function CustomModelBox({enabled, encodedValues, customModel}: Cu
         // we start with empty categories. they will be set later using info
         const instance = create({}, (element: Node) => divElement.current?.appendChild(element))
         setEditor(instance)
-
-        if (customModel != null)
-            setCustomModel(instance, customModel)
-        else
-            setCustomModel(instance, examples["empty"])
-
+        setCustomModelExample(instance, "empty")
         // todo: minor glitch: if the initial model is invalid we see an 'Invalid custom model' error notification, even
         //       though the custom model box is closed initially
         instance.validListener = (valid: boolean) => {
@@ -117,8 +111,8 @@ export default function CustomModelBox({enabled, encodedValues, customModel}: Cu
         [editor, isValid]
     )
 
-    const setCustomModel = (editor: any, value: object) => {
-        editor.value = JSON.stringify(value, null, 2)
+    const setCustomModelExample = (editor: any, value: string) => {
+        editor.value = JSON.stringify(examples[value], null, 2)
     }
 
     return (
@@ -150,7 +144,7 @@ export default function CustomModelBox({enabled, encodedValues, customModel}: Cu
                     </a>
 
                     <select className={styles.examples} onChange={(e: any) => {
-                        setCustomModel(editor, examples[e.target.value])
+                        setCustomModelExample(editor, e.target.value)
                         dispatchCustomModel(JSON.stringify(examples[e.target.value]), true, true)
                     }}>
                         <option value="empty">{tr("Examples")}</option>
