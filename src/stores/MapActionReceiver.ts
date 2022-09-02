@@ -44,7 +44,7 @@ export default class MapActionReceiver implements ActionReceiver {
                 widerBBox[1] = Math.min(p[1], widerBBox[1])
                 widerBBox[2] = Math.max(p[0], widerBBox[2])
                 widerBBox[3] = Math.max(p[1], widerBBox[3])
-            });
+            })
             if (widerBBox[2] - widerBBox[0] < 0.001) {
                 widerBBox[0] -= 0.0005
                 widerBBox[2] += 0.0005

@@ -145,7 +145,7 @@ export class ApiImpl implements Api {
     }
 
     static createRequest(args: RoutingArgs): RoutingRequest {
-        const request: RoutingRequest = {
+        let request: RoutingRequest = {
             points: args.points,
             profile: args.profile,
             elevation: true,
@@ -157,6 +157,11 @@ export class ApiImpl implements Api {
             snap_preventions: ['ferry'],
             details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
             ...(config.extraProfiles ? (config.extraProfiles as any)[args.profile] : {}),
+        }
+
+        if (args.customModel) {
+            request.custom_model = args.customModel
+            request['ch.disable'] = true
         }
 
         if (args.maxAlternativeRoutes > 1) {
@@ -195,6 +200,7 @@ export class ApiImpl implements Api {
             bbox: bbox,
             version: version,
             import_date: import_date,
+            encoded_values: response.encoded_values,
         }
     }
 

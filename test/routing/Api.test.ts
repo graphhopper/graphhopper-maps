@@ -32,6 +32,7 @@ describe('info api', () => {
             profiles: [],
             elevation: false,
             version: 'some_version',
+            encoded_values: [],
         }
 
         fetchMock.mockResponse(request => {
@@ -46,6 +47,7 @@ describe('info api', () => {
                     version: expected.version,
                     profiles: [],
                     elevation: expected.elevation,
+                    encoded_values: expected.encoded_values,
                 })
             )
         })
@@ -79,6 +81,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'profile',
+            customModel: null,
             zoom: true,
         }
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
@@ -106,6 +109,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
+            customModel: null,
             zoom: true,
         }
 
@@ -140,6 +144,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 2,
             profile: 'car',
+            customModel: null,
             zoom: true,
         }
 
@@ -171,6 +176,50 @@ describe('route', () => {
         expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestSuccess(args, getEmptyResult()))
     })
 
+    it('transforms routingArgs into routing request with custom model', async () => {
+        const args: RoutingArgs = {
+            points: [],
+            maxAlternativeRoutes: 1,
+            profile: 'car',
+            customModel: {
+                speed: [
+                    {
+                        if: 'road_class == MOTORWAY',
+                        multiply_by: 0.8,
+                    },
+                ],
+            },
+            zoom: true,
+        }
+
+        const expectedBody: RoutingRequest = {
+            points: args.points,
+            profile: args.profile,
+            elevation: true,
+            debug: false,
+            instructions: true,
+            locale: 'en_US',
+            optimize: 'false',
+            points_encoded: true,
+            snap_preventions: ['ferry'],
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
+            custom_model: args.customModel!,
+            'ch.disable': true,
+        }
+
+        const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
+
+        fetchMock.mockResponse(async request => {
+            return compareRequestBodyAndResolve(request, expectedBody)
+        })
+
+        new ApiImpl('https://some.api/', 'key').routeWithDispatch(args)
+        await flushPromises()
+
+        expect(mockedDispatcher).toHaveBeenCalledTimes(1)
+        expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestSuccess(args, getEmptyResult()))
+    })
+
     // i guess this is implicitly tested above, but it is nice to write it down like this.
     it('should create an action when a response is received', async () => {
         const args: RoutingArgs = {
@@ -180,6 +229,7 @@ describe('route', () => {
             ],
             maxAlternativeRoutes: 1,
             profile: 'bla',
+            customModel: null,
             zoom: true,
         }
 
@@ -201,6 +251,7 @@ describe('route', () => {
             ],
             maxAlternativeRoutes: 1,
             profile: 'bla',
+            customModel: null,
             zoom: true,
         }
 
@@ -224,6 +275,7 @@ describe('route', () => {
             profile: 'car',
             points: [],
             maxAlternativeRoutes: 3,
+            customModel: null,
             zoom: true,
         }
         fetchMock.mockResponse(() => Promise.resolve({ status: 500 }))
@@ -237,6 +289,7 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
+            customModel: null,
             zoom: true,
         }
 

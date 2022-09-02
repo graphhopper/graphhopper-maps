@@ -23,7 +23,8 @@
 .closeBtn {
     color: gray;
 }
-.closeBtn, .closeBtn:hover{
+.closeBtn,
+.closeBtn:hover {
     border: none;
     background: none;
     position: absolute;

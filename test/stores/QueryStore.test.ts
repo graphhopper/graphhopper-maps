@@ -249,6 +249,7 @@ describe('QueryStore', () => {
                     version: '',
                     import_date: '',
                     bbox: [0, 0, 0, 0],
+                    encoded_values: [],
                 })
             )
 
@@ -299,6 +300,7 @@ describe('QueryStore', () => {
                     version: '',
                     import_date: '',
                     bbox: [0, 0, 0, 0],
+                    encoded_values: [],
                 })
             )
 
@@ -329,6 +331,7 @@ describe('QueryStore', () => {
                 maxAlternativeRoutes: 1,
                 points: [],
                 profile: 'some-profile',
+                customModel: null,
                 zoom: true,
             }
             const subRequest: SubRequest = {
@@ -357,6 +360,7 @@ describe('QueryStore', () => {
                 maxAlternativeRoutes: 1,
                 points: [],
                 profile: 'some-profile',
+                customModel: null,
                 zoom: true,
             }
             const subRequest: SubRequest = {

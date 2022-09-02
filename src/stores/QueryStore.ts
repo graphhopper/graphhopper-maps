@@ -10,6 +10,8 @@ import {
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
+    SetCustomModel,
+    SetCustomModelBoxEnabled,
     SetPoint,
     SetRoutingParametersAtOnce,
     SetVehicleProfile,
@@ -27,6 +29,9 @@ export interface QueryStoreState {
     readonly currentRequest: CurrentRequest
     readonly maxAlternativeRoutes: number
     readonly routingProfile: RoutingProfile
+    readonly customModelEnabled: boolean
+    readonly customModelValid: boolean
+    readonly customModel: CustomModel | null
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
 }
@@ -38,6 +43,13 @@ export interface QueryPoint {
     readonly color: string
     readonly id: number
     readonly type: QueryPointType
+}
+
+export interface CustomModel {
+    readonly speed?: object[]
+    readonly priority?: object[]
+    readonly distance_influence?: number
+    readonly areas?: object
 }
 
 export enum QueryPointType {
@@ -83,6 +95,9 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
+            customModelEnabled: false,
+            customModelValid: false,
+            customModel: null,
             zoom: true,
         }
     }
@@ -118,7 +133,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 zoom: action.zoom,
             }
 
-            return this.routeIfAllPointsSet(newState)
+            return this.routeIfReady(newState)
         } else if (action instanceof AddPoint) {
             const tmp = state.queryPoints.slice()
             const queryText = action.isInitialized ? coordinateToText(action.coordinate) : ''
@@ -145,7 +160,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 queryPoints: newPoints,
             }
 
-            return this.routeIfAllPointsSet(newState)
+            return this.routeIfReady(newState)
         } else if (action instanceof SetRoutingParametersAtOnce) {
             // make sure that some things are set correclty, regardless of what was passed in here.
             const queryPoints = action.queryPoints.map((point, i) => {
@@ -162,7 +177,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             })
             const nextId = state.nextQueryPointId + queryPoints.length
 
-            return this.routeIfAllPointsSet({
+            return this.routeIfReady({
                 ...state,
                 queryPoints: queryPoints,
                 nextQueryPointId: nextId,
@@ -180,14 +195,14 @@ export default class QueryStore extends Store<QueryStoreState> {
                 ...state,
                 queryPoints: newPoints,
             }
-            return this.routeIfAllPointsSet(newState)
+            return this.routeIfReady(newState)
         } else if (action instanceof InfoReceived) {
             // if a routing profile was in the url keep it regardless. Also, do nothing if no routing profiles were received
             if (state.routingProfile.name || action.result.profiles.length <= 0) return state
 
             // otherwise select the first entry as default routing mode
             const profile = action.result.profiles[0]
-            return this.routeIfAllPointsSet({
+            return this.routeIfReady({
                 ...state,
                 routingProfile: profile,
             })
@@ -197,9 +212,24 @@ export default class QueryStore extends Store<QueryStoreState> {
                 routingProfile: action.profile,
             }
 
-            return this.routeIfAllPointsSet(newState)
+            return this.routeIfReady(newState)
+        } else if (action instanceof SetCustomModel) {
+            const newState: QueryStoreState = {
+                ...state,
+                customModel: action.customModel,
+                customModelValid: action.valid,
+            }
+
+            if (action.issueRouteRequest) return this.routeIfReady(newState)
+            else return newState
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
+        } else if (action instanceof SetCustomModelBoxEnabled) {
+            const newState: QueryStoreState = {
+                ...state,
+                customModelEnabled: action.enabled,
+            }
+            return this.routeIfReady(newState)
         }
         return state
     }
@@ -219,12 +249,8 @@ export default class QueryStore extends Store<QueryStoreState> {
         }
     }
 
-    private routeIfAllPointsSet(state: QueryStoreState): QueryStoreState {
-        if (
-            state.queryPoints.length > 1 &&
-            state.queryPoints.every(point => point.isInitialized) &&
-            state.routingProfile.name
-        ) {
+    private routeIfReady(state: QueryStoreState): QueryStoreState {
+        if (QueryStore.isReadyToRoute(state)) {
             const requests = [
                 QueryStore.buildRouteRequest({
                     ...state,
@@ -254,6 +280,17 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         subRequests.forEach(subRequest => this.api.routeWithDispatch(subRequest.args))
         return subRequests
+    }
+
+    private static isReadyToRoute(state: QueryStoreState) {
+        // deliberately chose this style of if statements, to make this readable.
+        if (state.customModelEnabled && !state.customModel) return false
+        if (state.customModelEnabled && state.customModel && !state.customModelValid) return false
+        if (state.queryPoints.length <= 1) return false
+        if (!state.queryPoints.every(point => point.isInitialized)) return false
+        if (!state.routingProfile.name) return false
+
+        return true
     }
 
     private static replacePoint(points: QueryPoint[], point: QueryPoint) {
@@ -301,6 +338,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             points: coordinates,
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
+            customModel: state.customModelEnabled ? state.customModel : null,
             zoom: state.zoom,
         }
     }

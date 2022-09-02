@@ -57,4 +57,3 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
         </div>
     )
 }
-

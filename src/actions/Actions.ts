@@ -1,5 +1,5 @@
 import { Action } from '@/stores/Dispatcher'
-import { Coordinate, QueryPoint } from '@/stores/QueryStore'
+import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
@@ -67,6 +67,26 @@ export class InvalidatePoint implements Action {
 
     constructor(point: QueryPoint) {
         this.point = point
+    }
+}
+
+export class SetCustomModelBoxEnabled implements Action {
+    readonly enabled: boolean
+
+    constructor(enabled: boolean) {
+        this.enabled = enabled
+    }
+}
+
+export class SetCustomModel implements Action {
+    readonly customModel: CustomModel | null
+    readonly valid: boolean
+    readonly issueRouteRequest
+
+    constructor(customModel: CustomModel | null, valid: boolean, issueRouteRequest = false) {
+        this.customModel = customModel
+        this.valid = valid
+        this.issueRouteRequest = issueRouteRequest
     }
 }
 
