@@ -76,7 +76,7 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
         // we start with empty categories. they will be set later using info
         const instance = create({}, (element: Node) => divElement.current?.appendChild(element))
         setEditor(instance)
-        setCustomModelExample(instance, 'empty')
+        setCustomModelExample(instance, examples['empty'])
         // todo: minor glitch: if the initial model is invalid we see an 'Invalid custom model' error notification, even
         //       though the custom model box is closed initially
         instance.validListener = (valid: boolean) => {
@@ -118,8 +118,8 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
         [editor, isValid]
     )
 
-    const setCustomModelExample = (editor: any, value: string) => {
-        editor.value = JSON.stringify(examples[value], null, 2)
+    const setCustomModelExample = (editor: any, customModelExample: CustomModel) => {
+        editor.value = JSON.stringify(customModelExample, null, 2)
     }
 
     return (
@@ -154,7 +154,7 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
                     <select
                         className={styles.examples}
                         onChange={(e: any) => {
-                            setCustomModelExample(editor, e.target.value)
+                            setCustomModelExample(editor, examples[e.target.value])
                             dispatchCustomModel(JSON.stringify(examples[e.target.value]), true, true)
                         }}
                     >
