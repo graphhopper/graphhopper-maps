@@ -71,7 +71,12 @@ export function PopupComponent({
 
     return (
         <div className={styles.wrapper}>
-            <button className={styles.closeBtn} onClick={() => {onSelect();}}>
+            <button
+                className={styles.closeBtn}
+                onClick={() => {
+                    onSelect()
+                }}
+            >
                 <Cross />
             </button>
             <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
@@ -90,7 +95,7 @@ export function PopupComponent({
             >
                 To here
             </button>
-            <hr/>
+            <hr />
             <button
                 className={styles.entry}
                 onClick={() => {
