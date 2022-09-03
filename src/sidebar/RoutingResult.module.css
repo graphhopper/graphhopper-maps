@@ -26,7 +26,7 @@
 
 .selectedResultSummary {
     border-left: #275dad solid 0.25rem;
-    padding: 0 0.5rem 0 0.75rem;
+    padding: 0 1rem 0 0.75rem;
 }
 
 .resultValues {
@@ -44,32 +44,24 @@
     color: #5b616a;
 }
 
-/*
-This is not a very nice duplication but I have to stop now...
- */
-.detailsButton {
-    display: grid;
-    justify-content: end;
-    align-items: center;
-    width: 4rem;
+.detailsButton div {
+    color: #5b616a;
 }
 
-.detailsButtonFlipped {
-    display: grid;
-    justify-content: end;
-    align-items: center;
-    width: 4rem;
+.detailsButton div, .detailsButtonExpanded div {
+    font-size: 14px;
+    float: left;
+    padding-top: 0.25em;
+    padding-left: 0.5em;
 }
-
-.detailsButton > svg {
-    transition: 0.3s ease;
-    height: 1.2rem;
+.detailsButton svg, .detailsButtonExpanded svg {
+    float: left;
+    width: 1.5em;
+    height: auto;
 }
-
-.detailsButtonFlipped > svg {
-    transition: 0.3s ease;
-    transform: rotateX(180deg);
-    height: 1.2rem;
+.detailsButton svg path {
+    fill: #5b616a;
+    stroke: #5b616a;
 }
 
 .placeholderContainer {
