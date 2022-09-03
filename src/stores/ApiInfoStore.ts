@@ -4,7 +4,11 @@ import { InfoReceived } from '@/actions/Actions'
 import { ApiInfo } from '@/api/graphhopper'
 
 export default class ApiInfoStore extends Store<ApiInfo> {
-    protected getInitialState(): ApiInfo {
+    constructor() {
+        super(ApiInfoStore.getInitialState())
+    }
+
+    private static getInitialState(): ApiInfo {
         return {
             version: '',
             bbox: [0, 0, 0, 0],
