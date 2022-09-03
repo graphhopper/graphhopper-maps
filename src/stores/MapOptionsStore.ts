@@ -216,7 +216,11 @@ const styleOptions: StyleOption[] = [
 ]
 
 export default class MapOptionsStore extends Store<MapOptionsStoreState> {
-    protected getInitialState(): MapOptionsStoreState {
+    constructor() {
+        super(MapOptionsStore.getInitialState())
+    }
+
+    private static getInitialState(): MapOptionsStoreState {
         const selectedStyle = styleOptions.find(s => s.name === config.defaultTiles)
         if (!selectedStyle)
             console.warn(

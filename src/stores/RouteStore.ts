@@ -39,7 +39,7 @@ export default class RouteStore extends Store<RouteStoreState> {
     private readonly queryStore: QueryStore
 
     constructor(queryStore: QueryStore) {
-        super()
+        super(RouteStore.getInitialState())
         this.queryStore = queryStore
     }
 
@@ -57,12 +57,12 @@ export default class RouteStore extends Store<RouteStoreState> {
             action instanceof ClearPoints ||
             action instanceof RemovePoint
         ) {
-            return this.getInitialState()
+            return RouteStore.getInitialState()
         }
         return state
     }
 
-    protected getInitialState(): RouteStoreState {
+    private static getInitialState(): RouteStoreState {
         return {
             routingResult: {
                 paths: [],
@@ -84,7 +84,7 @@ export default class RouteStore extends Store<RouteStoreState> {
                 selectedPath: action.result.paths[0],
             }
         }
-        return this.getInitialState()
+        return RouteStore.getInitialState()
     }
 
     private isStaleRequest(request: RoutingArgs) {

@@ -3,8 +3,8 @@ import { Action, ActionReceiver, NotifyStateChanged } from '@/stores/Dispatcher'
 export default abstract class Store<TState> implements ActionReceiver, NotifyStateChanged {
     private _subscriptions: { (): void }[] = []
 
-    constructor() {
-        this._state = this.getInitialState()
+    protected constructor(initialState: TState) {
+        this._state = initialState
     }
 
     private _state: TState
@@ -29,8 +29,6 @@ export default abstract class Store<TState> implements ActionReceiver, NotifySta
     deregister(callback: () => void): void {
         this._subscriptions = this._subscriptions.filter(s => s !== callback)
     }
-
-    protected abstract getInitialState(): TState
 
     abstract reduce(state: TState, action: Action): TState
 

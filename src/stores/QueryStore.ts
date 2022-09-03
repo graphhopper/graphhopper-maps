@@ -77,11 +77,11 @@ export default class QueryStore extends Store<QueryStoreState> {
     private readonly api: Api
 
     constructor(api: Api) {
-        super()
+        super(QueryStore.getInitialState())
         this.api = api
     }
 
-    protected getInitialState(): QueryStoreState {
+    private static getInitialState(): QueryStoreState {
         return {
             queryPoints: [
                 QueryStore.getEmptyPoint(0, QueryPointType.From),
