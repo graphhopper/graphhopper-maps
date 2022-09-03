@@ -34,6 +34,8 @@ export interface QueryStoreState {
     readonly customModel: CustomModel | null
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
+    // todo: ... and this also
+    readonly initialCustomModelStr: string | null
 }
 
 export interface QueryPoint {
@@ -76,12 +78,12 @@ export interface SubRequest {
 export default class QueryStore extends Store<QueryStoreState> {
     private readonly api: Api
 
-    constructor(api: Api) {
-        super(QueryStore.getInitialState())
+    constructor(api: Api, initialCustomModelStr: string | null = null) {
+        super(QueryStore.getInitialState(initialCustomModelStr))
         this.api = api
     }
 
-    private static getInitialState(): QueryStoreState {
+    private static getInitialState(initialCustomModelStr: string | null): QueryStoreState {
         return {
             queryPoints: [
                 QueryStore.getEmptyPoint(0, QueryPointType.From),
@@ -95,10 +97,11 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
-            customModelEnabled: false,
+            customModelEnabled: initialCustomModelStr != null,
             customModelValid: false,
             customModel: null,
             zoom: true,
+            initialCustomModelStr: initialCustomModelStr,
         }
     }
 

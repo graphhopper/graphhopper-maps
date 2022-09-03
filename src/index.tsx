@@ -25,12 +25,16 @@ import { getApi, setApi } from '@/api/Api'
 import MapActionReceiver from '@/stores/MapActionReceiver'
 import { createMap, getMap, setMap } from '@/map/map'
 
-let locale = new URL(window.location.href).searchParams.get('locale')
+const url = new URL(window.location.href)
+const locale = url.searchParams.get('locale')
 setTranslation(locale || navigator.language)
 
-// set up state management
-setApi(config.api, getApiKey())
-const queryStore = new QueryStore(getApi())
+// use graphhopper api key from url or try using one from the config
+const apiKey = url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
+setApi(config.api, apiKey)
+
+const initialCustomModelStr = url.searchParams.get('custom_model')
+const queryStore = new QueryStore(getApi(), initialCustomModelStr)
 const routeStore = new RouteStore(queryStore)
 
 setStores({
@@ -71,9 +75,3 @@ root.style.height = '100%'
 document.body.appendChild(root)
 
 ReactDOM.render(<App />, root)
-
-function getApiKey() {
-    const url = new URL(window.location.href)
-    // use graphhopper api key from url or try using one from the config
-    return url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
-}
