@@ -123,6 +123,7 @@ export default function CustomModelBox({enabled, encodedValues}: CustomModelBoxP
     }
 
     const queryWasSent = () => {
+        if(!getQueryStore().state.currentRequest.subRequests[0]) return false
         return getQueryStore().state.currentRequest.subRequests[0].state == RequestState.SENT
     }
 
@@ -138,6 +139,7 @@ export default function CustomModelBox({enabled, encodedValues}: CustomModelBoxP
             >
                 {enabled ? <SettingsClickedSVG/> : <SettingsSVG/>}
             </PlainButton>
+            <div className={styles.spacer}></div>
             {/*we use 'display: none' instead of conditional rendering to preserve the custom model box's state when it is closed*/}
             <div
                 ref={divElement}
