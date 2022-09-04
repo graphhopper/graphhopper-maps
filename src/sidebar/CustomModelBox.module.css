@@ -86,28 +86,42 @@
 .applyButton,
 .applyButtonInvalid,
 .applyButtonProgress {
+    background-color: rgb(243, 246, 255);
+    float: right;
+}
+
+.applyButton button,
+.applyButtonInvalid button,
+.applyButtonProgress button {
     font-family: Arial, serif;
     font-size: small;
-    background-color: rgb(243, 246, 255);
-    border-left: #275dad solid 0.25rem;
-    float: right;
-    padding: 3px 1em;
+    padding: 2px 1em;
 }
 
 .applyButtonInvalid,
 .applyButtonInvalid:active {
-    border-left: red solid 0.25rem;
+    color: black;
+    background-color: #ff7f7f;
+}
+
+.applyButtonProgress button,
+.applyButtonProgress:active button,
+.applyButton:active button {
+    cursor: default !important;
     color: lightgray !important;
 }
 
-.applyButtonProgress,
-.applyButtonProgress:active {
-    border-left: lightgray solid 0.25rem;
-    color: lightgray !important;
+.infiniteProgressBar {
+    animation: progress 4s infinite normal;
+    height: 1px;
+    background-color: #275dad;
+    padding: 0;
 }
 
-.applyButton:active {
-    border-left: lightgray solid 0.25rem;
+@keyframes progress {
+    0% { width: 0; margin-left: 0;}
+    50% { width: 100%; margin-left: 0; }
+    100% { width: 0; margin-left: 100%; }
 }
 
 .helpLink,

@@ -122,6 +122,10 @@ export default function CustomModelBox({enabled, encodedValues}: CustomModelBoxP
         editor.value = JSON.stringify(customModelExample, null, 2)
     }
 
+    const queryWasSent = () => {
+        return getQueryStore().state.currentRequest.subRequests[0].state == RequestState.SENT
+    }
+
     return (
         <>
             <PlainButton
@@ -163,10 +167,14 @@ export default function CustomModelBox({enabled, encodedValues}: CustomModelBoxP
                     >
                         {tr('help')}
                     </a>
-                    <PlainButton className={isValid ? (getQueryStore().state.currentRequest.subRequests[0].state != RequestState.SUCCESS ? styles.applyButtonProgress : styles.applyButton) : styles.applyButtonInvalid}
-                                 disabled={!isValid || getQueryStore().state.currentRequest.subRequests[0].state != RequestState.SUCCESS} onClick={() => dispatchCustomModel(editor.value, true, true)}>
-                        {tr("Apply")}
-                    </PlainButton>
+                    <div className={isValid ? (queryWasSent() ? styles.applyButtonProgress : styles.applyButton) : styles.applyButtonInvalid}>
+                        <PlainButton
+                            disabled={!isValid || queryWasSent()}
+                            onClick={() => dispatchCustomModel(editor.value, true, true)}>
+                            {tr("Apply")}
+                        </PlainButton>
+                        {queryWasSent() && <div className={styles.infiniteProgressBar}></div>}
+                    </div>
                 </div>
             )}
         </>
