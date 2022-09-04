@@ -94,9 +94,13 @@ function downloadGPX(path: Path) {
     const tmpElement = document.createElement("a");
     const file = new Blob([xmlString], {type: 'application/gpx+xml'});
     tmpElement.href = URL.createObjectURL(file);
-    tmpElement.download = "GraphHopper.gpx";
-    document.body.appendChild(tmpElement); // necessary workaround for firefox?
+    let date = new Date();
+    tmpElement.download = `GraphHopper-Route-${Math.round(path.distance / 1000)}km-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}.gpx`;
     tmpElement.click();
+}
+
+function pad(value: number) {
+    return value < 10 ? "0" + value : "" + value;
 }
 
 function RoutingResultPlacelholder() {

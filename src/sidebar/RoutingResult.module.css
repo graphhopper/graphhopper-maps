@@ -7,14 +7,12 @@
 
 .resultSelectableArea {
     padding: 1rem 0;
+    border-left: white solid 0.25rem;
 }
 
-.resultSelectableArea:hover {
-    background-color: #ececec;
-}
-
-.resultSelectableArea:active {
-    background-color: #c6c6c6;
+.resultSelectableArea:active .resultSummary {
+    border-left: lightgray solid 0.25rem;
+    padding: 0 1rem 0 0.75rem;
 }
 
 .resultSummary {
@@ -30,6 +28,7 @@
 }
 
 .resultValues {
+    cursor: pointer;
     flex-grow: 1;
 
     display: flex;
@@ -62,9 +61,13 @@
     height: auto;
 }
 
-.gpxButton:active {
-    color: black;
+.gpxButton:active div, .detailsButton:active div {
+    color: lightgray;
 }
+.detailsButton:active svg path, .gpxButton:active svg path, .detailsButtonExpanded:active svg path {
+    fill: lightgray;
+}
+
 .detailsButton svg path, .gpxButton svg path {
     fill: #5b616a;
     stroke: #5b616a;
