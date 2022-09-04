@@ -66,6 +66,10 @@ function addRoutingGraphLayer(map: Map) {
             getStyle(feature, map.getView().getZoomForResolution(resolution)!)) as any,
     })
     routingGraphLayer.set(routingGraphLayerKey, true)
+    // make sure the routing graph layer is shown on top of the background layer, but note that this also means it is
+    // on top of the vector layer text labels (for now I don't really care). the layer order is determined by both the
+    // z-index and the order of the layers in map.getLayers()
+    routingGraphLayer.setZIndex(0.5)
     map.addLayer(routingGraphLayer)
 
     const hover = new Select({
