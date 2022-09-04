@@ -137,6 +137,14 @@ export class SelectMapStyle implements Action {
     }
 }
 
+export class ToggleRoutingGraph implements Action {
+    readonly routingGraphEnabled: boolean
+
+    constructor(routingGraphEnabled: boolean) {
+        this.routingGraphEnabled = routingGraphEnabled
+    }
+}
+
 export class MapIsLoaded implements Action {}
 
 export class ZoomMapToPoint implements Action {

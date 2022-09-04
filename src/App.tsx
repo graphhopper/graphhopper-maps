@@ -31,6 +31,7 @@ import PathDetailPopup from '@/layers/PathDetailPopup'
 import { Map } from 'ol'
 import { getMap } from '@/map/map'
 import CustomModelBox from '@/sidebar/CustomModelBox'
+import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -72,6 +73,7 @@ export default function App() {
 
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
+    useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
