@@ -4,6 +4,7 @@ import styles from './App.module.css'
 import {
     getApiInfoStore,
     getErrorStore,
+    getMapFeatureStore,
     getMapOptionsStore,
     getPathDetailsStore,
     getQueryStore,
@@ -32,6 +33,7 @@ import { Map } from 'ol'
 import { getMap } from '@/map/map'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
+import MapFeaturePopup from '@/layers/MapFeaturePopup'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -43,6 +45,7 @@ export default function App() {
     const [error, setError] = useState(getErrorStore().state)
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
+    const [mapFeatures, setMapFeatures] = useState(getMapFeatureStore().state)
 
     const map = getMap()
 
@@ -53,6 +56,7 @@ export default function App() {
         const onErrorChanged = () => setError(getErrorStore().state)
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
+        const onMapFeaturesChanged = () => setMapFeatures(getMapFeatureStore().state)
 
         getQueryStore().register(onQueryChanged)
         getApiInfoStore().register(onInfoChanged)
@@ -60,6 +64,7 @@ export default function App() {
         getErrorStore().register(onErrorChanged)
         getMapOptionsStore().register(onMapOptionsChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
+        getMapFeatureStore().register(onMapFeaturesChanged)
 
         return () => {
             getQueryStore().deregister(onQueryChanged)
@@ -68,6 +73,7 @@ export default function App() {
             getErrorStore().deregister(onErrorChanged)
             getMapOptionsStore().deregister(onMapOptionsChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
+            getMapFeatureStore().deregister(onMapFeaturesChanged)
         }
     })
 
@@ -83,6 +89,7 @@ export default function App() {
         <div className={styles.appWrapper}>
             <PathDetailPopup map={map} pathDetails={pathDetails} />
             <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
+            <MapFeaturePopup map={map} point={mapFeatures.point} properties={mapFeatures.properties} />
             {isSmallScreen ? (
                 <SmallScreenLayout
                     query={query}

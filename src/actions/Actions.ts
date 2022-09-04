@@ -188,3 +188,13 @@ export class PathDetailsElevationSelected implements Action {
         this.segments = segments
     }
 }
+
+export class RoutingGraphHover implements Action {
+    readonly point: Coordinate | null
+    readonly properties: object
+
+    constructor(point: Coordinate | null, properties: object) {
+        this.point = point
+        this.properties = properties
+    }
+}

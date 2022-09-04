@@ -5,6 +5,12 @@ import VectorTileLayer from 'ol/layer/VectorTile'
 import { MVT } from 'ol/format'
 import * as config from 'config'
 import { Stroke, Style } from 'ol/style'
+import { Select } from 'ol/interaction'
+import { pointerMove } from 'ol/events/condition'
+import { SelectEvent } from 'ol/interaction/Select'
+import Dispatcher from '@/stores/Dispatcher'
+import { RoutingGraphHover } from '@/actions/Actions'
+import { toLonLat } from 'ol/proj'
 
 const routingGraphLayerKey = 'routingGraphLayer'
 
@@ -61,6 +67,29 @@ function addRoutingGraphLayer(map: Map) {
     })
     routingGraphLayer.set(routingGraphLayerKey, true)
     map.addLayer(routingGraphLayer)
+
+    const hover = new Select({
+        condition: pointerMove,
+        layers: [routingGraphLayer],
+        hitTolerance: 5,
+        // todo: in theory we could use this to highlight the hovered road which would be useful to see where it starts
+        //       and ends, but the following results in an error 'feature.getStyle is not a function':
+        // style: new Style({
+        //     stroke: new Stroke({
+        //         color: 'red'
+        //     })
+        // })
+        style: null,
+    })
+    hover.on('select', (e: SelectEvent) => {
+        if (e.selected.length > 0) {
+            const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
+            // we only care about the first road
+            const properties = e.selected[0].getProperties()
+            Dispatcher.dispatch(new RoutingGraphHover({ lat: lonLat[1], lng: lonLat[0] }, properties))
+        } else Dispatcher.dispatch(new RoutingGraphHover(null, {}))
+    })
+    map.addInteraction(hover)
 }
 
 function removeRoutingGraphLayer(map: Map) {
