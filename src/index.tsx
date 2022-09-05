@@ -81,7 +81,7 @@ document.body.appendChild(rootDiv)
 
 const root = createRoot(rootDiv)
 root.render(
-    <StrictMode>
+    // <StrictMode>
         <App/>
-    </StrictMode>
+    // </StrictMode>
 )
