@@ -33,7 +33,7 @@ export default class RouteStore extends Store<RouteStoreState> {
             distance: 0,
             points_order: [],
             time: 0,
-            description: "",
+            description: '',
         }
     }
 

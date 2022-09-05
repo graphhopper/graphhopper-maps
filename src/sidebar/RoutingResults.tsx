@@ -9,9 +9,9 @@ import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
-import {useMediaQuery} from 'react-responsive'
-import {tr} from "@/translation/Translation";
 import {Position} from "geojson";
+import { useMediaQuery } from 'react-responsive'
+import { tr } from '@/translation/Translation'
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -39,8 +39,11 @@ function RoutingResult({path, isSelected}: { path: Path; isSelected: boolean }) 
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
                         <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
-                        {path.description &&
-                            <span className={styles.resultTertiaryText}>{tr("Via")} {path.description}</span>}
+                        {path.description && (
+                            <span className={styles.resultTertiaryText}>
+                                {tr('Via')} {path.description}
+                            </span>
+                        )}
                     </div>
                     <PlainButton className={styles.gpxButton} onClick={() => downloadGPX(path)}>
                         <GPXDownload/>
