@@ -55,6 +55,7 @@
 .detailsButton,
 .detailsButtonExpanded {
     padding-left: 2em;
+    padding-right: 0.3em;
 }
 
 .detailsButton div,
