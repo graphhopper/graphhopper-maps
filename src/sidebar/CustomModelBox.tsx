@@ -16,7 +16,7 @@ import PlainButton from '@/PlainButton'
 
 const examples: { [key: string]: CustomModel } = {
     empty: {
-        distance_influence: 70,
+        distance_influence: 15,
         speed: [],
         priority: [],
         areas: {},

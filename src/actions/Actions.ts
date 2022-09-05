@@ -137,6 +137,14 @@ export class SelectMapStyle implements Action {
     }
 }
 
+export class ToggleRoutingGraph implements Action {
+    readonly routingGraphEnabled: boolean
+
+    constructor(routingGraphEnabled: boolean) {
+        this.routingGraphEnabled = routingGraphEnabled
+    }
+}
+
 export class MapIsLoaded implements Action {}
 
 export class ZoomMapToPoint implements Action {
@@ -178,5 +186,15 @@ export class PathDetailsElevationSelected implements Action {
 
     constructor(segments: Coordinate[][]) {
         this.segments = segments
+    }
+}
+
+export class RoutingGraphHover implements Action {
+    readonly point: Coordinate | null
+    readonly properties: object
+
+    constructor(point: Coordinate | null, properties: object) {
+        this.point = point
+        this.properties = properties
     }
 }

@@ -11,6 +11,7 @@ import { Select } from 'ol/interaction'
 import { click } from 'ol/events/condition'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
+import { SelectEvent } from 'ol/interaction/Select'
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -64,8 +65,8 @@ function addUnselectedPathsLayer(map: Map, paths: Path[]) {
         style: null,
         hitTolerance: 5,
     })
-    select.on('select', e => {
-        const index = (e as any).selected[0].getProperties().index
+    select.on('select', (e: SelectEvent) => {
+        const index = e.selected[0].getProperties().index
         Dispatcher.dispatch(new SetSelectedPath(paths[index]))
     })
     select.set('gh:select_path_interaction', true)
