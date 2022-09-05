@@ -9,6 +9,7 @@
     justify-content: space-between;
     overflow: auto;
     -webkit-user-select: none;
+    user-select: none; /* firefox does not ignore -webkit-user-select so make this explicit, see #217 */
 }
 
 .map {

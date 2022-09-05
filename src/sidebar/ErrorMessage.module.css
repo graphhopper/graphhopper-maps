@@ -10,8 +10,10 @@
 }
 
 .errorMessage {
+    font-size: smaller;
     word-break: break-word;
     max-width: 90%;
+    user-select: all;
 }
 
 .errorMessageCloseBtn {
