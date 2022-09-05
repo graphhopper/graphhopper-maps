@@ -95,6 +95,10 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
     }, [])
 
     useEffect(() => {
+        editor?.cm.setSize('100%', '100%')
+    }, [enabled])
+
+    useEffect(() => {
         if (!editor) return
 
         // todo: maybe do this 'conversion' in Api.ts already and use types from there on
