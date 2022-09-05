@@ -260,10 +260,10 @@ export default class QueryStore extends Store<QueryStoreState> {
                 }),
             ]
 
-            let allowAlternatives = state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1
+            const allowAlternatives = state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1
             if (state.customModelEnabled && state.queryPoints) {
                 // disable alternatives for medium-long routes and avoid two requests if alternatives
-                let maxDistance = getMaxDistance(state.queryPoints)
+                const maxDistance = getMaxDistance(state.queryPoints)
                 if (allowAlternatives && maxDistance < 200_000) {
                     return {
                         ...state,
@@ -390,7 +390,7 @@ function replace<T>(array: T[], compare: { (element: T): boolean }, provider: { 
 function getMaxDistance(queryPoints: QueryPoint[]): number {
     let max = 0
     for (let idx = 1; idx < queryPoints.length; idx++) {
-        let dist = calcDist(queryPoints[idx - 1].coordinate, queryPoints[idx].coordinate)
+        const dist = calcDist(queryPoints[idx - 1].coordinate, queryPoints[idx].coordinate)
         max = Math.max(dist, max)
     }
     return max
