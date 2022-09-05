@@ -264,10 +264,12 @@ export default class QueryStore extends Store<QueryStoreState> {
                     requests = [QueryStore.buildRouteRequest(state)]
                 } else if (maxDistance < 500_000) {
                     // Force no alternatives for longer custom model routes.
-                    requests = [QueryStore.buildRouteRequest({
-                        ...state,
-                        maxAlternativeRoutes: 1
-                    })]
+                    requests = [
+                        QueryStore.buildRouteRequest({
+                            ...state,
+                            maxAlternativeRoutes: 1,
+                        }),
+                    ]
                 } else {
                     // Custom model requests with large distances take too long, so we just error.
                     // later: better usability if we just remove ch.disable? i.e. the request always succeeds
@@ -285,7 +287,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     QueryStore.buildRouteRequest({
                         ...state,
                         maxAlternativeRoutes: 1,
-                    })
+                    }),
                 ]
                 // ... and then a second, slower request including alternatives if they are enabled.
                 if (state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1)

@@ -4,18 +4,18 @@ import 'codemirror/addon/lint/lint.css'
 // todonow: this belongs to this app and we should not take it from the demo...
 import 'custom-model-editor/demo/style.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
-import React, {useCallback, useEffect, useRef, useState} from 'react'
-import {create} from 'custom-model-editor/src/index'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import {DismissLastError, ErrorAction, SetCustomModel, SetCustomModelBoxEnabled} from '@/actions/Actions'
-import {CustomModel, RequestState} from '@/stores/QueryStore'
-import {tr} from '@/translation/Translation'
+import { DismissLastError, ErrorAction, SetCustomModel, SetCustomModelBoxEnabled } from '@/actions/Actions'
+import { CustomModel, RequestState } from '@/stores/QueryStore'
+import { tr } from '@/translation/Translation'
 import SettingsSVG from './settings.svg'
 import SettingsClickedSVG from './settings-clicked.svg'
 import HelpSVG from './support.svg'
 import ApplySVG from './adjust.svg'
 import PlainButton from '@/PlainButton'
-import {getQueryStore} from "@/stores/Stores";
+import { getQueryStore } from '@/stores/Stores'
 
 const examples: { [key: string]: CustomModel } = {
     empty: {
@@ -25,16 +25,16 @@ const examples: { [key: string]: CustomModel } = {
         areas: {},
     },
     exclude_motorway: {
-        priority: [{if: 'road_class == MOTORWAY', multiply_by: '0.0'}],
+        priority: [{ if: 'road_class == MOTORWAY', multiply_by: '0.0' }],
     },
     limit_speed: {
         speed: [
-            {if: 'true', limit_to: '100'},
-            {if: 'road_class == TERTIARY', limit_to: '80'},
+            { if: 'true', limit_to: '100' },
+            { if: 'road_class == TERTIARY', limit_to: '80' },
         ],
     },
     exclude_area: {
-        priority: [{if: 'in_berlin_bbox', multiply_by: '0'}],
+        priority: [{ if: 'in_berlin_bbox', multiply_by: '0' }],
         areas: {
             berlin_bbox: {
                 type: 'Feature',
@@ -56,10 +56,10 @@ const examples: { [key: string]: CustomModel } = {
     },
     combined: {
         distance_influence: 100,
-        speed: [{if: 'road_class == STEPS || road_environment == FERRY', multiply_by: '0'}],
+        speed: [{ if: 'road_class == STEPS || road_environment == FERRY', multiply_by: '0' }],
         priority: [
-            {if: 'road_environment == TUNNEL', multiply_by: '0.5'},
-            {if: 'max_weight < 3 || max_height < 2.5', multiply_by: '0.0'},
+            { if: 'road_environment == TUNNEL', multiply_by: '0.5' },
+            { if: 'max_weight < 3 || max_height < 2.5', multiply_by: '0.0' },
         ],
     },
 }
@@ -110,11 +110,11 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
         Object.keys(encodedValues).forEach((k: any) => {
             const v: any = encodedValues[k]
             if (v.length === 2 && v[0] === 'true' && v[1] === 'false') {
-                categories[k] = {type: 'boolean'}
+                categories[k] = { type: 'boolean' }
             } else if (v.length === 2 && v[0] === '>number' && v[1] === '<number') {
-                categories[k] = {type: 'numeric'}
+                categories[k] = { type: 'numeric' }
             } else {
-                categories[k] = {type: 'enum', values: v.sort()}
+                categories[k] = { type: 'enum', values: v.sort() }
             }
         })
         editor.categories = categories
@@ -146,14 +146,14 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                     Dispatcher.dispatch(new SetCustomModelBoxEnabled(!enabled))
                 }}
             >
-                {enabled ? <SettingsClickedSVG/> : <SettingsSVG/>}
+                {enabled ? <SettingsClickedSVG /> : <SettingsSVG />}
             </PlainButton>
             <div className={styles.spacer}></div>
             {/*we use 'display: none' instead of conditional rendering to preserve the custom model box's state when it is closed*/}
             <div
                 ref={divElement}
                 className={styles.customModelBox}
-                style={{display: enabled ? 'block' : 'none'}}
+                style={{ display: enabled ? 'block' : 'none' }}
                 onKeyUp={triggerRouting}
             />
             {enabled && (
@@ -173,20 +173,25 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                         <option value="combined">{tr('Combined')}</option>
                     </select>
 
-                    <a target="_blank"
-                       className={styles.helpLink}
-                       href="https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md"
+                    <a
+                        target="_blank"
+                        className={styles.helpLink}
+                        href="https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md"
                     >
-                        <HelpSVG/>
+                        <HelpSVG />
                         <div>{tr('help')}</div>
                     </a>
                     <div
-                        className={`${styles.applyButton} ${!isValid ? styles.applyButtonInvalid : ''} ${isQueryOngoing() ? styles.applyButtonProgress : ''}`}>
+                        className={`${styles.applyButton} ${!isValid ? styles.applyButtonInvalid : ''} ${
+                            isQueryOngoing() ? styles.applyButtonProgress : ''
+                        }`}
+                    >
                         <PlainButton
                             disabled={!isValid || isQueryOngoing()}
-                            onClick={() => dispatchCustomModel(editor.value, true, true)}>
-                            <ApplySVG/>
-                            <div>{tr("Apply")}</div>
+                            onClick={() => dispatchCustomModel(editor.value, true, true)}
+                        >
+                            <ApplySVG />
+                            <div>{tr('Apply')}</div>
                         </PlainButton>
                         {isQueryOngoing() && <div className={styles.infiniteProgressBar}></div>}
                     </div>
