@@ -253,34 +253,40 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     private routeIfReady(state: QueryStoreState): QueryStoreState {
         if (QueryStore.isReadyToRoute(state)) {
-            const requests = [
-                QueryStore.buildRouteRequest({
-                    ...state,
-                    maxAlternativeRoutes: 1,
-                }),
-            ]
-
-            const allowAlternatives = state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1
+            let requests
             if (state.customModelEnabled) {
-                // disable alternatives for medium-long routes and avoid two requests if alternatives
                 const maxDistance = getMaxDistance(state.queryPoints)
-                if (allowAlternatives && maxDistance < 200_000) {
-                    return {
+                if (maxDistance < 200_000) {
+                    // Use a single request, possibly including alternatives when custom models are enabled.
+                    requests = [QueryStore.buildRouteRequest(state)]
+                } else if (maxDistance < 500_000) {
+                    // Force no alternatives for longer custom model routes.
+                    requests = [QueryStore.buildRouteRequest({
                         ...state,
-                        currentRequest: { subRequests: this.send([QueryStore.buildRouteRequest(state)]) },
-                    }
-                } else if (maxDistance > 500_000) {
+                        maxAlternativeRoutes: 1
+                    })]
+                } else {
+                    // Custom model requests with large distances take too long, so we just error.
                     // later: better usability if we just remove ch.disable? i.e. the request always succeeds
                     Dispatcher.dispatch(
                         new ErrorAction(
-                            'The request with the custom model feature is unfortunately not ' +
-                                'possible, as the request points are further than 500km apart.'
+                            'Using the custom model feature is unfortunately not ' +
+                                'possible when the request points are further than 500km apart.'
                         )
                     )
                     return state
                 }
-            } else if (allowAlternatives) {
-                requests.push(QueryStore.buildRouteRequest(state))
+            } else {
+                requests = [
+                    // We first send a fast request without alternatives ...
+                    QueryStore.buildRouteRequest({
+                        ...state,
+                        maxAlternativeRoutes: 1,
+                    })
+                ]
+                // ... and then a second, slower request including alternatives if they are enabled.
+                if (state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1)
+                    requests.push(QueryStore.buildRouteRequest(state))
             }
 
             return {
