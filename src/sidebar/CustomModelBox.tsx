@@ -91,6 +91,10 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
         instance.value =
             initialCustomModelStr == null ? customModel2prettyString(examples['empty']) : initialCustomModelStr
 
+        if (enabled)
+            // When we got a custom model from the url parameters we send the request right away
+            dispatchCustomModel(instance.value, true, true)
+
         instance.validListener = (valid: boolean) => {
             // We update the app states' custom model, but we are not requesting a routing query every time the model
             // becomes valid. Updating the model is still important, because the routing request might be triggered by
