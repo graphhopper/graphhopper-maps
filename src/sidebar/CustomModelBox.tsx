@@ -94,9 +94,8 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
         }
     }, [])
 
-    useEffect(() => {
-        editor?.cm.setSize('100%', '100%')
-    }, [enabled])
+    // without this the editor is blank after opening the box and before clicking it or resizing the window?
+    editor?.cm.setSize('100%', '100%')
 
     useEffect(() => {
         if (!editor) return
