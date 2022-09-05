@@ -41,40 +41,69 @@
     margin-bottom: 0.1rem;
 }
 
-.resultSecondaryText, .gpxButton div {
+.resultSecondaryText,
+.gpxButton div {
     color: #5b616a;
 }
 
-.detailsButton div {
+.resultTertiaryText {
     color: #5b616a;
-}
-
-.detailsButton div, .detailsButtonExpanded div, .gpxButton div {
     font-size: 12px;
-    float: left;
-    padding-top: 0.1em;
+}
+
+.gpxButton,
+.detailsButton,
+.detailsButtonExpanded {
+    display: flex;
+    padding-right: 1em;
+}
+
+.detailsButton div,
+.detailsButtonExpanded div,
+.gpxButton div {
+    color: #5b616a;
+    font-size: 12px;
+    flex-flow: row;
+    padding-top: 1.4em;
     padding-left: 0.5em;
 }
-.detailsButton svg, .detailsButtonExpanded svg, .gpxButton svg {
-    float: left;
+
+.detailsButton svg,
+.detailsButtonExpanded svg,
+.gpxButton svg {
+    flex-flow: row;
     width: 1.2em;
     height: auto;
 }
 
-.gpxButton:active div, .detailsButton:active div {
+.gpxButton:active div,
+.detailsButton:active div,
+.detailsButtonExpanded:active div {
     color: lightgray;
 }
-.detailsButton:active svg path, .gpxButton:active svg path, .detailsButtonExpanded:active svg path {
+
+.detailsButton:active svg path,
+.gpxButton:active svg path,
+.detailsButtonExpanded:active svg path {
     fill: lightgray;
 }
 
-.detailsButton svg path, .gpxButton svg path {
-    fill: #5b616a;
-    stroke: #5b616a;
+.gpxButton:hover div,
+.detailsButton:hover div,
+.detailsButtonExpanded:hover div {
+    color: black;
 }
 
-.gpxButton {
-    padding-right: 2em;
+.detailsButton:hover svg path,
+.gpxButton:hover svg path,
+.detailsButtonExpanded:hover svg path {
+    fill: black;
+}
+
+.detailsButton svg path,
+.gpxButton svg path {
+    fill: #5b616a;
+    stroke: #5b616a;
 }
 
 .placeholderContainer {

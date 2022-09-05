@@ -79,6 +79,7 @@ export interface BasePath {
     readonly instructions: Instruction[]
     readonly details: Details
     readonly points_order: number[]
+    readonly description: string
 }
 
 export interface Instruction {

@@ -7,7 +7,7 @@ Try it at [graphhopper.com/maps2](https://graphhopper.com/maps2/).
 Get started:
 
  * copy the config.js to config-local.js and enter your GraphHopper API key for routing (get it at https://www.graphhopper.com)
-   or change the 'api' field and point it at your [local GraphHopper server](https://github.com/graphhopper/graphhopper), e.g. `api: http://localhost:8989/`.
+   or change the 'api' field and point it at your [local GraphHopper server](https://github.com/graphhopper/graphhopper), e.g. `api: http://localhost:8989/`. Ensure that the api ends with a slash.
  * optional: setup api keys for the other tile providers, see MapOptionsStore.ts. you can also change the default tile layer in config-local.js
  * make sure node/npm is installed. We recommend using the gallium LTS (node v16.17.0 & npm v8.15.0)
  * npm install
