@@ -1,5 +1,6 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
 
 import { setTranslation } from '@/translation/Translation'
 import App from '@/App'
@@ -73,9 +74,14 @@ const navBar = new NavBar(getQueryStore(), getMapOptionsStore())
 navBar.parseUrlAndReplaceQuery()
 
 // create a div which holds the app and render the 'App' component
-const root = document.createElement('div') as HTMLDivElement
-root.id = 'root'
-root.style.height = '100%'
-document.body.appendChild(root)
+const rootDiv = document.createElement('div') as HTMLDivElement
+rootDiv.id = 'root'
+rootDiv.style.height = '100%'
+document.body.appendChild(rootDiv)
 
-ReactDOM.render(<App />, root)
+const root = createRoot(rootDiv)
+root.render(
+    <StrictMode>
+        <App/>
+    </StrictMode>
+)
