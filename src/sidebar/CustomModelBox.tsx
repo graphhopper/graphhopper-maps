@@ -194,8 +194,8 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                     >
                         <PlainButton
                             disabled={!isValid || isQueryOngoing()}
-                            // We set valid to true, because we want to request a routing query and if the model was
-                            // false the button would be disabled anyway
+                            // If the model was invalid the button would be disabled anyway, so it does not really matter
+                            // if we set valid to true or false here.
                             onClick={() => dispatchCustomModel(editor.value, true, true)}
                         >
                             <ApplySVG />
