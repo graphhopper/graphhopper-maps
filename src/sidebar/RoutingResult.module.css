@@ -7,14 +7,12 @@
 
 .resultSelectableArea {
     padding: 1rem 0;
+    border-left: white solid 0.25rem;
 }
 
-.resultSelectableArea:hover {
-    background-color: #ececec;
-}
-
-.resultSelectableArea:active {
-    background-color: #c6c6c6;
+.resultSelectableArea:active .resultSummary {
+    border-left: lightgray solid 0.25rem;
+    padding: 0 1rem 0 0.75rem;
 }
 
 .resultSummary {
@@ -26,10 +24,13 @@
 
 .selectedResultSummary {
     border-left: #275dad solid 0.25rem;
-    padding: 0 0.5rem 0 0.75rem;
+    padding: 0 1rem 0 0.75rem;
 }
 
 .resultValues {
+    cursor: pointer;
+    flex-grow: 1;
+
     display: flex;
     flex-direction: column;
 }
@@ -40,7 +41,8 @@
     margin-bottom: 0.1rem;
 }
 
-.resultSecondaryText {
+.resultSecondaryText,
+.gpxButton div {
     color: #5b616a;
 }
 
@@ -49,32 +51,59 @@
     font-size: 12px;
 }
 
-/*
-This is not a very nice duplication but I have to stop now...
- */
-.detailsButton {
-    display: grid;
-    justify-content: end;
-    align-items: center;
-    width: 4rem;
+.gpxButton,
+.detailsButton,
+.detailsButtonExpanded {
+    display: flex;
+    padding-right: 1em;
 }
 
-.detailsButtonFlipped {
-    display: grid;
-    justify-content: end;
-    align-items: center;
-    width: 4rem;
+.detailsButton div,
+.detailsButtonExpanded div,
+.gpxButton div {
+    color: #5b616a;
+    font-size: 12px;
+    flex-flow: row;
+    padding-top: 1.4em;
+    padding-left: 0.5em;
 }
 
-.detailsButton > svg {
-    transition: 0.3s ease;
-    height: 1.2rem;
+.detailsButton svg,
+.detailsButtonExpanded svg,
+.gpxButton svg {
+    flex-flow: row;
+    width: 1.2em;
+    height: auto;
 }
 
-.detailsButtonFlipped > svg {
-    transition: 0.3s ease;
-    transform: rotateX(180deg);
-    height: 1.2rem;
+.gpxButton:active div,
+.detailsButton:active div,
+.detailsButtonExpanded:active div {
+    color: lightgray;
+}
+
+.detailsButton:active svg path,
+.gpxButton:active svg path,
+.detailsButtonExpanded:active svg path {
+    fill: lightgray;
+}
+
+.gpxButton:hover div,
+.detailsButton:hover div,
+.detailsButtonExpanded:hover div {
+    color: black;
+}
+
+.detailsButton:hover svg path,
+.gpxButton:hover svg path,
+.detailsButtonExpanded:hover svg path {
+    fill: black;
+}
+
+.detailsButton svg path,
+.gpxButton svg path {
+    fill: #5b616a;
+    stroke: #5b616a;
 }
 
 .placeholderContainer {
