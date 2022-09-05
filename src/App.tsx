@@ -133,7 +133,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                         selectedProfile={query.routingProfile}
                         autofocus={false}
                     />
-                    <CustomModelBox enabled={query.customModelEnabled} encodedValues={info.encoded_values} />
+                    <CustomModelBox
+                        enabled={query.customModelEnabled}
+                        encodedValues={info.encoded_values}
+                        initialCustomModelStr={query.initialCustomModelStr}
+                    />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <div className={styles.routingResult}>
                         <RoutingResults

@@ -64,9 +64,10 @@ const examples: { [key: string]: CustomModel } = {
 export interface CustomModelBoxProps {
     enabled: boolean
     encodedValues: object[]
+    initialCustomModelStr: string | null
 }
 
-export default function CustomModelBox({ enabled, encodedValues }: CustomModelBoxProps) {
+export default function CustomModelBox({ enabled, encodedValues, initialCustomModelStr }: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)
@@ -76,17 +77,27 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
         // we start with empty categories. they will be set later using info
         const instance = create({}, (element: Node) => divElement.current?.appendChild(element))
         setEditor(instance)
-        setCustomModelExample(instance, examples['empty'])
-        // todo: minor glitch: if the initial model is invalid we see an 'Invalid custom model' error notification, even
-        //       though the custom model box is closed initially
+
+        instance.cm.setSize('100%', '100%')
+        if (initialCustomModelStr != null) {
+            // prettify the custom model if it can be parsed or leave it as is otherwise
+            try {
+                initialCustomModelStr = customModel2prettyString(JSON.parse(initialCustomModelStr))
+            } catch (e) {}
+        }
+        instance.value =
+            initialCustomModelStr == null ? customModel2prettyString(examples['empty']) : initialCustomModelStr
+
         instance.validListener = (valid: boolean) => {
             dispatchCustomModel(instance.value, valid)
             setIsValid(valid)
         }
     }, [])
 
+    // without this the editor is blank after opening the box and before clicking it or resizing the window?
+    // but having the focus in the box after opening it is nice anyway
     useEffect(() => {
-        editor?.cm.setSize('100%', '100%')
+        if (enabled) editor?.cm.focus()
     }, [enabled])
 
     useEffect(() => {
@@ -117,10 +128,6 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
         },
         [editor, isValid]
     )
-
-    const setCustomModelExample = (editor: any, customModelExample: CustomModel) => {
-        editor.value = JSON.stringify(customModelExample, null, 2)
-    }
 
     return (
         <>
@@ -154,7 +161,8 @@ export default function CustomModelBox({ enabled, encodedValues }: CustomModelBo
                     <select
                         className={styles.examples}
                         onChange={(e: any) => {
-                            setCustomModelExample(editor, examples[e.target.value])
+                            editor.value = customModel2prettyString(examples[e.target.value])
+                            // when selecting an example we fire a request no matter if the model is valid or not
                             dispatchCustomModel(JSON.stringify(examples[e.target.value]), true, true)
                         }}
                     >
@@ -184,4 +192,8 @@ function dispatchCustomModel(customModelValue: any, isValid: boolean, withRouteR
         Dispatcher.dispatch(new ErrorAction('Cannot parse custom model'))
         Dispatcher.dispatch(new SetCustomModel(null, false, withRouteRequest))
     }
+}
+
+function customModel2prettyString(customModel: CustomModel) {
+    return JSON.stringify(customModel, null, 2)
 }
