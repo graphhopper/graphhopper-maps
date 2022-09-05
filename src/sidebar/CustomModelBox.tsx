@@ -95,6 +95,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
     }, [])
 
     // without this the editor is blank after opening the box and before clicking it or resizing the window?
+    // but having the focus in the box after opening it is nice anyway
     useEffect(() => {
         if (enabled) editor?.cm.focus()
     }, [enabled])
