@@ -92,6 +92,10 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
             initialCustomModelStr == null ? customModel2prettyString(examples['empty']) : initialCustomModelStr
 
         instance.validListener = (valid: boolean) => {
+            // We update the app states' custom model, but we are not requesting a routing query every time the model
+            // becomes valid. Updating the model is still important, because the routing request might be triggered by
+            // moving markers etc.
+            dispatchCustomModel(instance.value, valid, false)
             setIsValid(valid)
         }
     }, [])
@@ -123,7 +127,8 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
     const triggerRouting = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.ctrlKey && event.key === 'Enter') {
-                // using this shortcut we can skip the custom model validation and force sending the request
+                // Using this keyboard shortcut we can skip the custom model validation and directly request a routing
+                // query.
                 const isValid = true
                 dispatchCustomModel(editor.value, isValid, true)
             }
@@ -162,7 +167,8 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                         className={styles.examples}
                         onChange={(e: any) => {
                             editor.value = customModel2prettyString(examples[e.target.value])
-                            // when selecting an example we fire a request no matter if the model is valid or not
+                            // When selecting an example we request a routing request and act like the model is valid,
+                            // even when it is not according to the editor validation.
                             dispatchCustomModel(JSON.stringify(examples[e.target.value]), true, true)
                         }}
                     >
@@ -188,6 +194,8 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                     >
                         <PlainButton
                             disabled={!isValid || isQueryOngoing()}
+                            // We set valid to true, because we want to request a routing query and if the model was
+                            // false the button would be disabled anyway
                             onClick={() => dispatchCustomModel(editor.value, true, true)}
                         >
                             <ApplySVG />
@@ -201,16 +209,13 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
     )
 }
 
-function dispatchCustomModel(customModelValue: any, isValid: boolean, withRouteRequest = false) {
+function dispatchCustomModel(customModelString: string, isValid: boolean, withRouteRequest: boolean) {
     try {
-        const parsedValue = JSON.parse(customModelValue)
+        const parsedValue = JSON.parse(customModelString)
         if (isValid) {
             Dispatcher.dispatch(new DismissLastError())
-            Dispatcher.dispatch(new SetCustomModel(parsedValue, true, withRouteRequest))
-        } else {
-            Dispatcher.dispatch(new SetCustomModel(parsedValue, false, withRouteRequest))
-            Dispatcher.dispatch(new ErrorAction('Invalid custom model'))
         }
+        Dispatcher.dispatch(new SetCustomModel(parsedValue, isValid, withRouteRequest))
     } catch (e) {
         Dispatcher.dispatch(new SetCustomModel(null, false, withRouteRequest))
     }
