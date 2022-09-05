@@ -257,9 +257,15 @@ export default class QueryStore extends Store<QueryStoreState> {
             if (state.customModelEnabled) {
                 const maxDistance = getMaxDistance(state.queryPoints)
                 if (maxDistance < 200_000) {
-                    // We only use a single request (possibly including alternatives) when custom models are enabled.
+                    // Use a single request, possibly including alternatives when custom models are enabled.
                     requests = [QueryStore.buildRouteRequest(state)]
                 } else if (maxDistance < 500_000) {
+                    // Force no alternatives for longer custom model routes.
+                    requests = [QueryStore.buildRouteRequest({
+                        ...state,
+                        maxAlternativeRoutes: 1
+                    })]
+                } else {
                     // Custom model requests with large distances take too long, so we just error.
                     // later: better usability if we just remove ch.disable? i.e. the request always succeeds
                     Dispatcher.dispatch(
