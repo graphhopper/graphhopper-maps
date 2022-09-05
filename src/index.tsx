@@ -8,6 +8,7 @@ import {
     getErrorStore,
     getMapOptionsStore,
     getPathDetailsStore,
+    getMapFeatureStore,
     getQueryStore,
     getRouteStore,
     setStores,
@@ -24,6 +25,7 @@ import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
 import MapActionReceiver from '@/stores/MapActionReceiver'
 import { createMap, getMap, setMap } from '@/map/map'
+import MapFeatureStore from '@/stores/MapFeatureStore'
 
 let locale = new URL(window.location.href).searchParams.get('locale')
 setTranslation(locale || navigator.language)
@@ -40,6 +42,7 @@ setStores({
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
+    mapFeatureStore: new MapFeatureStore(),
 })
 
 setMap(createMap())
@@ -51,6 +54,7 @@ Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
+Dispatcher.register(getMapFeatureStore())
 
 // register map action receiver
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
