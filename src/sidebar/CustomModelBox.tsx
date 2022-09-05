@@ -7,7 +7,7 @@ import styles from '@/sidebar/CustomModelBox.module.css'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { DismissLastError, ErrorAction, SetCustomModel, SetCustomModelBoxEnabled } from '@/actions/Actions'
+import { ClearRoute, DismissLastError, SetCustomModel, SetCustomModelBoxEnabled } from '@/actions/Actions'
 import { CustomModel, RequestState } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import SettingsSVG from './settings.svg'
@@ -148,6 +148,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                 className={enabled ? styles.enabledSettings : styles.settings}
                 onClick={() => {
                     if (enabled) Dispatcher.dispatch(new DismissLastError())
+                    Dispatcher.dispatch(new ClearRoute())
                     Dispatcher.dispatch(new SetCustomModelBoxEnabled(!enabled))
                 }}
             >
