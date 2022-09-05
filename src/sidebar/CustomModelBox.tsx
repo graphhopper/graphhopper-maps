@@ -12,10 +12,7 @@ import { CustomModel, RequestState } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import SettingsSVG from './settings.svg'
 import SettingsClickedSVG from './settings-clicked.svg'
-import HelpSVG from './support.svg'
-import ApplySVG from './adjust.svg'
 import PlainButton from '@/PlainButton'
-import { getQueryStore } from '@/stores/Stores'
 
 const examples: { [key: string]: CustomModel } = {
     empty: {
@@ -185,8 +182,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                         className={styles.helpLink}
                         href="https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md"
                     >
-                        <HelpSVG />
-                        <div>{tr('help')}</div>
+                        {tr('help')}
                     </a>
                     <div
                         className={`${styles.applyButton} ${!isValid ? styles.applyButtonInvalid : ''} ${
@@ -194,15 +190,15 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                         }`}
                     >
                         <PlainButton
+                            title={tr("Apply custom model of text box to routing request")}
                             disabled={!isValid || queryOngoing}
                             // If the model was invalid the button would be disabled anyway, so it does not really matter
                             // if we set valid to true or false here.
                             onClick={() => dispatchCustomModel(editor.value, true, true)}
                         >
-                            <ApplySVG />
-                            <div>{tr('Apply')}</div>
+                            {tr('Apply')}
                         </PlainButton>
-                        {queryOngoing && <div className={styles.infiniteProgressBar}></div>}
+                        {queryOngoing ? <div className={styles.infiniteProgressBar}></div> : <div className={styles.infiniteProgressBarHide}></div>}
                     </div>
                 </div>
             )}

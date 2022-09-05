@@ -1,6 +1,5 @@
 .customModelBox {
     padding: 0.3em;
-    border-bottom: lightgray solid 1px;
     border-top: lightgray solid 1px;
     height: 18rem;
 }
@@ -11,6 +10,7 @@
 
 .customModelBoxBottomBar {
     display: flex;
+    border-bottom: lightgray solid 1px;
 }
 
 .helpLink {
@@ -19,12 +19,11 @@
 }
 
 .enabledSettings svg path,
-.settings svg path,
-.helpLink svg path,
-.applyButton svg path {
+.settings svg path {
     fill: #5b616a;
     stroke: #5b616a;
 }
+
 .enabledSettings:active svg path,
 .settings:active svg path {
     fill: lightgray;
@@ -32,28 +31,19 @@
 }
 
 .settings:hover svg path,
-.enabledSettings:hover svg path,
-.helpLink:hover svg path,
-.applyButton:hover svg path {
+.enabledSettings:hover svg path {
     fill: #000000;
     stroke: #000000;
 }
 
 .settings:active svg path,
-.enabledSettings:active svg path,
-.helpLink:active svg path,
-.applyButtonProgress svg path,
-.applyButtonProgress:hover svg path,
-.applyButtonInvalid svg path,
-.applyButtonInvalid:hover svg path,
-.applyButton:active button svg path {
+.enabledSettings:active svg path {
     fill: lightgray;
     stroke: lightgray;
 }
 
 .enabledSettings svg,
-.settings svg,
-.customModelBoxBottomBar svg {
+.settings svg {
     margin: 0;
     padding: 0;
     width: 20px;
@@ -106,17 +96,17 @@
 }
 
 .examples,
-.helpLink div,
-.applyButton button div {
+.helpLink,
+.applyButton button {
     font-family: Arial, serif;
     font-size: 14px;
 }
 
 .examples {
     border: none;
-    border-bottom: #ececec solid 1px;
+    border-top: #ececec solid 1px;
     border-right: #ececec solid 1px;
-    padding-left: 0.4em;
+    padding-left: 1em;
     margin-left: 0;
     background-color: white;
     color: rgba(0, 60, 136, 0.7);
@@ -127,11 +117,6 @@
     color: rgba(0, 60, 136, 0.7);
 }
 
-.applyButtonInvalid,
-.applyButtonInvalid:active {
-    background-color: #ff7f7f;
-}
-
 /* show disabled button while route calculation */
 .applyButtonProgress button,
 .applyButtonInvalid button {
@@ -139,12 +124,14 @@
     color: lightgray !important;
 }
 
+.infiniteProgressBarHide {
+    height: 2px;
+}
+
 .infiniteProgressBar {
     animation: progress 4s infinite normal;
-    height: 1px;
+    height: 2px;
     background-color: #275dad;
-    margin: 0;
-    padding: 0;
 }
 
 @keyframes progress {
@@ -152,14 +139,13 @@
         width: 0;
         margin-left: 0;
     }
-    /* why will more than 91% trigger scrollbar? */
     50% {
-        width: 90%;
+        width: 100%;
         margin-left: 0;
     }
     100% {
         width: 0;
-        margin-left: 90%;
+        margin-left: 100%;
     }
 }
 
@@ -168,24 +154,13 @@
 }
 
 .helpLink,
-.examples,
-.applyButton {
+.examples {
     cursor: pointer;
     color: #5b616a;
 }
 
-.helpLink,
-.applyButton button {
-    padding: 0.5em 0.7em;
-    display: flex;
+.applyButton button,
+.helpLink  {
+    padding: 0.8em 1.7em;
 }
 
-.helpLink div,
-.applyButton button div {
-    flex-flow: column;
-}
-
-.helpLink div,
-.applyButton div {
-    padding: 0.1em 0 0 0.5em;
-}
