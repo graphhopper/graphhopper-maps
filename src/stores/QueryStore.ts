@@ -1,7 +1,7 @@
-import {coordinateToText} from '@/Converters'
+import { coordinateToText } from '@/Converters'
 import Api from '@/api/Api'
 import Store from '@/stores/Store'
-import Dispatcher, {Action} from '@/stores/Dispatcher'
+import Dispatcher, { Action } from '@/stores/Dispatcher'
 import {
     AddPoint,
     ClearPoints,
@@ -17,8 +17,8 @@ import {
     SetRoutingParametersAtOnce,
     SetVehicleProfile,
 } from '@/actions/Actions'
-import {RoutingArgs, RoutingProfile} from '@/api/graphhopper'
-import {calcDist} from "@/distUtils";
+import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
+import { calcDist } from '@/distUtils'
 
 export interface Coordinate {
     lat: number
@@ -119,7 +119,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 return {
                     ...point,
                     queryText: '',
-                    point: {lat: 0, lng: 0},
+                    point: { lat: 0, lng: 0 },
                     isInitialized: false,
                 }
             })
@@ -153,7 +153,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             // determine colors for each point. I guess this could be smarter if this needs to be faster
             const newPoints = tmp.map((point, i) => {
                 const type = QueryStore.getPointType(i, tmp.length)
-                return {...point, color: QueryStore.getMarkerColor(type), type: type}
+                return { ...point, color: QueryStore.getMarkerColor(type), type: type }
             })
 
             const newState: QueryStoreState = {
@@ -190,7 +190,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 .filter(point => point.id !== action.point.id)
                 .map((point, i) => {
                     const type = QueryStore.getPointType(i, state.queryPoints.length - 1)
-                    return {...point, color: QueryStore.getMarkerColor(type), type: type}
+                    return { ...point, color: QueryStore.getMarkerColor(type), type: type }
                 })
 
             const newState: QueryStoreState = {
@@ -267,13 +267,17 @@ export default class QueryStore extends Store<QueryStoreState> {
                 if (allowAlternatives && maxDistance < 200_000) {
                     return {
                         ...state,
-                        currentRequest: {subRequests: this.send([QueryStore.buildRouteRequest(state)])},
+                        currentRequest: { subRequests: this.send([QueryStore.buildRouteRequest(state)]) },
                     }
                 } else if (maxDistance > 500_000) {
                     // later: better usability if we just remove ch.disable? i.e. the request always succeeds
-                    Dispatcher.dispatch(new ErrorAction("The request with the custom model feature is unfortunately not " +
-                        "possible, as the request points are further than 500km apart."));
-                    return state;
+                    Dispatcher.dispatch(
+                        new ErrorAction(
+                            'The request with the custom model feature is unfortunately not ' +
+                                'possible, as the request points are further than 500km apart.'
+                        )
+                    )
+                    return state
                 }
             } else if (allowAlternatives) {
                 requests.push(QueryStore.buildRouteRequest(state))
@@ -323,7 +327,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             subRequests,
             r => r.args === args,
             r => {
-                return {...r, state}
+                return { ...r, state }
             }
         )
     }
@@ -364,7 +368,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             isInitialized: false,
             queryText: '',
-            coordinate: {lat: 0, lng: 0},
+            coordinate: { lat: 0, lng: 0 },
             id: id,
             color: QueryStore.getMarkerColor(type),
             type: type,
