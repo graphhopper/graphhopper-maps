@@ -166,7 +166,7 @@ export class ApiImpl implements Api {
             request['ch.disable'] = true
         }
 
-        if (args.maxAlternativeRoutes > 1) {
+        if (args.points.length <= 2 && args.maxAlternativeRoutes > 1) {
             return {
                 ...request,
                 'alternative_route.max_paths': args.maxAlternativeRoutes,
