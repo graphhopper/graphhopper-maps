@@ -78,6 +78,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
         const instance = create({}, (element: Node) => divElement.current?.appendChild(element))
         setEditor(instance)
 
+        instance.cm.setSize('100%', '100%')
         if (initialCustomModelStr != null) {
             // prettify the custom model if it can be parsed or leave it as is otherwise
             try {
@@ -92,10 +93,6 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
             setIsValid(valid)
         }
     }, [])
-
-    useEffect(() => {
-        editor?.cm.setSize('100%', '100%')
-    }, [enabled])
 
     useEffect(() => {
         if (!editor) return
