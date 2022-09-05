@@ -253,34 +253,35 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     private routeIfReady(state: QueryStoreState): QueryStoreState {
         if (QueryStore.isReadyToRoute(state)) {
-            // custom model requests with large distances take too long
-            const maxDistance = getMaxDistance(state.queryPoints)
-            if (state.customModelEnabled && maxDistance > 500_000) {
-                // later: better usability if we just remove ch.disable? i.e. the request always succeeds
-                Dispatcher.dispatch(
-                    new ErrorAction(
-                        'The request with the custom model feature is unfortunately not ' +
-                            'possible, as the request points are further than 500km apart.'
+            let requests
+            if (state.customModelEnabled) {
+                const maxDistance = getMaxDistance(state.queryPoints)
+                if (maxDistance < 200_000) {
+                    // We only use a single request (possibly including alternatives) when custom models are enabled.
+                    requests = [QueryStore.buildRouteRequest(state)]
+                } else if (maxDistance < 500_000) {
+                    // Custom model requests with large distances take too long, so we just error.
+                    // later: better usability if we just remove ch.disable? i.e. the request always succeeds
+                    Dispatcher.dispatch(
+                        new ErrorAction(
+                            'Using the custom model feature is unfortunately not ' +
+                                'possible when the request points are further than 500km apart.'
+                        )
                     )
-                )
-                return state
+                    return state
+                }
+            } else {
+                requests = [
+                    // We first send a fast request without alternatives ...
+                    QueryStore.buildRouteRequest({
+                        ...state,
+                        maxAlternativeRoutes: 1,
+                    })
+                ]
+                // ... and then a second, slower request including alternatives if they are enabled.
+                if (state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1)
+                    requests.push(QueryStore.buildRouteRequest(state))
             }
-
-            const requests = [
-                // fast request without alternatives
-                QueryStore.buildRouteRequest({
-                    ...state,
-                    maxAlternativeRoutes: 1,
-                }),
-            ]
-
-            // slower request with alternatives, but only under certain conditions
-            const requestAlternatives =
-                state.queryPoints.length === 2 &&
-                state.maxAlternativeRoutes > 1 &&
-                (!state.customModelEnabled || maxDistance < 200_000)
-            if (requestAlternatives)
-                requests.push(QueryStore.buildRouteRequest(state))
 
             return {
                 ...state,
