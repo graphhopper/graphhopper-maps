@@ -99,7 +99,7 @@ function downloadGPX(path: Path) {
     const tmpElement = document.createElement("a");
     const file = new Blob([xmlString], {type: 'application/gpx+xml'});
     tmpElement.href = URL.createObjectURL(file);
-    let date = new Date();
+    const date = new Date();
     tmpElement.download = `GraphHopper-Route-${Math.round(path.distance / 1000)}km-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}.gpx`;
     tmpElement.click();
 }
