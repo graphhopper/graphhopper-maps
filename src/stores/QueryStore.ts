@@ -1,10 +1,11 @@
 import { coordinateToText } from '@/Converters'
 import Api from '@/api/Api'
 import Store from '@/stores/Store'
-import { Action } from '@/stores/Dispatcher'
+import Dispatcher, { Action } from '@/stores/Dispatcher'
 import {
     AddPoint,
     ClearPoints,
+    ErrorAction,
     InfoReceived,
     InvalidatePoint,
     RemovePoint,
@@ -17,6 +18,7 @@ import {
     SetVehicleProfile,
 } from '@/actions/Actions'
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
+import { calcDist } from '@/distUtils'
 
 export interface Coordinate {
     lat: number
@@ -34,6 +36,8 @@ export interface QueryStoreState {
     readonly customModel: CustomModel | null
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
+    // todo: ... and this also
+    readonly initialCustomModelStr: string | null
 }
 
 export interface QueryPoint {
@@ -76,12 +80,12 @@ export interface SubRequest {
 export default class QueryStore extends Store<QueryStoreState> {
     private readonly api: Api
 
-    constructor(api: Api) {
-        super(QueryStore.getInitialState())
+    constructor(api: Api, initialCustomModelStr: string | null = null) {
+        super(QueryStore.getInitialState(initialCustomModelStr))
         this.api = api
     }
 
-    private static getInitialState(): QueryStoreState {
+    private static getInitialState(initialCustomModelStr: string | null): QueryStoreState {
         return {
             queryPoints: [
                 QueryStore.getEmptyPoint(0, QueryPointType.From),
@@ -95,10 +99,11 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
-            customModelEnabled: false,
+            customModelEnabled: initialCustomModelStr != null,
             customModelValid: false,
             customModel: null,
             zoom: true,
+            initialCustomModelStr: initialCustomModelStr,
         }
     }
 
@@ -251,15 +256,40 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     private routeIfReady(state: QueryStoreState): QueryStoreState {
         if (QueryStore.isReadyToRoute(state)) {
-            const requests = [
-                QueryStore.buildRouteRequest({
-                    ...state,
-                    maxAlternativeRoutes: 1,
-                }),
-            ]
-
-            if (state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1) {
-                requests.push(QueryStore.buildRouteRequest(state))
+            let requests
+            if (state.customModelEnabled) {
+                const maxDistance = getMaxDistance(state.queryPoints)
+                if (maxDistance < 200_000) {
+                    // Use a single request, possibly including alternatives when custom models are enabled.
+                    requests = [QueryStore.buildRouteRequest(state)]
+                } else if (maxDistance < 500_000) {
+                    // Force no alternatives for longer custom model routes.
+                    requests = [QueryStore.buildRouteRequest({
+                        ...state,
+                        maxAlternativeRoutes: 1
+                    })]
+                } else {
+                    // Custom model requests with large distances take too long, so we just error.
+                    // later: better usability if we just remove ch.disable? i.e. the request always succeeds
+                    Dispatcher.dispatch(
+                        new ErrorAction(
+                            'Using the custom model feature is unfortunately not ' +
+                                'possible when the request points are further than 500km apart.'
+                        )
+                    )
+                    return state
+                }
+            } else {
+                requests = [
+                    // We first send a fast request without alternatives ...
+                    QueryStore.buildRouteRequest({
+                        ...state,
+                        maxAlternativeRoutes: 1,
+                    })
+                ]
+                // ... and then a second, slower request including alternatives if they are enabled.
+                if (state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1)
+                    requests.push(QueryStore.buildRouteRequest(state))
             }
 
             return {
@@ -364,4 +394,13 @@ function replace<T>(array: T[], compare: { (element: T): boolean }, provider: { 
     }
 
     return result
+}
+
+function getMaxDistance(queryPoints: QueryPoint[]): number {
+    let max = 0
+    for (let idx = 1; idx < queryPoints.length; idx++) {
+        const dist = calcDist(queryPoints[idx - 1].coordinate, queryPoints[idx].coordinate)
+        max = Math.max(dist, max)
+    }
+    return max
 }

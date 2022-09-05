@@ -25,6 +25,11 @@
     fill: #5b616a;
     stroke: #5b616a;
 }
+.enabledSettings:active svg path,
+.settings:active svg path {
+    fill: lightgray;
+    stroke: lightgray;
+}
 
 .settings:hover svg path,
 .enabledSettings:hover svg path,

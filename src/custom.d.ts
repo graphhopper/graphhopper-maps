@@ -14,6 +14,7 @@ declare module 'config' {
         thunderforest: string,
         kurviger: string,
     }
+    const routingGraphLayerAllowed: boolean
     const extraProfiles: object
 }
 declare module 'react-responsive' {

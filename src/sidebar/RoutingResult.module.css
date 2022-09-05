@@ -44,6 +44,11 @@
     color: #5b616a;
 }
 
+.resultTertiaryText {
+    color: #5b616a;
+    font-size: 12px;
+}
+
 /*
 This is not a very nice duplication but I have to stop now...
  */

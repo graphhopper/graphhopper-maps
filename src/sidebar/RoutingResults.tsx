@@ -9,6 +9,7 @@ import PlainButton from '@/PlainButton'
 import Arrow from '@/sidebar/chevron-down-solid.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
 import { useMediaQuery } from 'react-responsive'
+import { tr } from '@/translation/Translation'
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -37,6 +38,11 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
                         <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
+                        {path.description && (
+                            <span className={styles.resultTertiaryText}>
+                                {tr('Via')} {path.description}
+                            </span>
+                        )}
                     </div>
                     {isSelected && (
                         <PlainButton className={buttonClass} onClick={() => setExpanded(!isExpanded)}>

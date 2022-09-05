@@ -29,6 +29,8 @@ export default class NavBar {
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
+        if (queryStoreState.customModelEnabled && queryStoreState.customModel && queryStoreState.customModelValid)
+            result.searchParams.append('custom_model', JSON.stringify(queryStoreState.customModel))
 
         return result
     }
