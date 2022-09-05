@@ -68,9 +68,10 @@ export interface CustomModelBoxProps {
     enabled: boolean
     encodedValues: object[]
     initialCustomModelStr: string | null
+    queryOngoing: boolean
 }
 
-export default function CustomModelBox({ enabled, encodedValues, initialCustomModelStr }: CustomModelBoxProps) {
+export default function CustomModelBox({ enabled, encodedValues, initialCustomModelStr, queryOngoing }: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)
@@ -140,11 +141,6 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
         [editor, isValid]
     )
 
-    const isQueryOngoing = () => {
-        if (!getQueryStore().state.currentRequest.subRequests[0]) return false
-        return getQueryStore().state.currentRequest.subRequests[0].state == RequestState.SENT
-    }
-
     return (
         <>
             <PlainButton
@@ -194,11 +190,11 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                     </a>
                     <div
                         className={`${styles.applyButton} ${!isValid ? styles.applyButtonInvalid : ''} ${
-                            isQueryOngoing() ? styles.applyButtonProgress : ''
+                            queryOngoing ? styles.applyButtonProgress : ''
                         }`}
                     >
                         <PlainButton
-                            disabled={!isValid || isQueryOngoing()}
+                            disabled={!isValid || queryOngoing}
                             // If the model was invalid the button would be disabled anyway, so it does not really matter
                             // if we set valid to true or false here.
                             onClick={() => dispatchCustomModel(editor.value, true, true)}
@@ -206,7 +202,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                             <ApplySVG />
                             <div>{tr('Apply')}</div>
                         </PlainButton>
-                        {isQueryOngoing() && <div className={styles.infiniteProgressBar}></div>}
+                        {queryOngoing && <div className={styles.infiniteProgressBar}></div>}
                     </div>
                 </div>
             )}
