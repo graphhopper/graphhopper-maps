@@ -60,15 +60,14 @@ const Options = function ({ storeState, notifyChanged }: OptionsProps) {
                 <div>
                     <input
                         type="checkbox"
-                        name="routing-graph"
-                        defaultChecked={storeState.routingGraphEnabled}
-                        disabled={false}
+                        id="routing-graph-checkbox"
+                        checked={storeState.routingGraphEnabled}
                         onChange={e => {
                             notifyChanged()
                             Dispatcher.dispatch(new ToggleRoutingGraph(e.target.checked))
                         }}
                     />
-                    <label htmlFor="routing-graph">Show Routing Graph</label>
+                    <label htmlFor="routing-graph-checkbox">Show Routing Graph</label>
                 </div>
             )}
         </div>
