@@ -261,7 +261,8 @@ export default class QueryStore extends Store<QueryStoreState> {
                 const maxDistance = getMaxDistance(state.queryPoints)
                 if (maxDistance < 200_000) {
                     // Use a single request, possibly including alternatives when custom models are enabled.
-                    requests = [QueryStore.buildRouteRequest(state)]
+                    if (state.queryPoints.length == 2) requests = [QueryStore.buildRouteRequest(state)]
+                    else requests = [QueryStore.buildRouteRequest({ ...state, maxAlternativeRoutes: 1 })]
                 } else if (maxDistance < 500_000) {
                     // Force no alternatives for longer custom model routes.
                     requests = [QueryStore.buildRouteRequest({
