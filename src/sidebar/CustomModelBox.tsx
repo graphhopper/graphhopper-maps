@@ -12,6 +12,8 @@ import {CustomModel, RequestState} from '@/stores/QueryStore'
 import {tr} from '@/translation/Translation'
 import SettingsSVG from './settings.svg'
 import SettingsClickedSVG from './settings-clicked.svg'
+import HelpSVG from './support.svg'
+import ApplySVG from './adjust.svg'
 import PlainButton from '@/PlainButton'
 import {getQueryStore} from "@/stores/Stores";
 
@@ -122,8 +124,8 @@ export default function CustomModelBox({enabled, encodedValues}: CustomModelBoxP
         editor.value = JSON.stringify(customModelExample, null, 2)
     }
 
-    const queryWasSent = () => {
-        if(!getQueryStore().state.currentRequest.subRequests[0]) return false
+    const isQueryOngoing = () => {
+        if (!getQueryStore().state.currentRequest.subRequests[0]) return false
         return getQueryStore().state.currentRequest.subRequests[0].state == RequestState.SENT
     }
 
@@ -148,7 +150,7 @@ export default function CustomModelBox({enabled, encodedValues}: CustomModelBoxP
                 onKeyUp={triggerRouting}
             />
             {enabled && (
-                <div style={{alignContent: 'center'}}>
+                <div className={styles.customModelBoxBottomBar}>
                     <select
                         className={styles.examples}
                         onChange={(e: any) => {
@@ -167,15 +169,18 @@ export default function CustomModelBox({enabled, encodedValues}: CustomModelBoxP
                        className={styles.helpLink}
                        href="https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md"
                     >
-                        {tr('help')}
+                        <HelpSVG/>
+                        <div>{tr('help')}</div>
                     </a>
-                    <div className={isValid ? (queryWasSent() ? styles.applyButtonProgress : styles.applyButton) : styles.applyButtonInvalid}>
+                    <div
+                        className={`${styles.applyButton} ${!isValid ? styles.applyButtonInvalid : ''} ${isQueryOngoing() ? styles.applyButtonProgress : ''}`}>
                         <PlainButton
-                            disabled={!isValid || queryWasSent()}
+                            disabled={!isValid || isQueryOngoing()}
                             onClick={() => dispatchCustomModel(editor.value, true, true)}>
-                            {tr("Apply")}
+                            <ApplySVG/>
+                            <div>{tr("Apply")}</div>
                         </PlainButton>
-                        {queryWasSent() && <div className={styles.infiniteProgressBar}></div>}
+                        {isQueryOngoing() && <div className={styles.infiniteProgressBar}></div>}
                     </div>
                 </div>
             )}
