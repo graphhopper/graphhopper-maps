@@ -261,7 +261,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             ]
 
             const allowAlternatives = state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1
-            if (state.customModelEnabled && state.queryPoints) {
+            if (state.customModelEnabled) {
                 // disable alternatives for medium-long routes and avoid two requests if alternatives
                 const maxDistance = getMaxDistance(state.queryPoints)
                 if (allowAlternatives && maxDistance < 200_000) {
