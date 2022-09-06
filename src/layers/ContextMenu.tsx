@@ -26,7 +26,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
         setOverlay(overlay)
         map.addOverlay(overlay)
 
-        const onMenuEvent = (e: any) => {
+        function openContextMenu(e: any) {
             e.preventDefault()
             const coordinate = map.getEventCoordinate(e)
             const lonLat = toLonLat(coordinate)
@@ -38,8 +38,13 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             // we cannot listen to right-click simply using map.on('contextmenu') and need to add the listener to
             // the map container instead
             // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
-            map.getTargetElement().addEventListener('contextmenu', e => onMenuEvent(e))
+            map.getTargetElement().addEventListener('contextmenu', openContextMenu)
         })
+
+        return () => {
+            map.getTargetElement().removeEventListener('contextmenu', openContextMenu)
+            map.removeOverlay(overlay)
+        }
     }, [map])
     return (
         <div className={styles.popup} ref={container as any}>
