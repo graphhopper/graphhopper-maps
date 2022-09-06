@@ -346,7 +346,7 @@ export default class QueryStore extends Store<QueryStoreState> {
     public static getMarkerColor(type: QueryPointType) {
         switch (type) {
             case QueryPointType.From:
-                return '#417900'
+                return '#7cb342'
             case QueryPointType.To:
                 return '#F97777'
             default:
