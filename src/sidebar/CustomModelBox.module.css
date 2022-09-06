@@ -51,11 +51,13 @@
 }
 
 .settings svg {
+    transform: rotate(0);
     animation-name: reverse_rotate;
     animation-duration: 0.2s;
 }
 
 .enabledSettings svg {
+    transform: rotate(180deg);
     animation-name: setting_rotate;
     animation-duration: 0.2s;
 }
@@ -65,13 +67,13 @@
         transform: rotate(0);
     }
     100% {
-        transform: rotate(120deg);
+        transform: rotate(180deg);
     }
 }
 
 @keyframes reverse_rotate {
     0% {
-        transform: rotate(120deg);
+        transform: rotate(180deg);
     }
     100% {
         transform: rotate(0);
@@ -124,14 +126,11 @@
     color: lightgray !important;
 }
 
-.infiniteProgressBarHide {
-    height: 2px;
-}
-
 .infiniteProgressBar {
     animation: progress 4s infinite normal;
     height: 2px;
-    background-color: #275dad;
+    margin-top: -2px; /* when visiable it should not occupy space */
+    background-color: rgb(65, 121, 0);
 }
 
 @keyframes progress {
@@ -157,6 +156,10 @@
 .examples {
     cursor: pointer;
     color: #5b616a;
+}
+
+.applyButton button {
+    background-color: rgb(65, 121, 0, 0.1);
 }
 
 .applyButton button,

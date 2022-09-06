@@ -8,10 +8,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
 import { ClearRoute, DismissLastError, SetCustomModel, SetCustomModelBoxEnabled } from '@/actions/Actions'
-import { CustomModel, RequestState } from '@/stores/QueryStore'
+import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import SettingsSVG from './settings.svg'
-import SettingsClickedSVG from './settings-clicked.svg'
 import PlainButton from '@/PlainButton'
 
 const examples: { [key: string]: CustomModel } = {
@@ -149,7 +148,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                     Dispatcher.dispatch(new SetCustomModelBoxEnabled(!enabled))
                 }}
             >
-                {enabled ? <SettingsClickedSVG /> : <SettingsSVG />}
+                <SettingsSVG />
             </PlainButton>
             <div className={styles.spacer}></div>
             {/*we use 'display: none' instead of conditional rendering to preserve the custom model box's state when it is closed*/}
@@ -198,7 +197,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                         >
                             {tr('Apply')}
                         </PlainButton>
-                        {queryOngoing ? <div className={styles.infiniteProgressBar}></div> : <div className={styles.infiniteProgressBarHide}></div>}
+                        {queryOngoing && <div className={styles.infiniteProgressBar}></div>}
                     </div>
                 </div>
             )}
