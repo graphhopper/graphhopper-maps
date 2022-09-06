@@ -26,7 +26,7 @@ export default function Search({
 }) {
     points.every(point => point.isInitialized)
     return (
-        <div className={styles.searchBox}>
+        <div>
             <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
             {points.map(point => (
                 <SearchBox
@@ -64,6 +64,15 @@ const SearchBox = ({
 }) => {
     return (
         <>
+            <div className={styles.rowContainer}
+                // make it draggable:
+                draggable
+                onDragStart={(e) => { e.dataTransfer.setData("point.id", ""+point.id); console.log("start drag " + point.id)}}
+                // make it dropable two preventDefault calls are required:
+                onDragEnter={ (e) => e.preventDefault() }
+                onDragOver={ (e) => e.preventDefault() }
+                onDrop={ (e) => { console.log("drop " + point.id + " " + e.dataTransfer.getData("point.id"))} }
+                >
             <div className={styles.markerContainer}>
                 <MarkerComponent color={point.color} />
             </div>
@@ -106,6 +115,7 @@ const SearchBox = ({
                     <RemoveIcon />
                 </PlainButton>
             )}
+            </div>
         </>
     )
 }

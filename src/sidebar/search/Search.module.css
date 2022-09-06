@@ -1,4 +1,4 @@
-.searchBox {
+.rowContainer {
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
