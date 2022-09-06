@@ -120,10 +120,14 @@ export class ApiImpl implements Api {
             const errorResult = (await response.json()) as ErrorResponse
             let message = errorResult.message
             if (errorResult.hints && errorResult.hints.length > 0) {
-                const messagesFromHints = (errorResult.hints as any[])
-                    .map(hint => (message.includes(hint.message) ? '' : hint.message))
-                    .join(' and ')
-                if (messagesFromHints.length > 0) message += (message ? ' and ' : '') + messagesFromHints
+                let messagesFromHints = ''
+                errorResult.hints.forEach(hint => {
+                    if (!hint.message.includes(message)) {
+                        messagesFromHints += (messagesFromHints ? ' and ' : '') + messagesFromHints
+                        messagesFromHints += hint.message
+                    }
+                })
+                if (messagesFromHints) message += (message ? ' and ' : '') + messagesFromHints
             }
             throw new Error(message)
         } else {

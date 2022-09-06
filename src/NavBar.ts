@@ -53,18 +53,27 @@ export default class NavBar {
     private static parsePoints(url: URL) {
         return url.searchParams.getAll('point').map((parameter, i) => {
             const split = parameter.split('_')
-            if (split.length < 1)
-                throw Error(
-                    'Could not parse url parameter point: ' + parameter + ' Think about what to do instead of crashing'
-                )
-            const coordinate = this.parseCoordinate(split[0])
-            const queryText = split.length >= 2 ? split[1] : coordinateToText(coordinate)
+
+            try {
+                if (split.length >= 1) {
+                    const coordinate = this.parseCoordinate(split[0])
+                    const queryText = split.length >= 2 ? split[1] : coordinateToText(coordinate)
+                    return {
+                        coordinate: coordinate,
+                        isInitialized: true,
+                        id: i,
+                        queryText: queryText,
+                        color: '',
+                        type: QueryPointType.Via,
+                    }
+                }
+            } catch (e) {}
 
             return {
-                coordinate: coordinate,
-                isInitialized: true,
+                coordinate: { lat: 0, lng: 0 },
+                isInitialized: false,
                 id: i,
-                queryText: queryText,
+                queryText: '',
                 color: '',
                 type: QueryPointType.Via,
             }
