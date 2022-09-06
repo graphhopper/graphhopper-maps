@@ -18,10 +18,12 @@
 .removeSearchBox {
     grid-column: 4;
     width: 1rem;
+    color: #adadad;
     justify-self: center;
 }
 
 .addSearchBox svg {
+    color: #adadad;
     width: 1.1rem;
     float: left;
     padding: 0.2em 1.25em 0.2em 0;
