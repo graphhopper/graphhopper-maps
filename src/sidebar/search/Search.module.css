@@ -3,6 +3,7 @@
     grid-template-columns: auto 1fr auto;
     align-items: center;
     grid-gap: 0.5rem;
+    padding-bottom: 0.5em;
     margin: 0.5rem;
 }
 

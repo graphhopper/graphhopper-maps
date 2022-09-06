@@ -54,8 +54,8 @@
 .gpxButton,
 .detailsButton,
 .detailsButtonExpanded {
-    display: flex;
-    padding-right: 1em;
+    padding-left: 2em;
+    padding-right: 0.3em;
 }
 
 .detailsButton div,
@@ -63,15 +63,15 @@
 .gpxButton div {
     color: #5b616a;
     font-size: 12px;
-    flex-flow: row;
-    padding-top: 1.4em;
+    float: left;
+    padding-top: 0.15em;
     padding-left: 0.5em;
 }
 
 .detailsButton svg,
 .detailsButtonExpanded svg,
 .gpxButton svg {
-    flex-flow: row;
+    float: left;
     width: 1.2em;
     height: auto;
 }

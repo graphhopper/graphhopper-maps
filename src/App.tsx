@@ -8,7 +8,7 @@ import {
     getMapOptionsStore,
     getPathDetailsStore,
     getQueryStore,
-    getRouteStore,
+    getRouteStore
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
 import { ApiInfo } from '@/api/graphhopper'
@@ -17,7 +17,7 @@ import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
 import RoutingResults from '@/sidebar/RoutingResults'
 import PoweredBy from '@/sidebar/PoweredBy'
-import { QueryStoreState } from '@/stores/QueryStore'
+import { QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
@@ -137,6 +137,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                         enabled={query.customModelEnabled}
                         encodedValues={info.encoded_values}
                         initialCustomModelStr={query.initialCustomModelStr}
+                        queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                     />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <div className={styles.routingResult}>

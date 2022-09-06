@@ -1,4 +1,5 @@
 .button {
+    outline-color: #368fe8; /* doesn't work for firefox? force blue for chrome too */
     border: none;
     padding: 0;
     margin: 0;
