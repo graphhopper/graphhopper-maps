@@ -42,7 +42,7 @@
 }
 
 .resultSecondaryText,
-.gpxButton div {
+.exportButton div {
     color: #5b616a;
 }
 
@@ -51,16 +51,16 @@
     font-size: 12px;
 }
 
-.gpxButton,
+.exportButton,
 .detailsButton,
 .detailsButtonExpanded {
-    width: 20%;
-    padding-right: 0.3em;
+    min-width: 5em;
+    padding-right: 0.5em;
 }
 
 .detailsButton div,
 .detailsButtonExpanded div,
-.gpxButton div {
+.exportButton div {
     color: #5b616a;
     font-size: 12px;
     float: left;
@@ -70,38 +70,38 @@
 
 .detailsButton svg,
 .detailsButtonExpanded svg,
-.gpxButton svg {
+.exportButton svg {
     float: left;
     width: 1.2em;
     height: auto;
 }
 
-.gpxButton:active div,
+.exportButton:active div,
 .detailsButton:active div,
 .detailsButtonExpanded:active div {
     color: lightgray;
 }
 
 .detailsButton:active svg path,
-.gpxButton:active svg path,
+.exportButton:active svg path,
 .detailsButtonExpanded:active svg path {
     fill: lightgray;
 }
 
-.gpxButton:hover div,
+.exportButton:hover div,
 .detailsButton:hover div,
 .detailsButtonExpanded:hover div {
     color: black;
 }
 
 .detailsButton:hover svg path,
-.gpxButton:hover svg path,
+.exportButton:hover svg path,
 .detailsButtonExpanded:hover svg path {
     fill: black;
 }
 
 .detailsButton svg path,
-.gpxButton svg path {
+.exportButton svg path {
     fill: #5b616a;
     stroke: #5b616a;
 }
@@ -136,4 +136,13 @@
     to {
         opacity: 1;
     }
+}
+
+.routeHintWarning, .routeHint {
+    padding: 0 1.5em 0.2em 1.5em;
+    font-size: small;
+}
+
+.routeHintWarning {
+    color: #F97777;
 }

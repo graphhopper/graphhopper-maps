@@ -17,6 +17,7 @@ export interface RoutingResultsProps {
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
+    profile: string
 }
 
 export default function RoutingResults(props: RoutingResultsProps) {
@@ -25,13 +26,19 @@ export default function RoutingResults(props: RoutingResultsProps) {
     return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
 }
 
-function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }) {
+function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: boolean, profile: string }) {
     const [isExpanded, setExpanded] = useState(false)
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
+    let hasFords = containsValue(path.details.road_environment, "ford")
+    let hasTolls = containsValue(path.details.toll, "all");
+    let hasFerries = containsValue(path.details.road_environment, "ferry")
+    let hasBorderCrossed = crossesBorder(path.details.country)
+    let showAndHasTracks = isMotorVehicle(profile) && containsValue(path.details.road_class, "track")
+    let showAndHasSteps = isBikeLike(profile) && containsValue(path.details.road_class, "steps")
 
     return (
         <div className={styles.resultRow}>
@@ -46,27 +53,53 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
                             </span>
                         )}
                     </div>
-                    <PlainButton className={styles.gpxButton} onClick={() => downloadGPX(path)}>
+                    <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path)}>
                         <GPXDownload />
                         <div>{tr('Export')}</div>
                     </PlainButton>
-                    {isExpanded ? (
-                        <PlainButton className={styles.detailsButtonExpanded} onClick={() => setExpanded(false)}>
-                            <Details />
-                            <div>{tr('Hide')}</div>
-                        </PlainButton>
-                    ) : (
-                        <PlainButton className={styles.detailsButton} onClick={() => setExpanded(true)}>
-                            <Details />
-                            <div>{tr('Details')}</div>
-                        </PlainButton>
-                    )}
+                    <PlainButton
+                        title={tr("way_contains", [tr("obstacles")])}
+                        className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
+                                 onClick={() => setExpanded(!isExpanded)}>
+                        <Details />
+                        <div>{isExpanded? tr('Hide') : tr('Details')}</div>
+                    </PlainButton>
                 </div>
             </div>
-            {isExpanded && <div>↗{Math.round(path.ascend)}m ↘{Math.round(path.descend)}m</div>}
+            {isSelected && <div className={styles.routeHint}>↗{Math.round(path.ascend)}m ↘{Math.round(path.descend)}m</div>}
+            {isSelected && hasFords && <div className={styles.routeHintWarning}>{tr("way_contains_ford")}</div>}
+            {isSelected && hasTolls && <div className={styles.routeHintWarning}>{tr("way_contains_toll")}</div>}
+            {isSelected && hasFerries && <div className={styles.routeHintWarning}>{tr("way_contains_ferry")}</div>}
+            {isSelected && hasBorderCrossed && <div className={styles.routeHintWarning}>{tr("way_crosses_border")}</div>}
+            {isSelected && showAndHasSteps && <div className={styles.routeHint}>{tr("way_contains", [tr("steps")])}</div>}
+            {isSelected && showAndHasTracks && <div className={styles.routeHint}>{tr("way_contains", [tr("tracks")])}</div>}
             {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
     )
+}
+
+function isBikeLike(profile: string) {
+    return profile.includes("mtb") || profile.includes("bike")
+}
+
+function isMotorVehicle(profile: string) {
+    return profile.includes("car") || profile.includes("truck") || profile.includes("scooter")
+}
+
+function containsValue(details: [number, number, string][], value: string) {
+    for (let i in details) {
+        if (details[i][2] == value) return true
+    }
+    return false
+}
+
+function crossesBorder(countryPathDetail: [number, number, string][]) {
+    if(countryPathDetail.length == 0) return false;
+    let init = countryPathDetail[0][2]
+    for (let i in countryPathDetail) {
+        if (countryPathDetail[i][2] != init) return true
+    }
+    return false
 }
 
 function downloadGPX(path: Path) {
@@ -140,18 +173,18 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 }
 
 function createSingletonListContent(props: RoutingResultsProps) {
-    if (props.paths.length > 0) return <RoutingResult path={props.selectedPath} isSelected={true} />
+    if (props.paths.length > 0) return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile}/>
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlacelholder key={1} />
     return ''
 }
 
-function createListContent({ paths, currentRequest, selectedPath }: RoutingResultsProps) {
+function createListContent({ paths, currentRequest, selectedPath, profile }: RoutingResultsProps) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
         if (i < paths.length)
-            result.push(<RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} />)
+            result.push(<RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} profile={profile} />)
         else result.push(<RoutingResultPlacelholder key={i} />)
     }
 
