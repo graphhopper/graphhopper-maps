@@ -66,13 +66,13 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     </PlainButton>
                 </div>
             </div>
-            {isSelected && <div className={styles.routeHint}>↗{Math.round(path.ascend)}m ↘{Math.round(path.descend)}m</div>}
-            {isSelected && hasFords && <div className={styles.routeHintWarning}>{tr("way_contains_ford")}</div>}
-            {isSelected && hasBorderCrossed && <div className={styles.routeHintWarning}>{tr("way_crosses_border")}</div>}
-            {isSelected && hasFerries && <div className={styles.routeHintWarning}>{tr("way_contains_ferry")}</div>}
-            {isSelected && hasTolls && <div className={styles.routeHintWarning}>{tr("way_contains_toll")}</div>}
-            {isSelected && showAndHasSteps && <div className={styles.routeHint}>{tr("way_contains", [tr("steps")])}</div>}
-            {isSelected && showAndHasTracks && <div className={styles.routeHint}>{tr("way_contains", [tr("tracks")])}</div>}
+            {isSelected && !isExpanded && <div className={styles.routeHint}>↗{Math.round(path.ascend)}m ↘{Math.round(path.descend)}m</div>}
+            {isSelected && !isExpanded && hasFords && <div className={styles.routeHintWarning}>{tr("way_contains_ford")}</div>}
+            {isSelected && !isExpanded && hasBorderCrossed && <div className={styles.routeHintWarning}>{tr("way_crosses_border")}</div>}
+            {isSelected && !isExpanded && hasFerries && <div className={styles.routeHintWarning}>{tr("way_contains_ferry")}</div>}
+            {isSelected && !isExpanded && hasTolls && <div className={styles.routeHintWarning}>{tr("way_contains_toll")}</div>}
+            {isSelected && !isExpanded && showAndHasSteps && <div className={styles.routeHint}>{tr("way_contains", [tr("steps")])}</div>}
+            {isSelected && !isExpanded && showAndHasTracks && <div className={styles.routeHint}>{tr("way_contains", [tr("tracks")])}</div>}
             {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
     )
