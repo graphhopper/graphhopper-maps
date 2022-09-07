@@ -1,7 +1,7 @@
 {"en_US":{
-"way_contains_ford":"Route includes a ford",
-"way_contains_ferry":"Route includes a ferry",
-"way_contains_private":"Route with private road",
+"way_contains_ford":"Route includes fords",
+"way_contains_ferry":"Route includes ferries",
+"way_contains_private":"Route with private roads",
 "way_contains_toll":"Route has tolls",
 "way_crosses_border":"Route crosses a country border",
 "way_contains":"Route includes %1$s",
@@ -433,9 +433,9 @@
 "de_DE":{
 "way_contains_ford":"Eine Furt muss überquert werden",
 "way_contains_ferry":"Route erfordert Fährennutzung",
-"way_contains_private":"Route mit Privatweg",
+"way_contains_private":"Route mit Privatwegen",
 "way_contains_toll":"Route mit mautpflichtigen Straßen",
-"way_crosses_border":"Route überquert eine Landesgrenze",
+"way_crosses_border":"Route überquert Landesgrenzen",
 "way_contains":"Auf der Route sind %1$s",
 "tracks":"Feldwege",
 "steps":"Treppen",
