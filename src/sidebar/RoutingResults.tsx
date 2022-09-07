@@ -71,7 +71,12 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
             </div>
             {isSelected && !isExpanded && (
                 <div className={styles.routeHint}>
-                    ↗{Math.round(path.ascend)}m ↘{Math.round(path.descend)}m
+                    <span title={tr('total_ascend', [Math.round(path.ascend) + "m"])}>
+                        ↗{Math.round(path.ascend)}m{' '}
+                    </span>
+                    <span title={tr('total_descend', [Math.round(path.descend) + "m"])}>
+                        ↘{Math.round(path.descend)}m
+                    </span>
                 </div>
             )}
             {isSelected && !isExpanded && hasFords && (

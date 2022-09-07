@@ -1,4 +1,6 @@
 {"en_US":{
+"total_ascend":"%1$s total ascent",
+"total_descend":"%1$s total descent",
 "way_contains_ford":"Route includes fords",
 "way_contains_ferry":"Route includes ferries",
 "way_contains_private":"Route with private roads",
@@ -53,6 +55,8 @@
 "apply":"Apply"
 },
 "ar":{
+"total_ascend":"%1$s اجمالى صعود",
+"total_descend":"%1$s اجمالى نزول",
 "way_contains_ford":"انتبه ، هناك مخاضة على الطريق",
 "way_contains_ferry":"استخدم العبارة",
 "way_contains_private":"طريق خاص",
@@ -107,6 +111,8 @@
 "apply":""
 },
 "ast":{
+"total_ascend":"%1$s d'ascensu total",
+"total_descend":"%1$s de descensu total",
 "way_contains_ford":"hai un vau nel camín",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -161,6 +167,8 @@
 "apply":""
 },
 "bg":{
+"total_ascend":"%1$s общо изкачване",
+"total_descend":"%1$s общо слизане",
 "way_contains_ford":"Внимание, на пътя има брод",
 "way_contains_ferry":"вземете ферибота",
 "way_contains_private":"частен път",
@@ -215,6 +223,8 @@
 "apply":""
 },
 "bn_BN":{
+"total_ascend":"",
+"total_descend":"",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -269,6 +279,8 @@
 "apply":""
 },
 "ca":{
+"total_ascend":"%1$s de pujada total",
+"total_descend":"%1$s de baixada total",
 "way_contains_ford":"hi ha un gual en el camí",
 "way_contains_ferry":"Agafa el ferri",
 "way_contains_private":"camí privat",
@@ -323,6 +335,8 @@
 "apply":""
 },
 "cs_CZ":{
+"total_ascend":"Celkové stoupání %1$s",
+"total_descend":"Celkové klesání %1$s",
 "way_contains_ford":"na cestě je brod",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -377,6 +391,8 @@
 "apply":""
 },
 "da_DK":{
+"total_ascend":"%1$s samlet stigning",
+"total_descend":"%1$s samlet fald",
 "way_contains_ford":"der er et vadested undervejs",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -431,6 +447,8 @@
 "apply":""
 },
 "de_DE":{
+"total_ascend":"%1$s Gesamtaufstieg",
+"total_descend":"%1$s Gesamtabstieg",
 "way_contains_ford":"Eine Furt muss überquert werden",
 "way_contains_ferry":"Route erfordert Fährennutzung",
 "way_contains_private":"Route mit Privatwegen",
@@ -485,6 +503,8 @@
 "apply":"Anwenden"
 },
 "el":{
+"total_ascend":"%1$s συνολική ανάβαση",
+"total_descend":"%1$s συνολική κατάβαση",
 "way_contains_ford":"υπάρχει πέρασμα στο δρόμο",
 "way_contains_ferry":"χρησιμοποιήστε το ferry",
 "way_contains_private":"ιδιωτικός δρόμος",
@@ -539,6 +559,8 @@
 "apply":""
 },
 "eo":{
+"total_ascend":"%1$s supreniro tute",
+"total_descend":"%1$s malsupreniro tute",
 "way_contains_ford":"travadejo sur la kurso",
 "way_contains_ferry":"enpramiĝu",
 "way_contains_private":"privata vojo",
@@ -593,6 +615,8 @@
 "apply":""
 },
 "es":{
+"total_ascend":"Ascender %1$s en total",
+"total_descend":"Descender %1$s en total",
 "way_contains_ford":"hay un vado en el camino",
 "way_contains_ferry":"toma el ferry",
 "way_contains_private":"carretera privada",
@@ -647,6 +671,8 @@
 "apply":""
 },
 "fa":{
+"total_ascend":"مجموع صعود %1$s",
+"total_descend":"مجموع نزول %1$s",
 "way_contains_ford":"در طول مسیر گُدار وجود دارد",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -701,6 +727,8 @@
 "apply":""
 },
 "fil":{
+"total_ascend":"",
+"total_descend":"",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -755,6 +783,8 @@
 "apply":""
 },
 "fi":{
+"total_ascend":"nousu yhteensä %1$s",
+"total_descend":"lasku yhteensä %1$s",
 "way_contains_ford":"Huomio, reitillä on kahlaamo",
 "way_contains_ferry":"käytä lauttaa",
 "way_contains_private":"yksityinen tie",
@@ -809,6 +839,8 @@
 "apply":""
 },
 "fr_FR":{
+"total_ascend":"%1$s de dénivelé positif",
+"total_descend":"%1$s de dénivelé négatif",
 "way_contains_ford":"cet itinéraire comprend un passage à gué",
 "way_contains_ferry":"prenez le bateau",
 "way_contains_private":"chemin privé",
@@ -863,6 +895,8 @@
 "apply":""
 },
 "fr_CH":{
+"total_ascend":"%1$s de dénivelé positif",
+"total_descend":"%1$s de dénivelé négatif",
 "way_contains_ford":"cet itinéraire comprend un passage à gué",
 "way_contains_ferry":"prenez le bateau",
 "way_contains_private":"chemin privé",
@@ -917,6 +951,8 @@
 "apply":""
 },
 "gl":{
+"total_ascend":"",
+"total_descend":"",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -971,6 +1007,8 @@
 "apply":""
 },
 "he":{
+"total_ascend":"עלייה כוללת של %1$s",
+"total_descend":"ירידה כוללת של %1$s",
 "way_contains_ford":"יש מעבר מים לאורך הדרך",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1025,6 +1063,8 @@
 "apply":""
 },
 "hr_HR":{
+"total_ascend":"%1$s ukupni uspon",
+"total_descend":"",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1079,6 +1119,8 @@
 "apply":""
 },
 "hsb":{
+"total_ascend":"",
+"total_descend":"",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1133,6 +1175,8 @@
 "apply":""
 },
 "hu_HU":{
+"total_ascend":"Összes szintemelkedés: %1$s",
+"total_descend":"Összes szintcsökkenés: %1$s",
 "way_contains_ford":"gázló van az útvonalon",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1187,6 +1231,8 @@
 "apply":""
 },
 "in_ID":{
+"total_ascend":"naik dengan jarak %1$s",
+"total_descend":"turun dengan jarak %1$s",
 "way_contains_ford":"terdapat jalan untuk dilewati",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1241,6 +1287,8 @@
 "apply":""
 },
 "it":{
+"total_ascend":"%1$s di dislivello positivo",
+"total_descend":"%1$s di dislivello negativo",
 "way_contains_ford":"c'é un guado sulla strada",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1295,6 +1343,8 @@
 "apply":""
 },
 "ja":{
+"total_ascend":"",
+"total_descend":"",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1349,6 +1399,8 @@
 "apply":""
 },
 "ko":{
+"total_ascend":"오르막길 총 %1$s",
+"total_descend":"내리막길 총 %1$s",
 "way_contains_ford":"경로에 여울이 있습니다",
 "way_contains_ferry":"페리 승선",
 "way_contains_private":"사유 도로",
@@ -1403,6 +1455,8 @@
 "apply":""
 },
 "lt_LT":{
+"total_ascend":"",
+"total_descend":"",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1457,6 +1511,8 @@
 "apply":""
 },
 "ne":{
+"total_ascend":"",
+"total_descend":"",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1511,6 +1567,8 @@
 "apply":""
 },
 "nl":{
+"total_ascend":"%1$s totale klim",
+"total_descend":"%1$s totale daling",
 "way_contains_ford":"Er is een doorwaadbare plaats",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1565,6 +1623,8 @@
 "apply":""
 },
 "pl_PL":{
+"total_ascend":"%1$s podejść ogółem",
+"total_descend":"%1$s zejść ogółem",
 "way_contains_ford":"bród na trasie",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1619,6 +1679,8 @@
 "apply":""
 },
 "pt_BR":{
+"total_ascend":"subida de %1$s",
+"total_descend":"descida de %1$s",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1673,6 +1735,8 @@
 "apply":""
 },
 "pt_PT":{
+"total_ascend":"subida de %1$s",
+"total_descend":"descida de %1$s",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1727,6 +1791,8 @@
 "apply":""
 },
 "ro":{
+"total_ascend":"urcare %1$s",
+"total_descend":"coborâre %1$s",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1781,6 +1847,8 @@
 "apply":""
 },
 "ru":{
+"total_ascend":"подъём на %1$s",
+"total_descend":"спуск на %1$s",
 "way_contains_ford":"На пути есть брод",
 "way_contains_ferry":"садитесь на паром",
 "way_contains_private":"частная дорога",
@@ -1835,6 +1903,8 @@
 "apply":""
 },
 "sk":{
+"total_ascend":"%1$s yüksəliş",
+"total_descend":"%1$s eniş",
 "way_contains_ford":"Yolda keçid var",
 "way_contains_ferry":"Bərəyə minin",
 "way_contains_private":"özəl yol",
@@ -1889,6 +1959,8 @@
 "apply":""
 },
 "sl_SI":{
+"total_ascend":"%1$s celkové stúpanie",
+"total_descend":"%1$s celkové klesanie",
 "way_contains_ford":"popri ceste sa nachádza brod",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1943,6 +2015,8 @@
 "apply":""
 },
 "sr_RS":{
+"total_ascend":"Skupni vzpon: %1$s",
+"total_descend":"Skupni spust: %1$s",
 "way_contains_ford":"Na poti je pregaz",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -1997,6 +2071,8 @@
 "apply":""
 },
 "sv_SE":{
+"total_ascend":"%1$s ukupni uspon",
+"total_descend":"",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -2051,6 +2127,8 @@
 "apply":""
 },
 "tr":{
+"total_ascend":"%1$s stigning",
+"total_descend":"%1$s nedstigning",
 "way_contains_ford":"Observera att det finns ett vadställe längs rutten",
 "way_contains_ferry":"Ta färjan",
 "way_contains_private":"Privat väg",
@@ -2105,6 +2183,8 @@
 "apply":""
 },
 "uk":{
+"total_ascend":"%1$s toplam tırmanış",
+"total_descend":"%1$s toplam alçalış",
 "way_contains_ford":"Dikkat, yolda bir sığ yer var",
 "way_contains_ferry":"feribota bin",
 "way_contains_private":"özel yol ",
@@ -2159,6 +2239,8 @@
 "apply":""
 },
 "vi_VN":{
+"total_ascend":"%1$s загалом підйому",
+"total_descend":"%1$s загалом спуску",
 "way_contains_ford":"На шляху є брід",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -2213,6 +2295,8 @@
 "apply":""
 },
 "zh_CN":{
+"total_ascend":"Đi tiếp %1$s nữa",
+"total_descend":"Tổng số hạ %1$s ",
 "way_contains_ford":"Chú ý, có khúc sông cạn trên đường",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -2267,6 +2351,8 @@
 "apply":""
 },
 "zh_HK":{
+"total_ascend":"总上升%1$s",
+"total_descend":"总下降%1$s",
 "way_contains_ford":"路径中包含河滩",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -2321,6 +2407,8 @@
 "apply":""
 },
 "zh_TW":{
+"total_ascend":"總共上昇 %1$s",
+"total_descend":"總共下降 %1$s",
 "way_contains_ford":"",
 "way_contains_ferry":"",
 "way_contains_private":"",
