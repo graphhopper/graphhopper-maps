@@ -63,6 +63,7 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
                     )}
                 </div>
             </div>
+            {isExpanded && <div>↗{Math.round(path.ascend)}m ↘{Math.round(path.descend)}m</div>}
             {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
     )
