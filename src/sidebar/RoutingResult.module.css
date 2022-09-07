@@ -138,11 +138,12 @@
     }
 }
 
-.routeHintWarning, .routeHint {
+.routeHintWarning,
+.routeHint {
     padding: 0 1.5em 0.2em 1.5em;
     font-size: small;
 }
 
 .routeHintWarning {
-    color: #F97777;
+    color: #f97777;
 }

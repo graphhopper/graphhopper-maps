@@ -22,23 +22,25 @@ export interface RoutingResultsProps {
 
 export default function RoutingResults(props: RoutingResultsProps) {
     // for landscape orientation there is no need that there is space for the map under the 3 alternatives and so the max-height is smaller for short screen
-    const isShortScreen = useMediaQuery({ query: '(max-height: 45rem) and (orientation: landscape), (max-height: 70rem) and (orientation: portrait)' })
+    const isShortScreen = useMediaQuery({
+        query: '(max-height: 45rem) and (orientation: landscape), (max-height: 70rem) and (orientation: portrait)',
+    })
     return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
 }
 
-function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: boolean, profile: string }) {
+function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: boolean; profile: string }) {
     const [isExpanded, setExpanded] = useState(false)
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
-    let hasFords = containsValue(path.details.road_environment, "ford")
-    let hasTolls = containsValue(path.details.toll, "all");
-    let hasFerries = containsValue(path.details.road_environment, "ferry")
+    let hasFords = containsValue(path.details.road_environment, 'ford')
+    let hasTolls = containsValue(path.details.toll, 'all')
+    let hasFerries = containsValue(path.details.road_environment, 'ferry')
     let hasBorderCrossed = crossesBorder(path.details.country)
-    let showAndHasTracks = isMotorVehicle(profile) && containsValue(path.details.road_class, "track")
-    let showAndHasSteps = isBikeLike(profile) && containsValue(path.details.road_class, "steps")
+    let showAndHasTracks = isMotorVehicle(profile) && containsValue(path.details.road_class, 'track')
+    let showAndHasSteps = isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
 
     return (
         <div className={styles.resultRow}>
@@ -58,32 +60,49 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                         <div>{tr('Export')}</div>
                     </PlainButton>
                     <PlainButton
-                        title={tr("way_contains", [tr("obstacles")])}
+                        title={tr('way_contains', [tr('obstacles')])}
                         className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
-                                 onClick={() => setExpanded(!isExpanded)}>
+                        onClick={() => setExpanded(!isExpanded)}
+                    >
                         <Details />
-                        <div>{isExpanded? tr('Hide') : tr('Details')}</div>
+                        <div>{isExpanded ? tr('Hide') : tr('Details')}</div>
                     </PlainButton>
                 </div>
             </div>
-            {isSelected && !isExpanded && <div className={styles.routeHint}>↗{Math.round(path.ascend)}m ↘{Math.round(path.descend)}m</div>}
-            {isSelected && !isExpanded && hasFords && <div className={styles.routeHintWarning}>{tr("way_contains_ford")}</div>}
-            {isSelected && !isExpanded && hasBorderCrossed && <div className={styles.routeHintWarning}>{tr("way_crosses_border")}</div>}
-            {isSelected && !isExpanded && hasFerries && <div className={styles.routeHintWarning}>{tr("way_contains_ferry")}</div>}
-            {isSelected && !isExpanded && hasTolls && <div className={styles.routeHintWarning}>{tr("way_contains_toll")}</div>}
-            {isSelected && !isExpanded && showAndHasSteps && <div className={styles.routeHint}>{tr("way_contains", [tr("steps")])}</div>}
-            {isSelected && !isExpanded && showAndHasTracks && <div className={styles.routeHint}>{tr("way_contains", [tr("tracks")])}</div>}
+            {isSelected && !isExpanded && (
+                <div className={styles.routeHint}>
+                    ↗{Math.round(path.ascend)}m ↘{Math.round(path.descend)}m
+                </div>
+            )}
+            {isSelected && !isExpanded && hasFords && (
+                <div className={styles.routeHintWarning}>{tr('way_contains_ford')}</div>
+            )}
+            {isSelected && !isExpanded && hasBorderCrossed && (
+                <div className={styles.routeHintWarning}>{tr('way_crosses_border')}</div>
+            )}
+            {isSelected && !isExpanded && hasFerries && (
+                <div className={styles.routeHintWarning}>{tr('way_contains_ferry')}</div>
+            )}
+            {isSelected && !isExpanded && hasTolls && (
+                <div className={styles.routeHintWarning}>{tr('way_contains_toll')}</div>
+            )}
+            {isSelected && !isExpanded && showAndHasSteps && (
+                <div className={styles.routeHint}>{tr('way_contains', [tr('steps')])}</div>
+            )}
+            {isSelected && !isExpanded && showAndHasTracks && (
+                <div className={styles.routeHint}>{tr('way_contains', [tr('tracks')])}</div>
+            )}
             {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
     )
 }
 
 function isBikeLike(profile: string) {
-    return profile.includes("mtb") || profile.includes("bike")
+    return profile.includes('mtb') || profile.includes('bike')
 }
 
 function isMotorVehicle(profile: string) {
-    return profile.includes("car") || profile.includes("truck") || profile.includes("scooter")
+    return profile.includes('car') || profile.includes('truck') || profile.includes('scooter')
 }
 
 function containsValue(details: [number, number, string][], value: string) {
@@ -94,7 +113,7 @@ function containsValue(details: [number, number, string][], value: string) {
 }
 
 function crossesBorder(countryPathDetail: [number, number, string][]) {
-    if(countryPathDetail.length == 0) return false;
+    if (countryPathDetail.length == 0) return false
     let init = countryPathDetail[0][2]
     for (let i in countryPathDetail) {
         if (countryPathDetail[i][2] != init) return true
@@ -173,7 +192,8 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 }
 
 function createSingletonListContent(props: RoutingResultsProps) {
-    if (props.paths.length > 0) return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile}/>
+    if (props.paths.length > 0)
+        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} />
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlacelholder key={1} />
     return ''
 }
@@ -184,7 +204,9 @@ function createListContent({ paths, currentRequest, selectedPath, profile }: Rou
 
     for (let i = 0; i < length; i++) {
         if (i < paths.length)
-            result.push(<RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} profile={profile} />)
+            result.push(
+                <RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} profile={profile} />
+            )
         else result.push(<RoutingResultPlacelholder key={i} />)
     }
 

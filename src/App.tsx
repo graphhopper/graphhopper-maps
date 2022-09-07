@@ -8,7 +8,7 @@ import {
     getMapOptionsStore,
     getPathDetailsStore,
     getQueryStore,
-    getRouteStore
+    getRouteStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
 import { ApiInfo } from '@/api/graphhopper'
