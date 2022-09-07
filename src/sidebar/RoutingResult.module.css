@@ -42,7 +42,8 @@
 }
 
 .resultSecondaryText,
-.exportButton div {
+.exportButton div,
+.elevationHint {
     color: #5b616a;
 }
 
@@ -138,12 +139,15 @@
     }
 }
 
-.routeHintWarning,
-.routeHint {
-    padding: 0 1.5em 0.2em 1.5em;
-    font-size: small;
+.routeHints div {
+    padding: 0 1.5em 0.2em 1.4em;
 }
 
-.routeHintWarning {
+.routeHints div {
+    font-size: small;
     color: #f97777;
+}
+
+.routeHints {
+    padding-bottom: 1em;
 }

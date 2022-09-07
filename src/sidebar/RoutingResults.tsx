@@ -49,6 +49,16 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
                         <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
+                        {isSelected && !isMotorVehicle(profile) && (
+                            <div className={styles.elevationHint}>
+                                <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
+                                    ↗{metersToText(path.ascend)}{' '}
+                                </span>
+                                <span title={tr('total_descend', [Math.round(path.descend) + 'm'])}>
+                                    ↘{metersToText(path.descend)}
+                                </span>
+                            </div>
+                        )}
                         {path.description && (
                             <span className={styles.resultTertiaryText}>
                                 {tr('Via')} {path.description}
@@ -70,32 +80,14 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                 </div>
             </div>
             {isSelected && !isExpanded && (
-                <div className={styles.routeHint}>
-                    <span title={tr('total_ascend', [Math.round(path.ascend) + "m"])}>
-                        ↗{Math.round(path.ascend)}m{' '}
-                    </span>
-                    <span title={tr('total_descend', [Math.round(path.descend) + "m"])}>
-                        ↘{Math.round(path.descend)}m
-                    </span>
+                <div className={styles.routeHints}>
+                    {hasBorderCrossed && <div>{tr('way_crosses_border')}</div>}
+                    {hasFords && <div>{tr('way_contains_ford')}</div>}
+                    {hasFerries && <div>{tr('way_contains_ferry')}</div>}
+                    {hasTolls && <div>{tr('way_contains_toll')}</div>}
+                    {showAndHasSteps && <div>{tr('way_contains', [tr('steps')])}</div>}
+                    {showAndHasTracks && <div>{tr('way_contains', [tr('tracks')])}</div>}
                 </div>
-            )}
-            {isSelected && !isExpanded && hasFords && (
-                <div className={styles.routeHintWarning}>{tr('way_contains_ford')}</div>
-            )}
-            {isSelected && !isExpanded && hasBorderCrossed && (
-                <div className={styles.routeHintWarning}>{tr('way_crosses_border')}</div>
-            )}
-            {isSelected && !isExpanded && hasFerries && (
-                <div className={styles.routeHintWarning}>{tr('way_contains_ferry')}</div>
-            )}
-            {isSelected && !isExpanded && hasTolls && (
-                <div className={styles.routeHintWarning}>{tr('way_contains_toll')}</div>
-            )}
-            {isSelected && !isExpanded && showAndHasSteps && (
-                <div className={styles.routeHint}>{tr('way_contains', [tr('steps')])}</div>
-            )}
-            {isSelected && !isExpanded && showAndHasTracks && (
-                <div className={styles.routeHint}>{tr('way_contains', [tr('tracks')])}</div>
             )}
             {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
