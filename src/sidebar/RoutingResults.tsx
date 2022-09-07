@@ -65,18 +65,21 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             </span>
                         )}
                     </div>
-                    <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path)}>
-                        <GPXDownload />
-                        <div>{tr('Export')}</div>
-                    </PlainButton>
-                    <PlainButton
-                        title={tr('way_contains', [tr('obstacles')])}
-                        className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
-                        onClick={() => setExpanded(!isExpanded)}
-                    >
-                        <Details />
-                        <div>{isExpanded ? tr('Hide') : tr('Details')}</div>
-                    </PlainButton>
+                    {isSelected && (
+                        <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path)}>
+                            <GPXDownload />
+                            <div>{tr('Export')}</div>
+                        </PlainButton>
+                    )}
+                    {isSelected && (
+                        <PlainButton
+                            className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
+                            onClick={() => setExpanded(!isExpanded)}
+                        >
+                            <Details />
+                            <div>{isExpanded ? tr('Hide') : tr('Details')}</div>
+                        </PlainButton>
+                    )}
                 </div>
             </div>
             {isSelected && !isExpanded && (
