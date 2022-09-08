@@ -3,7 +3,7 @@ import { coordinateToText } from '@/Converters'
 import styles from './Popup.module.css'
 import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
+import { AddPoint, QueryOSM, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import Cross from '@/sidebar/times-solid.svg'
@@ -104,6 +104,15 @@ export function PopupComponent({
                 }}
             >
                 Center map
+            </button>
+            <button
+                className={styles.entry}
+                onClick={() => {
+                    onSelect()
+                    Dispatcher.dispatch(new QueryOSM(coordinate))
+                }}
+            >
+                Query OSM
             </button>
         </div>
     )
