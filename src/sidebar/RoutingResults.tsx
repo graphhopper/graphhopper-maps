@@ -48,17 +48,17 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
                     </div>
                     <PlainButton className={styles.gpxButton} onClick={() => downloadGPX(path)}>
                         <GPXDownload />
-                        <div>{tr('Export')}</div>
+                        <div>{tr('export_button')}</div>
                     </PlainButton>
                     {isExpanded ? (
                         <PlainButton className={styles.detailsButtonExpanded} onClick={() => setExpanded(false)}>
                             <Details />
-                            <div>{tr('Hide')}</div>
+                            <div>{tr('hide_button')}</div>
                         </PlainButton>
                     ) : (
                         <PlainButton className={styles.detailsButton} onClick={() => setExpanded(true)}>
                             <Details />
-                            <div>{tr('Details')}</div>
+                            <div>{tr('details_button')}</div>
                         </PlainButton>
                     )}
                 </div>

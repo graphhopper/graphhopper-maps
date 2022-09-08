@@ -140,7 +140,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
     return (
         <>
             <PlainButton
-                title={tr('open custom model box')}
+                title={tr('open_custom_model_box')}
                 className={enabled ? styles.enabledSettings : styles.settings}
                 onClick={() => {
                     if (enabled) Dispatcher.dispatch(new DismissLastError())
@@ -169,11 +169,11 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                             dispatchCustomModel(JSON.stringify(examples[e.target.value]), true, true)
                         }}
                     >
-                        <option value="empty">{tr('Examples')}</option>
-                        <option value="exclude_motorway">{tr('Exclude Motorway')}</option>
-                        <option value="limit_speed">{tr('Limit Speed')}</option>
-                        <option value="exclude_area">{tr('Exclude Area')}</option>
-                        <option value="combined">{tr('Combined')}</option>
+                        <option value="empty">{tr('examples_custom_model')}</option>
+                        <option value="exclude_motorway">{tr('exclude_motorway_example')}</option>
+                        <option value="limit_speed">{tr('limit_speed_example')}</option>
+                        <option value="exclude_area">{tr('exclude_area_example')}</option>
+                        <option value="combined">{tr('combined_example')}</option>
                     </select>
 
                     <a
@@ -181,7 +181,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                         className={styles.helpLink}
                         href="https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md"
                     >
-                        {tr('help')}
+                        {tr('help_custom_model')}
                     </a>
                     <div
                         className={`${styles.applyButton} ${!isValid ? styles.applyButtonInvalid : ''} ${
@@ -195,7 +195,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                             // if we set valid to true or false here.
                             onClick={() => dispatchCustomModel(editor.value, true, true)}
                         >
-                            {tr('Apply')}
+                            {tr('apply_custom_model')}
                         </PlainButton>
                         {queryOngoing && <div className={styles.infiniteProgressBar}></div>}
                     </div>

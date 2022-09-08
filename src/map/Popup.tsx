@@ -7,6 +7,7 @@ import { AddPoint, QueryOSM, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import Cross from '@/sidebar/times-solid.svg'
+import {tr} from "@/translation/Translation";
 
 export function PopupComponent({
     coordinate,
@@ -80,20 +81,20 @@ export function PopupComponent({
                 <Cross />
             </button>
             <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
-                From here
+                {tr("set_start")}
             </button>
             <button
                 className={styles.entry}
                 disabled={disableViaPoint(queryPoints)}
                 onClick={() => setViaPoint(queryPoints, route)}
             >
-                Via here
+                {tr("set_intermediate")}
             </button>
             <button
                 className={styles.entry}
                 onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
             >
-                To here
+                {tr("set_end")}
             </button>
             <hr />
             <button
@@ -103,7 +104,7 @@ export function PopupComponent({
                     Dispatcher.dispatch(new ZoomMapToPoint(coordinate, 8))
                 }}
             >
-                Center map
+                {tr("center_map")}
             </button>
             <button
                 className={styles.entry}
@@ -112,7 +113,7 @@ export function PopupComponent({
                     Dispatcher.dispatch(new QueryOSM(coordinate))
                 }}
             >
-                Query OSM
+                {tr("query_osm")}
             </button>
         </div>
     )
