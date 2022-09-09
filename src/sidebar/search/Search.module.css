@@ -7,6 +7,15 @@
     margin: 0.5rem;
 }
 
+.showDragHintForFirst {
+
+}
+
+.showDragHint, .showDragHintForFirst {
+    padding-bottom: 1em;
+    border-bottom: red 1px solid;
+}
+
 .searchBoxScrollable {
     overflow-y: auto;
     overflow-x: hidden;

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
@@ -25,6 +25,7 @@ export default function Search({
     autofocus: boolean
 }) {
     points.every(point => point.isInitialized)
+    const firstId = points.length > 0 ? points[0].id : undefined
     return (
         <div>
             <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
@@ -38,6 +39,7 @@ export default function Search({
                         Dispatcher.dispatch(new InvalidatePoint(point))
                     }}
                     autofocus={point.type === QueryPointType.From && autofocus}
+                    firstPoint={point.id === firstId}
                 />
             ))}
             <PlainButton
@@ -56,22 +58,61 @@ const SearchBox = ({
     onChange,
     deletable,
     autofocus,
+    firstPoint,
 }: {
     point: QueryPoint
     deletable: boolean
     onChange: (value: string) => void
     autofocus: boolean
+    firstPoint: boolean
 }) => {
+    const [showDragHint, setShowDragHint] = useState(false)
+    const [showDragHintForFirst, setShowDragHintForFirst] = useState(false)
+    const [dragging, setDragging] = useState(false)
+
     return (
         <>
-            <div className={styles.rowContainer}
+            { firstPoint &&
+                <div className={showDragHintForFirst ? styles.showDragHintForFirst : ''}
+                     style={{color: 'white'}}
+                    // make it dropable two preventDefault calls are required:
+                     onDragEnter={(e) => e.preventDefault()}
+                     onDragOver={(e) => {
+                         e.preventDefault();
+                         if(""+point.id !== e.dataTransfer.getData("point.id"))
+                            setShowDragHintForFirst(true);
+                     }}
+                     onDragExit={(e) => setShowDragHintForFirst(false)}
+                     onDrop={(e) => {
+                         setDragging(false);
+                         setShowDragHintForFirst(false);
+                         console.log("drop " + point.id + " " + e.dataTransfer.getData("point.id"))
+                     }}
+                >
+                    First
+                </div>
+            }
+            <div className={styles.rowContainer + ' ' + (showDragHint ? styles.showDragHint : '')}
                 // make it draggable:
                 draggable
-                onDragStart={(e) => { e.dataTransfer.setData("point.id", ""+point.id); console.log("start drag " + point.id)}}
+                onDragStart={(e) => {
+                    setDragging(true);
+                    e.dataTransfer.setData("point.id", ""+point.id);
+                    console.log("start drag " + point.id)
+                }}
                 // make it dropable two preventDefault calls are required:
                 onDragEnter={ (e) => e.preventDefault() }
-                onDragOver={ (e) => e.preventDefault() }
-                onDrop={ (e) => { console.log("drop " + point.id + " " + e.dataTransfer.getData("point.id"))} }
+                onDragOver={ (e) => {
+                    e.preventDefault();
+                    if(""+point.id !== e.dataTransfer.getData("point.id") && ""+(point.id+1) !== e.dataTransfer.getData("point.id"))
+                        setShowDragHint(true);
+                }}
+                onDragExit={ (e) => setShowDragHint(false) }
+                onDrop={ (e) => {
+                    setDragging(false);
+                    setShowDragHint(false);
+                    console.log("drop " + point.id + " " + e.dataTransfer.getData("point.id"))
+                }}
                 >
             <div className={styles.markerContainer}>
                 <MarkerComponent color={point.color} />
