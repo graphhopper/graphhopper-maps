@@ -79,6 +79,8 @@ function SearchView(props: {
                 routingProfiles={props.routingProfiles}
                 selectedProfile={props.selectedProfile}
                 autofocus={false}
+                customModelAllowed={false}
+                customModelEnabled={false}
             />
         </div>
     )

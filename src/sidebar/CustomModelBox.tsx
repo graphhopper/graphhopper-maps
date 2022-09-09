@@ -67,7 +67,12 @@ export interface CustomModelBoxProps {
     queryOngoing: boolean
 }
 
-export default function CustomModelBox({ enabled, encodedValues, initialCustomModelStr, queryOngoing }: CustomModelBoxProps) {
+export default function CustomModelBox({
+    enabled,
+    encodedValues,
+    initialCustomModelStr,
+    queryOngoing,
+}: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)
@@ -139,18 +144,6 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
 
     return (
         <>
-            <PlainButton
-                title={tr('open_custom_model_box')}
-                className={enabled ? styles.enabledSettings : styles.settings}
-                onClick={() => {
-                    if (enabled) Dispatcher.dispatch(new DismissLastError())
-                    Dispatcher.dispatch(new ClearRoute())
-                    Dispatcher.dispatch(new SetCustomModelBoxEnabled(!enabled))
-                }}
-            >
-                <SettingsSVG />
-            </PlainButton>
-            <div className={styles.spacer}></div>
             {/*we use 'display: none' instead of conditional rendering to preserve the custom model box's state when it is closed*/}
             <div
                 ref={divElement}
@@ -189,7 +182,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                         }`}
                     >
                         <PlainButton
-                            title={tr("Apply custom model of text box to routing request")}
+                            title={tr('Apply custom model of text box to routing request')}
                             disabled={!isValid || queryOngoing}
                             // If the model was invalid the button would be disabled anyway, so it does not really matter
                             // if we set valid to true or false here.

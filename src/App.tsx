@@ -8,7 +8,7 @@ import {
     getMapOptionsStore,
     getPathDetailsStore,
     getQueryStore,
-    getRouteStore
+    getRouteStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
 import { ApiInfo } from '@/api/graphhopper'
@@ -34,6 +34,11 @@ import { getMap } from '@/map/map'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import MapFeaturePopup from '@/layers/MapFeaturePopup'
+import PlainButton from '@/PlainButton'
+import { tr } from '@/translation/Translation'
+import Dispatcher from '@/stores/Dispatcher'
+import { ClearRoute, DismissLastError, SetCustomModelBoxEnabled } from '@/actions/Actions'
+import SettingsSVG from '@/sidebar/settings.svg'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -132,6 +137,8 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                         routingProfiles={info.profiles}
                         selectedProfile={query.routingProfile}
                         autofocus={false}
+                        customModelAllowed={true}
+                        customModelEnabled={query.customModelEnabled}
                     />
                     <CustomModelBox
                         enabled={query.customModelEnabled}
@@ -140,14 +147,14 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                         queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                     />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
-                    <div className={styles.routingResult}>
+                    <div>
                         <RoutingResults
                             paths={route.routingResult.paths}
                             selectedPath={route.selectedPath}
                             currentRequest={query.currentRequest}
                         />
                     </div>
-                    <div className={styles.poweredBy}>
+                    <div>
                         <PoweredBy />
                     </div>
                 </div>

@@ -21,7 +21,9 @@ export interface RoutingResultsProps {
 
 export default function RoutingResults(props: RoutingResultsProps) {
     // for landscape orientation there is no need that there is space for the map under the 3 alternatives and so the max-height is smaller for short screen
-    const isShortScreen = useMediaQuery({ query: '(max-height: 45rem) and (orientation: landscape), (max-height: 70rem) and (orientation: portrait)' })
+    const isShortScreen = useMediaQuery({
+        query: '(max-height: 45rem) and (orientation: landscape), (max-height: 70rem) and (orientation: portrait)',
+    })
     return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
 }
 
