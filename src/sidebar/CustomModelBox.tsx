@@ -67,7 +67,12 @@ export interface CustomModelBoxProps {
     queryOngoing: boolean
 }
 
-export default function CustomModelBox({ enabled, encodedValues, initialCustomModelStr, queryOngoing }: CustomModelBoxProps) {
+export default function CustomModelBox({
+    enabled,
+    encodedValues,
+    initialCustomModelStr,
+    queryOngoing,
+}: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)
@@ -189,7 +194,7 @@ export default function CustomModelBox({ enabled, encodedValues, initialCustomMo
                         }`}
                     >
                         <PlainButton
-                            title={tr("Apply custom model of text box to routing request")}
+                            title={tr('Apply custom model of text box to routing request')}
                             disabled={!isValid || queryOngoing}
                             // If the model was invalid the button would be disabled anyway, so it does not really matter
                             // if we set valid to true or false here.

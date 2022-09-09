@@ -8,7 +8,7 @@ import {
     getMapOptionsStore,
     getPathDetailsStore,
     getQueryStore,
-    getRouteStore
+    getRouteStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
 import { ApiInfo } from '@/api/graphhopper'
@@ -145,6 +145,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                             paths={route.routingResult.paths}
                             selectedPath={route.selectedPath}
                             currentRequest={query.currentRequest}
+                            profile={query.routingProfile.name}
                         />
                     </div>
                     <div className={styles.poweredBy}>
@@ -187,6 +188,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                     paths={route.routingResult.paths}
                     selectedPath={route.selectedPath}
                     currentRequest={query.currentRequest}
+                    profile={query.routingProfile.name}
                 />
             </div>
 

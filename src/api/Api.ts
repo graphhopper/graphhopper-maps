@@ -161,7 +161,7 @@ export class ApiImpl implements Api {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll', 'country'],
             ...(config.extraProfiles ? (config.extraProfiles as any)[args.profile] : {}),
         }
 
