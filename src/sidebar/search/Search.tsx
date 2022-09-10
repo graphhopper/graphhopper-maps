@@ -47,7 +47,7 @@ export default function Search({
                 className={styles.addSearchBox}
             >
                 <AddIcon />
-                <div>{tr('Add Location')}</div>
+                <div>{tr('add_to_route')}</div>
             </PlainButton>
         </div>
     )
@@ -149,7 +149,7 @@ const SearchBox = ({
             </div>
             {deletable && (
                 <PlainButton
-                    title={tr('Remove Stop')}
+                    title={tr('delete_from_route')}
                     onClick={() => Dispatcher.dispatch(new RemovePoint(point))}
                     className={styles.removeSearchBox}
                 >

@@ -17,20 +17,29 @@ export interface RoutingResultsProps {
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
+    profile: string
 }
 
 export default function RoutingResults(props: RoutingResultsProps) {
-    const isShortScreen = useMediaQuery({ query: '(max-height: 35rem)' })
+    // for landscape orientation there is no need that there is space for the map under the 3 alternatives and so the max-height is smaller for short screen
+    const isShortScreen = useMediaQuery({
+        query: '(max-height: 45rem) and (orientation: landscape), (max-height: 70rem) and (orientation: portrait)',
+    })
     return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
 }
 
-function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }) {
+function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: boolean; profile: string }) {
     const [isExpanded, setExpanded] = useState(false)
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
+    let hasFords = containsValue(path.details.road_environment, 'ford')
+    let hasTolls = containsValue(path.details.toll, 'all')
+    let hasFerries = containsValue(path.details.road_environment, 'ferry')
+    let showAndHasTracks = isMotorVehicle(profile) && containsValue(path.details.road_class, 'track')
+    let showAndHasSteps = isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
 
     return (
         <div className={styles.resultRow}>
@@ -39,32 +48,66 @@ function RoutingResult({ path, isSelected }: { path: Path; isSelected: boolean }
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
                         <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
+                        {isSelected && !isMotorVehicle(profile) && (
+                            <div className={styles.elevationHint}>
+                                <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
+                                    ↗{metersToText(path.ascend)}{' '}
+                                </span>
+                                <span title={tr('total_descend', [Math.round(path.descend) + 'm'])}>
+                                    ↘{metersToText(path.descend)}
+                                </span>
+                            </div>
+                        )}
                         {path.description && (
                             <span className={styles.resultTertiaryText}>
                                 {tr('Via')} {path.description}
                             </span>
                         )}
                     </div>
-                    <PlainButton className={styles.gpxButton} onClick={() => downloadGPX(path)}>
-                        <GPXDownload />
-                        <div>{tr('Export')}</div>
-                    </PlainButton>
-                    {isExpanded ? (
-                        <PlainButton className={styles.detailsButtonExpanded} onClick={() => setExpanded(false)}>
-                            <Details />
-                            <div>{tr('Hide')}</div>
+                    {isSelected && (
+                        <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path)}>
+                            <GPXDownload />
+                            <div>{tr('export_button')}</div>
                         </PlainButton>
-                    ) : (
-                        <PlainButton className={styles.detailsButton} onClick={() => setExpanded(true)}>
+                    )}
+                    {isSelected && (
+                        <PlainButton
+                            className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
+                            onClick={() => setExpanded(!isExpanded)}
+                        >
                             <Details />
-                            <div>{tr('Details')}</div>
+                            <div>{isExpanded ? tr('hide_button') : tr('details_button')}</div>
                         </PlainButton>
                     )}
                 </div>
             </div>
+            {isSelected && !isExpanded && (
+                <div className={styles.routeHints}>
+                    {hasFords && <div>{tr('way_contains_ford')}</div>}
+                    {hasFerries && <div>{tr('way_contains_ferry')}</div>}
+                    {hasTolls && <div>{tr('way_contains_toll')}</div>}
+                    {showAndHasSteps && <div>{tr('way_contains', [tr('steps')])}</div>}
+                    {showAndHasTracks && <div>{tr('way_contains', [tr('tracks')])}</div>}
+                </div>
+            )}
             {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
     )
+}
+
+function isBikeLike(profile: string) {
+    return profile.includes('mtb') || profile.includes('bike')
+}
+
+function isMotorVehicle(profile: string) {
+    return profile.includes('car') || profile.includes('truck') || profile.includes('scooter')
+}
+
+function containsValue(details: [number, number, string][], value: string) {
+    for (let i in details) {
+        if (details[i][2] == value) return true
+    }
+    return false
 }
 
 function downloadGPX(path: Path) {
@@ -138,18 +181,21 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 }
 
 function createSingletonListContent(props: RoutingResultsProps) {
-    if (props.paths.length > 0) return <RoutingResult path={props.selectedPath} isSelected={true} />
+    if (props.paths.length > 0)
+        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} />
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlacelholder key={1} />
     return ''
 }
 
-function createListContent({ paths, currentRequest, selectedPath }: RoutingResultsProps) {
+function createListContent({ paths, currentRequest, selectedPath, profile }: RoutingResultsProps) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
         if (i < paths.length)
-            result.push(<RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} />)
+            result.push(
+                <RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} profile={profile} />
+            )
         else result.push(<RoutingResultPlacelholder key={i} />)
     }
 
