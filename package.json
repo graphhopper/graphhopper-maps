@@ -27,7 +27,7 @@
         "@types/react": "^18.0.14",
         "@types/react-dom": "^18.0.5",
         "css-loader": "^6.7.1",
-        "favicons": "^6.2.2",
+        "favicons": "^7.0.0",
         "favicons-webpack-plugin": "^5.0.2",
         "html-webpack-plugin": "^5.5.0",
         "jest": "^26.6.3",
