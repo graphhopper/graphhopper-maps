@@ -1,12 +1,12 @@
-import {coordinateToText} from '@/Converters'
-import {Bbox, RoutingProfile} from '@/api/graphhopper'
+import { coordinateToText } from '@/Converters'
+import { Bbox, RoutingProfile } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import {ClearPoints, SelectMapStyle, SetInitialBBox, SetRoutingParametersAtOnce} from '@/actions/Actions'
+import { ClearPoints, SelectMapStyle, SetInitialBBox, SetRoutingParametersAtOnce } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
-import {window} from '@/Window'
-import QueryStore, {Coordinate, QueryPoint, QueryPointType, QueryStoreState} from '@/stores/QueryStore'
-import MapOptionsStore, {MapOptionsStoreState} from './stores/MapOptionsStore'
-import {getApi} from '@/api/Api'
+import { window } from '@/Window'
+import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
+import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
+import { getApi } from '@/api/Api'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
@@ -46,7 +46,7 @@ export default class NavBar {
             const split = parameter.split('_')
 
             const point = {
-                coordinate: {lat: 0, lng: 0},
+                coordinate: { lat: 0, lng: 0 },
                 isInitialized: false,
                 id: idx,
                 queryText: parameter,
@@ -58,32 +58,33 @@ export default class NavBar {
                     point.coordinate = NavBar.parseCoordinate(split[0])
                     point.queryText = split.length >= 2 ? split[1] : coordinateToText(point.coordinate)
                     point.isInitialized = true
-                } catch (e) {
-                }
+                } catch (e) {}
 
             return point
         })
 
         // support legacy URLs without coordinates (not initialized) and only text, see #199
         if (points.some(p => !p.isInitialized && p.queryText.length > 0)) {
-            if (!profile.name) profile = {name: 'car'}
-            let fullyInitPoints: QueryPoint[] = Array.from({length: points.length})
+            if (!profile.name) profile = { name: 'car' }
+            let fullyInitPoints: QueryPoint[] = Array.from({ length: points.length })
             points.forEach((p, idx) => {
                 if (p.isInitialized) fullyInitPoints[idx] = p
                 else
-                    getApi().geocode(p.queryText).then(res => {
-                        if (res.hits.length <= 0) return
-                        fullyInitPoints[idx] = {
-                            ...p,
-                            queryText: res.hits[0].name,
-                            coordinate: {lat: res.hits[0].point.lat, lng: res.hits[0].point.lng},
-                            isInitialized: true,
-                        }
-                        if (fullyInitPoints.every(p => p.isInitialized)) {
-                            if (fullyInitPoints.length <= 2) this.fillPoints(fullyInitPoints)
-                            Dispatcher.dispatch(new SetRoutingParametersAtOnce(fullyInitPoints, profile))
-                        }
-                    })
+                    getApi()
+                        .geocode(p.queryText)
+                        .then(res => {
+                            if (res.hits.length <= 0) return
+                            fullyInitPoints[idx] = {
+                                ...p,
+                                queryText: res.hits[0].name,
+                                coordinate: { lat: res.hits[0].point.lat, lng: res.hits[0].point.lng },
+                                isInitialized: true,
+                            }
+                            if (fullyInitPoints.every(p => p.isInitialized)) {
+                                if (fullyInitPoints.length <= 2) this.fillPoints(fullyInitPoints)
+                                Dispatcher.dispatch(new SetRoutingParametersAtOnce(fullyInitPoints, profile))
+                            }
+                        })
             })
             return [] // skip normal SetRoutingParametersAtOnce
         }
@@ -127,7 +128,7 @@ export default class NavBar {
         const url = new URL(window.location.href)
 
         const parsedProfileName = NavBar.parseProfile(url)
-        const profile = parsedProfileName ? {name: parsedProfileName} : this.queryStore.state.routingProfile
+        const profile = parsedProfileName ? { name: parsedProfileName } : this.queryStore.state.routingProfile
         const parsedPoints = this.parsePoints(url, profile)
 
         // estimate map bounds from url points if there are any. this way we prevent loading tiles for the world view
