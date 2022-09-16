@@ -87,7 +87,7 @@ export class ApiImpl implements Api {
         if (response.ok) {
             return (await response.json()) as GeocodingResult
         } else {
-            throw new Error('here could be your meaningful error message')
+            throw new Error('Geocoding went wrong ' + response.status)
         }
     }
 

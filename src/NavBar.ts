@@ -1,11 +1,12 @@
 import { coordinateToText } from '@/Converters'
-import { Bbox, RoutingProfile } from '@/api/graphhopper'
+import { Bbox } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, SelectMapStyle, SetInitialBBox, SetRoutingParametersAtOnce } from '@/actions/Actions'
+import { ClearPoints, SelectMapStyle, SetInitialBBox, SetPoint, SetRoutingParametersAtOnce } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
-import MapOptionsStore, { MapOptionsStoreState, StyleOption } from './stores/MapOptionsStore'
+import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
+import Api, { getApi } from '@/api/Api'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
@@ -40,44 +41,44 @@ export default class NavBar {
         return coordinate === point.queryText ? coordinate : coordinate + '_' + point.queryText
     }
 
-    private parseUrl(href: string): { points: QueryPoint[]; profile: RoutingProfile; styleOption: StyleOption } {
-        const url = new URL(href)
-
-        return {
-            points: NavBar.parsePoints(url),
-            profile: { name: NavBar.parseProfile(url) },
-            styleOption: this.parseLayer(url),
-        }
-    }
-
-    private static parsePoints(url: URL) {
-        return url.searchParams.getAll('point').map((parameter, i) => {
+    private parsePoints(url: URL): QueryPoint[] {
+        const api = getApi()
+        const rawPoints = url.searchParams.getAll('point').map((parameter, idx) => {
             const split = parameter.split('_')
 
-            try {
-                if (split.length >= 1) {
-                    const coordinate = this.parseCoordinate(split[0])
-                    const queryText = split.length >= 2 ? split[1] : coordinateToText(coordinate)
-                    return {
-                        coordinate: coordinate,
-                        isInitialized: true,
-                        id: i,
-                        queryText: queryText,
-                        color: '',
-                        type: QueryPointType.Via,
-                    }
-                }
-            } catch (e) {}
-
-            return {
+            const point = {
                 coordinate: { lat: 0, lng: 0 },
                 isInitialized: false,
-                id: i,
-                queryText: '',
+                id: idx,
+                queryText: parameter,
                 color: '',
                 type: QueryPointType.Via,
             }
+            if (split.length >= 1)
+                try {
+                    point.coordinate = NavBar.parseCoordinate(split[0])
+                    point.queryText = split.length >= 2 ? split[1] : coordinateToText(point.coordinate)
+                    point.isInitialized = true
+                } catch (e) {}
+
+            // support legacy URLs without coordinates and only text, see #199
+            if (!point.isInitialized && parameter.length > 0) {
+                // Using setTimeout has two reasons:
+                // 1. we delay execution until the next event cycle. Then SetRoutingParametersAtOnce action is dispatched
+                //    (which increases the point IDs) and only then the SetPoint action (created in asyncGeocode) can use
+                //    the correct id for QueryPoint.
+                // 2. we delay execution for a certain time to avoid sending parallel geocoding requests
+                setTimeout(() => {
+                    if (idx < this.queryStore.state.queryPoints.length)
+                        this.asyncGeocode(api, this.queryStore.state.queryPoints[idx], parameter)
+                    else new Error('Cannot set input ' + parameter + ' from URL parameter')
+                }, 150 * idx)
+            }
+            return point
         })
+
+        // this ensures that if no or one point parameter is specified in the URL there are always two input fields
+        return rawPoints.length > 2 ? rawPoints : this.fillPoints(rawPoints)
     }
 
     private static parseCoordinate(params: string) {
@@ -112,23 +113,40 @@ export default class NavBar {
         this.isIgnoreQueryStoreUpdates = true
 
         Dispatcher.dispatch(new ClearPoints())
-        const parseResult = this.parseUrl(window.location.href)
+        const url = new URL(window.location.href)
+        const parsedPoints = this.parsePoints(url)
 
         // estimate map bounds from url points if there are any. this way we prevent loading tiles for the world view
         // only to zoom to the route shortly after
-        const bbox = this.getBBoxFromUrlPoints(parseResult.points.map(p => p.coordinate))
+        const bbox = this.getBBoxFromUrlPoints(parsedPoints.map(p => p.coordinate))
         if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
 
-        // we want either all the points replaced from the url or we just have one and we want to replace the one default
-        // one
-        const points = parseResult.points.length > 2 ? parseResult.points : this.fillPoints(parseResult.points)
-        const profile = parseResult.profile.name ? parseResult.profile : this.queryStore.state.routingProfile
-        Dispatcher.dispatch(new SetRoutingParametersAtOnce(points, profile))
+        const parsedProfileName = NavBar.parseProfile(url)
+        const profile = parsedProfileName ? { name: parsedProfileName } : this.queryStore.state.routingProfile
+        Dispatcher.dispatch(new SetRoutingParametersAtOnce(parsedPoints, profile))
 
         // add map style
-        Dispatcher.dispatch(new SelectMapStyle(parseResult.styleOption))
+        const parsedStyleOption = this.parseLayer(url)
+        Dispatcher.dispatch(new SelectMapStyle(parsedStyleOption))
 
         this.isIgnoreQueryStoreUpdates = false
+    }
+
+    asyncGeocode(api: Api, oldPoint: QueryPoint, queryString: string) {
+        api.geocode(queryString).then(res => {
+            if (res.hits.length <= 0) return
+            Dispatcher.dispatch(
+                new SetPoint(
+                    {
+                        ...oldPoint,
+                        queryText: res.hits[0].name,
+                        coordinate: { lat: res.hits[0].point.lat, lng: res.hits[0].point.lng },
+                        isInitialized: true,
+                    },
+                    true
+                )
+            )
+        })
     }
 
     private fillPoints(parsedPoints: QueryPoint[]) {
