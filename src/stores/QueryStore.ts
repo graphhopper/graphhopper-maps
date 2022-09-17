@@ -8,6 +8,7 @@ import {
     ErrorAction,
     InfoReceived,
     InvalidatePoint,
+    MovePoint,
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
@@ -16,7 +17,6 @@ import {
     SetPoint,
     SetRoutingParametersAtOnce,
     SetVehicleProfile,
-    SwapPoints,
 } from '@/actions/Actions'
 import {RoutingArgs, RoutingProfile} from '@/api/graphhopper'
 import {calcDist} from '@/distUtils'
@@ -140,11 +140,23 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
 
             return this.routeIfReady(newState)
-        } else if (action instanceof SwapPoints) {
+        } else if (action instanceof MovePoint) {
+
+            // Remove and Add in one action but with only one route request
+            const newPoints = QueryStore.movePoint(state.queryPoints, action.point, action.newIndex).map((point, index) => {
+                const type = QueryStore.getPointType(index, state.queryPoints.length)
+                return {
+                    ...point,
+                    color: QueryStore.getMarkerColor(type),
+                    type: type,
+                    id: this.state.nextQueryPointId + index,
+                }
+            })
+
             const newState = {
                 ...state,
-                nextQueryPointId: state.nextQueryPointId + 2,
-                queryPoints: this.swapPoints(state.queryPoints, action.pointA, action.pointB),
+                nextQueryPointId: state.nextQueryPointId + state.queryPoints.length,
+                queryPoints: newPoints,
             }
             return this.routeIfReady(newState)
         } else if (action instanceof AddPoint) {
@@ -333,23 +345,20 @@ export default class QueryStore extends Store<QueryStoreState> {
         return true
     }
 
-    private swapPoints(points: QueryPoint[], pointA: QueryPoint, pointB: QueryPoint): QueryPoint[] {
-        let a = -1, b = -1
-        if (pointA.id == pointB.id) return points
-        points.forEach((p, index) => {
-            if (p.id == pointA.id) a = index
-            if (p.id == pointB.id) b = index
+    private static movePoint(points: QueryPoint[], point: QueryPoint, newIndex: number): QueryPoint[] {
+        if (newIndex < 0) return points
+
+        let newPoints = points.filter((p, index) => {
+            if(p.id == point.id) {
+                if (index < newIndex) newIndex-- // index adjustment is important
+                return false
+            }
+            return true
         })
-        if (a >= 0 && b >= 0) {
-            // create new array
-            return points.map((p, index) => {
-                const type = QueryStore.getPointType(index, points.length)
-                if (index == a) return {...points[b], id: this.state.nextQueryPointId, color: QueryStore.getMarkerColor(type), type: type}
-                else if (index == b) return {...points[a], id: this.state.nextQueryPointId + 1, color: QueryStore.getMarkerColor(type), type: type}
-                else return p
-            })
-        }
-        return points
+
+        if (newIndex >= points.length) return points
+        newPoints.splice(newIndex, 0, point)
+        return newPoints
     }
 
     private static replacePoint(points: QueryPoint[], point: QueryPoint) {

@@ -43,16 +43,20 @@
     font-size: 14px;
 }
 
-.markerContainer {
+.markerContainer, .markerSelected, .markerTarget {
     grid-column: 1 / span 1;
     align-self: center;
     justify-self: center;
     width: 1rem;
 }
 
-.markerContainer > svg {
+.markerContainer > svg, .markerSelected > svg, .markerTarget > svg {
     height: 100%;
     width: 100%;
+}
+
+.markerTarget > svg {
+    fill: gray;
 }
 
 .searchOptions {

@@ -22,16 +22,6 @@ export class SetPoint implements Action {
     }
 }
 
-export class SwapPoints implements Action {
-    readonly pointA: QueryPoint
-    readonly pointB: QueryPoint
-
-    constructor(pointA: QueryPoint, pointB: QueryPoint) {
-        this.pointA = pointA;
-        this.pointB = pointB;
-    }
-}
-
 export class SetVehicleProfile implements Action {
     readonly profile: RoutingProfile
 
@@ -69,6 +59,16 @@ export class RemovePoint implements Action {
 
     constructor(point: QueryPoint) {
         this.point = point
+    }
+}
+
+export class MovePoint implements Action {
+    readonly point: QueryPoint
+    readonly newIndex: number
+
+    constructor(point: QueryPoint, newIndex: number) {
+        this.point = point;
+        this.newIndex = newIndex;
     }
 }
 
