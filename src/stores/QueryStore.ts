@@ -1,7 +1,7 @@
-import { coordinateToText } from '@/Converters'
+import {coordinateToText} from '@/Converters'
 import Api from '@/api/Api'
 import Store from '@/stores/Store'
-import Dispatcher, { Action } from '@/stores/Dispatcher'
+import Dispatcher, {Action} from '@/stores/Dispatcher'
 import {
     AddPoint,
     ClearPoints,
@@ -16,9 +16,10 @@ import {
     SetPoint,
     SetRoutingParametersAtOnce,
     SetVehicleProfile,
+    SwapPoints,
 } from '@/actions/Actions'
-import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
-import { calcDist } from '@/distUtils'
+import {RoutingArgs, RoutingProfile} from '@/api/graphhopper'
+import {calcDist} from '@/distUtils'
 
 export interface Coordinate {
     lat: number
@@ -122,7 +123,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 return {
                     ...point,
                     queryText: '',
-                    point: { lat: 0, lng: 0 },
+                    point: {lat: 0, lng: 0},
                     isInitialized: false,
                 }
             })
@@ -138,6 +139,13 @@ export default class QueryStore extends Store<QueryStoreState> {
                 zoom: action.zoom,
             }
 
+            return this.routeIfReady(newState)
+        } else if (action instanceof SwapPoints) {
+            const newState = {
+                ...state,
+                nextQueryPointId: state.nextQueryPointId + 2,
+                queryPoints: this.swapPoints(state.queryPoints, action.pointA, action.pointB),
+            }
             return this.routeIfReady(newState)
         } else if (action instanceof AddPoint) {
             const tmp = state.queryPoints.slice()
@@ -156,7 +164,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             // determine colors for each point. I guess this could be smarter if this needs to be faster
             const newPoints = tmp.map((point, i) => {
                 const type = QueryStore.getPointType(i, tmp.length)
-                return { ...point, color: QueryStore.getMarkerColor(type), type: type }
+                return {...point, color: QueryStore.getMarkerColor(type), type: type}
             })
 
             const newState: QueryStoreState = {
@@ -193,7 +201,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 .filter(point => point.id !== action.point.id)
                 .map((point, i) => {
                     const type = QueryStore.getPointType(i, state.queryPoints.length - 1)
-                    return { ...point, color: QueryStore.getMarkerColor(type), type: type }
+                    return {...point, color: QueryStore.getMarkerColor(type), type: type}
                 })
 
             const newState: QueryStoreState = {
@@ -276,7 +284,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     Dispatcher.dispatch(
                         new ErrorAction(
                             'Using the custom model feature is unfortunately not ' +
-                                'possible when the request points are further than 500km apart.'
+                            'possible when the request points are further than 500km apart.'
                         )
                     )
                     return state
@@ -296,7 +304,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             return {
                 ...state,
-                currentRequest: { subRequests: this.send(requests) },
+                currentRequest: {subRequests: this.send(requests)},
             }
         }
         return state
@@ -325,6 +333,25 @@ export default class QueryStore extends Store<QueryStoreState> {
         return true
     }
 
+    private swapPoints(points: QueryPoint[], pointA: QueryPoint, pointB: QueryPoint): QueryPoint[] {
+        let a = -1, b = -1
+        if (pointA.id == pointB.id) return points
+        points.forEach((p, index) => {
+            if (p.id == pointA.id) a = index
+            if (p.id == pointB.id) b = index
+        })
+        if (a >= 0 && b >= 0) {
+            // create new array
+            return points.map((p, index) => {
+                const type = QueryStore.getPointType(index, points.length)
+                if (index == a) return {...points[b], id: this.state.nextQueryPointId, color: QueryStore.getMarkerColor(type), type: type}
+                else if (index == b) return {...points[a], id: this.state.nextQueryPointId + 1, color: QueryStore.getMarkerColor(type), type: type}
+                else return p
+            })
+        }
+        return points
+    }
+
     private static replacePoint(points: QueryPoint[], point: QueryPoint) {
         return replace(
             points,
@@ -338,7 +365,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             subRequests,
             r => r.args === args,
             r => {
-                return { ...r, state }
+                return {...r, state}
             }
         )
     }
@@ -379,7 +406,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             isInitialized: false,
             queryText: '',
-            coordinate: { lat: 0, lng: 0 },
+            coordinate: {lat: 0, lng: 0},
             id: id,
             color: QueryStore.getMarkerColor(type),
             type: type,
