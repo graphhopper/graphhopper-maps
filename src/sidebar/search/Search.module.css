@@ -75,8 +75,12 @@
     animation-fill-mode: forwards;
 }
 
-.markerTarget:active svg {
+.markerTarget:hover svg {
     fill: black;
+}
+
+.markerTarget:active svg {
+    fill: lightgray;
 }
 
 .markerTarget:active svg {
