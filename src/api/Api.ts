@@ -151,7 +151,7 @@ export class ApiImpl implements Api {
     }
 
     static createRequest(args: RoutingArgs): RoutingRequest {
-        let request: RoutingRequest = {
+        const request: RoutingRequest = {
             points: args.points,
             profile: args.profile,
             elevation: true,
