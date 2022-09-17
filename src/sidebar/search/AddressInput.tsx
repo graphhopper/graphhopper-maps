@@ -25,6 +25,7 @@ export interface AddressInputProps {
     onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
     onChange: (value: string) => void
     onInputMarkerClicked: (value: number) => void
+    selectedInputMarkerSelected: boolean
 }
 
 export default function AddressInput(props: AddressInputProps) {
@@ -106,6 +107,7 @@ export default function AddressInput(props: AddressInputProps) {
         <div className={containerClass}>
             <div className={styles.inputContainer}>
                 <input
+                    style={props.selectedInputMarkerSelected ? { borderWidth: '2px', margin: '-1px' } : {}}
                     className={styles.input}
                     type="text"
                     ref={searchInput}

@@ -123,6 +123,7 @@ const SearchBox = ({
             )}
             <div className={styles.searchBoxInput}>
                 <AddressInput
+                    selectedInputMarkerSelected={selectedIndex == index}
                     point={point}
                     autofocus={autofocus}
                     onCancel={() => console.log('cancel')}
