@@ -52,11 +52,45 @@
     width: 1rem;
 }
 
+.markerTarget:active svg {
+    fill: black;
+}
+
+.markerTarget:active svg {
+    animation: pulse-animation 2s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes pulse-animation {
+    0% {
+        margin-left: 0;
+    }
+    5% {
+        margin-left: 10px;
+    }
+    100% {
+        margin-left: 10px;
+    }
+}
+
 .markerContainer > svg,
-.markerSelected > svg,
 .markerTarget > svg {
     height: 100%;
     width: 100%;
+}
+
+.markerSelected > svg {
+    height: 130%;
+    width: 130%;
+}
+
+.markerSelected {
+    margin-left: -4px;
+}
+
+.markerTarget > svg {
+    transform: scaleX(1.2) scaleY(0.88);
+    margin-left: 2px;
 }
 
 .markerTarget > svg {

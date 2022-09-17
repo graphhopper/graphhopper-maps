@@ -24,6 +24,7 @@ export interface AddressInputProps {
     onCancel: () => void
     onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
     onChange: (value: string) => void
+    onInputMarkerClicked: (value: number) => void
 }
 
 export default function AddressInput(props: AddressInputProps) {
@@ -116,6 +117,7 @@ export default function AddressInput(props: AddressInputProps) {
                     }}
                     onKeyDown={onKeypress}
                     onFocus={event => {
+                        props.onInputMarkerClicked(-1)
                         setHasFocus(true)
                         event.target.select()
                     }}

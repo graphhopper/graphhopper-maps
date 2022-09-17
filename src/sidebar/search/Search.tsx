@@ -26,7 +26,7 @@ export default function Search({
     selectedProfile: RoutingProfile
     autofocus: boolean
 }) {
-    let [selectedIndex, onSelect] = useState(-1)
+    let [selectedInputMarkerIndex, onInputMarkerSelect] = useState(-1)
 
     return (
         <div className={styles.searchBox}>
@@ -42,12 +42,16 @@ export default function Search({
                         Dispatcher.dispatch(new InvalidatePoint(point))
                     }}
                     autofocus={point.type === QueryPointType.From && autofocus}
-                    selectedIndex={selectedIndex}
-                    onSelect={onSelect}
+                    selectedIndex={selectedInputMarkerIndex}
+                    onInputMarkerSelect={onInputMarkerSelect}
                 />
             ))}
             <PlainButton
-                style={selectedIndex >= 0 && selectedIndex + 1 < points.length ? {paddingTop: '1rem'}: {}}
+                style={
+                    selectedInputMarkerIndex >= 0 && selectedInputMarkerIndex + 1 < points.length
+                        ? { paddingTop: '1rem' }
+                        : {}
+                }
                 onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
                 className={styles.addSearchBox}
             >
@@ -65,7 +69,7 @@ const SearchBox = ({
     deletable,
     autofocus,
     selectedIndex,
-    onSelect,
+    onInputMarkerSelect,
 }: {
     index: number
     points: QueryPoint[]
@@ -73,7 +77,7 @@ const SearchBox = ({
     onChange: (value: string) => void
     autofocus: boolean
     selectedIndex: number
-    onSelect: (value: number) => void
+    onInputMarkerSelect: (value: number) => void
 }) => {
     let point = points[index]
 
@@ -83,16 +87,19 @@ const SearchBox = ({
                 <div
                     title={tr('click to move input')}
                     className={styles.markerContainer}
-                    onClick={() => onSelect(index)}
+                    onMouseDown={() => onInputMarkerSelect(index)}
                 >
-                    <MarkerComponent color={point.color} />
+                    <MarkerComponent
+                        number={index > 0 && index + 1 < points.length ? index : undefined}
+                        color={point.color}
+                    />
                 </div>
             )}
             {selectedIndex >= 0 && selectedIndex == index && (
                 <PlainButton
                     title={tr('selected input')}
                     className={styles.markerSelected}
-                    onClick={() => onSelect(-1)}
+                    onMouseDown={() => onInputMarkerSelect(-1)}
                 >
                     <SelectedIcon />
                 </PlainButton>
@@ -101,12 +108,12 @@ const SearchBox = ({
                 <PlainButton
                     title={tr('click to move selected input here')}
                     className={styles.markerTarget}
-                    style={selectedIndex > index ? { marginTop: '-2rem' } : { marginBottom: '-2rem' }}
+                    style={selectedIndex > index ? { marginTop: '-2.3rem' } : { marginBottom: '-2.3rem' }}
                     onClick={() => {
                         Dispatcher.dispatch(
                             new MovePoint(points[selectedIndex], selectedIndex < index ? index + 1 : index)
                         )
-                        onSelect(-1)
+                        onInputMarkerSelect(-1)
                     }}
                 >
                     <InsertIcon />
@@ -130,13 +137,17 @@ const SearchBox = ({
                             )
                         )
                     }
+                    onInputMarkerClicked={onInputMarkerSelect}
                     onChange={onChange}
                 />
             </div>
             {deletable && (
                 <PlainButton
                     title={tr('delete_from_route')}
-                    onClick={() => Dispatcher.dispatch(new RemovePoint(point))}
+                    onClick={() => {
+                        Dispatcher.dispatch(new RemovePoint(point))
+                        onInputMarkerSelect(-1)
+                    }}
                     className={styles.removeSearchBox}
                 >
                     <RemoveIcon />
