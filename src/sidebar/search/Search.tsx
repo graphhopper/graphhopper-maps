@@ -52,7 +52,7 @@ export default function Search({
             ))}
             <PlainButton
                 style={
-                    selectedInputMarkerIndex >= 0 && selectedInputMarkerIndex + 1 < points.length
+                    showTargetIcon && selectedInputMarkerIndex >= 0 && selectedInputMarkerIndex + 1 < points.length
                         ? { paddingTop: '2rem' }
                         : {}
                 }
