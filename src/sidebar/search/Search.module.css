@@ -56,6 +56,25 @@
     width: 1rem;
 }
 
+.markerSelected svg {
+    animation: opaque-animation 1.2s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes opaque-animation {
+    0% {
+        fill-opacity: 0;
+    }
+    100% {
+        fill-opacity: 1;
+    }
+}
+
+.markerTarget svg {
+    animation: opaque-animation 3s;
+    animation-fill-mode: forwards;
+}
+
 .markerTarget:active svg {
     fill: black;
 }

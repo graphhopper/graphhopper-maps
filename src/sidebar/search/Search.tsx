@@ -6,7 +6,6 @@ import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
-import SelectedIcon from './radio-button-checked.svg'
 import InsertIcon from './send.svg'
 import PlainButton from '@/PlainButton'
 import { RoutingProfile } from '@/api/graphhopper'
@@ -101,7 +100,10 @@ const SearchBox = ({
                     className={styles.markerSelected}
                     onMouseDown={() => onInputMarkerSelect(-1)}
                 >
-                    <SelectedIcon />
+                    <MarkerComponent
+                        number={index > 0 && index + 1 < points.length ? index : undefined}
+                        color={'gray'}
+                    />
                 </PlainButton>
             )}
             {selectedIndex >= 0 && selectedIndex != index && (
