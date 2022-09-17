@@ -112,8 +112,8 @@
 }
 
 .markerTarget > svg {
-    transform: scaleX(1.2) scaleY(0.88);
-    margin-left: 2px;
+    transform: scaleX(1.7) scaleY(1.5);
+    margin-left: 3px;
 }
 
 .markerTarget > svg {
