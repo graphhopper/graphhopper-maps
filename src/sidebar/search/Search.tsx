@@ -1,26 +1,26 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import {QueryPoint, QueryPointType} from '@/stores/QueryStore'
-import {AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint} from '@/actions/Actions'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import SelectedIcon from './radio-button-checked.svg'
 import InsertIcon from './send.svg'
 import PlainButton from '@/PlainButton'
-import {RoutingProfile} from '@/api/graphhopper'
+import { RoutingProfile } from '@/api/graphhopper'
 
 import AddressInput from '@/sidebar/search/AddressInput'
-import {MarkerComponent} from '@/map/Marker'
-import {tr} from '@/translation/Translation'
+import { MarkerComponent } from '@/map/Marker'
+import { tr } from '@/translation/Translation'
 
 export default function Search({
-                                   points,
-                                   routingProfiles,
-                                   selectedProfile,
-                                   autofocus,
-                               }: {
+    points,
+    routingProfiles,
+    selectedProfile,
+    autofocus,
+}: {
     points: QueryPoint[]
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
@@ -29,12 +29,12 @@ export default function Search({
     let [selectedIndex, setSelectedIndex] = useState(-1)
 
     function onSelect(idx: number) {
-        setSelectedIndex(idx);
+        setSelectedIndex(idx)
     }
 
     return (
         <div className={styles.searchBox}>
-            <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile}/>
+            <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
             {points.map((point, index) => (
                 <SearchBox
                     key={point.id}
@@ -51,10 +51,10 @@ export default function Search({
                 />
             ))}
             <PlainButton
-                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, {lat: 0, lng: 0}, false))}
+                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
                 className={styles.addSearchBox}
             >
-                <AddIcon/>
+                <AddIcon />
                 <div>{tr('add_to_route')}</div>
             </PlainButton>
         </div>
@@ -62,14 +62,14 @@ export default function Search({
 }
 
 const SearchBox = ({
-                       index,
-                       points,
-                       onChange,
-                       deletable,
-                       autofocus,
-                       selectedIndex,
-                       onSelect,
-                   }: {
+    index,
+    points,
+    onChange,
+    deletable,
+    autofocus,
+    selectedIndex,
+    onSelect,
+}: {
     index: number
     points: QueryPoint[]
     deletable: boolean
@@ -78,36 +78,43 @@ const SearchBox = ({
     selectedIndex: number
     onSelect: (value: number) => void
 }) => {
-
     let point = points[index]
 
     return (
         <>
-            {
-                selectedIndex < 0 && <div title={tr("click to move input")} className={styles.markerContainer}
-                                          onClick={() => onSelect(index)}>
-                    <MarkerComponent color={point.color}/>
+            {selectedIndex < 0 && (
+                <div
+                    title={tr('click to move input')}
+                    className={styles.markerContainer}
+                    onClick={() => onSelect(index)}
+                >
+                    <MarkerComponent color={point.color} />
                 </div>
-            }
-            {
-                selectedIndex >= 0 && selectedIndex == index &&
-                <PlainButton title={tr("selected input")} className={styles.markerSelected}
-                             onClick={() => onSelect(-1)}>
-                    <SelectedIcon/>
+            )}
+            {selectedIndex >= 0 && selectedIndex == index && (
+                <PlainButton
+                    title={tr('selected input')}
+                    className={styles.markerSelected}
+                    onClick={() => onSelect(-1)}
+                >
+                    <SelectedIcon />
                 </PlainButton>
-            }
-            {
-                selectedIndex >= 0 && selectedIndex != index &&
-                <PlainButton title={tr("click to move selected input here")}
-                             className={styles.markerTarget}
-                             style={selectedIndex > index ? {padding: "0 0 30px 0"} : {padding: "30px 0 0 0"}}
-                             onClick={() => {
-                                 Dispatcher.dispatch(new MovePoint(points[selectedIndex], selectedIndex < index ? index + 1 : index));
-                                 onSelect(-1)
-                             }}>
-                    <InsertIcon/>
+            )}
+            {selectedIndex >= 0 && selectedIndex != index && (
+                <PlainButton
+                    title={tr('click to move selected input here')}
+                    className={styles.markerTarget}
+                    style={selectedIndex > index ? { padding: '0 0 30px 0' } : { padding: '30px 0 0 0' }}
+                    onClick={() => {
+                        Dispatcher.dispatch(
+                            new MovePoint(points[selectedIndex], selectedIndex < index ? index + 1 : index)
+                        )
+                        onSelect(-1)
+                    }}
+                >
+                    <InsertIcon />
                 </PlainButton>
-            }
+            )}
             <div className={styles.searchBoxInput}>
                 <AddressInput
                     point={point}
@@ -135,7 +142,7 @@ const SearchBox = ({
                     onClick={() => Dispatcher.dispatch(new RemovePoint(point))}
                     className={styles.removeSearchBox}
                 >
-                    <RemoveIcon/>
+                    <RemoveIcon />
                 </PlainButton>
             )}
         </>

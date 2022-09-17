@@ -67,8 +67,8 @@ export class MovePoint implements Action {
     readonly newIndex: number
 
     constructor(point: QueryPoint, newIndex: number) {
-        this.point = point;
-        this.newIndex = newIndex;
+        this.point = point
+        this.newIndex = newIndex
     }
 }
 
