@@ -47,6 +47,7 @@ export default function Search({
                 />
             ))}
             <PlainButton
+                style={selectedIndex >= 0 && selectedIndex + 1 < points.length ? {paddingTop: '1rem'}: {}}
                 onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
                 className={styles.addSearchBox}
             >
@@ -100,7 +101,7 @@ const SearchBox = ({
                 <PlainButton
                     title={tr('click to move selected input here')}
                     className={styles.markerTarget}
-                    style={selectedIndex > index ? { margin: '-30px 0 0 0' } : { margin: '0 0 -30px 0' }}
+                    style={selectedIndex > index ? { marginTop: '-2rem' } : { marginBottom: '-2rem' }}
                     onClick={() => {
                         Dispatcher.dispatch(
                             new MovePoint(points[selectedIndex], selectedIndex < index ? index + 1 : index)
