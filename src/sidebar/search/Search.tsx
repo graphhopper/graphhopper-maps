@@ -100,7 +100,7 @@ const SearchBox = ({
                 <PlainButton
                     title={tr('click to move selected input here')}
                     className={styles.markerTarget}
-                    style={selectedIndex > index ? { padding: '0 0 30px 0' } : { padding: '30px 0 0 0' }}
+                    style={selectedIndex > index ? { margin: '-30px 0 0 0' } : { margin: '0 0 -30px 0' }}
                     onClick={() => {
                         Dispatcher.dispatch(
                             new MovePoint(points[selectedIndex], selectedIndex < index ? index + 1 : index)
