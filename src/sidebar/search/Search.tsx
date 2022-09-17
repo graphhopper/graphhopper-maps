@@ -26,11 +26,7 @@ export default function Search({
     selectedProfile: RoutingProfile
     autofocus: boolean
 }) {
-    let [selectedIndex, setSelectedIndex] = useState(-1)
-
-    function onSelect(idx: number) {
-        setSelectedIndex(idx)
-    }
+    let [selectedIndex, onSelect] = useState(-1)
 
     return (
         <div className={styles.searchBox}>
