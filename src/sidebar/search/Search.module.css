@@ -23,6 +23,10 @@
     justify-self: center;
 }
 
+.addSearchBox:hover path {
+    fill: black;
+}
+
 .addSearchBox svg {
     color: #adadad;
     width: 1.1rem;
@@ -102,12 +106,6 @@
     flex-direction: row;
     justify-content: space-between;
     margin: 1rem 0;
-}
-
-.addDestination {
-    align-self: flex-end;
-    width: 2rem;
-    height: 2rem;
 }
 
 .geocodingResults {
