@@ -112,7 +112,7 @@ const SearchBox = ({
                     className={styles.markerContainer}
                     draggable
                     onDragStart={() => {
-                        // do not set to -1 if we start dragging when already selected
+                        // do not set to dropPreview to -1 if we start dragging when already selected
                         if (moveStartIndex != index) {
                             onMoveStartSelect(index, true)
                             onDropPreviewSelect(-1)
@@ -146,7 +146,7 @@ const SearchBox = ({
                     ].join(' ')}
                     style={moveStartIndex > index ? { marginTop: '-2.4rem' } : { marginBottom: '-2.4rem' }}
                     onDragOver={e => {
-                        e.preventDefault() // without this onDrop isn't called
+                        e.preventDefault() // without this, the onDrop hook isn't called
                         onDropPreviewSelect(index)
                     }}
                     onDragLeave={() => onDropPreviewSelect(-1)}
@@ -177,7 +177,7 @@ const SearchBox = ({
                             )
                         )
                     }
-                    clearSelectedInputMarker={() => {
+                    clearSelectedInput={() => {
                         onMoveStartSelect(-1, true)
                         onDropPreviewSelect(-1)
                     }}

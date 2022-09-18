@@ -74,11 +74,6 @@
     width: 100%;
 }
 
-.markerSelected > svg {
-    height: 130%;
-    width: 130%;
-}
-
 .markerSelected {
     margin-left: -4px;
 }
@@ -86,9 +81,6 @@
 .markerTarget > svg {
     transform: scaleX(1.7) scaleY(1.5);
     margin-left: 3px;
-}
-
-.markerTarget > svg {
     fill: gray;
 }
 
