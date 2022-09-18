@@ -107,9 +107,16 @@ export default function AddressInput(props: AddressInputProps) {
 
     return (
         <div className={containerClass}>
-            <div className={styles.inputContainer}
-                 style={props.dropPreviewIndex == props.index ? props.dropPreviewIndex < props.moveStartIndex?
-                     { paddingTop: '2px', marginTop: '-2px', borderTop: 'solid black 2px' } : { paddingBottom: '2px', marginBottom: '-2px', borderBottom: 'solid black 2px' } :{}}>
+            <div
+                className={styles.inputContainer}
+                style={
+                    props.dropPreviewIndex == props.index
+                        ? props.dropPreviewIndex < props.moveStartIndex
+                            ? { paddingTop: '2px', marginTop: '-2px', borderTop: 'solid black 2px' }
+                            : { paddingBottom: '2px', marginBottom: '-2px', borderBottom: 'solid black 2px' }
+                        : {}
+                }
+            >
                 <input
                     style={props.moveStartIndex == props.index ? { borderWidth: '2px', margin: '-1px' } : {}}
                     className={styles.input}

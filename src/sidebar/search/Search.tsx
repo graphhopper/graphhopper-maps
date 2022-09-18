@@ -1,18 +1,18 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import {QueryPoint, QueryPointType} from '@/stores/QueryStore'
-import {AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint} from '@/actions/Actions'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import InsertIcon from './send.svg'
 import PlainButton from '@/PlainButton'
-import {RoutingProfile} from '@/api/graphhopper'
+import { RoutingProfile } from '@/api/graphhopper'
 
 import AddressInput from '@/sidebar/search/AddressInput'
-import {MarkerComponent} from '@/map/Marker'
-import {tr} from '@/translation/Translation'
+import { MarkerComponent } from '@/map/Marker'
+import { tr } from '@/translation/Translation'
 
 export default function Search({
     points,
@@ -79,7 +79,7 @@ const SearchBox = ({
     showTargetIcon,
     onMoveStartSelect,
     dropPreviewIndex,
-    onDropPreviewSelect
+    onDropPreviewSelect,
 }: {
     index: number
     points: QueryPoint[]
@@ -113,10 +113,10 @@ const SearchBox = ({
                     draggable
                     onDragStart={e => {
                         // do not set to -1 if we start dragging when already selected
-                        if(moveStartIndex != index) onMoveStartSelect(index, true)
+                        if (moveStartIndex != index) onMoveStartSelect(index, true)
                     }}
                     onClick={e => {
-                        if(moveStartIndex == index) onMoveStartSelect(-1, true)
+                        if (moveStartIndex == index) onMoveStartSelect(-1, true)
                         else onMoveStartSelect(index, true)
                     }}
                 >
@@ -129,12 +129,17 @@ const SearchBox = ({
             {moveStartIndex >= 0 && moveStartIndex != index && (
                 <PlainButton
                     title={tr('click to move selected input here')}
-                    className={[styles.markerTarget,
+                    className={[
+                        styles.markerTarget,
                         dropPreviewIndex >= 0 && dropPreviewIndex == index ? styles.dropPreview : '',
-                        showTargetIcon? '' : styles.hide].join(' ')}
-                    style={ moveStartIndex > index? { marginTop: '-2.3rem' } : { marginBottom: '-2.3rem' } }
+                        showTargetIcon ? '' : styles.hide,
+                    ].join(' ')}
+                    style={moveStartIndex > index ? { marginTop: '-2.3rem' } : { marginBottom: '-2.3rem' }}
                     onDragEnter={e => e.preventDefault()}
-                    onDragOver={e => { e.preventDefault(); onDropPreviewSelect(index); }}
+                    onDragOver={e => {
+                        e.preventDefault()
+                        onDropPreviewSelect(index)
+                    }}
                     onDragExit={e => onDropPreviewSelect(-1)}
                     onDrop={onClickOrDrop}
                     onClick={onClickOrDrop}
