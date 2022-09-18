@@ -37,7 +37,6 @@ export default function ({
                     profile.name === selectedProfile.name
                         ? styles.selectedProfile + ' ' + styles.profileBtn
                         : styles.profileBtn
-
                 return (
                     <li className={styles.profile} key={profile.name}>
                         <PlainButton
