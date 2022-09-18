@@ -7,6 +7,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelected } from '@/actions/Actions'
 import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
+import { calcDist } from '@/distUtils'
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -24,6 +25,7 @@ export default function ({ selectedPath }: PathDetailsProps) {
             width: clampWidth(containerRef.current!.clientWidth),
             height: 224,
             expandControls: true,
+            // todo: add selected_detail url parameter
         }
         const callbacks = {
             pointSelectedCallback: onPathDetailHover,
@@ -82,26 +84,73 @@ function onElevationSelected(segments: Coordinate[][]) {
 }
 
 function buildPathDetailsData(selectedPath: Path) {
-    let points = selectedPath.points.coordinates.map((pos: Position) => (pos.length == 2 ? [...pos, 0] : pos))
-    const elevation = createFeatureCollection('Elevation [m]', [createFeature(points, 'elevation')])
-    const pathDetails = Object.entries(selectedPath.details).map(([detailName, details]) => {
+    // add zero elevation in case the path is 2D when points_encoded=false and no elevation data on the server side (?)
+    const coordinates = selectedPath.points.coordinates.map((pos: Position) => (pos.length == 2 ? [...pos, 0] : pos))
+
+    const result = {
+        data: [] as any[],
+        mappings: {} as any,
+    }
+
+    // elevation
+    const elevation = createFeatureCollection('Elevation [m]', [createFeature(coordinates, 'elevation')])
+    result.data.push(elevation)
+    result.mappings['Elevation [m]'] = function () {
+        return { text: 'Elevation [m]', color: QueryStore.getMarkerColor(QueryPointType.From) }
+    }
+
+    // slope
+    const slopeFeatures = []
+    for (let i = 0; i < coordinates.length - 1; i++) {
+        const from = coordinates[i]
+        const to = coordinates[i + 1]
+        const distance = calcDistLonLat(from, to)
+        const slope = (100.0 * (to[2] - from[2])) / distance
+        slopeFeatures.push(createFeature([from, to], slope))
+    }
+    const slopeCollection = createFeatureCollection('Slope', slopeFeatures)
+    result.data.push(slopeCollection)
+    result.mappings['Slope'] = slope2color
+
+    // tower slope: slope between tower nodes: use edge_id detail to find tower nodes
+    if ((selectedPath.details as any)['edge_id']) {
+        const detail = (selectedPath.details as any)['edge_id']
+        const towerSlopeFeatures = []
+        for (let i = 0; i < detail.length; i++) {
+            const featurePoints = coordinates.slice(detail[i][0], detail[i][1] + 1)
+            const from = featurePoints[0]
+            const to = featurePoints[featurePoints.length - 1]
+            const distance = calcDistLonLat(from, to)
+            const slope = (100.0 * (to[2] - from[2])) / distance
+            // for the elevations in tower slope diagram we do linear interpolation between the tower nodes. note that
+            // we cannot simply leave out the pillar nodes, because otherwise the total distance would change
+            let tmpDistance = 0
+            for (let j = 0; j < featurePoints.length; j++) {
+                const factor = tmpDistance / distance
+                let ele = from[2] + factor * (to[2] - from[2])
+                if (j === featurePoints.length - 1)
+                    // there seem to be some small rounding errors which lead to ugly little spikes in the diagram,
+                    // so for the last point use the elevation of the to point directly
+                    ele = to[2]
+                featurePoints[j] = [featurePoints[j][0], featurePoints[j][1], ele]
+                if (j < featurePoints.length - 1) tmpDistance += calcDistLonLat(featurePoints[j], featurePoints[j + 1])
+            }
+            towerSlopeFeatures.push(createFeature(featurePoints, slope))
+        }
+        const towerSlopeCollection = createFeatureCollection('Towerslope', towerSlopeFeatures)
+        result.data.push(towerSlopeCollection)
+        result.mappings['Towerslope'] = slope2color
+    }
+
+    // path details
+    Object.entries(selectedPath.details).map(([detailName, details]) => {
         const features = details.map(([from, to, value = 'Undefined']: [number, number, string | number]) =>
-            createFeature(points.slice(from, to + 1), value)
+            createFeature(coordinates.slice(from, to + 1), value)
         )
-        return createFeatureCollection(detailName, features)
+        result.data.push(createFeatureCollection(detailName, features))
+        result.mappings[detailName] = createColorMapping(details)
     })
-    const mappings: any = {
-        'Elevation [m]': function () {
-            return { text: 'Elevation [m]', color: QueryStore.getMarkerColor(QueryPointType.From) }
-        },
-    }
-    Object.entries(selectedPath.details).forEach(([detailName, details]: [string, PathDetails]) => {
-        mappings[detailName] = createColorMapping(details)
-    })
-    return {
-        data: [elevation, ...pathDetails],
-        mappings,
-    }
+    return result
 }
 
 function createColorMapping(detail: PathDetails): (attributeType: any) => { text: string; color: string } {
@@ -147,6 +196,18 @@ function createColorMapping(detail: PathDetails): (attributeType: any) => { text
                 color: color,
             }
         }
+    }
+}
+
+function slope2color(slope: number): object {
+    const colorMin = [0, 153, 247]
+    const colorMax = [241, 23, 18]
+    const absSlope = Math.min(25, Math.abs(slope))
+    const factor = absSlope / 25
+    const color = [0, 1, 2].map(i => colorMin[i] + factor * (colorMax[i] - colorMin[i]))
+    return {
+        text: slope.toFixed(2),
+        color: 'rgb(' + color[0] + ', ' + color[1] + ', ' + color[2] + ')',
     }
 }
 
@@ -199,6 +260,10 @@ function createFeatureCollection(detailName: string, features: any[]) {
             records: features.length,
         },
     }
+}
+
+function calcDistLonLat(p: number[], q: number[]) {
+    return calcDist({ lat: p[1], lng: p[0] }, { lat: q[1], lng: q[0] })
 }
 
 type PathDetails = [number, number, number][] | [number, number, string][]

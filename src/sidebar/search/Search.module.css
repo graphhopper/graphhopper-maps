@@ -60,6 +60,10 @@
     width: 1rem;
 }
 
+.markerContainer {
+    outline: none;
+}
+
 .markerTarget:hover svg {
     fill: black;
 }

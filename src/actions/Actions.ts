@@ -155,6 +155,14 @@ export class ToggleRoutingGraph implements Action {
     }
 }
 
+export class ToggleUrbanDensityLayer implements Action {
+    readonly urbanDensityEnabled: boolean
+
+    constructor(urbanDensityEnabled: boolean) {
+        this.urbanDensityEnabled = urbanDensityEnabled
+    }
+}
+
 export class MapIsLoaded implements Action {}
 
 export class ZoomMapToPoint implements Action {

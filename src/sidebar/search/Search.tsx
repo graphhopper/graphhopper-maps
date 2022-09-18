@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
@@ -18,12 +18,10 @@ export default function Search({
     points,
     routingProfiles,
     selectedProfile,
-    autofocus,
 }: {
     points: QueryPoint[]
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
-    autofocus: boolean
 }) {
     let [showTargetIcons, setShowTargetIcons] = useState(true)
     let [moveStartIndex, onMoveStartSelect] = useState(-1)
@@ -42,7 +40,6 @@ export default function Search({
                         Dispatcher.dispatch(new ClearRoute())
                         Dispatcher.dispatch(new InvalidatePoint(point))
                     }}
-                    autofocus={point.type === QueryPointType.From && autofocus}
                     showTargetIcons={showTargetIcons}
                     moveStartIndex={moveStartIndex}
                     onMoveStartSelect={(index, showTarget) => {
@@ -74,7 +71,6 @@ const SearchBox = ({
     points,
     onChange,
     deletable,
-    autofocus,
     moveStartIndex,
     showTargetIcons,
     onMoveStartSelect,
@@ -85,7 +81,6 @@ const SearchBox = ({
     points: QueryPoint[]
     deletable: boolean
     onChange: (value: string) => void
-    autofocus: boolean
     moveStartIndex: number
     showTargetIcons: boolean
     onMoveStartSelect: (index: number, showTargetIcon: boolean) => void
@@ -93,6 +88,13 @@ const SearchBox = ({
     onDropPreviewSelect: (index: number) => void
 }) => {
     let point = points[index]
+
+    // With this ref and tabIndex=-1 we ensure that the first 'TAB' gives the focus the first input but the marker won't be included in the TAB sequence, #194
+    const myMarkerRef = useRef<HTMLDivElement>(null)
+    if (index == 0)
+        useEffect(() => {
+            myMarkerRef.current?.focus()
+        }, [])
 
     function onClickOrDrop() {
         onDropPreviewSelect(-1)
@@ -108,6 +110,7 @@ const SearchBox = ({
         <>
             {(moveStartIndex < 0 || moveStartIndex == index) && (
                 <div
+                    ref={myMarkerRef} tabIndex={-1}
                     title={tr('drag_to_reorder')}
                     className={styles.markerContainer}
                     draggable
@@ -156,13 +159,13 @@ const SearchBox = ({
                     <TargetIcon />
                 </PlainButton>
             )}
+
             <div className={styles.searchBoxInput}>
                 <AddressInput
                     moveStartIndex={moveStartIndex}
                     dropPreviewIndex={dropPreviewIndex}
                     index={index}
                     point={point}
-                    autofocus={autofocus}
                     onCancel={() => console.log('cancel')}
                     onAddressSelected={(queryText, coordinate) =>
                         Dispatcher.dispatch(

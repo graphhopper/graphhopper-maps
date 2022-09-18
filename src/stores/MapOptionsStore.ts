@@ -1,6 +1,6 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { MapIsLoaded, SelectMapStyle, ToggleRoutingGraph } from '@/actions/Actions'
+import { MapIsLoaded, SelectMapStyle, ToggleRoutingGraph, ToggleUrbanDensityLayer } from '@/actions/Actions'
 import config from 'config'
 
 const osApiKey = config.keys.omniscale
@@ -16,6 +16,7 @@ export interface MapOptionsStoreState {
     selectedStyle: StyleOption
     isMapLoaded: boolean
     routingGraphEnabled: boolean
+    urbanDensityEnabled: boolean
 }
 
 export interface StyleOption {
@@ -231,6 +232,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
             selectedStyle: selectedStyle ? selectedStyle : omniscale,
             styleOptions,
             routingGraphEnabled: false,
+            urbanDensityEnabled: false,
             isMapLoaded: false,
         }
     }
@@ -245,6 +247,11 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
             return {
                 ...state,
                 routingGraphEnabled: action.routingGraphEnabled,
+            }
+        } else if (action instanceof ToggleUrbanDensityLayer) {
+            return {
+                ...state,
+                urbanDensityEnabled: action.urbanDensityEnabled,
             }
         } else if (action instanceof MapIsLoaded) {
             return {

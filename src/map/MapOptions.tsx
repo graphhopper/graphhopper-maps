@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import styles from './MapOptions.modules.css'
 import { MapOptionsStoreState, StyleOption } from '@/stores/MapOptionsStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { SelectMapStyle, ToggleRoutingGraph } from '@/actions/Actions'
+import { SelectMapStyle, ToggleRoutingGraph, ToggleUrbanDensityLayer } from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
 import LayerImg from './layer-group-solid.svg'
 import * as config from 'config'
@@ -57,18 +57,32 @@ const Options = function ({ storeState, notifyChanged }: OptionsProps) {
                 ))}
             </div>
             {config.routingGraphLayerAllowed && (
-                <div>
-                    <input
-                        type="checkbox"
-                        id="routing-graph-checkbox"
-                        checked={storeState.routingGraphEnabled}
-                        onChange={e => {
-                            notifyChanged()
-                            Dispatcher.dispatch(new ToggleRoutingGraph(e.target.checked))
-                        }}
-                    />
-                    <label htmlFor="routing-graph-checkbox">Show Routing Graph</label>
-                </div>
+                <>
+                    <div className={styles.option}>
+                        <input
+                            type="checkbox"
+                            id="routing-graph-checkbox"
+                            checked={storeState.routingGraphEnabled}
+                            onChange={e => {
+                                notifyChanged()
+                                Dispatcher.dispatch(new ToggleRoutingGraph(e.target.checked))
+                            }}
+                        />
+                        <label htmlFor="routing-graph-checkbox">Show Routing Graph</label>
+                    </div>
+                    <div className={styles.option}>
+                        <input
+                            type="checkbox"
+                            id="urban-density-checkbox"
+                            checked={storeState.urbanDensityEnabled}
+                            onChange={e => {
+                                notifyChanged()
+                                Dispatcher.dispatch(new ToggleUrbanDensityLayer(e.target.checked))
+                            }}
+                        />
+                        <label htmlFor="urban-density-checkbox">Show Urban Density</label>
+                    </div>
+                </>
             )}
         </div>
     )

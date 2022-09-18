@@ -14,7 +14,7 @@ module.exports = {
         thunderforest: "missing_api_key",
         kurviger: "missing_api_key"
     },
-    // if true there will be an option to enable the GraphHopper routing graph in the layers menu
+    // if true there will be an option to enable the GraphHopper routing graph and the urban density visualization in the layers menu
     routingGraphLayerAllowed: false,
     // use this to add your own profiles. the key of each profile will be used as name and the given fields will
     // overwrite the fields of the default routing request. e.g.
