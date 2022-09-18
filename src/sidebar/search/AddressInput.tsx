@@ -20,7 +20,6 @@ import PlainButton from '@/PlainButton'
 
 export interface AddressInputProps {
     point: QueryPoint
-    autofocus: boolean
     onCancel: () => void
     onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
     onChange: (value: string) => void
@@ -125,7 +124,6 @@ export default function AddressInput(props: AddressInputProps) {
                         setAutocompleteItems([])
                     }}
                     value={text}
-                    autoFocus={props.autofocus}
                     placeholder={tr(
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
                     )}

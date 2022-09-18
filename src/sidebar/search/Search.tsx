@@ -1,34 +1,32 @@
 import React from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
-import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
+import {QueryPoint, QueryPointType} from '@/stores/QueryStore'
+import {AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint} from '@/actions/Actions'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import PlainButton from '@/PlainButton'
-import { RoutingProfile } from '@/api/graphhopper'
+import {RoutingProfile} from '@/api/graphhopper'
 
 import AddressInput from '@/sidebar/search/AddressInput'
-import { MarkerComponent } from '@/map/Marker'
-import { tr } from '@/translation/Translation'
+import {MarkerComponent} from '@/map/Marker'
+import {tr} from '@/translation/Translation'
 
 export default function Search({
     points,
     routingProfiles,
-    selectedProfile,
-    autofocus,
+    selectedProfile
 }: {
     points: QueryPoint[]
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
-    autofocus: boolean
 }) {
     points.every(point => point.isInitialized)
     return (
         <div className={styles.searchBox}>
             <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
-            {points.map(point => (
+            {points.map((point, index) => (
                 <SearchBox
                     key={point.id}
                     point={point}
@@ -37,7 +35,6 @@ export default function Search({
                         Dispatcher.dispatch(new ClearRoute())
                         Dispatcher.dispatch(new InvalidatePoint(point))
                     }}
-                    autofocus={point.type === QueryPointType.From && autofocus}
                 />
             ))}
             <PlainButton
@@ -55,12 +52,10 @@ const SearchBox = ({
     point,
     onChange,
     deletable,
-    autofocus,
 }: {
     point: QueryPoint
     deletable: boolean
     onChange: (value: string) => void
-    autofocus: boolean
 }) => {
     return (
         <>
@@ -70,7 +65,6 @@ const SearchBox = ({
             <div className={styles.searchBoxInput}>
                 <AddressInput
                     point={point}
-                    autofocus={autofocus}
                     onCancel={() => console.log('cancel')}
                     onAddressSelected={(queryText, coordinate) =>
                         Dispatcher.dispatch(

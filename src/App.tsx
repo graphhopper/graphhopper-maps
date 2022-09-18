@@ -133,7 +133,6 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                         points={query.queryPoints}
                         routingProfiles={info.profiles}
                         selectedProfile={query.routingProfile}
-                        autofocus={false}
                     />
                     <CustomModelBox
                         enabled={query.customModelEnabled}
@@ -142,15 +141,13 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                         queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                     />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
-                    <div className={styles.routingResult}>
-                        <RoutingResults
-                            paths={route.routingResult.paths}
-                            selectedPath={route.selectedPath}
-                            currentRequest={query.currentRequest}
-                            profile={query.routingProfile.name}
-                        />
-                    </div>
-                    <div className={styles.poweredBy}>
+                    <RoutingResults
+                        paths={route.routingResult.paths}
+                        selectedPath={route.selectedPath}
+                        currentRequest={query.currentRequest}
+                        profile={query.routingProfile.name}
+                    />
+                    <div>
                         <PoweredBy />
                     </div>
                 </div>

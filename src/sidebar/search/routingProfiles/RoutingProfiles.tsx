@@ -1,11 +1,10 @@
-import React from 'react'
+import React, {useEffect, useRef} from 'react'
 import styles from './RoutingProfiles.modules.css'
+import plainButtonStyles from '../../../PlainButton.module.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import * as config from 'config'
-import PlainButton from '@/PlainButton'
-
 import BicycleIcon from './bike.svg'
 import CarIcon from './car.svg'
 import FootIcon from './foot.svg'
@@ -25,6 +24,7 @@ export default function ({
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
 }) {
+
     // this first merges profiles set from config and those received from the backend.
     const extraRoutingProfiles: RoutingProfile[] = config.extraProfiles
         ? Object.keys(config.extraProfiles).map(profile => ({ name: profile }))
@@ -33,19 +33,27 @@ export default function ({
 
     return (
         <ul className={styles.profiles}>
-            {allRoutingProfiles.map(profile => {
-                const className =
-                    profile.name === selectedProfile.name
+            {allRoutingProfiles.map((profile, index) => {
+                const buttonRef = useRef<HTMLButtonElement>(null)
+                if(index + 1 == allRoutingProfiles.length) {
+                    useEffect(()=>{
+                        buttonRef.current?.focus()
+                    }, []);
+                }
+                const className = profile.name === selectedProfile.name
                         ? styles.selectedProfile + ' ' + styles.profileBtn
                         : styles.profileBtn
+
                 return (
                     <li className={styles.profile} key={profile.name}>
-                        <PlainButton
+                        <button
+                            // Couldn't get it working with forwardRef and PlainButton so I just used the same style
+                            ref={buttonRef}
                             onClick={() => Dispatcher.dispatch(new SetVehicleProfile(profile))}
-                            className={className}
+                            className={className + ' ' + plainButtonStyles.button}
                         >
                             {getIcon(profile)}
-                        </PlainButton>
+                        </button>
                     </li>
                 )
             })}
