@@ -25,7 +25,9 @@ export interface AddressInputProps {
     onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
     onChange: (value: string) => void
     clearSelectedInputMarker: () => void
-    selectedInputMarkerSelected: boolean
+    moveStartIndex: number
+    dropPreviewIndex: number
+    index: number
 }
 
 export default function AddressInput(props: AddressInputProps) {
@@ -105,9 +107,11 @@ export default function AddressInput(props: AddressInputProps) {
 
     return (
         <div className={containerClass}>
-            <div className={styles.inputContainer}>
+            <div className={styles.inputContainer}
+                 style={props.dropPreviewIndex == props.index ? props.dropPreviewIndex < props.moveStartIndex?
+                     { paddingTop: '2px', marginTop: '-2px', borderTop: 'solid black 2px' } : { paddingBottom: '2px', marginBottom: '-2px', borderBottom: 'solid black 2px' } :{}}>
                 <input
-                    style={props.selectedInputMarkerSelected ? { borderWidth: '2px', margin: '-1px' } : {}}
+                    style={props.moveStartIndex == props.index ? { borderWidth: '2px', margin: '-1px' } : {}}
                     className={styles.input}
                     type="text"
                     ref={searchInput}
