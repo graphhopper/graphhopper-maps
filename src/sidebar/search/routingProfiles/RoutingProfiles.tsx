@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react'
+import React from 'react'
 import styles from './RoutingProfiles.modules.css'
 import plainButtonStyles from '../../../PlainButton.module.css'
 import Dispatcher from '@/stores/Dispatcher'
@@ -16,6 +16,7 @@ import ScooterIcon from './scooter.svg'
 import SmallTruckIcon from './small_truck.svg'
 import TruckIcon from './truck.svg'
 import WheelchairIcon from './wheelchair.svg'
+import PlainButton from '@/PlainButton'
 
 export default function ({
     routingProfiles,
@@ -24,7 +25,6 @@ export default function ({
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
 }) {
-
     // this first merges profiles set from config and those received from the backend.
     const extraRoutingProfiles: RoutingProfile[] = config.extraProfiles
         ? Object.keys(config.extraProfiles).map(profile => ({ name: profile }))
@@ -34,26 +34,19 @@ export default function ({
     return (
         <ul className={styles.profiles}>
             {allRoutingProfiles.map((profile, index) => {
-                const buttonRef = useRef<HTMLButtonElement>(null)
-                if(index + 1 == allRoutingProfiles.length) {
-                    useEffect(()=>{
-                        buttonRef.current?.focus()
-                    }, []);
-                }
-                const className = profile.name === selectedProfile.name
+                const className =
+                    profile.name === selectedProfile.name
                         ? styles.selectedProfile + ' ' + styles.profileBtn
                         : styles.profileBtn
 
                 return (
                     <li className={styles.profile} key={profile.name}>
-                        <button
-                            // Couldn't get it working with forwardRef and PlainButton so I just used the same style
-                            ref={buttonRef}
+                        <PlainButton
                             onClick={() => Dispatcher.dispatch(new SetVehicleProfile(profile))}
                             className={className + ' ' + plainButtonStyles.button}
                         >
                             {getIcon(profile)}
-                        </button>
+                        </PlainButton>
                     </li>
                 )
             })}

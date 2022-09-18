@@ -1,34 +1,34 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import {QueryPoint, QueryPointType} from '@/stores/QueryStore'
-import {AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint} from '@/actions/Actions'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { AddPoint, ClearRoute, InvalidatePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import PlainButton from '@/PlainButton'
-import {RoutingProfile} from '@/api/graphhopper'
+import { RoutingProfile } from '@/api/graphhopper'
 
 import AddressInput from '@/sidebar/search/AddressInput'
-import {MarkerComponent} from '@/map/Marker'
-import {tr} from '@/translation/Translation'
+import { MarkerComponent } from '@/map/Marker'
+import { tr } from '@/translation/Translation'
 
 export default function Search({
     points,
     routingProfiles,
-    selectedProfile
+    selectedProfile,
 }: {
     points: QueryPoint[]
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
 }) {
-    points.every(point => point.isInitialized)
     return (
         <div className={styles.searchBox}>
             <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
             {points.map((point, index) => (
                 <SearchBox
                     key={point.id}
+                    index={index}
                     point={point}
                     deletable={points.length > 2}
                     onChange={() => {
@@ -50,16 +50,25 @@ export default function Search({
 
 const SearchBox = ({
     point,
+    index,
     onChange,
     deletable,
 }: {
     point: QueryPoint
+    index: number
     deletable: boolean
     onChange: (value: string) => void
 }) => {
+    // With this ref and tabIndex=-1 we ensure that the first 'TAB' gives the focus the first input but the marker won't be included in the TAB sequence, #194
+    const myMarkerRef = useRef<HTMLDivElement>(null)
+    if (index == 0)
+        useEffect(() => {
+            myMarkerRef.current?.focus()
+        }, [])
+
     return (
         <>
-            <div className={styles.markerContainer}>
+            <div ref={myMarkerRef} className={styles.markerContainer} tabIndex={-1}>
                 <MarkerComponent color={point.color} />
             </div>
             <div className={styles.searchBoxInput}>
