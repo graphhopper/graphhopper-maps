@@ -112,8 +112,8 @@ export default function AddressInput(props: AddressInputProps) {
                 style={
                     props.dropPreviewIndex == props.index
                         ? props.dropPreviewIndex < props.moveStartIndex
-                            ? { paddingTop: '2px', marginTop: '-2px', borderTop: 'solid black 2px' }
-                            : { paddingBottom: '2px', marginBottom: '-2px', borderBottom: 'solid black 2px' }
+                            ? { paddingTop: '2px', marginTop: '-4px', borderTop: 'dashed gray 2px' }
+                            : { paddingBottom: '2px', marginBottom: '-4px', borderBottom: 'dashed gray 2px' }
                         : {}
                 }
             >
