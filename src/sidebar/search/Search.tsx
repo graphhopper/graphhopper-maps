@@ -94,6 +94,8 @@ const SearchBox = ({
                     title={tr('click to move input')}
                     className={styles.markerContainer}
                     onClick={() => onInputMarkerSelect(index, true)}
+                    draggable
+                    onDragStart={(e) => onInputMarkerSelect(index, true)}
                 >
                     <MarkerComponent
                         number={index > 0 && index + 1 < points.length ? index : undefined}
