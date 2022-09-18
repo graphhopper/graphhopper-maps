@@ -110,7 +110,8 @@ const SearchBox = ({
         <>
             {(moveStartIndex < 0 || moveStartIndex == index) && (
                 <div
-                    ref={myMarkerRef} tabIndex={-1}
+                    ref={myMarkerRef}
+                    tabIndex={-1}
                     title={tr('drag_to_reorder')}
                     className={styles.markerContainer}
                     draggable
