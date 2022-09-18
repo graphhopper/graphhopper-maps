@@ -47,6 +47,10 @@
     font-size: 14px;
 }
 
+.markerContainer:hover svg {
+    fill: black !important;
+}
+
 .markerContainer,
 .markerSelected,
 .markerTarget {
