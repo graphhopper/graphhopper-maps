@@ -13,13 +13,14 @@ interface MarkerProps {
     color: string
     number?: number | undefined
     size?: number
+    cursor?: string | undefined
 }
 
 /**
  * This component draws a marker. If a number is passed, the white circle of the marker is larger and displays the
  * number. Otherwise the default marker from https://fontawesome.com/v5.15/icons/map-marker-alt?style=solid is taken
  */
-export function MarkerComponent({ color, number, size = 0 }: MarkerProps) {
+export function MarkerComponent({ color, number, size = 0, cursor }: MarkerProps) {
     return (
         <svg
             aria-hidden="true"
@@ -28,7 +29,7 @@ export function MarkerComponent({ color, number, size = 0 }: MarkerProps) {
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 384 512"
             height={size}
-            style={{ ...markerStyle, fill: color }}
+            style={{ ...markerStyle, fill: color, cursor: cursor ? cursor : markerStyle.cursor }}
         >
             <path d={MARKER_PATH} />
             {number === undefined ? (

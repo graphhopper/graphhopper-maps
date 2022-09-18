@@ -108,20 +108,21 @@ const SearchBox = ({
         <>
             {(moveStartIndex < 0 || moveStartIndex == index) && (
                 <div
-                    title={tr('click to move input')}
+                    title={tr('drag_to_reorder')}
                     className={styles.markerContainer}
                     draggable
-                    onDragStart={e => {
+                    onDragStart={() => {
                         // do not set to -1 if we start dragging when already selected
                         if (moveStartIndex != index) onMoveStartSelect(index, true)
                     }}
-                    onClick={e => {
+                    onClick={() => {
                         if (moveStartIndex == index) onMoveStartSelect(-1, true)
                         else onMoveStartSelect(index, true)
                     }}
                 >
                     <MarkerComponent
                         number={index > 0 && index + 1 < points.length ? index : undefined}
+                        cursor="ns-resize"
                         color={moveStartIndex >= 0 ? 'gray' : point.color}
                     />
                 </div>
@@ -140,7 +141,7 @@ const SearchBox = ({
                         e.preventDefault()
                         onDropPreviewSelect(index)
                     }}
-                    onDragExit={e => onDropPreviewSelect(-1)}
+                    onDragExit={() => onDropPreviewSelect(-1)}
                     onDrop={onClickOrDrop}
                     onClick={onClickOrDrop}
                 >
