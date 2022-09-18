@@ -1,10 +1,10 @@
 import React from 'react'
 import styles from './RoutingProfiles.modules.css'
-import plainButtonStyles from '../../../PlainButton.module.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import * as config from 'config'
+import PlainButton from '@/PlainButton'
 import BicycleIcon from './bike.svg'
 import CarIcon from './car.svg'
 import FootIcon from './foot.svg'
@@ -16,7 +16,6 @@ import ScooterIcon from './scooter.svg'
 import SmallTruckIcon from './small_truck.svg'
 import TruckIcon from './truck.svg'
 import WheelchairIcon from './wheelchair.svg'
-import PlainButton from '@/PlainButton'
 
 export default function ({
     routingProfiles,
@@ -33,7 +32,7 @@ export default function ({
 
     return (
         <ul className={styles.profiles}>
-            {allRoutingProfiles.map((profile, index) => {
+            {allRoutingProfiles.map(profile => {
                 const className =
                     profile.name === selectedProfile.name
                         ? styles.selectedProfile + ' ' + styles.profileBtn
@@ -43,7 +42,7 @@ export default function ({
                     <li className={styles.profile} key={profile.name}>
                         <PlainButton
                             onClick={() => Dispatcher.dispatch(new SetVehicleProfile(profile))}
-                            className={className + ' ' + plainButtonStyles.button}
+                            className={className}
                         >
                             {getIcon(profile)}
                         </PlainButton>
