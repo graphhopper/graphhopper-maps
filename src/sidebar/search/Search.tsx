@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
@@ -17,27 +17,24 @@ export default function Search({
     points,
     routingProfiles,
     selectedProfile,
-    autofocus,
 }: {
     points: QueryPoint[]
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
-    autofocus: boolean
 }) {
-    points.every(point => point.isInitialized)
     return (
         <div className={styles.searchBox}>
             <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
-            {points.map(point => (
+            {points.map((point, index) => (
                 <SearchBox
                     key={point.id}
+                    index={index}
                     point={point}
                     deletable={points.length > 2}
                     onChange={() => {
                         Dispatcher.dispatch(new ClearRoute())
                         Dispatcher.dispatch(new InvalidatePoint(point))
                     }}
-                    autofocus={point.type === QueryPointType.From && autofocus}
                 />
             ))}
             <PlainButton
@@ -53,24 +50,30 @@ export default function Search({
 
 const SearchBox = ({
     point,
+    index,
     onChange,
     deletable,
-    autofocus,
 }: {
     point: QueryPoint
+    index: number
     deletable: boolean
     onChange: (value: string) => void
-    autofocus: boolean
 }) => {
+    // With this ref and tabIndex=-1 we ensure that the first 'TAB' gives the focus the first input but the marker won't be included in the TAB sequence, #194
+    const myMarkerRef = useRef<HTMLDivElement>(null)
+    if (index == 0)
+        useEffect(() => {
+            myMarkerRef.current?.focus()
+        }, [])
+
     return (
         <>
-            <div className={styles.markerContainer}>
+            <div ref={myMarkerRef} className={styles.markerContainer} tabIndex={-1}>
                 <MarkerComponent color={point.color} />
             </div>
             <div className={styles.searchBoxInput}>
                 <AddressInput
                     point={point}
-                    autofocus={autofocus}
                     onCancel={() => console.log('cancel')}
                     onAddressSelected={(queryText, coordinate) =>
                         Dispatcher.dispatch(

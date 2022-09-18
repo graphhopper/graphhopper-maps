@@ -5,7 +5,6 @@ import { SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import * as config from 'config'
 import PlainButton from '@/PlainButton'
-
 import BicycleIcon from './bike.svg'
 import CarIcon from './car.svg'
 import FootIcon from './foot.svg'
