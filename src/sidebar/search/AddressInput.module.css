@@ -47,13 +47,13 @@
 }
 
 .topBorder {
-    padding-top: 4px;
-    margin-top: -6px;
+    padding-top: 3px;
+    margin-top: -5px;
     border-top: dashed gray 2px;
 }
 
 .bottomBorder {
-    padding-bottom: 4px;
-    margin-bottom: -6px;
+    padding-bottom: 3px;
+    margin-bottom: -5px;
     border-bottom: dashed gray 2px;
 }

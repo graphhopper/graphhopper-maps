@@ -6,7 +6,7 @@ import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
-import InsertIcon from './send.svg'
+import TargetIcon from './send.svg'
 import PlainButton from '@/PlainButton'
 import { RoutingProfile } from '@/api/graphhopper'
 
@@ -25,7 +25,7 @@ export default function Search({
     selectedProfile: RoutingProfile
     autofocus: boolean
 }) {
-    let [showTargetIcon, setShowTargetIcon] = useState(true)
+    let [showTargetIcons, setShowTargetIcons] = useState(true)
     let [moveStartIndex, onMoveStartSelect] = useState(-1)
     let [dropPreviewIndex, onDropPreviewSelect] = useState(-1)
 
@@ -43,11 +43,11 @@ export default function Search({
                         Dispatcher.dispatch(new InvalidatePoint(point))
                     }}
                     autofocus={point.type === QueryPointType.From && autofocus}
-                    showTargetIcon={showTargetIcon}
+                    showTargetIcons={showTargetIcons}
                     moveStartIndex={moveStartIndex}
                     onMoveStartSelect={(index, showTarget) => {
                         onMoveStartSelect(index)
-                        setShowTargetIcon(showTarget)
+                        setShowTargetIcons(showTarget)
                     }}
                     dropPreviewIndex={dropPreviewIndex}
                     onDropPreviewSelect={onDropPreviewSelect}
@@ -55,7 +55,7 @@ export default function Search({
             ))}
             <PlainButton
                 style={
-                    showTargetIcon && moveStartIndex >= 0 && moveStartIndex + 1 < points.length
+                    showTargetIcons && moveStartIndex >= 0 && moveStartIndex + 1 < points.length
                         ? { paddingTop: '2rem' }
                         : {}
                 }
@@ -76,7 +76,7 @@ const SearchBox = ({
     deletable,
     autofocus,
     moveStartIndex,
-    showTargetIcon,
+    showTargetIcons,
     onMoveStartSelect,
     dropPreviewIndex,
     onDropPreviewSelect,
@@ -87,7 +87,7 @@ const SearchBox = ({
     onChange: (value: string) => void
     autofocus: boolean
     moveStartIndex: number
-    showTargetIcon: boolean
+    showTargetIcons: boolean
     onMoveStartSelect: (index: number, showTargetIcon: boolean) => void
     dropPreviewIndex: number
     onDropPreviewSelect: (index: number) => void
@@ -98,7 +98,7 @@ const SearchBox = ({
         onDropPreviewSelect(-1)
         let newIndex = moveStartIndex < index ? index + 1 : index
         Dispatcher.dispatch(new MovePoint(points[moveStartIndex], newIndex))
-        onMoveStartSelect(index, false)
+        onMoveStartSelect(index, false) // temporarily hide target icons
         setTimeout(() => {
             onMoveStartSelect(-1, true)
         }, 1000)
@@ -113,11 +113,20 @@ const SearchBox = ({
                     draggable
                     onDragStart={() => {
                         // do not set to -1 if we start dragging when already selected
-                        if (moveStartIndex != index) onMoveStartSelect(index, true)
+                        if (moveStartIndex != index) {
+                            onMoveStartSelect(index, true)
+                            onDropPreviewSelect(-1)
+                        }
+                    }}
+                    onDragEnd={() => {
+                        onMoveStartSelect(-1, true)
+                        onDropPreviewSelect(-1)
                     }}
                     onClick={() => {
-                        if (moveStartIndex == index) onMoveStartSelect(-1, true)
-                        else onMoveStartSelect(index, true)
+                        if (moveStartIndex == index) {
+                            onMoveStartSelect(-1, true)
+                            onDropPreviewSelect(-1)
+                        } else onMoveStartSelect(index, true)
                     }}
                 >
                     <MarkerComponent
@@ -131,21 +140,20 @@ const SearchBox = ({
                 <PlainButton
                     title={tr('click to move selected input here')}
                     className={[
+                        showTargetIcons ? '' : styles.hide,
                         styles.markerTarget,
                         dropPreviewIndex >= 0 && dropPreviewIndex == index ? styles.dropPreview : '',
-                        showTargetIcon ? '' : styles.hide,
                     ].join(' ')}
-                    style={moveStartIndex > index ? { marginTop: '-2.3rem' } : { marginBottom: '-2.3rem' }}
-                    onDragEnter={e => e.preventDefault()}
+                    style={moveStartIndex > index ? { marginTop: '-2.4rem' } : { marginBottom: '-2.4rem' }}
                     onDragOver={e => {
-                        e.preventDefault()
+                        e.preventDefault() // without this onDrop isn't called
                         onDropPreviewSelect(index)
                     }}
-                    onDragExit={() => onDropPreviewSelect(-1)}
+                    onDragLeave={() => onDropPreviewSelect(-1)}
                     onDrop={onClickOrDrop}
                     onClick={onClickOrDrop}
                 >
-                    <InsertIcon />
+                    <TargetIcon />
                 </PlainButton>
             )}
             <div className={styles.searchBoxInput}>
@@ -169,7 +177,10 @@ const SearchBox = ({
                             )
                         )
                     }
-                    clearSelectedInputMarker={() => onMoveStartSelect(-1, true)}
+                    clearSelectedInputMarker={() => {
+                        onMoveStartSelect(-1, true)
+                        onDropPreviewSelect(-1)
+                    }}
                     onChange={onChange}
                 />
             </div>
