@@ -60,7 +60,7 @@ function addRoutingGraphLayer(map: Map) {
         source: new VectorTileSource({
             attributions: '',
             format: new MVT(),
-            url: `${config.api}mvt/{z}/{x}/{y}.mvt?details=road_class&details=surface&details=road_environment&details=max_speed&details=average_speed`,
+            url: `${config.api}mvt/{z}/{x}/{y}.mvt`,
         }),
         style: ((feature: Feature, resolution: number) =>
             getStyle(feature, map.getView().getZoomForResolution(resolution)!)) as any,

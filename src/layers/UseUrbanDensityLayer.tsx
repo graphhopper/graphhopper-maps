@@ -42,7 +42,7 @@ function addUrbanDensityLayer(map: Map) {
         source: new VectorTileSource({
             attributions: '',
             format: new MVT(),
-            url: `${config.api}mvt/{z}/{x}/{y}.mvt?details=road_class&details=surface&details=road_environment&details=max_speed&details=average_speed&details=urban_density`,
+            url: `${config.api}mvt/{z}/{x}/{y}.mvt?render_all=true`,
         }),
         style: ((feature: Feature) => getStyle(feature)) as any,
     })
