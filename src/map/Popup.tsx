@@ -83,7 +83,7 @@ export function PopupComponent({
             </button>
             <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
                 <div style={{ float: 'left' }}>
-                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.From)} />
+                    <MarkerComponent size={15} color={QueryStore.getMarkerColor(QueryPointType.From)} />
                 </div>
                 {tr('set_start')}
             </button>
@@ -93,7 +93,7 @@ export function PopupComponent({
                 onClick={() => setViaPoint(queryPoints, route)}
             >
                 <div style={{ float: 'left' }}>
-                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
+                    <MarkerComponent size={15} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
                 </div>
                 {tr('set_intermediate')}
             </button>
@@ -102,7 +102,7 @@ export function PopupComponent({
                 onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
             >
                 <div style={{ float: 'left' }}>
-                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.To)} />
+                    <MarkerComponent size={15} color={QueryStore.getMarkerColor(QueryPointType.To)} />
                 </div>
                 {tr('set_end')}
             </button>
