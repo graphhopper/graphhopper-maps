@@ -8,6 +8,7 @@ import {
     ErrorAction,
     InfoReceived,
     InvalidatePoint,
+    MovePoint,
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
@@ -138,6 +139,26 @@ export default class QueryStore extends Store<QueryStoreState> {
                 zoom: action.zoom,
             }
 
+            return this.routeIfReady(newState)
+        } else if (action instanceof MovePoint) {
+            // Remove and Add in one action but with only one route request
+            const newPoints = QueryStore.movePoint(state.queryPoints, action.point, action.newIndex).map(
+                (point, index) => {
+                    const type = QueryStore.getPointType(index, state.queryPoints.length)
+                    return {
+                        ...point,
+                        color: QueryStore.getMarkerColor(type),
+                        type: type,
+                        id: this.state.nextQueryPointId + index,
+                    }
+                }
+            )
+
+            const newState = {
+                ...state,
+                nextQueryPointId: state.nextQueryPointId + state.queryPoints.length,
+                queryPoints: newPoints,
+            }
             return this.routeIfReady(newState)
         } else if (action instanceof AddPoint) {
             const tmp = state.queryPoints.slice()
@@ -323,6 +344,22 @@ export default class QueryStore extends Store<QueryStoreState> {
         if (!state.routingProfile.name) return false
 
         return true
+    }
+
+    private static movePoint(points: QueryPoint[], point: QueryPoint, newIndex: number): QueryPoint[] {
+        if (newIndex < 0) return points
+
+        let newPoints = points.filter((p, index) => {
+            if (p.id == point.id) {
+                if (index < newIndex) newIndex-- // index adjustment is important
+                return false
+            }
+            return true
+        })
+
+        if (newIndex >= points.length) return points
+        newPoints.splice(newIndex, 0, point)
+        return newPoints
     }
 
     private static replacePoint(points: QueryPoint[], point: QueryPoint) {
