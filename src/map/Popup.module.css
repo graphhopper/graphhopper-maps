@@ -4,6 +4,11 @@
     max-width: 11em;
 }
 
+button.entry div {
+    margin-top: 1px;
+    padding-right: 8px;
+}
+
 .entry {
     border: none;
     background: none;
@@ -11,8 +16,8 @@
     text-align: left;
     cursor: pointer;
     outline: inherit;
-    font-size: medium;
-    padding-bottom: 5px;
+    font-size: 14px;
+    padding: 5px 22px 5px 17px;
 }
 
 .closeBtn:hover {
@@ -40,6 +45,7 @@
 }
 
 hr {
+    border: 1px solid lightgray;
     width: 100%;
     margin-left: auto;
     margin-right: auto;

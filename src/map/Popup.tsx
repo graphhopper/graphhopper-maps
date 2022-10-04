@@ -1,13 +1,14 @@
 import React from 'react'
 import { coordinateToText } from '@/Converters'
 import styles from './Popup.module.css'
-import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import QueryStore, { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, QueryOSM, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import Cross from '@/sidebar/times-solid.svg'
 import { tr } from '@/translation/Translation'
+import { MarkerComponent } from '@/map/Marker'
 
 export function PopupComponent({
     coordinate,
@@ -81,6 +82,9 @@ export function PopupComponent({
                 <Cross />
             </button>
             <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
+                <div style={{ float: 'left' }}>
+                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.From)} />
+                </div>
                 {tr('set_start')}
             </button>
             <button
@@ -88,12 +92,18 @@ export function PopupComponent({
                 disabled={disableViaPoint(queryPoints)}
                 onClick={() => setViaPoint(queryPoints, route)}
             >
+                <div style={{ float: 'left' }}>
+                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
+                </div>
                 {tr('set_intermediate')}
             </button>
             <button
                 className={styles.entry}
                 onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
             >
+                <div style={{ float: 'left' }}>
+                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.To)} />
+                </div>
                 {tr('set_end')}
             </button>
             <hr />
