@@ -45,3 +45,15 @@
         align-items: center;
     }
 }
+
+.topBorder {
+    padding-top: 3px;
+    margin-top: -5px;
+    border-top: dashed gray 2px;
+}
+
+.bottomBorder {
+    padding-bottom: 3px;
+    margin-bottom: -5px;
+    border-bottom: dashed gray 2px;
+}

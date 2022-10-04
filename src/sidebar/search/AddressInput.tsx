@@ -23,6 +23,10 @@ export interface AddressInputProps {
     onCancel: () => void
     onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
     onChange: (value: string) => void
+    clearSelectedInput: () => void
+    moveStartIndex: number
+    dropPreviewIndex: number
+    index: number
 }
 
 export default function AddressInput(props: AddressInputProps) {
@@ -102,8 +106,19 @@ export default function AddressInput(props: AddressInputProps) {
 
     return (
         <div className={containerClass}>
-            <div className={styles.inputContainer}>
+            <div
+                className={[
+                    styles.inputContainer,
+                    // show line (border) where input would be moved if dropped
+                    props.dropPreviewIndex == props.index
+                        ? props.dropPreviewIndex < props.moveStartIndex
+                            ? styles.topBorder
+                            : styles.bottomBorder
+                        : {},
+                ].join(' ')}
+            >
                 <input
+                    style={props.moveStartIndex == props.index ? { borderWidth: '2px', margin: '-1px' } : {}}
                     className={styles.input}
                     type="text"
                     ref={searchInput}
@@ -115,6 +130,7 @@ export default function AddressInput(props: AddressInputProps) {
                     }}
                     onKeyDown={onKeypress}
                     onFocus={event => {
+                        props.clearSelectedInput()
                         setHasFocus(true)
                         event.target.select()
                     }}
