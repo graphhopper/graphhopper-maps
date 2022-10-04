@@ -54,14 +54,14 @@
 }
 
 .exportButton {
-    width: 7em;
+    width: 8em;
     padding-left: 1em;
     padding-top: 1px; /* correction for "height: auto" of svg */
 }
 
 .detailsButton {
-    width: 5em;
-    padding-left: 0.5em;
+    width: 5.5em;
+    padding-left: 1em;
     padding-top: 1px; /* correction for "height: auto" of svg  */
 }
 
