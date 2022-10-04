@@ -67,7 +67,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     {isSelected && (
                         <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path)}>
                             <GPXDownload />
-                            <div>{tr('export_button')}</div>
+                            <div>{tr('gpx_export_button')}</div>
                         </PlainButton>
                     )}
                     {isSelected && (
