@@ -68,6 +68,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
     )
 }
 
+// See #229
 class LongTouchHandler {
     private readonly callback: (e: any) => void
     private currentTimeout: number = 0
