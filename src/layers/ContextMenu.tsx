@@ -45,9 +45,8 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.getTargetElement().addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
             map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
 
-            map.on('click', () => {
+            map.getTargetElement().addEventListener('click', () => {
                 overlay?.setPosition(undefined)
-                // setMenuCoordinate(null)
             })
         })
 
