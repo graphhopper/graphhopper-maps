@@ -1,48 +1,25 @@
 .wrapper {
     display: flex;
     flex-direction: column;
-    width: 9em;
+    max-width: 11em;
+}
+
+button.entry div {
+    margin-bottom: 2px;
+    padding-right: 8px;
 }
 
 .entry {
+    display: flex;
+    align-items: center;
+
     border: none;
     background: none;
-    font: inherit;
     text-align: left;
     cursor: pointer;
     outline: inherit;
-    font-size: medium;
-    padding-bottom: 5px;
-}
-
-.closeBtn:hover {
-    cursor: pointer;
-    color: black;
-}
-.closeBtn {
-    color: gray;
-}
-.closeBtn,
-.closeBtn:hover {
-    border: none;
-    background: none;
-    position: absolute;
-    top: 0.2em;
-    right: 0.2em;
-
-    width: 20px;
-    align-self: flex-start;
-    flex-shrink: 0;
-}
-
-.closeBtn svg {
-    width: 100%;
-}
-
-hr {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
+    font-size: 16px;
+    padding: 0.15em 0.8em;
 }
 
 .entry:hover {
