@@ -40,8 +40,6 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
                 overlay?.setPosition(undefined)
                 setMenuCoordinate(null)
             },
-            // on drag
-            () => {},
             // on long press
             e => {
                 openContextMenu(e)
@@ -106,19 +104,14 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 // See #229
 class TouchHandler {
     private readonly onTap: () => void
-    private readonly onDrag: () => void
     private readonly onLongTouch: (e: any) => void
 
     private touchStartEvent?: any
     private currentTimeout: number = 0
-    private pageX: number = 0
-    private pageY: number = 0
-    private moved: boolean = false
     private ongoing: boolean = false
 
-    constructor(onTap: () => void, onDrag: () => void, onLongTouch: (e: any) => void) {
+    constructor(onTap: () => void, onLongTouch: (e: any) => void) {
         this.onTap = onTap
-        this.onDrag = onDrag
         this.onLongTouch = onLongTouch
     }
 
@@ -130,25 +123,18 @@ class TouchHandler {
                 this.ongoing = false
             }
         }, 500)
-        this.pageX = e.pageX
-        this.pageY = e.pageY
-        this.moved = false
         this.ongoing = true
     }
 
     onTouchMove(e: any) {
-        if (Math.abs(e.pageX - this.pageX) > 5 || Math.abs(e.pageY - this.pageY) > 5) {
-            this.moved = true
-            window.clearTimeout(this.currentTimeout)
-        }
+        window.clearTimeout(this.currentTimeout)
+        this.ongoing = false
     }
 
     onTouchEnd(e: any) {
         window.clearTimeout(this.currentTimeout)
-        if (!this.ongoing)
-            return
-        if (this.moved) this.onDrag()
-        else this.onTap()
+        if (this.ongoing)
+            this.onTap()
         this.ongoing = false
     }
 }
