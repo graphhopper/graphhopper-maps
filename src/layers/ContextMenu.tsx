@@ -46,8 +46,10 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
 
             map.on('click', () => {
-                overlay?.setPosition(undefined)
-                setMenuCoordinate(null)
+                if (!longTouchHandler.currentEvent) {
+                    overlay?.setPosition(undefined)
+                    setMenuCoordinate(null)
+                }
             })
         })
 
@@ -77,7 +79,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 class LongTouchHandler {
     private readonly callback: (e: any) => void
     private currentTimeout: number = 0
-    private currentEvent?: any
+    currentEvent?: any
 
     constructor(onLongTouch: (e: any) => void) {
         this.callback = onLongTouch
