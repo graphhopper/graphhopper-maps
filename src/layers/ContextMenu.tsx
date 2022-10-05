@@ -34,34 +34,21 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             overlay.setPosition(coordinate)
         }
 
-        const touchHandler = new TouchHandler(
-            // on tap
-            () => {
-                overlay?.setPosition(undefined)
-                setMenuCoordinate(null)
-            },
-            // on long press
-            e => {
-                openContextMenu(e)
-            }
-        )
+        const touchHandler = new TouchHandler(e => openContextMenu(e))
 
         map.once('change:target', () => {
             // we cannot listen to right-click simply using map.on('contextmenu') and need to add the listener to
             // the map container instead
             // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
             map.getTargetElement().addEventListener('contextmenu', openContextMenu)
-
             map.getTargetElement().addEventListener('touchstart', e => touchHandler.onTouchStart(e))
             map.getTargetElement().addEventListener('touchmove', e => touchHandler.onTouchMove(e))
             map.getTargetElement().addEventListener('touchend', e => touchHandler.onTouchEnd(e))
 
-            // map.on('click', () => {
-            //     if (overlay?.getPosition() && !touchHandler.ongoing) {
-            //         overlay?.setPosition(undefined)
-            //         setMenuCoordinate(null)
-            //     }
-            // })
+            map.on('click', () => {
+                overlay?.setPosition(undefined)
+                setMenuCoordinate(null)
+            })
         })
 
         return () => {
@@ -69,21 +56,6 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.removeOverlay(overlay)
         }
     }, [map])
-
-    // const closeContextMenu = () => {
-    //     if (overlay?.getPosition()) {
-    //         overlay?.setPosition(undefined)
-    //         setMenuCoordinate(null)
-    //     }
-    // }
-    //
-    // useEffect(() => {
-    //     map.on('click', closeContextMenu)
-    //     return () => {
-    //         map.un('click', closeContextMenu)
-    //     }
-    // }, [map, overlay, menuCoordinate])
-
     return (
         <div className={styles.popup} ref={container as any}>
             {menuCoordinate && (
@@ -103,38 +75,31 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 
 // See #229
 class TouchHandler {
-    private readonly onTap: () => void
     private readonly onLongTouch: (e: any) => void
 
     private touchStartEvent?: any
     private currentTimeout: number = 0
-    ongoing: boolean = false
 
-    constructor(onTap: () => void, onLongTouch: (e: any) => void) {
-        this.onTap = onTap
+    constructor(onLongTouch: (e: any) => void) {
         this.onLongTouch = onLongTouch
     }
 
     onTouchStart(e: any) {
         this.touchStartEvent = e
         this.currentTimeout = window.setTimeout(() => {
-            if (this.ongoing) {
+            if (this.touchStartEvent) {
                 this.onLongTouch(this.touchStartEvent)
-                this.ongoing = false
             }
         }, 500)
-        this.ongoing = true
     }
 
     onTouchMove(e: any) {
         window.clearTimeout(this.currentTimeout)
-        this.ongoing = false
+        this.touchStartEvent = undefined
     }
 
     onTouchEnd(e: any) {
         window.clearTimeout(this.currentTimeout)
-        if (this.ongoing)
-            this.onTap()
-        this.ongoing = false
+        this.touchStartEvent = undefined
     }
 }
