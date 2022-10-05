@@ -41,6 +41,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             // the map container instead
             // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
             map.getTargetElement().addEventListener('contextmenu', openContextMenu)
+
             map.getTargetElement().addEventListener('touchstart', e => touchHandler.onTouchStart(e))
             map.getTargetElement().addEventListener('touchmove', e => touchHandler.onTouchMove(e))
             map.getTargetElement().addEventListener('touchend', e => touchHandler.onTouchEnd(e))
@@ -79,6 +80,7 @@ class TouchHandler {
 
     private touchStartEvent?: any
     private currentTimeout: number = 0
+    ongoing: boolean = false
 
     constructor(onLongTouch: (e: any) => void) {
         this.onLongTouch = onLongTouch
@@ -87,19 +89,19 @@ class TouchHandler {
     onTouchStart(e: any) {
         this.touchStartEvent = e
         this.currentTimeout = window.setTimeout(() => {
-            if (this.touchStartEvent) {
+            if (this.ongoing) {
                 this.onLongTouch(this.touchStartEvent)
+                this.ongoing = false
             }
         }, 500)
+        this.ongoing = true
     }
 
     onTouchMove(e: any) {
         window.clearTimeout(this.currentTimeout)
-        this.touchStartEvent = undefined
     }
 
     onTouchEnd(e: any) {
         window.clearTimeout(this.currentTimeout)
-        this.touchStartEvent = undefined
     }
 }
