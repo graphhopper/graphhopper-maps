@@ -20,8 +20,8 @@ jobs:
 
         run: |
           node -e "const packageJson=require('./package.json'); packageJson.files=['dist/']; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
-          node -e "const packageJson=require('./package.json'); packageJson.version='$(git rev-parse HEAD)'; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
-          node -e "const packageLockJson=require('./package-lock.json'); packageLockJson.version='$(git rev-parse HEAD)'; require('fs').writeFileSync('package-lock.json', JSON.stringify(packageLockJson, null, 4));"
+          node -e "const packageJson=require('./package.json'); packageJson.version='0.0.0-$(git rev-parse HEAD)'; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
+          node -e "const packageLockJson=require('./package-lock.json'); packageLockJson.version='0.0.0-$(git rev-parse HEAD)'; require('fs').writeFileSync('package-lock.json', JSON.stringify(packageLockJson, null, 4));"
           npm ci
           npm run build
           npm publish
