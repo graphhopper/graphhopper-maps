@@ -37,8 +37,8 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
         const touchHandler = new TouchHandler(
             // on tap
             () => {
-                overlay?.setPosition(undefined)
-                setMenuCoordinate(null)
+                // overlay?.setPosition(undefined)
+                // setMenuCoordinate(null)
             },
             // on drag
             () => {},
@@ -59,7 +59,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.getTargetElement().addEventListener('touchend', e => touchHandler.onTouchEnd(e))
 
             map.on('click', () => {
-                if (menuCoordinate) {
+                if (overlay?.getPosition()) {
                     overlay?.setPosition(undefined)
                     setMenuCoordinate(null)
                 }
@@ -71,6 +71,21 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.removeOverlay(overlay)
         }
     }, [map])
+
+    // const closeContextMenu = () => {
+    //     if (overlay?.getPosition()) {
+    //         overlay?.setPosition(undefined)
+    //         setMenuCoordinate(null)
+    //     }
+    // }
+    //
+    // useEffect(() => {
+    //     map.on('click', closeContextMenu)
+    //     return () => {
+    //         map.un('click', closeContextMenu)
+    //     }
+    // }, [map, overlay, menuCoordinate])
+
     return (
         <div className={styles.popup} ref={container as any}>
             {menuCoordinate && (
@@ -96,9 +111,9 @@ class TouchHandler {
 
     private currentTimeout: number = 0
     private currentEvent?: any
-    private pageX: number
-    private pageY: number
-    private moved: boolean
+    private pageX: number = 0
+    private pageY: number = 0
+    private moved: boolean = false
 
     constructor(onTap: () => void, onDrag: () => void, onLongTouch: (e: any) => void) {
         this.onTap = onTap
@@ -107,10 +122,10 @@ class TouchHandler {
     }
 
     onTouchStart(e: any) {
-        this.currentEvent = e
         this.currentTimeout = window.setTimeout(() => {
             if (this.currentEvent) this.onLongTouch(this.currentEvent)
         }, 500)
+        this.currentEvent = e
         this.pageX = e.pageX
         this.pageY = e.pageY
         this.moved = false
