@@ -23,7 +23,7 @@ jobs:
           node -e "const packageJson=require('./package.json'); packageJson.version='$(git rev-parse HEAD)'; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
           node -e "const packageLockJson=require('./package-lock.json'); packageLockJson.version='$(git rev-parse HEAD)'; require('fs').writeFileSync('package-lock.json', JSON.stringify(packageLockJson, null, 4));"
           npm ci
-          npm build
+          npm run build
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_JS_ORG_ACCESS_TOKEN }}
