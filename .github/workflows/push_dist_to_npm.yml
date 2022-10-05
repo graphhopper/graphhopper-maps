@@ -1,0 +1,29 @@
+name: Push dist to npm
+on: push
+
+jobs:
+  publish:
+    if: github.repository_owner == 'graphhopper'
+    runs-on: ubuntu-22.04
+    environment: npm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          registry-url: https://registry.npmjs.org/
+          node-version: lts/gallium
+
+      - name: Build
+
+        run: |
+          node -e "const packageJson=require('./package.json'); packageJson.files=['dist/']; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
+          node -e "const packageJson=require('./package.json'); packageJson.version='$(git rev-parse HEAD)'; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
+          node -e "const packageLockJson=require('./package-lock.json'); packageLockJson.version='$(git rev-parse HEAD)'; require('fs').writeFileSync('package-lock.json', JSON.stringify(packageLockJson, null, 4));"
+          npm ci
+          npm build
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_JS_ORG_ACCESS_TOKEN }}
