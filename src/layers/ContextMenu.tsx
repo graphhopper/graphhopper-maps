@@ -45,8 +45,10 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.getTargetElement().addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
             map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
 
-            // remove the popup when the map is clicked elsewhere
-            map.getTargetElement().addEventListener('click', () => overlay.setPosition(undefined) )
+            // remove the popup when the map is clicked elsewhere, see #235
+            map.getTargetElement().addEventListener('click', () => {
+                overlay?.setPosition(undefined)
+            })
         })
 
         return () => {

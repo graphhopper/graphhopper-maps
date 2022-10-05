@@ -53,11 +53,16 @@
     font-size: 12px;
 }
 
-.exportButton,
-.detailsButton,
-.detailsButtonExpanded {
-    min-width: 5em;
-    padding-right: 0.5em;
+.exportButton {
+    width: 8em;
+    padding-left: 1em;
+    padding-top: 1px; /* correction for "height: auto" of svg */
+}
+
+.detailsButton {
+    width: 5.5em;
+    padding-left: 1em;
+    padding-top: 1px; /* correction for "height: auto" of svg  */
 }
 
 .detailsButton div,
