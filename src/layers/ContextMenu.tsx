@@ -57,7 +57,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.getTargetElement().addEventListener('touchend', e => touchHandler.onTouchEnd(e))
 
             map.on('click', () => {
-                if (overlay?.getPosition()) {
+                if (overlay?.getPosition() && !touchHandler.ongoing) {
                     overlay?.setPosition(undefined)
                     setMenuCoordinate(null)
                 }
@@ -108,7 +108,7 @@ class TouchHandler {
 
     private touchStartEvent?: any
     private currentTimeout: number = 0
-    private ongoing: boolean = false
+    ongoing: boolean = false
 
     constructor(onTap: () => void, onLongTouch: (e: any) => void) {
         this.onTap = onTap
