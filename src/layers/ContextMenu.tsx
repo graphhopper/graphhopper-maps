@@ -20,6 +20,10 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
     const [menuCoordinate, setMenuCoordinate] = useState<Coordinate | null>(null)
     const container = useRef<HTMLDivElement | null>()
 
+    const closeContextMenu = () => {
+        setMenuCoordinate(null)
+    }
+
     useEffect(() => {
         overlay.setElement(container.current!)
         map.addOverlay(overlay)
@@ -38,17 +42,20 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             // the map container instead
             // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
             map.getTargetElement().addEventListener('contextmenu', openContextMenu)
-            map.getTargetElement().addEventListener('touchstart', e => longTouchHandler.onTouchStart(e))
-            map.getTargetElement().addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
-            map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
 
-            map.getTargetElement().addEventListener('click', () => {
-                setMenuCoordinate(null)
-            })
+            map.getTargetElement().addEventListener('touchstart', longTouchHandler.onTouchStart)
+            map.getTargetElement().addEventListener('touchmove', longTouchHandler.onTouchEnd)
+            map.getTargetElement().addEventListener('touchend', longTouchHandler.onTouchEnd)
+
+            map.on('singleclick', closeContextMenu)
         })
 
         return () => {
             map.getTargetElement().removeEventListener('contextmenu', openContextMenu)
+            map.getTargetElement().removeEventListener('touchstart', openContextMenu)
+            map.getTargetElement().removeEventListener('touchstart', openContextMenu)
+            map.getTargetElement().removeEventListener('touchend', openContextMenu)
+            map.un('singleclick', closeContextMenu)
             map.removeOverlay(overlay)
         }
     }, [map])
@@ -64,9 +71,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
                     coordinate={menuCoordinate!}
                     queryPoints={queryPoints}
                     route={route}
-                    onSelect={() => {
-                        setMenuCoordinate(null)
-                    }}
+                    onSelect={closeContextMenu}
                 />
             )}
         </div>
