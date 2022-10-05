@@ -82,32 +82,33 @@ export function PopupComponent({
                 <Cross />
             </button>
             <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
-                <div style={{ float: 'left' }}>
-                    <MarkerComponent size={15} color={QueryStore.getMarkerColor(QueryPointType.From)} />
+                <div>
+                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.From)} />
                 </div>
-                {tr('set_start')}
+                <span>{tr('set_start')}</span>
             </button>
             <button
                 className={styles.entry}
                 disabled={disableViaPoint(queryPoints)}
                 onClick={() => setViaPoint(queryPoints, route)}
             >
-                <div style={{ float: 'left' }}>
-                    <MarkerComponent size={15} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
+                <div>
+                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
                 </div>
-                {tr('set_intermediate')}
+                <span>{tr('set_intermediate')}</span>
             </button>
             <button
+                style={{paddingBottom: "10px" }}
                 className={styles.entry}
                 onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
             >
-                <div style={{ float: 'left' }}>
-                    <MarkerComponent size={15} color={QueryStore.getMarkerColor(QueryPointType.To)} />
+                <div>
+                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.To)} />
                 </div>
-                {tr('set_end')}
+                <span>{tr('set_end')}</span>
             </button>
-            <hr />
             <button
+                style={{borderTop: "1px solid lightgray", paddingTop: "10px" }}
                 className={styles.entry}
                 onClick={() => {
                     onSelect()
