@@ -123,7 +123,7 @@ describe('route', () => {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll'],
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll', 'track_type'],
         }
 
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
@@ -158,7 +158,7 @@ describe('route', () => {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll'],
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll', 'track_type'],
             'alternative_route.max_paths': args.maxAlternativeRoutes,
             algorithm: 'alternative_route',
         }
@@ -202,7 +202,7 @@ describe('route', () => {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll'],
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll', 'track_type'],
             custom_model: args.customModel!,
             'ch.disable': true,
         }
@@ -303,7 +303,7 @@ describe('route', () => {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll'],
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll', 'track_type'],
         }
 
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
