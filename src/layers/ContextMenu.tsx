@@ -34,16 +34,29 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             overlay.setPosition(coordinate)
         }
 
-        const longTouchHandler = new LongTouchHandler(e => openContextMenu(e))
+        const touchHandler = new TouchHandler(
+            // on tap
+            () => {
+                overlay?.setPosition(undefined)
+                setMenuCoordinate(null)
+            },
+            // on drag
+            () => {},
+            // on long press
+            e => {
+                openContextMenu(e)
+            }
+        )
 
         map.once('change:target', () => {
             // we cannot listen to right-click simply using map.on('contextmenu') and need to add the listener to
             // the map container instead
             // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
             map.getTargetElement().addEventListener('contextmenu', openContextMenu)
-            map.getTargetElement().addEventListener('touchstart', e => longTouchHandler.onTouchStart(e))
-            map.getTargetElement().addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
-            map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
+
+            map.getTargetElement().addEventListener('touchstart', e => touchHandler.onTouchStart(e))
+            map.getTargetElement().addEventListener('touchmove', e => touchHandler.onTouchMove(e))
+            map.getTargetElement().addEventListener('touchend', e => touchHandler.onTouchEnd(e))
 
             map.on('click', () => {
                 if (overlay?.getPosition()) {
@@ -91,26 +104,51 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 }
 
 // See #229
-class LongTouchHandler {
-    private readonly callback: (e: any) => void
-    private currentTimeout: number = 0
-    private currentEvent?: any
+class TouchHandler {
+    private readonly onTap: () => void
+    private readonly onDrag: () => void
+    private readonly onLongTouch: (e: any) => void
 
-    constructor(onLongTouch: (e: any) => void) {
-        this.callback = onLongTouch
+    private touchStartEvent?: any
+    private currentTimeout: number = 0
+    private pageX: number = 0
+    private pageY: number = 0
+    private moved: boolean = false
+    private ongoing: boolean = false
+
+    constructor(onTap: () => void, onDrag: () => void, onLongTouch: (e: any) => void) {
+        this.onTap = onTap
+        this.onDrag = onDrag
+        this.onLongTouch = onLongTouch
     }
 
     onTouchStart(e: any) {
-        this.currentEvent = e
+        this.touchStartEvent = e
         this.currentTimeout = window.setTimeout(() => {
-            console.log('long touch')
-            if (this.currentEvent) this.callback(this.currentEvent)
+            if (this.ongoing) {
+                this.onLongTouch(this.touchStartEvent)
+                this.ongoing = false
+            }
         }, 500)
+        this.pageX = e.pageX
+        this.pageY = e.pageY
+        this.moved = false
+        this.ongoing = true
     }
 
-    onTouchEnd() {
-        console.log('touch end')
+    onTouchMove(e: any) {
+        if (Math.abs(e.pageX - this.pageX) > 5 || Math.abs(e.pageY - this.pageY) > 5) {
+            this.moved = true
+            window.clearTimeout(this.currentTimeout)
+        }
+    }
+
+    onTouchEnd(e: any) {
         window.clearTimeout(this.currentTimeout)
-        this.currentEvent = undefined
+        if (!this.ongoing)
+            return
+        if (this.moved) this.onDrag()
+        else this.onTap()
+        this.ongoing = false
     }
 }
