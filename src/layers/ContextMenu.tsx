@@ -34,17 +34,16 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             overlay.setPosition(coordinate)
         }
 
-        const touchHandler = new TouchHandler(e => openContextMenu(e))
+        const longTouchHandler = new LongTouchHandler(e => openContextMenu(e))
 
         map.once('change:target', () => {
             // we cannot listen to right-click simply using map.on('contextmenu') and need to add the listener to
             // the map container instead
             // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
             map.getTargetElement().addEventListener('contextmenu', openContextMenu)
-
-            map.getTargetElement().addEventListener('touchstart', e => touchHandler.onTouchStart(e))
-            map.getTargetElement().addEventListener('touchmove', e => touchHandler.onTouchMove(e))
-            map.getTargetElement().addEventListener('touchend', e => touchHandler.onTouchEnd(e))
+            map.getTargetElement().addEventListener('touchstart', e => longTouchHandler.onTouchStart(e))
+            map.getTargetElement().addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
+            map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
 
             map.on('click', () => {
                 overlay?.setPosition(undefined)
@@ -75,33 +74,26 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 }
 
 // See #229
-class TouchHandler {
-    private readonly onLongTouch: (e: any) => void
-
-    private touchStartEvent?: any
+class LongTouchHandler {
+    private readonly callback: (e: any) => void
     private currentTimeout: number = 0
-    ongoing: boolean = false
+    private currentEvent?: any
 
     constructor(onLongTouch: (e: any) => void) {
-        this.onLongTouch = onLongTouch
+        this.callback = onLongTouch
     }
 
     onTouchStart(e: any) {
-        this.touchStartEvent = e
+        this.currentEvent = e
         this.currentTimeout = window.setTimeout(() => {
-            if (this.ongoing) {
-                this.onLongTouch(this.touchStartEvent)
-                this.ongoing = false
-            }
+            console.log('long touch')
+            if (this.currentEvent) this.callback(this.currentEvent)
         }, 500)
-        this.ongoing = true
     }
 
-    onTouchMove(e: any) {
+    onTouchEnd() {
+        console.log('touch end')
         window.clearTimeout(this.currentTimeout)
-    }
-
-    onTouchEnd(e: any) {
-        window.clearTimeout(this.currentTimeout)
+        this.currentEvent = undefined
     }
 }
