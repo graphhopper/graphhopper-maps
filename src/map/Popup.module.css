@@ -19,7 +19,7 @@ button.entry div {
     cursor: pointer;
     outline: inherit;
     font-size: 16px;
-    padding: 0 22px 8px 17px;
+    padding: 3px 22px 5px 17px;
 }
 
 .closeBtn:hover {
