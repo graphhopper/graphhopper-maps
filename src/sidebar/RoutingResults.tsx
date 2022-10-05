@@ -38,7 +38,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     let hasFords = containsValue(path.details.road_environment, 'ford')
     let hasTolls = containsValue(path.details.toll, 'all')
     let hasFerries = containsValue(path.details.road_environment, 'ferry')
-    let showAndHasTracks = isMotorVehicle(profile) && containsValue(path.details.road_class, 'track')
+    let showAndHasBadTracks = isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
     let showAndHasSteps = isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
 
     return (
@@ -87,7 +87,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     {hasFerries && <div>{tr('way_contains_ferry')}</div>}
                     {hasTolls && <div>{tr('way_contains_toll')}</div>}
                     {showAndHasSteps && <div>{tr('way_contains', [tr('steps')])}</div>}
-                    {showAndHasTracks && <div>{tr('way_contains', [tr('tracks')])}</div>}
+                    {showAndHasBadTracks && <div>{tr('way_contains', [tr('tracks')])}</div>}
                 </div>
             )}
             {isExpanded && <Instructions instructions={path.instructions} />}
@@ -101,6 +101,16 @@ function isBikeLike(profile: string) {
 
 function isMotorVehicle(profile: string) {
     return profile.includes('car') || profile.includes('truck') || profile.includes('scooter')
+}
+
+function containsBadTracks(details: [number, number, string][]) {
+    for (let i in details) {
+        if (details[i][2] == "grade2") return true
+        if (details[i][2] == "grade3") return true
+        if (details[i][2] == "grade4") return true
+        if (details[i][2] == "grade5") return true
+    }
+    return false
 }
 
 function containsValue(details: [number, number, string][], value: string) {
