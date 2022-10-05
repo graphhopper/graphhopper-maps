@@ -19,31 +19,7 @@ button.entry div {
     cursor: pointer;
     outline: inherit;
     font-size: 16px;
-    padding: 3px 22px 5px 17px;
-}
-
-.closeBtn:hover {
-    cursor: pointer;
-    color: black;
-}
-.closeBtn {
-    color: gray;
-}
-.closeBtn,
-.closeBtn:hover {
-    border: none;
-    background: none;
-    position: absolute;
-    top: 0.2em;
-    right: 0.2em;
-
-    width: 20px;
-    align-self: flex-start;
-    flex-shrink: 0;
-}
-
-.closeBtn svg {
-    width: 100%;
+    padding: 0.15em 0.8em;
 }
 
 .entry:hover {

@@ -6,7 +6,6 @@ import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, QueryOSM, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
-import Cross from '@/sidebar/times-solid.svg'
 import { tr } from '@/translation/Translation'
 import { MarkerComponent } from '@/map/Marker'
 
@@ -73,14 +72,6 @@ export function PopupComponent({
 
     return (
         <div className={styles.wrapper}>
-            <button
-                className={styles.closeBtn}
-                onClick={() => {
-                    onSelect()
-                }}
-            >
-                <Cross />
-            </button>
             <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
                 <div>
                     <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.From)} />
