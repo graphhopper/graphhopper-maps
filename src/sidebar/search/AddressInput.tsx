@@ -145,7 +145,7 @@ export default function AddressInput(props: AddressInputProps) {
                     )}
                 />
                 <PlainButton className={styles.btnClose} onClick={() => setHasFocus(false)}>
-                    {tr('Cancel')}
+                    {tr('back_to_map')}
                 </PlainButton>
             </div>
 
