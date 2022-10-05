@@ -105,10 +105,10 @@ function isMotorVehicle(profile: string) {
 
 function containsBadTracks(details: [number, number, string][]) {
     for (let i in details) {
-        if (details[i][2] == "grade2") return true
-        if (details[i][2] == "grade3") return true
-        if (details[i][2] == "grade4") return true
-        if (details[i][2] == "grade5") return true
+        if (details[i][2] == 'grade2') return true
+        if (details[i][2] == 'grade3') return true
+        if (details[i][2] == 'grade4') return true
+        if (details[i][2] == 'grade5') return true
     }
     return false
 }
