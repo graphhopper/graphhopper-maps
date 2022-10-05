@@ -47,7 +47,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 
             map.getTargetElement().addEventListener('click', () => {
                 overlay?.setPosition(undefined)
-                setMenuCoordinate(null)
+                // setMenuCoordinate(null)
             })
         })
 
