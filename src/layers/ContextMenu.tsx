@@ -47,7 +47,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.getTargetElement().addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
             map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
 
-            map.getTargetElement().addEventListener('singleclick', closeContextMenu)
+            map.getTargetElement().addEventListener('singleclick', () => closeContextMenu())
         })
 
         return () => {
@@ -55,7 +55,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             // map.getTargetElement().removeEventListener('touchstart', longTouchHandler.onTouchStart)
             // map.getTargetElement().removeEventListener('touchstart', longTouchHandler.onTouchEnd)
             // map.getTargetElement().removeEventListener('touchend', longTouchHandler.onTouchEnd)
-            map.getTargetElement().removeEventListener('singleclick', closeContextMenu)
+            // map.getTargetElement().removeEventListener('singleclick', closeContextMenu)
             map.removeOverlay(overlay)
         }
     }, [map])
