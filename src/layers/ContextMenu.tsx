@@ -43,18 +43,18 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
             map.getTargetElement().addEventListener('contextmenu', openContextMenu)
 
-            map.getTargetElement().addEventListener('touchstart', longTouchHandler.onTouchStart)
-            map.getTargetElement().addEventListener('touchmove', longTouchHandler.onTouchEnd)
-            map.getTargetElement().addEventListener('touchend', longTouchHandler.onTouchEnd)
+            map.getTargetElement().addEventListener('touchstart', e => longTouchHandler.onTouchStart(e))
+            map.getTargetElement().addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
+            map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
 
             map.getTargetElement().addEventListener('singleclick', closeContextMenu)
         })
 
         return () => {
             map.getTargetElement().removeEventListener('contextmenu', openContextMenu)
-            map.getTargetElement().removeEventListener('touchstart', longTouchHandler.onTouchStart)
-            map.getTargetElement().removeEventListener('touchstart', longTouchHandler.onTouchEnd)
-            map.getTargetElement().removeEventListener('touchend', longTouchHandler.onTouchEnd)
+            // map.getTargetElement().removeEventListener('touchstart', longTouchHandler.onTouchStart)
+            // map.getTargetElement().removeEventListener('touchstart', longTouchHandler.onTouchEnd)
+            // map.getTargetElement().removeEventListener('touchend', longTouchHandler.onTouchEnd)
             map.getTargetElement().removeEventListener('singleclick', closeContextMenu)
             map.removeOverlay(overlay)
         }
