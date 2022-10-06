@@ -24,6 +24,8 @@ jobs:
           node -e "const packageJson=require('./package.json'); packageJson.files=['dist/']; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
           npm ci
           npm run build
+          # no dependencies or scripts in package.json (they should not be installed when installing the package, because they are all included in the bundle already)
+          node -e "const packageJson=require('./package.json'); packageJson.scripts={}; packageJson.dependencies={}; packageJson.devDependencies={}; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_JS_ORG_ACCESS_TOKEN }}
