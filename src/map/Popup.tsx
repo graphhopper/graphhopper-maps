@@ -73,7 +73,6 @@ export function PopupComponent({
     // This is a workaround to make sure that clicks on the popup menu entries are not handled by the underlying map.
     // Without this a click on the menu entries would e.g. close the menu without triggering the selected action.
     // https://github.com/openlayers/openlayers/issues/6948#issuecomment-374915823
-    // ...but the problem is: on android the context menu does not open at all once we add this :(
     const convertToClick = (e: any) => {
         const evt = new MouseEvent('click', { bubbles: true })
         evt.stopPropagation = () => {}

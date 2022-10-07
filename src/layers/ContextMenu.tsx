@@ -52,9 +52,6 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 
         return () => {
             map.getTargetElement().removeEventListener('contextmenu', openContextMenu)
-            // map.getTargetElement().removeEventListener('touchstart', longTouchHandler.onTouchStart)
-            // map.getTargetElement().removeEventListener('touchstart', longTouchHandler.onTouchEnd)
-            // map.getTargetElement().removeEventListener('touchend', longTouchHandler.onTouchEnd)
             map.getTargetElement().removeEventListener('click', closeContextMenu)
             map.removeOverlay(overlay)
         }
