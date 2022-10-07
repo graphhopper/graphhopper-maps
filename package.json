@@ -13,7 +13,7 @@
     "dependencies": {
         "custom-model-editor": "github:graphhopper/custom-model-editor#a8c97e4ef8e76c963be375984a3c08ff3c1e8288",
         "geojson": "^0.5.0",
-        "heightgraph": "github:easbar/Leaflet.Heightgraph#82cff7b3013dd73d7221521c5b404ded6439e050",
+        "heightgraph": "github:easbar/Leaflet.Heightgraph#a5fde447ee9f8b3f843ea6662d5f580d2e96e5b9",
         "ol": "6.15.1",
         "ol-mapbox-style": "8.0.4",
         "react": "^18.2.0",
