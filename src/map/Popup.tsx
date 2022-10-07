@@ -80,7 +80,7 @@ export function PopupComponent({
     }
 
     return (
-        <div className={styles.wrapper} onMouseUp={convertToClick}>
+        <div className={styles.wrapper}>
             <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
                 <div>
                     <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.From)} />
