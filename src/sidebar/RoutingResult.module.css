@@ -53,7 +53,8 @@
     font-size: 12px;
 }
 
-.detailsButton, .exportButton {
+.detailsButton,
+.exportButton {
     padding-top: 1px; /* correction for "height: auto" of svg  */
 }
 

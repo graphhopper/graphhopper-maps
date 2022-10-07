@@ -89,7 +89,7 @@ export function PopupComponent({
                 <span>{tr('set_intermediate')}</span>
             </button>
             <button
-                style={{paddingBottom: "10px" }}
+                style={{ paddingBottom: '10px' }}
                 className={styles.entry}
                 onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
             >
@@ -99,7 +99,7 @@ export function PopupComponent({
                 <span>{tr('set_end')}</span>
             </button>
             <button
-                style={{borderTop: "1px solid lightgray", paddingTop: "10px" }}
+                style={{ borderTop: '1px solid lightgray', paddingTop: '10px' }}
                 className={styles.entry}
                 onClick={() => {
                     onSelect()
