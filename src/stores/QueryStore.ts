@@ -1,4 +1,4 @@
-import { coordinateToText } from '@/Converters'
+import { coordinateToText, metersToText } from '@/Converters'
 import Api from '@/api/Api'
 import Store from '@/stores/Store'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
@@ -297,7 +297,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     Dispatcher.dispatch(
                         new ErrorAction(
                             'Using the custom model feature is unfortunately not ' +
-                                'possible when the request points are further than 500km apart.'
+                                'possible when the request points are further than ' + metersToText(500_000) + ' apart.'
                         )
                     )
                     return state
