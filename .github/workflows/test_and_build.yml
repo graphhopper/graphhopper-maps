@@ -2,7 +2,7 @@ name: Test and Build
 on: push
 
 jobs:
-  publish:
+  test_and_build:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout

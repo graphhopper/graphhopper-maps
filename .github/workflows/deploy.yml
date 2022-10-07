@@ -1,10 +1,8 @@
 name: Deploy
-on:
-  push:
-    branches:
-  workflow_dispatch:
+on: push
 jobs:
   deploy_maps:
+    if: github.repository_owner == 'graphhopper'
     name: Deploy
     runs-on: ubuntu-latest
     steps:
