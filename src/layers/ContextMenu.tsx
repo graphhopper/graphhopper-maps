@@ -37,7 +37,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 
         const longTouchHandler = new LongTouchHandler(e => openContextMenu(e))
 
-        map.once('change:target', () => {
+        if (map.getTargetElement()) {
             // we cannot listen to right-click simply using map.on('contextmenu') and need to add the listener to
             // the map container instead
             // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
@@ -48,7 +48,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
 
             map.getTargetElement().addEventListener('click', closeContextMenu)
-        })
+        }
 
         return () => {
             map.getTargetElement().removeEventListener('contextmenu', openContextMenu)
