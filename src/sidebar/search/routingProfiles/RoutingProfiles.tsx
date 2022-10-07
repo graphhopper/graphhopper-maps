@@ -16,7 +16,7 @@ import ScooterIcon from './scooter.svg'
 import SmallTruckIcon from './small_truck.svg'
 import TruckIcon from './truck.svg'
 import WheelchairIcon from './wheelchair.svg'
-import {tr} from "@/translation/Translation";
+import { tr } from '@/translation/Translation'
 
 export default function ({
     routingProfiles,
