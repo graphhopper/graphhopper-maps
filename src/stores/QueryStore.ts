@@ -297,9 +297,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     Dispatcher.dispatch(
                         new ErrorAction(
                             'Using the custom model feature is unfortunately not ' +
-                                'possible when the request points are further than ' +
-                                metersToText(500_000) +
-                                ' apart.'
+                                'possible when the request points are further than ' + metersToText(500_000) + ' apart.'
                         )
                     )
                     return state
