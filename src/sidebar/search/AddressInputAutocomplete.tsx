@@ -7,20 +7,40 @@ export interface AutocompleteItem {
     type: 'geocoding' | 'currentLocation' | 'moreResults'
 }
 
-export interface GeocodingItem extends AutocompleteItem {
+export class GeocodingItem implements AutocompleteItem {
     type: 'geocoding'
     mainText: string
     secondText: string
     point: { lat: number; lng: number }
+
+    constructor(mainText: string, secondText: string, point: { lat: number; lng: number }) {
+        this.type = 'geocoding'
+        this.mainText = mainText
+        this.secondText = secondText
+        this.point = point
+    }
+
+    toText() {
+        return this.mainText + ', ' + this.secondText
+    }
 }
 
-export interface SelectCurrentLocationItem extends AutocompleteItem {
+export class SelectCurrentLocationItem implements AutocompleteItem {
     type: 'currentLocation'
+
+    constructor() {
+        this.type = 'currentLocation'
+    }
 }
 
-export interface MoreResultsItem extends AutocompleteItem {
+export class MoreResultsItem implements AutocompleteItem {
     type: 'moreResults'
     search: string
+
+    constructor(search: string) {
+        this.type = 'moreResults'
+        this.search = search
+    }
 }
 
 export function isGeocodingItem(item: AutocompleteItem): item is GeocodingItem {
@@ -115,7 +135,7 @@ function GeocodingEntry({
 }) {
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
-            <div className={styles.geocodingEntry} title={item.mainText + ' ' + item.secondText}>
+            <div className={styles.geocodingEntry} title={item.toText()}>
                 <span className={styles.mainText}>{item.mainText}</span>
                 <span className={styles.secondaryText}>{item.secondText}</span>
             </div>

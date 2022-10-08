@@ -142,19 +142,19 @@ describe('Converters', function () {
                     county: 'Bautzen',
                     postcode: '02977',
                 } as any)
-            ).toEqual({mainText: '02977 Hoyerswerda', secondText: 'Deutschland'})
+            ).toEqual({ mainText: '02977 Hoyerswerda', secondText: 'Deutschland' })
         })
 
         it('nominatim city 3', function () {
-                expect(
-                    nominatimHitToItem({
-                        name: 'Wittensee, something else',
-                        country: 'Deutschland',
-                        city: 'Groß Wittensee',
-                        state: "Schleswig-Holstein",
-                        county: "Rendsburg-Eckernförde",
-                    } as any)
-                ).toEqual({ mainText: 'Wittensee', secondText: 'Groß Wittensee, Deutschland' })
+            expect(
+                nominatimHitToItem({
+                    name: 'Wittensee, something else',
+                    country: 'Deutschland',
+                    city: 'Groß Wittensee',
+                    state: 'Schleswig-Holstein',
+                    county: 'Rendsburg-Eckernförde',
+                } as any)
+            ).toEqual({ mainText: 'Wittensee', secondText: 'Groß Wittensee, Deutschland' })
         })
     })
 })

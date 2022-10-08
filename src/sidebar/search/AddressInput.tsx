@@ -46,15 +46,12 @@ export default function AddressInput(props: AddressInputProps) {
     const [geocoder] = useState(
         new Geocoder(getApi(), (query, provider, hits) => {
             const items: AutocompleteItem[] = hits.map(hit => {
-                return {
-                    ...(provider === 'nominatim' ? nominatimHitToItem(hit) : hitToItem(hit)),
-                    type: 'geocoding',
-                    point: hit.point,
-                }
+                const obj = provider === 'nominatim' ? nominatimHitToItem(hit) : hitToItem(hit)
+                return new GeocodingItem(obj.mainText, obj.secondText, hit.point)
             })
 
             if (provider !== 'nominatim') {
-                items.push({ type: 'moreResults', search: query } as MoreResultsItem)
+                items.push(new MoreResultsItem(query))
                 setAutocompleteItems(items)
             } else {
                 // TODO autocompleteItems is empty here because query point changed from outside somehow
@@ -68,12 +65,8 @@ export default function AddressInput(props: AddressInputProps) {
     useEffect(() => setAutocompleteItems([]), [props.point])
     // if no items but input is selected show current location item
     useEffect(() => {
-        if (hasFocus && text.length == 0 && autocompleteItems.length === 0) {
-            const locationItem: SelectCurrentLocationItem = {
-                type: 'currentLocation',
-            }
-            setAutocompleteItems([locationItem])
-        }
+        if (hasFocus && text.length == 0 && autocompleteItems.length === 0)
+            setAutocompleteItems([new SelectCurrentLocationItem()])
     }, [autocompleteItems, hasFocus])
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
@@ -105,8 +98,7 @@ export default function AddressInput(props: AddressInputProps) {
                         // by default use the first result, otherwise the highlighted one
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index] as GeocodingItem
-                        if (item.type == 'geocoding')
-                            props.onAddressSelected(item.mainText + ', ' + item.secondText, item.point)
+                        if (item.type == 'geocoding') props.onAddressSelected(item.toText(), item.point)
                     }
                     searchInput.current!.blur()
                     break
@@ -208,7 +200,7 @@ function onAutocompleteSelected(
     onMoreClicked: (queryText: string, provider: string) => void
 ) {
     if (isGeocodingItem(item)) {
-        onSelect(item.mainText + ', ' + item.secondText, item.point)
+        onSelect(item.toText(), item.point)
     } else if (isMoreResults(item)) {
         onMoreClicked(item.search, 'nominatim')
     } else {

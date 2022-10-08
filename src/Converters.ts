@@ -1,6 +1,7 @@
 import { GeocodingHit } from '@/api/graphhopper'
 
 import { Coordinate } from '@/stores/QueryStore'
+import { GeocodingItem } from '@/sidebar/search/AddressInputAutocomplete'
 
 export function milliSecondsToText(seconds: number) {
     const hours = Math.floor(seconds / 3600000)
@@ -47,7 +48,7 @@ function toCity(hit: GeocodingHit) {
 
 export function nominatimHitToItem(hit: GeocodingHit) {
     const name = hit.name ? hit.name : hit.country
-    const street = hit.street? (hit.street + (hit.housenumber ? ' ' + hit.housenumber : '')) : ''
+    const street = hit.street ? hit.street + (hit.housenumber ? ' ' + hit.housenumber : '') : ''
     const mainText = hit.street && name.indexOf(hit.street) == 0 ? street : name.split(',')[0]
     return {
         mainText: mainText,
