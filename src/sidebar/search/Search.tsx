@@ -2,10 +2,20 @@ import React, { useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
-import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint } from '@/actions/Actions'
+import {
+    AddPoint,
+    ClearRoute,
+    DismissLastError,
+    InvalidatePoint,
+    MovePoint,
+    RemovePoint,
+    SetCustomModelBoxEnabled,
+    SetPoint,
+} from '@/actions/Actions'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
+import SettingsSVG from '@/sidebar/settings.svg'
 import TargetIcon from './send.svg'
 import PlainButton from '@/PlainButton'
 import { RoutingProfile } from '@/api/graphhopper'
@@ -18,50 +28,75 @@ export default function Search({
     points,
     routingProfiles,
     selectedProfile,
+    customModelAllowed,
+    customModelEnabled,
 }: {
     points: QueryPoint[]
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
+    customModelAllowed: boolean
+    customModelEnabled: boolean
 }) {
     let [showTargetIcons, setShowTargetIcons] = useState(true)
     let [moveStartIndex, onMoveStartSelect] = useState(-1)
     let [dropPreviewIndex, onDropPreviewSelect] = useState(-1)
 
     return (
-        <div className={styles.searchBox}>
+        <div className={styles.searchBoxParent}>
             <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
-            {points.map((point, index) => (
-                <SearchBox
-                    key={point.id}
-                    index={index}
-                    points={points}
-                    deletable={points.length > 2}
-                    onChange={() => {
-                        Dispatcher.dispatch(new ClearRoute())
-                        Dispatcher.dispatch(new InvalidatePoint(point))
-                    }}
-                    showTargetIcons={showTargetIcons}
-                    moveStartIndex={moveStartIndex}
-                    onMoveStartSelect={(index, showTarget) => {
-                        onMoveStartSelect(index)
-                        setShowTargetIcons(showTarget)
-                    }}
-                    dropPreviewIndex={dropPreviewIndex}
-                    onDropPreviewSelect={onDropPreviewSelect}
-                />
-            ))}
-            <PlainButton
-                style={
-                    showTargetIcons && moveStartIndex >= 0 && moveStartIndex + 1 < points.length
-                        ? { paddingTop: '2rem' }
-                        : {}
+            <div className={styles.searchBox}>
+                {points.map((point, index) => (
+                    <SearchBox
+                        key={point.id}
+                        index={index}
+                        points={points}
+                        deletable={points.length > 2}
+                        onChange={() => {
+                            Dispatcher.dispatch(new ClearRoute())
+                            Dispatcher.dispatch(new InvalidatePoint(point))
+                        }}
+                        showTargetIcons={showTargetIcons}
+                        moveStartIndex={moveStartIndex}
+                        onMoveStartSelect={(index, showTarget) => {
+                            onMoveStartSelect(index)
+                            setShowTargetIcons(showTarget)
+                        }}
+                        dropPreviewIndex={dropPreviewIndex}
+                        onDropPreviewSelect={onDropPreviewSelect}
+                    />
+                ))}
+            </div>
+            <div className={styles.lastSearchLine}>
+                <PlainButton
+                    style={
+                        showTargetIcons && moveStartIndex >= 0 && moveStartIndex + 1 < points.length
+                            ? { paddingTop: '2rem' }
+                            : {}
+                    }
+                    onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
+                    className={styles.addSearchBox}
+                >
+                    <AddIcon />
+                    <div>{tr('add_to_route')}</div>
+                </PlainButton>
+                {
+                    // The custom-model button should be visually on one line with the add_to_route button. So either we accept
+                    // that CSS is hacky (margin negative and extra empty div) or we move the button to this Search component.
+                    customModelAllowed && (
+                        <PlainButton
+                            title={tr('open_custom_model_box')}
+                            className={customModelEnabled ? styles.enabledSettings : styles.settings}
+                            onClick={() => {
+                                if (customModelEnabled) Dispatcher.dispatch(new DismissLastError())
+                                Dispatcher.dispatch(new ClearRoute())
+                                Dispatcher.dispatch(new SetCustomModelBoxEnabled(!customModelEnabled))
+                            }}
+                        >
+                            <SettingsSVG />
+                        </PlainButton>
+                    )
                 }
-                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
-                className={styles.addSearchBox}
-            >
-                <AddIcon />
-                <div>{tr('add_to_route')}</div>
-            </PlainButton>
+            </div>
         </div>
     )
 }

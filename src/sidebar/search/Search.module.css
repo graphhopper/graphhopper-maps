@@ -1,10 +1,13 @@
+.searchBoxParent {
+    margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+}
+
 .searchBox {
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
     grid-gap: 0.5rem;
-    padding-bottom: 0.5em;
-    margin: 0.5rem;
+    margin: 0.5rem 0.1rem 0.7rem 0;
 }
 
 .searchBoxScrollable {
@@ -23,6 +26,34 @@
     justify-self: center;
 }
 
+.markerContainer {
+    grid-column: 1 / span 1;
+    align-self: center;
+    justify-self: center;
+    width: 1rem;
+}
+
+.markerContainer > svg {
+    height: 100%;
+    width: 100%;
+}
+
+.searchOptions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 1rem 0;
+}
+
+.geocodingResults {
+    grid-column: 1 / span 3;
+}
+
+.lastSearchLine {
+    width: 100%;
+    padding-bottom: 1rem;
+}
+
 .addSearchBox:hover path {
     fill: black;
 }
@@ -31,7 +62,7 @@
     color: #adadad;
     width: 1.1rem;
     float: left;
-    padding: 0.2em 1.25em 0.2em 0;
+    padding: 0.2em 1.25em 0 0;
 }
 
 .addSearchBox div {
@@ -40,11 +71,79 @@
 }
 
 .addSearchBox {
-    width: 10em;
-    padding-top: 0.3em;
-    grid-column: 1 / span 2;
-    justify-self: start;
+    float: left;
     font-size: 14px;
+}
+
+.enabledSettings svg path,
+.settings svg path {
+    fill: #5b616a;
+    stroke: #5b616a;
+}
+
+.enabledSettings:active svg path,
+.settings:active svg path {
+    fill: lightgray;
+    stroke: lightgray;
+}
+
+.settings:hover svg path,
+.enabledSettings:hover svg path {
+    fill: #000000;
+    stroke: #000000;
+}
+
+.settings:active svg path,
+.enabledSettings:active svg path {
+    fill: lightgray;
+    stroke: lightgray;
+}
+
+.enabledSettings svg,
+.settings svg {
+    margin: 0;
+    padding: 0;
+    width: 20px;
+    height: auto;
+}
+
+.settings svg {
+    transform: rotate(0);
+    animation-name: reverse_rotate;
+    animation-duration: 0.2s;
+}
+
+.enabledSettings svg {
+    transform: rotate(180deg);
+    animation-name: setting_rotate;
+    animation-duration: 0.2s;
+}
+
+@keyframes setting_rotate {
+    0% {
+        transform: rotate(0);
+    }
+    100% {
+        transform: rotate(180deg);
+    }
+}
+
+@keyframes reverse_rotate {
+    0% {
+        transform: rotate(180deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
+}
+
+.enabledSettings,
+.settings {
+    border: none;
+    border-radius: 50%;
+    float: right;
+    width: 10px;
+    margin: 3px 0.7em 0 0;
 }
 
 .markerContainer:hover svg {
@@ -94,15 +193,4 @@
 
 .hide {
     visibility: hidden;
-}
-
-.searchOptions {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: 1rem 0;
-}
-
-.geocodingResults {
-    grid-column: 1 / span 3;
 }

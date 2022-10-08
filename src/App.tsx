@@ -133,6 +133,8 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                         points={query.queryPoints}
                         routingProfiles={info.profiles}
                         selectedProfile={query.routingProfile}
+                        customModelAllowed={true}
+                        customModelEnabled={query.customModelEnabled}
                     />
                     <CustomModelBox
                         enabled={query.customModelEnabled}

@@ -78,6 +78,8 @@ function SearchView(props: {
                 points={props.points}
                 routingProfiles={props.routingProfiles}
                 selectedProfile={props.selectedProfile}
+                customModelAllowed={false}
+                customModelEnabled={false}
             />
         </div>
     )
