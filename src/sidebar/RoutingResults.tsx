@@ -40,6 +40,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     let hasFerries = containsValue(path.details.road_environment, 'ferry')
     let showAndHasBadTracks = isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
     let showAndHasSteps = isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
+    let hasBorderCrossed = crossesBorder(path.details.country)
 
     return (
         <div className={styles.resultRow}>
@@ -85,6 +86,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                 <div className={styles.routeHints}>
                     {hasFords && <div>{tr('way_contains_ford')}</div>}
                     {hasFerries && <div>{tr('way_contains_ferry')}</div>}
+                    {hasBorderCrossed && <div>{tr('way_crosses_border')}</div>}
                     {hasTolls && <div>{tr('way_contains_toll')}</div>}
                     {showAndHasSteps && <div>{tr('way_contains', [tr('steps')])}</div>}
                     {showAndHasBadTracks && <div>{tr('way_contains', [tr('tracks')])}</div>}
@@ -109,6 +111,15 @@ function containsBadTracks(details: [number, number, string][]) {
         if (details[i][2] == 'grade3') return true
         if (details[i][2] == 'grade4') return true
         if (details[i][2] == 'grade5') return true
+    }
+    return false
+}
+
+function crossesBorder(countryPathDetail: [number, number, string][]) {
+    if (countryPathDetail.length == 0) return false
+    let init = countryPathDetail[0][2]
+    for (let i in countryPathDetail) {
+        if (countryPathDetail[i][2] != init) return true
     }
     return false
 }
