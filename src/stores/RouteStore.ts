@@ -32,6 +32,7 @@ export default class RouteStore extends Store<RouteStoreState> {
                 road_environment: [],
                 road_class: [],
                 track_type: [],
+                country: [],
             },
             distance: 0,
             points_order: [],
