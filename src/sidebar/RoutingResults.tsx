@@ -157,7 +157,7 @@ function downloadGPX(path: Path) {
     const file = new Blob([xmlString], { type: 'application/gpx+xml' })
     tmpElement.href = URL.createObjectURL(file)
     const date = new Date()
-    tmpElement.download = `GraphHopper-Route-${Math.round(path.distance / 1000)}km-${date.getUTCFullYear()}-${pad(
+    tmpElement.download = `GraphHopper-Route-${metersToText(path.distance)}-${date.getUTCFullYear()}-${pad(
         date.getUTCMonth() + 1
     )}-${pad(date.getUTCDate())}.gpx`
     tmpElement.click()

@@ -14,7 +14,7 @@ import {
     RoutingResult,
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
-import { getTranslation, tr } from '@/translation/Translation'
+import { getTranslation, tr, Translation } from '@/translation/Translation'
 import * as config from 'config'
 
 interface ApiProfile {
@@ -80,8 +80,8 @@ export class ApiImpl implements Api {
         const url = this.getURLWithKey('geocode')
         url.searchParams.append('q', query)
         url.searchParams.append('provider', provider)
-        const locale = getTranslation().getLang().split("_")[0]
-        url.searchParams.append('locale', locale)
+        const langAndCountry = getTranslation().getLang().split('_')
+        url.searchParams.append('locale', langAndCountry.length > 0 ? langAndCountry[0] : 'en')
 
         const response = await fetch(url.toString(), {
             headers: { Accept: 'application/json' },
