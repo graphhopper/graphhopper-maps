@@ -1,24 +1,34 @@
-import { GeocodingHit } from '@/api/graphhopper'
 import styles from './AddressInputAutocomplete.module.css'
 import React, { useState } from 'react'
 import CurrentLocationIcon from './current-location.svg'
 import { tr } from '@/translation/Translation'
 
 export interface AutocompleteItem {
-    type: 'geocoding' | 'currentLocation'
+    type: 'geocoding' | 'currentLocation' | 'moreResults'
 }
 
 export interface GeocodingItem extends AutocompleteItem {
     type: 'geocoding'
-    hit: GeocodingHit
+    mainText: string
+    secondText: string
+    point: { lat: number; lng: number }
 }
 
 export interface SelectCurrentLocationItem extends AutocompleteItem {
     type: 'currentLocation'
 }
 
+export interface MoreResultsItem extends AutocompleteItem {
+    type: 'moreResults'
+    search: string
+}
+
 export function isGeocodingItem(item: AutocompleteItem): item is GeocodingItem {
     return (item as GeocodingItem).type === 'geocoding'
+}
+
+export function isMoreResults(item: AutocompleteItem): item is MoreResultsItem {
+    return (item as MoreResultsItem).type === 'moreResults'
 }
 
 export interface AutocompleteProps {
@@ -47,9 +57,30 @@ function mapToComponent(item: AutocompleteItem, isHighlighted: boolean, onSelect
         case 'currentLocation':
             const locationItem = item as SelectCurrentLocationItem
             return <SelectCurrentLocation item={locationItem} isHighlighted={isHighlighted} onSelect={onSelect} />
+        case 'moreResults':
+            const moreResults = item as MoreResultsItem
+            return <MoreResultsEntry item={moreResults} isHighlighted={isHighlighted} onSelect={onSelect} />
         default:
             throw Error('Unsupported item type: ' + item.type)
     }
+}
+
+export function MoreResultsEntry({
+    item,
+    isHighlighted,
+    onSelect,
+}: {
+    item: MoreResultsItem
+    isHighlighted: boolean
+    onSelect: (item: MoreResultsItem) => void
+}) {
+    return (
+        <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
+            <div className={styles.moreResultsEntry}>
+                <span className={styles.moreResultsText}>{tr('More...')}</span>
+            </div>
+        </AutocompleteEntry>
+    )
 }
 
 export function SelectCurrentLocation({
@@ -84,9 +115,9 @@ function GeocodingEntry({
 }) {
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
-            <div className={styles.geocodingEntry}>
-                <span className={styles.mainText}>{convertToMainText(item.hit)}</span>
-                <span className={styles.secondaryText}>{convertToSecondaryText(item.hit)}</span>
+            <div className={styles.geocodingEntry} title={item.mainText + ' ' + item.secondText}>
+                <span className={styles.mainText}>{item.mainText}</span>
+                <span className={styles.secondaryText}>{item.secondText}</span>
             </div>
         </AutocompleteEntry>
     )
@@ -126,26 +157,4 @@ function AutocompleteEntry({
             {children}
         </button>
     )
-}
-
-function convertToMainText(hit: GeocodingHit) {
-    if (hit.name && hit.housenumber) return hit.name + ' ' + hit.housenumber
-    return hit.name
-}
-
-function convertToSecondaryText(hit: GeocodingHit) {
-    let result = convertToCity(hit, ', ')
-    result += convertToCountry(hit)
-    return result
-}
-
-function convertToCity(hit: GeocodingHit, appendix: string) {
-    if (hit.city && hit.postcode) return hit.postcode + ' ' + hit.city + appendix
-    if (hit.city) return hit.city + appendix
-    if (hit.postcode) return hit.postcode + appendix
-    return ''
-}
-
-function convertToCountry(hit: GeocodingHit) {
-    return hit.country ? hit.country : ''
 }

@@ -30,7 +30,7 @@ export default interface Api {
 
     routeWithDispatch(args: RoutingArgs): void
 
-    geocode(query: string): Promise<GeocodingResult>
+    geocode(query: string, provider: string): Promise<GeocodingResult>
 }
 
 let api: Api | undefined
@@ -76,9 +76,12 @@ export class ApiImpl implements Api {
             .catch(e => Dispatcher.dispatch(new ErrorAction(e.message)))
     }
 
-    async geocode(query: string) {
+    async geocode(query: string, provider: string) {
         const url = this.getURLWithKey('geocode')
         url.searchParams.append('q', query)
+        url.searchParams.append('provider', provider)
+        const locale = getTranslation().getLang().split("_")[0]
+        url.searchParams.append('locale', locale)
 
         const response = await fetch(url.toString(), {
             headers: { Accept: 'application/json' },
@@ -195,7 +198,7 @@ export class ApiImpl implements Api {
         }
 
         // group similarly named profiles into the following predefined order
-        let reservedOrder = ["car", "truck", "scooter", "foot", "hike", "bike"]
+        let reservedOrder = ['car', 'truck', 'scooter', 'foot', 'hike', 'bike']
         profiles.sort((a, b) => {
             let idxa = reservedOrder.findIndex(str => a.name.indexOf(str) >= 0)
             let idxb = reservedOrder.findIndex(str => b.name.indexOf(str) >= 0)
