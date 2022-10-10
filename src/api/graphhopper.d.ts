@@ -98,6 +98,7 @@ interface Details {
     readonly road_class: [number, number, string][]
     readonly road_environment: [number, number, string][]
     readonly track_type: [number, number, string][]
+    readonly country: [number, number, string][]
 }
 
 export interface GeocodingResult {

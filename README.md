@@ -14,6 +14,6 @@ Get started:
  * npm run serve
  * open your browser at http://0.0.0.0:3000/
 
-Development deployments are available at http://gh-maps-react.s3-website.eu-central-1.amazonaws.com/master/. (Replace 'master' with the actual branch name) 
+Development deployments are available at https://graphhopper.com/maps-dev/something/. (Replace 'something' with the actual branch name) 
 
 There is also [an experimental `navi` branch](https://github.com/graphhopper/graphhopper-maps/tree/navi) that implements turn-by-turn navigation [directly in the browser](https://navi.graphhopper.org).
