@@ -7,7 +7,7 @@
 "way_contains_toll":"Route has tolls",
 "way_crosses_border":"Route crosses a country border",
 "way_contains":"Route includes %1$s",
-"tracks":"country roads",
+"tracks":"unpaved dirt roads",
 "steps":"steps",
 "start_label":"Start",
 "intermediate_label":"Intermediate",
@@ -43,8 +43,8 @@
 "searching_location_failed":"Searching location failed",
 "via_hint":"Via",
 "from_hint":"From",
-"gpx_export_button":"GPX export",
-"export_button":"Export",
+"gpx_export_button":"GPX Export",
+"gpx_button":"GPX",
 "hide_button":"Hide",
 "details_button":"Details",
 "to_hint":"To",
@@ -64,7 +64,8 @@
 "bus":"Bus",
 "truck":"Truck",
 "staticlink":"static link",
-"motorcycle":"Motorcycle"
+"motorcycle":"Motorcycle",
+"back_to_map":"Back"
 },
 "ar":{
 "total_ascend":"%1$s اجمالى صعود",
@@ -112,7 +113,7 @@
 "via_hint":"خلال",
 "from_hint":"من",
 "gpx_export_button":"GPX التصدير",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"إلي",
@@ -132,7 +133,8 @@
 "bus":"باص",
 "truck":"شاحنة",
 "staticlink":"رابط ثابت",
-"motorcycle":"دراجة نارية"
+"motorcycle":"دراجة نارية",
+"back_to_map":""
 },
 "ast":{
 "total_ascend":"%1$s d'ascensu total",
@@ -180,7 +182,7 @@
 "via_hint":"Pasando per",
 "from_hint":"Dende",
 "gpx_export_button":"Esportar GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Fasta",
@@ -200,7 +202,8 @@
 "bus":"Autobús",
 "truck":"Camión",
 "staticlink":"enllaz estáticu",
-"motorcycle":"Motocicleta"
+"motorcycle":"Motocicleta",
+"back_to_map":""
 },
 "bg":{
 "total_ascend":"%1$s общо изкачване",
@@ -248,7 +251,7 @@
 "via_hint":"През",
 "from_hint":"От",
 "gpx_export_button":"Изнасяне като GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"До",
@@ -268,7 +271,8 @@
 "bus":"Автобус",
 "truck":"Камион",
 "staticlink":"Постоянна препратка",
-"motorcycle":"Мотоциклет"
+"motorcycle":"Мотоциклет",
+"back_to_map":""
 },
 "bn_BN":{
 "total_ascend":"",
@@ -316,7 +320,7 @@
 "via_hint":"",
 "from_hint":"",
 "gpx_export_button":"",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"",
@@ -336,7 +340,8 @@
 "bus":"",
 "truck":"",
 "staticlink":"",
-"motorcycle":""
+"motorcycle":"",
+"back_to_map":""
 },
 "ca":{
 "total_ascend":"%1$s de pujada total",
@@ -384,7 +389,7 @@
 "via_hint":"Passant per",
 "from_hint":"Des de",
 "gpx_export_button":"Exporta a GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Cap a",
@@ -404,7 +409,8 @@
 "bus":"Autobús",
 "truck":"Camió",
 "staticlink":"Enllaç",
-"motorcycle":"Motocicleta"
+"motorcycle":"Motocicleta",
+"back_to_map":""
 },
 "cs_CZ":{
 "total_ascend":"Celkové stoupání %1$s",
@@ -452,7 +458,7 @@
 "via_hint":"Přes ",
 "from_hint":"Z",
 "gpx_export_button":"Export do GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Do",
@@ -472,7 +478,8 @@
 "bus":"Autobus",
 "truck":"Nákladní automobil",
 "staticlink":"neměnný odkaz",
-"motorcycle":"Motocykl"
+"motorcycle":"Motocykl",
+"back_to_map":""
 },
 "da_DK":{
 "total_ascend":"%1$s samlet stigning",
@@ -520,7 +527,7 @@
 "via_hint":"Via",
 "from_hint":"Fra ",
 "gpx_export_button":"Eksportér GPX-fil",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Til",
@@ -540,7 +547,8 @@
 "bus":"Bus",
 "truck":"Lastbil",
 "staticlink":"statisk link",
-"motorcycle":"Motorcykel"
+"motorcycle":"Motorcykel",
+"back_to_map":""
 },
 "de_DE":{
 "total_ascend":"%1$s Gesamtaufstieg",
@@ -551,7 +559,7 @@
 "way_contains_toll":"Route mit mautpflichtigen Straßen",
 "way_crosses_border":"Route überquert Landesgrenzen",
 "way_contains":"Auf der Route sind %1$s",
-"tracks":"Feldwege",
+"tracks":"unbefestigte Feldwege",
 "steps":"Treppen",
 "start_label":"Start",
 "intermediate_label":"Zwischenziel",
@@ -587,8 +595,8 @@
 "searching_location_failed":"Standortsuche fehlgeschlagen",
 "via_hint":"Über",
 "from_hint":"Von",
-"gpx_export_button":"GPX export",
-"export_button":"Exportiere",
+"gpx_export_button":"GPX Export",
+"gpx_button":"",
 "hide_button":"Weniger",
 "details_button":"Details",
 "to_hint":"Nach",
@@ -608,7 +616,8 @@
 "bus":"Bus",
 "truck":"LKW",
 "staticlink":"Link",
-"motorcycle":"Motorrad"
+"motorcycle":"Motorrad",
+"back_to_map":"Zurück"
 },
 "el":{
 "total_ascend":"%1$s συνολική ανάβαση",
@@ -656,7 +665,7 @@
 "via_hint":"Μέσω",
 "from_hint":"Αφετηρία",
 "gpx_export_button":"Εξαγωγή GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Προορισμός",
@@ -676,7 +685,8 @@
 "bus":"Λεωφορείο",
 "truck":"Φορτηγό",
 "staticlink":"στατική διεύθυνση",
-"motorcycle":"Μοτοσυκλέτα"
+"motorcycle":"Μοτοσυκλέτα",
+"back_to_map":""
 },
 "eo":{
 "total_ascend":"%1$s supreniro tute",
@@ -724,7 +734,7 @@
 "via_hint":"Tra",
 "from_hint":"El",
 "gpx_export_button":"Elporti GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Al",
@@ -744,7 +754,8 @@
 "bus":"Aŭtobuso",
 "truck":"Kamiono",
 "staticlink":"konstanta ligilo",
-"motorcycle":"Motorciklo"
+"motorcycle":"Motorciklo",
+"back_to_map":""
 },
 "es":{
 "total_ascend":"Ascender %1$s en total",
@@ -792,7 +803,7 @@
 "via_hint":"Pasando por",
 "from_hint":"Desde",
 "gpx_export_button":"Exportar GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Hasta",
@@ -812,7 +823,8 @@
 "bus":"Autobús",
 "truck":"Camión",
 "staticlink":"enlace estático",
-"motorcycle":"Motocicleta"
+"motorcycle":"Motocicleta",
+"back_to_map":""
 },
 "fa":{
 "total_ascend":"مجموع صعود %1$s",
@@ -860,7 +872,7 @@
 "via_hint":"با گذر از",
 "from_hint":"از",
 "gpx_export_button":"دریافت در قالب GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"به",
@@ -880,7 +892,8 @@
 "bus":"اتوبوس",
 "truck":"کامیون",
 "staticlink":"پیوند ثابت",
-"motorcycle":"موتورسیکلت"
+"motorcycle":"موتورسیکلت",
+"back_to_map":""
 },
 "fil":{
 "total_ascend":"",
@@ -928,7 +941,7 @@
 "via_hint":"",
 "from_hint":"mula sa ",
 "gpx_export_button":"GPX Export",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"upang sa",
@@ -948,7 +961,8 @@
 "bus":"",
 "truck":"",
 "staticlink":"static link",
-"motorcycle":"motorsiklo"
+"motorcycle":"motorsiklo",
+"back_to_map":""
 },
 "fi":{
 "total_ascend":"nousu yhteensä %1$s",
@@ -996,7 +1010,7 @@
 "via_hint":"Reittipiste",
 "from_hint":"Lähtöpaikka",
 "gpx_export_button":"GPX-tuonti",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Määränpää",
@@ -1016,7 +1030,8 @@
 "bus":"Linja-auto",
 "truck":"Kuorma-auto",
 "staticlink":"yhteys",
-"motorcycle":"Moottoripyörällä"
+"motorcycle":"Moottoripyörällä",
+"back_to_map":""
 },
 "fr_FR":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1064,7 +1079,7 @@
 "via_hint":"Via",
 "from_hint":"De",
 "gpx_export_button":"Export GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"À",
@@ -1084,7 +1099,8 @@
 "bus":"Bus",
 "truck":"Camion",
 "staticlink":"Lien",
-"motorcycle":"Moto"
+"motorcycle":"Moto",
+"back_to_map":""
 },
 "fr_CH":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1132,7 +1148,7 @@
 "via_hint":"Via",
 "from_hint":"De",
 "gpx_export_button":"Export GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"À",
@@ -1152,7 +1168,8 @@
 "bus":"Bus",
 "truck":"Camion",
 "staticlink":"Lien",
-"motorcycle":"Moto"
+"motorcycle":"Moto",
+"back_to_map":""
 },
 "gl":{
 "total_ascend":"",
@@ -1200,7 +1217,7 @@
 "via_hint":"Vía",
 "from_hint":"dende",
 "gpx_export_button":"GPX Exportación",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"ata",
@@ -1220,7 +1237,8 @@
 "bus":"",
 "truck":"",
 "staticlink":"Enlace",
-"motorcycle":"Motocicleta"
+"motorcycle":"Motocicleta",
+"back_to_map":""
 },
 "he":{
 "total_ascend":"עלייה כוללת של %1$s",
@@ -1268,7 +1286,7 @@
 "via_hint":"דרך",
 "from_hint":"מוצא",
 "gpx_export_button":"ייצוא GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"יעד",
@@ -1288,7 +1306,8 @@
 "bus":"אוטובוס",
 "truck":"משאית",
 "staticlink":"קישור קבוע",
-"motorcycle":"אופנוע"
+"motorcycle":"אופנוע",
+"back_to_map":""
 },
 "hr_HR":{
 "total_ascend":"%1$s ukupni uspon",
@@ -1336,7 +1355,7 @@
 "via_hint":"Preko",
 "from_hint":"Od",
 "gpx_export_button":"Izvezi kao GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Do",
@@ -1356,7 +1375,8 @@
 "bus":"Autobus",
 "truck":"Kamion",
 "staticlink":"statička poveznica",
-"motorcycle":"Motocikl"
+"motorcycle":"Motocikl",
+"back_to_map":""
 },
 "hsb":{
 "total_ascend":"",
@@ -1404,7 +1424,7 @@
 "via_hint":"přez",
 "from_hint":"wot",
 "gpx_export_button":"eksport do GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"do",
@@ -1424,7 +1444,8 @@
 "bus":"",
 "truck":"",
 "staticlink":"link",
-"motorcycle":"motorske"
+"motorcycle":"motorske",
+"back_to_map":""
 },
 "hu_HU":{
 "total_ascend":"Összes szintemelkedés: %1$s",
@@ -1472,7 +1493,7 @@
 "via_hint":"Ezen keresztül",
 "from_hint":"Innen",
 "gpx_export_button":"GPX export",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Ide",
@@ -1492,7 +1513,8 @@
 "bus":"Busz",
 "truck":"Teherautó",
 "staticlink":"Statikus hivatkozás",
-"motorcycle":"Motorkerékpár"
+"motorcycle":"Motorkerékpár",
+"back_to_map":""
 },
 "in_ID":{
 "total_ascend":"naik dengan jarak %1$s",
@@ -1540,7 +1562,7 @@
 "via_hint":"melalui",
 "from_hint":"dari",
 "gpx_export_button":"Ekspor GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"ke",
@@ -1560,7 +1582,8 @@
 "bus":"Bus",
 "truck":"Truk",
 "staticlink":"Jalur tetap",
-"motorcycle":"Motor"
+"motorcycle":"Motor",
+"back_to_map":""
 },
 "it":{
 "total_ascend":"%1$s di dislivello positivo",
@@ -1608,7 +1631,7 @@
 "via_hint":"attraverso",
 "from_hint":"Da",
 "gpx_export_button":"Esporta GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"A",
@@ -1628,7 +1651,8 @@
 "bus":"Tram",
 "truck":"Camion",
 "staticlink":"permalink",
-"motorcycle":"Moto"
+"motorcycle":"Moto",
+"back_to_map":""
 },
 "ja":{
 "total_ascend":"",
@@ -1676,7 +1700,7 @@
 "via_hint":"経由",
 "from_hint":"出発地点",
 "gpx_export_button":"GPX形式でエクスポート",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"目的地点",
@@ -1696,7 +1720,8 @@
 "bus":"",
 "truck":"",
 "staticlink":"パーマリンク",
-"motorcycle":"オートバイ"
+"motorcycle":"オートバイ",
+"back_to_map":""
 },
 "ko":{
 "total_ascend":"오르막길 총 %1$s",
@@ -1744,7 +1769,7 @@
 "via_hint":"경유",
 "from_hint":"출발",
 "gpx_export_button":"GPX 내보내기",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"도착",
@@ -1764,7 +1789,8 @@
 "bus":"버스",
 "truck":"트럭",
 "staticlink":"정적 링크",
-"motorcycle":"모터사이클"
+"motorcycle":"모터사이클",
+"back_to_map":""
 },
 "lt_LT":{
 "total_ascend":"",
@@ -1812,7 +1838,7 @@
 "via_hint":"Per",
 "from_hint":"Nuo",
 "gpx_export_button":"GPX eksportas",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Iki",
@@ -1832,7 +1858,8 @@
 "bus":"Autobusas",
 "truck":"Sunkvežimis",
 "staticlink":"statinė nuoroda",
-"motorcycle":"Motociklas"
+"motorcycle":"Motociklas",
+"back_to_map":""
 },
 "ne":{
 "total_ascend":"",
@@ -1880,7 +1907,7 @@
 "via_hint":"बाट",
 "from_hint":"सुरु ",
 "gpx_export_button":"GPX मा परिबर्तन गर्नुहोस",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"अन्त्य",
@@ -1900,7 +1927,8 @@
 "bus":"",
 "truck":"",
 "staticlink":"ईस्ट्यातिक लिंक",
-"motorcycle":"मोटरसाइकल "
+"motorcycle":"मोटरसाइकल ",
+"back_to_map":""
 },
 "nl":{
 "total_ascend":"%1$s totale klim",
@@ -1948,7 +1976,7 @@
 "via_hint":"via",
 "from_hint":"van",
 "gpx_export_button":"GPX export",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"naar",
@@ -1968,7 +1996,8 @@
 "bus":"bus",
 "truck":"vrachtwagen",
 "staticlink":"statische link",
-"motorcycle":"motorfiets"
+"motorcycle":"motorfiets",
+"back_to_map":""
 },
 "pl_PL":{
 "total_ascend":"%1$s podejść ogółem",
@@ -2016,7 +2045,7 @@
 "via_hint":"Przez",
 "from_hint":"Z",
 "gpx_export_button":"Eksportuj GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Do",
@@ -2036,7 +2065,8 @@
 "bus":"Autobus",
 "truck":"Ciężarówka",
 "staticlink":"link",
-"motorcycle":"Motocykl"
+"motorcycle":"Motocykl",
+"back_to_map":""
 },
 "pt_BR":{
 "total_ascend":"subida de %1$s",
@@ -2084,7 +2114,7 @@
 "via_hint":"Via",
 "from_hint":"De",
 "gpx_export_button":"Exportar GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Para",
@@ -2104,7 +2134,8 @@
 "bus":"Ônibus",
 "truck":"Caminhão",
 "staticlink":"Link estático",
-"motorcycle":"Motocicleta"
+"motorcycle":"Motocicleta",
+"back_to_map":""
 },
 "pt_PT":{
 "total_ascend":"subida de %1$s",
@@ -2152,7 +2183,7 @@
 "via_hint":"Por",
 "from_hint":"De",
 "gpx_export_button":"Exportar GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Para",
@@ -2172,7 +2203,8 @@
 "bus":"Autocarro",
 "truck":"Camião",
 "staticlink":"Ligação permanente",
-"motorcycle":"Motocicleta"
+"motorcycle":"Motocicleta",
+"back_to_map":""
 },
 "ro":{
 "total_ascend":"urcare %1$s",
@@ -2220,7 +2252,7 @@
 "via_hint":"Prin",
 "from_hint":"De la",
 "gpx_export_button":"Exportă GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"La",
@@ -2240,7 +2272,8 @@
 "bus":"Autobuz",
 "truck":"Camion",
 "staticlink":"link",
-"motorcycle":"Motocicletă"
+"motorcycle":"Motocicletă",
+"back_to_map":""
 },
 "ru":{
 "total_ascend":"подъём на %1$s",
@@ -2288,7 +2321,7 @@
 "via_hint":"Через",
 "from_hint":"От",
 "gpx_export_button":"Экспорт GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"До",
@@ -2308,7 +2341,8 @@
 "bus":"Автобус",
 "truck":"Грузовой автомобиль",
 "staticlink":"Постоянная ссылка",
-"motorcycle":"Мотоцикл"
+"motorcycle":"Мотоцикл",
+"back_to_map":""
 },
 "sk":{
 "total_ascend":"%1$s yüksəliş",
@@ -2356,7 +2390,7 @@
 "via_hint":"vasitəsilə",
 "from_hint":"-dan",
 "gpx_export_button":"GPX ixrac",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"-dək",
@@ -2376,7 +2410,8 @@
 "bus":"Avtobus",
 "truck":"Yük maşını",
 "staticlink":"Daimi keçid",
-"motorcycle":"Motosiklet"
+"motorcycle":"Motosiklet",
+"back_to_map":""
 },
 "sl_SI":{
 "total_ascend":"%1$s celkové stúpanie",
@@ -2424,7 +2459,7 @@
 "via_hint":"Cez",
 "from_hint":"Odkiaľ",
 "gpx_export_button":"Export do GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Kam",
@@ -2444,7 +2479,8 @@
 "bus":"Autobus",
 "truck":"Jazdná súprava",
 "staticlink":"nemenný odkaz",
-"motorcycle":"Motocykel"
+"motorcycle":"Motocykel",
+"back_to_map":""
 },
 "sr_RS":{
 "total_ascend":"Skupni vzpon: %1$s",
@@ -2492,7 +2528,7 @@
 "via_hint":"Preko",
 "from_hint":"Od ",
 "gpx_export_button":"Izvozi GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Do",
@@ -2512,7 +2548,8 @@
 "bus":"Avtobus",
 "truck":"Tovornjak",
 "staticlink":"Povezava",
-"motorcycle":"Motorno kolo"
+"motorcycle":"Motorno kolo",
+"back_to_map":""
 },
 "sv_SE":{
 "total_ascend":"%1$s ukupni uspon",
@@ -2560,7 +2597,7 @@
 "via_hint":"Preko",
 "from_hint":"Od",
 "gpx_export_button":"Izvezi kao GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Do",
@@ -2580,7 +2617,8 @@
 "bus":"Autobus",
 "truck":"Kamion",
 "staticlink":"statička veza",
-"motorcycle":"Motocikl"
+"motorcycle":"Motocikl",
+"back_to_map":""
 },
 "tr":{
 "total_ascend":"%1$s stigning",
@@ -2628,7 +2666,7 @@
 "via_hint":"Via",
 "from_hint":"Från",
 "gpx_export_button":"exportera GPX-fil",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Till",
@@ -2648,7 +2686,8 @@
 "bus":"Buss",
 "truck":"Lastbil",
 "staticlink":"direktlänk",
-"motorcycle":"Motorcykel"
+"motorcycle":"Motorcykel",
+"back_to_map":""
 },
 "uk":{
 "total_ascend":"%1$s toplam tırmanış",
@@ -2696,7 +2735,7 @@
 "via_hint":"Yoluyla",
 "from_hint":"Şuradan",
 "gpx_export_button":"GPX dışa aktar",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Yönüne",
@@ -2716,7 +2755,8 @@
 "bus":"Otobüs",
 "truck":"Kamyon",
 "staticlink":"durağan bağlantı",
-"motorcycle":"motosiklet"
+"motorcycle":"motosiklet",
+"back_to_map":""
 },
 "vi_VN":{
 "total_ascend":"%1$s загалом підйому",
@@ -2764,7 +2804,7 @@
 "via_hint":"через",
 "from_hint":"Від",
 "gpx_export_button":"Експорт в GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"До",
@@ -2784,7 +2824,8 @@
 "bus":"Автобус",
 "truck":"Велика вантажівка",
 "staticlink":"статичне посилання",
-"motorcycle":"Мотоцикл"
+"motorcycle":"Мотоцикл",
+"back_to_map":""
 },
 "zh_CN":{
 "total_ascend":"Đi tiếp %1$s nữa",
@@ -2832,7 +2873,7 @@
 "via_hint":"Qua",
 "from_hint":"Từ",
 "gpx_export_button":"Xuất GPX",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"Đến",
@@ -2852,7 +2893,8 @@
 "bus":"Xe buýt",
 "truck":"Xe tải",
 "staticlink":"liên kết tĩnh",
-"motorcycle":"Mô tô"
+"motorcycle":"Mô tô",
+"back_to_map":""
 },
 "zh_HK":{
 "total_ascend":"总上升%1$s",
@@ -2900,7 +2942,7 @@
 "via_hint":"途经点",
 "from_hint":"起点",
 "gpx_export_button":"GPX导出",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"终点",
@@ -2920,7 +2962,8 @@
 "bus":"公交车",
 "truck":"卡车",
 "staticlink":"静态链接",
-"motorcycle":"摩托车"
+"motorcycle":"摩托车",
+"back_to_map":""
 },
 "zh_TW":{
 "total_ascend":"總共上昇 %1$s",
@@ -2968,7 +3011,7 @@
 "via_hint":"途經",
 "from_hint":"起點",
 "gpx_export_button":"GPX格式輸出",
-"export_button":"",
+"gpx_button":"",
 "hide_button":"",
 "details_button":"",
 "to_hint":"目的地",
@@ -2988,5 +3031,6 @@
 "bus":"巴士",
 "truck":"貨車",
 "staticlink":"鏈接",
-"motorcycle":"電單車"
+"motorcycle":"電單車",
+"back_to_map":""
 }}

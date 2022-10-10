@@ -87,7 +87,7 @@ export class ApiImpl implements Api {
         if (response.ok) {
             return (await response.json()) as GeocodingResult
         } else {
-            throw new Error('here could be your meaningful error message')
+            throw new Error('Geocoding went wrong ' + response.status)
         }
     }
 
@@ -161,7 +161,7 @@ export class ApiImpl implements Api {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll'],
+            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll', 'track_type'],
             ...(config.extraProfiles ? (config.extraProfiles as any)[args.profile] : {}),
         }
 
@@ -193,6 +193,16 @@ export class ApiImpl implements Api {
 
             profiles.push(profile)
         }
+
+        // group similarly named profiles into the following predefined order
+        let reservedOrder = ['car', 'truck', 'scooter', 'foot', 'hike', 'bike']
+        profiles.sort((a, b) => {
+            let idxa = reservedOrder.findIndex(str => a.name.indexOf(str) >= 0)
+            let idxb = reservedOrder.findIndex(str => b.name.indexOf(str) >= 0)
+            if (idxa < 0) idxa = reservedOrder.length
+            if (idxb < 0) idxb = reservedOrder.length
+            return idxa - idxb
+        })
 
         for (const property in response) {
             if (property === 'bbox') bbox = response[property]

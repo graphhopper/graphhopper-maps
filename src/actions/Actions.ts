@@ -62,6 +62,16 @@ export class RemovePoint implements Action {
     }
 }
 
+export class MovePoint implements Action {
+    readonly point: QueryPoint
+    readonly newIndex: number
+
+    constructor(point: QueryPoint, newIndex: number) {
+        this.point = point
+        this.newIndex = newIndex
+    }
+}
+
 export class InvalidatePoint implements Action {
     readonly point: QueryPoint
 
