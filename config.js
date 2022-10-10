@@ -1,7 +1,7 @@
 /**
  * Webpack will replace this file with config-local.js if it exists
  */
-window.config = {
+const config = {
     // the url of the GraphHopper backend, either use graphhopper.com or point it to your own GH instance
     api: 'https://graphhopper.com/api/1/',
     // the tile layer used by default, see MapOptionsStore.ts for all options
@@ -24,4 +24,8 @@ window.config = {
     extraProfiles: {
     }
 }
+
+// this is needed for jest (with our current setup at least)
+if (module)
+    module.exports = config
 
