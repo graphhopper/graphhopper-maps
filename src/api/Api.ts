@@ -14,7 +14,7 @@ import {
     RoutingResult,
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
-import { getTranslation, tr } from '@/translation/Translation'
+import { getTranslation, tr, Translation } from '@/translation/Translation'
 import * as config from 'config'
 
 interface ApiProfile {
@@ -79,6 +79,10 @@ export class ApiImpl implements Api {
     async geocode(query: string) {
         const url = this.getURLWithKey('geocode')
         url.searchParams.append('q', query)
+        url.searchParams.append('provider', 'default')
+
+        const langAndCountry = getTranslation().getLang().split('_')
+        url.searchParams.append('locale', langAndCountry.length > 0 ? langAndCountry[0] : 'en')
 
         const response = await fetch(url.toString(), {
             headers: { Accept: 'application/json' },
@@ -161,7 +165,16 @@ export class ApiImpl implements Api {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed', 'toll', 'track_type'],
+            details: [
+                'road_class',
+                'road_environment',
+                'surface',
+                'max_speed',
+                'average_speed',
+                'toll',
+                'track_type',
+                'country',
+            ],
             ...(config.extraProfiles ? (config.extraProfiles as any)[args.profile] : {}),
         }
 
@@ -193,6 +206,16 @@ export class ApiImpl implements Api {
 
             profiles.push(profile)
         }
+
+        // group similarly named profiles into the following predefined order
+        let reservedOrder = ['car', 'truck', 'scooter', 'foot', 'hike', 'bike']
+        profiles.sort((a, b) => {
+            let idxa = reservedOrder.findIndex(str => a.name.indexOf(str) >= 0)
+            let idxb = reservedOrder.findIndex(str => b.name.indexOf(str) >= 0)
+            if (idxa < 0) idxa = reservedOrder.length
+            if (idxb < 0) idxb = reservedOrder.length
+            return idxa - idxb
+        })
 
         for (const property in response) {
             if (property === 'bbox') bbox = response[property]

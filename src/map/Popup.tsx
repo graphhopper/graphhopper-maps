@@ -70,8 +70,17 @@ export function PopupComponent({
         }
     }
 
+    // This is a workaround to make sure that clicks on the popup menu entries are not handled by the underlying map.
+    // Without this a click on the menu entries would e.g. close the menu without triggering the selected action.
+    // https://github.com/openlayers/openlayers/issues/6948#issuecomment-374915823
+    const convertToClick = (e: any) => {
+        const evt = new MouseEvent('click', { bubbles: true })
+        evt.stopPropagation = () => {}
+        e.target.dispatchEvent(evt)
+    }
+
     return (
-        <div className={styles.wrapper}>
+        <div className={styles.wrapper} onMouseUp={convertToClick}>
             <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
                 <div>
                     <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.From)} />
@@ -89,7 +98,7 @@ export function PopupComponent({
                 <span>{tr('set_intermediate')}</span>
             </button>
             <button
-                style={{paddingBottom: "10px" }}
+                style={{ paddingBottom: '10px' }}
                 className={styles.entry}
                 onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
             >
@@ -99,7 +108,7 @@ export function PopupComponent({
                 <span>{tr('set_end')}</span>
             </button>
             <button
-                style={{borderTop: "1px solid lightgray", paddingTop: "10px" }}
+                style={{ borderTop: '1px solid lightgray', paddingTop: '10px' }}
                 className={styles.entry}
                 onClick={() => {
                     onSelect()

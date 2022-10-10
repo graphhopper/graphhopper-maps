@@ -40,6 +40,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     let hasFerries = containsValue(path.details.road_environment, 'ferry')
     let showAndHasBadTracks = isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
     let showAndHasSteps = isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
+    let hasBorderCrossed = crossesBorder(path.details.country)
 
     return (
         <div className={styles.resultRow}>
@@ -67,7 +68,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     {isSelected && (
                         <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path)}>
                             <GPXDownload />
-                            <div>{tr('gpx_export_button')}</div>
+                            <div>{tr('gpx_button')}</div>
                         </PlainButton>
                     )}
                     {isSelected && (
@@ -85,6 +86,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                 <div className={styles.routeHints}>
                     {hasFords && <div>{tr('way_contains_ford')}</div>}
                     {hasFerries && <div>{tr('way_contains_ferry')}</div>}
+                    {hasBorderCrossed && <div>{tr('way_crosses_border')}</div>}
                     {hasTolls && <div>{tr('way_contains_toll')}</div>}
                     {showAndHasSteps && <div>{tr('way_contains', [tr('steps')])}</div>}
                     {showAndHasBadTracks && <div>{tr('way_contains', [tr('tracks')])}</div>}
@@ -105,10 +107,19 @@ function isMotorVehicle(profile: string) {
 
 function containsBadTracks(details: [number, number, string][]) {
     for (let i in details) {
-        if (details[i][2] == "grade2") return true
-        if (details[i][2] == "grade3") return true
-        if (details[i][2] == "grade4") return true
-        if (details[i][2] == "grade5") return true
+        if (details[i][2] == 'grade2') return true
+        if (details[i][2] == 'grade3') return true
+        if (details[i][2] == 'grade4') return true
+        if (details[i][2] == 'grade5') return true
+    }
+    return false
+}
+
+function crossesBorder(countryPathDetail: [number, number, string][]) {
+    if (countryPathDetail.length == 0) return false
+    let init = countryPathDetail[0][2]
+    for (let i in countryPathDetail) {
+        if (countryPathDetail[i][2] != init) return true
     }
     return false
 }
@@ -157,7 +168,7 @@ function downloadGPX(path: Path) {
     const file = new Blob([xmlString], { type: 'application/gpx+xml' })
     tmpElement.href = URL.createObjectURL(file)
     const date = new Date()
-    tmpElement.download = `GraphHopper-Route-${Math.round(path.distance / 1000)}km-${date.getUTCFullYear()}-${pad(
+    tmpElement.download = `GraphHopper-Route-${metersToText(path.distance)}-${date.getUTCFullYear()}-${pad(
         date.getUTCMonth() + 1
     )}-${pad(date.getUTCDate())}.gpx`
     tmpElement.click()
