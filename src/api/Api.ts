@@ -148,7 +148,7 @@ export class ApiImpl implements Api {
     }
 
     private getURLWithKey(endpoint: string) {
-        const url = new URL((this.apiAddress.startsWith('/') ? location.origin : '') + this.apiAddress + endpoint)
+        const url = new URL(this.apiAddress + endpoint)
         url.searchParams.append('key', this.apiKey)
         return url
     }
