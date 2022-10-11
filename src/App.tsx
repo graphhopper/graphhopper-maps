@@ -35,6 +35,7 @@ import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import MapFeaturePopup from '@/layers/MapFeaturePopup'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
+import useMapBorderLayer from '@/layers/UseMapBorderLayer'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -80,6 +81,7 @@ export default function App() {
 
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
+    useMapBorderLayer(map, info.bbox)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
