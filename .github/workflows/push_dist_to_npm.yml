@@ -1,5 +1,8 @@
 name: Push dist to npm
-on: push
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   publish:
