@@ -8,11 +8,11 @@ const config = {
     defaultTiles: 'OpenStreetMap',
     // various api keys used for the GH backend and the different tile providers
     keys: {
-        graphhopper: "missing_api_key",
-        maptiler: "missing_api_key",
-        omniscale: "missing_api_key",
-        thunderforest: "missing_api_key",
-        kurviger: "missing_api_key"
+        graphhopper: 'missing_api_key',
+        maptiler: 'missing_api_key',
+        omniscale: 'missing_api_key',
+        thunderforest: 'missing_api_key',
+        kurviger: 'missing_api_key',
     },
     // if true there will be an option to enable the GraphHopper routing graph and the urban density visualization in the layers menu
     routingGraphLayerAllowed: false,
@@ -21,11 +21,8 @@ const config = {
     // extraProfiles: { my_car: { profile: undefined, vehicle: car }}
     // will add a profile named 'my_car' for which we send a request without the profile parameter and an additional
     // vehicle parameter that is set to 'car'
-    extraProfiles: {
-    }
+    extraProfiles: {},
 }
 
 // this is needed for jest (with our current setup at least)
-if (module)
-    module.exports = config
-
+if (module) module.exports = config

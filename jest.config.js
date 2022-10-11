@@ -3,6 +3,6 @@ module.exports = {
     testEnvironment: 'jsdom',
     moduleNameMapper: {
         '@/(.*)$': '<rootDir>/src/$1',
-        'config': '<rootDir>/config.js'
+        config: '<rootDir>/config.js',
     },
 }

@@ -84,16 +84,18 @@ module.exports = {
         new FaviconsWebpackPlugin(path.resolve(__dirname, 'src/favicon.png')),
         // config.js is kept outside the bundle and simply copied to the dist folder
         new CopyPlugin({
-            patterns: [{
-                from: config,
-                to: 'config.js'
-            }]
-        })
+            patterns: [
+                {
+                    from: config,
+                    to: 'config.js',
+                },
+            ],
+        }),
     ],
 
     externals: {
-        'config': 'config'
-    }
+        config: 'config',
+    },
 
     // When importing a module whose path matches one of the following, just
     // assume a corresponding global variable exists and use that instead.
