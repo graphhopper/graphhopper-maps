@@ -14,7 +14,7 @@ import {
     RoutingResult,
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
-import { getTranslation, tr, Translation } from '@/translation/Translation'
+import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
 
 interface ApiProfile {
@@ -148,7 +148,7 @@ export class ApiImpl implements Api {
     }
 
     private getURLWithKey(endpoint: string) {
-        const url = new URL(this.apiAddress + endpoint)
+        const url = new URL((this.apiAddress.startsWith('/') ? location.origin : '') + this.apiAddress + endpoint)
         url.searchParams.append('key', this.apiKey)
         return url
     }
