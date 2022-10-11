@@ -95,7 +95,7 @@ export default function AddressInput(props: AddressInputProps) {
                     } else if (autocompleteItems.length > 0) {
                         // by default use the first result, otherwise the highlighted one
                         const index = highlightedResult >= 0 ? highlightedResult : 0
-                        const item = autocompleteItems[index] as GeocodingItem
+                        const item = autocompleteItems[index]
                         if (item instanceof GeocodingItem) props.onAddressSelected(item.toText(), item.point)
                     }
                     searchInput.current!.blur()
