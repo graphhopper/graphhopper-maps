@@ -201,7 +201,7 @@ function onAutocompleteSelected(
         onSelect(item.toText(), item.point)
     } else if (item instanceof MoreResultsItem) {
         onMoreClicked(item.search, 'nominatim')
-    } else {
+    } else if (item instanceof SelectCurrentLocationItem) {
         if (!navigator.geolocation) {
             Dispatcher.dispatch(new ErrorAction('Geolocation is not supported in this browser'))
             return
