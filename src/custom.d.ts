@@ -14,6 +14,10 @@ declare module 'config' {
         thunderforest: string,
         kurviger: string,
     }
+    const request: {
+        details: string[],
+        snapPreventions: string[]
+    }
     const routingGraphLayerAllowed: boolean
     const extraProfiles: object
 }

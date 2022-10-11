@@ -106,6 +106,7 @@ function isMotorVehicle(profile: string) {
 }
 
 function containsBadTracks(details: [number, number, string][]) {
+    if (!details) return false
     for (let i in details) {
         if (details[i][2] == 'grade2') return true
         if (details[i][2] == 'grade3') return true
@@ -116,7 +117,7 @@ function containsBadTracks(details: [number, number, string][]) {
 }
 
 function crossesBorder(countryPathDetail: [number, number, string][]) {
-    if (countryPathDetail.length == 0) return false
+    if (!countryPathDetail) return false
     const init = countryPathDetail[0][2]
     for (let i in countryPathDetail) {
         if (countryPathDetail[i][2] != init) return true
@@ -125,6 +126,7 @@ function crossesBorder(countryPathDetail: [number, number, string][]) {
 }
 
 function containsValue(details: [number, number, string][], value: string) {
+    if (!details) return false
     for (let i in details) {
         if (details[i][2] == value) return true
     }

@@ -163,17 +163,8 @@ export class ApiImpl implements Api {
             locale: getTranslation().getLang(),
             optimize: 'false',
             points_encoded: true,
-            snap_preventions: ['ferry'],
-            details: [
-                'road_class',
-                'road_environment',
-                'surface',
-                'max_speed',
-                'average_speed',
-                'toll',
-                'track_type',
-                'country',
-            ],
+            snap_preventions: config.request?.snapPreventions ? config.request.snapPreventions : [],
+            details: config.request?.details ? config.request.details : [],
             ...(config.extraProfiles ? (config.extraProfiles as any)[args.profile] : {}),
         }
 

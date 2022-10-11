@@ -16,6 +16,20 @@ const config = {
     },
     // if true there will be an option to enable the GraphHopper routing graph and the urban density visualization in the layers menu
     routingGraphLayerAllowed: false,
+    // parameters used for the routing request generation
+    request: {
+        details: [
+            'road_class',
+            'road_environment',
+            'surface',
+            'max_speed',
+            'average_speed',
+            'toll',
+            'track_type',
+            'country',
+        ],
+        snapPreventions: ['ferry'],
+    },
     // use this to add your own profiles. the key of each profile will be used as name and the given fields will
     // overwrite the fields of the default routing request. e.g.
     // extraProfiles: { my_car: { profile: undefined, vehicle: car }}
