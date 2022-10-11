@@ -3,18 +3,14 @@ import React, { useState } from 'react'
 import CurrentLocationIcon from './current-location.svg'
 import { tr } from '@/translation/Translation'
 
-export interface AutocompleteItem {
-    type: 'geocoding' | 'currentLocation' | 'moreResults'
-}
+export interface AutocompleteItem {}
 
 export class GeocodingItem implements AutocompleteItem {
-    type: 'geocoding'
     mainText: string
     secondText: string
     point: { lat: number; lng: number }
 
     constructor(mainText: string, secondText: string, point: { lat: number; lng: number }) {
-        this.type = 'geocoding'
         this.mainText = mainText
         this.secondText = secondText
         this.point = point
@@ -25,30 +21,14 @@ export class GeocodingItem implements AutocompleteItem {
     }
 }
 
-export class SelectCurrentLocationItem implements AutocompleteItem {
-    type: 'currentLocation'
-
-    constructor() {
-        this.type = 'currentLocation'
-    }
-}
+export class SelectCurrentLocationItem implements AutocompleteItem {}
 
 export class MoreResultsItem implements AutocompleteItem {
-    type: 'moreResults'
     search: string
 
     constructor(search: string) {
-        this.type = 'moreResults'
         this.search = search
     }
-}
-
-export function isGeocodingItem(item: AutocompleteItem): item is GeocodingItem {
-    return (item as GeocodingItem).type === 'geocoding'
-}
-
-export function isMoreResults(item: AutocompleteItem): item is MoreResultsItem {
-    return (item as MoreResultsItem).type === 'moreResults'
 }
 
 export interface AutocompleteProps {
@@ -70,19 +50,13 @@ export default function Autocomplete({ items, highlightedItem, onSelect }: Autoc
 }
 
 function mapToComponent(item: AutocompleteItem, isHighlighted: boolean, onSelect: (hit: AutocompleteItem) => void) {
-    switch (item.type) {
-        case 'geocoding':
-            const geocodingItem = item as GeocodingItem
-            return <GeocodingEntry item={geocodingItem} isHighlighted={isHighlighted} onSelect={onSelect} />
-        case 'currentLocation':
-            const locationItem = item as SelectCurrentLocationItem
-            return <SelectCurrentLocation item={locationItem} isHighlighted={isHighlighted} onSelect={onSelect} />
-        case 'moreResults':
-            const moreResults = item as MoreResultsItem
-            return <MoreResultsEntry item={moreResults} isHighlighted={isHighlighted} onSelect={onSelect} />
-        default:
-            throw Error('Unsupported item type: ' + item.type)
-    }
+    if (item instanceof GeocodingItem)
+        return <GeocodingEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
+    else if (item instanceof SelectCurrentLocationItem)
+        return <SelectCurrentLocation item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
+    else if (item instanceof MoreResultsItem)
+        return <MoreResultsEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
+    else throw Error('Unsupported item type: ' + typeof item)
 }
 
 export function MoreResultsEntry({

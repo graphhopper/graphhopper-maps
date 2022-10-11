@@ -5,10 +5,8 @@ import { ErrorAction } from '@/actions/Actions'
 import Autocomplete, {
     AutocompleteItem,
     GeocodingItem,
-    isGeocodingItem,
     MoreResultsItem,
     SelectCurrentLocationItem,
-    isMoreResults,
 } from '@/sidebar/search/AddressInputAutocomplete'
 import Dispatcher from '@/stores/Dispatcher'
 
@@ -98,7 +96,7 @@ export default function AddressInput(props: AddressInputProps) {
                         // by default use the first result, otherwise the highlighted one
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index] as GeocodingItem
-                        if (item.type == 'geocoding') props.onAddressSelected(item.toText(), item.point)
+                        if (item instanceof GeocodingItem) props.onAddressSelected(item.toText(), item.point)
                     }
                     searchInput.current!.blur()
                     break
@@ -199,9 +197,9 @@ function onAutocompleteSelected(
     onSelect: (queryText: string, coordinate: Coordinate | undefined) => void,
     onMoreClicked: (queryText: string, provider: string) => void
 ) {
-    if (isGeocodingItem(item)) {
+    if (item instanceof GeocodingItem) {
         onSelect(item.toText(), item.point)
-    } else if (isMoreResults(item)) {
+    } else if (item instanceof MoreResultsItem) {
         onMoreClicked(item.search, 'nominatim')
     } else {
         if (!navigator.geolocation) {
