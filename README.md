@@ -1,7 +1,6 @@
 # GraphHopper Maps
 
-This is the user interface for the [GraphHopper routing engine](https://github.com/graphhopper/graphhopper). It was rewritten from scratch and will replace the [jquery-based maps UI](https://github.com/graphhopper/graphhopper#graphhopper-maps).
-
+This is the user interface for the [GraphHopper routing engine](https://github.com/graphhopper/graphhopper). 
 Try it at [graphhopper.com/maps2](https://graphhopper.com/maps2/).
 
 Get started:
