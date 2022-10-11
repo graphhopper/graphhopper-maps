@@ -160,15 +160,17 @@ export default function AddressInput(props: AddressInputProps) {
                         items={autocompleteItems}
                         highlightedItem={autocompleteItems[highlightedResult]}
                         onSelect={item => {
-                            searchInput.current!.blur()
-                            onAutocompleteSelected(
-                                item,
-                                props.onAddressSelected,
-                                (queryText: string, provider: string) => {
-                                    const coordinate = textToCoordinate(queryText)
-                                    if (!coordinate) geocoder.request(queryText, provider)
-                                }
-                            )
+                            if (item instanceof GeocodingItem) {
+                                searchInput.current!.blur()
+                                props.onAddressSelected(item.toText(), item.point)
+                            } else if (item instanceof SelectCurrentLocationItem) {
+                                searchInput.current!.blur()
+                                onCurrentLocationSelected(props.onAddressSelected)
+                            } else if (item instanceof MoreResultsItem) {
+                                // do not blur
+                                const coordinate = textToCoordinate(item.search)
+                                if (!coordinate) geocoder.request(item.search, 'nominatim')
+                            }
                         }}
                     />
                 </ResponsiveAutocomplete>
@@ -192,34 +194,24 @@ function ResponsiveAutocomplete({ inputRef, children }: { inputRef: HTMLElement;
     )
 }
 
-function onAutocompleteSelected(
-    item: AutocompleteItem,
-    onSelect: (queryText: string, coordinate: Coordinate | undefined) => void,
-    onMoreClicked: (queryText: string, provider: string) => void
-) {
-    if (item instanceof GeocodingItem) {
-        onSelect(item.toText(), item.point)
-    } else if (item instanceof MoreResultsItem) {
-        onMoreClicked(item.search, 'nominatim')
-    } else if (item instanceof SelectCurrentLocationItem) {
-        if (!navigator.geolocation) {
-            Dispatcher.dispatch(new ErrorAction('Geolocation is not supported in this browser'))
-            return
-        }
-
-        onSelect(tr('searching_location') + ' ...', undefined)
-        navigator.geolocation.getCurrentPosition(
-            position => {
-                onSelect(tr('current_location'), { lat: position.coords.latitude, lng: position.coords.longitude })
-            },
-            error => {
-                Dispatcher.dispatch(new ErrorAction(tr('searching_location_failed') + ': ' + error.message))
-                onSelect('', undefined)
-            },
-            // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
-            { timeout: 300_000 }
-        )
+function onCurrentLocationSelected(onSelect: (queryText: string, coordinate: Coordinate | undefined) => void) {
+    if (!navigator.geolocation) {
+        Dispatcher.dispatch(new ErrorAction('Geolocation is not supported in this browser'))
+        return
     }
+
+    onSelect(tr('searching_location') + ' ...', undefined)
+    navigator.geolocation.getCurrentPosition(
+        position => {
+            onSelect(tr('current_location'), { lat: position.coords.latitude, lng: position.coords.longitude })
+        },
+        error => {
+            Dispatcher.dispatch(new ErrorAction(tr('searching_location_failed') + ': ' + error.message))
+            onSelect('', undefined)
+        },
+        // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
+        { timeout: 300_000 }
+    )
 }
 
 function calculateHighlightedIndex(length: number, currentIndex: number, incrementBy: number) {
