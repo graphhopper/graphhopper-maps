@@ -1,8 +1,5 @@
 name: Deploy
-on:
-  push:
-    branches:
-      - master
+on: push
 jobs:
   deploy_maps:
     if: github.repository_owner == 'graphhopper'
