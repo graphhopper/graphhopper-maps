@@ -35,12 +35,12 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
-    let hasFords = containsValue(path.details.road_environment, 'ford')
-    let hasTolls = containsValue(path.details.toll, 'all')
-    let hasFerries = containsValue(path.details.road_environment, 'ferry')
-    let showAndHasBadTracks = isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
-    let showAndHasSteps = isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
-    let hasBorderCrossed = crossesBorder(path.details.country)
+    const hasFords = containsValue(path.details.road_environment, 'ford')
+    const hasTolls = containsValue(path.details.toll, 'all')
+    const hasFerries = containsValue(path.details.road_environment, 'ferry')
+    const showAndHasBadTracks = isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
+    const showAndHasSteps = isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
+    const hasBorderCrossed = crossesBorder(path.details.country)
 
     return (
         <div className={styles.resultRow}>
@@ -117,7 +117,7 @@ function containsBadTracks(details: [number, number, string][]) {
 
 function crossesBorder(countryPathDetail: [number, number, string][]) {
     if (countryPathDetail.length == 0) return false
-    let init = countryPathDetail[0][2]
+    const init = countryPathDetail[0][2]
     for (let i in countryPathDetail) {
         if (countryPathDetail[i][2] != init) return true
     }
