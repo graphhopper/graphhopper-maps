@@ -71,7 +71,7 @@ export default class NavBar {
                 if (p.isInitialized) fullyInitPoints[idx] = p
                 else
                     getApi()
-                        .geocode(p.queryText)
+                        .geocode(p.queryText, 'nominatim')
                         .then(res => {
                             if (res.hits.length <= 0) return
                             fullyInitPoints[idx] = {

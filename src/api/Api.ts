@@ -30,7 +30,7 @@ export default interface Api {
 
     routeWithDispatch(args: RoutingArgs): void
 
-    geocode(query: string): Promise<GeocodingResult>
+    geocode(query: string, provider: string): Promise<GeocodingResult>
 }
 
 let api: Api | undefined
@@ -76,11 +76,10 @@ export class ApiImpl implements Api {
             .catch(e => Dispatcher.dispatch(new ErrorAction(e.message)))
     }
 
-    async geocode(query: string) {
+    async geocode(query: string, provider: string) {
         const url = this.getURLWithKey('geocode')
         url.searchParams.append('q', query)
-        url.searchParams.append('provider', 'default')
-
+        url.searchParams.append('provider', provider)
         const langAndCountry = getTranslation().getLang().split('_')
         url.searchParams.append('locale', langAndCountry.length > 0 ? langAndCountry[0] : 'en')
 
