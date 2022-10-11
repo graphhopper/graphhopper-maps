@@ -97,7 +97,7 @@ export function MoreResultsEntry({
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
             <div className={styles.moreResultsEntry}>
-                <span className={styles.moreResultsText}>{tr('More...')}</span>
+                <span className={styles.moreResultsText}>{tr('search_with_nominatim')}</span>
             </div>
         </AutocompleteEntry>
     )
