@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import styles from '@/pathDetails/PathDetails.module.css'
 import { HeightGraph } from 'heightgraph/src/heightgraph'
 import 'heightgraph/src/heightgraph.css'
@@ -8,6 +8,7 @@ import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelecte
 import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
 import { calcDist } from '@/distUtils'
+import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -51,6 +52,12 @@ export default function ({ selectedPath }: PathDetailsProps) {
         graph?.setData(pathDetailsData.data, pathDetailsData.mappings)
     }, [selectedPath, graph])
 
+    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    useEffect(() => {
+        graph?.setImperial(showDistanceInMiles)
+        graph?.redraw()
+    }, [graph, showDistanceInMiles])
+
     // render the container
     const isPathPresent = selectedPath.points.coordinates.length !== 0
     const style: any = { display: isPathPresent ? null : 'none' }
@@ -93,10 +100,10 @@ function buildPathDetailsData(selectedPath: Path) {
     }
 
     // elevation
-    const elevation = createFeatureCollection('Elevation [m]', [createFeature(coordinates, 'elevation')])
+    const elevation = createFeatureCollection('Elevation', [createFeature(coordinates, 'elevation')])
     result.data.push(elevation)
-    result.mappings['Elevation [m]'] = function () {
-        return { text: 'Elevation [m]', color: QueryStore.getMarkerColor(QueryPointType.From) }
+    result.mappings['Elevation'] = function () {
+        return { text: 'Elevation', color: QueryStore.getMarkerColor(QueryPointType.From) }
     }
 
     // slope

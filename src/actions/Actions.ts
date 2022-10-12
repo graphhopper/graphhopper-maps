@@ -224,3 +224,6 @@ export class RoutingGraphHover implements Action {
         this.properties = properties
     }
 }
+
+export class ToggleDistanceUnits implements Action {
+}
