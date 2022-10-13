@@ -2,7 +2,7 @@
 
 GraphHopper Maps licensed under the Apache license, Version 2.0
 
-Copyright 2020 - 2021 GraphHopper GmbH
+Copyright 2020 - 2022 GraphHopper GmbH
 
 It includes the following software and creative work:
 
