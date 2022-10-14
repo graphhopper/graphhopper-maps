@@ -53,7 +53,7 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                 ) : (
                     <div className={styles.btnCloseContainer}>
                         <RoutingProfiles routingProfiles={info.profiles} selectedProfile={query.routingProfile}
-                                         customModelAllowed={true} customModelEnabled={query.customModelEnabled} />
+                                         customModelAllowed={false} customModelEnabled={query.customModelEnabled} />
                         <Search points={query.queryPoints}/>
                     </div>
                 )}
