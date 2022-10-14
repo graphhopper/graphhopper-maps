@@ -53,7 +53,7 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                 ) : (
                     <SearchView
                         points={query.queryPoints}
-                        routingProfiles={info.profiles}
+                        routingProfiles={[{name: 'abc'}]}
                         selectedProfile={query.routingProfile}
                     />
                 )}
