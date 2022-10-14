@@ -319,4 +319,12 @@ export class ApiImpl implements Api {
         // console.log("decoded " + len + " coordinates in " + ((end - start) / 1000) + "s");
         return array
     }
+
+    public static isBikeLike(profile: string) {
+        return profile.includes('mtb') || profile.includes('bike')
+    }
+
+    public static isMotorVehicle(profile: string) {
+        return profile.includes('car') || profile.includes('truck') || profile.includes('scooter')
+    }
 }
