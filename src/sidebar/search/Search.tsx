@@ -91,10 +91,10 @@ const SearchBox = ({
 
     // With this ref and tabIndex=-1 we ensure that the first 'TAB' gives the focus the first input but the marker won't be included in the TAB sequence, #194
     const myMarkerRef = useRef<HTMLDivElement>(null)
-    if (index == 0)
-        useEffect(() => {
-            myMarkerRef.current?.focus()
-        }, [])
+
+    useEffect(() => {
+        if (index == 0) myMarkerRef.current?.focus()
+    }, [])
 
     function onClickOrDrop() {
         onDropPreviewSelect(-1)
