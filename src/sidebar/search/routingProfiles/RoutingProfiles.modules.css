@@ -21,8 +21,8 @@
 .profileBtn {
     border-radius: 50%;
     margin: 0.1em;
-    padding: 0.4rem;
-    transform: scale(1.1);
+    padding: 0.3rem;
+    transform: scale(1);
 }
 
 .enabledSettings,
