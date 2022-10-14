@@ -39,8 +39,6 @@ customModelEnabled,
     return (
         <div className={styles.profilesParent}>
             {
-                // The custom-model button should be visually on one line with the add_to_route button. So either we accept
-                // that CSS is hacky (margin negative and extra empty div) or we move the button to this Search component.
                 customModelAllowed && (
                     <PlainButton
                         title={tr('open_custom_model_box')}
@@ -62,7 +60,7 @@ customModelEnabled,
                             ? styles.selectedProfile + ' ' + styles.profileBtn
                             : styles.profileBtn
                     return (
-                        <li className={styles.profile} key={profile.name}>
+                        <li key={profile.name}>
                             <PlainButton
                                 title={tr(profile.name)}
                                 onClick={() => Dispatcher.dispatch(new SetVehicleProfile(profile))}

@@ -5,8 +5,10 @@
 }
 
 .profiles {
+    width: 100%;
     display: flex;
     flex-direction: row;
+    justify-content: center;
 }
 
 .selectedProfile {
@@ -57,7 +59,7 @@
 .enabledSettings svg,
 .settings svg {
     margin: 0;
-    padding: 10px;
+    padding: 0 0 0 8px;
     width: 18px;
     height: 18px;
 }
