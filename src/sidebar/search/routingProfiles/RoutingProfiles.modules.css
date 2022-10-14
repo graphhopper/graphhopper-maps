@@ -35,8 +35,8 @@
 
 .enabledSettings svg path,
 .settings svg path {
-    fill: #5b616a;
-    stroke: #5b616a;
+    fill: #a8a8a8;
+    stroke: #a8a8a8;
 }
 
 .enabledSettings:active svg path,
