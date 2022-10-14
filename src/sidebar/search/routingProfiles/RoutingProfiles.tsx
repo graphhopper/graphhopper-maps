@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './RoutingProfiles.modules.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetVehicleProfile } from '@/actions/Actions'
+import {ClearRoute, DismissLastError, SetCustomModelBoxEnabled, SetVehicleProfile} from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import * as config from 'config'
 import PlainButton from '@/PlainButton'
@@ -17,13 +17,18 @@ import SmallTruckIcon from './small_truck.svg'
 import TruckIcon from './truck.svg'
 import WheelchairIcon from './wheelchair.svg'
 import { tr } from '@/translation/Translation'
+import SettingsSVG from "@/sidebar/settings.svg";
 
 export default function ({
-    routingProfiles,
-    selectedProfile,
+routingProfiles,
+selectedProfile,
+customModelAllowed,
+customModelEnabled,
 }: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
+    customModelAllowed: boolean
+    customModelEnabled: boolean
 }) {
     // this first merges profiles set from config and those received from the backend.
     const extraRoutingProfiles: RoutingProfile[] = config.extraProfiles
@@ -32,25 +37,44 @@ export default function ({
     const allRoutingProfiles = routingProfiles.concat(extraRoutingProfiles)
 
     return (
-        <ul className={styles.profiles}>
-            {allRoutingProfiles.map(profile => {
-                const className =
-                    profile.name === selectedProfile.name
-                        ? styles.selectedProfile + ' ' + styles.profileBtn
-                        : styles.profileBtn
-                return (
-                    <li className={styles.profile} key={profile.name}>
-                        <PlainButton
-                            title={tr(profile.name)}
-                            onClick={() => Dispatcher.dispatch(new SetVehicleProfile(profile))}
-                            className={className}
-                        >
-                            {getIcon(profile)}
-                        </PlainButton>
-                    </li>
+        <div className={styles.profilesParent}>
+            {
+                // The custom-model button should be visually on one line with the add_to_route button. So either we accept
+                // that CSS is hacky (margin negative and extra empty div) or we move the button to this Search component.
+                customModelAllowed && (
+                    <PlainButton
+                        title={tr('open_custom_model_box')}
+                        className={customModelEnabled ? styles.enabledSettings : styles.settings}
+                        onClick={() => {
+                            if (customModelEnabled) Dispatcher.dispatch(new DismissLastError())
+                            Dispatcher.dispatch(new ClearRoute())
+                            Dispatcher.dispatch(new SetCustomModelBoxEnabled(!customModelEnabled))
+                        }}
+                    >
+                        <SettingsSVG />
+                    </PlainButton>
                 )
-            })}
-        </ul>
+            }
+            <ul className={styles.profiles}>
+                {allRoutingProfiles.map(profile => {
+                    const className =
+                        profile.name === selectedProfile.name
+                            ? styles.selectedProfile + ' ' + styles.profileBtn
+                            : styles.profileBtn
+                    return (
+                        <li className={styles.profile} key={profile.name}>
+                            <PlainButton
+                                title={tr(profile.name)}
+                                onClick={() => Dispatcher.dispatch(new SetVehicleProfile(profile))}
+                                className={className}
+                            >
+                                {getIcon(profile)}
+                            </PlainButton>
+                        </li>
+                    )
+                })}
+            </ul>
+        </div>
     )
 }
 

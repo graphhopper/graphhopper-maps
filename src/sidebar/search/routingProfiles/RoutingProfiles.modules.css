@@ -1,18 +1,12 @@
-.profiles {
-    grid-column: 1 / span 4;
+.profilesParent {
     display: flex;
     flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 0.1em 0 0.1em 0.3em;
+    padding: 0.4em 0 0 0;
 }
 
-.profile:first-child {
-    margin-left: auto;
-}
-
-.profile:last-child {
-    margin-right: auto;
+.profiles {
+    display: flex;
+    flex-direction: row;
 }
 
 .selectedProfile {
@@ -26,5 +20,74 @@
 
 .profileBtn {
     border-radius: 50%;
-    padding: 0.45rem;
+    margin: 0.1em;
+    padding: 0.4rem;
+    transform: scale(1.1);
+}
+
+.enabledSettings,
+.settings {
+    border-radius: 50%;
+}
+
+.enabledSettings svg path,
+.settings svg path {
+    fill: #5b616a;
+    stroke: #5b616a;
+}
+
+.enabledSettings:active svg path,
+.settings:active svg path {
+    fill: lightgray;
+    stroke: lightgray;
+}
+
+.settings:hover svg path,
+.enabledSettings:hover svg path {
+    fill: #000000;
+    stroke: #000000;
+}
+
+.settings:active svg path,
+.enabledSettings:active svg path {
+    fill: lightgray;
+    stroke: lightgray;
+}
+
+.enabledSettings svg,
+.settings svg {
+    margin: 0;
+    padding: 10px;
+    width: 18px;
+    height: 18px;
+}
+
+.settings svg {
+    transform: rotate(0);
+    animation-name: reverse_rotate;
+    animation-duration: 0.2s;
+}
+
+.enabledSettings svg {
+    transform: rotate(180deg);
+    animation-name: setting_rotate;
+    animation-duration: 0.2s;
+}
+
+@keyframes setting_rotate {
+    0% {
+        transform: rotate(0);
+    }
+    100% {
+        transform: rotate(180deg);
+    }
+}
+
+@keyframes reverse_rotate {
+    0% {
+        transform: rotate(180deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
 }

@@ -1,5 +1,6 @@
 .customModelBox {
-    padding: 0.3em;
+    margin: 0.6em 0;
+    padding: 0 0;
     border-top: lightgray solid 1px;
     height: 18rem;
 }
@@ -50,7 +51,7 @@
 .infiniteProgressBar {
     animation: progress 4s infinite normal;
     height: 2px;
-    margin-top: -2px; /* when visiable it should not occupy space */
+    margin-top: -2px; /* when visible it should not occupy space */
     background-color: rgb(65, 121, 0);
 }
 

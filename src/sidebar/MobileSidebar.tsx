@@ -8,6 +8,7 @@ import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { useMediaQuery } from 'react-responsive'
 import { MarkerComponent } from '@/map/Marker'
+import RoutingProfiles from "@/sidebar/search/routingProfiles/RoutingProfiles";
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -47,15 +48,14 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                 {isSmallSearchView ? (
                     <SmallSearchView
                         points={query.queryPoints}
-                        profile={query.routingProfile}
                         onClick={() => setIsSmallSearchView(false)}
                     />
                 ) : (
-                    <SearchView
-                        points={query.queryPoints}
-                        routingProfiles={info.profiles}
-                        selectedProfile={query.routingProfile}
-                    />
+                    <div className={styles.btnCloseContainer}>
+                        <RoutingProfiles routingProfiles={info.profiles} selectedProfile={query.routingProfile}
+                                         customModelAllowed={true} customModelEnabled={query.customModelEnabled} />
+                        <Search points={query.queryPoints}/>
+                    </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}
             </div>
@@ -67,25 +67,7 @@ function hasResult(route: RouteStoreState) {
     return route.routingResult.paths.length > 0
 }
 
-function SearchView(props: {
-    points: QueryPoint[]
-    routingProfiles: RoutingProfile[]
-    selectedProfile: RoutingProfile
-}) {
-    return (
-        <div className={styles.btnCloseContainer}>
-            <Search
-                points={props.points}
-                routingProfiles={props.routingProfiles}
-                selectedProfile={props.selectedProfile}
-                customModelAllowed={false}
-                customModelEnabled={false}
-            />
-        </div>
-    )
-}
-
-function SmallSearchView(props: { points: QueryPoint[]; profile: RoutingProfile; onClick: () => void }) {
+function SmallSearchView(props: { points: QueryPoint[]; onClick: () => void }) {
     const from = props.points[0]
     const to = props.points[props.points.length - 1]
 
