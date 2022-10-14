@@ -41,6 +41,10 @@
     width: 100%;
 }
 
+.moreResultsEntry {
+    padding: 0.5em 0em;
+}
+
 .geocodingEntry {
     display: flex;
     flex-direction: column;
@@ -52,7 +56,11 @@
     font-weight: bold;
 }
 
+.moreResultsText,
 .secondaryText {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
     font-size: small;
     color: #5b616a;
 }

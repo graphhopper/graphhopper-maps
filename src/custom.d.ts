@@ -7,12 +7,16 @@ declare module 'custom-model-editor/src/index'
 declare module 'config' {
     const api: string
     const defaultTiles: string
-    const keys = {
-        graphhopper: string,
-        omniscale: string,
-        maptiler: string,
-        thunderforest: string,
-        kurviger: string,
+    const keys: {
+        graphhopper: string
+        omniscale: string
+        maptiler: string
+        thunderforest: string
+        kurviger: string
+    }
+    const request: {
+        details: string[]
+        snapPreventions: string[]
     }
     const routingGraphLayerAllowed: boolean
     const extraProfiles: object

@@ -1,10 +1,9 @@
 {
-    "name": "graphhopper-maps-react",
+    "name": "graphhopper-maps",
     "version": "0.0.0",
-    "description": "react dummy",
-    "main": "index.js",
+    "license": "Apache-2.0",
     "scripts": {
-        "format": "prettier --write \"src/**/*.{css,ts,tsx,html}\" \"test/**/*.{js,ts,jsx,tsx}\" \"jest.config.js\" \"webpack.*.js\"",
+        "format": "prettier --write \"src/**/*.{css,ts,tsx,html}\" \"test/**/*.{js,ts,jsx,tsx}\" \"jest.config.js\" \"webpack.*.js\" \"config.js\"",
         "serve": "webpack serve --config webpack.dev.js",
         "build": "webpack --config webpack.prod.js",
         "build-debug": "webpack --config webpack.dev.js",
@@ -26,6 +25,7 @@
         "@types/jest": "^26.0.24",
         "@types/react": "^18.0.21",
         "@types/react-dom": "^18.0.6",
+        "copy-webpack-plugin": "^11.0.0",
         "css-loader": "^6.7.1",
         "favicons": "^7.0.1",
         "favicons-webpack-plugin": "^6.0.0-alpha.1",

@@ -30,7 +30,7 @@ export default interface Api {
 
     routeWithDispatch(args: RoutingArgs): void
 
-    geocode(query: string): Promise<GeocodingResult>
+    geocode(query: string, provider: string): Promise<GeocodingResult>
 }
 
 let api: Api | undefined
@@ -76,11 +76,10 @@ export class ApiImpl implements Api {
             .catch(e => Dispatcher.dispatch(new ErrorAction(e.message)))
     }
 
-    async geocode(query: string) {
+    async geocode(query: string, provider: string) {
         const url = this.getURLWithKey('geocode')
         url.searchParams.append('q', query)
-        url.searchParams.append('provider', 'default')
-
+        url.searchParams.append('provider', provider)
         const langAndCountry = getTranslation().getLang().split('_')
         url.searchParams.append('locale', langAndCountry.length > 0 ? langAndCountry[0] : 'en')
 
@@ -164,17 +163,8 @@ export class ApiImpl implements Api {
             locale: getTranslation().getLang(),
             optimize: 'false',
             points_encoded: true,
-            snap_preventions: ['ferry'],
-            details: [
-                'road_class',
-                'road_environment',
-                'surface',
-                'max_speed',
-                'average_speed',
-                'toll',
-                'track_type',
-                'country',
-            ],
+            snap_preventions: config.request?.snapPreventions ? config.request.snapPreventions : [],
+            details: config.request?.details ? config.request.details : [],
             ...(config.extraProfiles ? (config.extraProfiles as any)[args.profile] : {}),
         }
 

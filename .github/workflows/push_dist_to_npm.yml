@@ -1,0 +1,35 @@
+name: Push dist to npm
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish:
+    if: github.repository_owner == 'graphhopper'
+    runs-on: ubuntu-22.04
+    environment: npm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          registry-url: https://registry.npmjs.org/
+          node-version: lts/gallium
+
+      - name: Build
+
+        run: |
+          npm version --git-tag-version=false 0.0.0-$(git rev-parse HEAD)
+          # limit distribution to the dist folder (just for this build), and set package name
+          node -e "const packageJson=require('./package.json'); packageJson.files=['dist/']; packageJson.name='@graphhopper/graphhopper-maps-bundle'; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
+          npm ci
+          npm run build
+          # no dependencies or scripts in package.json (they should not be installed when installing the package, because they are all included in the bundle already)
+          node -e "const packageJson=require('./package.json'); packageJson.scripts={}; packageJson.dependencies={}; packageJson.devDependencies={}; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
+          # we need to set the access to public, because organization scoped packages are private by default
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_JS_ORG_ACCESS_TOKEN }}
