@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from '@/sidebar/PoweredBy.module.css'
 import Header from '@/sidebar/header.svg'
-import {tr} from "@/translation/Translation";
+import { tr } from '@/translation/Translation'
 
 export default function PoweredBy() {
     return (
