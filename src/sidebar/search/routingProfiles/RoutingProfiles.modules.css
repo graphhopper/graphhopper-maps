@@ -59,7 +59,7 @@
 .enabledSettings svg,
 .settings svg {
     margin: 0;
-    padding: 0 0 0 8px;
+    padding: 8px;
     width: 18px;
     height: 18px;
 }
