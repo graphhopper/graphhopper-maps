@@ -68,6 +68,14 @@ export default function App() {
         getPathDetailsStore().register(onPathDetailsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
 
+        onQueryChanged()
+        onInfoChanged()
+        onRouteChanged()
+        onErrorChanged()
+        onMapOptionsChanged()
+        onPathDetailsChanged()
+        onMapFeaturesChanged()
+
         return () => {
             getQueryStore().deregister(onQueryChanged)
             getApiInfoStore().deregister(onInfoChanged)
@@ -77,7 +85,7 @@ export default function App() {
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
         }
-    })
+    }, [])
 
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
