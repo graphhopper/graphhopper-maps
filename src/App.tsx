@@ -36,7 +36,6 @@ import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import MapFeaturePopup from '@/layers/MapFeaturePopup'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
-import { getApi } from '@/api/Api'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -69,7 +68,13 @@ export default function App() {
         getPathDetailsStore().register(onPathDetailsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
 
-        getApi().infoWithDispatch()
+        onQueryChanged()
+        onInfoChanged()
+        onRouteChanged()
+        onErrorChanged()
+        onMapOptionsChanged()
+        onPathDetailsChanged()
+        onMapFeaturesChanged()
 
         return () => {
             getQueryStore().deregister(onQueryChanged)
