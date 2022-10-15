@@ -36,6 +36,7 @@ import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import MapFeaturePopup from '@/layers/MapFeaturePopup'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
+import RoutingProfiles from "@/sidebar/search/routingProfiles/RoutingProfiles";
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -139,17 +140,15 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
         <>
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent} id={SIDEBAR_CONTENT_ID}>
-                    <Search
-                        points={query.queryPoints}
-                        routingProfiles={info.profiles}
-                        selectedProfile={query.routingProfile}
-                    />
+                    <RoutingProfiles routingProfiles={info.profiles} selectedProfile={query.routingProfile}
+                                     customModelAllowed={true} customModelEnabled={query.customModelEnabled} />
                     <CustomModelBox
                         enabled={query.customModelEnabled}
                         encodedValues={info.encoded_values}
                         initialCustomModelStr={query.initialCustomModelStr}
                         queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                     />
+                    <Search points={query.queryPoints}/>
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <RoutingResults
                         paths={route.routingResult.paths}

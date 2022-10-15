@@ -144,18 +144,6 @@ export default function CustomModelBox({
 
     return (
         <>
-            <PlainButton
-                title={tr('open_custom_model_box')}
-                className={enabled ? styles.enabledSettings : styles.settings}
-                onClick={() => {
-                    if (enabled) Dispatcher.dispatch(new DismissLastError())
-                    Dispatcher.dispatch(new ClearRoute())
-                    Dispatcher.dispatch(new SetCustomModelBoxEnabled(!enabled))
-                }}
-            >
-                <SettingsSVG />
-            </PlainButton>
-            <div className={styles.spacer}></div>
             {/*we use 'display: none' instead of conditional rendering to preserve the custom model box's state when it is closed*/}
             <div
                 ref={divElement}
