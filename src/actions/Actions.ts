@@ -225,5 +225,4 @@ export class RoutingGraphHover implements Action {
     }
 }
 
-export class ToggleDistanceUnits implements Action {
-}
+export class ToggleDistanceUnits implements Action {}

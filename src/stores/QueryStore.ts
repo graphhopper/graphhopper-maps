@@ -1,5 +1,5 @@
 import { coordinateToText, metersToText } from '@/Converters'
-import Api from '@/api/Api'
+import Api, { ApiImpl } from '@/api/Api'
 import Store from '@/stores/Store'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import {
@@ -278,8 +278,8 @@ export default class QueryStore extends Store<QueryStoreState> {
     private routeIfReady(state: QueryStoreState): QueryStoreState {
         if (QueryStore.isReadyToRoute(state)) {
             let requests
+            const maxDistance = getMaxDistance(state.queryPoints)
             if (state.customModelEnabled) {
-                const maxDistance = getMaxDistance(state.queryPoints)
                 if (maxDistance < 200_000) {
                     // Use a single request, possibly including alternatives when custom models are enabled.
                     requests = [QueryStore.buildRouteRequest(state)]
@@ -314,7 +314,11 @@ export default class QueryStore extends Store<QueryStoreState> {
                     }),
                 ]
                 // ... and then a second, slower request including alternatives if they are enabled.
-                if (state.queryPoints.length === 2 && state.maxAlternativeRoutes > 1)
+                if (
+                    state.queryPoints.length === 2 &&
+                    state.maxAlternativeRoutes > 1 &&
+                    (ApiImpl.isMotorVehicle(state.routingProfile.name) || maxDistance < 500_000)
+                )
                     requests.push(QueryStore.buildRouteRequest(state))
             }
 

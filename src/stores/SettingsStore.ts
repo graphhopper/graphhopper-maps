@@ -17,7 +17,7 @@ export default class SettingsStore extends Store<Settings> {
         if (action instanceof ToggleDistanceUnits) {
             return {
                 ...state,
-                showDistanceInMiles: !state.showDistanceInMiles
+                showDistanceInMiles: !state.showDistanceInMiles,
             }
         }
         return state

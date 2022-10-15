@@ -13,6 +13,7 @@ import { Position } from 'geojson'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import { ApiImpl } from '@/api/Api'
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -39,8 +40,8 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const hasFords = containsValue(path.details.road_environment, 'ford')
     const hasTolls = containsValue(path.details.toll, 'all')
     const hasFerries = containsValue(path.details.road_environment, 'ferry')
-    const showAndHasBadTracks = isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
-    const showAndHasSteps = isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
+    const showAndHasBadTracks = ApiImpl.isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
+    const showAndHasSteps = ApiImpl.isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
     const hasBorderCrossed = crossesBorder(path.details.country)
 
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
@@ -51,8 +52,10 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                 <div className={resultSummaryClass}>
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
-                        <span className={styles.resultSecondaryText}>{metersToText(path.distance, showDistanceInMiles)}</span>
-                        {isSelected && !isMotorVehicle(profile) && (
+                        <span className={styles.resultSecondaryText}>
+                            {metersToText(path.distance, showDistanceInMiles)}
+                        </span>
+                        {isSelected && !ApiImpl.isMotorVehicle(profile) && (
                             <div className={styles.elevationHint}>
                                 <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
                                     ↗{metersToText(path.ascend, showDistanceInMiles)}{' '}
@@ -69,7 +72,10 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                         )}
                     </div>
                     {isSelected && (
-                        <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path, showDistanceInMiles)}>
+                        <PlainButton
+                            className={styles.exportButton}
+                            onClick={() => downloadGPX(path, showDistanceInMiles)}
+                        >
                             <GPXDownload />
                             <div>{tr('gpx_button')}</div>
                         </PlainButton>
@@ -98,14 +104,6 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
             {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
     )
-}
-
-function isBikeLike(profile: string) {
-    return profile.includes('mtb') || profile.includes('bike')
-}
-
-function isMotorVehicle(profile: string) {
-    return profile.includes('car') || profile.includes('truck') || profile.includes('scooter')
 }
 
 function containsBadTracks(details: [number, number, string][]) {
@@ -173,9 +171,10 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
     const file = new Blob([xmlString], { type: 'application/gpx+xml' })
     tmpElement.href = URL.createObjectURL(file)
     const date = new Date()
-    tmpElement.download = `GraphHopper-Route-${metersToText(path.distance, showDistanceInMiles)}-${date.getUTCFullYear()}-${pad(
-        date.getUTCMonth() + 1
-    )}-${pad(date.getUTCDate())}.gpx`
+    tmpElement.download = `GraphHopper-Route-${metersToText(
+        path.distance,
+        showDistanceInMiles
+    )}-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}.gpx`
     tmpElement.click()
 }
 

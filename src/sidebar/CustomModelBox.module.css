@@ -1,5 +1,6 @@
 .customModelBox {
-    padding: 0.3em;
+    margin: 0.6em 0;
+    padding: 0 0;
     border-top: lightgray solid 1px;
     height: 18rem;
 }
@@ -16,85 +17,6 @@
 .helpLink {
     text-decoration: none;
     flex-grow: 1;
-}
-
-.enabledSettings svg path,
-.settings svg path {
-    fill: #5b616a;
-    stroke: #5b616a;
-}
-
-.enabledSettings:active svg path,
-.settings:active svg path {
-    fill: lightgray;
-    stroke: lightgray;
-}
-
-.settings:hover svg path,
-.enabledSettings:hover svg path {
-    fill: #000000;
-    stroke: #000000;
-}
-
-.settings:active svg path,
-.enabledSettings:active svg path {
-    fill: lightgray;
-    stroke: lightgray;
-}
-
-.enabledSettings svg,
-.settings svg {
-    margin: 0;
-    padding: 0;
-    width: 20px;
-    height: auto;
-}
-
-.settings svg {
-    transform: rotate(0);
-    animation-name: reverse_rotate;
-    animation-duration: 0.2s;
-}
-
-.enabledSettings svg {
-    transform: rotate(180deg);
-    animation-name: setting_rotate;
-    animation-duration: 0.2s;
-}
-
-@keyframes setting_rotate {
-    0% {
-        transform: rotate(0);
-    }
-    100% {
-        transform: rotate(180deg);
-    }
-}
-
-@keyframes reverse_rotate {
-    0% {
-        transform: rotate(180deg);
-    }
-    100% {
-        transform: rotate(0);
-    }
-}
-
-.enabledSettings,
-.settings {
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    margin: -40px 0 0 calc(100% - 20px - 1em);
-    padding: 0;
-}
-
-/* the negative top margin of the previous element and this space is required because we want to horizontally align
- the settings and add-location button which are part of two different components.
-*/
-.spacer {
-    padding: 5px;
 }
 
 .examples,
@@ -129,7 +51,7 @@
 .infiniteProgressBar {
     animation: progress 4s infinite normal;
     height: 2px;
-    margin-top: -2px; /* when visiable it should not occupy space */
+    margin-top: -2px; /* when visible it should not occupy space */
     background-color: rgb(65, 121, 0);
 }
 

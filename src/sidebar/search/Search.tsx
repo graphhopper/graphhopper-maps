@@ -1,67 +1,60 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { QueryPoint } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint } from '@/actions/Actions'
-import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
 import PlainButton from '@/PlainButton'
-import { RoutingProfile } from '@/api/graphhopper'
 
 import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 
-export default function Search({
-    points,
-    routingProfiles,
-    selectedProfile,
-}: {
-    points: QueryPoint[]
-    routingProfiles: RoutingProfile[]
-    selectedProfile: RoutingProfile
-}) {
+export default function Search({ points }: { points: QueryPoint[] }) {
     let [showTargetIcons, setShowTargetIcons] = useState(true)
     let [moveStartIndex, onMoveStartSelect] = useState(-1)
     let [dropPreviewIndex, onDropPreviewSelect] = useState(-1)
 
     return (
-        <div className={styles.searchBox}>
-            <RoutingProfiles routingProfiles={routingProfiles} selectedProfile={selectedProfile} />
-            {points.map((point, index) => (
-                <SearchBox
-                    key={point.id}
-                    index={index}
-                    points={points}
-                    deletable={points.length > 2}
-                    onChange={() => {
-                        Dispatcher.dispatch(new ClearRoute())
-                        Dispatcher.dispatch(new InvalidatePoint(point))
-                    }}
-                    showTargetIcons={showTargetIcons}
-                    moveStartIndex={moveStartIndex}
-                    onMoveStartSelect={(index, showTarget) => {
-                        onMoveStartSelect(index)
-                        setShowTargetIcons(showTarget)
-                    }}
-                    dropPreviewIndex={dropPreviewIndex}
-                    onDropPreviewSelect={onDropPreviewSelect}
-                />
-            ))}
-            <PlainButton
-                style={
-                    showTargetIcons && moveStartIndex >= 0 && moveStartIndex + 1 < points.length
-                        ? { paddingTop: '2rem' }
-                        : {}
-                }
-                onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
-                className={styles.addSearchBox}
-            >
-                <AddIcon />
-                <div>{tr('add_to_route')}</div>
-            </PlainButton>
+        <div className={styles.searchBoxParent}>
+            <div className={styles.searchBox}>
+                {points.map((point, index) => (
+                    <SearchBox
+                        key={point.id}
+                        index={index}
+                        points={points}
+                        deletable={points.length > 2}
+                        onChange={() => {
+                            Dispatcher.dispatch(new ClearRoute())
+                            Dispatcher.dispatch(new InvalidatePoint(point))
+                        }}
+                        showTargetIcons={showTargetIcons}
+                        moveStartIndex={moveStartIndex}
+                        onMoveStartSelect={(index, showTarget) => {
+                            onMoveStartSelect(index)
+                            setShowTargetIcons(showTarget)
+                        }}
+                        dropPreviewIndex={dropPreviewIndex}
+                        onDropPreviewSelect={onDropPreviewSelect}
+                    />
+                ))}
+            </div>
+            <div className={styles.lastSearchLine}>
+                <PlainButton
+                    style={
+                        showTargetIcons && moveStartIndex >= 0 && moveStartIndex + 1 < points.length
+                            ? { paddingTop: '2rem' }
+                            : {}
+                    }
+                    onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
+                    className={styles.addSearchBox}
+                >
+                    <AddIcon />
+                    <div>{tr('add_to_route')}</div>
+                </PlainButton>
+            </div>
         </div>
     )
 }
@@ -91,10 +84,10 @@ const SearchBox = ({
 
     // With this ref and tabIndex=-1 we ensure that the first 'TAB' gives the focus the first input but the marker won't be included in the TAB sequence, #194
     const myMarkerRef = useRef<HTMLDivElement>(null)
-    if (index == 0)
-        useEffect(() => {
-            myMarkerRef.current?.focus()
-        }, [])
+
+    useEffect(() => {
+        if (index == 0) myMarkerRef.current?.focus()
+    }, [])
 
     function onClickOrDrop() {
         onDropPreviewSelect(-1)

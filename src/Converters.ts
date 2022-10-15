@@ -12,7 +12,7 @@ export function milliSecondsToText(seconds: number) {
 
 const distanceFormat = new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 1 })
 
-export function metersToText(meters: number, showDistanceInMiles: boolean, forceSmallUnits : boolean = false) {
+export function metersToText(meters: number, showDistanceInMiles: boolean, forceSmallUnits: boolean = false) {
     if (showDistanceInMiles) {
         if (meters < 160.934 || forceSmallUnits) return Math.floor(meters / 0.3048) + ' ft'
         return distanceFormat.format(meters / 1609.34) + ' mi'

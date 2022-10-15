@@ -38,6 +38,7 @@ import MapFeaturePopup from '@/layers/MapFeaturePopup'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -73,6 +74,14 @@ export default function App() {
         getPathDetailsStore().register(onPathDetailsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
 
+        onQueryChanged()
+        onInfoChanged()
+        onRouteChanged()
+        onErrorChanged()
+        onMapOptionsChanged()
+        onPathDetailsChanged()
+        onMapFeaturesChanged()
+
         return () => {
             getSettingsStore().register(onSettingsChanged)
             getQueryStore().deregister(onQueryChanged)
@@ -83,7 +92,7 @@ export default function App() {
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
         }
-    })
+    }, [])
 
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
@@ -139,10 +148,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
         <>
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent} id={SIDEBAR_CONTENT_ID}>
-                    <Search
-                        points={query.queryPoints}
+                    <RoutingProfiles
                         routingProfiles={info.profiles}
                         selectedProfile={query.routingProfile}
+                        customModelAllowed={true}
+                        customModelEnabled={query.customModelEnabled}
                     />
                     <CustomModelBox
                         enabled={query.customModelEnabled}
@@ -150,6 +160,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                         initialCustomModelStr={query.initialCustomModelStr}
                         queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                     />
+                    <Search points={query.queryPoints} />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <RoutingResults
                         paths={route.routingResult.paths}
