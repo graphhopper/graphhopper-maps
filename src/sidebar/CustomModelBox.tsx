@@ -1,16 +1,15 @@
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/lint/lint.css'
-// todonow: this belongs to this app and we should not take it from the demo...
+// todo: this belongs to this app and we should not take it from the demo...
 import 'custom-model-editor/demo/style.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearRoute, DismissLastError, SetCustomModel, SetCustomModelBoxEnabled } from '@/actions/Actions'
+import { DismissLastError, SetCustomModel } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
-import SettingsSVG from './settings.svg'
 import PlainButton from '@/PlainButton'
 
 const examples: { [key: string]: CustomModel } = {

@@ -13,6 +13,7 @@ import {
     getQueryStore,
     getRouteStore,
     setStores,
+    getSettingsStore,
 } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
@@ -27,6 +28,7 @@ import { getApi, setApi } from '@/api/Api'
 import MapActionReceiver from '@/stores/MapActionReceiver'
 import { createMap, getMap, setMap } from '@/map/map'
 import MapFeatureStore from '@/stores/MapFeatureStore'
+import SettingsStore from '@/stores/SettingsStore'
 
 const url = new URL(window.location.href)
 const locale = url.searchParams.get('locale')
@@ -41,6 +43,7 @@ const queryStore = new QueryStore(getApi(), initialCustomModelStr)
 const routeStore = new RouteStore(queryStore)
 
 setStores({
+    settingsStore: new SettingsStore(),
     queryStore: queryStore,
     routeStore: routeStore,
     infoStore: new ApiInfoStore(),
@@ -53,6 +56,7 @@ setStores({
 setMap(createMap())
 
 // register stores at dispatcher to receive actions
+Dispatcher.register(getSettingsStore())
 Dispatcher.register(getQueryStore())
 Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())

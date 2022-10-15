@@ -67,7 +67,8 @@
 "truck":"Truck",
 "staticlink":"static link",
 "motorcycle":"Motorcycle",
-"back_to_map":"Back"
+"back_to_map":"Back",
+"distance_unit":"Distances are in %1$s"
 },
 "ar":{
 "total_ascend":"%1$s اجمالى صعود",
@@ -138,7 +139,8 @@
 "truck":"شاحنة",
 "staticlink":"رابط ثابت",
 "motorcycle":"دراجة نارية",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "ast":{
 "total_ascend":"%1$s d'ascensu total",
@@ -209,7 +211,8 @@
 "truck":"Camión",
 "staticlink":"enllaz estáticu",
 "motorcycle":"Motocicleta",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "bg":{
 "total_ascend":"%1$s общо изкачване",
@@ -280,7 +283,8 @@
 "truck":"Камион",
 "staticlink":"Постоянна препратка",
 "motorcycle":"Мотоциклет",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "bn_BN":{
 "total_ascend":"",
@@ -351,7 +355,8 @@
 "truck":"",
 "staticlink":"",
 "motorcycle":"",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "ca":{
 "total_ascend":"%1$s de pujada total",
@@ -422,7 +427,8 @@
 "truck":"Camió",
 "staticlink":"Enllaç",
 "motorcycle":"Motocicleta",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "cs_CZ":{
 "total_ascend":"Celkové stoupání %1$s",
@@ -493,7 +499,8 @@
 "truck":"Nákladní automobil",
 "staticlink":"neměnný odkaz",
 "motorcycle":"Motocykl",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "da_DK":{
 "total_ascend":"%1$s samlet stigning",
@@ -564,7 +571,8 @@
 "truck":"Lastbil",
 "staticlink":"statisk link",
 "motorcycle":"Motorcykel",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "de_DE":{
 "total_ascend":"%1$s Gesamtaufstieg",
@@ -635,7 +643,8 @@
 "truck":"LKW",
 "staticlink":"Link",
 "motorcycle":"Motorrad",
-"back_to_map":"Zurück"
+"back_to_map":"Zurück",
+"distance_unit":"Distanzen sind in %1$s"
 },
 "el":{
 "total_ascend":"%1$s συνολική ανάβαση",
@@ -706,7 +715,8 @@
 "truck":"Φορτηγό",
 "staticlink":"στατική διεύθυνση",
 "motorcycle":"Μοτοσυκλέτα",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "eo":{
 "total_ascend":"%1$s supreniro tute",
@@ -777,7 +787,8 @@
 "truck":"Kamiono",
 "staticlink":"konstanta ligilo",
 "motorcycle":"Motorciklo",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "es":{
 "total_ascend":"Ascender %1$s en total",
@@ -848,7 +859,8 @@
 "truck":"Camión",
 "staticlink":"enlace estático",
 "motorcycle":"Motocicleta",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "fa":{
 "total_ascend":"مجموع صعود %1$s",
@@ -919,7 +931,8 @@
 "truck":"کامیون",
 "staticlink":"پیوند ثابت",
 "motorcycle":"موتورسیکلت",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "fil":{
 "total_ascend":"",
@@ -990,7 +1003,8 @@
 "truck":"",
 "staticlink":"static link",
 "motorcycle":"motorsiklo",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "fi":{
 "total_ascend":"nousu yhteensä %1$s",
@@ -1061,7 +1075,8 @@
 "truck":"Kuorma-auto",
 "staticlink":"yhteys",
 "motorcycle":"Moottoripyörällä",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "fr_FR":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1132,7 +1147,8 @@
 "truck":"Camion",
 "staticlink":"Lien",
 "motorcycle":"Moto",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "fr_CH":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1203,7 +1219,8 @@
 "truck":"Camion",
 "staticlink":"Lien",
 "motorcycle":"Moto",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "gl":{
 "total_ascend":"",
@@ -1274,7 +1291,8 @@
 "truck":"",
 "staticlink":"Enlace",
 "motorcycle":"Motocicleta",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "he":{
 "total_ascend":"עלייה כוללת של %1$s",
@@ -1345,7 +1363,8 @@
 "truck":"משאית",
 "staticlink":"קישור קבוע",
 "motorcycle":"אופנוע",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "hr_HR":{
 "total_ascend":"%1$s ukupni uspon",
@@ -1416,7 +1435,8 @@
 "truck":"Kamion",
 "staticlink":"statička poveznica",
 "motorcycle":"Motocikl",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "hsb":{
 "total_ascend":"",
@@ -1487,7 +1507,8 @@
 "truck":"",
 "staticlink":"link",
 "motorcycle":"motorske",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "hu_HU":{
 "total_ascend":"Összes szintemelkedés: %1$s",
@@ -1558,7 +1579,8 @@
 "truck":"Teherautó",
 "staticlink":"Statikus hivatkozás",
 "motorcycle":"Motorkerékpár",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "in_ID":{
 "total_ascend":"naik dengan jarak %1$s",
@@ -1629,7 +1651,8 @@
 "truck":"Truk",
 "staticlink":"Jalur tetap",
 "motorcycle":"Motor",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "it":{
 "total_ascend":"%1$s di dislivello positivo",
@@ -1700,7 +1723,8 @@
 "truck":"Camion",
 "staticlink":"permalink",
 "motorcycle":"Moto",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "ja":{
 "total_ascend":"",
@@ -1771,7 +1795,8 @@
 "truck":"",
 "staticlink":"パーマリンク",
 "motorcycle":"オートバイ",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "ko":{
 "total_ascend":"오르막길 총 %1$s",
@@ -1842,7 +1867,8 @@
 "truck":"트럭",
 "staticlink":"정적 링크",
 "motorcycle":"모터사이클",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "lt_LT":{
 "total_ascend":"",
@@ -1913,7 +1939,8 @@
 "truck":"Sunkvežimis",
 "staticlink":"statinė nuoroda",
 "motorcycle":"Motociklas",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "ne":{
 "total_ascend":"",
@@ -1984,7 +2011,8 @@
 "truck":"",
 "staticlink":"ईस्ट्यातिक लिंक",
 "motorcycle":"मोटरसाइकल ",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "nl":{
 "total_ascend":"%1$s totale klim",
@@ -2055,7 +2083,8 @@
 "truck":"vrachtwagen",
 "staticlink":"statische link",
 "motorcycle":"motorfiets",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "pl_PL":{
 "total_ascend":"%1$s podejść ogółem",
@@ -2126,7 +2155,8 @@
 "truck":"Ciężarówka",
 "staticlink":"link",
 "motorcycle":"Motocykl",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "pt_BR":{
 "total_ascend":"subida de %1$s",
@@ -2197,7 +2227,8 @@
 "truck":"Caminhão",
 "staticlink":"Link estático",
 "motorcycle":"Motocicleta",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "pt_PT":{
 "total_ascend":"subida de %1$s",
@@ -2268,7 +2299,8 @@
 "truck":"Camião",
 "staticlink":"Ligação permanente",
 "motorcycle":"Motocicleta",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "ro":{
 "total_ascend":"urcare %1$s",
@@ -2339,7 +2371,8 @@
 "truck":"Camion",
 "staticlink":"link",
 "motorcycle":"Motocicletă",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "ru":{
 "total_ascend":"подъём на %1$s",
@@ -2410,7 +2443,8 @@
 "truck":"Грузовой автомобиль",
 "staticlink":"Постоянная ссылка",
 "motorcycle":"Мотоцикл",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "sk":{
 "total_ascend":"%1$s yüksəliş",
@@ -2481,7 +2515,8 @@
 "truck":"Yük maşını",
 "staticlink":"Daimi keçid",
 "motorcycle":"Motosiklet",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "sl_SI":{
 "total_ascend":"%1$s celkové stúpanie",
@@ -2552,7 +2587,8 @@
 "truck":"Jazdná súprava",
 "staticlink":"nemenný odkaz",
 "motorcycle":"Motocykel",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "sr_RS":{
 "total_ascend":"Skupni vzpon: %1$s",
@@ -2623,7 +2659,8 @@
 "truck":"Tovornjak",
 "staticlink":"Povezava",
 "motorcycle":"Motorno kolo",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "sv_SE":{
 "total_ascend":"%1$s ukupni uspon",
@@ -2694,7 +2731,8 @@
 "truck":"Kamion",
 "staticlink":"statička veza",
 "motorcycle":"Motocikl",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "tr":{
 "total_ascend":"%1$s stigning",
@@ -2765,7 +2803,8 @@
 "truck":"Lastbil",
 "staticlink":"direktlänk",
 "motorcycle":"Motorcykel",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "uk":{
 "total_ascend":"%1$s toplam tırmanış",
@@ -2836,7 +2875,8 @@
 "truck":"Kamyon",
 "staticlink":"durağan bağlantı",
 "motorcycle":"motosiklet",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "vi_VN":{
 "total_ascend":"%1$s загалом підйому",
@@ -2907,7 +2947,8 @@
 "truck":"Велика вантажівка",
 "staticlink":"статичне посилання",
 "motorcycle":"Мотоцикл",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "zh_CN":{
 "total_ascend":"Đi tiếp %1$s nữa",
@@ -2978,7 +3019,8 @@
 "truck":"Xe tải",
 "staticlink":"liên kết tĩnh",
 "motorcycle":"Mô tô",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "zh_HK":{
 "total_ascend":"总上升%1$s",
@@ -3049,7 +3091,8 @@
 "truck":"卡车",
 "staticlink":"静态链接",
 "motorcycle":"摩托车",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 },
 "zh_TW":{
 "total_ascend":"總共上昇 %1$s",
@@ -3120,5 +3163,6 @@
 "truck":"貨車",
 "staticlink":"鏈接",
 "motorcycle":"電單車",
-"back_to_map":""
+"back_to_map":"",
+"distance_unit":""
 }}

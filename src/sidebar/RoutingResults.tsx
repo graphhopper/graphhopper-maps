@@ -1,7 +1,7 @@
 import { Instruction, Path } from '@/api/graphhopper'
 import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
 import { metersToText, milliSecondsToText } from '@/Converters'
@@ -12,6 +12,7 @@ import Instructions from '@/sidebar/instructions/Instructions'
 import { Position } from 'geojson'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
+import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
 
 export interface RoutingResultsProps {
@@ -43,20 +44,24 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const showAndHasSteps = ApiImpl.isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
     const hasBorderCrossed = crossesBorder(path.details.country)
 
+    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+
     return (
         <div className={styles.resultRow}>
             <div className={styles.resultSelectableArea} onClick={() => Dispatcher.dispatch(new SetSelectedPath(path))}>
                 <div className={resultSummaryClass}>
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
-                        <span className={styles.resultSecondaryText}>{metersToText(path.distance)}</span>
+                        <span className={styles.resultSecondaryText}>
+                            {metersToText(path.distance, showDistanceInMiles)}
+                        </span>
                         {isSelected && !ApiImpl.isMotorVehicle(profile) && (
                             <div className={styles.elevationHint}>
                                 <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
-                                    ↗{metersToText(path.ascend)}{' '}
+                                    ↗{metersToText(path.ascend, showDistanceInMiles)}{' '}
                                 </span>
                                 <span title={tr('total_descend', [Math.round(path.descend) + 'm'])}>
-                                    ↘{metersToText(path.descend)}
+                                    ↘{metersToText(path.descend, showDistanceInMiles)}
                                 </span>
                             </div>
                         )}
@@ -67,7 +72,10 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                         )}
                     </div>
                     {isSelected && (
-                        <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path)}>
+                        <PlainButton
+                            className={styles.exportButton}
+                            onClick={() => downloadGPX(path, showDistanceInMiles)}
+                        >
                             <GPXDownload />
                             <div>{tr('gpx_button')}</div>
                         </PlainButton>
@@ -126,7 +134,7 @@ function containsValue(details: [number, number, string][], value: string) {
     return false
 }
 
-function downloadGPX(path: Path) {
+function downloadGPX(path: Path, showDistanceInMiles: boolean) {
     let xmlString =
         '<?xml version="1.0" encoding="UTF-8" standalone="no" ?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="GraphHopper" version="1.1" xmlns:gh="https://graphhopper.com/public/schema/gpx/1.1">\n'
     xmlString += `<metadata><copyright author="OpenStreetMap contributors"/><link href="http://graphhopper.com"><text>GraphHopper GPX</text></link><time>${new Date().toISOString()}</time></metadata>\n`
@@ -163,9 +171,10 @@ function downloadGPX(path: Path) {
     const file = new Blob([xmlString], { type: 'application/gpx+xml' })
     tmpElement.href = URL.createObjectURL(file)
     const date = new Date()
-    tmpElement.download = `GraphHopper-Route-${metersToText(path.distance)}-${date.getUTCFullYear()}-${pad(
-        date.getUTCMonth() + 1
-    )}-${pad(date.getUTCDate())}.gpx`
+    tmpElement.download = `GraphHopper-Route-${metersToText(
+        path.distance,
+        showDistanceInMiles
+    )}-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}.gpx`
     tmpElement.click()
 }
 
@@ -173,7 +182,7 @@ function pad(value: number) {
     return value < 10 ? '0' + value : '' + value
 }
 
-function RoutingResultPlacelholder() {
+function RoutingResultPlaceholder() {
     return (
         <div className={styles.resultRow}>
             <div className={styles.placeholderContainer}>
@@ -199,7 +208,7 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 function createSingletonListContent(props: RoutingResultsProps) {
     if (props.paths.length > 0)
         return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} />
-    if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlacelholder key={1} />
+    if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlaceholder key={1} />
     return ''
 }
 
@@ -212,7 +221,7 @@ function createListContent({ paths, currentRequest, selectedPath, profile }: Rou
             result.push(
                 <RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} profile={profile} />
             )
-        else result.push(<RoutingResultPlacelholder key={i} />)
+        else result.push(<RoutingResultPlaceholder key={i} />)
     }
 
     return result
