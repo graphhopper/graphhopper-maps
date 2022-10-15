@@ -2,14 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint } from '@/stores/QueryStore'
-import {
-    AddPoint,
-    ClearRoute,
-    InvalidatePoint,
-    MovePoint,
-    RemovePoint,
-    SetPoint,
-} from '@/actions/Actions'
+import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
@@ -19,7 +12,7 @@ import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 
-export default function Search({points}:{points: QueryPoint[]}) {
+export default function Search({ points }: { points: QueryPoint[] }) {
     let [showTargetIcons, setShowTargetIcons] = useState(true)
     let [moveStartIndex, onMoveStartSelect] = useState(-1)
     let [dropPreviewIndex, onDropPreviewSelect] = useState(-1)

@@ -8,7 +8,7 @@ import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { useMediaQuery } from 'react-responsive'
 import { MarkerComponent } from '@/map/Marker'
-import RoutingProfiles from "@/sidebar/search/routingProfiles/RoutingProfiles";
+import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -46,15 +46,16 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
         <div className={styles.sidebar}>
             <div className={styles.background} ref={searchContainerRef}>
                 {isSmallSearchView ? (
-                    <SmallSearchView
-                        points={query.queryPoints}
-                        onClick={() => setIsSmallSearchView(false)}
-                    />
+                    <SmallSearchView points={query.queryPoints} onClick={() => setIsSmallSearchView(false)} />
                 ) : (
                     <div className={styles.btnCloseContainer}>
-                        <RoutingProfiles routingProfiles={info.profiles} selectedProfile={query.routingProfile}
-                                         customModelAllowed={false} customModelEnabled={query.customModelEnabled} />
-                        <Search points={query.queryPoints}/>
+                        <RoutingProfiles
+                            routingProfiles={info.profiles}
+                            selectedProfile={query.routingProfile}
+                            customModelAllowed={false}
+                            customModelEnabled={query.customModelEnabled}
+                        />
+                        <Search points={query.queryPoints} />
                     </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}
