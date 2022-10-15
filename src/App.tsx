@@ -80,7 +80,7 @@ export default function App() {
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
         }
-    })
+    }, [])
 
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
