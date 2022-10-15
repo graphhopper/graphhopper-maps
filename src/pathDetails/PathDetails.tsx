@@ -4,10 +4,11 @@ import { HeightGraph } from 'heightgraph/src/heightgraph'
 import 'heightgraph/src/heightgraph.css'
 import { Path } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelected } from '@/actions/Actions'
+import { PathDetailsRangeSelected } from '@/actions/Actions'
 import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
 import { calcDist } from '@/distUtils'
+import { setHighlightedSegments, setPoint } from '@/stores/UsePathDetailsStore'
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -67,7 +68,7 @@ function clampWidth(clientWidth: number) {
 
 /** executed when we hover the mouse over the path details diagram */
 function onPathDetailHover(point: Coordinate, elevation: number, description: string) {
-    Dispatcher.dispatch(new PathDetailsHover(point ? { point, elevation, description } : null))
+    setPoint(point ? { point, elevation, description } : null)
 }
 
 /** executed when we box-select a range of the path details diagram */
@@ -80,7 +81,7 @@ function onRangeSelected(bbox: { sw: Coordinate; ne: Coordinate } | null) {
 
 /** executed when we use the vertical elevation slider on the right side of the diagram */
 function onElevationSelected(segments: Coordinate[][]) {
-    Dispatcher.dispatch(new PathDetailsElevationSelected(segments))
+    setHighlightedSegments(segments)
 }
 
 function buildPathDetailsData(selectedPath: Path) {

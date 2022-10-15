@@ -6,7 +6,6 @@ import {
     getErrorStore,
     getMapFeatureStore,
     getMapOptionsStore,
-    getPathDetailsStore,
     getQueryStore,
     getRouteStore,
 } from '@/stores/Stores'
@@ -46,7 +45,6 @@ export default function App() {
     const [route, setRoute] = useState(getRouteStore().state)
     const [error, setError] = useState(getErrorStore().state)
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
-    const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
     const [mapFeatures, setMapFeatures] = useState(getMapFeatureStore().state)
 
     const map = getMap()
@@ -57,7 +55,6 @@ export default function App() {
         const onRouteChanged = () => setRoute(getRouteStore().state)
         const onErrorChanged = () => setError(getErrorStore().state)
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
-        const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
         const onMapFeaturesChanged = () => setMapFeatures(getMapFeatureStore().state)
 
         getQueryStore().register(onQueryChanged)
@@ -65,7 +62,6 @@ export default function App() {
         getRouteStore().register(onRouteChanged)
         getErrorStore().register(onErrorChanged)
         getMapOptionsStore().register(onMapOptionsChanged)
-        getPathDetailsStore().register(onPathDetailsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
 
         return () => {
@@ -74,7 +70,6 @@ export default function App() {
             getRouteStore().deregister(onRouteChanged)
             getErrorStore().deregister(onErrorChanged)
             getMapOptionsStore().deregister(onMapOptionsChanged)
-            getPathDetailsStore().deregister(onPathDetailsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
         }
     })
@@ -86,12 +81,12 @@ export default function App() {
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
     useQueryPointsLayer(map, query.queryPoints)
-    usePathDetailsLayer(map, pathDetails)
+    usePathDetailsLayer(map)
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <div className={styles.appWrapper}>
-            <PathDetailPopup map={map} pathDetails={pathDetails} />
+            <PathDetailPopup map={map} />
             <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
             <MapFeaturePopup map={map} point={mapFeatures.point} properties={mapFeatures.properties} />
             {isSmallScreen ? (

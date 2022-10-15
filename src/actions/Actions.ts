@@ -2,7 +2,6 @@ import { Action } from '@/stores/Dispatcher'
 import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
-import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -188,14 +187,6 @@ export class SetInitialBBox implements Action {
 
     constructor(bbox: Bbox) {
         this.bbox = bbox
-    }
-}
-
-export class PathDetailsHover implements Action {
-    readonly pathDetailsPoint: PathDetailsPoint | null
-
-    constructor(pathDetailsPoint: PathDetailsPoint | null) {
-        this.pathDetailsPoint = pathDetailsPoint
     }
 }
 

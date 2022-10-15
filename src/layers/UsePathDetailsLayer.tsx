@@ -1,6 +1,5 @@
 import { Map } from 'ol'
 import React, { useEffect } from 'react'
-import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { Coordinate } from '@/stores/QueryStore'
 import { FeatureCollection } from 'geojson'
 import VectorLayer from 'ol/layer/Vector'
@@ -8,6 +7,7 @@ import VectorSource from 'ol/source/Vector'
 import { Stroke, Style } from 'ol/style'
 import { GeoJSON } from 'ol/format'
 import { fromLonLat } from 'ol/proj'
+import { usePathDetailsStore } from '@/stores/UsePathDetailsStore'
 
 const highlightedPathSegmentLayerKey = 'highlightedPathSegmentLayer'
 
@@ -15,14 +15,15 @@ const highlightedPathSegmentLayerKey = 'highlightedPathSegmentLayer'
  * This layer highlights path segments that are above the elevation threshold set by the horizontal line in the
  * path details diagram.
  */
-export default function usePathDetailsLayer(map: Map, pathDetails: PathDetailsStoreState) {
+export default function usePathDetailsLayer(map: Map) {
+    const highlightedSegments = usePathDetailsStore(state => state.pathDetailsHighlightedSegments)
     useEffect(() => {
         removePathSegmentsLayer(map)
-        addPathSegmentsLayer(map, pathDetails)
+        addPathSegmentsLayer(map, highlightedSegments)
         return () => {
             removePathSegmentsLayer(map)
         }
-    }, [map, pathDetails])
+    }, [map, highlightedSegments])
     return
 }
 
@@ -33,12 +34,10 @@ function removePathSegmentsLayer(map: Map) {
         .forEach(l => map.removeLayer(l))
 }
 
-function addPathSegmentsLayer(map: Map, pathDetails: PathDetailsStoreState) {
+function addPathSegmentsLayer(map: Map, highlightedSegments: Coordinate[][]) {
     const highlightedPathSegmentsLayer = new VectorLayer({
         source: new VectorSource({
-            features: new GeoJSON().readFeatures(
-                createHighlightedPathSegments(pathDetails.pathDetailsHighlightedSegments)
-            ),
+            features: new GeoJSON().readFeatures(createHighlightedPathSegments(highlightedSegments)),
         }),
         style: () =>
             new Style({

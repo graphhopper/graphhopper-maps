@@ -8,7 +8,6 @@ import {
     getApiInfoStore,
     getErrorStore,
     getMapOptionsStore,
-    getPathDetailsStore,
     getMapFeatureStore,
     getQueryStore,
     getRouteStore,
@@ -20,7 +19,6 @@ import ApiInfoStore from '@/stores/ApiInfoStore'
 import QueryStore from '@/stores/QueryStore'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
-import PathDetailsStore from '@/stores/PathDetailsStore'
 import NavBar from '@/NavBar'
 import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
@@ -46,7 +44,6 @@ setStores({
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
-    pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
 })
 
@@ -58,7 +55,6 @@ Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
-Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getMapFeatureStore())
 
 // register map action receiver
