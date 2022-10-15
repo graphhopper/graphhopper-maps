@@ -35,11 +35,7 @@ const config = {
     // extraProfiles: { my_car: { profile: undefined, vehicle: car }}
     // will add a profile named 'my_car' for which we send a request without the profile parameter and an additional
     // vehicle parameter that is set to 'car'
-    extraProfiles: {
-        'abc': {
-            'profile': 'abc'
-        }
-    },
+    extraProfiles: {},
 }
 
 // this is needed for jest (with our current setup at least)
