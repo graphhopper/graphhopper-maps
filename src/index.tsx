@@ -66,8 +66,6 @@ const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
 const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
 Dispatcher.register(mapActionReceiver)
 
-getApi().infoWithDispatch() // get infos about the api as soon as possible
-
 // hook up the navbar to the query store and vice versa
 const navBar = new NavBar(getQueryStore(), getMapOptionsStore())
 // parse the initial url
