@@ -67,15 +67,15 @@ function RoutingResult({
             <div className={styles.showRisk}>
                 <div>{tr('warning')}</div>
                 <div className={styles.showRiskButtons}>
-                <PlainButton onClick={() => setShowRisk(false)}>{tr('back')}</PlainButton>
-                <PlainButton
-                    onClick={() => {
-                        Dispatcher.dispatch(new TurnNavigationUpdate({ acceptedRisk: true } as TurnNavigationState))
-                        return turnNaviState.fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
-                    }}
-                >
-                    {tr('accept_risks_after_warning')}
-                </PlainButton>
+                    <PlainButton onClick={() => setShowRisk(false)}>{tr('back')}</PlainButton>
+                    <PlainButton
+                        onClick={() => {
+                            Dispatcher.dispatch(new TurnNavigationUpdate({ acceptedRisk: true } as TurnNavigationState))
+                            return turnNaviState.fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
+                        }}
+                    >
+                        {tr('accept_risks_after_warning')}
+                    </PlainButton>
                 </div>
             </div>
         )
