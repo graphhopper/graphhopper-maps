@@ -246,6 +246,35 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info, locatio
 }
 
 function SmallScreenLayout({ query, route, map, error, mapOptions, info, location, turnNaviState }: LayoutProps) {
+    if (location.turnNavigation)
+        return (
+            <>
+                <div className={styles.smallScreenMap}>
+                    <MapComponent map={map} />
+                </div>
+                <div className={styles.smallScreenVolume}>
+                    <PlainButton
+                        onClick={() =>
+                            Dispatcher.dispatch(
+                                new TurnNavigationUpdate({
+                                    soundEnabled: !turnNaviState.soundEnabled,
+                                } as TurnNavigationState)
+                            )
+                        }
+                    >
+                        {turnNaviState.soundEnabled ? (
+                            <VolumeUpIcon fill="#5b616a" />
+                        ) : (
+                            <VolumeOffIcon fill="#5b616a" />
+                        )}
+                    </PlainButton>
+                </div>
+                <div className={styles.smallScreenRoutingResult}>
+                    <TurnNavigation path={route.selectedPath} location={location} turnNaviState={turnNaviState} />
+                </div>
+            </>
+        )
+
     return (
         <>
             <div className={styles.smallScreenSidebar}>
