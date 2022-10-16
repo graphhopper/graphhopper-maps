@@ -15,14 +15,16 @@ import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
-import { TurnNavigationState } from '@/stores/TurnNavigationStore'
 import { getLocationStore } from '@/stores/Stores'
+import turnNavigation from '@/turnNavigation/TurnNavigation'
+import { TurnNavigationState } from '@/stores/TurnNavigationStore'
 
 export interface RoutingResultsProps {
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
     profile: string
+    turnNaviState: TurnNavigationState
 }
 
 export default function RoutingResults(props: RoutingResultsProps) {
@@ -33,7 +35,17 @@ export default function RoutingResults(props: RoutingResultsProps) {
     return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
 }
 
-function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: boolean; profile: string }) {
+function RoutingResult({
+    path,
+    isSelected,
+    profile,
+    turnNaviState,
+}: {
+    path: Path
+    isSelected: boolean
+    profile: string
+    turnNaviState: TurnNavigationState
+}) {
     const [isExpanded, setExpanded] = useState(false)
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
@@ -48,6 +60,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const hasBorderCrossed = crossesBorder(path.details.country)
 
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    // TODO NOW
     let [showRisk, setShowRisk] = useState(false)
 
     return (
@@ -78,7 +91,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     {isSelected && (
                         <PlainButton
                             className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
-                            onClick={() => getLocationStore().initFake() /* : getLocationStore().initReal()*/}
+                            onClick={() =>
+                                turnNaviState.fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
+                            }
                         >
                             <NaviSVG />
                             <div>{tr('Navi')}</div>
@@ -220,19 +235,32 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 
 function createSingletonListContent(props: RoutingResultsProps) {
     if (props.paths.length > 0)
-        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} />
+        return (
+            <RoutingResult
+                path={props.selectedPath}
+                isSelected={true}
+                profile={props.profile}
+                turnNaviState={props.turnNaviState}
+            />
+        )
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlaceholder key={1} />
     return ''
 }
 
-function createListContent({ paths, currentRequest, selectedPath, profile }: RoutingResultsProps) {
+function createListContent({ paths, currentRequest, selectedPath, profile, turnNaviState }: RoutingResultsProps) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
         if (i < paths.length)
             result.push(
-                <RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} profile={profile} />
+                <RoutingResult
+                    key={i}
+                    path={paths[i]}
+                    isSelected={paths[i] === selectedPath}
+                    profile={profile}
+                    turnNaviState={turnNaviState}
+                />
             )
         else result.push(<RoutingResultPlaceholder key={i} />)
     }

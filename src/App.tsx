@@ -224,6 +224,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info, locatio
                         selectedPath={route.selectedPath}
                         currentRequest={query.currentRequest}
                         profile={query.routingProfile.name}
+                        turnNaviState={turnNaviState}
                     />
                     <div>
                         <PoweredBy />
@@ -295,6 +296,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, locatio
                     selectedPath={route.selectedPath}
                     currentRequest={query.currentRequest}
                     profile={query.routingProfile.name}
+                    turnNaviState={turnNaviState}
                 />
             </div>
 

@@ -30,13 +30,15 @@ import MapOptionsStore from '@/stores/MapOptionsStore'
 import LocationStore from '@/stores/LocationStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
 import Dispatcher from '@/stores/Dispatcher'
-import TurnNavigationStore from '@/stores/TurnNavigationStore'
+import TurnNavigationStore, { TurnNavigationState } from '@/stores/TurnNavigationStore'
 import NavBar from '@/NavBar'
 import App from '@/App'
+import { TurnNavigationUpdate } from '@/actions/Actions'
 
 let speechSynthesizer = new SpeechSynthesizer(navigator.language)
 const url = new URL(window.location.href)
 const locale = url.searchParams.get('locale')
+const fake = url.searchParams.get('fake')
 setTranslation(locale || navigator.language)
 
 // use graphhopper api key from url or try using one from the config
@@ -79,7 +81,9 @@ const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
 const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
 Dispatcher.register(mapActionReceiver)
 
-// Dispatcher.dispatch(new TurnNavigationUpdate({fakeGPS: fake !== null, soundEnabled: fake === null} as TurnNavigationState))
+Dispatcher.dispatch(
+    new TurnNavigationUpdate({ fakeGPS: fake !== null, soundEnabled: fake === null } as TurnNavigationState)
+)
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible
 

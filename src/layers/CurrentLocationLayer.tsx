@@ -11,20 +11,25 @@ export default function useCurrentLocationLayer(map: Map, location: Coordinate) 
     useEffect(() => {
         let layer = findLayer(map)
         if (location.lat != 0 && location.lng != 0) {
-            if(layer == null) addCurrentLocation(map, location)
+            if (layer == null) addCurrentLocation(map, location)
             else changeLocation(layer, location)
         }
     }, [map, location])
 }
 
-function findLayer(map: Map) : any {
-    let layers = map.getLayers().getArray().filter(l => l.get('gh:current_location'))
-    return layers.length > 0 && layers[0] instanceof VectorLayer && layers[0].getSource() instanceof VectorSource ? layers[0] : null
+function findLayer(map: Map): any {
+    let layers = map
+        .getLayers()
+        .getArray()
+        .filter(l => l.get('gh:current_location'))
+    return layers.length > 0 && layers[0] instanceof VectorLayer && layers[0].getSource() instanceof VectorSource
+        ? layers[0]
+        : null
 }
 
 function changeLocation(layer: VectorLayer<VectorSource>, location: Coordinate) {
     // TODO animate movement https://openlayers.org/en/latest/examples/feature-move-animation.html
-    let feature = layer.getSource()?.getFeatures()[0] as Feature;
+    let feature = layer.getSource()?.getFeatures()[0] as Feature
     feature.setGeometry(new Point(fromLonLat([location.lng, location.lat])))
 }
 
