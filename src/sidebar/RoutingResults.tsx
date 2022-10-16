@@ -3,7 +3,7 @@ import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import React, { useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import {SetSelectedPath, TurnNavigationUpdate} from '@/actions/Actions'
+import { SetSelectedPath, TurnNavigationUpdate } from '@/actions/Actions'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
@@ -15,8 +15,8 @@ import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
-import {TurnNavigationState} from "@/stores/TurnNavigationStore";
-import {getLocationStore} from "@/stores/Stores";
+import { TurnNavigationState } from '@/stores/TurnNavigationStore'
+import { getLocationStore } from '@/stores/Stores'
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -78,7 +78,8 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     {isSelected && (
                         <PlainButton
                             className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
-                            onClick={() => getLocationStore().initFake() /* : getLocationStore().initReal()*/}>
+                            onClick={() => getLocationStore().initFake() /* : getLocationStore().initReal()*/}
+                        >
                             <NaviSVG />
                             <div>{tr('Navi')}</div>
                         </PlainButton>

@@ -1,6 +1,6 @@
-import {Instruction, Path} from '@/api/graphhopper'
-import {Coordinate} from '@/stores/QueryStore'
-import {or} from "ol/format/filter";
+import { Instruction, Path } from '@/api/graphhopper'
+import { Coordinate } from '@/stores/QueryStore'
+import { or } from 'ol/format/filter'
 
 export function getCurrentDetails(path: Path, location: Coordinate, details: [any, any, any][][]): number[] {
     let smallestDist = Number.MAX_VALUE
@@ -9,7 +9,7 @@ export function getCurrentDetails(path: Path, location: Coordinate, details: [an
 
     for (let pIdx = 0; pIdx < points.length; pIdx++) {
         const p: number[] = points[pIdx]
-        let snapped = {lat: p[1], lng: p[0]}
+        let snapped = { lat: p[1], lng: p[0] }
         let dist = distCalc(p[1], p[0], location.lat, location.lng)
 
         if (pIdx + 1 < points.length) {
@@ -27,12 +27,12 @@ export function getCurrentDetails(path: Path, location: Coordinate, details: [an
     }
     if (foundIndex < 0) return []
 
-    let result = [];
+    let result = []
     for (let i = 0; i < details.length; i++) {
         let detailOnPath = details[i]
         for (let d = 0; d < detailOnPath.length; d++) {
-            let [from, to, val] = detailOnPath[d];
-            if (foundIndex >= from && foundIndex < to || foundIndex == to && d + 1 == detailOnPath.length) {
+            let [from, to, val] = detailOnPath[d]
+            if ((foundIndex >= from && foundIndex < to) || (foundIndex == to && d + 1 == detailOnPath.length)) {
                 result.push(val)
                 break
             }
@@ -61,7 +61,7 @@ export function getCurrentInstruction(
 
         for (let pIdx = 0; pIdx < points.length; pIdx++) {
             const p: number[] = points[pIdx]
-            let snapped = {lat: p[1], lng: p[0]}
+            let snapped = { lat: p[1], lng: p[0] }
             let dist = distCalc(p[1], p[0], location.lat, location.lng)
             // calculate the snapped point, TODO use first point of next instruction for "next" if last point of current instruction
             if (pIdx + 1 < points.length) {
@@ -101,7 +101,7 @@ export function getCurrentInstruction(
         }
     }
 
-    return {instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance}
+    return { instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance }
 }
 
 export function distCalc(fromLat: number, fromLng: number, toLat: number, toLng: number): number {
@@ -179,11 +179,11 @@ function calcCrossingPointToEdge(
 
     if (delta_lat == 0)
         // special case: horizontal edge
-        return {lat: a_lat_deg, lng: r_lon_deg}
+        return { lat: a_lat_deg, lng: r_lon_deg }
 
     if (delta_lon == 0)
         // special case: vertical edge
-        return {lat: r_lat_deg, lng: a_lon_deg}
+        return { lat: r_lat_deg, lng: a_lon_deg }
 
     let norm = delta_lon * delta_lon + delta_lat * delta_lat
     let factor = ((r_lon - a_lon) * delta_lon + (r_lat - a_lat) * delta_lat) / norm
@@ -191,7 +191,7 @@ function calcCrossingPointToEdge(
     // x,y is projection of r onto segment a-b
     let c_lon = a_lon + factor * delta_lon
     let c_lat = a_lat + factor * delta_lat
-    return {lat: c_lat, lng: c_lon / shrinkFactor}
+    return { lat: c_lat, lng: c_lon / shrinkFactor }
 }
 
 // returns orientation in interval -pi to +pi where 0 is east
@@ -202,7 +202,7 @@ export function calcOrientation(lat1: number, lon1: number, lat2: number, lon2: 
 
 // convert east-based radians into north based
 export function toNorthBased(orientation: number): number {
-    orientation = orientation >= 0 ? (5 * Math.PI / 2 - orientation) : ( Math.PI/2 - orientation)
+    orientation = orientation >= 0 ? (5 * Math.PI) / 2 - orientation : Math.PI / 2 - orientation
     // modulo with decimals seems to work too!? orientation % (2 * Math.PI)
-    return orientation > 2 * Math.PI? orientation - 2 * Math.PI : orientation;
+    return orientation > 2 * Math.PI ? orientation - 2 * Math.PI : orientation
 }

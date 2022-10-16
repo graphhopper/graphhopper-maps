@@ -1,13 +1,12 @@
-import {Coordinate} from '@/stores/QueryStore'
+import { Coordinate } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
-import {ErrorAction, LocationUpdate, SetPoint, ZoomMapToPoint} from '@/actions/Actions'
-import Dispatcher, {Action} from '@/stores/Dispatcher'
+import { ErrorAction, LocationUpdate, ZoomMapToPoint } from '@/actions/Actions'
+import Dispatcher, { Action } from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
-import {SpeechSynthesizer} from '@/SpeechSynthesizer'
-import {ApiImpl} from '@/api/Api'
-import {calcOrientation, toNorthBased} from '@/turnNavigation/GeoMethods'
+import { SpeechSynthesizer } from '@/SpeechSynthesizer'
+import { ApiImpl } from '@/api/Api'
+import { calcOrientation, toNorthBased } from '@/turnNavigation/GeoMethods'
 import * as config from 'config'
-import {toDegrees} from "ol/math";
 
 export interface LocationStoreState {
     turnNavigation: boolean
@@ -15,8 +14,6 @@ export interface LocationStoreState {
     speed: number
 }
 
-// TODO investigate what we can learn from https://github.com/visgl/react-map-gl/blob/master/docs/api-reference/geolocate-control.md
-// TODO include compass in map https://github.com/visgl/react-map-gl/blob/master/docs/api-reference/navigation-control.md
 export default class LocationStore extends Store<LocationStoreState> {
     private watchId: any = undefined
     private interval: any
@@ -27,7 +24,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     constructor(speechSynthesizer: SpeechSynthesizer) {
         super({
             turnNavigation: false,
-            coordinate: {lat: 0, lng: 0},
+            coordinate: { lat: 0, lng: 0 },
             speed: 0,
         })
         this.speechSynthesizer = speechSynthesizer
@@ -46,7 +43,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     public async initFake() {
-        console.log("started fake GPS injection")
+        console.log('started fake GPS injection')
         this.started = true
 
         // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car&layer=MapTiler&fake=true
@@ -74,7 +71,7 @@ export default class LocationStore extends Store<LocationStoreState> {
             if (idx > 0) {
                 const prevLat = coords[idx - 1][1]
                 const prevLon = coords[idx - 1][0]
-                let o = calcOrientation(lat, lon, prevLat, prevLon);
+                let o = calcOrientation(lat, lon, prevLat, prevLon)
                 heading = Math.PI - toNorthBased(o)
             }
             latlon[idx] = [lat, lon, heading, 4]
@@ -108,8 +105,8 @@ export default class LocationStore extends Store<LocationStoreState> {
     private static locationUpdate(pos: any) {
         // TODO NOW: 'this is undefined' if called from watchPosition: if (!this.started) return
 
-        let c = {lat: pos.coords.latitude, lng: pos.coords.longitude}
-        Dispatcher.dispatch(new LocationUpdate({coordinate: c, turnNavigation: true, speed: pos.coords.speed}))
+        let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        Dispatcher.dispatch(new LocationUpdate({ coordinate: c, turnNavigation: true, speed: pos.coords.speed }))
         let bearing: number = pos.coords.heading
 
         if (Number.isNaN(bearing)) console.log('skip dispatching SetViewportToPoint because bearing is ' + bearing)
@@ -131,7 +128,7 @@ export default class LocationStore extends Store<LocationStoreState> {
             let options = {
                 timeout: 300_000,
                 // maximumAge is not a problem here like with getCurrentPosition but let's use identical settings
-                enableHighAccuracy: true
+                enableHighAccuracy: true,
             }
             this.watchId = navigator.geolocation.watchPosition(
                 LocationStore.locationUpdate,
@@ -145,7 +142,7 @@ export default class LocationStore extends Store<LocationStoreState> {
                 let requestFullscreenFct = el.requestFullscreen
                 requestFullscreenFct.call(el)
             } catch (e) {
-                console.log("error requesting full screen " + JSON.stringify(e))
+                console.log('error requesting full screen ' + JSON.stringify(e))
             }
         }
     }
@@ -160,11 +157,10 @@ export default class LocationStore extends Store<LocationStoreState> {
         if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
         // exit "navigation view" => use no pitch and no bearing (rotation)
-        // TODO NOW
-        // Dispatcher.dispatch(new SetViewportToPoint(this.state.coordinate, 15, 0, 0))
+        Dispatcher.dispatch(new ZoomMapToPoint(this.state.coordinate, 15, 0, 0))
 
         // directly writing the state does not work: this.state.turnNavigation = false
-        Dispatcher.dispatch(new LocationUpdate({coordinate: {lat: 0, lng: 0}, turnNavigation: false, speed: 0}))
+        Dispatcher.dispatch(new LocationUpdate({ coordinate: { lat: 0, lng: 0 }, turnNavigation: false, speed: 0 }))
 
         if (this.noSleep) this.noSleep.disable()
     }

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
@@ -14,41 +14,42 @@ import {
     getTurnNavigationStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
-import {ApiInfo} from '@/api/graphhopper'
+import { ApiInfo } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
 import MobileSidebar from '@/sidebar/MobileSidebar'
-import {useMediaQuery} from 'react-responsive'
+import { useMediaQuery } from 'react-responsive'
 import RoutingResults from '@/sidebar/RoutingResults'
 import PoweredBy from '@/sidebar/PoweredBy'
-import {QueryStoreState, RequestState} from '@/stores/QueryStore'
-import {RouteStoreState} from '@/stores/RouteStore'
-import {MapOptionsStoreState} from '@/stores/MapOptionsStore'
-import {ErrorStoreState} from '@/stores/ErrorStore'
+import { QueryStoreState, RequestState } from '@/stores/QueryStore'
+import { RouteStoreState } from '@/stores/RouteStore'
+import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
+import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
-import {LocationStoreState} from './stores/LocationStore'
-import {TurnNavigationState} from "@/stores/TurnNavigationStore";
+import { LocationStoreState } from './stores/LocationStore'
+import { TurnNavigationState } from '@/stores/TurnNavigationStore'
 import useBackgroundLayer from '@/layers/UseBackgroundLayer'
 import useQueryPointsLayer from '@/layers/UseQueryPointsLayer'
 import usePathsLayer from '@/layers/UsePathsLayer'
 import ContextMenu from '@/layers/ContextMenu'
 import usePathDetailsLayer from '@/layers/UsePathDetailsLayer'
 import PathDetailPopup from '@/layers/PathDetailPopup'
-import {Map} from 'ol'
-import {getMap} from '@/map/map'
+import { Map } from 'ol'
+import { getMap } from '@/map/map'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import MapFeaturePopup from '@/layers/MapFeaturePopup'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
-import {ShowDistanceInMilesContext} from '@/ShowDistanceInMilesContext'
+import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
-import {TurnNavigationUpdate} from "@/actions/Actions";
-import Dispatcher from "@/stores/Dispatcher";
-import VolumeUpIcon from "@/turnNavigation/volume_up.svg";
-import VolumeOffIcon from "@/turnNavigation/volume_off.svg";
-import PlainButton from "@/PlainButton";
-import TurnNavigation from "@/turnNavigation/TurnNavigation";
+import { TurnNavigationUpdate } from '@/actions/Actions'
+import Dispatcher from '@/stores/Dispatcher'
+import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
+import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
+import PlainButton from '@/PlainButton'
+import TurnNavigation from '@/turnNavigation/TurnNavigation'
+import useCurrentLocationLayer from '@/layers/CurrentLocationLayer'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -122,17 +123,15 @@ export default function App() {
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
+    useCurrentLocationLayer(map, location.coordinate)
 
-    // if (location.coordinate.lat != 0 && location.coordinate.lng != 0)
-    //     mapLayers.push(createCurrentLocationLayer(location.coordinate))
-
-    const isSmallScreen = useMediaQuery({query: '(max-width: 44rem)'})
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
             <div className={styles.appWrapper}>
-                <PathDetailPopup map={map} pathDetails={pathDetails}/>
-                <ContextMenu map={map} route={route} queryPoints={query.queryPoints}/>
-                <MapFeaturePopup map={map} point={mapFeatures.point} properties={mapFeatures.properties}/>
+                <PathDetailPopup map={map} pathDetails={pathDetails} />
+                <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
+                <MapFeaturePopup map={map} point={mapFeatures.point} properties={mapFeatures.properties} />
                 {isSmallScreen ? (
                     <SmallScreenLayout
                         query={query}
@@ -172,21 +171,35 @@ interface LayoutProps {
     turnNaviState: TurnNavigationState
 }
 
-function LargeScreenLayout({query, route, map, error, mapOptions, info, location, turnNaviState}: LayoutProps) {
-    if(location.turnNavigation)
-        return <>
-            <div className={styles.turnNavigation}>
-                <TurnNavigation path={route.selectedPath} location={location} turnNaviState={turnNaviState}/>
-            </div>
-            <div className={styles.volume}>
-                <PlainButton onClick={() => Dispatcher.dispatch(new TurnNavigationUpdate({soundEnabled: !turnNaviState.soundEnabled} as TurnNavigationState))}>
-                    {turnNaviState.soundEnabled ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
-                </PlainButton>
-            </div>
-            <div className={styles.map}>
-                <MapComponent map={map}/>
-            </div>
-        </>
+function LargeScreenLayout({ query, route, map, error, mapOptions, info, location, turnNaviState }: LayoutProps) {
+    if (location.turnNavigation)
+        return (
+            <>
+                <div className={styles.turnNavigation}>
+                    <TurnNavigation path={route.selectedPath} location={location} turnNaviState={turnNaviState} />
+                </div>
+                <div className={styles.volume}>
+                    <PlainButton
+                        onClick={() =>
+                            Dispatcher.dispatch(
+                                new TurnNavigationUpdate({
+                                    soundEnabled: !turnNaviState.soundEnabled,
+                                } as TurnNavigationState)
+                            )
+                        }
+                    >
+                        {turnNaviState.soundEnabled ? (
+                            <VolumeUpIcon fill="#5b616a" />
+                        ) : (
+                            <VolumeOffIcon fill="#5b616a" />
+                        )}
+                    </PlainButton>
+                </div>
+                <div className={styles.map}>
+                    <MapComponent map={map} />
+                </div>
+            </>
+        )
 
     return (
         <>
@@ -204,8 +217,8 @@ function LargeScreenLayout({query, route, map, error, mapOptions, info, location
                         initialCustomModelStr={query.initialCustomModelStr}
                         queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                     />
-                    <Search points={query.queryPoints}/>
-                    <div>{!error.isDismissed && <ErrorMessage error={error}/>}</div>
+                    <Search points={query.queryPoints} />
+                    <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <RoutingResults
                         paths={route.routingResult.paths}
                         selectedPath={route.selectedPath}
@@ -213,33 +226,33 @@ function LargeScreenLayout({query, route, map, error, mapOptions, info, location
                         profile={query.routingProfile.name}
                     />
                     <div>
-                        <PoweredBy/>
+                        <PoweredBy />
                     </div>
                 </div>
             </div>
-            <div className={styles.popupContainer} id={POPUP_CONTAINER_ID}/>
+            <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
             <div className={styles.map}>
-                <MapComponent map={map}/>
+                <MapComponent map={map} />
             </div>
             <div className={styles.mapOptions}>
                 <MapOptions {...mapOptions} />
             </div>
 
             <div className={styles.pathDetails}>
-                <PathDetails selectedPath={route.selectedPath}/>
+                <PathDetails selectedPath={route.selectedPath} />
             </div>
         </>
     )
 }
 
-function SmallScreenLayout({query, route, map, error, mapOptions, info, location, turnNaviState}: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions, info, location, turnNaviState }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar info={info} query={query} route={route} error={error}/>
+                <MobileSidebar info={info} query={query} route={route} error={error} />
             </div>
             <div className={styles.smallScreenMap}>
-                <MapComponent map={map}/>
+                <MapComponent map={map} />
             </div>
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.smallScreenMapOptionsContent}>
@@ -257,7 +270,7 @@ function SmallScreenLayout({query, route, map, error, mapOptions, info, location
             </div>
 
             <div className={styles.smallScreenPoweredBy}>
-                <PoweredBy/>
+                <PoweredBy />
             </div>
         </>
     )

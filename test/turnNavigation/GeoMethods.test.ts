@@ -1,4 +1,4 @@
-import {calcOrientation, getCurrentInstruction, toNorthBased} from '../../src/turnNavigation/GeoMethods'
+import { calcOrientation, getCurrentInstruction, toNorthBased } from '../../src/turnNavigation/GeoMethods'
 import Dispatcher from '../../src/stores/Dispatcher'
 import { ApiImpl } from '../../src/api/Api'
 
@@ -38,23 +38,33 @@ describe('calculate instruction', () => {
 
     it('calc angle', () => {
         // downwards+west
-        expect(Math.round(toDegrees(calcOrientation(51.439146,14.245258, 51.438908,14.245931)))).toEqual(-30)
-        expect(Math.round(toDegrees(toNorthBased(calcOrientation(51.439146,14.245258, 51.438908,14.245931))))).toEqual(120)
+        expect(Math.round(toDegrees(calcOrientation(51.439146, 14.245258, 51.438908, 14.245931)))).toEqual(-30)
+        expect(
+            Math.round(toDegrees(toNorthBased(calcOrientation(51.439146, 14.245258, 51.438908, 14.245931))))
+        ).toEqual(120)
         // downwards
-        expect(Math.round(toDegrees(calcOrientation(51.439146,14.245258, 51.438748,14.245255)))).toEqual(-90)
-        expect(Math.round(toDegrees(toNorthBased(calcOrientation(51.439146,14.245258, 51.438748,14.245255))))).toEqual(180)
+        expect(Math.round(toDegrees(calcOrientation(51.439146, 14.245258, 51.438748, 14.245255)))).toEqual(-90)
+        expect(
+            Math.round(toDegrees(toNorthBased(calcOrientation(51.439146, 14.245258, 51.438748, 14.245255))))
+        ).toEqual(180)
         // down+west
-        expect(Math.round(toDegrees(calcOrientation(51.439146,14.245258, 51.439015,14.244568)))).toEqual(-163)
-        expect(Math.round(toDegrees(toNorthBased(calcOrientation(51.439146,14.245258, 51.439015,14.244568))))).toEqual(253)
+        expect(Math.round(toDegrees(calcOrientation(51.439146, 14.245258, 51.439015, 14.244568)))).toEqual(-163)
+        expect(
+            Math.round(toDegrees(toNorthBased(calcOrientation(51.439146, 14.245258, 51.439015, 14.244568))))
+        ).toEqual(253)
         // upward+west
-        expect(Math.round(toDegrees(calcOrientation(51.439146,14.245258, 51.43953,14.244536)))).toEqual(140)
-        expect(Math.round(toDegrees(toNorthBased(calcOrientation(51.439146,14.245258, 51.43953,14.244536))))).toEqual(310)
+        expect(Math.round(toDegrees(calcOrientation(51.439146, 14.245258, 51.43953, 14.244536)))).toEqual(140)
+        expect(Math.round(toDegrees(toNorthBased(calcOrientation(51.439146, 14.245258, 51.43953, 14.244536))))).toEqual(
+            310
+        )
         // upward+east
-        expect(Math.round(toDegrees(calcOrientation(51.439146,14.245258, 51.439584,14.24592)))).toEqual(47)
-        expect(Math.round(toDegrees(toNorthBased(calcOrientation(51.439146,14.245258, 51.439584,14.24592))))).toEqual(43)
+        expect(Math.round(toDegrees(calcOrientation(51.439146, 14.245258, 51.439584, 14.24592)))).toEqual(47)
+        expect(Math.round(toDegrees(toNorthBased(calcOrientation(51.439146, 14.245258, 51.439584, 14.24592))))).toEqual(
+            43
+        )
     })
 
-    function toDegrees(radian:number) {
-        return radian/Math.PI*180.0
+    function toDegrees(radian: number) {
+        return (radian / Math.PI) * 180.0
     }
 })

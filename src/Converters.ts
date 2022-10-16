@@ -1,6 +1,6 @@
-import {GeocodingHit} from '@/api/graphhopper'
+import { GeocodingHit } from '@/api/graphhopper'
 
-import {Coordinate} from '@/stores/QueryStore'
+import { Coordinate } from '@/stores/QueryStore'
 
 export function milliSecondsToText(seconds: number) {
     const hours = Math.floor(seconds / 3600000)
@@ -11,8 +11,8 @@ export function milliSecondsToText(seconds: number) {
     return hourText + ' ' + minutes + ' min'
 }
 
-const distanceFormatPrecise = new Intl.NumberFormat(navigator.language, {maximumFractionDigits: 1})
-const distanceFormat = new Intl.NumberFormat(navigator.language, {maximumFractionDigits: 0})
+const distanceFormatPrecise = new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 1 })
+const distanceFormat = new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 0 })
 
 export function metersToText(meters: number, showDistanceInMiles: boolean, forceSmallUnits: boolean = false) {
     if (showDistanceInMiles) {

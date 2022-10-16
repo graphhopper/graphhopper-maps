@@ -5,7 +5,7 @@ import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import LocationStore from '@/stores/LocationStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
-import TurnNavigationStore from "@/stores/TurnNavigationStore";
+import TurnNavigationStore from '@/stores/TurnNavigationStore'
 import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
 

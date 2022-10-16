@@ -1,6 +1,6 @@
-import Store from "@/stores/Store";
-import {Action} from "@/stores/Dispatcher";
-import {TurnNavigationUpdate} from "@/actions/Actions";
+import Store from '@/stores/Store'
+import { Action } from '@/stores/Dispatcher'
+import { TurnNavigationUpdate } from '@/actions/Actions'
 
 export interface TurnNavigationState {
     fakeGPS: boolean
@@ -9,7 +9,6 @@ export interface TurnNavigationState {
 }
 
 export default class TurnNavigationStore extends Store<TurnNavigationState> {
-
     constructor() {
         super({
             fakeGPS: false,
@@ -20,9 +19,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationState> {
 
     reduce(state: TurnNavigationState, action: Action): TurnNavigationState {
         if (action instanceof TurnNavigationUpdate) {
-            return {...state, ...action.update}
+            return { ...state, ...action.update }
         }
         return state
     }
-
 }

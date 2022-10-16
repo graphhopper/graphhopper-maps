@@ -12,7 +12,7 @@ import {
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
-import {between} from "ol/format/filter";
+import { between } from 'ol/format/filter'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -45,7 +45,7 @@ export default class MapActionReceiver implements ActionReceiver {
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
                 rotation: action.bearing,
                 duration: 1000,
-            });
+            })
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route

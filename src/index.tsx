@@ -6,28 +6,33 @@ import MapActionReceiver from '@/stores/MapActionReceiver'
 import { createMap, getMap, setMap } from '@/map/map'
 import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
-import {SpeechSynthesizer} from "@/SpeechSynthesizer";
-import {setTranslation} from "@/translation/Translation";
-import {getApi, setApi} from "@/api/Api";
-import QueryStore from "@/stores/QueryStore";
-import RouteStore from "@/stores/RouteStore";
-import ApiInfoStore from "@/stores/ApiInfoStore";
-import ErrorStore from "@/stores/ErrorStore";
+import { SpeechSynthesizer } from '@/SpeechSynthesizer'
+import { setTranslation } from '@/translation/Translation'
+import { getApi, setApi } from '@/api/Api'
+import QueryStore from '@/stores/QueryStore'
+import RouteStore from '@/stores/RouteStore'
+import ApiInfoStore from '@/stores/ApiInfoStore'
+import ErrorStore from '@/stores/ErrorStore'
 import {
     getApiInfoStore,
-    getErrorStore, getLocationStore, getMapFeatureStore, getMapOptionsStore, getPathDetailsStore,
+    getErrorStore,
+    getLocationStore,
+    getMapFeatureStore,
+    getMapOptionsStore,
+    getPathDetailsStore,
     getQueryStore,
     getRouteStore,
-    getSettingsStore, getTurnNavigationStore,
-    setStores
-} from "@/stores/Stores";
-import MapOptionsStore from "@/stores/MapOptionsStore";
-import LocationStore from "@/stores/LocationStore";
-import PathDetailsStore from "@/stores/PathDetailsStore";
-import Dispatcher from "@/stores/Dispatcher";
-import TurnNavigationStore from "@/stores/TurnNavigationStore";
-import NavBar from "@/NavBar";
-import App from "@/App";
+    getSettingsStore,
+    getTurnNavigationStore,
+    setStores,
+} from '@/stores/Stores'
+import MapOptionsStore from '@/stores/MapOptionsStore'
+import LocationStore from '@/stores/LocationStore'
+import PathDetailsStore from '@/stores/PathDetailsStore'
+import Dispatcher from '@/stores/Dispatcher'
+import TurnNavigationStore from '@/stores/TurnNavigationStore'
+import NavBar from '@/NavBar'
+import App from '@/App'
 
 let speechSynthesizer = new SpeechSynthesizer(navigator.language)
 const url = new URL(window.location.href)

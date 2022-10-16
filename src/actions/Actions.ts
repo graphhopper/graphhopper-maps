@@ -1,10 +1,10 @@
-import {Action} from '@/stores/Dispatcher'
-import {Coordinate, CustomModel, QueryPoint} from '@/stores/QueryStore'
-import {ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult} from '@/api/graphhopper'
-import {StyleOption} from '@/stores/MapOptionsStore'
-import {PathDetailsPoint} from '@/stores/PathDetailsStore'
-import {LocationStoreState} from '@/stores/LocationStore'
-import {TurnNavigationState} from "@/stores/TurnNavigationStore";
+import { Action } from '@/stores/Dispatcher'
+import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
+import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
+import { StyleOption } from '@/stores/MapOptionsStore'
+import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { LocationStoreState } from '@/stores/LocationStore'
+import { TurnNavigationState } from '@/stores/TurnNavigationStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -70,8 +70,7 @@ export class SetRoutingParametersAtOnce implements Action {
     }
 }
 
-export class ClearPoints implements Action {
-}
+export class ClearPoints implements Action {}
 
 export class RemovePoint implements Action {
     readonly point: QueryPoint
@@ -146,8 +145,7 @@ export class RouteRequestFailed extends ErrorAction {
     }
 }
 
-export class ClearRoute implements Action {
-}
+export class ClearRoute implements Action {}
 
 export class SetSelectedPath implements Action {
     readonly path: Path
@@ -157,8 +155,7 @@ export class SetSelectedPath implements Action {
     }
 }
 
-export class DismissLastError implements Action {
-}
+export class DismissLastError implements Action {}
 
 export class SelectMapStyle implements Action {
     readonly styleOption: StyleOption
@@ -184,8 +181,7 @@ export class ToggleUrbanDensityLayer implements Action {
     }
 }
 
-export class MapIsLoaded implements Action {
-}
+export class MapIsLoaded implements Action {}
 
 export class ZoomMapToPoint implements Action {
     readonly coordinate: Coordinate
@@ -251,5 +247,4 @@ export class RoutingGraphHover implements Action {
     }
 }
 
-export class ToggleDistanceUnits implements Action {
-}
+export class ToggleDistanceUnits implements Action {}

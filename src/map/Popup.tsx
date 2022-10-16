@@ -10,11 +10,11 @@ import { tr } from '@/translation/Translation'
 import { MarkerComponent } from '@/map/Marker'
 
 export function PopupComponent({
-                                   coordinate,
-                                   queryPoints,
-                                   route,
-                                   onSelect,
-                               }: {
+    coordinate,
+    queryPoints,
+    route,
+    onSelect,
+}: {
     coordinate: Coordinate
     queryPoints: QueryPoint[]
     route: RouteStoreState
