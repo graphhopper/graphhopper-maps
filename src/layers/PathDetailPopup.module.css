@@ -1,0 +1,38 @@
+/* todo: this was just copy-pasted from https://openlayers.org/en/latest/examples/popup.html.
+   the popup looks ugly still, but at the very minimum the background color needs to be set to make it visible.
+   the popup design needs an overhaul anyway... https://github.com/graphhopper/graphhopper-maps/issues/136
+   */
+.popup {
+    position: absolute;
+    bottom: 12px;
+    left: -50px;
+    background-color: white;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    padding: 0 15px 0 15px;
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    font-size: small;
+    width: 110px;
+}
+.popup:after,
+.popup:before {
+    top: 100%;
+    border: solid transparent;
+    content: ' ';
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+.popup:after {
+    border-top-color: white;
+    border-width: 10px;
+    left: 48px;
+    margin-left: -10px;
+}
+.popup:before {
+    border-top-color: #cccccc;
+    border-width: 11px;
+    left: 48px;
+    margin-left: -11px;
+}

@@ -32,6 +32,7 @@ describe('info api', () => {
             profiles: [],
             elevation: false,
             version: 'some_version',
+            encoded_values: [],
         }
 
         fetchMock.mockResponse(request => {
@@ -46,6 +47,7 @@ describe('info api', () => {
                     version: expected.version,
                     profiles: [],
                     elevation: expected.elevation,
+                    encoded_values: expected.encoded_values,
                 })
             )
         })
@@ -79,6 +81,8 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'profile',
+            customModel: null,
+            zoom: true,
         }
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
         const ghApi = 'https://some.api/'
@@ -105,6 +109,8 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
+            customModel: null,
+            zoom: true,
         }
 
         const expectedBody: RoutingRequest = {
@@ -117,7 +123,16 @@ describe('route', () => {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
+            details: [
+                'road_class',
+                'road_environment',
+                'surface',
+                'max_speed',
+                'average_speed',
+                'toll',
+                'track_type',
+                'country',
+            ],
         }
 
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
@@ -138,6 +153,8 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 2,
             profile: 'car',
+            customModel: null,
+            zoom: true,
         }
 
         const expectedBody: RoutingRequest = {
@@ -150,9 +167,71 @@ describe('route', () => {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
+            details: [
+                'road_class',
+                'road_environment',
+                'surface',
+                'max_speed',
+                'average_speed',
+                'toll',
+                'track_type',
+                'country',
+            ],
             'alternative_route.max_paths': args.maxAlternativeRoutes,
             algorithm: 'alternative_route',
+        }
+
+        const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
+
+        fetchMock.mockResponse(async request => {
+            return compareRequestBodyAndResolve(request, expectedBody)
+        })
+
+        new ApiImpl('https://some.api/', 'key').routeWithDispatch(args)
+        await flushPromises()
+
+        expect(mockedDispatcher).toHaveBeenCalledTimes(1)
+        expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestSuccess(args, getEmptyResult()))
+    })
+
+    it('transforms routingArgs into routing request with custom model', async () => {
+        const args: RoutingArgs = {
+            points: [],
+            maxAlternativeRoutes: 1,
+            profile: 'car',
+            customModel: {
+                speed: [
+                    {
+                        if: 'road_class == MOTORWAY',
+                        multiply_by: 0.8,
+                    },
+                ],
+            },
+            zoom: true,
+        }
+
+        const expectedBody: RoutingRequest = {
+            points: args.points,
+            profile: args.profile,
+            elevation: true,
+            debug: false,
+            instructions: true,
+            locale: 'en_US',
+            optimize: 'false',
+            points_encoded: true,
+            snap_preventions: ['ferry'],
+            details: [
+                'road_class',
+                'road_environment',
+                'surface',
+                'max_speed',
+                'average_speed',
+                'toll',
+                'track_type',
+                'country',
+            ],
+            custom_model: args.customModel!,
+            'ch.disable': true,
         }
 
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
@@ -177,6 +256,8 @@ describe('route', () => {
             ],
             maxAlternativeRoutes: 1,
             profile: 'bla',
+            customModel: null,
+            zoom: true,
         }
 
         fetchMock.mockResponseOnce(JSON.stringify(getEmptyResult()))
@@ -197,6 +278,8 @@ describe('route', () => {
             ],
             maxAlternativeRoutes: 1,
             profile: 'bla',
+            customModel: null,
+            zoom: true,
         }
 
         const error: ErrorResponse = {
@@ -219,6 +302,8 @@ describe('route', () => {
             profile: 'car',
             points: [],
             maxAlternativeRoutes: 3,
+            customModel: null,
+            zoom: true,
         }
         fetchMock.mockResponse(() => Promise.resolve({ status: 500 }))
         await expect(new ApiImpl('https://some.api/', 'key').route(args)).rejects.toThrow('Route calculation timed out')
@@ -231,6 +316,8 @@ describe('route', () => {
             points: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
+            customModel: null,
+            zoom: true,
         }
 
         const expectedBody: RoutingRequest = {
@@ -243,7 +330,16 @@ describe('route', () => {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
+            details: [
+                'road_class',
+                'road_environment',
+                'surface',
+                'max_speed',
+                'average_speed',
+                'toll',
+                'track_type',
+                'country',
+            ],
         }
 
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')

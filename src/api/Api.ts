@@ -14,7 +14,8 @@ import {
     RoutingResult,
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
-import { getTranslation, tr } from '@/translation/Translation'
+import { getTranslation, tr, Translation } from '@/translation/Translation'
+import * as config from 'config'
 
 interface ApiProfile {
     name: string
@@ -29,7 +30,7 @@ export default interface Api {
 
     routeWithDispatch(args: RoutingArgs): void
 
-    geocode(query: string): Promise<GeocodingResult>
+    geocode(query: string, provider: string): Promise<GeocodingResult>
 }
 
 let api: Api | undefined
@@ -75,9 +76,12 @@ export class ApiImpl implements Api {
             .catch(e => Dispatcher.dispatch(new ErrorAction(e.message)))
     }
 
-    async geocode(query: string) {
+    async geocode(query: string, provider: string) {
         const url = this.getURLWithKey('geocode')
         url.searchParams.append('q', query)
+        url.searchParams.append('provider', provider)
+        const langAndCountry = getTranslation().getLang().split('_')
+        url.searchParams.append('locale', langAndCountry.length > 0 ? langAndCountry[0] : 'en')
 
         const response = await fetch(url.toString(), {
             headers: { Accept: 'application/json' },
@@ -86,7 +90,7 @@ export class ApiImpl implements Api {
         if (response.ok) {
             return (await response.json()) as GeocodingResult
         } else {
-            throw new Error('here could be your meaningful error message')
+            throw new Error('Geocoding went wrong ' + response.status)
         }
     }
 
@@ -118,10 +122,16 @@ export class ApiImpl implements Api {
         } else if (response.status === 400) {
             const errorResult = (await response.json()) as ErrorResponse
             let message = errorResult.message
-            if (errorResult.hints && errorResult.hints.length > 0)
-                message +=
-                    (message ? message + ' and ' : '') +
-                    (errorResult.hints as any[]).map(hint => hint.message).join(' and ')
+            if (errorResult.hints && errorResult.hints.length > 0) {
+                let messagesFromHints = ''
+                errorResult.hints.forEach(hint => {
+                    if (!hint.message.includes(message)) {
+                        messagesFromHints += (messagesFromHints ? ' and ' : '') + messagesFromHints
+                        messagesFromHints += hint.message
+                    }
+                })
+                if (messagesFromHints) message += (message ? ' and ' : '') + messagesFromHints
+            }
             throw new Error(message)
         } else {
             throw new Error(tr('route_request_failed'))
@@ -153,11 +163,17 @@ export class ApiImpl implements Api {
             locale: getTranslation().getLang(),
             optimize: 'false',
             points_encoded: true,
-            snap_preventions: ['ferry'],
-            details: ['road_class', 'road_environment', 'surface', 'max_speed', 'average_speed'],
+            snap_preventions: config.request?.snapPreventions ? config.request.snapPreventions : [],
+            details: config.request?.details ? config.request.details : [],
+            ...(config.extraProfiles ? (config.extraProfiles as any)[args.profile] : {}),
         }
 
-        if (args.maxAlternativeRoutes > 1) {
+        if (args.customModel) {
+            request.custom_model = args.customModel
+            request['ch.disable'] = true
+        }
+
+        if (args.points.length <= 2 && args.maxAlternativeRoutes > 1) {
             return {
                 ...request,
                 'alternative_route.max_paths': args.maxAlternativeRoutes,
@@ -181,6 +197,16 @@ export class ApiImpl implements Api {
             profiles.push(profile)
         }
 
+        // group similarly named profiles into the following predefined order
+        let reservedOrder = ['car', 'truck', 'scooter', 'foot', 'hike', 'bike']
+        profiles.sort((a, b) => {
+            let idxa = reservedOrder.findIndex(str => a.name.indexOf(str) >= 0)
+            let idxb = reservedOrder.findIndex(str => b.name.indexOf(str) >= 0)
+            if (idxa < 0) idxa = reservedOrder.length
+            if (idxb < 0) idxb = reservedOrder.length
+            return idxa - idxb
+        })
+
         for (const property in response) {
             if (property === 'bbox') bbox = response[property]
             else if (property === 'version') version = response[property]
@@ -193,6 +219,7 @@ export class ApiImpl implements Api {
             bbox: bbox,
             version: version,
             import_date: import_date,
+            encoded_values: response.encoded_values,
         }
     }
 
@@ -289,5 +316,13 @@ export class ApiImpl implements Api {
             } else array.push([lng * 1e-5, lat * 1e-5])
         }
         return array
+    }
+
+    public static isBikeLike(profile: string) {
+        return profile.includes('mtb') || profile.includes('bike')
+    }
+
+    public static isMotorVehicle(profile: string) {
+        return profile.includes('car') || profile.includes('truck') || profile.includes('scooter')
     }
 }

@@ -1,6 +1,6 @@
 import {Coordinate} from '@/stores/QueryStore'
 import Store from '@/stores/Store'
-import {ErrorAction, LocationUpdate, SetViewportToPoint, TurnNavigationUpdate} from '@/actions/Actions'
+import {ErrorAction, LocationUpdate} from '@/actions/Actions'
 import Dispatcher, {Action} from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
 import {SpeechSynthesizer} from '@/SpeechSynthesizer'
@@ -24,20 +24,16 @@ export default class LocationStore extends Store<LocationStoreState> {
     private started: boolean = false
 
     constructor(speechSynthesizer: SpeechSynthesizer) {
-        super()
+        super({
+            turnNavigation: false,
+            coordinate: {lat: 0, lng: 0},
+            speed: 0,
+        })
         this.speechSynthesizer = speechSynthesizer
     }
 
     public getSpeechSynthesizer(): SpeechSynthesizer {
         return this.speechSynthesizer
-    }
-
-    protected getInitialState(): LocationStoreState {
-        return {
-            turnNavigation: false,
-            coordinate: {lat: 0, lng: 0},
-            speed: 0,
-        }
     }
 
     reduce(state: LocationStoreState, action: Action): LocationStoreState {
@@ -61,6 +57,8 @@ export default class LocationStore extends Store<LocationStoreState> {
             ],
             profile: 'car',
             maxAlternativeRoutes: 0,
+            zoom: false,
+            customModel: null,
         })
 
         // TODO: skip too close points and interpolate if too big distance
@@ -113,7 +111,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         let bearing: number = pos.coords.heading
 
         if (Number.isNaN(bearing)) console.log('skip dispatching SetViewportToPoint because bearing is ' + bearing)
-        else Dispatcher.dispatch(new SetViewportToPoint(c, 17, 50, bearing))
+        // TODO NOW else Dispatcher.dispatch(new SetViewportToPoint(c, 17, 50, bearing))
     }
 
     public initReal() {
@@ -160,7 +158,8 @@ export default class LocationStore extends Store<LocationStoreState> {
         if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
         // exit "navigation view" => use no pitch and no bearing (rotation)
-        Dispatcher.dispatch(new SetViewportToPoint(this.state.coordinate, 15, 0, 0))
+        // TODO NOW
+        // Dispatcher.dispatch(new SetViewportToPoint(this.state.coordinate, 15, 0, 0))
 
         // directly writing the state does not work: this.state.turnNavigation = false
         Dispatcher.dispatch(new LocationUpdate({coordinate: {lat: 0, lng: 0}, turnNavigation: false, speed: 0}))

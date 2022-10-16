@@ -2,12 +2,11 @@ import React from 'react'
 import { Coordinate } from '@/stores/QueryStore'
 
 import { FeatureCollection } from 'geojson'
-import { Layer, Source } from 'react-map-gl'
-import { MapLayer } from '@/layers/MapLayer'
 
+// TODO NOW adapt to OpenLayers
 const currentLocationLayerKey = 'currentLocationLayer'
 
-export default function (coordinate: Coordinate): MapLayer {
+export default function (coordinate: Coordinate) {
     const featureCollection: FeatureCollection = {
         type: 'FeatureCollection',
         features: [
@@ -22,19 +21,19 @@ export default function (coordinate: Coordinate): MapLayer {
     return {
         interactiveLayerIds: [],
         onClick: (feature: any) => {},
-        layer: (
-            <Source type={'geojson'} data={featureCollection}>
-                <Layer
-                    id={currentLocationLayerKey}
-                    type={'circle'}
-                    paint={{
-                        'circle-color': '#385af5',
-                        'circle-radius': 8,
-                        'circle-stroke-color': 'white',
-                        'circle-stroke-width': 4,
-                    }}
-                />
-            </Source>
-        ),
+        // layer: (
+            // <Source type={'geojson'} data={featureCollection}>
+            //     <Layer
+            //         id={currentLocationLayerKey}
+            //         type={'circle'}
+            //         paint={{
+            //             'circle-color': '#385af5',
+            //             'circle-radius': 8,
+            //             'circle-stroke-color': 'white',
+            //             'circle-stroke-width': 4,
+            //         }}
+            //     />
+            // </Source>
+        // ),
     }
 }

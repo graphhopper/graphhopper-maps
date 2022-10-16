@@ -7,29 +7,31 @@
 
 .resultSelectableArea {
     padding: 1rem 0;
+    border-left: white solid 0.25rem;
 }
 
-.resultSelectableArea:hover {
-    background-color: #ececec;
-}
-
-.resultSelectableArea:active {
-    background-color: #c6c6c6;
+.resultSelectableArea:hover .resultSummary {
+    border-left: lightgray solid 0.25rem;
+    padding: 0 1rem 0 15px;
 }
 
 .resultSummary {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 0 1rem;
+    padding: 0 1rem 0 15px;
+    border-left: white solid 0.25rem;
 }
 
 .selectedResultSummary {
-    border-left: #275dad solid 0.25rem;
-    padding: 0 0.5rem 0 0.75rem;
+    border-left: #275dad solid 0.25rem !important;
+    padding: 0 1rem 0 15px;
 }
 
 .resultValues {
+    cursor: pointer;
+    width: 50%;
+
     display: flex;
     flex-direction: column;
 }
@@ -40,36 +42,68 @@
     margin-bottom: 0.1rem;
 }
 
-.resultSecondaryText {
+.resultSecondaryText,
+.exportButton div,
+.elevationHint {
     color: #5b616a;
 }
 
-/*
-This is not a very nice duplication but I have to stop now...
- */
-.detailsButton {
-    display: grid;
-    justify-content: end;
-    align-items: center;
-    width: 4rem;
+.resultTertiaryText {
+    color: #5b616a;
+    font-size: 12px;
 }
 
-.detailsButtonFlipped {
-    display: grid;
-    justify-content: end;
-    align-items: center;
-    width: 4rem;
+.detailsButton,
+.exportButton {
+    padding-top: 1px; /* correction for "height: auto" of svg  */
 }
 
-.detailsButton > svg {
-    transition: 0.3s ease;
-    height: 1.2rem;
+.detailsButton div,
+.detailsButtonExpanded div,
+.exportButton div {
+    color: #5b616a;
+    font-size: 12px;
+    float: left;
+    padding-top: 0.15em;
+    padding-left: 0.5em;
 }
 
-.detailsButtonFlipped > svg {
-    transition: 0.3s ease;
-    transform: rotateX(180deg);
-    height: 1.2rem;
+.detailsButton svg,
+.detailsButtonExpanded svg,
+.exportButton svg {
+    float: left;
+    width: 1.2em;
+    height: auto;
+}
+
+.exportButton:active div,
+.detailsButton:active div,
+.detailsButtonExpanded:active div {
+    color: lightgray;
+}
+
+.detailsButton:active svg path,
+.exportButton:active svg path,
+.detailsButtonExpanded:active svg path {
+    fill: lightgray;
+}
+
+.exportButton:hover div,
+.detailsButton:hover div,
+.detailsButtonExpanded:hover div {
+    color: black;
+}
+
+.detailsButton:hover svg path,
+.exportButton:hover svg path,
+.detailsButtonExpanded:hover svg path {
+    fill: black;
+}
+
+.detailsButton svg path,
+.exportButton svg path {
+    fill: #5b616a;
+    stroke: #5b616a;
 }
 
 .placeholderContainer {
@@ -95,18 +129,6 @@ This is not a very nice duplication but I have to stop now...
     animation-delay: 0.25s;
 }
 
-.warning {
-    padding: 5px;
-}
-
-.acceptRiskButton {
-    float: right;
-    color: #2a2b31;
-    padding: 5px;
-    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 0.3rem;
-}
-
 @keyframes pulse {
     from {
         opacity: 0.5;
@@ -114,4 +136,17 @@ This is not a very nice duplication but I have to stop now...
     to {
         opacity: 1;
     }
+}
+
+.routeHints div {
+    padding: 0 1.5em 0.2em 1.4em;
+}
+
+.routeHints div {
+    font-size: small;
+    color: #f97777;
+}
+
+.routeHints {
+    padding-bottom: 1em;
 }

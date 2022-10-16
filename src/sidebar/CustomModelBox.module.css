@@ -1,0 +1,90 @@
+.customModelBox {
+    margin: 0.6em 0;
+    padding: 0 0;
+    border-top: lightgray solid 1px;
+    height: 18rem;
+}
+
+#element::-webkit-scrollbar {
+    display: none;
+}
+
+.customModelBoxBottomBar {
+    display: flex;
+    border-bottom: lightgray solid 1px;
+}
+
+.helpLink {
+    text-decoration: none;
+    flex-grow: 1;
+}
+
+.examples,
+.helpLink,
+.applyButton button {
+    font-family: Arial, serif;
+    font-size: 14px;
+}
+
+.examples {
+    border: none;
+    border-top: #ececec solid 1px;
+    border-right: #ececec solid 1px;
+    padding-left: 1em;
+    margin-left: 0;
+    background-color: white;
+    color: rgba(0, 60, 136, 0.7);
+}
+
+.examples option {
+    background-color: white;
+    color: rgba(0, 60, 136, 0.7);
+}
+
+/* show disabled button while route calculation */
+.applyButtonProgress button,
+.applyButtonInvalid button {
+    cursor: default !important;
+    color: lightgray !important;
+}
+
+.infiniteProgressBar {
+    animation: progress 4s infinite normal;
+    height: 2px;
+    margin-top: -2px; /* when visible it should not occupy space */
+    background-color: rgb(65, 121, 0);
+}
+
+@keyframes progress {
+    0% {
+        width: 0;
+        margin-left: 0;
+    }
+    50% {
+        width: 100%;
+        margin-left: 0;
+    }
+    100% {
+        width: 0;
+        margin-left: 100%;
+    }
+}
+
+.helpLink:hover {
+    color: black;
+}
+
+.helpLink,
+.examples {
+    cursor: pointer;
+    color: #5b616a;
+}
+
+.applyButton button {
+    background-color: rgb(124, 179, 66, 0.1);
+}
+
+.applyButton button,
+.helpLink {
+    padding: 0.8em 1.7em;
+}

@@ -1,9 +1,13 @@
+.searchBoxParent {
+    margin: 0.1rem 0.5rem 0.5rem 0.5rem;
+}
+
 .searchBox {
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
     grid-gap: 0.5rem;
-    margin: 0.5rem;
+    margin: 0.5rem 0.1rem 0.7rem 0;
 }
 
 .searchBoxScrollable {
@@ -18,13 +22,8 @@
 .removeSearchBox {
     grid-column: 4;
     width: 1rem;
+    color: #adadad;
     justify-self: center;
-}
-
-.addSearchBox {
-    grid-column: 1 / span 2;
-    justify-self: start;
-    width: 1rem;
 }
 
 .markerContainer {
@@ -46,12 +45,83 @@
     margin: 1rem 0;
 }
 
-.addDestination {
-    align-self: flex-end;
-    width: 2rem;
-    height: 2rem;
-}
-
 .geocodingResults {
     grid-column: 1 / span 3;
+}
+
+.lastSearchLine {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-right: 2px;
+    padding-bottom: 1rem;
+}
+
+.addSearchBox:hover path {
+    fill: black;
+}
+
+.addSearchBox svg {
+    color: #adadad;
+    width: 1.1rem;
+    padding: 0 1.25em 0 0;
+}
+
+.addSearchBox {
+    display: flex;
+    flex-direction: row;
+}
+
+.addSearchBox,
+.mikm {
+    font-size: 14px;
+}
+
+.markerContainer:hover svg {
+    fill: black !important;
+}
+
+.markerContainer,
+.markerSelected,
+.markerTarget {
+    grid-column: 1 / span 1;
+    align-self: center;
+    justify-self: center;
+    width: 1rem;
+}
+
+.markerContainer {
+    outline: none;
+}
+
+.markerTarget:hover svg {
+    fill: black;
+}
+
+.markerTarget:active svg {
+    fill: lightgray;
+}
+
+.markerContainer > svg,
+.markerTarget > svg {
+    height: 100%;
+    width: 100%;
+}
+
+.markerSelected {
+    margin-left: -4px;
+}
+
+.markerTarget > svg {
+    transform: scaleX(1.7) scaleY(1.5);
+    margin-left: 3px;
+    fill: gray;
+}
+
+.dropPreview > svg {
+    fill: black;
+}
+
+.hide {
+    visibility: hidden;
 }

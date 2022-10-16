@@ -1,10 +1,9 @@
-import { Action } from '@/stores/Dispatcher'
-import { Coordinate, QueryPoint } from '@/stores/QueryStore'
-import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
-import { StyleOption } from '@/stores/MapOptionsStore'
-import { PathDetailsPoint } from '@/stores/PathDetailsStore'
-import { ViewportStoreState } from '@/stores/ViewportStore'
-import { LocationStoreState } from '@/stores/LocationStore'
+import {Action} from '@/stores/Dispatcher'
+import {Coordinate, CustomModel, QueryPoint} from '@/stores/QueryStore'
+import {ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult} from '@/api/graphhopper'
+import {StyleOption} from '@/stores/MapOptionsStore'
+import {PathDetailsPoint} from '@/stores/PathDetailsStore'
+import {LocationStoreState} from '@/stores/LocationStore'
 import {TurnNavigationState} from "@/stores/TurnNavigationStore";
 
 export class InfoReceived implements Action {
@@ -33,9 +32,11 @@ export class TurnNavigationUpdate implements Action {
 
 export class SetPoint implements Action {
     readonly point: QueryPoint
+    readonly zoom: boolean
 
-    constructor(point: QueryPoint) {
+    constructor(point: QueryPoint, zoom: boolean) {
         this.point = point
+        this.zoom = zoom
     }
 }
 
@@ -59,7 +60,18 @@ export class AddPoint implements Action {
     }
 }
 
-export class ClearPoints implements Action {}
+export class SetRoutingParametersAtOnce implements Action {
+    readonly queryPoints: QueryPoint[]
+    readonly routingProfile: RoutingProfile
+
+    constructor(queryPoints: QueryPoint[], routingProfile: RoutingProfile) {
+        this.queryPoints = queryPoints
+        this.routingProfile = routingProfile
+    }
+}
+
+export class ClearPoints implements Action {
+}
 
 export class RemovePoint implements Action {
     readonly point: QueryPoint
@@ -69,11 +81,41 @@ export class RemovePoint implements Action {
     }
 }
 
+export class MovePoint implements Action {
+    readonly point: QueryPoint
+    readonly newIndex: number
+
+    constructor(point: QueryPoint, newIndex: number) {
+        this.point = point
+        this.newIndex = newIndex
+    }
+}
+
 export class InvalidatePoint implements Action {
     readonly point: QueryPoint
 
     constructor(point: QueryPoint) {
         this.point = point
+    }
+}
+
+export class SetCustomModelBoxEnabled implements Action {
+    readonly enabled: boolean
+
+    constructor(enabled: boolean) {
+        this.enabled = enabled
+    }
+}
+
+export class SetCustomModel implements Action {
+    readonly customModel: CustomModel | null
+    readonly valid: boolean
+    readonly issueRouteRequest
+
+    constructor(customModel: CustomModel | null, valid: boolean, issueRouteRequest = false) {
+        this.customModel = customModel
+        this.valid = valid
+        this.issueRouteRequest = issueRouteRequest
     }
 }
 
@@ -104,7 +146,8 @@ export class RouteRequestFailed extends ErrorAction {
     }
 }
 
-export class ClearRoute implements Action {}
+export class ClearRoute implements Action {
+}
 
 export class SetSelectedPath implements Action {
     readonly path: Path
@@ -114,7 +157,8 @@ export class SetSelectedPath implements Action {
     }
 }
 
-export class DismissLastError implements Action {}
+export class DismissLastError implements Action {
+}
 
 export class SelectMapStyle implements Action {
     readonly styleOption: StyleOption
@@ -124,17 +168,26 @@ export class SelectMapStyle implements Action {
     }
 }
 
-export class MapIsLoaded implements Action {}
+export class ToggleRoutingGraph implements Action {
+    readonly routingGraphEnabled: boolean
 
-export class SetViewport implements Action {
-    readonly viewport: ViewportStoreState
-
-    constructor(viewport: ViewportStoreState) {
-        this.viewport = viewport
+    constructor(routingGraphEnabled: boolean) {
+        this.routingGraphEnabled = routingGraphEnabled
     }
 }
 
-export class SetViewportToPoint implements Action {
+export class ToggleUrbanDensityLayer implements Action {
+    readonly urbanDensityEnabled: boolean
+
+    constructor(urbanDensityEnabled: boolean) {
+        this.urbanDensityEnabled = urbanDensityEnabled
+    }
+}
+
+export class MapIsLoaded implements Action {
+}
+
+export class ZoomMapToPoint implements Action {
     readonly coordinate: Coordinate
     readonly zoom: number
     readonly pitch: number
@@ -145,6 +198,22 @@ export class SetViewportToPoint implements Action {
         this.zoom = zoom
         this.pitch = pitch
         this.bearing = bearing
+    }
+}
+
+export class QueryOSM implements Action {
+    readonly coordinate: Coordinate
+
+    constructor(coordinate: Coordinate) {
+        this.coordinate = coordinate
+    }
+}
+
+export class SetInitialBBox implements Action {
+    readonly bbox: Bbox
+
+    constructor(bbox: Bbox) {
+        this.bbox = bbox
     }
 }
 
@@ -170,4 +239,17 @@ export class PathDetailsElevationSelected implements Action {
     constructor(segments: Coordinate[][]) {
         this.segments = segments
     }
+}
+
+export class RoutingGraphHover implements Action {
+    readonly point: Coordinate | null
+    readonly properties: object
+
+    constructor(point: Coordinate | null, properties: object) {
+        this.point = point
+        this.properties = properties
+    }
+}
+
+export class ToggleDistanceUnits implements Action {
 }

@@ -8,7 +8,11 @@ export interface ErrorStoreState {
 }
 
 export default class ErrorStore extends Store<ErrorStoreState> {
-    protected getInitialState(): ErrorStoreState {
+    constructor() {
+        super(ErrorStore.getInitialState())
+    }
+
+    private static getInitialState(): ErrorStoreState {
         return {
             isDismissed: true,
             lastError: '',

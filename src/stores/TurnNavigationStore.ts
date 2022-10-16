@@ -11,15 +11,11 @@ export interface TurnNavigationState {
 export default class TurnNavigationStore extends Store<TurnNavigationState> {
 
     constructor() {
-        super()
-    }
-
-    protected getInitialState(): TurnNavigationState {
-        return {
+        super({
             fakeGPS: false,
             acceptedRisk: false,
             soundEnabled: true,
-        }
+        })
     }
 
     reduce(state: TurnNavigationState, action: Action): TurnNavigationState {

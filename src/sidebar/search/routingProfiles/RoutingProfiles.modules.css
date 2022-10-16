@@ -1,0 +1,96 @@
+.profilesParent {
+    display: flex;
+    flex-direction: row;
+    padding: 0.6em 0 0 0;
+}
+
+.profiles {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-right: 0.5em;
+}
+
+.selectedProfile {
+    background-color: rgba(39, 93, 173, 0.2);
+    color: #275dad;
+}
+
+.selectedProfile:hover {
+    color: #275dad;
+}
+
+.profileBtn {
+    border-radius: 50%;
+    margin: 0.1em;
+    padding: 0.3em;
+    transform: scale(1.1);
+}
+
+.enabledSettings,
+.settings {
+    border-radius: 50%;
+}
+
+.enabledSettings svg path,
+.settings svg path {
+    fill: #a8a8a8;
+    stroke: #a8a8a8;
+}
+
+.enabledSettings:active svg path,
+.settings:active svg path {
+    fill: lightgray;
+    stroke: lightgray;
+}
+
+.settings:hover svg path,
+.enabledSettings:hover svg path {
+    fill: #000000;
+    stroke: #000000;
+}
+
+.settings:active svg path,
+.enabledSettings:active svg path {
+    fill: lightgray;
+    stroke: lightgray;
+}
+
+.enabledSettings svg,
+.settings svg {
+    margin: 0;
+    padding: 8px;
+    width: 18px;
+    height: 18px;
+}
+
+.settings svg {
+    transform: rotate(0);
+    animation-name: reverse_rotate;
+    animation-duration: 0.2s;
+}
+
+.enabledSettings svg {
+    transform: rotate(180deg);
+    animation-name: setting_rotate;
+    animation-duration: 0.2s;
+}
+
+@keyframes setting_rotate {
+    0% {
+        transform: rotate(0);
+    }
+    100% {
+        transform: rotate(180deg);
+    }
+}
+
+@keyframes reverse_rotate {
+    0% {
+        transform: rotate(180deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
+}

@@ -1,6 +1,6 @@
-import { GeocodingHit } from '@/api/graphhopper'
+import {GeocodingHit} from '@/api/graphhopper'
 
-import { Coordinate } from '@/stores/QueryStore'
+import {Coordinate} from '@/stores/QueryStore'
 
 export function milliSecondsToText(seconds: number) {
     const hours = Math.floor(seconds / 3600000)
@@ -11,42 +11,59 @@ export function milliSecondsToText(seconds: number) {
     return hourText + ' ' + minutes + ' min'
 }
 
-const distanceFormatPrecise = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 })
-const distanceFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 })
+const distanceFormatPrecise = new Intl.NumberFormat(navigator.language, {maximumFractionDigits: 1})
+const distanceFormat = new Intl.NumberFormat(navigator.language, {maximumFractionDigits: 0})
 
-export function metersToText(meters: number) {
-    if (meters < 1000) return Math.floor(meters) + ' m'
-    if (meters < 5000) return distanceFormatPrecise.format(meters / 1000) + ' km'
-    else return distanceFormat.format(meters / 1000) + ' km'
+export function metersToText(meters: number, showDistanceInMiles: boolean, forceSmallUnits: boolean = false) {
+    if (showDistanceInMiles) {
+        if (meters < 160.934 || forceSmallUnits) return Math.floor(meters / 0.3048) + ' ft'
+        return distanceFormat.format(meters / 1609.34) + ' mi'
+    } else {
+        if (meters < 1000 || forceSmallUnits) return Math.floor(meters) + ' m'
+        return distanceFormat.format(meters / 1000) + ' km'
+    }
 }
 
-export function convertToQueryText(hit: GeocodingHit) {
-    let result = convertToName(hit)
-    result += convertToStreet(hit, result.length > 0 ? ', ' : '')
-    result += convertToCity(hit, result.length > 0 ? ', ' : '')
-    result += convertToCountry(hit, result.length > 0 ? ', ' : '')
+export function hitToItem(hit: GeocodingHit) {
+    const mainText =
+        hit.street && hit.name.indexOf(hit.street) >= 0
+            ? hit.street + (hit.housenumber ? ' ' + hit.housenumber : '')
+            : hit.name
+    return {
+        mainText: mainText,
+        secondText: toSecondText(hit, mainText),
+    }
+}
+
+function toSecondText(hit: GeocodingHit, mainText: string) {
+    let result =
+        hit.street && mainText.indexOf(hit.street) < 0
+            ? hit.street + (hit.housenumber ? ' ' + hit.housenumber : '') + ', '
+            : ''
+    result += toCity(hit)
+    if (hit.country) result += (result ? ', ' : '') + hit.country
     return result
 }
 
-function convertToName(hit: GeocodingHit) {
-    return hit.name === hit.street ? '' : hit.name
-}
-
-function convertToStreet(hit: GeocodingHit, prefix: string) {
-    if (hit.housenumber && hit.street) return (prefix.length > 0 ? prefix : '') + hit.street + ' ' + hit.housenumber
-    if (hit.street) return (prefix.length > 0 ? prefix : '') + hit.street
+function toCity(hit: GeocodingHit) {
+    if (hit.city && hit.postcode) return hit.postcode + ' ' + hit.city
+    if (hit.city) return hit.city
+    if (hit.postcode) return hit.postcode
     return ''
 }
 
-function convertToCity(hit: GeocodingHit, prefix: string) {
-    if (hit.city && hit.postcode) return (prefix.length > 0 ? prefix : '') + hit.postcode + ' ' + hit.city
-    if (hit.city) return (prefix.length > 0 ? prefix : '') + hit.city
-    if (hit.postcode) return (prefix.length > 0 ? prefix : '') + hit.postcode
-    return ''
-}
-
-function convertToCountry(hit: GeocodingHit, prefix: string) {
-    return hit.country ? (prefix.length > 0 ? prefix : '') + hit.country : ''
+export function nominatimHitToItem(hit: GeocodingHit) {
+    const name = hit.name ? hit.name : hit.country
+    const street = hit.street ? hit.street + (hit.housenumber ? ' ' + hit.housenumber : '') : ''
+    const mainText = hit.street && name.indexOf(hit.street) == 0 ? street : name.split(',')[0]
+    return {
+        mainText: mainText,
+        secondText:
+            (mainText.indexOf(street) >= 0 ? '' : street.length > 0 ? street + ', ' : '') +
+            (mainText.indexOf(hit.postcode) >= 0 ? '' : hit.postcode ? hit.postcode + ' ' : '') +
+            (mainText.indexOf(hit.city) >= 0 ? '' : hit.city ? hit.city + ', ' : '') +
+            hit.country,
+    }
 }
 
 export function coordinateToText(coord: Coordinate): string {

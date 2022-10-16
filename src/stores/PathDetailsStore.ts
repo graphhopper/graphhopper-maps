@@ -6,7 +6,7 @@ import { Bbox } from '@/api/graphhopper'
 
 export interface PathDetailsPoint {
     point: Coordinate
-    elevation: string
+    elevation: number
     description: string
 }
 
@@ -17,7 +17,11 @@ export interface PathDetailsStoreState {
 }
 
 export default class PathDetailsStore extends Store<PathDetailsStoreState> {
-    protected getInitialState(): PathDetailsStoreState {
+    constructor() {
+        super(PathDetailsStore.getInitialState())
+    }
+
+    private static getInitialState(): PathDetailsStoreState {
         return {
             pathDetailsPoint: null,
             pathDetailBbox: undefined,

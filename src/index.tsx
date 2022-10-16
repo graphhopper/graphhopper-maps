@@ -1,50 +1,49 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
-
-import { setTranslation } from '@/translation/Translation'
-import App from '@/App'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import * as config from 'config'
+import MapActionReceiver from '@/stores/MapActionReceiver'
+import { createMap, getMap, setMap } from '@/map/map'
+import MapFeatureStore from '@/stores/MapFeatureStore'
+import SettingsStore from '@/stores/SettingsStore'
+import {SpeechSynthesizer} from "@/SpeechSynthesizer";
+import {setTranslation} from "@/translation/Translation";
+import {getApi, setApi} from "@/api/Api";
+import QueryStore from "@/stores/QueryStore";
+import RouteStore from "@/stores/RouteStore";
+import ApiInfoStore from "@/stores/ApiInfoStore";
+import ErrorStore from "@/stores/ErrorStore";
 import {
     getApiInfoStore,
-    getErrorStore,
-    getTurnNavigationStore,
-    getLocationStore,
-    getMapOptionsStore,
-    getPathDetailsStore,
+    getErrorStore, getLocationStore, getMapFeatureStore, getMapOptionsStore, getPathDetailsStore,
     getQueryStore,
     getRouteStore,
-    getViewportStore,
-    setStores,
-} from '@/stores/Stores'
-import Dispatcher from '@/stores/Dispatcher'
-import RouteStore from '@/stores/RouteStore'
-import ApiInfoStore from '@/stores/ApiInfoStore'
-import QueryStore from '@/stores/QueryStore'
-import ErrorStore from '@/stores/ErrorStore'
-import MapOptionsStore from '@/stores/MapOptionsStore'
-import TurnNavigationStore, {TurnNavigationState} from "@/stores/TurnNavigationStore";
-import LocationStore from '@/stores/LocationStore'
-import { SpeechSynthesizer } from './SpeechSynthesizer'
-import PathDetailsStore from '@/stores/PathDetailsStore'
-import ViewportStore from '@/stores/ViewportStore'
-import NavBar from '@/NavBar'
-import * as config from 'config'
-import { getApi, setApi } from '@/api/Api'
-import {TurnNavigationUpdate} from "@/actions/Actions";
-
-let url = new URL(window.location.href);
-let fake = url.searchParams.get('fake')
-let locale = url.searchParams.get('locale')
-setTranslation(locale || navigator.language)
+    getSettingsStore, getTurnNavigationStore,
+    setStores
+} from "@/stores/Stores";
+import MapOptionsStore from "@/stores/MapOptionsStore";
+import LocationStore from "@/stores/LocationStore";
+import PathDetailsStore from "@/stores/PathDetailsStore";
+import Dispatcher from "@/stores/Dispatcher";
+import TurnNavigationStore from "@/stores/TurnNavigationStore";
+import NavBar from "@/NavBar";
+import App from "@/App";
 
 let speechSynthesizer = new SpeechSynthesizer(navigator.language)
-// set up state management
-setApi(config.api, getApiKey())
-const queryStore = new QueryStore(getApi())
+const url = new URL(window.location.href)
+const locale = url.searchParams.get('locale')
+setTranslation(locale || navigator.language)
+
+// use graphhopper api key from url or try using one from the config
+const apiKey = url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
+setApi(config.api, apiKey || '')
+
+const initialCustomModelStr = url.searchParams.get('custom_model')
+const queryStore = new QueryStore(getApi(), initialCustomModelStr)
 const routeStore = new RouteStore(queryStore)
 
-const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
-
 setStores({
+    settingsStore: new SettingsStore(),
     queryStore: queryStore,
     routeStore: routeStore,
     infoStore: new ApiInfoStore(),
@@ -53,10 +52,13 @@ setStores({
     turnNavigationStore: new TurnNavigationStore(),
     locationStore: new LocationStore(speechSynthesizer),
     pathDetailsStore: new PathDetailsStore(),
-    viewportStore: new ViewportStore(routeStore, () => smallScreenMediaQuery.matches),
+    mapFeatureStore: new MapFeatureStore(),
 })
 
+setMap(createMap())
+
 // register stores at dispatcher to receive actions
+Dispatcher.register(getSettingsStore())
 Dispatcher.register(getQueryStore())
 Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
@@ -65,9 +67,14 @@ Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getTurnNavigationStore())
 Dispatcher.register(getLocationStore())
 Dispatcher.register(getPathDetailsStore())
-Dispatcher.register(getViewportStore())
+Dispatcher.register(getMapFeatureStore())
 
-Dispatcher.dispatch(new TurnNavigationUpdate({fakeGPS: fake !== null, soundEnabled: fake === null} as TurnNavigationState))
+// register map action receiver
+const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
+const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
+Dispatcher.register(mapActionReceiver)
+
+// Dispatcher.dispatch(new TurnNavigationUpdate({fakeGPS: fake !== null, soundEnabled: fake === null} as TurnNavigationState))
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible
 
@@ -77,14 +84,14 @@ const navBar = new NavBar(getQueryStore(), getMapOptionsStore())
 navBar.parseUrlAndReplaceQuery()
 
 // create a div which holds the app and render the 'App' component
-const root = document.createElement('div') as HTMLDivElement
-root.id = 'root'
-root.style.height = '100%'
-document.body.appendChild(root)
+const rootDiv = document.createElement('div') as HTMLDivElement
+rootDiv.id = 'root'
+rootDiv.style.height = '100%'
+document.body.appendChild(rootDiv)
 
-ReactDOM.render(<App />, root)
-
-function getApiKey() {
-    // use graphhopper api key from url or try using one from the config
-    return url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
-}
+const root = createRoot(rootDiv)
+root.render(
+    // <StrictMode>
+    <App />
+    // </StrictMode>
+)

@@ -102,7 +102,7 @@ export default function ({path, location, turnNaviState}: TurnNavigationProps) {
                         <div>
                             {getTurnSign(nextInstruction.sign, instructionIndex)}
                         </div>
-                        <div>{metersToText(distanceToNext)}</div>
+                        <div>{metersToText(distanceToNext, false)}</div>
                     </div>
                     <div className={styles.turnInfoRightSide}>
                         <div className={styles.arrival}>
@@ -121,7 +121,7 @@ export default function ({path, location, turnNaviState}: TurnNavigationProps) {
                                         </svg>
                                     </div>
                                 }
-                                <div className={styles.remainingDistance}>{metersToText(remainingDistance)}</div>
+                                <div className={styles.remainingDistance}>{metersToText(remainingDistance, false)}</div>
                             </div>
                             <div className={styles.secondCol} onClick={() => setShowDebug(!showDebug)}>
                                 <div>{currentSpeed} km/h</div>

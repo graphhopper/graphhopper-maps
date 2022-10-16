@@ -2,11 +2,10 @@ import React, { useState } from 'react'
 import styles from './MapOptions.modules.css'
 import { MapOptionsStoreState, StyleOption } from '@/stores/MapOptionsStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { SelectMapStyle } from '@/actions/Actions'
+import { SelectMapStyle, ToggleRoutingGraph, ToggleUrbanDensityLayer } from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
 import LayerImg from './layer-group-solid.svg'
-
-export interface MapOptionsProps {}
+import * as config from 'config'
 
 export default function (props: MapOptionsStoreState) {
     const [isOpen, setIsOpen] = useState(false)
@@ -34,32 +33,62 @@ interface OptionsProps {
 
 const Options = function ({ storeState, notifyChanged }: OptionsProps) {
     return (
-        <div
-            className={styles.options}
-            onChange={e => {
-                notifyChanged()
-                onChange(e.target as HTMLInputElement, storeState.styleOptions)
-            }}
-        >
-            {storeState.styleOptions.map(option => (
-                <div className={styles.option} key={option.name}>
-                    <input
-                        type="radio"
-                        id={option.name}
-                        name="layer"
-                        value={option.name}
-                        defaultChecked={option === storeState.selectedStyle}
-                        disabled={!storeState.isMapLoaded}
-                    />
-                    <label htmlFor={option.name}>{option.name}</label>
-                </div>
-            ))}
+        <div className={styles.options}>
+            <div
+                onChange={e => {
+                    notifyChanged()
+                    onStyleChange(e.target as HTMLInputElement, storeState.styleOptions)
+                }}
+            >
+                {storeState.styleOptions.map(option => (
+                    <div className={styles.option} key={option.name}>
+                        <input
+                            type="radio"
+                            id={option.name}
+                            name="layer"
+                            value={option.name}
+                            defaultChecked={option === storeState.selectedStyle}
+                            disabled={!storeState.isMapLoaded}
+                        />
+                        <label htmlFor={option.name}>
+                            {option.name + (option.type === 'vector' ? ' (Vector)' : '')}
+                        </label>
+                    </div>
+                ))}
+            </div>
+            {config.routingGraphLayerAllowed && (
+                <>
+                    <div className={styles.option}>
+                        <input
+                            type="checkbox"
+                            id="routing-graph-checkbox"
+                            checked={storeState.routingGraphEnabled}
+                            onChange={e => {
+                                notifyChanged()
+                                Dispatcher.dispatch(new ToggleRoutingGraph(e.target.checked))
+                            }}
+                        />
+                        <label htmlFor="routing-graph-checkbox">Show Routing Graph</label>
+                    </div>
+                    <div className={styles.option}>
+                        <input
+                            type="checkbox"
+                            id="urban-density-checkbox"
+                            checked={storeState.urbanDensityEnabled}
+                            onChange={e => {
+                                notifyChanged()
+                                Dispatcher.dispatch(new ToggleUrbanDensityLayer(e.target.checked))
+                            }}
+                        />
+                        <label htmlFor="urban-density-checkbox">Show Urban Density</label>
+                    </div>
+                </>
+            )}
         </div>
     )
 }
 
-function onChange(target: HTMLInputElement, options: StyleOption[]) {
+function onStyleChange(target: HTMLInputElement, options: StyleOption[]) {
     const option = options.find(option => option.name === target.value)
-
     if (option) Dispatcher.dispatch(new SelectMapStyle(option))
 }

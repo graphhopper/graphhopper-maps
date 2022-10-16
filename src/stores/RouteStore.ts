@@ -1,6 +1,6 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { ClearRoute, RouteRequestSuccess, SetPoint, SetSelectedPath } from '@/actions/Actions'
+import { ClearPoints, ClearRoute, RemovePoint, RouteRequestSuccess, SetPoint, SetSelectedPath } from '@/actions/Actions'
 import QueryStore, { RequestState } from '@/stores/QueryStore'
 import { Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 
@@ -27,23 +27,26 @@ export default class RouteStore extends Store<RouteStoreState> {
             descend: 0,
             details: {
                 surface: [],
-                road_environment: [],
-                road_class: [],
                 average_speed: [],
                 max_speed: [],
                 street_name: [],
                 toll: [],
+                road_environment: [],
+                road_class: [],
+                track_type: [],
+                country: [],
             },
             distance: 0,
             points_order: [],
             time: 0,
+            description: '',
         }
     }
 
     private readonly queryStore: QueryStore
 
     constructor(queryStore: QueryStore) {
-        super()
+        super(RouteStore.getInitialState())
         this.queryStore = queryStore
     }
 
@@ -55,13 +58,18 @@ export default class RouteStore extends Store<RouteStoreState> {
                 ...state,
                 selectedPath: action.path,
             }
-        } else if (action instanceof SetPoint || action instanceof ClearRoute) {
-            return this.getInitialState()
+        } else if (
+            action instanceof SetPoint ||
+            action instanceof ClearRoute ||
+            action instanceof ClearPoints ||
+            action instanceof RemovePoint
+        ) {
+            return RouteStore.getInitialState()
         }
         return state
     }
 
-    protected getInitialState(): RouteStoreState {
+    private static getInitialState(): RouteStoreState {
         return {
             routingResult: {
                 paths: [],
@@ -83,7 +91,7 @@ export default class RouteStore extends Store<RouteStoreState> {
                 selectedPath: action.result.paths[0],
             }
         }
-        return this.getInitialState()
+        return RouteStore.getInitialState()
     }
 
     private isStaleRequest(request: RoutingArgs) {

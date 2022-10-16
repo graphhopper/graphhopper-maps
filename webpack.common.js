@@ -3,6 +3,7 @@ const fs = require('fs')
 
 const HTMLWebpackPlugin = require('html-webpack-plugin')
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 
 const localConfig = path.resolve(__dirname, 'config-local.js')
 const defaultConfig = path.resolve(__dirname, 'config.js')
@@ -24,7 +25,6 @@ module.exports = {
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'src'),
-            config$: config,
         },
         extensions: ['.ts', '.tsx', '.js', '.json', '.css', '.svg'],
     },
@@ -64,13 +64,13 @@ module.exports = {
             // this loader inlines svg images as react components
             {
                 test: /\.svg$/,
-                exclude: path.resolve(__dirname, 'node_modules/leaflet.heightgraph'),
+                exclude: path.resolve(__dirname, 'node_modules/heightgraph'),
                 use: ['@svgr/webpack'],
             },
             // heightgraph.css loads svg files using url(), so we need to add them as asset modules
             {
                 test: /\.svg$/,
-                include: path.resolve(__dirname, 'node_modules/leaflet.heightgraph'),
+                include: path.resolve(__dirname, 'node_modules/heightgraph'),
                 type: 'asset',
             },
             {
@@ -82,7 +82,20 @@ module.exports = {
     plugins: [
         new HTMLWebpackPlugin({ template: path.resolve(__dirname, 'src/index.html') }),
         new FaviconsWebpackPlugin(path.resolve(__dirname, 'src/favicon.png')),
+        // config.js is kept outside the bundle and simply copied to the dist folder
+        new CopyPlugin({
+            patterns: [
+                {
+                    from: config,
+                    to: 'config.js',
+                },
+            ],
+        }),
     ],
+
+    externals: {
+        config: 'config',
+    },
 
     // When importing a module whose path matches one of the following, just
     // assume a corresponding global variable exists and use that instead.

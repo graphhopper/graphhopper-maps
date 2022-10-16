@@ -56,7 +56,7 @@ describe('QueryStore', () => {
                 routingProfile: { name: 'car' },
             }
 
-            const state = store.reduce(storeState, new SetPoint(point))
+            const state = store.reduce(storeState, new SetPoint(point, true))
 
             expect(state.queryPoints[0]).toEqual(point)
         })
@@ -69,7 +69,7 @@ describe('QueryStore', () => {
             }
 
             for (const point of store.state.queryPoints) {
-                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
+                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, true))
             }
 
             // the store should not send anything unless points and routing profile are specified
@@ -88,7 +88,7 @@ describe('QueryStore', () => {
                 routingProfile: { name: 'car' },
             }
             for (const point of store.state.queryPoints) {
-                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
+                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, true))
             }
 
             expect(state.queryPoints.every(point => point.isInitialized)).toBeTruthy()
@@ -106,7 +106,7 @@ describe('QueryStore', () => {
             }
             state.queryPoints.push({ ...state.queryPoints[0], id: 2 })
             for (const point of store.state.queryPoints) {
-                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }))
+                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, true))
             }
 
             expect(state.queryPoints.every(point => point.isInitialized)).toBeTruthy()
@@ -228,7 +228,11 @@ describe('QueryStore', () => {
     })
     describe('InfoReceived action', () => {
         it('return unchanged state if routing profile was already set', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(
+                new ApiMock(() => {
+                    fail('no routing request when profile was already set.')
+                })
+            )
 
             const profile = 'some-profile'
             const state: QueryStoreState = {
@@ -240,51 +244,55 @@ describe('QueryStore', () => {
             const newState = store.reduce(
                 state,
                 new InfoReceived({
-                    profiles: [{ name: 'some-other-profile' }, { name: profile }],
+                    profiles: [{ name: 'some-other-profile' }],
                     elevation: true,
                     version: '',
                     import_date: '',
                     bbox: [0, 0, 0, 0],
+                    encoded_values: [],
                 })
             )
 
             expect(newState).toEqual(state)
         })
-        it('should use the first profile if profile was already set but not in info action', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
-
-            const presetProfile = 'some-profile'
-            const firstProfileFromInfo = 'first-from-info'
-            const state: QueryStoreState = {
-                ...store.state,
-                routingProfile: {
-                    name: presetProfile,
-                },
-            }
-            const newState = store.reduce(
-                state,
-                new InfoReceived({
-                    profiles: [{ name: firstProfileFromInfo }, { name: 'other-profile-from-info' }],
-                    elevation: true,
-                    version: '',
-                    import_date: '',
-                    bbox: [0, 0, 0, 0],
-                })
-            )
-
-            expect(newState.routingProfile.name).toEqual(firstProfileFromInfo)
-        })
         it('should use the first profile received from info endpoint', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
-            const state: QueryStoreState = store.state
             const expectedProfile = {
                 name: 'some-name',
                 import_date: 'some_date',
                 elevation: false,
                 version: 'some-version',
             }
+            let routingRequestWasIssued = false
+            const store = new QueryStore(
+                new ApiMock(args => {
+                    expect(args.profile).toEqual(expectedProfile.name)
+                    routingRequestWasIssued = true
+                })
+            )
+            let state: QueryStoreState = store.state
 
-            const newState = store.reduce(
+            // initialize all query points so that the store will issue a route request.
+            state = store.reduce(
+                state,
+                new SetPoint(
+                    {
+                        ...state.queryPoints[0],
+                        isInitialized: true,
+                    },
+                    true
+                )
+            )
+            state = store.reduce(
+                state,
+                new SetPoint(
+                    {
+                        ...state.queryPoints[1],
+                        isInitialized: true,
+                    },
+                    true
+                )
+            )
+            state = store.reduce(
                 state,
                 new InfoReceived({
                     profiles: [expectedProfile, { name: 'other' }],
@@ -292,10 +300,12 @@ describe('QueryStore', () => {
                     version: '',
                     import_date: '',
                     bbox: [0, 0, 0, 0],
+                    encoded_values: [],
                 })
             )
 
-            expect(newState.routingProfile).toEqual(expectedProfile)
+            expect(state.routingProfile).toEqual(expectedProfile)
+            expect(routingRequestWasIssued).toBeTruthy()
         })
     })
     describe('SetVehicleProfile action', () => {
@@ -321,6 +331,8 @@ describe('QueryStore', () => {
                 maxAlternativeRoutes: 1,
                 points: [],
                 profile: 'some-profile',
+                customModel: null,
+                zoom: true,
             }
             const subRequest: SubRequest = {
                 state: RequestState.SENT,
@@ -348,6 +360,8 @@ describe('QueryStore', () => {
                 maxAlternativeRoutes: 1,
                 points: [],
                 profile: 'some-profile',
+                customModel: null,
+                zoom: true,
             }
             const subRequest: SubRequest = {
                 state: RequestState.SENT,
