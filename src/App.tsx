@@ -10,7 +10,8 @@ import {
     getPathDetailsStore,
     getQueryStore,
     getRouteStore,
-    getSettingsStore, getTurnNavigationStore,
+    getSettingsStore,
+    getTurnNavigationStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
 import {ApiInfo} from '@/api/graphhopper'
@@ -25,7 +26,6 @@ import {MapOptionsStoreState} from '@/stores/MapOptionsStore'
 import {ErrorStoreState} from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
-import createCurrentLocationLayer from '@/layers/CurrentLocationLayer'
 import {LocationStoreState} from './stores/LocationStore'
 import {TurnNavigationState} from "@/stores/TurnNavigationStore";
 import useBackgroundLayer from '@/layers/UseBackgroundLayer'
@@ -43,6 +43,12 @@ import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
 import {ShowDistanceInMilesContext} from '@/ShowDistanceInMilesContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
+import {TurnNavigationUpdate} from "@/actions/Actions";
+import Dispatcher from "@/stores/Dispatcher";
+import VolumeUpIcon from "@/turnNavigation/volume_up.svg";
+import VolumeOffIcon from "@/turnNavigation/volume_off.svg";
+import PlainButton from "@/PlainButton";
+import TurnNavigation from "@/turnNavigation/TurnNavigation";
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -166,7 +172,22 @@ interface LayoutProps {
     turnNaviState: TurnNavigationState
 }
 
-function LargeScreenLayout({query, route, map, error, mapOptions, info}: LayoutProps) {
+function LargeScreenLayout({query, route, map, error, mapOptions, info, location, turnNaviState}: LayoutProps) {
+    if(location.turnNavigation)
+        return <>
+            <div className={styles.turnNavigation}>
+                <TurnNavigation path={route.selectedPath} location={location} turnNaviState={turnNaviState}/>
+            </div>
+            <div className={styles.volume}>
+                <PlainButton onClick={() => Dispatcher.dispatch(new TurnNavigationUpdate({soundEnabled: !turnNaviState.soundEnabled} as TurnNavigationState))}>
+                    {turnNaviState.soundEnabled ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
+                </PlainButton>
+            </div>
+            <div className={styles.map}>
+                <MapComponent map={map}/>
+            </div>
+        </>
+
     return (
         <>
             <div className={styles.sidebar}>

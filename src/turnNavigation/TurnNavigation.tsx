@@ -18,21 +18,21 @@ type TurnNavigationProps = {
 
 export default function ({path, location, turnNaviState}: TurnNavigationProps) {
     let currentLocation = location.coordinate
-    if (currentLocation.lat == 0 && currentLocation.lng == 0) return <span>Searching GPS...</span>
 
     const {instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance} = getCurrentInstruction(
         path.instructions,
         currentLocation
     )
 
+    // TODO NOW we have to move this below the useEffect methods etc as react doesn't like conditional creation of these
+    // TODO too far from route - recalculate?
+    if (instructionIndex < 0) return <>Cannot find instruction</>
+
     let [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, currentLocation,
         [path.details.average_speed, path.details.max_speed, path.details.surface, path.details.road_class]);
 
     estimatedAvgSpeed = Math.round(estimatedAvgSpeed)
-    console.log('remaining distance: ' + remainingDistance + ', time: ' + remainingTime + ', avg: ' + estimatedAvgSpeed + ", max: " + maxSpeed)
-
-    // TODO too far from route - recalculate?
-    if (instructionIndex < 0) return <>Cannot find instruction</>
+    // console.log('remaining distance: ' + remainingDistance + ', time: ' + remainingTime + ', avg: ' + estimatedAvgSpeed + ", max: " + maxSpeed)
 
     const nextInstruction: Instruction = path.instructions[instructionIndex]
 
@@ -50,12 +50,7 @@ export default function ({path, location, turnNaviState}: TurnNavigationProps) {
 
     // speak text out loud after render only if index changed and distance is close next instruction
     useEffect(() => {
-        console.log(
-            'useEffect',
-            state,
-            {index: instructionIndex, distanceToNext: distanceToNext},
-            nextInstruction.text
-        )
+        // console.log('useEffect', state, {index: instructionIndex, distanceToNext: distanceToNext}, nextInstruction.text)
 
         let text = nextInstruction.street_name
         if (turnNaviState.soundEnabled) {
@@ -80,7 +75,7 @@ export default function ({path, location, turnNaviState}: TurnNavigationProps) {
             ) {
                 let inString = distanceToNext > 800 ? tr('in_km_singular')
                     : tr("in_m", ["" + Math.round(distanceToNext / 100) * 100])
-                console.log(inString + ' ' + nextInstruction.text)
+                // console.log(inString + ' ' + nextInstruction.text)
                 getLocationStore()
                     .getSpeechSynthesizer()
                     .synthesize(inString + ' ' + nextInstruction.text)

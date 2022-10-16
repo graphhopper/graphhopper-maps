@@ -1,12 +1,13 @@
 import {Coordinate} from '@/stores/QueryStore'
 import Store from '@/stores/Store'
-import {ErrorAction, LocationUpdate} from '@/actions/Actions'
+import {ErrorAction, LocationUpdate, SetPoint, ZoomMapToPoint} from '@/actions/Actions'
 import Dispatcher, {Action} from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
 import {SpeechSynthesizer} from '@/SpeechSynthesizer'
 import {ApiImpl} from '@/api/Api'
-import {calcOrientation} from '@/turnNavigation/GeoMethods'
+import {calcOrientation, toNorthBased} from '@/turnNavigation/GeoMethods'
 import * as config from 'config'
+import {toDegrees} from "ol/math";
 
 export interface LocationStoreState {
     turnNavigation: boolean
@@ -38,7 +39,7 @@ export default class LocationStore extends Store<LocationStoreState> {
 
     reduce(state: LocationStoreState, action: Action): LocationStoreState {
         if (action instanceof LocationUpdate) {
-            console.log('LocationUpdate action {}', action.location)
+            // console.log('LocationUpdate action {}', action.location)
             return action.location
         }
         return state
@@ -66,20 +67,21 @@ export default class LocationStore extends Store<LocationStoreState> {
         let latlon: number[][] = new Array(coords.length)
 
         for (let idx = 0; idx < coords.length; idx++) {
-            // very ugly: in JS it is not initializable with a seed
-            let lat = coords[idx][1] + 0.0001 * Math.random(), // approx +-5m ?
-                lon = coords[idx][0] + 0.0001 * Math.random()
-            let heading = 180
+            // very ugly: in JS the random object cannot be initialed with a seed
+            const lat = coords[idx][1] // + 0.0001 * Math.random() // approx +-5m ?
+            const lon = coords[idx][0] // + 0.0001 * Math.random()
+            let heading = 0
             if (idx > 0) {
-                let prevLat = coords[idx - 1][1],
-                    prevLon = coords[idx - 1][0]
-                heading = ((3 * Math.PI) / 2 - calcOrientation(lat, lon, prevLat, prevLon)) * 57.29577951308232 // factor 57.29... to convert radion to degrees
+                const prevLat = coords[idx - 1][1]
+                const prevLon = coords[idx - 1][0]
+                let o = calcOrientation(lat, lon, prevLat, prevLon);
+                heading = Math.PI - toNorthBased(o)
             }
             latlon[idx] = [lat, lon, heading, 4]
         }
 
         let currentIndex: number = 0
-        this.locationUpdate({
+        LocationStore.locationUpdate({
             coords: {
                 latitude: latlon[currentIndex][0],
                 longitude: latlon[currentIndex][1],
@@ -91,8 +93,8 @@ export default class LocationStore extends Store<LocationStoreState> {
         this.interval = setInterval(() => {
             currentIndex++
             currentIndex %= latlon.length
-            console.log(currentIndex)
-            this.locationUpdate({
+            // console.log(currentIndex)
+            LocationStore.locationUpdate({
                 coords: {
                     latitude: latlon[currentIndex][0],
                     longitude: latlon[currentIndex][1],
@@ -103,7 +105,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         }, 3000)
     }
 
-    private locationUpdate(pos: any) {
+    private static locationUpdate(pos: any) {
         // TODO NOW: 'this is undefined' if called from watchPosition: if (!this.started) return
 
         let c = {lat: pos.coords.latitude, lng: pos.coords.longitude}
@@ -111,7 +113,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         let bearing: number = pos.coords.heading
 
         if (Number.isNaN(bearing)) console.log('skip dispatching SetViewportToPoint because bearing is ' + bearing)
-        // TODO NOW else Dispatcher.dispatch(new SetViewportToPoint(c, 17, 50, bearing))
+        else Dispatcher.dispatch(new ZoomMapToPoint(c, 17, 50, bearing))
     }
 
     public initReal() {
@@ -132,7 +134,7 @@ export default class LocationStore extends Store<LocationStoreState> {
                 enableHighAccuracy: true
             }
             this.watchId = navigator.geolocation.watchPosition(
-                this.locationUpdate,
+                LocationStore.locationUpdate,
                 err => {
                     if (this.started) Dispatcher.dispatch(new ErrorAction('location watch error: ' + err.message))
                 },
@@ -143,13 +145,13 @@ export default class LocationStore extends Store<LocationStoreState> {
                 let requestFullscreenFct = el.requestFullscreen
                 requestFullscreenFct.call(el)
             } catch (e) {
-                console.log(e)
+                console.log("error requesting full screen " + JSON.stringify(e))
             }
         }
     }
 
     public stop() {
-        console.log('LocationStore.stop', this.watchId, this.interval)
+        // console.log('LocationStore.stop', this.watchId, this.interval)
         if (document.fullscreenElement) document.exitFullscreen()
 
         this.started = false

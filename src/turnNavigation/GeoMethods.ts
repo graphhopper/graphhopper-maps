@@ -1,5 +1,6 @@
 import {Instruction, Path} from '@/api/graphhopper'
 import {Coordinate} from '@/stores/QueryStore'
+import {or} from "ol/format/filter";
 
 export function getCurrentDetails(path: Path, location: Coordinate, details: [any, any, any][][]): number[] {
     let smallestDist = Number.MAX_VALUE
@@ -193,7 +194,15 @@ function calcCrossingPointToEdge(
     return {lat: c_lat, lng: c_lon / shrinkFactor}
 }
 
+// returns orientation in interval -pi to +pi where 0 is east
 export function calcOrientation(lat1: number, lon1: number, lat2: number, lon2: number): number {
     let shrinkFactor = Math.cos(toRadians((lat1 + lat2) / 2))
     return Math.atan2(lat2 - lat1, shrinkFactor * (lon2 - lon1))
+}
+
+// convert east-based radians into north based
+export function toNorthBased(orientation: number): number {
+    orientation = orientation >= 0 ? (5 * Math.PI / 2 - orientation) : ( Math.PI/2 - orientation)
+    // modulo with decimals seems to work too!? orientation % (2 * Math.PI)
+    return orientation > 2 * Math.PI? orientation - 2 * Math.PI : orientation;
 }

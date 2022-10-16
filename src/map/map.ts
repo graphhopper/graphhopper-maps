@@ -9,14 +9,14 @@ let map: Map | undefined
 export function createMap(): Map {
     map = new Map({
         view: new View({
-            enableRotation: false,
+            enableRotation: true,
             multiWorld: false,
             constrainResolution: true,
             center: fromLonLat([10, 10]),
             zoom: 2,
         }),
         controls: defaultControls({
-            zoom: false,
+            zoom: true,
             attribution: true,
             attributionOptions: {
                 collapsible: false,

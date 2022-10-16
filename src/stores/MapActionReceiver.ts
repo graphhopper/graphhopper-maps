@@ -12,6 +12,7 @@ import {
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
+import {between} from "ol/format/filter";
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -38,8 +39,10 @@ export default class MapActionReceiver implements ActionReceiver {
                 'noopener,noreferrer'
             )
         } else if (action instanceof ZoomMapToPoint) {
-            this.map.getView().setCenter(fromLonLat([action.coordinate.lng, action.coordinate.lat]))
+            console.log("bearing: " + action.bearing*180/Math.PI)
             this.map.getView().setZoom(action.zoom)
+            this.map.getView().setRotation(action.bearing)
+            this.map.getView().setCenter(fromLonLat([action.coordinate.lng, action.coordinate.lat]))
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route
