@@ -39,12 +39,11 @@ export default class MapActionReceiver implements ActionReceiver {
                 'noopener,noreferrer'
             )
         } else if (action instanceof ZoomMapToPoint) {
-            // console.log("bearing: " + action.bearing*180/Math.PI)
             this.map.getView().animate({
                 zoom: action.zoom,
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
                 rotation: action.bearing,
-                duration: 1000,
+                duration: 400,
             })
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
