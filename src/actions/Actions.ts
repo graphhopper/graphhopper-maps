@@ -4,7 +4,7 @@ import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from 
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 import { LocationStoreState } from '@/stores/LocationStore'
-import { TurnNavigationState } from '@/stores/TurnNavigationStore'
+import { Settings } from '@/stores/SettingsStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -23,9 +23,9 @@ export class LocationUpdate implements Action {
 }
 
 export class TurnNavigationUpdate implements Action {
-    readonly update: TurnNavigationState
+    readonly update: Settings
 
-    constructor(update: TurnNavigationState) {
+    constructor(update: Settings) {
         this.update = update
     }
 }

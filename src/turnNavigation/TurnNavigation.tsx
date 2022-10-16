@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useReducer, useState } from 'react'
 import { Instruction, Path } from '@/api/graphhopper'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import { getTurnSign } from '@/sidebar/instructions/Instructions'
@@ -8,15 +8,14 @@ import endNavigation from '@/turnNavigation/end_turn_navigation.png'
 import { getLocationStore } from '@/stores/Stores'
 import { LocationStoreState } from '@/stores/LocationStore'
 import { tr } from '@/translation/Translation'
-import { TurnNavigationState } from '@/stores/TurnNavigationStore'
+import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 
 type TurnNavigationProps = {
     path: Path
     location: LocationStoreState
-    turnNaviState: TurnNavigationState
 }
 
-export default function ({ path, location, turnNaviState }: TurnNavigationProps) {
+export default function ({ path, location }: TurnNavigationProps) {
     let currentLocation = location.coordinate
 
     const { instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance } = getCurrentInstruction(
@@ -51,13 +50,14 @@ export default function ({ path, location, turnNaviState }: TurnNavigationProps)
     let [showTime, setShowTime] = useState(true)
     let [showDebug, setShowDebug] = useState(false)
     const [state, dispatch] = useReducer(reducer, { index: -1, distanceToNext: -1, text: '' })
+    const { soundEnabled } = useContext(ShowDistanceInMilesContext)
 
     // speak text out loud after render only if index changed and distance is close next instruction
     useEffect(() => {
         // console.log('useEffect', state, {index: instructionIndex, distanceToNext: distanceToNext}, nextInstruction.text)
 
         let text = nextInstruction.street_name
-        if (turnNaviState.soundEnabled) {
+        if (soundEnabled) {
             // making lastAnnounceDistance dependent on location.speed is tricky because then it can change while driving, so pick the constant average speed
             // TODO use instruction average speed of current+next instruction instead of whole path
             let averageSpeed = (path.distance / (path.time / 1000)) * 3.6

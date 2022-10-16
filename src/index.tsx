@@ -5,7 +5,7 @@ import * as config from 'config'
 import MapActionReceiver from '@/stores/MapActionReceiver'
 import { createMap, getMap, setMap } from '@/map/map'
 import MapFeatureStore from '@/stores/MapFeatureStore'
-import SettingsStore from '@/stores/SettingsStore'
+import SettingsStore, { Settings } from '@/stores/SettingsStore'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 import { setTranslation } from '@/translation/Translation'
 import { getApi, setApi } from '@/api/Api'
@@ -23,14 +23,12 @@ import {
     getQueryStore,
     getRouteStore,
     getSettingsStore,
-    getTurnNavigationStore,
     setStores,
 } from '@/stores/Stores'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import LocationStore from '@/stores/LocationStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
 import Dispatcher from '@/stores/Dispatcher'
-import TurnNavigationStore, { TurnNavigationState } from '@/stores/TurnNavigationStore'
 import NavBar from '@/NavBar'
 import App from '@/App'
 import { TurnNavigationUpdate } from '@/actions/Actions'
@@ -56,7 +54,6 @@ setStores({
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
-    turnNavigationStore: new TurnNavigationStore(),
     locationStore: new LocationStore(speechSynthesizer),
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
@@ -71,7 +68,6 @@ Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
-Dispatcher.register(getTurnNavigationStore())
 Dispatcher.register(getLocationStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getMapFeatureStore())
@@ -81,9 +77,7 @@ const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
 const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
 Dispatcher.register(mapActionReceiver)
 
-Dispatcher.dispatch(
-    new TurnNavigationUpdate({ fakeGPS: fake !== null, soundEnabled: fake === null } as TurnNavigationState)
-)
+Dispatcher.dispatch(new TurnNavigationUpdate({ fakeGPS: fake !== null, soundEnabled: fake === null } as Settings))
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible
 

@@ -34,7 +34,7 @@ export default function (props: { instructions: Instruction[] }) {
 }
 
 const Line = function ({ instruction, index }: { instruction: Instruction; index: number }) {
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const { showDistanceInMiles } = useContext(ShowDistanceInMilesContext)
     return (
         <li className={styles.instruction}>
             {getTurnSign(instruction.sign, index)}

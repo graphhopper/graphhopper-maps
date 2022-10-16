@@ -34,7 +34,7 @@ export default function PathDetailPopup({ map, pathDetails }: PathDetailPopupPro
         overlay?.setPosition(position)
     }, [pathDetails.pathDetailsPoint])
 
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const { showDistanceInMiles } = useContext(ShowDistanceInMilesContext)
 
     return (
         // todo: use createMapMarker from heightgraph?

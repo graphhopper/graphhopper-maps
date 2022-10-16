@@ -16,15 +16,13 @@ import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
 import { getLocationStore } from '@/stores/Stores'
-import turnNavigation from '@/turnNavigation/TurnNavigation'
-import { TurnNavigationState } from '@/stores/TurnNavigationStore'
+import { Settings } from '@/stores/SettingsStore'
 
 export interface RoutingResultsProps {
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
     profile: string
-    turnNaviState: TurnNavigationState
 }
 
 export default function RoutingResults(props: RoutingResultsProps) {
@@ -35,17 +33,7 @@ export default function RoutingResults(props: RoutingResultsProps) {
     return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
 }
 
-function RoutingResult({
-    path,
-    isSelected,
-    profile,
-    turnNaviState,
-}: {
-    path: Path
-    isSelected: boolean
-    profile: string
-    turnNaviState: TurnNavigationState
-}) {
+function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: boolean; profile: string }) {
     const [isExpanded, setExpanded] = useState(false)
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
@@ -59,7 +47,7 @@ function RoutingResult({
     const showAndHasSteps = ApiImpl.isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
     const hasBorderCrossed = crossesBorder(path.details.country)
 
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const { showDistanceInMiles, fakeGPS } = useContext(ShowDistanceInMilesContext)
     let [showRisk, setShowRisk] = useState(false)
 
     if (showRisk)
@@ -70,8 +58,8 @@ function RoutingResult({
                     <PlainButton onClick={() => setShowRisk(false)}>{tr('back')}</PlainButton>
                     <PlainButton
                         onClick={() => {
-                            Dispatcher.dispatch(new TurnNavigationUpdate({ acceptedRisk: true } as TurnNavigationState))
-                            return turnNaviState.fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
+                            Dispatcher.dispatch(new TurnNavigationUpdate({ acceptedRisk: true } as Settings))
+                            return fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
                         }}
                     >
                         {tr('accept_risks_after_warning')}
@@ -250,32 +238,19 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 
 function createSingletonListContent(props: RoutingResultsProps) {
     if (props.paths.length > 0)
-        return (
-            <RoutingResult
-                path={props.selectedPath}
-                isSelected={true}
-                profile={props.profile}
-                turnNaviState={props.turnNaviState}
-            />
-        )
+        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} />
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlaceholder key={1} />
     return ''
 }
 
-function createListContent({ paths, currentRequest, selectedPath, profile, turnNaviState }: RoutingResultsProps) {
+function createListContent({ paths, currentRequest, selectedPath, profile }: RoutingResultsProps) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
         if (i < paths.length)
             result.push(
-                <RoutingResult
-                    key={i}
-                    path={paths[i]}
-                    isSelected={paths[i] === selectedPath}
-                    profile={profile}
-                    turnNaviState={turnNaviState}
-                />
+                <RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} profile={profile} />
             )
         else result.push(<RoutingResultPlaceholder key={i} />)
     }

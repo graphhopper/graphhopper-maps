@@ -1,15 +1,21 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { ToggleDistanceUnits } from '@/actions/Actions'
+import { ToggleDistanceUnits, TurnNavigationUpdate } from '@/actions/Actions'
 
 export interface Settings {
     showDistanceInMiles: boolean
+    fakeGPS: boolean
+    acceptedRisk: boolean
+    soundEnabled: boolean
 }
 
 export default class SettingsStore extends Store<Settings> {
     constructor() {
         super({
             showDistanceInMiles: false,
+            fakeGPS: false,
+            acceptedRisk: false,
+            soundEnabled: false,
         })
     }
 
@@ -19,6 +25,8 @@ export default class SettingsStore extends Store<Settings> {
                 ...state,
                 showDistanceInMiles: !state.showDistanceInMiles,
             }
+        } else if (action instanceof TurnNavigationUpdate) {
+            return { ...state, ...action.update }
         }
         return state
     }
