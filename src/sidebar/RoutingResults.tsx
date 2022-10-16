@@ -60,8 +60,22 @@ function RoutingResult({
     const hasBorderCrossed = crossesBorder(path.details.country)
 
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
-    // TODO NOW
     let [showRisk, setShowRisk] = useState(false)
+
+    if (showRisk)
+        return (
+            <div className={styles.showRisk}>
+                <div>{tr('warning')}</div>
+                <PlainButton
+                    onClick={() => {
+                        Dispatcher.dispatch(new TurnNavigationUpdate({ acceptedRisk: true } as TurnNavigationState))
+                        return turnNaviState.fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
+                    }}
+                >
+                    {tr('accept_risks_after_warning')}
+                </PlainButton>
+            </div>
+        )
 
     return (
         <div className={styles.resultRow}>
@@ -88,18 +102,16 @@ function RoutingResult({
                             </span>
                         )}
                     </div>
-                    {isSelected && (
+                    {isSelected && !showRisk && (
                         <PlainButton
                             className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
-                            onClick={() =>
-                                turnNaviState.fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
-                            }
+                            onClick={() => setShowRisk(true)}
                         >
                             <NaviSVG />
                             <div>{tr('Navi')}</div>
                         </PlainButton>
                     )}
-                    {isSelected && (
+                    {isSelected && !showRisk && (
                         <PlainButton
                             className={styles.exportButton}
                             onClick={() => downloadGPX(path, showDistanceInMiles)}
@@ -108,7 +120,7 @@ function RoutingResult({
                             <div>{tr('gpx_button')}</div>
                         </PlainButton>
                     )}
-                    {isSelected && (
+                    {isSelected && !showRisk && (
                         <PlainButton
                             className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
                             onClick={() => setExpanded(!isExpanded)}

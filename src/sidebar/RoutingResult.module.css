@@ -150,3 +150,10 @@
 .routeHints {
     padding-bottom: 1em;
 }
+
+.showRisk {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    padding: 0.5em;
+}
