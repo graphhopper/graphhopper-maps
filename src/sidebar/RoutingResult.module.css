@@ -152,8 +152,13 @@
 }
 
 .showRisk {
-    display: flex;
-    flex-direction: column;
-    align-self: center;
     padding: 0.5em;
+}
+
+.showRiskButtons {
+    padding: 0.5em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-self: center;
 }

@@ -66,6 +66,8 @@ function RoutingResult({
         return (
             <div className={styles.showRisk}>
                 <div>{tr('warning')}</div>
+                <div className={styles.showRiskButtons}>
+                <PlainButton onClick={() => setShowRisk(false)}>{tr('back')}</PlainButton>
                 <PlainButton
                     onClick={() => {
                         Dispatcher.dispatch(new TurnNavigationUpdate({ acceptedRisk: true } as TurnNavigationState))
@@ -74,6 +76,7 @@ function RoutingResult({
                 >
                     {tr('accept_risks_after_warning')}
                 </PlainButton>
+                </div>
             </div>
         )
 
