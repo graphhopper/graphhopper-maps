@@ -11,7 +11,7 @@ interface MarkerProps {
 // todo: this is mostly duplicated from `Marker.tsx`. To use `Marker.tsx` we would probably need to add ol.Overlays, i.e.
 //       create a div for each marker and insert the svg from `Marker.tsx`.
 export function createSvg({ color, number, size = 0 }: MarkerProps) {
-    return `<svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 680" width="${
+    return `<svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 665" width="${
         // todo: we do not use width in Marker.tsx, but without this the markers are not shown in Firefox :( (but they are shown in Chrome...)
         size
     }" height="${size}" style="stroke: none; fill: ${hexToRgb(color)};">
