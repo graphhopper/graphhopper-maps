@@ -46,7 +46,7 @@ function addUnselectedPathsLayer(map: Map, paths: Path[]) {
             new Style({
                 stroke: new Stroke({
                     color: '#5B616A',
-                    width: 6,
+                    width: 5,
                     lineCap: 'round',
                     lineJoin: 'round',
                 }),
@@ -82,11 +82,12 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
             new Style({
                 stroke: new Stroke({
                     color: '#275DAD',
-                    width: 8,
+                    width: 6,
                     lineCap: 'round',
                     lineJoin: 'round',
                 }),
             }),
+        opacity: 0.8,
     })
     layer.set(selectedPathLayerKey, true)
     layer.setZIndex(2)

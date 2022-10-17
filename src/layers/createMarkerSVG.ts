@@ -14,7 +14,7 @@ export function createSvg({ color, number, size = 0 }: MarkerProps) {
     return `<svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="${
         // todo: we do not use width in Marker.tsx, but without this the markers are not shown in Firefox :( (but they are shown in Chrome...)
         size
-    }" height="${size}" style="cursor: pointer; stroke: none; fill: ${hexToRgb(color)};">
+    }" height="${size}" style="stroke: none; fill: ${hexToRgb(color)};">
     <path d="${MARKER_PATH}"/>${
         number === undefined
             ? '<path d="' + INNER_CIRCLE + '" fill="white" />'
