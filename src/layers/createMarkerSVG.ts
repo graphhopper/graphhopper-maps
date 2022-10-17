@@ -8,8 +8,8 @@ interface MarkerProps {
     size?: number
 }
 
-// todo: this is mostly duplicated from `Marker.tsx`. To use `Marker.tsx` we would probably need to add ol.Overlays, i.e.
-//       create a div for each marker and insert the svg from `Marker.tsx`.
+// todo: this is mostly duplicated from `Marker.tsx`, but we use a more elongated shape (MARKER_PATH).
+//       To use `Marker.tsx` we would probably need to add ol.Overlays, i.e. create a div for each marker and insert the svg from `Marker.tsx`.
 export function createSvg({ color, number, size = 0 }: MarkerProps) {
     return `<svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 658" width="${
         // todo: we do not use width in Marker.tsx, but without this the markers are not shown in Firefox :( (but they are shown in Chrome...)
@@ -20,7 +20,6 @@ export function createSvg({ color, number, size = 0 }: MarkerProps) {
             ? '<path d="' + INNER_CIRCLE + '" fill="white" />'
             : '<circle cx="192" cy="190" r="120" fill="white" />'
     }<text x="50%" y="40%" text-anchor="middle" style="font-size: ${180 + 'px'}" fill="black">${
-        // todo: the text is not shown in Firefox (only in Chrome) :(
         number !== undefined ? number : ''
     }</text></svg>`
 }
