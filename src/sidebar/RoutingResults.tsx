@@ -107,7 +107,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
 }
 
 function containsBadTracks(details: [number, number, string][]) {
-    if (!details || details.length == 0) return false
+    if (!details) return false
     for (let i in details) {
         if (details[i][2] == 'grade2') return true
         if (details[i][2] == 'grade3') return true
@@ -127,7 +127,7 @@ function crossesBorder(countryPathDetail: [number, number, string][]) {
 }
 
 function containsValue(details: [number, number, string][], value: string) {
-    if (!details || details.length == 0) return false
+    if (!details) return false
     for (let i in details) {
         if (details[i][2] == value) return true
     }
