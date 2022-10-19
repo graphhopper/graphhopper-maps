@@ -102,7 +102,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     </div>
                     {isSelected && !showRisk && (
                         <PlainButton
-                            className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
+                            className={styles.exportButton}
                             onClick={() => setShowRisk(true)}
                         >
                             <NaviSVG />

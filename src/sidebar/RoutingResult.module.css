@@ -1,7 +1,4 @@
 .resultRow {
-    display: flex;
-    flex-direction: column;
-
     border-bottom: 1px lightgray solid;
 }
 
@@ -19,8 +16,9 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 0 1rem 0 15px;
+    /* now same border and padding like for selectedResultSummary */
     border-left: white solid 0.25rem;
+    padding: 0 1rem 0 15px;
 }
 
 .selectedResultSummary {
@@ -65,7 +63,7 @@
     font-size: 12px;
     float: left;
     padding-top: 0.15em;
-    padding-left: 0.5em;
+    padding-left: 0.4em;
 }
 
 .detailsButton svg,
