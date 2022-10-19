@@ -187,6 +187,7 @@ export class ZoomMapToPoint implements Action {
     readonly coordinate: Coordinate
     readonly zoom: number
     readonly pitch: number
+    // in radians
     readonly bearing: number
 
     constructor(coordinate: Coordinate, zoom: number, pitch: number, bearing: number) {

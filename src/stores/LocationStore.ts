@@ -7,6 +7,7 @@ import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 import { ApiImpl } from '@/api/Api'
 import { calcOrientation, toNorthBased } from '@/turnNavigation/GeoMethods'
 import * as config from 'config'
+import {toRadians} from "ol/math";
 
 export interface LocationStoreState {
     turnNavigation: boolean
@@ -78,7 +79,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         }
 
         let currentIndex: number = 0
-        LocationStore.locationUpdate({
+        this.locationUpdate({
             coords: {
                 latitude: latlon[currentIndex][0],
                 longitude: latlon[currentIndex][1],
@@ -91,7 +92,7 @@ export default class LocationStore extends Store<LocationStoreState> {
             currentIndex++
             currentIndex %= latlon.length
             // console.log(currentIndex)
-            LocationStore.locationUpdate({
+            this.locationUpdate({
                 coords: {
                     latitude: latlon[currentIndex][0],
                     longitude: latlon[currentIndex][1],
@@ -102,15 +103,13 @@ export default class LocationStore extends Store<LocationStoreState> {
         }, 3000)
     }
 
-    private static locationUpdate(pos: any) {
-        // TODO NOW: 'this is undefined' if called from watchPosition: if (!this.started) return
-
+    private locationUpdate(pos: any) {
         let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
         Dispatcher.dispatch(new LocationUpdate({ coordinate: c, turnNavigation: true, speed: pos.coords.speed }))
         let bearing: number = pos.coords.heading
 
-        if (Number.isNaN(bearing)) console.log('skip dispatching SetViewportToPoint because bearing is ' + bearing)
-        else Dispatcher.dispatch(new ZoomMapToPoint(c, 17, 50, bearing))
+        if (!bearing || Number.isNaN(bearing)) console.log('skip dispatching SetViewportToPoint because bearing is ' + bearing)
+        else Dispatcher.dispatch(new ZoomMapToPoint(c, 17, 50, toRadians(bearing)))
     }
 
     public initReal() {
@@ -131,7 +130,7 @@ export default class LocationStore extends Store<LocationStoreState> {
                 enableHighAccuracy: true,
             }
             this.watchId = navigator.geolocation.watchPosition(
-                LocationStore.locationUpdate,
+                this.locationUpdate,
                 err => {
                     if (this.started) Dispatcher.dispatch(new ErrorAction('location watch error: ' + err.message))
                 },
