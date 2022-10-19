@@ -7,7 +7,7 @@ import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 import { ApiImpl } from '@/api/Api'
 import { calcOrientation, toNorthBased } from '@/turnNavigation/GeoMethods'
 import * as config from 'config'
-import {toRadians} from "ol/math";
+import {toDegrees, toRadians} from "ol/math";
 
 export interface LocationStoreState {
     turnNavigation: boolean
@@ -73,7 +73,7 @@ export default class LocationStore extends Store<LocationStoreState> {
                 const prevLat = coords[idx - 1][1]
                 const prevLon = coords[idx - 1][0]
                 let o = calcOrientation(lat, lon, prevLat, prevLon)
-                heading = Math.PI - toNorthBased(o)
+                heading = toDegrees(toNorthBased(o))
             }
             latlon[idx] = [lat, lon, heading, 4]
         }
@@ -109,7 +109,7 @@ export default class LocationStore extends Store<LocationStoreState> {
         let bearing: number = pos.coords.heading
 
         if (!bearing || Number.isNaN(bearing)) console.log('skip dispatching SetViewportToPoint because bearing is ' + bearing)
-        else Dispatcher.dispatch(new ZoomMapToPoint(c, 17, 50, toRadians(bearing)))
+        else Dispatcher.dispatch(new ZoomMapToPoint(c, 17, 50, bearing))
     }
 
     public initReal() {
