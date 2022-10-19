@@ -70,8 +70,8 @@ export default class LocationStore extends Store<LocationStoreState> {
 
         for (let idx = 0; idx < coords.length; idx++) {
             // very ugly: in JS the random object cannot be initialed with a seed
-            const lat = coords[idx][1] // + 0.0001 * Math.random() // approx +-5m ?
-            const lon = coords[idx][0] // + 0.0001 * Math.random()
+            const lat = coords[idx][1] + 0.001 * Math.random() // approx +-5m ?
+            const lon = coords[idx][0] + 0.0001 * Math.random()
             let heading = 0
             if (idx > 0) {
                 const prevLat = coords[idx - 1][1]

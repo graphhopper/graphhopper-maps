@@ -49,11 +49,12 @@ export function getCurrentInstruction(
     instructionIndex: number
     timeToNext: number
     distanceToNext: number
+    distanceToRoute: number
     remainingTime: number
     remainingDistance: number
 } {
     let instructionIndex = -1
-    let smallestDist = Number.MAX_VALUE
+    let distanceToRoute = Number.MAX_VALUE
     let distanceToNext = 10.0
 
     for (let instrIdx = 0; instrIdx < instructions.length; instrIdx++) {
@@ -72,8 +73,8 @@ export function getCurrentInstruction(
                 }
             }
 
-            if (dist < smallestDist) {
-                smallestDist = dist
+            if (dist < distanceToRoute) {
+                distanceToRoute = dist
                 // use next instruction or finish
                 instructionIndex = instrIdx + 1 < instructions.length ? instrIdx + 1 : instrIdx
                 const last: number[] = points[points.length - 1]
@@ -101,7 +102,7 @@ export function getCurrentInstruction(
         }
     }
 
-    return { instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance }
+    return { instructionIndex, timeToNext, distanceToNext, distanceToRoute, remainingTime, remainingDistance, }
 }
 
 export function distCalc(fromLat: number, fromLng: number, toLat: number, toLng: number): number {

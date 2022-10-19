@@ -170,7 +170,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info, locatio
         return (
             <>
                 <div className={styles.turnNavigation}>
-                    <TurnNavigation path={route.selectedPath} location={location} />
+                    <TurnNavigation queryPoints={query.queryPoints} path={route.selectedPath} location={location} />
                 </div>
                 <div className={styles.volume}>
                     <PlainButton
@@ -256,7 +256,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, setting
                     </PlainButton>
                 </div>
                 <div className={styles.smallScreenRoutingResult}>
-                    <TurnNavigation path={route.selectedPath} location={location} />
+                    <TurnNavigation queryPoints={query.queryPoints} path={route.selectedPath} location={location} />
                 </div>
             </>
         )

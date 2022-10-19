@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer, useState } from 'react'
 import { Instruction, Path } from '@/api/graphhopper'
-import { metersToText, milliSecondsToText } from '@/Converters'
+import {coordinateToText, metersToText, milliSecondsToText} from '@/Converters'
 import { getTurnSign } from '@/sidebar/instructions/Instructions'
 import { getCurrentDetails, getCurrentInstruction } from './GeoMethods'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
@@ -10,17 +10,19 @@ import { LocationStoreState } from '@/stores/LocationStore'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import Dispatcher from '@/stores/Dispatcher'
-import { NavigationStop, ZoomMapToPoint } from '@/actions/Actions'
+import {NavigationStop, SetPoint, ZoomMapToPoint} from '@/actions/Actions'
+import {QueryPoint, QueryStoreState} from "@/stores/QueryStore";
 
 type TurnNavigationProps = {
+    queryPoints: QueryPoint[]
     path: Path
     location: LocationStoreState
 }
 
-export default function ({ path, location }: TurnNavigationProps) {
+export default function ({ queryPoints, path, location }: TurnNavigationProps) {
     let currentLocation = location.coordinate
 
-    const { instructionIndex, timeToNext, distanceToNext, remainingTime, remainingDistance } = getCurrentInstruction(
+    const { instructionIndex, timeToNext, distanceToNext, distanceToRoute, remainingTime, remainingDistance } = getCurrentInstruction(
         path.instructions,
         currentLocation
     )
@@ -28,6 +30,9 @@ export default function ({ path, location }: TurnNavigationProps) {
     // TODO NOW we have to move this below the useEffect methods etc as react doesn't like conditional creation of these
     // TODO too far from route - recalculate?
     if (instructionIndex < 0) return <>Cannot find instruction</>
+
+    if (distanceToRoute > 50)
+        Dispatcher.dispatch(new SetPoint({...queryPoints[0], coordinate: location.coordinate} as QueryPoint,false))
 
     let [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, currentLocation, [
         path.details.average_speed,
