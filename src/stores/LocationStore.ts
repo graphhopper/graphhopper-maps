@@ -125,7 +125,7 @@ export default class LocationStore extends Store<LocationStoreState> {
             console.log('location not supported. In firefox I had to set geo.enabled=true in about:config')
         } else {
             console.log('location init ', this.watchId)
-            // this.speechSynthesizer.synthesize(tr('welcome'))
+            this.speechSynthesizer.synthesize('welcome')
             // force calling clearWatch can help to find GPS fix more reliable in android firefox
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
