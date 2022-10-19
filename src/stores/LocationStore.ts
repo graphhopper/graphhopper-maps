@@ -1,6 +1,6 @@
 import { Coordinate } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
-import { ErrorAction, LocationUpdate, ZoomMapToPoint } from '@/actions/Actions'
+import {ErrorAction, LocationUpdate, NavigationStop, ZoomMapToPoint} from '@/actions/Actions'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
@@ -36,7 +36,11 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     reduce(state: LocationStoreState, action: Action): LocationStoreState {
-        if (action instanceof LocationUpdate) {
+        if(action instanceof NavigationStop) {
+            this.stop()
+            // directly writing the state does not work: this.state.turnNavigation = false
+            return { coordinate: { lat: 0, lng: 0 }, turnNavigation: false, speed: 0 }
+        } else if (action instanceof LocationUpdate) {
             // console.log('LocationUpdate action {}', action.location)
             return action.location
         }
@@ -154,12 +158,6 @@ export default class LocationStore extends Store<LocationStoreState> {
         if (this.interval) clearInterval(this.interval)
 
         if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
-
-        // exit "navigation view" => use no pitch and no bearing (rotation)
-        Dispatcher.dispatch(new ZoomMapToPoint(this.state.coordinate, 15, 0, 0))
-
-        // directly writing the state does not work: this.state.turnNavigation = false
-        Dispatcher.dispatch(new LocationUpdate({ coordinate: { lat: 0, lng: 0 }, turnNavigation: false, speed: 0 }))
 
         if (this.noSleep) this.noSleep.disable()
     }

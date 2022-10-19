@@ -3,7 +3,7 @@ import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import React, { useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetSelectedPath, TurnNavigationUpdate } from '@/actions/Actions'
+import {NavigationStop, SetSelectedPath, TurnNavigationUpdate, ZoomMapToPoint} from '@/actions/Actions'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
@@ -55,7 +55,12 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
             <div className={styles.showRisk}>
                 <div>{tr('warning')}</div>
                 <div className={styles.showRiskButtons}>
-                    <PlainButton onClick={() => setShowRisk(false)}>{tr('back')}</PlainButton>
+                    <PlainButton onClick={() => {
+                        setShowRisk(false)
+                        Dispatcher.dispatch(new NavigationStop());
+                    }}>
+                        {tr('back')}
+                    </PlainButton>
                     <PlainButton
                         onClick={() => {
                             Dispatcher.dispatch(new TurnNavigationUpdate({ acceptedRisk: true } as Settings))
