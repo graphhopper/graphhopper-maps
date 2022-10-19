@@ -12,8 +12,7 @@ import {
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
-import { between } from 'ol/format/filter'
-import {toDegrees, toRadians} from "ol/math";
+import { toRadians } from "ol/math";
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -43,8 +42,8 @@ export default class MapActionReceiver implements ActionReceiver {
             this.map.getView().animate({
                 zoom: action.zoom,
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
-                // convert heading in degrees into map orientation
-                rotation: Math.PI - toRadians(action.bearing),
+                // heading is in degrees and shows direction into which device is going -> convert with '-' into map orientation
+                rotation: -toRadians(action.bearing),
                 duration: 400,
             })
         } else if (action instanceof RouteRequestSuccess) {

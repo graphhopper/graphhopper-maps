@@ -72,7 +72,7 @@ export default class LocationStore extends Store<LocationStoreState> {
             if (idx > 0) {
                 const prevLat = coords[idx - 1][1]
                 const prevLon = coords[idx - 1][0]
-                let o = calcOrientation(lat, lon, prevLat, prevLon)
+                let o = calcOrientation(prevLat, prevLon, lat, lon)
                 heading = toDegrees(toNorthBased(o))
             }
             latlon[idx] = [lat, lon, heading, 4]
