@@ -81,7 +81,11 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<any>) {
         source: queryPointsLayer.getSource(),
         style: [],
     })
+    modify.on('modifystart', e => {
+        map.getViewport().style.cursor = 'grabbing'
+    })
     modify.on('modifyend', e => {
+        map.getViewport().style.cursor = 'default'
         const feature = (e as any).features.getArray()[0]
         const point = feature.get('gh:query_point')
         const coordinateLonLat = toLonLat(feature.getGeometry().getCoordinates())

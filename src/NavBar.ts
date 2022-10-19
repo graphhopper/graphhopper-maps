@@ -56,8 +56,10 @@ export default class NavBar {
             if (split.length >= 1)
                 try {
                     point.coordinate = NavBar.parseCoordinate(split[0])
-                    point.queryText = split.length >= 2 ? split[1] : coordinateToText(point.coordinate)
-                    point.isInitialized = true
+                    if (!Number.isNaN(point.coordinate.lat) && !Number.isNaN(point.coordinate.lng)) {
+                        point.queryText = split.length >= 2 ? split[1] : coordinateToText(point.coordinate)
+                        point.isInitialized = true
+                    }
                 } catch (e) {}
 
             return point
@@ -97,8 +99,8 @@ export default class NavBar {
         const coordinateParams = params.split(',')
         if (coordinateParams.length !== 2) throw Error('Could not parse coordinate with value: "' + params[0] + '"')
         return {
-            lat: NavBar.parseNumber(coordinateParams[0]),
-            lng: NavBar.parseNumber(coordinateParams[1]),
+            lat: Number.parseFloat(coordinateParams[0]),
+            lng: Number.parseFloat(coordinateParams[1]),
         }
     }
 
@@ -114,11 +116,6 @@ export default class NavBar {
         let layer = url.searchParams.get('layer')
         const option = this.mapStore.state.styleOptions.find(option => option.name === layer)
         return option ? option : this.mapStore.state.selectedStyle
-    }
-
-    private static parseNumber(value: string) {
-        const number = Number.parseFloat(value)
-        return Number.isNaN(number) ? 0 : number
     }
 
     parseUrlAndReplaceQuery() {

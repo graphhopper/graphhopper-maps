@@ -46,10 +46,10 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const showAndHasBadTracks = ApiImpl.isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
     const showAndHasSteps = ApiImpl.isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
     const hasBorderCrossed = crossesBorder(path.details.country)
+    const showHints = hasFords || hasTolls || hasFerries || showAndHasBadTracks || showAndHasSteps || hasBorderCrossed
 
     const { showDistanceInMiles, fakeGPS } = useContext(ShowDistanceInMilesContext)
     let [showRisk, setShowRisk] = useState(false)
-
     if (showRisk)
         return (
             <div className={styles.showRisk}>
@@ -101,10 +101,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                         )}
                     </div>
                     {isSelected && !showRisk && (
-                        <PlainButton
-                            className={styles.exportButton}
-                            onClick={() => setShowRisk(true)}
-                        >
+                        <PlainButton className={styles.exportButton} onClick={() => setShowRisk(true)}>
                             <NaviSVG />
                             <div>{tr('Navi')}</div>
                         </PlainButton>
@@ -129,7 +126,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     )}
                 </div>
             </div>
-            {isSelected && !isExpanded && (
+            {isSelected && !isExpanded && showHints && (
                 <div className={styles.routeHints}>
                     {hasFords && <div>{tr('way_contains_ford')}</div>}
                     {hasFerries && <div>{tr('way_contains_ferry')}</div>}
@@ -156,7 +153,7 @@ function containsBadTracks(details: [number, number, string][]) {
 }
 
 function crossesBorder(countryPathDetail: [number, number, string][]) {
-    if (!countryPathDetail) return false
+    if (!countryPathDetail || countryPathDetail.length == 0) return false
     const init = countryPathDetail[0][2]
     for (let i in countryPathDetail) {
         if (countryPathDetail[i][2] != init) return true
