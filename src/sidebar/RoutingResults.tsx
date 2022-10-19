@@ -43,7 +43,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const showAndHasBadTracks = ApiImpl.isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
     const showAndHasSteps = ApiImpl.isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
     const hasBorderCrossed = crossesBorder(path.details.country)
-
+    const showHints = hasFords || hasTolls || hasFerries || showAndHasBadTracks || showAndHasSteps || hasBorderCrossed
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
 
     return (
@@ -91,7 +91,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     )}
                 </div>
             </div>
-            {isSelected && !isExpanded && (
+            {isSelected && !isExpanded && showHints && (
                 <div className={styles.routeHints}>
                     {hasFords && <div>{tr('way_contains_ford')}</div>}
                     {hasFerries && <div>{tr('way_contains_ferry')}</div>}
