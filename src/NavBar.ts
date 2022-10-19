@@ -56,7 +56,7 @@ export default class NavBar {
             if (split.length >= 1)
                 try {
                     point.coordinate = NavBar.parseCoordinate(split[0])
-                    if(!Number.isNaN(point.coordinate.lat) && !Number.isNaN(point.coordinate.lng)) {
+                    if (!Number.isNaN(point.coordinate.lat) && !Number.isNaN(point.coordinate.lng)) {
                         point.queryText = split.length >= 2 ? split[1] : coordinateToText(point.coordinate)
                         point.isInitialized = true
                     }
