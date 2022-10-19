@@ -39,7 +39,6 @@ export default class MapActionReceiver implements ActionReceiver {
                 'noopener,noreferrer'
             )
         } else if (action instanceof ZoomMapToPoint) {
-            alert(action.bearing)
             this.map.getView().animate({
                 zoom: action.zoom,
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
