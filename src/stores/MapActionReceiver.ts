@@ -12,7 +12,7 @@ import {
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
-import { toRadians } from "ol/math";
+import { toRadians } from 'ol/math'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map

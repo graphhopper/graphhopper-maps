@@ -9,8 +9,8 @@ import { getLocationStore } from '@/stores/Stores'
 import { LocationStoreState } from '@/stores/LocationStore'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
-import Dispatcher from "@/stores/Dispatcher";
-import {NavigationStop, ZoomMapToPoint} from "@/actions/Actions";
+import Dispatcher from '@/stores/Dispatcher'
+import { NavigationStop, ZoomMapToPoint } from '@/actions/Actions'
 
 type TurnNavigationProps = {
     path: Path
@@ -140,10 +140,13 @@ export default function ({ path, location }: TurnNavigationProps) {
                                     </div>
                                 ) : null}
                             </div>
-                            <div className={styles.thirdCol} onClick={() => {
-                                Dispatcher.dispatch(new NavigationStop());
-                                Dispatcher.dispatch(new ZoomMapToPoint(location.coordinate, 15, 0, 0))
-                            }}>
+                            <div
+                                className={styles.thirdCol}
+                                onClick={() => {
+                                    Dispatcher.dispatch(new NavigationStop())
+                                    Dispatcher.dispatch(new ZoomMapToPoint(location.coordinate, 15, 0, 0))
+                                }}
+                            >
                                 <img src={endNavigation} />
                             </div>
                         </div>

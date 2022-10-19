@@ -14,8 +14,7 @@ export class InfoReceived implements Action {
     }
 }
 
-export class NavigationStop implements Action {
-}
+export class NavigationStop implements Action {}
 
 export class LocationUpdate implements Action {
     readonly location: LocationStoreState

@@ -1,13 +1,13 @@
 import { Coordinate } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
-import {ErrorAction, LocationUpdate, NavigationStop, ZoomMapToPoint} from '@/actions/Actions'
+import { ErrorAction, LocationUpdate, NavigationStop, ZoomMapToPoint } from '@/actions/Actions'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 import { ApiImpl } from '@/api/Api'
 import { calcOrientation, toNorthBased } from '@/turnNavigation/GeoMethods'
 import * as config from 'config'
-import {toDegrees, toRadians} from "ol/math";
+import { toDegrees, toRadians } from 'ol/math'
 
 export interface LocationStoreState {
     turnNavigation: boolean
@@ -36,7 +36,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     reduce(state: LocationStoreState, action: Action): LocationStoreState {
-        if(action instanceof NavigationStop) {
+        if (action instanceof NavigationStop) {
             this.stop()
             // directly writing the state does not work: this.state.turnNavigation = false
             return { coordinate: { lat: 0, lng: 0 }, turnNavigation: false, speed: 0 }
@@ -112,7 +112,8 @@ export default class LocationStore extends Store<LocationStoreState> {
         Dispatcher.dispatch(new LocationUpdate({ coordinate: c, turnNavigation: true, speed: pos.coords.speed }))
         let bearing: number = pos.coords.heading
 
-        if (!bearing || Number.isNaN(bearing)) console.log('skip dispatching SetViewportToPoint because bearing is ' + bearing)
+        if (!bearing || Number.isNaN(bearing))
+            console.log('skip dispatching SetViewportToPoint because bearing is ' + bearing)
         else Dispatcher.dispatch(new ZoomMapToPoint(c, 17, 50, bearing))
     }
 
