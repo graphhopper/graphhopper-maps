@@ -102,7 +102,7 @@ export function getCurrentInstruction(
         }
     }
 
-    return { instructionIndex, timeToNext, distanceToNext, distanceToRoute, remainingTime, remainingDistance, }
+    return { instructionIndex, timeToNext, distanceToNext, distanceToRoute, remainingTime, remainingDistance }
 }
 
 export function distCalc(fromLat: number, fromLng: number, toLat: number, toLng: number): number {
