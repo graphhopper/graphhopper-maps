@@ -39,10 +39,12 @@ export default class MapActionReceiver implements ActionReceiver {
                 'noopener,noreferrer'
             )
         } else if (action instanceof ZoomMapToPoint) {
+            alert(action.bearing)
             this.map.getView().animate({
                 zoom: action.zoom,
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
-                // heading is in degrees and shows direction into which device is going -> convert with '-' into map orientation
+                // heading is in degrees and shows direction into which device is going
+                // although in the docs they say this is clockwise it seems to be CCW
                 rotation: -toRadians(action.bearing),
                 duration: 400,
             })
