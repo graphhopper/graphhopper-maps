@@ -31,7 +31,7 @@ export default function ({ queryPoints, path, location }: TurnNavigationProps) {
 
     if (distanceToRoute > 50) {
         Dispatcher.dispatch(new SetPoint({ ...queryPoints[0], coordinate: location.coordinate } as QueryPoint, false))
-        this.speechSynthesizer.synthesize('reroute')
+        getLocationStore().getSpeechSynthesizer().synthesize('reroute')
     }
 
     let [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, currentLocation, [
