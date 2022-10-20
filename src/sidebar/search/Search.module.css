@@ -1,10 +1,13 @@
+.searchBoxParent {
+    margin: 0.1rem 0.5rem 0.5rem 0.5rem;
+}
+
 .searchBox {
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
     grid-gap: 0.5rem;
-    padding-bottom: 0.5em;
-    margin: 0.5rem;
+    margin: 0.5rem 0.1rem 0.7rem 0;
 }
 
 .searchBoxScrollable {
@@ -23,6 +26,37 @@
     justify-self: center;
 }
 
+.markerContainer {
+    grid-column: 1 / span 1;
+    align-self: center;
+    justify-self: center;
+    width: 1rem;
+}
+
+.markerContainer > svg {
+    height: 100%;
+    width: 100%;
+}
+
+.searchOptions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 1rem 0;
+}
+
+.geocodingResults {
+    grid-column: 1 / span 3;
+}
+
+.lastSearchLine {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-right: 2px;
+    padding-bottom: 1rem;
+}
+
 .addSearchBox:hover path {
     fill: black;
 }
@@ -30,20 +64,16 @@
 .addSearchBox svg {
     color: #adadad;
     width: 1.1rem;
-    float: left;
-    padding: 0.2em 1.25em 0.2em 0;
-}
-
-.addSearchBox div {
-    float: left;
-    padding-top: 0.2em;
+    padding: 0 1.25em 0 0;
 }
 
 .addSearchBox {
-    width: 10em;
-    padding-top: 0.3em;
-    grid-column: 1 / span 2;
-    justify-self: start;
+    display: flex;
+    flex-direction: row;
+}
+
+.addSearchBox,
+.mikm {
     font-size: 14px;
 }
 
@@ -94,15 +124,4 @@
 
 .hide {
     visibility: hidden;
-}
-
-.searchOptions {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: 1rem 0;
-}
-
-.geocodingResults {
-    grid-column: 1 / span 3;
 }

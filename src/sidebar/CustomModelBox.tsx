@@ -1,16 +1,15 @@
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/lint/lint.css'
-// todonow: this belongs to this app and we should not take it from the demo...
+// todo: this belongs to this app and we should not take it from the demo...
 import 'custom-model-editor/demo/style.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearRoute, DismissLastError, SetCustomModel, SetCustomModelBoxEnabled } from '@/actions/Actions'
+import { DismissLastError, SetCustomModel } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
-import SettingsSVG from './settings.svg'
 import PlainButton from '@/PlainButton'
 
 const examples: { [key: string]: CustomModel } = {
@@ -144,18 +143,6 @@ export default function CustomModelBox({
 
     return (
         <>
-            <PlainButton
-                title={tr('open_custom_model_box')}
-                className={enabled ? styles.enabledSettings : styles.settings}
-                onClick={() => {
-                    if (enabled) Dispatcher.dispatch(new DismissLastError())
-                    Dispatcher.dispatch(new ClearRoute())
-                    Dispatcher.dispatch(new SetCustomModelBoxEnabled(!enabled))
-                }}
-            >
-                <SettingsSVG />
-            </PlainButton>
-            <div className={styles.spacer}></div>
             {/*we use 'display: none' instead of conditional rendering to preserve the custom model box's state when it is closed*/}
             <div
                 ref={divElement}

@@ -3,6 +3,7 @@ import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
     getApiInfoStore,
+    getSettingsStore,
     getErrorStore,
     getMapFeatureStore,
     getMapOptionsStore,
@@ -35,11 +36,14 @@ import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import MapFeaturePopup from '@/layers/MapFeaturePopup'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
+import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
 
 export default function App() {
+    const [settings, setSettings] = useState(getSettingsStore().state)
     const [query, setQuery] = useState(getQueryStore().state)
     const [info, setInfo] = useState(getApiInfoStore().state)
     const [route, setRoute] = useState(getRouteStore().state)
@@ -50,6 +54,7 @@ export default function App() {
     const map = getMap()
 
     useEffect(() => {
+        const onSettingsChanged = () => setSettings(getSettingsStore().state)
         const onQueryChanged = () => setQuery(getQueryStore().state)
         const onInfoChanged = () => setInfo(getApiInfoStore().state)
         const onRouteChanged = () => setRoute(getRouteStore().state)
@@ -57,6 +62,7 @@ export default function App() {
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
         const onMapFeaturesChanged = () => setMapFeatures(getMapFeatureStore().state)
 
+        getSettingsStore().register(onSettingsChanged)
         getQueryStore().register(onQueryChanged)
         getApiInfoStore().register(onInfoChanged)
         getRouteStore().register(onRouteChanged)
@@ -64,7 +70,16 @@ export default function App() {
         getMapOptionsStore().register(onMapOptionsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
 
+        onSettingsChanged()
+        onQueryChanged()
+        onInfoChanged()
+        onRouteChanged()
+        onErrorChanged()
+        onMapOptionsChanged()
+        onMapFeaturesChanged()
+
         return () => {
+            getSettingsStore().register(onSettingsChanged)
             getQueryStore().deregister(onQueryChanged)
             getApiInfoStore().deregister(onInfoChanged)
             getRouteStore().deregister(onRouteChanged)
@@ -72,7 +87,7 @@ export default function App() {
             getMapOptionsStore().deregister(onMapOptionsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
         }
-    })
+    }, [])
 
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
@@ -85,30 +100,32 @@ export default function App() {
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
-        <div className={styles.appWrapper}>
-            <PathDetailPopup map={map} />
-            <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
-            <MapFeaturePopup map={map} point={mapFeatures.point} properties={mapFeatures.properties} />
-            {isSmallScreen ? (
-                <SmallScreenLayout
-                    query={query}
-                    route={route}
-                    map={map}
-                    mapOptions={mapOptions}
-                    error={error}
-                    info={info}
-                />
-            ) : (
-                <LargeScreenLayout
-                    query={query}
-                    route={route}
-                    map={map}
-                    mapOptions={mapOptions}
-                    error={error}
-                    info={info}
-                />
-            )}
-        </div>
+        <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
+            <div className={styles.appWrapper}>
+                <PathDetailPopup map={map}/>
+                <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
+                <MapFeaturePopup map={map} point={mapFeatures.point} properties={mapFeatures.properties} />
+                {isSmallScreen ? (
+                    <SmallScreenLayout
+                        query={query}
+                        route={route}
+                        map={map}
+                        mapOptions={mapOptions}
+                        error={error}
+                        info={info}
+                    />
+                ) : (
+                    <LargeScreenLayout
+                        query={query}
+                        route={route}
+                        map={map}
+                        mapOptions={mapOptions}
+                        error={error}
+                        info={info}
+                    />
+                )}
+            </div>
+        </ShowDistanceInMilesContext.Provider>
     )
 }
 
@@ -126,10 +143,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
         <>
             <div className={styles.sidebar}>
                 <div className={styles.sidebarContent} id={SIDEBAR_CONTENT_ID}>
-                    <Search
-                        points={query.queryPoints}
+                    <RoutingProfiles
                         routingProfiles={info.profiles}
                         selectedProfile={query.routingProfile}
+                        customModelAllowed={true}
+                        customModelEnabled={query.customModelEnabled}
                     />
                     <CustomModelBox
                         enabled={query.customModelEnabled}
@@ -137,6 +155,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                         initialCustomModelStr={query.initialCustomModelStr}
                         queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                     />
+                    <Search points={query.queryPoints} />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <RoutingResults
                         paths={route.routingResult.paths}

@@ -1,21 +1,26 @@
 import { GeocodingHit } from '@/api/graphhopper'
 
 import { Coordinate } from '@/stores/QueryStore'
-import { GeocodingItem } from '@/sidebar/search/AddressInputAutocomplete'
 
 export function milliSecondsToText(seconds: number) {
     const hours = Math.floor(seconds / 3600000)
     const minutes = Math.floor((seconds % 3600000) / 60000)
 
     const hourText = hours > 0 ? hours + ' h' : ''
+    if (minutes == 0 && hourText.length > 0) return hourText
     return hourText + ' ' + minutes + ' min'
 }
 
 const distanceFormat = new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 1 })
 
-export function metersToText(meters: number) {
-    if (meters < 1000) return Math.floor(meters) + ' m'
-    return distanceFormat.format(meters / 1000) + ' km'
+export function metersToText(meters: number, showDistanceInMiles: boolean, forceSmallUnits: boolean = false) {
+    if (showDistanceInMiles) {
+        if (meters < 160.934 || forceSmallUnits) return Math.floor(meters / 0.3048) + ' ft'
+        return distanceFormat.format(meters / 1609.34) + ' mi'
+    } else {
+        if (meters < 1000 || forceSmallUnits) return Math.floor(meters) + ' m'
+        return distanceFormat.format(meters / 1000) + ' km'
+    }
 }
 
 export function hitToItem(hit: GeocodingHit) {

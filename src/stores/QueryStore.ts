@@ -298,7 +298,8 @@ export default class QueryStore extends Store<QueryStoreState> {
                         new ErrorAction(
                             'Using the custom model feature is unfortunately not ' +
                                 'possible when the request points are further than ' +
-                                metersToText(500_000) +
+                                // todo: use settings#showDistanceInMiles, but not sure how to use state from another store here
+                                metersToText(500_000, false) +
                                 ' apart.'
                         )
                     )
