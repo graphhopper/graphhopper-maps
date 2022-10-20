@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
 import styles from './MapOptions.modules.css'
-import { MapOptionsStoreState, StyleOption } from '@/stores/MapOptionsStore'
-import Dispatcher from '@/stores/Dispatcher'
-import { SelectMapStyle, ToggleRoutingGraph, ToggleUrbanDensityLayer } from '@/actions/Actions'
+import { StyleOption } from '@/stores/mapOptionsSlice'
 import PlainButton from '@/PlainButton'
 import LayerImg from './layer-group-solid.svg'
 import * as config from 'config'
+import { store, useStore } from '@/stores/useStore'
 
-export default function (props: MapOptionsStoreState) {
+export default function () {
     const [isOpen, setIsOpen] = useState(false)
     return (
         <div
@@ -16,7 +15,7 @@ export default function (props: MapOptionsStoreState) {
             onMouseLeave={() => setIsOpen(false)}
         >
             {isOpen ? (
-                <Options storeState={props} notifyChanged={() => setIsOpen(false)} />
+                <Options notifyChanged={() => setIsOpen(false)} />
             ) : (
                 <PlainButton className={styles.layerButton} onClick={() => setIsOpen(true)}>
                     <LayerImg />
@@ -27,28 +26,32 @@ export default function (props: MapOptionsStoreState) {
 }
 
 interface OptionsProps {
-    storeState: MapOptionsStoreState
     notifyChanged: { (): void }
 }
 
-const Options = function ({ storeState, notifyChanged }: OptionsProps) {
+const Options = function ({ notifyChanged }: OptionsProps) {
+    const styleOptions = useStore(state => state.styleOptions)
+    const selectedStyle = useStore(state => state.selectedStyle)
+    const isMapLoaded = useStore(state => state.isMapLoaded)
+    const routingGraphEnabled = useStore(state => state.routingGraphEnabled)
+    const urbanDensityEnabled = useStore(state => state.urbanDensityEnabled)
     return (
         <div className={styles.options}>
             <div
                 onChange={e => {
                     notifyChanged()
-                    onStyleChange(e.target as HTMLInputElement, storeState.styleOptions)
+                    onStyleChange(e.target as HTMLInputElement, styleOptions)
                 }}
             >
-                {storeState.styleOptions.map(option => (
+                {styleOptions.map(option => (
                     <div className={styles.option} key={option.name}>
                         <input
                             type="radio"
                             id={option.name}
                             name="layer"
                             value={option.name}
-                            defaultChecked={option === storeState.selectedStyle}
-                            disabled={!storeState.isMapLoaded}
+                            defaultChecked={option === selectedStyle}
+                            disabled={!isMapLoaded}
                         />
                         <label htmlFor={option.name}>
                             {option.name + (option.type === 'vector' ? ' (Vector)' : '')}
@@ -62,10 +65,10 @@ const Options = function ({ storeState, notifyChanged }: OptionsProps) {
                         <input
                             type="checkbox"
                             id="routing-graph-checkbox"
-                            checked={storeState.routingGraphEnabled}
+                            checked={routingGraphEnabled}
                             onChange={e => {
                                 notifyChanged()
-                                Dispatcher.dispatch(new ToggleRoutingGraph(e.target.checked))
+                                store.getState().setRoutingGraphEnabled(e.target.checked)
                             }}
                         />
                         <label htmlFor="routing-graph-checkbox">Show Routing Graph</label>
@@ -74,10 +77,10 @@ const Options = function ({ storeState, notifyChanged }: OptionsProps) {
                         <input
                             type="checkbox"
                             id="urban-density-checkbox"
-                            checked={storeState.urbanDensityEnabled}
+                            checked={urbanDensityEnabled}
                             onChange={e => {
                                 notifyChanged()
-                                Dispatcher.dispatch(new ToggleUrbanDensityLayer(e.target.checked))
+                                store.getState().setUrbanDensityLayerEnabled(e.target.checked)
                             }}
                         />
                         <label htmlFor="urban-density-checkbox">Show Urban Density</label>
@@ -90,5 +93,5 @@ const Options = function ({ storeState, notifyChanged }: OptionsProps) {
 
 function onStyleChange(target: HTMLInputElement, options: StyleOption[]) {
     const option = options.find(option => option.name === target.value)
-    if (option) Dispatcher.dispatch(new SelectMapStyle(option))
+    if (option) store.getState().selectMapStyle(option)
 }

@@ -11,10 +11,12 @@ import { SelectEvent } from 'ol/interaction/Select'
 import Dispatcher from '@/stores/Dispatcher'
 import { RoutingGraphHover } from '@/actions/Actions'
 import { toLonLat } from 'ol/proj'
+import { useStore } from '@/stores/useStore'
 
 const routingGraphLayerKey = 'routingGraphLayer'
 
-export default function useRoutingGraphLayer(map: Map, routingGraphEnabled: boolean) {
+export default function useRoutingGraphLayer(map: Map) {
+    const routingGraphEnabled = useStore(state => state.routingGraphEnabled)
     useEffect(() => {
         removeRoutingGraphLayer(map)
         if (routingGraphEnabled) addRoutingGraphLayer(map)

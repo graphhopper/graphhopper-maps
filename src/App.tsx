@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
-import {
-    getApiInfoStore,
-    getErrorStore,
-    getMapFeatureStore,
-    getMapOptionsStore,
-    getQueryStore,
-    getRouteStore,
-} from '@/stores/Stores'
+import { getApiInfoStore, getErrorStore, getMapFeatureStore, getQueryStore, getRouteStore } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
 import { ApiInfo } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
@@ -18,7 +11,6 @@ import RoutingResults from '@/sidebar/RoutingResults'
 import PoweredBy from '@/sidebar/PoweredBy'
 import { QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
@@ -45,7 +37,6 @@ export default function App() {
     const [info, setInfo] = useState(getApiInfoStore().state)
     const [route, setRoute] = useState(getRouteStore().state)
     const [error, setError] = useState(getErrorStore().state)
-    const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [mapFeatures, setMapFeatures] = useState(getMapFeatureStore().state)
 
     const map = getMap()
@@ -55,21 +46,18 @@ export default function App() {
         const onInfoChanged = () => setInfo(getApiInfoStore().state)
         const onRouteChanged = () => setRoute(getRouteStore().state)
         const onErrorChanged = () => setError(getErrorStore().state)
-        const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
         const onMapFeaturesChanged = () => setMapFeatures(getMapFeatureStore().state)
 
         getQueryStore().register(onQueryChanged)
         getApiInfoStore().register(onInfoChanged)
         getRouteStore().register(onRouteChanged)
         getErrorStore().register(onErrorChanged)
-        getMapOptionsStore().register(onMapOptionsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
 
         onQueryChanged()
         onInfoChanged()
         onRouteChanged()
         onErrorChanged()
-        onMapOptionsChanged()
         onMapFeaturesChanged()
 
         return () => {
@@ -77,16 +65,15 @@ export default function App() {
             getApiInfoStore().deregister(onInfoChanged)
             getRouteStore().deregister(onRouteChanged)
             getErrorStore().deregister(onErrorChanged)
-            getMapOptionsStore().deregister(onMapOptionsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
         }
     }, [])
 
     // our different map layers
-    useBackgroundLayer(map, mapOptions.selectedStyle)
+    useBackgroundLayer(map)
     useMapBorderLayer(map, info.bbox)
-    useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
-    useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
+    useRoutingGraphLayer(map)
+    useUrbanDensityLayer(map)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map)
@@ -98,23 +85,9 @@ export default function App() {
             <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
             <MapFeaturePopup map={map} point={mapFeatures.point} properties={mapFeatures.properties} />
             {isSmallScreen ? (
-                <SmallScreenLayout
-                    query={query}
-                    route={route}
-                    map={map}
-                    mapOptions={mapOptions}
-                    error={error}
-                    info={info}
-                />
+                <SmallScreenLayout query={query} route={route} map={map} error={error} info={info} />
             ) : (
-                <LargeScreenLayout
-                    query={query}
-                    route={route}
-                    map={map}
-                    mapOptions={mapOptions}
-                    error={error}
-                    info={info}
-                />
+                <LargeScreenLayout query={query} route={route} map={map} error={error} info={info} />
             )}
         </div>
     )
@@ -124,12 +97,11 @@ interface LayoutProps {
     query: QueryStoreState
     route: RouteStoreState
     map: Map
-    mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     info: ApiInfo
 }
 
-function LargeScreenLayout({ query, route, map, error, mapOptions, info }: LayoutProps) {
+function LargeScreenLayout({ query, route, map, error, info }: LayoutProps) {
     return (
         <>
             <div className={styles.sidebar}>
@@ -164,7 +136,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                 <MapComponent map={map} />
             </div>
             <div className={styles.mapOptions}>
-                <MapOptions {...mapOptions} />
+                <MapOptions />
             </div>
 
             <div className={styles.pathDetails}>
@@ -174,7 +146,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, info }: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, info }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
@@ -185,7 +157,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info }: Layou
             </div>
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.smallScreenMapOptionsContent}>
-                    <MapOptions {...mapOptions} />
+                    <MapOptions />
                 </div>
             </div>
 

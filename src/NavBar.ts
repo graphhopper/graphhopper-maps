@@ -1,27 +1,28 @@
 import { coordinateToText } from '@/Converters'
 import { Bbox, RoutingProfile } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, SelectMapStyle, SetInitialBBox, SetRoutingParametersAtOnce } from '@/actions/Actions'
+import { ClearPoints, SetInitialBBox, SetRoutingParametersAtOnce } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
-import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
 import { getApi } from '@/api/Api'
+import { store } from '@/stores/useStore'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
-    private readonly mapStore: MapOptionsStore
     private isIgnoreQueryStoreUpdates = false
+    private store = store
 
-    constructor(queryStore: QueryStore, mapStore: MapOptionsStore) {
+    constructor(queryStore: QueryStore) {
         this.queryStore = queryStore
         this.queryStore.register(() => this.onQueryStateChanged())
-        this.mapStore = mapStore
-        this.mapStore.register(() => this.onQueryStateChanged())
+        // todo: limit updates to certain parts of the state (we need to return the ones we are interested:
+        // https://docs.pmnd.rs/zustand/recipes/recipes#reading/writing-state-and-reacting-to-changes-outside-of-components
+        this.store.subscribe(() => this.onQueryStateChanged())
         window.addEventListener('popstate', () => this.parseUrlAndReplaceQuery())
     }
 
-    private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState) {
+    private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, layerName: string) {
         const result = new URL(baseUrl)
         queryStoreState.queryPoints
             .filter(point => point.isInitialized)
@@ -29,7 +30,7 @@ export default class NavBar {
             .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
-        result.searchParams.append('layer', mapState.selectedStyle.name)
+        result.searchParams.append('layer', layerName)
         if (queryStoreState.customModelEnabled && queryStoreState.customModel && queryStoreState.customModelValid)
             result.searchParams.append('custom_model', JSON.stringify(queryStoreState.customModel))
 
@@ -112,8 +113,8 @@ export default class NavBar {
 
     private parseLayer(url: URL) {
         let layer = url.searchParams.get('layer')
-        const option = this.mapStore.state.styleOptions.find(option => option.name === layer)
-        return option ? option : this.mapStore.state.selectedStyle
+        const option = this.store.getState().styleOptions.find(option => option.name === layer)
+        return option ? option : this.store.getState().selectedStyle
     }
 
     private static parseNumber(value: string) {
@@ -140,7 +141,7 @@ export default class NavBar {
 
         // add map style
         const parsedStyleOption = this.parseLayer(url)
-        Dispatcher.dispatch(new SelectMapStyle(parsedStyleOption))
+        store.getState().selectMapStyle(parsedStyleOption)
 
         this.isIgnoreQueryStoreUpdates = false
     }
@@ -162,7 +163,7 @@ export default class NavBar {
         const newHref = NavBar.createUrl(
             window.location.origin + window.location.pathname,
             this.queryStore.state,
-            this.mapStore.state
+            this.store.getState().selectedStyle.name
         ).toString()
 
         if (newHref !== window.location.href) window.history.pushState('last state', '', newHref)

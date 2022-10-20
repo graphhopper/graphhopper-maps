@@ -1,7 +1,6 @@
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
-import { StyleOption } from '@/stores/MapOptionsStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -138,32 +137,6 @@ export class SetSelectedPath implements Action {
 
 export class DismissLastError implements Action {}
 
-export class SelectMapStyle implements Action {
-    readonly styleOption: StyleOption
-
-    constructor(styleOption: StyleOption) {
-        this.styleOption = styleOption
-    }
-}
-
-export class ToggleRoutingGraph implements Action {
-    readonly routingGraphEnabled: boolean
-
-    constructor(routingGraphEnabled: boolean) {
-        this.routingGraphEnabled = routingGraphEnabled
-    }
-}
-
-export class ToggleUrbanDensityLayer implements Action {
-    readonly urbanDensityEnabled: boolean
-
-    constructor(urbanDensityEnabled: boolean) {
-        this.urbanDensityEnabled = urbanDensityEnabled
-    }
-}
-
-export class MapIsLoaded implements Action {}
-
 export class ZoomMapToPoint implements Action {
     readonly coordinate: Coordinate
     readonly zoom: number
@@ -195,14 +168,6 @@ export class PathDetailsRangeSelected implements Action {
 
     constructor(bbox: Bbox | null) {
         this.bbox = bbox
-    }
-}
-
-export class PathDetailsElevationSelected implements Action {
-    readonly segments: Coordinate[][]
-
-    constructor(segments: Coordinate[][]) {
-        this.segments = segments
     }
 }
 

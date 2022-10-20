@@ -1,15 +1,17 @@
 import NavBar from '@/NavBar'
 import QueryStore, { QueryPoint, QueryPointType } from '../src/stores/QueryStore'
 import DummyApi from './DummyApi'
-import { SelectMapStyle, SetPoint, SetVehicleProfile } from '@/actions/Actions'
+import { SetPoint, SetVehicleProfile } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import { coordinateToText } from '@/Converters'
 
 // import the window and mock it with jest
 import { window } from '@/Window'
-import MapOptionsStore, { StyleOption } from '@/stores/MapOptionsStore'
+import { StyleOption } from '@/stores/mapOptionsSlice'
 import * as config from 'config'
 import { RoutingProfile } from '@/api/graphhopper'
+import { AppStoreState, createAppStore } from '@/stores/useStore'
+import { StoreApi } from 'zustand'
 
 jest.mock('@/Window', () => ({
     window: {
@@ -26,7 +28,7 @@ jest.mock('@/Window', () => ({
 
 describe('NavBar', function () {
     let queryStore: QueryStore
-    let mapStore: MapOptionsStore
+    let store: StoreApi<AppStoreState>
     let navBar: NavBar
     let callbacks: { (type: string): void }[]
 
@@ -38,10 +40,9 @@ describe('NavBar', function () {
             callbacks.push(listener)
         })
         queryStore = new QueryStore(new DummyApi())
-        mapStore = new MapOptionsStore()
-        navBar = new NavBar(queryStore, mapStore)
+        store = createAppStore()
+        navBar = new NavBar(queryStore)
         Dispatcher.register(queryStore)
-        Dispatcher.register(mapStore)
     })
 
     afterEach(() => {
@@ -107,7 +108,7 @@ describe('NavBar', function () {
                 queryStore.receive(new SetPoint(point, true))
             }
             queryStore.receive(new SetVehicleProfile(profile))
-            mapStore.receive(new SelectMapStyle(style))
+            store.getState().selectMapStyle(style)
 
             // make assertions
             // number of calls profile, style and how many points there are
@@ -157,7 +158,7 @@ describe('NavBar', function () {
             expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
             expect(queryStore.state.routingProfile.name).toEqual(profile)
 
-            expect(mapStore.state.selectedStyle.name).toEqual(layer)
+            expect(store.getState().selectedStyle.name).toEqual(layer)
 
             // make sure the navbar doesn't change the window's location while parsing
             expect(url.toString()).toEqual(window.location.href)
@@ -223,7 +224,7 @@ describe('NavBar', function () {
             expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
             expect(queryStore.state.routingProfile.name).toEqual('')
 
-            expect(mapStore.state.selectedStyle.name).toEqual(config.defaultTiles)
+            expect(store.getState().selectedStyle.name).toEqual(config.defaultTiles)
         })
 
         it('should parse the url and set defaults for profile if not set', () => {
@@ -246,7 +247,7 @@ describe('NavBar', function () {
             expect(queryStore.state.queryPoints[0].isInitialized).toEqual(false)
             expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
             expect(queryStore.state.routingProfile.name).toEqual(defaultProfile.name)
-            expect(mapStore.state.selectedStyle.name).toEqual(layername)
+            expect(store.getState().selectedStyle.name).toEqual(layername)
         })
 
         it('should parse the url and set routing profile for legacy "vehicle" param', () => {
@@ -302,7 +303,7 @@ describe('NavBar', function () {
         expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
         expect(queryStore.state.routingProfile.name).toEqual(profile)
 
-        expect(mapStore.state.selectedStyle.name).toEqual(layer)
+        expect(store.getState().selectedStyle.name).toEqual(layer)
 
         // make sure the navbar doesn't change the window's location while parsing
         expect(url.toString()).toEqual(window.location.href)

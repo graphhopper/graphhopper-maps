@@ -5,10 +5,12 @@ import VectorTileLayer from 'ol/layer/VectorTile'
 import { MVT } from 'ol/format'
 import * as config from 'config'
 import { Stroke, Style } from 'ol/style'
+import { useStore } from '@/stores/useStore'
 
 const urbanDensityLayerKey = 'urbanDensityLayer'
 
-export default function useUrbanDensityLayer(map: Map, urbanDensityEnabled: boolean) {
+export default function useUrbanDensityLayer(map: Map) {
+    const urbanDensityEnabled = useStore(state => state.urbanDensityEnabled)
     useEffect(() => {
         removeUrbanDensityLayer(map)
         if (urbanDensityEnabled) addUrbanDensityLayer(map)

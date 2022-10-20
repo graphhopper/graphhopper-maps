@@ -1,11 +1,13 @@
 import { Feature, Map } from 'ol'
 import { useEffect } from 'react'
-import { RasterStyle, StyleOption } from '@/stores/MapOptionsStore'
+import { RasterStyle, StyleOption } from '@/stores/mapOptionsSlice'
 import TileLayer from 'ol/layer/Tile'
 import { XYZ } from 'ol/source'
 import { apply } from 'ol-mapbox-style'
+import { useStore } from '@/stores/useStore'
 
-export default function useBackgroundLayer(map: Map, styleOption: StyleOption) {
+export default function useBackgroundLayer(map: Map) {
+    const styleOption = useStore(state => state.selectedStyle)
     useEffect(() => {
         removeCurrentBackgroundLayers(map)
         addNewBackgroundLayers(map, styleOption)

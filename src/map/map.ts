@@ -1,8 +1,7 @@
-import Dispatcher from '@/stores/Dispatcher'
 import { Map, View } from 'ol'
 import { fromLonLat } from 'ol/proj'
-import { MapIsLoaded } from '@/actions/Actions'
 import { defaults as defaultControls } from 'ol/control'
+import { store } from '@/stores/useStore'
 
 let map: Map | undefined
 
@@ -24,7 +23,7 @@ export function createMap(): Map {
         }),
     })
     map.once('postrender', () => {
-        Dispatcher.dispatch(new MapIsLoaded())
+        store.getState().setMapIsLoaded()
     })
     return map
 }

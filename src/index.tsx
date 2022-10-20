@@ -7,7 +7,6 @@ import App from '@/App'
 import {
     getApiInfoStore,
     getErrorStore,
-    getMapOptionsStore,
     getMapFeatureStore,
     getQueryStore,
     getRouteStore,
@@ -18,7 +17,6 @@ import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
 import QueryStore from '@/stores/QueryStore'
 import ErrorStore from '@/stores/ErrorStore'
-import MapOptionsStore from '@/stores/MapOptionsStore'
 import NavBar from '@/NavBar'
 import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
@@ -43,7 +41,6 @@ setStores({
     routeStore: routeStore,
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
-    mapOptionsStore: new MapOptionsStore(),
     mapFeatureStore: new MapFeatureStore(),
 })
 
@@ -54,7 +51,6 @@ Dispatcher.register(getQueryStore())
 Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
-Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getMapFeatureStore())
 
 // register map action receiver
@@ -65,7 +61,7 @@ Dispatcher.register(mapActionReceiver)
 getApi().infoWithDispatch() // get infos about the api as soon as possible
 
 // hook up the navbar to the query store and vice versa
-const navBar = new NavBar(getQueryStore(), getMapOptionsStore())
+const navBar = new NavBar(getQueryStore())
 // parse the initial url
 navBar.parseUrlAndReplaceQuery()
 
