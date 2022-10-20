@@ -2,20 +2,20 @@ import { Map, Overlay } from 'ol'
 import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/layers/MapFeaturePopup.module.css'
 import { fromLonLat } from 'ol/proj'
-import { Coordinate } from '@/stores/QueryStore'
+import { useStore } from '@/stores/useStore'
 
 interface MapFeaturePopupProps {
     map: Map
-    point: Coordinate | null
-    properties: object
 }
 
 /**
  * The popup shown when certain map features are hovered. For example a road of the routing graph layer.
  */
-export default function MapFeaturePopup({ map, point, properties }: MapFeaturePopupProps) {
+export default function MapFeaturePopup({ map }: MapFeaturePopupProps) {
     const [overlay, setOverlay] = useState<Overlay | undefined>()
     const container = useRef<HTMLDivElement | null>()
+    const point = useStore(state => state.point)
+    const properties = useStore(state => state.properties)
 
     useEffect(() => {
         const overlay = new Overlay({

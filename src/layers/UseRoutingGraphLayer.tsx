@@ -9,9 +9,8 @@ import { Select } from 'ol/interaction'
 import { pointerMove } from 'ol/events/condition'
 import { SelectEvent } from 'ol/interaction/Select'
 import Dispatcher from '@/stores/Dispatcher'
-import { RoutingGraphHover } from '@/actions/Actions'
 import { toLonLat } from 'ol/proj'
-import { useStore } from '@/stores/useStore'
+import { store, useStore } from '@/stores/useStore'
 
 const routingGraphLayerKey = 'routingGraphLayer'
 
@@ -92,8 +91,8 @@ function addRoutingGraphLayer(map: Map) {
             const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
             // we only care about the first road
             const properties = e.selected[0].getProperties()
-            Dispatcher.dispatch(new RoutingGraphHover({ lat: lonLat[1], lng: lonLat[0] }, properties))
-        } else Dispatcher.dispatch(new RoutingGraphHover(null, {}))
+            store.getState().setMapFeature({ lat: lonLat[1], lng: lonLat[0] }, properties)
+        } else store.getState().setMapFeature(null, {})
     })
     map.addInteraction(hover)
 }

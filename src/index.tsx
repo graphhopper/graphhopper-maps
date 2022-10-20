@@ -7,7 +7,6 @@ import App from '@/App'
 import {
     getApiInfoStore,
     getErrorStore,
-    getMapFeatureStore,
     getQueryStore,
     getRouteStore,
     setStores,
@@ -22,7 +21,6 @@ import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
 import MapActionReceiver from '@/stores/MapActionReceiver'
 import { createMap, getMap, setMap } from '@/map/map'
-import MapFeatureStore from '@/stores/MapFeatureStore'
 
 const url = new URL(window.location.href)
 const locale = url.searchParams.get('locale')
@@ -41,7 +39,6 @@ setStores({
     routeStore: routeStore,
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
-    mapFeatureStore: new MapFeatureStore(),
 })
 
 setMap(createMap())
@@ -51,7 +48,6 @@ Dispatcher.register(getQueryStore())
 Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
-Dispatcher.register(getMapFeatureStore())
 
 // register map action receiver
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')

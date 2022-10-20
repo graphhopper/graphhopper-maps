@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
-import { getApiInfoStore, getErrorStore, getMapFeatureStore, getQueryStore, getRouteStore } from '@/stores/Stores'
+import { getApiInfoStore, getErrorStore, getQueryStore, getRouteStore } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
 import { ApiInfo } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
@@ -37,7 +37,6 @@ export default function App() {
     const [info, setInfo] = useState(getApiInfoStore().state)
     const [route, setRoute] = useState(getRouteStore().state)
     const [error, setError] = useState(getErrorStore().state)
-    const [mapFeatures, setMapFeatures] = useState(getMapFeatureStore().state)
 
     const map = getMap()
 
@@ -46,26 +45,22 @@ export default function App() {
         const onInfoChanged = () => setInfo(getApiInfoStore().state)
         const onRouteChanged = () => setRoute(getRouteStore().state)
         const onErrorChanged = () => setError(getErrorStore().state)
-        const onMapFeaturesChanged = () => setMapFeatures(getMapFeatureStore().state)
 
         getQueryStore().register(onQueryChanged)
         getApiInfoStore().register(onInfoChanged)
         getRouteStore().register(onRouteChanged)
         getErrorStore().register(onErrorChanged)
-        getMapFeatureStore().register(onMapFeaturesChanged)
 
         onQueryChanged()
         onInfoChanged()
         onRouteChanged()
         onErrorChanged()
-        onMapFeaturesChanged()
 
         return () => {
             getQueryStore().deregister(onQueryChanged)
             getApiInfoStore().deregister(onInfoChanged)
             getRouteStore().deregister(onRouteChanged)
             getErrorStore().deregister(onErrorChanged)
-            getMapFeatureStore().deregister(onMapFeaturesChanged)
         }
     }, [])
 
@@ -83,7 +78,7 @@ export default function App() {
         <div className={styles.appWrapper}>
             <PathDetailPopup map={map} />
             <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
-            <MapFeaturePopup map={map} point={mapFeatures.point} properties={mapFeatures.properties} />
+            <MapFeaturePopup map={map}/>
             {isSmallScreen ? (
                 <SmallScreenLayout query={query} route={route} map={map} error={error} info={info} />
             ) : (
