@@ -2,7 +2,7 @@ import { Map, Overlay } from 'ol'
 import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/layers/PathDetailPopup.module.css'
 import { fromLonLat } from 'ol/proj'
-import { usePathDetailsStore } from '@/stores/UsePathDetailsStore'
+import { useStore } from '@/stores/useStore'
 
 interface PathDetailPopupProps {
     map: Map
@@ -12,7 +12,7 @@ interface PathDetailPopupProps {
  * The popup shown along the selected route when we hover the path detail/elevation graph
  */
 export default function PathDetailPopup({ map }: PathDetailPopupProps) {
-    const pathDetailsPoint = usePathDetailsStore(store => store.pathDetailsPoint)
+    const pathDetailsPoint = useStore(store => store.pathDetailsPoint)
     const [overlay, setOverlay] = useState<Overlay | undefined>()
     const container = useRef<HTMLDivElement | null>()
 

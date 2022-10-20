@@ -7,7 +7,7 @@ import VectorSource from 'ol/source/Vector'
 import { Stroke, Style } from 'ol/style'
 import { GeoJSON } from 'ol/format'
 import { fromLonLat } from 'ol/proj'
-import { usePathDetailsStore } from '@/stores/UsePathDetailsStore'
+import { useStore } from '@/stores/useStore'
 
 const highlightedPathSegmentLayerKey = 'highlightedPathSegmentLayer'
 
@@ -16,7 +16,7 @@ const highlightedPathSegmentLayerKey = 'highlightedPathSegmentLayer'
  * path details diagram.
  */
 export default function usePathDetailsLayer(map: Map) {
-    const highlightedSegments = usePathDetailsStore(state => state.pathDetailsHighlightedSegments)
+    const highlightedSegments = useStore(state => state.pathDetailsHighlightedSegments)
     useEffect(() => {
         removePathSegmentsLayer(map)
         addPathSegmentsLayer(map, highlightedSegments)
