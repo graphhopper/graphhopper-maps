@@ -12,8 +12,8 @@ import Instructions from '@/sidebar/instructions/Instructions'
 import { Position } from 'geojson'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
+import { useStore } from '@/stores/useStore'
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -44,7 +44,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const showAndHasSteps = ApiImpl.isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
     const hasBorderCrossed = crossesBorder(path.details.country)
 
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const showDistanceInMiles = useStore(store => store.showDistanceInMiles)
 
     return (
         <div className={styles.resultRow}>

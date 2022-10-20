@@ -1,9 +1,8 @@
 import { Map, Overlay } from 'ol'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/layers/PathDetailPopup.module.css'
 import { fromLonLat } from 'ol/proj'
 import { metersToText } from '@/Converters'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { useStore } from '@/stores/useStore'
 
 interface PathDetailPopupProps {
@@ -34,7 +33,7 @@ export default function PathDetailPopup({ map }: PathDetailPopupProps) {
         overlay?.setPosition(position)
     }, [pathDetailsPoint])
 
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const showDistanceInMiles = useStore(store => store.showDistanceInMiles)
 
     return (
         // todo: use createMapMarker from heightgraph?

@@ -21,7 +21,7 @@ import { metersToText } from '@/Converters'
 import { Instruction } from '@/api/graphhopper'
 import { MarkerComponent } from '@/map/Marker'
 import QueryStore, { QueryPointType } from '@/stores/QueryStore'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import { useStore } from '@/stores/useStore'
 
 export default function (props: { instructions: Instruction[] }) {
     return (
@@ -34,7 +34,7 @@ export default function (props: { instructions: Instruction[] }) {
 }
 
 const Line = function ({ instruction, index }: { instruction: Instruction; index: number }) {
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const showDistanceInMiles = useStore(store => store.showDistanceInMiles)
     return (
         <li className={styles.instruction}>
             {getTurnSign(instruction.sign, index)}

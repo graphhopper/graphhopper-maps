@@ -2,15 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint } from '@/stores/QueryStore'
-import {
-    AddPoint,
-    ClearRoute,
-    InvalidatePoint,
-    MovePoint,
-    RemovePoint,
-    SetPoint,
-    ToggleDistanceUnits,
-} from '@/actions/Actions'
+import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint } from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
@@ -19,13 +11,14 @@ import PlainButton from '@/PlainButton'
 import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import { useStore } from '@/stores/useStore'
 
 export default function Search({ points }: { points: QueryPoint[] }) {
     let [showTargetIcons, setShowTargetIcons] = useState(true)
     let [moveStartIndex, onMoveStartSelect] = useState(-1)
     let [dropPreviewIndex, onDropPreviewSelect] = useState(-1)
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const showDistanceInMiles = useStore(store => store.showDistanceInMiles)
+    const toggleDistanceUnits = useStore(store => store.toggleDistanceUnits)
 
     return (
         <div className={styles.searchBoxParent}>
@@ -67,7 +60,7 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                 <PlainButton
                     className={styles.mikm}
                     title={tr('distance_unit', [showDistanceInMiles ? 'mi' : 'km'])}
-                    onClick={() => Dispatcher.dispatch(new ToggleDistanceUnits())}
+                    onClick={toggleDistanceUnits}
                 >
                     {showDistanceInMiles ? 'mi' : 'km'}
                 </PlainButton>
@@ -100,7 +93,7 @@ const SearchBox = ({
     let point = points[index]
 
     // With this ref and tabIndex=-1 we ensure that the first 'TAB' gives the focus the first input but the marker won't be included in the TAB sequence, #194
-    const myMarkerRef = useRef<HTMLDivElement>(null)
+    const myMarkerRef = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
         if (index == 0) myMarkerRef.current?.focus()
