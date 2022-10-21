@@ -2,11 +2,10 @@ import { Map, View } from 'ol'
 import { fromLonLat } from 'ol/proj'
 import { defaults as defaultControls } from 'ol/control'
 import { store } from '@/stores/useStore'
+import { StateCreator } from 'zustand'
 
-let map: Map | undefined
-
-export function createMap(): Map {
-    map = new Map({
+function createMap(): Map {
+    const map = new Map({
         view: new View({
             enableRotation: false,
             multiWorld: false,
@@ -28,10 +27,14 @@ export function createMap(): Map {
     return map
 }
 
-export function setMap(m: Map) {
-    map = m
+export interface MapSlice {
+    map: Map
+    isMapLoaded: boolean
+    setMapIsLoaded: () => void
 }
-export function getMap(): Map {
-    if (!map) throw Error('Map must be initialized before it can be used. Use "createMap" when starting the app')
-    return map
-}
+
+export const createMapSlice: StateCreator<MapSlice> = set => ({
+    map: createMap(),
+    isMapLoaded: false,
+    setMapIsLoaded: () => set(() => ({ isMapLoaded: true }))
+})

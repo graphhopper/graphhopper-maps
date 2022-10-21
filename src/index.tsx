@@ -20,7 +20,7 @@ import NavBar from '@/NavBar'
 import * as config from 'config'
 import { getApi, setApi } from '@/api/Api'
 import MapActionReceiver from '@/stores/MapActionReceiver'
-import { createMap, getMap, setMap } from '@/map/map'
+import { store } from '@/stores/useStore'
 
 const url = new URL(window.location.href)
 const locale = url.searchParams.get('locale')
@@ -41,8 +41,6 @@ setStores({
     errorStore: new ErrorStore(),
 })
 
-setMap(createMap())
-
 // register stores at dispatcher to receive actions
 Dispatcher.register(getQueryStore())
 Dispatcher.register(getRouteStore())
@@ -51,7 +49,7 @@ Dispatcher.register(getErrorStore())
 
 // register map action receiver
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
-const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
+const mapActionReceiver = new MapActionReceiver(store.getState().map, routeStore, () => smallScreenMediaQuery.matches)
 Dispatcher.register(mapActionReceiver)
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible

@@ -5,8 +5,9 @@ import { createPathDetailsSlice, PathDetailsSlice } from '@/stores/pathDetailsSl
 import { createSettingsSlice, SettingsSlice } from '@/stores/settingsSlice'
 import { createMapOptionsSlice, MapOptionsSlice } from '@/stores/mapOptionsSlice'
 import { createMapFeatureSlice, MapFeatureSlice } from '@/stores/mapFeatureSlice'
+import { createMapSlice, MapSlice } from '@/map/mapSlice'
 
-export type AppStoreState = PathDetailsSlice & SettingsSlice & MapOptionsSlice & MapFeatureSlice
+export type AppStoreState = PathDetailsSlice & SettingsSlice & MapOptionsSlice & MapFeatureSlice & MapSlice
 
 // this is only exported for unit tests
 export const createAppStore = () =>
@@ -15,6 +16,7 @@ export const createAppStore = () =>
         ...createSettingsSlice(...a),
         ...createMapOptionsSlice(...a),
         ...createMapFeatureSlice(...a),
+        ...createMapSlice(...a)
     }))
 
 // todo: not sure about the name yet, because there is also zustand/useStore...

@@ -210,13 +210,11 @@ const styleOptions: StyleOption[] = [
 export interface MapOptionsSlice {
     styleOptions: StyleOption[]
     selectedStyle: StyleOption
-    isMapLoaded: boolean
     routingGraphEnabled: boolean
     urbanDensityEnabled: boolean
     selectMapStyle: (s: StyleOption) => void
     setRoutingGraphEnabled: (b: boolean) => void
     setUrbanDensityLayerEnabled: (b: boolean) => void
-    setMapIsLoaded: () => void
 }
 
 export const createMapOptionsSlice: StateCreator<MapOptionsSlice> = set => {
@@ -229,12 +227,10 @@ export const createMapOptionsSlice: StateCreator<MapOptionsSlice> = set => {
         styleOptions,
         routingGraphEnabled: false,
         urbanDensityEnabled: false,
-        isMapLoaded: false,
         selectMapStyle: (s: StyleOption) => set(() => ({ selectedStyle: s })),
         setRoutingGraphEnabled: (routingGraphEnabled: boolean) =>
             set(() => ({ routingGraphEnabled: routingGraphEnabled })),
         setUrbanDensityLayerEnabled: (useUrbanDensityLayerEnabled: boolean) =>
             set(() => ({ urbanDensityEnabled: useUrbanDensityLayerEnabled })),
-        setMapIsLoaded: () => set(() => ({ isMapLoaded: true })),
     }
 }

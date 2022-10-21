@@ -21,13 +21,13 @@ import ContextMenu from '@/layers/ContextMenu'
 import usePathDetailsLayer from '@/layers/UsePathDetailsLayer'
 import PathDetailPopup from '@/layers/PathDetailPopup'
 import { Map } from 'ol'
-import { getMap } from '@/map/map'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import MapFeaturePopup from '@/layers/MapFeaturePopup'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
+import { useStore } from '@/stores/useStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -37,8 +37,7 @@ export default function App() {
     const [info, setInfo] = useState(getApiInfoStore().state)
     const [route, setRoute] = useState(getRouteStore().state)
     const [error, setError] = useState(getErrorStore().state)
-
-    const map = getMap()
+    const map = useStore(state => state.map)
 
     useEffect(() => {
         const onQueryChanged = () => setQuery(getQueryStore().state)
