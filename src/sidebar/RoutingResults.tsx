@@ -139,9 +139,9 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
         '<?xml version="1.0" encoding="UTF-8" standalone="no" ?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="GraphHopper" version="1.1" xmlns:gh="https://graphhopper.com/public/schema/gpx/1.1">\n'
     xmlString += `<metadata><copyright author="OpenStreetMap contributors"/><link href="http://graphhopper.com"><text>GraphHopper GPX</text></link><time>${new Date().toISOString()}</time></metadata>\n`
 
-    let rte = false
-    let wpt = false
-    let trk = true
+    const rte = false
+    const wpt = false
+    const trk = true
 
     if (wpt)
         xmlString += path.snapped_waypoints.coordinates.reduce((prevString: string, coord: Position) => {
