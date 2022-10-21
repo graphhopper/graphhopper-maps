@@ -1,5 +1,10 @@
 {
     "name": "graphhopper-maps",
+    "homepage": "https://graphhopper.com/maps/",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/graphhopper/graphhopper-maps.git"
+    },
     "version": "0.0.0",
     "license": "Apache-2.0",
     "scripts": {
