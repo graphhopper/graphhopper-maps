@@ -1,5 +1,5 @@
 import { Map, Overlay } from 'ol'
-import { PopupComponent } from '@/map/Popup'
+import { ContextMenuContent } from '@/map/ContextMenuContent'
 import React, { useEffect, useRef, useState } from 'react'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { fromLonLat, toLonLat } from 'ol/proj'
@@ -62,9 +62,9 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
     }, [menuCoordinate])
 
     return (
-        <div className={styles.popup} ref={container as any}>
+        <div className={styles.contextMenu} ref={container as any}>
             {menuCoordinate && (
-                <PopupComponent
+                <ContextMenuContent
                     coordinate={menuCoordinate!}
                     queryPoints={queryPoints}
                     route={route}
