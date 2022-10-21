@@ -1,15 +1,15 @@
 import React from 'react'
 import { coordinateToText } from '@/Converters'
-import styles from './Popup.module.css'
+import styles from './ContextMenuContent.module.css'
 import QueryStore, { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, QueryOSM, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
+import { AddPoint, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import { tr } from '@/translation/Translation'
 import { MarkerComponent } from '@/map/Marker'
 
-export function PopupComponent({
+export function ContextMenuContent({
     coordinate,
     queryPoints,
     route,
@@ -70,7 +70,7 @@ export function PopupComponent({
         }
     }
 
-    // This is a workaround to make sure that clicks on the popup menu entries are not handled by the underlying map.
+    // This is a workaround to make sure that clicks on the context menu entries are not handled by the underlying map.
     // Without this a click on the menu entries would e.g. close the menu without triggering the selected action.
     // https://github.com/openlayers/openlayers/issues/6948#issuecomment-374915823
     const convertToClick = (e: any) => {
@@ -121,7 +121,11 @@ export function PopupComponent({
                 className={styles.entry}
                 onClick={() => {
                     onSelect()
-                    Dispatcher.dispatch(new QueryOSM(coordinate))
+                    window.open(
+                        `https://www.openstreetmap.org/query?lat=${coordinate.lat}&lon=${coordinate.lng}`,
+                        '_blank',
+                        'noopener,noreferrer'
+                    )
                 }}
             >
                 {tr('query_osm')}

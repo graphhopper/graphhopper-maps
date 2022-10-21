@@ -210,7 +210,7 @@ function onCurrentLocationSelected(onSelect: (queryText: string, coordinate: Coo
             onSelect('', undefined)
         },
         // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
-        { timeout: 300_000 }
+        { timeout: 300_000, enableHighAccuracy: true }
     )
 }
 
