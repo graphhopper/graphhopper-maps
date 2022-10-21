@@ -2,9 +2,9 @@
 
 A user interface for the [GraphHopper routing engine](https://github.com/graphhopper/graphhopper) released under the Apache License 2.0.
 
-[Try it out](https://graphhopper.com/maps2/)!
+[Try it out](https://graphhopper.com/maps/)!
 
-[![GraphHopper Maps route planner](https://www.graphhopper.com/wp-content/uploads/2022/10/maps2-1024x661.png)](https://graphhopper.com/maps2/)
+[![GraphHopper Maps route planner](https://www.graphhopper.com/wp-content/uploads/2022/10/maps2-1024x661.png)](https://graphhopper.com/maps/)
 
 
 ## Start development:
