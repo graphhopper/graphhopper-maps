@@ -8,7 +8,6 @@ import { Stroke, Style } from 'ol/style'
 import { Select } from 'ol/interaction'
 import { pointerMove } from 'ol/events/condition'
 import { SelectEvent } from 'ol/interaction/Select'
-import Dispatcher from '@/stores/Dispatcher'
 import { toLonLat } from 'ol/proj'
 import { store, useStore } from '@/stores/useStore'
 
