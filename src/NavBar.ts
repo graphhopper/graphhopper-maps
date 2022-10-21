@@ -1,7 +1,7 @@
 import { coordinateToText } from '@/Converters'
 import { Bbox, RoutingProfile } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, SetInitialBBox, SetRoutingParametersAtOnce } from '@/actions/Actions'
+import { ClearPoints, SetRoutingParametersAtOnce } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
@@ -11,14 +11,13 @@ import { store } from '@/stores/useStore'
 export default class NavBar {
     private readonly queryStore: QueryStore
     private isIgnoreQueryStoreUpdates = false
-    private store = store
 
     constructor(queryStore: QueryStore) {
         this.queryStore = queryStore
         this.queryStore.register(() => this.onQueryStateChanged())
         // todo: limit updates to certain parts of the state (we need to return the ones we are interested:
         // https://docs.pmnd.rs/zustand/recipes/recipes#reading/writing-state-and-reacting-to-changes-outside-of-components
-        this.store.subscribe(() => this.onQueryStateChanged())
+        store.subscribe(() => this.onQueryStateChanged())
         window.addEventListener('popstate', () => this.parseUrlAndReplaceQuery())
     }
 
@@ -115,8 +114,8 @@ export default class NavBar {
 
     private parseLayer(url: URL) {
         let layer = url.searchParams.get('layer')
-        const option = this.store.getState().styleOptions.find(option => option.name === layer)
-        return option ? option : this.store.getState().selectedStyle
+        const option = store.getState().styleOptions.find(option => option.name === layer)
+        return option ? option : store.getState().selectedStyle
     }
 
     parseUrlAndReplaceQuery() {
@@ -132,7 +131,7 @@ export default class NavBar {
         // estimate map bounds from url points if there are any. this way we prevent loading tiles for the world view
         // only to zoom to the route shortly after
         const bbox = this.getBBoxFromUrlPoints(parsedPoints.map(p => p.coordinate))
-        if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
+        if (bbox) store.getState().setInitialBbox(bbox)
 
         if (parsedPoints.length > 0) Dispatcher.dispatch(new SetRoutingParametersAtOnce(parsedPoints, profile))
 
@@ -160,7 +159,7 @@ export default class NavBar {
         const newHref = NavBar.createUrl(
             window.location.origin + window.location.pathname,
             this.queryStore.state,
-            this.store.getState().selectedStyle.name
+            store.getState().selectedStyle.name
         ).toString()
 
         if (newHref !== window.location.href) window.history.pushState('last state', '', newHref)

@@ -1,6 +1,6 @@
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
-import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
+import { ApiInfo, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -136,29 +136,3 @@ export class SetSelectedPath implements Action {
 }
 
 export class DismissLastError implements Action {}
-
-export class ZoomMapToPoint implements Action {
-    readonly coordinate: Coordinate
-    readonly zoom: number
-
-    constructor(coordinate: Coordinate, zoom: number) {
-        this.coordinate = coordinate
-        this.zoom = zoom
-    }
-}
-
-export class SetInitialBBox implements Action {
-    readonly bbox: Bbox
-
-    constructor(bbox: Bbox) {
-        this.bbox = bbox
-    }
-}
-
-export class PathDetailsRangeSelected implements Action {
-    readonly bbox: Bbox | null
-
-    constructor(bbox: Bbox | null) {
-        this.bbox = bbox
-    }
-}

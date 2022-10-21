@@ -4,13 +4,7 @@ import { createRoot } from 'react-dom/client'
 
 import { setTranslation } from '@/translation/Translation'
 import App from '@/App'
-import {
-    getApiInfoStore,
-    getErrorStore,
-    getQueryStore,
-    getRouteStore,
-    setStores,
-} from '@/stores/Stores'
+import { getApiInfoStore, getErrorStore, getQueryStore, getRouteStore, setStores } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'

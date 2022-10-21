@@ -1,15 +1,12 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styles from '@/pathDetails/PathDetails.module.css'
 import { HeightGraph } from 'heightgraph/src/heightgraph'
 import 'heightgraph/src/heightgraph.css'
 import { Path } from '@/api/graphhopper'
-import Dispatcher from '@/stores/Dispatcher'
-import { PathDetailsRangeSelected } from '@/actions/Actions'
 import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
 import { calcDist } from '@/distUtils'
-import { useStore } from '@/stores/useStore'
-import { PathDetailsPoint } from '@/stores/pathDetailsSlice'
+import { store, useStore } from '@/stores/useStore'
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -22,13 +19,6 @@ export default function ({ selectedPath }: PathDetailsProps) {
     // keep a ref to the container of the actual graph and pass it to the graph once the container is mounted
     const heightgraphRef: React.RefObject<HTMLDivElement> = useRef(null)
     const [graph, setGraph] = useState<any | null>(null)
-    // todo: since useStore is a hook we have to call it here at the top level, but then we have to pass these as parameters
-    //       when we use them in a nested function. Before I started to use the 'sliced store' I used this:
-    //       https://docs.pmnd.rs/zustand/guides/practice-with-no-store-actions
-    //       which allowed just importing the functions and use them in a nested function...
-    ///      also take a look here: https://github.com/pmndrs/zustand/blob/d27ea948843b2c955ce2be530e5e963dff8958de/readme.md#react-context
-    const setPathDetailsPoint = useStore(store => store.setPathDetailsPoint)
-    const setPathDetailsHighlightedSegments = useStore(store => store.setPathDetailsHighlightedSegments)
     useEffect(() => {
         const options = {
             width: clampWidth(containerRef.current!.clientWidth),
@@ -37,11 +27,9 @@ export default function ({ selectedPath }: PathDetailsProps) {
             // todo: add selected_detail url parameter
         }
         const callbacks = {
-            pointSelectedCallback: (p: Coordinate, ele: number, description: string) =>
-                onPathDetailHover(setPathDetailsPoint, p, ele, description),
+            pointSelectedCallback: onPathDetailHover,
             areaSelectedCallback: onRangeSelected,
-            routeSegmentsSelectedCallback: (segments: Coordinate[][]) =>
-                onElevationSelected(setPathDetailsHighlightedSegments, segments),
+            routeSegmentsSelectedCallback: onElevationSelected,
         }
         setGraph(new HeightGraph(heightgraphRef.current, options, callbacks))
     }, [heightgraphRef])
@@ -84,26 +72,19 @@ function clampWidth(clientWidth: number) {
 }
 
 /** executed when we hover the mouse over the path details diagram */
-function onPathDetailHover(
-    setPathDetailsPoint: (p: PathDetailsPoint | null) => void,
-    point: Coordinate,
-    elevation: number,
-    description: string
-) {
-    setPathDetailsPoint(point ? { point, elevation, description } : null)
+function onPathDetailHover(point: Coordinate, elevation: number, description: string) {
+    store.getState().setPathDetailsPoint(point ? { point, elevation, description } : null)
 }
 
 /** executed when we box-select a range of the path details diagram */
 function onRangeSelected(bbox: { sw: Coordinate; ne: Coordinate } | null) {
     // bbox = null means that the range was cleared
-    Dispatcher.dispatch(
-        new PathDetailsRangeSelected(bbox ? [bbox.sw.lng, bbox.sw.lat, bbox.ne.lng, bbox.ne.lat] : null)
-    )
+    store.getState().zoomToPathDetailRangeBox(bbox ? [bbox.sw.lng, bbox.sw.lat, bbox.ne.lng, bbox.ne.lat] : null)
 }
 
 /** executed when we use the vertical elevation slider on the right side of the diagram */
-function onElevationSelected(setPathDetailsHighlightedSegments: (c: Coordinate[][]) => void, segments: Coordinate[][]) {
-    setPathDetailsHighlightedSegments(segments)
+function onElevationSelected(segments: Coordinate[][]) {
+    store.getState().setPathDetailsHighlightedSegments(segments)
 }
 
 function buildPathDetailsData(selectedPath: Path) {

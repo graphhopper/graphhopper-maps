@@ -77,7 +77,7 @@ export default function App() {
         <div className={styles.appWrapper}>
             <PathDetailPopup map={map} />
             <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
-            <MapFeaturePopup map={map}/>
+            <MapFeaturePopup map={map} />
             {isSmallScreen ? (
                 <SmallScreenLayout query={query} route={route} map={map} error={error} info={info} />
             ) : (

@@ -12,6 +12,6 @@ export const createMapFeatureSlice: StateCreator<MapFeatureSlice> = set => {
         point: null,
         properties: {},
         setMapFeature: (point: Coordinate | null, properties: object) =>
-            set(() => ({point: point, properties: properties}))
+            set(() => ({ point: point, properties: properties })),
     }
 }

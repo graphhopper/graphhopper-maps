@@ -16,7 +16,7 @@ export const createAppStore = () =>
         ...createSettingsSlice(...a),
         ...createMapOptionsSlice(...a),
         ...createMapFeatureSlice(...a),
-        ...createMapSlice(...a)
+        ...createMapSlice(...a),
     }))
 
 // todo: not sure about the name yet, because there is also zustand/useStore...
