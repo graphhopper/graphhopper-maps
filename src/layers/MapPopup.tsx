@@ -1,5 +1,5 @@
 import { Map, Overlay } from 'ol'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { fromLonLat } from 'ol/proj'
 import { Coordinate } from '@/stores/QueryStore'
 

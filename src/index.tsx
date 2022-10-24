@@ -30,6 +30,8 @@ import { createMap, getMap, setMap } from '@/map/map'
 import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
 
+console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
+
 const url = new URL(window.location.href)
 const locale = url.searchParams.get('locale')
 setTranslation(locale || navigator.language)

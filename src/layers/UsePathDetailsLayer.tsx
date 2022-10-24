@@ -1,5 +1,5 @@
 import { Map } from 'ol'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { Coordinate } from '@/stores/QueryStore'
 import { FeatureCollection } from 'geojson'

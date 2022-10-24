@@ -1,6 +1,6 @@
 import { Feature, Map } from 'ol'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Point } from 'ol/geom'

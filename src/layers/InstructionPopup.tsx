@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import styles from '@/layers/DefaultMapPopup.module.css'
 import { Map } from 'ol'
 import MapPopup from '@/layers/MapPopup'

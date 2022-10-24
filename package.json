@@ -18,8 +18,8 @@
         "custom-model-editor": "github:graphhopper/custom-model-editor#a8c97e4ef8e76c963be375984a3c08ff3c1e8288",
         "geojson": "^0.5.0",
         "heightgraph": "github:easbar/Leaflet.Heightgraph#a1014641c35c43490b31cb25d3072e6c1237ed0e",
-        "ol": "6.15.1",
-        "ol-mapbox-style": "8.0.4",
+        "ol": "7.1.0",
+        "ol-mapbox-style": "9.2.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-responsive": "^8.2.0"

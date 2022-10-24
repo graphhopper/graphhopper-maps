@@ -1,6 +1,6 @@
 import { Map, Overlay } from 'ol'
 import { ContextMenuContent } from '@/map/ContextMenuContent'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { fromLonLat, toLonLat } from 'ol/proj'
 import styles from '@/layers/ContextMenu.module.css'

@@ -1,5 +1,5 @@
 import styles from './AddressInputAutocomplete.module.css'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import CurrentLocationIcon from './current-location.svg'
 import { tr } from '@/translation/Translation'
 

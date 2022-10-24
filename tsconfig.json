@@ -3,27 +3,22 @@
         "outDir": "./dist/",
         "sourceMap": true,
         "noImplicitAny": true,
-        "jsx": "react",
+        "jsx": "react-jsx",
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
         "importHelpers": true,
-        "module": "CommonJS",
+        "module": "ES2015",
         "moduleResolution": "node",
         "noImplicitReturns": true,
         "strict": true,
         "target": "ES2019",
         "paths": {
             "@/*": ["src/*"],
-            "ol-mapbox-style": ["node_modules/ol-mapbox-style/src"],
-            "ol-mapbox-style/*": ["node_modules/ol-mapbox-style/src/*"]
         },
         "lib": ["ES2019", "dom", "dom.iterable"],
         "esModuleInterop": true,
         "resolveJsonModule": true,
         "skipLibCheck": true
     },
-    "include": ["./src/**/*", "./test/**/*", "node_modules/ol-mapbox-style/**/*"],
-    "typeAcquisition": {
-        "exclude": ["ol-mapbox-style"]
-    }
+    "include": ["./src/**/*", "./test/**/*"],
 }

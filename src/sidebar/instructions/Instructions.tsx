@@ -1,5 +1,5 @@
 import styles from '@/sidebar/instructions/Instructions.module.css'
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 
 import uTurn from './u_turn.png'
 import uTurnLeft from './u_turn_left.png'
