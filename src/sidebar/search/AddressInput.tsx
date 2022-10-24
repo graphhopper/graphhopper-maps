@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { GeocodingHit } from '@/api/graphhopper'
 import { ErrorAction } from '@/actions/Actions'

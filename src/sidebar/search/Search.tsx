@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint } from '@/stores/QueryStore'
