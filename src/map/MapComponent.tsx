@@ -1,6 +1,6 @@
 import 'ol/ol.css'
 import styles from '@/map/Map.module.css'
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Map } from 'ol'
 
 type MapComponentProps = {

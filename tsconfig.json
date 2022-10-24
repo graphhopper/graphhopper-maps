@@ -3,11 +3,11 @@
         "outDir": "./dist/",
         "sourceMap": true,
         "noImplicitAny": true,
-        "jsx": "react",
+        "jsx": "react-jsx",
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
         "importHelpers": true,
-        "module": "esnext",
+        "module": "ES2015",
         "moduleResolution": "node",
         "noImplicitReturns": true,
         "strict": true,
@@ -20,5 +20,5 @@
         "resolveJsonModule": true,
         "skipLibCheck": true
     },
-    "include": ["./src/**/*", "./test/**/*"]
+    "include": ["./src/**/*", "./test/**/*"],
 }

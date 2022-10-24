@@ -1,5 +1,5 @@
 import { Map, Overlay } from 'ol'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import styles from '@/layers/PathDetailPopup.module.css'
 import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { fromLonLat } from 'ol/proj'

@@ -1,7 +1,7 @@
 import { Map } from 'ol'
 import { Path } from '@/api/graphhopper'
 import { FeatureCollection } from 'geojson'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { GeoJSON } from 'ol/format'
