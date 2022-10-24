@@ -24,3 +24,6 @@ declare module 'config' {
 declare module 'react-responsive' {
     function useMediaQuery(props: { query: string }): boolean
 }
+
+// defined by webpack
+declare const GIT_SHA: string
