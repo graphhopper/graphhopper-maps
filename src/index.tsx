@@ -16,6 +16,8 @@ import { getApi, setApi } from '@/api/Api'
 import MapActionReceiver from '@/stores/MapActionReceiver'
 import { store } from '@/stores/useStore'
 
+console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
+
 const url = new URL(window.location.href)
 const locale = url.searchParams.get('locale')
 setTranslation(locale || navigator.language)
