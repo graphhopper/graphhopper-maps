@@ -1,6 +1,6 @@
 const path = require('path')
 const fs = require('fs')
-const webpack = require('webpack');
+const webpack = require('webpack')
 
 const HTMLWebpackPlugin = require('html-webpack-plugin')
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
@@ -18,10 +18,7 @@ if (fs.existsSync(localConfig)) {
 }
 
 // get git info from command line
-const gitSHA = require('child_process')
-    .execSync('git rev-parse HEAD')
-    .toString()
-    .trim();
+const gitSHA = require('child_process').execSync('git rev-parse HEAD').toString().trim()
 
 module.exports = {
     entry: path.resolve(__dirname, 'src', 'index.tsx'),
@@ -99,8 +96,8 @@ module.exports = {
             ],
         }),
         new webpack.DefinePlugin({
-            GIT_SHA: JSON.stringify(gitSHA)
-        })
+            GIT_SHA: JSON.stringify(gitSHA),
+        }),
     ],
 
     externals: {
