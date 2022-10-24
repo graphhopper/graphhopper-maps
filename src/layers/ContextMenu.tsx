@@ -18,7 +18,7 @@ const overlay = new Overlay({
 
 export default function ContextMenu({ map, route, queryPoints }: ContextMenuProps) {
     const [menuCoordinate, setMenuCoordinate] = useState<Coordinate | null>(null)
-    const container = useRef<HTMLDivElement | null>()
+    const container = useRef<HTMLDivElement | null>(null)
 
     const closeContextMenu = () => {
         setMenuCoordinate(null)
@@ -62,7 +62,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
     }, [menuCoordinate])
 
     return (
-        <div className={styles.contextMenu} ref={container as any}>
+        <div className={styles.contextMenu} ref={container}>
             {menuCoordinate && (
                 <ContextMenuContent
                     coordinate={menuCoordinate!}

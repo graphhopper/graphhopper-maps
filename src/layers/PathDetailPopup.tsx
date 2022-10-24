@@ -1,10 +1,10 @@
-import { Map, Overlay } from 'ol'
-import React, { useContext, useEffect, useRef, useState } from 'react'
-import styles from '@/layers/PathDetailPopup.module.css'
+import React, { useContext } from 'react'
+import styles from '@/layers/DefaultMapPopup.module.css'
 import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
-import { fromLonLat } from 'ol/proj'
 import { metersToText } from '@/Converters'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import MapPopup from '@/layers/MapPopup'
+import { Map } from 'ol'
 
 interface PathDetailPopupProps {
     map: Map
@@ -15,38 +15,20 @@ interface PathDetailPopupProps {
  * The popup shown along the selected route when we hover the path detail/elevation graph
  */
 export default function PathDetailPopup({ map, pathDetails }: PathDetailPopupProps) {
-    const [overlay, setOverlay] = useState<Overlay | undefined>()
-    const container = useRef<HTMLDivElement | null>()
-
-    useEffect(() => {
-        const overlay = new Overlay({
-            element: container.current!,
-            autoPan: false,
-        })
-        setOverlay(overlay)
-        map.addOverlay(overlay)
-    }, [map])
-
-    useEffect(() => {
-        const position = pathDetails.pathDetailsPoint
-            ? fromLonLat([pathDetails.pathDetailsPoint.point.lng, pathDetails.pathDetailsPoint.point.lat])
-            : undefined
-        overlay?.setPosition(position)
-    }, [pathDetails.pathDetailsPoint])
-
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
-
     return (
         // todo: use createMapMarker from heightgraph?
         // {createMapMarker(point.elevation, point.description, showDistanceInMiles)}
-        <div className={styles.popup} ref={container as any}>
-            {pathDetails.pathDetailsPoint && (
-                <p>
-                    {metersToText(Math.round(pathDetails.pathDetailsPoint.elevation), showDistanceInMiles, true)}
-                    <br />
-                    {pathDetails.pathDetailsPoint!.description}
-                </p>
-            )}
-        </div>
+        <MapPopup map={map} coordinate={pathDetails.pathDetailsPoint ? pathDetails.pathDetailsPoint.point : null}>
+            <div className={styles.popup}>
+                {pathDetails.pathDetailsPoint && (
+                    <p>
+                        {metersToText(Math.round(pathDetails.pathDetailsPoint.elevation), showDistanceInMiles, true)}
+                        <br />
+                        {pathDetails.pathDetailsPoint!.description}
+                    </p>
+                )}
+            </div>
+        </MapPopup>
     )
 }

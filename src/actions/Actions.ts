@@ -217,4 +217,14 @@ export class RoutingGraphHover implements Action {
     }
 }
 
+export class InstructionClicked implements Action {
+    readonly coordinate: Coordinate | null
+    readonly text: string
+
+    constructor(point: Coordinate | null, text: string) {
+        this.coordinate = point
+        this.text = text
+    }
+}
+
 export class ToggleDistanceUnits implements Action {}
