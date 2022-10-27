@@ -2,7 +2,7 @@ import { Instruction, Path } from '@/api/graphhopper'
 import { Coordinate } from '@/stores/QueryStore'
 import { or } from 'ol/format/filter'
 
-export function getCurrentDetails(path: Path, location: Coordinate, details: [any, any, any][][]): number[] {
+export function getCurrentDetails(path: Path, location: Coordinate, details: [any, any, any][][]): any[] {
     let smallestDist = Number.MAX_VALUE
     const points = path.points.coordinates
     let foundIndex = -1
