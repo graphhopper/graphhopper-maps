@@ -48,7 +48,7 @@ export default function ({ queryPoints, path, location }: TurnNavigationProps) {
 
     let [showTime, setShowTime] = useState(true)
     let [showDebug, setShowDebug] = useState(false)
-    const [state, dispatch] = useState({ index: -1, distanceToNext: -1, text: '' })
+    const [state, setState] = useState({ instructionIndex: -1, distanceToNext: -1, text: '' })
     const { soundEnabled } = useContext(ShowDistanceInMilesContext)
 
     // speak text out loud after render only if index changed and distance is close next instruction
@@ -64,7 +64,7 @@ export default function ({ queryPoints, path, location }: TurnNavigationProps) {
 
             if (
                 distanceToNext <= lastAnnounceDistance &&
-                (state.distanceToNext > lastAnnounceDistance || instructionIndex != state.index)
+                (state.distanceToNext > lastAnnounceDistance || instructionIndex != state.instructionIndex)
             ) {
                 getLocationStore().getSpeechSynthesizer().synthesize(nextInstruction.text)
             }
@@ -74,7 +74,7 @@ export default function ({ queryPoints, path, location }: TurnNavigationProps) {
                 averageSpeed > 15 && // two announcements only if faster speed
                 distanceToNext > lastAnnounceDistance + 50 && // do not interfere with last announcement. also "1 km" should stay valid (approximately)
                 distanceToNext <= firstAnnounceDistance &&
-                (state.distanceToNext > firstAnnounceDistance || instructionIndex != state.index)
+                (state.distanceToNext > firstAnnounceDistance || instructionIndex != state.instructionIndex)
             ) {
                 let inString =
                     distanceToNext > 800
@@ -87,7 +87,7 @@ export default function ({ queryPoints, path, location }: TurnNavigationProps) {
             }
         }
 
-        dispatch({ index: instructionIndex, distanceToNext: distanceToNext, text: text })
+        setState({ instructionIndex: instructionIndex, distanceToNext: distanceToNext, text: text })
     }, [instructionIndex, distanceToNext])
 
     const arrivalDate = new Date()
