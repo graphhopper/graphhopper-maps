@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer, useState } from 'react'
 import { Instruction, Path } from '@/api/graphhopper'
-import { coordinateToText, metersToText, milliSecondsToText } from '@/Converters'
+import { metersToText, milliSecondsToText } from '@/Converters'
 import { getTurnSign } from '@/sidebar/instructions/Instructions'
 import { getCurrentDetails, getCurrentInstruction } from './GeoMethods'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
@@ -10,8 +10,8 @@ import { LocationStoreState } from '@/stores/LocationStore'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import Dispatcher from '@/stores/Dispatcher'
-import { NavigationStop, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
-import { QueryPoint, QueryStoreState } from '@/stores/QueryStore'
+import { TurnNavigationStop, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
+import { QueryPoint } from '@/stores/QueryStore'
 
 type TurnNavigationProps = {
     queryPoints: QueryPoint[]
@@ -148,7 +148,7 @@ export default function ({ queryPoints, path, location }: TurnNavigationProps) {
                             <div
                                 className={styles.thirdCol}
                                 onClick={() => {
-                                    Dispatcher.dispatch(new NavigationStop())
+                                    Dispatcher.dispatch(new TurnNavigationStop())
                                     Dispatcher.dispatch(new ZoomMapToPoint(location.coordinate, 15, 0, 0))
                                 }}
                             >

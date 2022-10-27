@@ -1,6 +1,6 @@
 import { Coordinate } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
-import { ErrorAction, LocationUpdate, NavigationStop, ZoomMapToPoint } from '@/actions/Actions'
+import { ErrorAction, LocationUpdate, TurnNavigationStop, ZoomMapToPoint } from '@/actions/Actions'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
@@ -36,7 +36,7 @@ export default class LocationStore extends Store<LocationStoreState> {
     }
 
     reduce(state: LocationStoreState, action: Action): LocationStoreState {
-        if (action instanceof NavigationStop) {
+        if (action instanceof TurnNavigationStop) {
             this.stop()
             // directly writing the state does not work: this.state.turnNavigation = false
             return { coordinate: { lat: 0, lng: 0 }, turnNavigation: false, speed: 0 }

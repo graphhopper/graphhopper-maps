@@ -3,7 +3,7 @@ import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import { useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { NavigationStop, SetSelectedPath, TurnNavigationUpdate, ZoomMapToPoint } from '@/actions/Actions'
+import { TurnNavigationStop, SetSelectedPath, TurnNavigationUpdate } from '@/actions/Actions'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
@@ -48,9 +48,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const hasBorderCrossed = crossesBorder(path.details.country)
     const showHints = hasFords || hasTolls || hasFerries || showAndHasBadTracks || showAndHasSteps || hasBorderCrossed
 
-    const { showDistanceInMiles, fakeGPS } = useContext(ShowDistanceInMilesContext)
+    const { showDistanceInMiles, fakeGPS, acceptedRisk } = useContext(ShowDistanceInMilesContext)
     let [showRisk, setShowRisk] = useState(false)
-    if (showRisk)
+    if (!acceptedRisk && showRisk)
         return (
             <div className={styles.showRisk}>
                 <div>{tr('warning')}</div>
@@ -58,7 +58,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     <PlainButton
                         onClick={() => {
                             setShowRisk(false)
-                            Dispatcher.dispatch(new NavigationStop())
+                            Dispatcher.dispatch(new TurnNavigationStop())
                         }}
                     >
                         {tr('back')}
@@ -66,7 +66,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     <PlainButton
                         onClick={() => {
                             Dispatcher.dispatch(new TurnNavigationUpdate({ acceptedRisk: true } as Settings))
-                            return fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
+                            fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
                         }}
                     >
                         {tr('accept_risks_after_warning')}
@@ -101,7 +101,13 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                         )}
                     </div>
                     {isSelected && !showRisk && (
-                        <PlainButton className={styles.exportButton} onClick={() => setShowRisk(true)}>
+                        <PlainButton
+                            className={styles.exportButton}
+                            onClick={() => {
+                                if (!acceptedRisk) setShowRisk(true)
+                                else fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
+                            }}
+                        >
                             <NaviSVG />
                             <div>{tr('Navi')}</div>
                         </PlainButton>
