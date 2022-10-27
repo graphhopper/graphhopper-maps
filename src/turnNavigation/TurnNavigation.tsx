@@ -142,7 +142,7 @@ export default function ({ queryPoints, path, location }: TurnNavigationProps) {
                                 className={styles.thirdCol}
                                 onClick={() => {
                                     Dispatcher.dispatch(new TurnNavigationStop())
-                                    Dispatcher.dispatch(new ZoomMapToPoint(location.coordinate, 15, 0, 0))
+                                    Dispatcher.dispatch(new ZoomMapToPoint(location.coordinate, 15, 0, 0, false))
                                 }}
                             >
                                 <img src={endNavigation} />

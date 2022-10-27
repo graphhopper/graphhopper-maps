@@ -191,12 +191,14 @@ export class ZoomMapToPoint implements Action {
     readonly pitch: number
     // in degrees
     readonly bearing: number
+    readonly navigationOffset: boolean
 
-    constructor(coordinate: Coordinate, zoom: number, pitch: number, bearing: number) {
+    constructor(coordinate: Coordinate, zoom: number, pitch: number, bearing: number, navigationOffset: boolean) {
         this.coordinate = coordinate
         this.zoom = zoom
         this.pitch = pitch
         this.bearing = bearing
+        this.navigationOffset = navigationOffset
     }
 }
 

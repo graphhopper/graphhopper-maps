@@ -114,7 +114,7 @@ export default class LocationStore extends Store<LocationStoreState> {
 
         if (!bearing || Number.isNaN(bearing))
             console.log('skip dispatching SetViewportToPoint because bearing is ' + bearing)
-        else Dispatcher.dispatch(new ZoomMapToPoint(c, 17, 50, bearing))
+        else Dispatcher.dispatch(new ZoomMapToPoint(c, 17, 50, bearing, true))
     }
 
     public initReal() {
