@@ -4,7 +4,7 @@ import 'codemirror/addon/lint/lint.css'
 // todo: this belongs to this app and we should not take it from the demo...
 import 'custom-model-editor/demo/style.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
 import { DismissLastError, SetCustomModel } from '@/actions/Actions'

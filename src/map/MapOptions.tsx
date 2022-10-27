@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import styles from './MapOptions.modules.css'
 import { MapOptionsStoreState, StyleOption } from '@/stores/MapOptionsStore'
 import Dispatcher from '@/stores/Dispatcher'

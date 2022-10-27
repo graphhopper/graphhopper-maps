@@ -4,7 +4,6 @@ import { fromLonLat } from 'ol/proj'
 import {
     InfoReceived,
     PathDetailsRangeSelected,
-    QueryOSM,
     RouteRequestSuccess,
     SetInitialBBox,
     SetSelectedPath,
@@ -32,12 +31,6 @@ export default class MapActionReceiver implements ActionReceiver {
             // we estimate the map size to be equal to the window size. we don't know better at this point, because
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
-        } else if (action instanceof QueryOSM) {
-            window.open(
-                `https://www.openstreetmap.org/query?lat=${action.coordinate.lat}&lon=${action.coordinate.lng}`,
-                '_blank',
-                'noopener,noreferrer'
-            )
         } else if (action instanceof ZoomMapToPoint) {
             this.map.getView().animate({
                 zoom: action.zoom,

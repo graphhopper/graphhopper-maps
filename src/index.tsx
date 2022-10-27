@@ -34,6 +34,8 @@ import App from '@/App'
 import { TurnNavigationUpdate } from '@/actions/Actions'
 
 let speechSynthesizer = new SpeechSynthesizer(navigator.language)
+console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
+
 const url = new URL(window.location.href)
 const locale = url.searchParams.get('locale')
 const fake = url.searchParams.get('fake')
