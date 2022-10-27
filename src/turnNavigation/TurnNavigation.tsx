@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Instruction, Path } from '@/api/graphhopper'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import { getTurnSign } from '@/sidebar/instructions/Instructions'
@@ -31,7 +31,8 @@ export default function ({ queryPoints, path, location }: TurnNavigationProps) {
 
     if (distanceToRoute > 50) {
         Dispatcher.dispatch(new SetPoint({ ...queryPoints[0], coordinate: location.coordinate } as QueryPoint, false))
-        getLocationStore().getSpeechSynthesizer().synthesize('reroute')
+        getLocationStore().getSpeechSynthesizer().synthesize(tr('reroute'))
+        return <>Rerouting</>
     }
 
     let [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, currentLocation, [

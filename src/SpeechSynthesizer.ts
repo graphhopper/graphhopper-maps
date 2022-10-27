@@ -17,6 +17,7 @@ export class SpeechSynthesizer {
         if (offline) {
             let utterance = new SpeechSynthesisUtterance(text)
             utterance.lang = this.locale
+            if(speechSynthesis.pending) speechSynthesis.cancel()
             speechSynthesis.speak(utterance)
         } else {
             this.synthesizeOnline(text)
