@@ -46,17 +46,9 @@ export default function ({ queryPoints, path, location }: TurnNavigationProps) {
 
     const nextInstruction: Instruction = path.instructions[instructionIndex]
 
-    // not sure how to access old state with useState alone
-    function reducer(
-        state: { distanceToNext: number; index: number; text: string },
-        action: { distanceToNext: number; index: number; text: string }
-    ) {
-        return action
-    }
-
     let [showTime, setShowTime] = useState(true)
     let [showDebug, setShowDebug] = useState(false)
-    const [state, dispatch] = useReducer(reducer, { index: -1, distanceToNext: -1, text: '' })
+    const [state, dispatch] = useState({ index: -1, distanceToNext: -1, text: '' })
     const { soundEnabled } = useContext(ShowDistanceInMilesContext)
 
     // speak text out loud after render only if index changed and distance is close next instruction
@@ -132,7 +124,7 @@ export default function ({ queryPoints, path, location }: TurnNavigationProps) {
                                 )}
                                 <div className={styles.remainingDistance}>{metersToText(remainingDistance, false)}</div>
                             </div>
-                            <div className={styles.secondCol} onClick={() => setShowDebug(!showDebug)}>
+                            <div onClick={() => setShowDebug(!showDebug)}>
                                 <div>{currentSpeed} km/h</div>
                                 {maxSpeed != null ? (
                                     <div className={styles.maxSpeed}>{Math.round(maxSpeed)}</div>
@@ -155,7 +147,7 @@ export default function ({ queryPoints, path, location }: TurnNavigationProps) {
                                 <img src={endNavigation} />
                             </div>
                         </div>
-                        <div className={styles.turnText}>{state.text}</div>
+                        <div>{state.text}</div>
                     </div>
                 </div>
             </div>
