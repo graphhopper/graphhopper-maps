@@ -93,7 +93,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         } else if (action instanceof TurnNavigationSettingsUpdate) {
             return { ...state, settings: { ...state.settings, ...action.settings } }
         } else if (action instanceof TurnNavigationReroutingFailed) {
-            console.log("TurnNavigationReroutingFailed")
+            console.log('TurnNavigationReroutingFailed')
             return {
                 ...state,
                 rerouteInProgress: false,
@@ -106,8 +106,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 getCurrentInstruction(path.instructions, state.coordinate)
 
             // current location is still not close
-            if(instructionIndex < 0) {
-                console.log("instruction after rerouting not found")
+            if (instructionIndex < 0) {
+                console.log('instruction after rerouting not found')
                 return {
                     ...state,
                     rerouteInProgress: false,

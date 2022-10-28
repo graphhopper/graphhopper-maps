@@ -16,8 +16,11 @@
     height: 3.5rem;
 }
 
+.turnSign div:first-child {
+    padding-bottom: 0.7em;
+}
 .turnSign {
-    padding-left: 0.3rem;
+    padding-left: 0.4rem;
     min-width: 25%;
     flex-direction: column;
     font-weight: bold;

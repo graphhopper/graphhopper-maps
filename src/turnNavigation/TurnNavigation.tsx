@@ -23,61 +23,59 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
 
     return (
         <>
-            <div>
-                <div className={styles.turnInfo}>
-                    <div className={styles.turnSign}>
-                        <div>{getTurnSign(path.instructions[instruction.index].sign, instruction.index)}</div>
-                        <div>{metersToText(instruction.distanceToNext, false)}</div>
-                    </div>
-                    <div className={styles.turnInfoRightSide}>
-                        <div className={styles.arrival}>
-                            <div onClick={() => setShowTime(!showTime)}>
-                                {showTime ? (
-                                    <div>
-                                        {arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}
-                                        <svg width="30" height="8">
-                                            <circle cx="5" cy="4" r="3" />
-                                            <circle cx="20" cy="4" r="3.5" stroke="black" fill="white" />
-                                        </svg>
-                                    </div>
-                                ) : (
-                                    <div>
-                                        {milliSecondsToText(instruction.remainingTime)}
-                                        <svg width="30" height="8">
-                                            <circle cx="5" cy="4" r="3" stroke="black" fill="white" />
-                                            <circle cx="20" cy="4" r="3.5" />
-                                        </svg>
-                                    </div>
-                                )}
-                                <div className={styles.remainingDistance}>
-                                    {metersToText(instruction.remainingDistance, false)}
+            <div className={styles.turnInfo}>
+                <div className={styles.turnSign}>
+                    <div>{getTurnSign(path.instructions[instruction.index].sign, instruction.index)}</div>
+                    <div>{metersToText(instruction.distanceToNext, false)}</div>
+                </div>
+                <div className={styles.turnInfoRightSide}>
+                    <div className={styles.arrival}>
+                        <div onClick={() => setShowTime(!showTime)}>
+                            {showTime ? (
+                                <div>
+                                    {arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}
+                                    <svg width="30" height="8">
+                                        <circle cx="5" cy="4" r="3" />
+                                        <circle cx="20" cy="4" r="3.5" stroke="black" fill="white" />
+                                    </svg>
                                 </div>
+                            ) : (
+                                <div>
+                                    {milliSecondsToText(instruction.remainingTime)}
+                                    <svg width="30" height="8">
+                                        <circle cx="5" cy="4" r="3" stroke="black" fill="white" />
+                                        <circle cx="20" cy="4" r="3.5" />
+                                    </svg>
+                                </div>
+                            )}
+                            <div className={styles.remainingDistance}>
+                                {metersToText(instruction.remainingDistance, false)}
                             </div>
-                            <div onClick={() => setShowDebug(!showDebug)}>
-                                <div>{currentSpeed} km/h</div>
-                                {pd.maxSpeed != null ? (
-                                    <div className={styles.maxSpeed}>{Math.round(pd.maxSpeed)}</div>
-                                ) : null}
-                                {showDebug ? (
-                                    <div className={styles.debug}>
-                                        <div>{pd.estimatedAvgSpeed}</div>
-                                        <div>{pd.surface}</div>
-                                        <div>{pd.roadClass}</div>
-                                    </div>
-                                ) : null}
-                            </div>
-                            <PlainButton
-                                className={styles.thirdCol}
-                                onClick={() => {
-                                    Dispatcher.dispatch(new TurnNavigationStop())
-                                    Dispatcher.dispatch(new ZoomMapToPoint(turnNavigation.coordinate, 15, 0, false, 0))
-                                }}
-                            >
-                                <EndNavigation />
-                            </PlainButton>
                         </div>
-                        <div>{instruction.text}</div>
+                        <div onClick={() => setShowDebug(!showDebug)}>
+                            <div>{currentSpeed} km/h</div>
+                            {pd.maxSpeed != null ? (
+                                <div className={styles.maxSpeed}>{Math.round(pd.maxSpeed)}</div>
+                            ) : null}
+                            {showDebug ? (
+                                <div className={styles.debug}>
+                                    <div>{pd.estimatedAvgSpeed}</div>
+                                    <div>{pd.surface}</div>
+                                    <div>{pd.roadClass}</div>
+                                </div>
+                            ) : null}
+                        </div>
+                        <PlainButton
+                            className={styles.thirdCol}
+                            onClick={() => {
+                                Dispatcher.dispatch(new TurnNavigationStop())
+                                Dispatcher.dispatch(new ZoomMapToPoint(turnNavigation.coordinate, 15, 0, false, 0))
+                            }}
+                        >
+                            <EndNavigation />
+                        </PlainButton>
                     </div>
+                    <div>{instruction.text}</div>
                 </div>
             </div>
         </>
