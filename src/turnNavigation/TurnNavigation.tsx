@@ -5,9 +5,8 @@ import styles from '@/turnNavigation/TurnNavigation.module.css'
 import EndNavigation from '@/sidebar/times-solid.svg'
 import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import Dispatcher from '@/stores/Dispatcher'
-import {DismissLastError, TurnNavigationStop, ZoomMapToPoint} from '@/actions/Actions'
-import Cross from "@/sidebar/times-solid.svg";
-import PlainButton from "@/PlainButton";
+import { DismissLastError, TurnNavigationStop, ZoomMapToPoint } from '@/actions/Actions'
+import PlainButton from '@/PlainButton'
 
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
     const path = turnNavigation.activePath
@@ -42,7 +41,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                                         </svg>
                                     </div>
                                 ) : (
-                                    <div className={styles.arrivalDuration}>
+                                    <div>
                                         {milliSecondsToText(instruction.remainingTime)}
                                         <svg width="30" height="8">
                                             <circle cx="5" cy="4" r="3" stroke="black" fill="white" />

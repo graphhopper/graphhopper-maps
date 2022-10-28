@@ -6,7 +6,8 @@ import {
     SetRoutingParametersAtOnce,
     SetSelectedPath,
     SetVehicleProfile,
-    TurnNavigationRerouting, TurnNavigationReroutingFailed,
+    TurnNavigationRerouting,
+    TurnNavigationReroutingFailed,
     TurnNavigationSettingsUpdate,
     TurnNavigationStop,
     ZoomMapToPoint,
@@ -90,8 +91,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             this.stop()
             return { ...state, enabled: false, speed: 0, heading: 0 }
         } else if (action instanceof TurnNavigationSettingsUpdate) {
-            return {...state, settings: {...state.settings, ...action.settings}}
-        } else if(action instanceof TurnNavigationReroutingFailed) {
+            return { ...state, settings: { ...state.settings, ...action.settings } }
+        } else if (action instanceof TurnNavigationReroutingFailed) {
             return {
                 ...state,
                 rerouteInProgress: false,
@@ -151,7 +152,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             if (distanceToRoute > 50) {
                 // TODO use correct customModel
 
-                if(state.activeProfile && !state.rerouteInProgress) {
+                if (state.activeProfile && !state.rerouteInProgress) {
                     const fromPoint: [number, number] = [coordinate.lng, coordinate.lat]
                     const toPoint: [number, number] = [
                         path.snapped_waypoints.coordinates[1][0],
@@ -182,7 +183,9 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                             Dispatcher.dispatch(new TurnNavigationReroutingFailed())
                         })
                 } else {
-                    console.warn("profile=" + state.activeProfile + ", reroute in progress = " + state.rerouteInProgress)
+                    console.warn(
+                        'profile=' + state.activeProfile + ', reroute in progress = ' + state.rerouteInProgress
+                    )
                 }
 
                 return {
