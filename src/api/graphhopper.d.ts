@@ -23,6 +23,8 @@ export interface RoutingRequest {
     instructions: boolean
     elevation: boolean
     optimize: string
+    headings?: number[]
+    heading_penalty?: number
     'alternative_route.max_paths'?: number
     'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean

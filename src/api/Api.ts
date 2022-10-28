@@ -169,8 +169,14 @@ export class ApiImpl implements Api {
         }
 
         if (args.customModel) {
-            request.custom_model = args.customModel
             request['ch.disable'] = true
+            request.custom_model = args.customModel
+        }
+
+        if (args.heading) {
+            request['ch.disable'] = true
+            request.headings = [args.heading]
+            request.heading_penalty = 120
         }
 
         if (args.points.length <= 2 && args.maxAlternativeRoutes > 1) {

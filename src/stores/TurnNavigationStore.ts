@@ -107,8 +107,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 activeProfile: action.profile.name,
             }
         } else if (action instanceof SetSelectedPath) {
-            // TODO recalculate with headings, no alternative and only the first 2 points?
-            // trigger ReroutingAction!?
             return {
                 ...state,
                 activePath: action.path,
@@ -120,7 +118,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 getCurrentInstruction(path.instructions, coordinate)
 
             if (distanceToRoute > 50) {
-                // TODO use heading in route request
                 // TODO use correct customModel
                 const fromPoint: [number, number] = [coordinate.lng, coordinate.lat]
                 const toPoint: [number, number] = [

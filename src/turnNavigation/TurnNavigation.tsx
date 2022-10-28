@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Path } from '@/api/graphhopper'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import { getTurnSign } from '@/sidebar/instructions/Instructions'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
