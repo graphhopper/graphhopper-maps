@@ -63,7 +63,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private readonly speechSynthesizer: SpeechSynthesizer
     private started: boolean = false
 
-    constructor(api: Api, speechSynthesizer: SpeechSynthesizer) {
+    constructor(api: Api, speechSynthesizer: SpeechSynthesizer, fakeGPS: boolean) {
         super({
             enabled: false,
             coordinate: { lat: 0, lng: 0 },
@@ -71,7 +71,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             heading: 0,
             activePath: {} as Path,
             activeProfile: '',
-            settings: { acceptedRisk: false, fakeGPS: false, soundEnabled: false } as TNSettingsState,
+            settings: { acceptedRisk: false, fakeGPS: fakeGPS, soundEnabled: !fakeGPS } as TNSettingsState,
             instruction: {} as TNInstructionState,
             pathDetails: {} as TNPathDetailsState,
         })

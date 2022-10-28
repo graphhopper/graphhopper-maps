@@ -56,7 +56,7 @@ setStores({
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
-    turnNavigationStore: new TurnNavigationStore(getApi(), speechSynthesizer),
+    turnNavigationStore: new TurnNavigationStore(getApi(), speechSynthesizer, fake != null),
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
 })
@@ -78,10 +78,6 @@ Dispatcher.register(getMapFeatureStore())
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
 const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
 Dispatcher.register(mapActionReceiver)
-
-Dispatcher.dispatch(
-    new TurnNavigationSettingsUpdate({ fakeGPS: fake != null, soundEnabled: fake == null } as TNSettingsState)
-)
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible
 
