@@ -1,5 +1,2 @@
 import React from 'react'
-import { Settings } from '@/stores/SettingsStore'
-export const ShowDistanceInMilesContext = React.createContext<Settings>({
-    showDistanceInMiles: false,
-})
+export const ShowDistanceInMilesContext = React.createContext<boolean>(false)

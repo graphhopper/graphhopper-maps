@@ -121,7 +121,7 @@ export default function App() {
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
-        <ShowDistanceInMilesContext.Provider value={settings}>
+        <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
             <div className={styles.appWrapper}>
                 <PathDetailPopup map={map} pathDetails={pathDetails} />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />

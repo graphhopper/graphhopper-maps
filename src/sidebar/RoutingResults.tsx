@@ -59,7 +59,7 @@ function RoutingResult({
     const hasBorderCrossed = crossesBorder(path.details.country)
     const showHints = hasFords || hasTolls || hasFerries || showAndHasBadTracks || showAndHasSteps || hasBorderCrossed
 
-    const { showDistanceInMiles } = useContext(ShowDistanceInMilesContext)
+    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
     let [showRisk, setShowRisk] = useState(false)
     if (!turnNavigation.settings.acceptedRisk && showRisk)
         return (
