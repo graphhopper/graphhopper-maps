@@ -5,7 +5,7 @@ import styles from '@/turnNavigation/TurnNavigation.module.css'
 import EndNavigation from '@/sidebar/times-solid.svg'
 import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { DismissLastError, TurnNavigationStop, ZoomMapToPoint } from '@/actions/Actions'
+import { TurnNavigationStop, ZoomMapToPoint } from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
 
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
