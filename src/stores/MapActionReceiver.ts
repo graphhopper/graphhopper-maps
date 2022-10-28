@@ -32,7 +32,7 @@ export default class MapActionReceiver implements ActionReceiver {
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
         } else if (action instanceof ZoomMapToPoint) {
-            // if navigating move to the lower half
+            // if navigating then move icon (in center) to the lower half
             if (action.navigationOffset) {
                 const size = this.map.getSize() // [width, height]
                 this.map.getView().padding = [size ? size[1] / 2 : 0, 0, 0, 0]

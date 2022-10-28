@@ -54,7 +54,7 @@ function addCurrentLocation(map: Map, location: Coordinate) {
         feature =>
             new Style({
                 image: new Icon({
-                    anchor: [0, 0],
+                    displacement: [0, 24],
                     src: 'data:image/svg+xml;utf8,' + svgData,
                 }),
             })
