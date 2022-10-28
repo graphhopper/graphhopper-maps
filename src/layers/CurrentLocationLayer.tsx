@@ -5,7 +5,7 @@ import { Point } from 'ol/geom'
 import { fromLonLat } from 'ol/proj'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { Circle, Fill, Stroke, Style } from 'ol/style'
+import { Style, Icon } from 'ol/style'
 
 export default function useCurrentLocationLayer(map: Map, location: Coordinate) {
     useEffect(() => {
@@ -36,34 +36,24 @@ function changeLocation(layer: VectorLayer<VectorSource>, location: Coordinate) 
 function addCurrentLocation(map: Map, location: Coordinate) {
     const currentLocationLayer = new VectorLayer({
         source: new VectorSource({
-            features: [
-                new Feature({
-                    geometry: new Point(fromLonLat([location.lng, location.lat])),
-                }),
-            ],
+            features: [new Feature({
+                geometry: new Point(fromLonLat([location.lng, location.lat]))
+            })]
         }),
     })
     currentLocationLayer.set('gh:current_location', true)
     currentLocationLayer.setZIndex(3)
 
-    const fill = new Fill({
-        color: 'rgba(255,255,255,0.4)',
-    })
-    const stroke = new Stroke({
-        color: '#0054ff',
-        width: 2,
-    })
-
+    // TODO avoid copy of navigation.svg
+    const svgData = '<svg xmlns="http://www.w3.org/2000/svg" height="48" width="48">' +
+        '<path style="fill: rgba(128,128,128,0.2); stroke: rgb(61,109,180); stroke-width: 2" d="M9.5 42 8 40.5 24 4l16 36.5-1.5 1.5L24 35.4Zm3.4-4.9L24 32.2l11.1 4.9L24 11.4ZM24 32.2Z"/></svg>'
     currentLocationLayer.setStyle(
         feature =>
             new Style({
-                image: new Circle({
-                    fill: fill,
-                    stroke: stroke,
-                    radius: 10,
-                }),
-                fill: fill,
-                stroke: stroke,
+                image: new Icon({
+                    anchor: [0, 0],
+                    src: 'data:image/svg+xml;utf8,' + svgData,
+                })
             })
     )
     map.addLayer(currentLocationLayer)

@@ -90,9 +90,29 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         } else if (action instanceof TurnNavigationSettingsUpdate) {
             return { ...state, settings: {...state.settings, ...action.settings} }
         } else if (action instanceof TurnNavigationRerouting) {
+            const path = action.path
+            if(!state.enabled)
+                return {
+                    ...state,
+                    activePath: path,
+                }
+
+            // ensure that path and instruction are synced
+            const { instructionIndex, timeToNext, distanceToNext, distanceToRoute, remainingTime, remainingDistance } =
+                getCurrentInstruction(path.instructions, state.coordinate)
+            const text = path.instructions[instructionIndex].street_name
+            const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, state.coordinate, [
+                path.details.average_speed,
+                path.details.max_speed,
+                path.details.surface,
+                path.details.road_class,
+            ])
+
             return {
                 ...state,
                 activePath: action.path,
+                instruction: { index: instructionIndex, distanceToNext, remainingTime, remainingDistance, text },
+                pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
             }
         } else if (action instanceof SetRoutingParametersAtOnce) {
             console.log('SetRoutingParametersAtOnce, profile: ' + action.routingProfile.name)
@@ -107,6 +127,9 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 activeProfile: action.profile.name,
             }
         } else if (action instanceof SetSelectedPath) {
+            // no need to update instruction as changing the path should happen only outside of the navigation
+            if(state.enabled) throw new Error("Changing path while turn navigation should not happen")
+
             return {
                 ...state,
                 activePath: action.path,
@@ -157,7 +180,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const instructionState = state.instruction
             const nextInstruction: Instruction = path.instructions[instructionIndex]
 
-            let text = nextInstruction.street_name
+            const text = nextInstruction.street_name
             if (state.settings.soundEnabled) {
                 // making lastAnnounceDistance dependent on location.speed is tricky because then it can change while driving, so pick the constant average speed
                 // TODO use instruction average speed of current+next instruction instead of whole path
@@ -172,7 +195,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     getTurnNavigationStore().getSpeechSynthesizer().synthesize(nextInstruction.text)
                 }
 
-                let firstAnnounceDistance = 1150
+                const firstAnnounceDistance = 1150
                 if (
                     averageSpeed > 15 && // two announcements only if faster speed
                     distanceToNext > lastAnnounceDistance + 50 && // do not interfere with last announcement. also "1 km" should stay valid (approximately)
@@ -190,7 +213,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 }
             }
 
-            let [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, coordinate, [
+            const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, coordinate, [
                 path.details.average_speed,
                 path.details.max_speed,
                 path.details.surface,
