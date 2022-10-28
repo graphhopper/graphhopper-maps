@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import { getTurnSign } from '@/sidebar/instructions/Instructions'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
-import endNavigation from '@/turnNavigation/end_turn_navigation.png'
+import EndNavigation from '@/sidebar/times-solid.svg'
 import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { TurnNavigationStop, ZoomMapToPoint } from '@/actions/Actions'
+import {DismissLastError, TurnNavigationStop, ZoomMapToPoint} from '@/actions/Actions'
+import Cross from "@/sidebar/times-solid.svg";
+import PlainButton from "@/PlainButton";
 
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
     const path = turnNavigation.activePath
@@ -65,15 +67,15 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                                     </div>
                                 ) : null}
                             </div>
-                            <div
+                            <PlainButton
                                 className={styles.thirdCol}
                                 onClick={() => {
                                     Dispatcher.dispatch(new TurnNavigationStop())
                                     Dispatcher.dispatch(new ZoomMapToPoint(turnNavigation.coordinate, 15, 0, false, 0))
                                 }}
                             >
-                                <img src={endNavigation} />
-                            </div>
+                                <EndNavigation />
+                            </PlainButton>
                         </div>
                         <div>{instruction.text}</div>
                     </div>

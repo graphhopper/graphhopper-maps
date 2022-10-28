@@ -42,19 +42,26 @@
     padding-right: 22px;
 }
 
-.arrivalDuration {
-}
-
 .debug {
     font-size: smaller;
     float: right;
 }
 
-.thirdCol img {
-    max-height: 20px;
+.thirdCol {
+    width: 20px;
+    height: 20px;
 }
 
-.details {
+.thirdCol svg {
+    width: 20px;
+    height: 20px;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.thirdCol svg path {
+    fill: black;
+    stroke: black;
 }
 
 .maxSpeed {
