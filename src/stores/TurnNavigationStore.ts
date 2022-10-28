@@ -6,7 +6,7 @@ import {
     SetRoutingParametersAtOnce,
     SetSelectedPath,
     SetVehicleProfile,
-    TurnNavigationRerouting,
+    TurnNavigationRerouting, TurnNavigationReroutingFailed,
     TurnNavigationSettingsUpdate,
     TurnNavigationStop,
     ZoomMapToPoint,
@@ -29,6 +29,7 @@ export interface TurnNavigationStoreState {
     heading: number
     activePath: Path
     activeProfile: string
+    rerouteInProgress: boolean
     settings: TNSettingsState
     instruction: TNInstructionState
     pathDetails: TNPathDetailsState
@@ -70,6 +71,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             speed: 0,
             heading: 0,
             activePath: {} as Path,
+            rerouteInProgress: false,
             activeProfile: '',
             settings: { acceptedRisk: false, fakeGPS: fakeGPS, soundEnabled: !fakeGPS } as TNSettingsState,
             instruction: {} as TNInstructionState,
@@ -88,7 +90,12 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             this.stop()
             return { ...state, enabled: false, speed: 0, heading: 0 }
         } else if (action instanceof TurnNavigationSettingsUpdate) {
-            return { ...state, settings: { ...state.settings, ...action.settings } }
+            return {...state, settings: {...state.settings, ...action.settings}}
+        } else if(action instanceof TurnNavigationReroutingFailed) {
+            return {
+                ...state,
+                rerouteInProgress: false,
+            }
         } else if (action instanceof TurnNavigationRerouting) {
             const path = action.path
             if (!state.enabled)
@@ -111,6 +118,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             return {
                 ...state,
                 activePath: action.path,
+                rerouteInProgress: false,
                 instruction: { index: instructionIndex, distanceToNext, remainingTime, remainingDistance, text },
                 pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
             }
@@ -142,33 +150,42 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
             if (distanceToRoute > 50) {
                 // TODO use correct customModel
-                const fromPoint: [number, number] = [coordinate.lng, coordinate.lat]
-                const toPoint: [number, number] = [
-                    path.snapped_waypoints.coordinates[1][0],
-                    path.snapped_waypoints.coordinates[1][1],
-                ]
-                const args: RoutingArgs = {
-                    points: [fromPoint, toPoint],
-                    maxAlternativeRoutes: 0,
-                    heading: action.heading,
-                    zoom: false,
-                    profile: state.activeProfile,
-                    customModel: null,
+
+                if(state.activeProfile && !state.rerouteInProgress) {
+                    const fromPoint: [number, number] = [coordinate.lng, coordinate.lat]
+                    const toPoint: [number, number] = [
+                        path.snapped_waypoints.coordinates[1][0],
+                        path.snapped_waypoints.coordinates[1][1],
+                    ]
+                    const args: RoutingArgs = {
+                        points: [fromPoint, toPoint],
+                        maxAlternativeRoutes: 0,
+                        heading: action.heading,
+                        zoom: false,
+                        profile: state.activeProfile,
+                        customModel: null,
+                    }
+                    this.api
+                        .route(args)
+                        .then(result => {
+                            if (result.paths.length > 0) {
+                                console.log('rerouting: {}', result.paths[0])
+                                getTurnNavigationStore().getSpeechSynthesizer().synthesize(tr('reroute'))
+                                Dispatcher.dispatch(new TurnNavigationRerouting(result.paths[0]))
+                            } else {
+                                console.log('rerouting found no path: {}', result)
+                                Dispatcher.dispatch(new TurnNavigationReroutingFailed())
+                            }
+                        })
+                        .catch(error => {
+                            console.warn('error for reroute request: ', error)
+                            Dispatcher.dispatch(new TurnNavigationReroutingFailed())
+                        })
                 }
-                this.api
-                    .route(args)
-                    .then(result => {
-                        if (result.paths.length > 0) {
-                            console.log('rerouting: {}', result.paths[0])
-                            getTurnNavigationStore().getSpeechSynthesizer().synthesize(tr('reroute'))
-                            Dispatcher.dispatch(new TurnNavigationRerouting(result.paths[0]))
-                        } else {
-                            console.log('rerouting found no path: {}', result)
-                        }
-                    })
-                    .catch(error => console.warn('error for reroute request: ', error))
+
                 return {
                     ...state,
+                    rerouteInProgress: true,
                     heading: action.heading,
                     speed: action.speed,
                     coordinate: coordinate,
