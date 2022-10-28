@@ -80,7 +80,7 @@ const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smal
 Dispatcher.register(mapActionReceiver)
 
 Dispatcher.dispatch(
-    new TurnNavigationSettingsUpdate({ fakeGPS: fake !== '', soundEnabled: fake === '' } as TNSettingsState)
+    new TurnNavigationSettingsUpdate({ fakeGPS: fake != null, soundEnabled: fake == null } as TNSettingsState)
 )
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible
