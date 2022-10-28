@@ -6,6 +6,7 @@ export type Bbox = [number, number, number, number]
 
 export interface RoutingArgs {
     readonly points: [number, number][]
+    readonly heading?: number
     readonly profile: string
     readonly maxAlternativeRoutes: number
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193

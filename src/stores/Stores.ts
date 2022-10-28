@@ -3,7 +3,7 @@ import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
 import ErrorStore from '@/stores/ErrorStore'
 import MapOptionsStore from '@/stores/MapOptionsStore'
-import LocationStore from '@/stores/LocationStore'
+import TurnNavigationStore from '@/stores/TurnNavigationStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
 import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
@@ -14,7 +14,7 @@ let routeStore: RouteStore
 let infoStore: ApiInfoStore
 let errorStore: ErrorStore
 let mapOptionsStore: MapOptionsStore
-let locationStore: LocationStore
+let turnNavigationStore: TurnNavigationStore
 let pathDetailsStore: PathDetailsStore
 let mapFeatureStore: MapFeatureStore
 
@@ -25,7 +25,7 @@ interface StoresInput {
     infoStore: ApiInfoStore
     errorStore: ErrorStore
     mapOptionsStore: MapOptionsStore
-    locationStore: LocationStore
+    turnNavigationStore: TurnNavigationStore
     pathDetailsStore: PathDetailsStore
     mapFeatureStore: MapFeatureStore
 }
@@ -37,7 +37,7 @@ export const setStores = function (stores: StoresInput) {
     infoStore = stores.infoStore
     errorStore = stores.errorStore
     mapOptionsStore = stores.mapOptionsStore
-    locationStore = stores.locationStore
+    turnNavigationStore = stores.turnNavigationStore
     pathDetailsStore = stores.pathDetailsStore
     mapFeatureStore = stores.mapFeatureStore
 }
@@ -48,6 +48,6 @@ export const getRouteStore = () => routeStore
 export const getApiInfoStore = () => infoStore
 export const getErrorStore = () => errorStore
 export const getMapOptionsStore = () => mapOptionsStore
-export const getLocationStore = () => locationStore
+export const getTurnNavigationStore = () => turnNavigationStore
 export const getPathDetailsStore = () => pathDetailsStore
 export const getMapFeatureStore = () => mapFeatureStore

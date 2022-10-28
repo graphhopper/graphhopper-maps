@@ -4,7 +4,7 @@ import styles from './App.module.css'
 import {
     getApiInfoStore,
     getErrorStore,
-    getLocationStore,
+    getTurnNavigationStore,
     getMapFeatureStore,
     getMapOptionsStore,
     getPathDetailsStore,
@@ -25,7 +25,7 @@ import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
-import { LocationStoreState } from './stores/LocationStore'
+import {TNSettingsState, TurnNavigationStoreState} from './stores/TurnNavigationStore'
 import useBackgroundLayer from '@/layers/UseBackgroundLayer'
 import useQueryPointsLayer from '@/layers/UseQueryPointsLayer'
 import usePathsLayer from '@/layers/UsePathsLayer'
@@ -41,14 +41,14 @@ import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
-import { TurnNavigationUpdate } from '@/actions/Actions'
+import { TurnNavigationSettingsUpdate } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
 import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
 import PlainButton from '@/PlainButton'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
 import useCurrentLocationLayer from '@/layers/CurrentLocationLayer'
-import { Settings } from '@/stores/SettingsStore'
+import turnNavigation from "@/turnNavigation/TurnNavigation";
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -58,7 +58,7 @@ export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
     const [info, setInfo] = useState(getApiInfoStore().state)
     const [route, setRoute] = useState(getRouteStore().state)
-    const [location, setLocation] = useState(getLocationStore().state)
+    const [turnNavigation, setTurnNavigation] = useState(getTurnNavigationStore().state)
     const [error, setError] = useState(getErrorStore().state)
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
@@ -73,7 +73,7 @@ export default function App() {
         const onRouteChanged = () => setRoute(getRouteStore().state)
         const onErrorChanged = () => setError(getErrorStore().state)
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
-        const onLocationChanged = () => setLocation(getLocationStore().state)
+        const onTurnNavigationChanged = () => setTurnNavigation(getTurnNavigationStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
         const onMapFeaturesChanged = () => setMapFeatures(getMapFeatureStore().state)
 
@@ -83,7 +83,7 @@ export default function App() {
         getRouteStore().register(onRouteChanged)
         getErrorStore().register(onErrorChanged)
         getMapOptionsStore().register(onMapOptionsChanged)
-        getLocationStore().register(onLocationChanged)
+        getTurnNavigationStore().register(onTurnNavigationChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
 
@@ -92,7 +92,7 @@ export default function App() {
         onRouteChanged()
         onErrorChanged()
         onMapOptionsChanged()
-        onLocationChanged()
+        onTurnNavigationChanged()
         onPathDetailsChanged()
         onMapFeaturesChanged()
 
@@ -103,7 +103,7 @@ export default function App() {
             getRouteStore().deregister(onRouteChanged)
             getErrorStore().deregister(onErrorChanged)
             getMapOptionsStore().deregister(onMapOptionsChanged)
-            getLocationStore().deregister(onLocationChanged)
+            getTurnNavigationStore().deregister(onTurnNavigationChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
         }
@@ -114,10 +114,10 @@ export default function App() {
     useMapBorderLayer(map, info.bbox)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
-    usePathsLayer(map, route.routingResult.paths, route.selectedPath)
+    usePathsLayer(map, route, turnNavigation)
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
-    useCurrentLocationLayer(map, location.coordinate)
+    useCurrentLocationLayer(map, turnNavigation.coordinate)
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
@@ -134,8 +134,7 @@ export default function App() {
                         mapOptions={mapOptions}
                         error={error}
                         info={info}
-                        location={location}
-                        settings={settings}
+                        turnNavigation={turnNavigation}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -145,8 +144,7 @@ export default function App() {
                         mapOptions={mapOptions}
                         error={error}
                         info={info}
-                        location={location}
-                        settings={settings}
+                        turnNavigation={turnNavigation}
                     />
                 )}
             </div>
@@ -157,32 +155,31 @@ export default function App() {
 interface LayoutProps {
     query: QueryStoreState
     route: RouteStoreState
-    location: LocationStoreState
+    turnNavigation: TurnNavigationStoreState
     map: Map
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     info: ApiInfo
-    settings: Settings
 }
 
-function LargeScreenLayout({ query, route, map, error, mapOptions, info, location, settings }: LayoutProps) {
-    if (location.turnNavigation)
+function LargeScreenLayout({ query, route, map, error, mapOptions, info, turnNavigation }: LayoutProps) {
+    if (turnNavigation.enabled)
         return (
             <>
                 <div className={styles.turnNavigation}>
-                    <TurnNavigation queryPoints={query.queryPoints} path={route.selectedPath} location={location} />
+                    <TurnNavigation turnNavigation={turnNavigation} />
                 </div>
                 <div className={styles.volume}>
                     <PlainButton
                         onClick={() =>
                             Dispatcher.dispatch(
-                                new TurnNavigationUpdate({
-                                    soundEnabled: !settings.soundEnabled,
-                                } as Settings)
+                                new TurnNavigationSettingsUpdate({
+                                    soundEnabled: !turnNavigation.settings.soundEnabled,
+                                } as TNSettingsState)
                             )
                         }
                     >
-                        {settings.soundEnabled ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
+                        {turnNavigation.settings.soundEnabled ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
                     </PlainButton>
                 </div>
                 <div className={styles.map}>
@@ -214,6 +211,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info, locatio
                         selectedPath={route.selectedPath}
                         currentRequest={query.currentRequest}
                         profile={query.routingProfile.name}
+                        turnNavigation={turnNavigation}
                     />
                     <div>
                         <PoweredBy />
@@ -235,8 +233,8 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info, locatio
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, info, settings, location }: LayoutProps) {
-    if (location.turnNavigation)
+function SmallScreenLayout({ query, route, map, error, mapOptions, info, turnNavigation }: LayoutProps) {
+    if (turnNavigation.enabled)
         return (
             <>
                 <div className={styles.smallScreenMap}>
@@ -246,17 +244,17 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, setting
                     <PlainButton
                         onClick={() =>
                             Dispatcher.dispatch(
-                                new TurnNavigationUpdate({
-                                    soundEnabled: !settings.soundEnabled,
-                                } as Settings)
+                                new TurnNavigationSettingsUpdate({
+                                    soundEnabled: !turnNavigation.settings.soundEnabled,
+                                } as TNSettingsState)
                             )
                         }
                     >
-                        {settings.soundEnabled ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
+                        {turnNavigation.settings.soundEnabled ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
                     </PlainButton>
                 </div>
                 <div className={styles.smallScreenRoutingResult}>
-                    <TurnNavigation queryPoints={query.queryPoints} path={route.selectedPath} location={location} />
+                    <TurnNavigation turnNavigation={turnNavigation} />
                 </div>
             </>
         )
@@ -281,6 +279,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, setting
                     selectedPath={route.selectedPath}
                     currentRequest={query.currentRequest}
                     profile={query.routingProfile.name}
+                    turnNavigation={turnNavigation}
                 />
             </div>
 

@@ -16,7 +16,7 @@ import ErrorStore from '@/stores/ErrorStore'
 import {
     getApiInfoStore,
     getErrorStore,
-    getLocationStore,
+    getTurnNavigationStore,
     getMapFeatureStore,
     getMapOptionsStore,
     getPathDetailsStore,
@@ -26,12 +26,12 @@ import {
     setStores,
 } from '@/stores/Stores'
 import MapOptionsStore from '@/stores/MapOptionsStore'
-import LocationStore from '@/stores/LocationStore'
+import TurnNavigationStore, {TNSettingsState} from '@/stores/TurnNavigationStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
 import Dispatcher from '@/stores/Dispatcher'
 import NavBar from '@/NavBar'
 import App from '@/App'
-import { TurnNavigationUpdate } from '@/actions/Actions'
+import { TurnNavigationSettingsUpdate } from '@/actions/Actions'
 
 let speechSynthesizer = new SpeechSynthesizer(navigator.language)
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
@@ -56,7 +56,7 @@ setStores({
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
-    locationStore: new LocationStore(speechSynthesizer),
+    turnNavigationStore: new TurnNavigationStore(getApi(), speechSynthesizer),
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
 })
@@ -70,7 +70,7 @@ Dispatcher.register(getRouteStore())
 Dispatcher.register(getApiInfoStore())
 Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
-Dispatcher.register(getLocationStore())
+Dispatcher.register(getTurnNavigationStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getMapFeatureStore())
 
@@ -79,7 +79,7 @@ const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
 const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
 Dispatcher.register(mapActionReceiver)
 
-Dispatcher.dispatch(new TurnNavigationUpdate({ fakeGPS: fake !== null, soundEnabled: fake === null } as Settings))
+Dispatcher.dispatch(new TurnNavigationSettingsUpdate({ fakeGPS: fake !== '', soundEnabled: fake === '' } as TNSettingsState))
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible
 

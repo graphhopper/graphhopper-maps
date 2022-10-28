@@ -6,7 +6,7 @@ import {
     PathDetailsRangeSelected,
     RouteRequestSuccess,
     SetInitialBBox,
-    SetSelectedPath,
+    SetSelectedPath, TurnNavigationStop,
     ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
@@ -43,7 +43,7 @@ export default class MapActionReceiver implements ActionReceiver {
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
                 // The heading is in degrees and shows direction into which device is going.
                 // And although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
-                rotation: -toRadians(action.bearing),
+                rotation: -toRadians(action.heading),
                 duration: 400,
             })
         } else if (action instanceof RouteRequestSuccess) {

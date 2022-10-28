@@ -1,6 +1,14 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { ClearPoints, ClearRoute, RemovePoint, RouteRequestSuccess, SetPoint, SetSelectedPath } from '@/actions/Actions'
+import {
+    ClearPoints,
+    ClearRoute,
+    RemovePoint,
+    RouteRequestSuccess,
+    SetPoint,
+    SetSelectedPath, TurnNavigationSettingsUpdate,
+    TurnNavigationStop
+} from '@/actions/Actions'
 import QueryStore, { RequestState } from '@/stores/QueryStore'
 import { Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 

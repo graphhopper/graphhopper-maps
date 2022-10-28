@@ -3,7 +3,7 @@ import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
-import { LocationStoreState } from '@/stores/LocationStore'
+import {TNSettingsState, TurnNavigationStoreState} from '@/stores/TurnNavigationStore'
 import { Settings } from '@/stores/SettingsStore'
 
 export class InfoReceived implements Action {
@@ -17,18 +17,30 @@ export class InfoReceived implements Action {
 export class TurnNavigationStop implements Action {}
 
 export class LocationUpdate implements Action {
-    readonly location: LocationStoreState
+    readonly coordinate: Coordinate
+    readonly speed: number
+    readonly heading: number
 
-    constructor(location: LocationStoreState) {
-        this.location = location
+    constructor(coordinate: Coordinate, speed: number, heading: number) {
+        this.coordinate = coordinate;
+        this.speed = speed;
+        this.heading = heading;
     }
 }
 
-export class TurnNavigationUpdate implements Action {
-    readonly update: Settings
+export class TurnNavigationSettingsUpdate implements Action {
+    readonly settings: TNSettingsState
 
-    constructor(update: Settings) {
-        this.update = update
+    constructor(settings: TNSettingsState) {
+        this.settings = settings
+    }
+}
+
+export class TurnNavigationRerouting implements Action {
+    readonly path: Path
+
+    constructor(path: Path) {
+        this.path = path;
     }
 }
 
@@ -190,14 +202,14 @@ export class ZoomMapToPoint implements Action {
     readonly zoom: number
     readonly pitch: number
     // in degrees
-    readonly bearing: number
+    readonly heading: number
     readonly navigationOffset: boolean
 
-    constructor(coordinate: Coordinate, zoom: number, pitch: number, bearing: number, navigationOffset: boolean) {
+    constructor(coordinate: Coordinate, zoom: number, pitch: number, heading: number, navigationOffset: boolean) {
         this.coordinate = coordinate
         this.zoom = zoom
         this.pitch = pitch
-        this.bearing = bearing
+        this.heading = heading
         this.navigationOffset = navigationOffset
     }
 }

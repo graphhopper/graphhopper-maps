@@ -12,22 +12,28 @@ import { click } from 'ol/events/condition'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
 import { SelectEvent } from 'ol/interaction/Select'
+import {TurnNavigationStoreState} from "@/stores/TurnNavigationStore";
+import {RouteStoreState} from "@/stores/RouteStore";
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
 
-export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Path) {
+export default function usePathsLayer(map: Map, route: RouteStoreState, turnNavigation: TurnNavigationStoreState) {
     useEffect(() => {
         removeCurrentPathLayers(map)
-        addUnselectedPathsLayer(
-            map,
-            paths.filter(p => p != selectedPath)
-        )
-        addSelectedPathsLayer(map, selectedPath)
+        if(turnNavigation.enabled) {
+            addSelectedPathsLayer(map, turnNavigation.activePath)
+        } else {
+            addUnselectedPathsLayer(
+                map,
+                route.routingResult.paths.filter(p => p != route.selectedPath)
+            )
+            addSelectedPathsLayer(map, route.selectedPath)
+        }
         return () => {
             removeCurrentPathLayers(map)
         }
-    }, [map, paths, selectedPath])
+    }, [map, route.routingResult.paths, route.selectedPath, turnNavigation.enabled, turnNavigation.activePath])
 }
 
 function removeCurrentPathLayers(map: Map) {

@@ -3,7 +3,7 @@ import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import { useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { TurnNavigationStop, SetSelectedPath, TurnNavigationUpdate } from '@/actions/Actions'
+import { TurnNavigationStop, SetSelectedPath, TurnNavigationSettingsUpdate } from '@/actions/Actions'
 import { metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
@@ -15,14 +15,15 @@ import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
-import { getLocationStore } from '@/stores/Stores'
-import { Settings } from '@/stores/SettingsStore'
+import { getTurnNavigationStore } from '@/stores/Stores'
+import {TNSettingsState, TurnNavigationStoreState} from "@/stores/TurnNavigationStore";
 
 export interface RoutingResultsProps {
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
     profile: string
+    turnNavigation: TurnNavigationStoreState
 }
 
 export default function RoutingResults(props: RoutingResultsProps) {
@@ -33,7 +34,7 @@ export default function RoutingResults(props: RoutingResultsProps) {
     return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
 }
 
-function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: boolean; profile: string }) {
+function RoutingResult({ path, isSelected, profile, turnNavigation }: { path: Path; isSelected: boolean; profile: string; turnNavigation: TurnNavigationStoreState }) {
     const [isExpanded, setExpanded] = useState(false)
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
@@ -48,9 +49,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const hasBorderCrossed = crossesBorder(path.details.country)
     const showHints = hasFords || hasTolls || hasFerries || showAndHasBadTracks || showAndHasSteps || hasBorderCrossed
 
-    const { showDistanceInMiles, fakeGPS, acceptedRisk } = useContext(ShowDistanceInMilesContext)
+    const { showDistanceInMiles } = useContext(ShowDistanceInMilesContext)
     let [showRisk, setShowRisk] = useState(false)
-    if (!acceptedRisk && showRisk)
+    if (!turnNavigation.settings.acceptedRisk && showRisk)
         return (
             <div className={styles.showRisk}>
                 <div>{tr('warning')}</div>
@@ -65,8 +66,8 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     </PlainButton>
                     <PlainButton
                         onClick={() => {
-                            Dispatcher.dispatch(new TurnNavigationUpdate({ acceptedRisk: true } as Settings))
-                            fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
+                            Dispatcher.dispatch(new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState))
+                            turnNavigation.settings.fakeGPS ? getTurnNavigationStore().initFake() : getTurnNavigationStore().initReal()
                         }}
                     >
                         {tr('accept_risks_after_warning')}
@@ -104,8 +105,8 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                         <PlainButton
                             className={styles.exportButton}
                             onClick={() => {
-                                if (!acceptedRisk) setShowRisk(true)
-                                else fakeGPS ? getLocationStore().initFake() : getLocationStore().initReal()
+                                if (!turnNavigation.settings.acceptedRisk) setShowRisk(true)
+                                else turnNavigation.settings.fakeGPS ? getTurnNavigationStore().initFake() : getTurnNavigationStore().initReal()
                             }}
                         >
                             <NaviSVG />
@@ -257,19 +258,19 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 
 function createSingletonListContent(props: RoutingResultsProps) {
     if (props.paths.length > 0)
-        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} />
+        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} turnNavigation={props.turnNavigation} />
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlaceholder key={1} />
     return ''
 }
 
-function createListContent({ paths, currentRequest, selectedPath, profile }: RoutingResultsProps) {
+function createListContent({ paths, currentRequest, selectedPath, profile, turnNavigation }: RoutingResultsProps) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
         if (i < paths.length)
             result.push(
-                <RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} profile={profile} />
+                <RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} profile={profile} turnNavigation={turnNavigation} />
             )
         else result.push(<RoutingResultPlaceholder key={i} />)
     }
