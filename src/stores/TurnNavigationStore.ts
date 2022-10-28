@@ -88,10 +88,10 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             this.stop()
             return { ...state, enabled: false, speed: 0, heading: 0 }
         } else if (action instanceof TurnNavigationSettingsUpdate) {
-            return { ...state, settings: {...state.settings, ...action.settings} }
+            return { ...state, settings: { ...state.settings, ...action.settings } }
         } else if (action instanceof TurnNavigationRerouting) {
             const path = action.path
-            if(!state.enabled)
+            if (!state.enabled)
                 return {
                     ...state,
                     activePath: path,
@@ -128,7 +128,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             }
         } else if (action instanceof SetSelectedPath) {
             // no need to update instruction as changing the path should happen only outside of the navigation
-            if(state.enabled) throw new Error("Changing path while turn navigation should not happen")
+            if (state.enabled) throw new Error('Changing path while turn navigation should not happen')
 
             return {
                 ...state,
