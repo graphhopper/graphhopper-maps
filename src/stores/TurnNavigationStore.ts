@@ -71,7 +71,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             heading: 0,
             activePath: {} as Path,
             activeProfile: '',
-            settings: {} as TNSettingsState,
+            settings: { acceptedRisk: false, fakeGPS: false, soundEnabled: false } as TNSettingsState,
             instruction: {} as TNInstructionState,
             pathDetails: {} as TNPathDetailsState,
         })
@@ -88,7 +88,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             this.stop()
             return { ...state, enabled: false, speed: 0, heading: 0 }
         } else if (action instanceof TurnNavigationSettingsUpdate) {
-            return { ...state, settings: action.settings }
+            return { ...state, settings: {...state.settings, ...action.settings} }
         } else if (action instanceof TurnNavigationRerouting) {
             return {
                 ...state,
