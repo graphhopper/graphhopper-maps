@@ -1,9 +1,9 @@
-import {Coordinate} from '@/stores/QueryStore'
+import {Coordinate, QueryStoreState} from '@/stores/QueryStore'
 import Store from '@/stores/Store'
 import {
     ErrorAction,
-    LocationUpdate,
-    SetSelectedPath,
+    LocationUpdate, SetRoutingParametersAtOnce,
+    SetSelectedPath, SetVehicleProfile,
     TurnNavigationRerouting,
     TurnNavigationSettingsUpdate,
     TurnNavigationStop,
@@ -16,7 +16,7 @@ import Api, {ApiImpl} from '@/api/Api'
 import {calcOrientation, getCurrentDetails, getCurrentInstruction, toNorthBased} from '@/turnNavigation/GeoMethods'
 import * as config from 'config'
 import {toDegrees} from 'ol/math'
-import {Instruction, Path, RoutingArgs} from "@/api/graphhopper";
+import {Instruction, Path, RoutingArgs, RoutingProfile} from "@/api/graphhopper";
 import {getTurnNavigationStore} from "@/stores/Stores";
 import {tr} from "@/translation/Translation";
 
@@ -26,6 +26,7 @@ export interface TurnNavigationStoreState {
     speed: number
     heading: number
     activePath: Path
+    activeProfile: string
     settings: TNSettingsState
     instruction: TNInstructionState
     pathDetails: TNPathDetailsState
@@ -67,6 +68,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             speed: 0,
             heading: 0,
             activePath: {} as Path,
+            activeProfile: '',
             settings: {} as TNSettingsState,
             instruction: {} as TNInstructionState,
             pathDetails: {} as TNPathDetailsState,
@@ -90,8 +92,20 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 ...state,
                 activePath: action.path,
             }
+        } else if (action instanceof SetRoutingParametersAtOnce) {
+            console.log("SetRoutingParametersAtOnce, profile: " + action.routingProfile.name)
+            return {
+                ...state,
+                activeProfile: action.routingProfile.name,
+            }
+        } else if (action instanceof SetVehicleProfile) {
+            console.log("SetVehicleProfile, profile: " + action.profile.name)
+            return {
+                ...state,
+                activeProfile: action.profile.name,
+            }
         } else if (action instanceof SetSelectedPath) {
-            // TODO NOW should we recalculate with headings, no alternative and only the first 2 points?
+            // TODO recalculate with headings, no alternative and only the first 2 points?
             // trigger ReroutingAction!?
             return {
                 ...state,
@@ -105,8 +119,9 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 getCurrentInstruction(path.instructions, coordinate)
 
             if (distanceToRoute > 50) {
-                // TODO NOW use heading in route request
-                // TODO NOW use correct profile and customModel
+                console.log("set profile for TN " + state.activeProfile)
+                // TODO use heading in route request
+                // TODO use correct customModel
                 const fromPoint: [number, number] = [coordinate.lng, coordinate.lat]
                 const toPoint: [number, number] = [path.snapped_waypoints.coordinates[1][0], path.snapped_waypoints.coordinates[1][1]]
                 const args: RoutingArgs = {
@@ -114,7 +129,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     maxAlternativeRoutes: 0,
                     heading: action.heading,
                     zoom: false,
-                    profile: 'car',
+                    profile: state.activeProfile,
                     customModel: null
                 }
                 this.api.route(args).then(result => {

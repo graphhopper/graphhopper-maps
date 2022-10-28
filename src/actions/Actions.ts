@@ -3,8 +3,7 @@ import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
-import {TNSettingsState, TurnNavigationStoreState} from '@/stores/TurnNavigationStore'
-import { Settings } from '@/stores/SettingsStore'
+import { TNSettingsState } from '@/stores/TurnNavigationStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
