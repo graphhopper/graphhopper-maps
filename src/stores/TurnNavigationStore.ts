@@ -181,6 +181,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                             console.warn('error for reroute request: ', error)
                             Dispatcher.dispatch(new TurnNavigationReroutingFailed())
                         })
+                } else {
+                    console.warn("profile=" + state.activeProfile + ", reroute in progress = " + state.rerouteInProgress)
                 }
 
                 return {
