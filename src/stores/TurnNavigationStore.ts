@@ -119,7 +119,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 getCurrentInstruction(path.instructions, coordinate)
 
             if (distanceToRoute > 50) {
-                console.log("set profile for TN " + state.activeProfile)
                 // TODO use heading in route request
                 // TODO use correct customModel
                 const fromPoint: [number, number] = [coordinate.lng, coordinate.lat]
@@ -268,14 +267,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
     private locationUpdate(pos: any) {
         let c = {lat: pos.coords.latitude, lng: pos.coords.longitude}
-        let heading: number = pos.coords.heading
-        if (!heading || Number.isNaN(heading)) {
-            console.log('skip dispatching SetViewportToPoint because heading is ' + heading)
-            return
-        }
-
-        Dispatcher.dispatch(new LocationUpdate(c, pos.coords.speed, pos.coords.heading))
-        Dispatcher.dispatch(new ZoomMapToPoint(c, 17, 50, heading, true))
+        Dispatcher.dispatch(new ZoomMapToPoint(c, 17, 50, true, pos.coords.heading))
+        Dispatcher.dispatch(new LocationUpdate(c, pos.coords.speed, pos.coords.heading? pos.coords.heading : 0 ))
     }
 
     public initReal() {
@@ -289,18 +282,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             // force calling clearWatch can help to find GPS fix more reliable in android firefox
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
-            let options = {
-                timeout: 300_000,
-                // maximumAge is not a problem here like with getCurrentPosition but let's use identical settings
-                enableHighAccuracy: true,
-            }
-            this.watchId = navigator.geolocation.watchPosition(
-                this.locationUpdate,
-                err => {
-                    if (this.started) Dispatcher.dispatch(new ErrorAction('location watch error: ' + err.message))
-                },
-                options
-            )
             try {
                 let el = document.documentElement
                 let requestFullscreenFct = el.requestFullscreen
@@ -308,6 +289,20 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             } catch (e) {
                 console.log('error requesting full screen ' + JSON.stringify(e))
             }
+
+            this.watchId = navigator.geolocation.watchPosition(
+                this.locationUpdate,
+                err => {
+                    // TODO exit fullscreen does not work
+                    //  Dispatcher.dispatch(new TurnNavigationStop())
+                    if (this.started) Dispatcher.dispatch(new ErrorAction('location watch error: ' + err.message))
+                },
+                {
+                    timeout: 300_000,
+                    // maximumAge is not a problem here like with getCurrentPosition but let's use identical settings
+                    enableHighAccuracy: true,
+                }
+            )
         }
     }
 

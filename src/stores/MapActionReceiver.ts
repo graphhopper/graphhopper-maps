@@ -1,17 +1,17 @@
-import { Action, ActionReceiver } from '@/stores/Dispatcher'
-import { Map } from 'ol'
-import { fromLonLat } from 'ol/proj'
+import {Action, ActionReceiver} from '@/stores/Dispatcher'
+import {Map} from 'ol'
+import {fromLonLat} from 'ol/proj'
 import {
     InfoReceived,
     PathDetailsRangeSelected,
     RouteRequestSuccess,
     SetInitialBBox,
-    SetSelectedPath, TurnNavigationStop,
+    SetSelectedPath,
     ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
-import { Bbox } from '@/api/graphhopper'
-import { toRadians } from 'ol/math'
+import {Bbox} from '@/api/graphhopper'
+import {toRadians} from 'ol/math'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -38,12 +38,13 @@ export default class MapActionReceiver implements ActionReceiver {
                 this.map.getView().padding = [size ? size[1] / 2 : 0, 0, 0, 0]
             }
 
+            // The heading is in degrees and shows direction into which device is going.
+            // And although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
+            const rotation = (!action.heading || Number.isNaN(action.heading)) ? this.map.getView().getRotation() : -toRadians(action.heading)
             this.map.getView().animate({
                 zoom: action.zoom,
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
-                // The heading is in degrees and shows direction into which device is going.
-                // And although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
-                rotation: -toRadians(action.heading),
+                rotation: rotation,
                 duration: 400,
             })
         } else if (action instanceof RouteRequestSuccess) {

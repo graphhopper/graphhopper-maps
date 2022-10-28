@@ -70,7 +70,7 @@ export default function ({turnNavigation}: {turnNavigation: TurnNavigationStoreS
                                 className={styles.thirdCol}
                                 onClick={() => {
                                     Dispatcher.dispatch(new TurnNavigationStop())
-                                    Dispatcher.dispatch(new ZoomMapToPoint(turnNavigation.coordinate, 15, 0, 0, false))
+                                    Dispatcher.dispatch(new ZoomMapToPoint(turnNavigation.coordinate, 15, 0, false, 0))
                                 }}
                             >
                                 <img src={endNavigation} />
