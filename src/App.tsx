@@ -25,7 +25,7 @@ import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
-import {TNSettingsState, TurnNavigationStoreState} from './stores/TurnNavigationStore'
+import { TNSettingsState, TurnNavigationStoreState } from './stores/TurnNavigationStore'
 import useBackgroundLayer from '@/layers/UseBackgroundLayer'
 import useQueryPointsLayer from '@/layers/UseQueryPointsLayer'
 import usePathsLayer from '@/layers/UsePathsLayer'
@@ -48,7 +48,7 @@ import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
 import PlainButton from '@/PlainButton'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
 import useCurrentLocationLayer from '@/layers/CurrentLocationLayer'
-import turnNavigation from "@/turnNavigation/TurnNavigation";
+import turnNavigation from '@/turnNavigation/TurnNavigation'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -179,7 +179,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info, turnNav
                             )
                         }
                     >
-                        {turnNavigation.settings.soundEnabled ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
+                        {turnNavigation.settings.soundEnabled ? (
+                            <VolumeUpIcon fill="#5b616a" />
+                        ) : (
+                            <VolumeOffIcon fill="#5b616a" />
+                        )}
                     </PlainButton>
                 </div>
                 <div className={styles.map}>
@@ -250,7 +254,11 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, turnNav
                             )
                         }
                     >
-                        {turnNavigation.settings.soundEnabled ? <VolumeUpIcon fill="#5b616a" /> : <VolumeOffIcon fill="#5b616a" />}
+                        {turnNavigation.settings.soundEnabled ? (
+                            <VolumeUpIcon fill="#5b616a" />
+                        ) : (
+                            <VolumeOffIcon fill="#5b616a" />
+                        )}
                     </PlainButton>
                 </div>
                 <div className={styles.smallScreenRoutingResult}>

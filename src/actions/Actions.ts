@@ -21,9 +21,9 @@ export class LocationUpdate implements Action {
     readonly heading: number
 
     constructor(coordinate: Coordinate, speed: number, heading: number) {
-        this.coordinate = coordinate;
-        this.speed = speed;
-        this.heading = heading;
+        this.coordinate = coordinate
+        this.speed = speed
+        this.heading = heading
     }
 }
 
@@ -39,7 +39,7 @@ export class TurnNavigationRerouting implements Action {
     readonly path: Path
 
     constructor(path: Path) {
-        this.path = path;
+        this.path = path
     }
 }
 

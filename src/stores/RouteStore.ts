@@ -6,8 +6,9 @@ import {
     RemovePoint,
     RouteRequestSuccess,
     SetPoint,
-    SetSelectedPath, TurnNavigationSettingsUpdate,
-    TurnNavigationStop
+    SetSelectedPath,
+    TurnNavigationSettingsUpdate,
+    TurnNavigationStop,
 } from '@/actions/Actions'
 import QueryStore, { RequestState } from '@/stores/QueryStore'
 import { Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'

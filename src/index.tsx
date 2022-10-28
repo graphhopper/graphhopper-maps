@@ -26,7 +26,7 @@ import {
     setStores,
 } from '@/stores/Stores'
 import MapOptionsStore from '@/stores/MapOptionsStore'
-import TurnNavigationStore, {TNSettingsState} from '@/stores/TurnNavigationStore'
+import TurnNavigationStore, { TNSettingsState } from '@/stores/TurnNavigationStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
 import Dispatcher from '@/stores/Dispatcher'
 import NavBar from '@/NavBar'
@@ -79,7 +79,9 @@ const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
 const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
 Dispatcher.register(mapActionReceiver)
 
-Dispatcher.dispatch(new TurnNavigationSettingsUpdate({ fakeGPS: fake !== '', soundEnabled: fake === '' } as TNSettingsState))
+Dispatcher.dispatch(
+    new TurnNavigationSettingsUpdate({ fakeGPS: fake !== '', soundEnabled: fake === '' } as TNSettingsState)
+)
 
 getApi().infoWithDispatch() // get infos about the api as soon as possible
 

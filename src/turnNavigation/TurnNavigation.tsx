@@ -4,11 +4,11 @@ import { metersToText, milliSecondsToText } from '@/Converters'
 import { getTurnSign } from '@/sidebar/instructions/Instructions'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
 import endNavigation from '@/turnNavigation/end_turn_navigation.png'
-import { TurnNavigationStoreState} from '@/stores/TurnNavigationStore'
+import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { TurnNavigationStop, ZoomMapToPoint } from '@/actions/Actions'
 
-export default function ({turnNavigation}: {turnNavigation: TurnNavigationStoreState}) {
+export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
     const path = turnNavigation.activePath
     const instruction = turnNavigation.instruction
     const pd = turnNavigation.pathDetails
