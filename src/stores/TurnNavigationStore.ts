@@ -87,6 +87,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     reduce(state: TurnNavigationStoreState, action: Action): TurnNavigationStoreState {
+        // For the navigation we need:
+        // current location (frequently updated), the active path (updated on reroute) and the profile (required for rerouting)
         if (action instanceof TurnNavigationStop) {
             this.stop()
             return { ...state, enabled: false, speed: 0, heading: 0 }
@@ -155,7 +157,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const { instructionIndex, timeToNext, distanceToNext, distanceToRoute, remainingTime, remainingDistance } =
                 getCurrentInstruction(path.instructions, coordinate)
 
-            // reroute only if already in turn navigation mode
+            // reroute only if already in turn navigation mode otherwise UI is not ready
             if (state.enabled && distanceToRoute > 50) {
                 // TODO use correct customModel
 
@@ -190,7 +192,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                             Dispatcher.dispatch(new TurnNavigationReroutingFailed())
                         })
                 } else {
-                    console.warn(
+                    console.error(
                         'profile=' + state.activeProfile + ', reroute in progress = ' + state.rerouteInProgress
                     )
                 }

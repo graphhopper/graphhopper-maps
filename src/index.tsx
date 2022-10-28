@@ -31,7 +31,6 @@ import PathDetailsStore from '@/stores/PathDetailsStore'
 import Dispatcher from '@/stores/Dispatcher'
 import NavBar from '@/NavBar'
 import App from '@/App'
-import { TurnNavigationSettingsUpdate } from '@/actions/Actions'
 
 let speechSynthesizer = new SpeechSynthesizer(navigator.language)
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
