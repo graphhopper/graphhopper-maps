@@ -3,6 +3,7 @@ import Dispatcher from '../../src/stores/Dispatcher'
 import { ApiImpl } from '../../src/api/Api'
 
 let responseHoyerswerda1 = require('./response-hoyerswerda1.json')
+let responseHoyerswerda2 = require('./response-hoyerswerda2.json')
 
 afterEach(() => Dispatcher.clear())
 
@@ -34,6 +35,35 @@ describe('calculate instruction', () => {
 
         expect(Math.round(remainingTime / 1000)).toEqual(101)
         expect(Math.round(remainingDistance)).toEqual(578)
+    })
+
+    it('nextWaypointIndex should be correct', () => {
+        let path = ApiImpl.decodeResult(responseHoyerswerda2, true)[0]
+        {
+            const { nextWaypointIndex } = getCurrentInstruction(path.instructions, {
+                lat: 51.434672,
+                lng: 14.267248,
+            })
+            expect(nextWaypointIndex).toEqual(1)
+        }
+
+        // points that could return both indices return the first
+        // TODO include heading to differentiate!
+        {
+            const { nextWaypointIndex } = getCurrentInstruction(path.instructions, {
+                lat: 51.434491,
+                lng: 14.268535,
+            })
+            expect(nextWaypointIndex).toEqual(1)
+        }
+
+        {
+            const { nextWaypointIndex } = getCurrentInstruction(path.instructions, {
+                lat: 51.433247,
+                lng: 14.267763,
+            })
+            expect(nextWaypointIndex).toEqual(2)
+        }
     })
 
     it('calc angle', () => {

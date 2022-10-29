@@ -1,20 +1,23 @@
-export class SpeechSynthesizer {
-    private locale: string
+export interface SpeechSynthesizer {
+    synthesize(text: string): void
+}
+
+export class SpeechSynthesizerImpl implements SpeechSynthesizer {
+    private readonly locale: string
     private readonly speechSynthesisAPIAvailable: boolean
     private audioCtx: AudioContext
     private source?: AudioBufferSourceNode
 
     constructor(locale: string) {
         this.locale = locale
-        // this is a bit funny the comma is required and prettier moves it to the next line!?
+        // this is a bit funny: the comma is required and prettier moves it to the next line
         this.speechSynthesisAPIAvailable = 'speechSynthesis' in window
         ;(window as any).AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext
         this.audioCtx = new AudioContext()
     }
 
-    synthesize(text: string, offline = true) {
-        if (!this.speechSynthesisAPIAvailable) offline = false
-        if (offline) {
+    synthesize(text: string) {
+        if (this.speechSynthesisAPIAvailable) {
             let utterance = new SpeechSynthesisUtterance(text)
             utterance.lang = this.locale
             if (speechSynthesis.pending) speechSynthesis.cancel()

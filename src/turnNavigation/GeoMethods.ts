@@ -52,12 +52,17 @@ export function getCurrentInstruction(
     distanceToRoute: number
     remainingTime: number
     remainingDistance: number
+    nextWaypointIndex: number
 } {
     let instructionIndex = -1
     let distanceToRoute = Number.MAX_VALUE
     let distanceToNext = 10.0
+    let nextWaypointIndex = 0
+    let waypointIndex = 0
 
     for (let instrIdx = 0; instrIdx < instructions.length; instrIdx++) {
+        const sign = instructions[instrIdx].sign
+        if (sign === 4 || sign === 5) waypointIndex++
         const points: number[][] = instructions[instrIdx].points
 
         for (let pIdx = 0; pIdx < points.length; pIdx++) {
@@ -79,6 +84,7 @@ export function getCurrentInstruction(
                 instructionIndex = instrIdx + 1 < instructions.length ? instrIdx + 1 : instrIdx
                 const last: number[] = points[points.length - 1]
                 distanceToNext = Math.round(distCalc(last[1], last[0], snapped.lat, snapped.lng))
+                nextWaypointIndex = waypointIndex + 1
             }
         }
     }
@@ -102,7 +108,15 @@ export function getCurrentInstruction(
         }
     }
 
-    return { instructionIndex, timeToNext, distanceToNext, distanceToRoute, remainingTime, remainingDistance }
+    return {
+        instructionIndex,
+        timeToNext,
+        distanceToNext,
+        distanceToRoute,
+        remainingTime,
+        remainingDistance,
+        nextWaypointIndex,
+    }
 }
 
 export function distCalc(fromLat: number, fromLng: number, toLat: number, toLng: number): number {
@@ -112,10 +126,6 @@ export function distCalc(fromLat: number, fromLng: number, toLat: number, toLng:
         sinDeltaLat * sinDeltaLat +
         sinDeltaLon * sinDeltaLon * Math.cos(toRadians(fromLat)) * Math.cos(toRadians(toLat))
     return 6371000 * 2 * Math.asin(Math.sqrt(normedDist))
-}
-
-function toRadians(deg: number): number {
-    return (deg * Math.PI) / 180.0
 }
 
 function validEdgeDistance(
@@ -206,4 +216,12 @@ export function toNorthBased(orientation: number): number {
     orientation = orientation >= 0 ? (5 * Math.PI) / 2 - orientation : Math.PI / 2 - orientation
     // modulo with decimals seems to work too!? orientation % (2 * Math.PI)
     return orientation > 2 * Math.PI ? orientation - 2 * Math.PI : orientation
+}
+
+export function toDegrees(rad: number): number {
+    return (rad * 180.0) / Math.PI
+}
+
+export function toRadians(deg: number): number {
+    return (deg * Math.PI) / 180.0
 }

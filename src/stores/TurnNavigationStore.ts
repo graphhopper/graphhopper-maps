@@ -1,4 +1,4 @@
-import { Coordinate, QueryStoreState } from '@/stores/QueryStore'
+import { Coordinate } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
 import {
     ErrorAction,
@@ -14,14 +14,18 @@ import {
 } from '@/actions/Actions'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
-import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 import Api, { ApiImpl } from '@/api/Api'
-import { calcOrientation, getCurrentDetails, getCurrentInstruction, toNorthBased } from '@/turnNavigation/GeoMethods'
+import {
+    calcOrientation,
+    getCurrentDetails,
+    getCurrentInstruction,
+    toDegrees,
+    toNorthBased,
+} from '@/turnNavigation/GeoMethods'
 import * as config from 'config'
-import { toDegrees } from 'ol/math'
-import { Instruction, Path, RoutingArgs, RoutingProfile } from '@/api/graphhopper'
-import { getTurnNavigationStore } from '@/stores/Stores'
+import { Instruction, Path, RoutingArgs } from '@/api/graphhopper'
 import { tr } from '@/translation/Translation'
+import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 
 export interface TurnNavigationStoreState {
     enabled: boolean
@@ -104,8 +108,10 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const path = action.path
 
             // ensure that path and instruction are synced
-            const { instructionIndex, timeToNext, distanceToNext, distanceToRoute, remainingTime, remainingDistance } =
-                getCurrentInstruction(path.instructions, state.coordinate)
+            const { instructionIndex, distanceToNext, remainingTime, remainingDistance } = getCurrentInstruction(
+                path.instructions,
+                state.coordinate
+            )
 
             // current location is still not close
             if (instructionIndex < 0) {
@@ -154,18 +160,25 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         } else if (action instanceof LocationUpdate) {
             const coordinate = action.coordinate
             const path = state.activePath
-            const { instructionIndex, timeToNext, distanceToNext, distanceToRoute, remainingTime, remainingDistance } =
-                getCurrentInstruction(path.instructions, coordinate)
+            const {
+                instructionIndex,
+                timeToNext,
+                distanceToNext,
+                distanceToRoute,
+                remainingTime,
+                remainingDistance,
+                nextWaypointIndex,
+            } = getCurrentInstruction(path.instructions, coordinate)
 
             // reroute only if already in turn navigation mode otherwise UI is not ready
-            if (state.enabled && distanceToRoute > 50) {
+            if (state.enabled && distanceToRoute > 50 && nextWaypointIndex > 0) {
                 // TODO use correct customModel
 
                 if (state.activeProfile && !state.rerouteInProgress) {
                     const fromPoint: [number, number] = [coordinate.lng, coordinate.lat]
                     const toPoint: [number, number] = [
-                        path.snapped_waypoints.coordinates[1][0],
-                        path.snapped_waypoints.coordinates[1][1],
+                        path.snapped_waypoints.coordinates[nextWaypointIndex][0],
+                        path.snapped_waypoints.coordinates[nextWaypointIndex][1],
                     ]
                     const args: RoutingArgs = {
                         points: [fromPoint, toPoint],
@@ -181,7 +194,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                             if (result.paths.length > 0) {
                                 console.log('rerouting: {}', result.paths[0])
                                 Dispatcher.dispatch(new TurnNavigationRerouting(result.paths[0]))
-                                getTurnNavigationStore().getSpeechSynthesizer().synthesize(tr('reroute'))
+                                this.speechSynthesizer.synthesize(tr('reroute'))
                             } else {
                                 console.log('rerouting found no path: {}', result)
                                 Dispatcher.dispatch(new TurnNavigationReroutingFailed())
@@ -223,7 +236,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     (instructionState.distanceToNext > lastAnnounceDistance ||
                         instructionIndex != instructionState.index)
                 ) {
-                    getTurnNavigationStore().getSpeechSynthesizer().synthesize(nextInstruction.text)
+                    this.speechSynthesizer.synthesize(nextInstruction.text)
                 }
 
                 const firstAnnounceDistance = 1150
@@ -238,9 +251,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                         distanceToNext > 800
                             ? tr('in_km_singular')
                             : tr('in_m', ['' + Math.round(distanceToNext / 100) * 100])
-                    getTurnNavigationStore()
-                        .getSpeechSynthesizer()
-                        .synthesize(inString + ' ' + nextInstruction.text)
+                    this.speechSynthesizer.synthesize(inString + ' ' + nextInstruction.text)
                 }
             }
 

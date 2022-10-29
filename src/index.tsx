@@ -5,8 +5,8 @@ import * as config from 'config'
 import MapActionReceiver from '@/stores/MapActionReceiver'
 import { createMap, getMap, setMap } from '@/map/map'
 import MapFeatureStore from '@/stores/MapFeatureStore'
-import SettingsStore, { Settings } from '@/stores/SettingsStore'
-import { SpeechSynthesizer } from '@/SpeechSynthesizer'
+import SettingsStore from '@/stores/SettingsStore'
+import { SpeechSynthesizerImpl } from '@/SpeechSynthesizer'
 import { setTranslation } from '@/translation/Translation'
 import { getApi, setApi } from '@/api/Api'
 import QueryStore from '@/stores/QueryStore'
@@ -32,7 +32,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import NavBar from '@/NavBar'
 import App from '@/App'
 
-let speechSynthesizer = new SpeechSynthesizer(navigator.language)
+const speechSynthesizer = new SpeechSynthesizerImpl(navigator.language)
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 
 const url = new URL(window.location.href)
