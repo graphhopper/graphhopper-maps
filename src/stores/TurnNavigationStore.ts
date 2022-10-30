@@ -28,11 +28,13 @@ import { tr } from '@/translation/Translation'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 
 export interface TurnNavigationStoreState {
+    // TODO replace "enabled" with a composite state depending on activePath, coordinate and instruction
     enabled: boolean
     coordinate: Coordinate
     speed: number
     heading: number
-    activePath: Path
+    initialPath: Path | null
+    activePath: Path | null
     activeProfile: string
     rerouteInProgress: boolean
     settings: TNSettingsState
@@ -75,7 +77,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             coordinate: { lat: 0, lng: 0 },
             speed: 0,
             heading: 0,
-            activePath: {} as Path,
+            initialPath: null,
+            activePath: null,
             rerouteInProgress: false,
             activeProfile: '',
             settings: { acceptedRisk: false, fakeGPS: fakeGPS, soundEnabled: !fakeGPS } as TNSettingsState,
@@ -93,6 +96,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     reduce(state: TurnNavigationStoreState, action: Action): TurnNavigationStoreState {
         // For the navigation we need:
         // current location (frequently updated), the active path (updated on reroute) and the profile (required for rerouting)
+        // and so we collect this from different actions
         if (action instanceof TurnNavigationStop) {
             this.stop()
             return { ...state, enabled: false, speed: 0, heading: 0 }
@@ -103,39 +107,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             return {
                 ...state,
                 rerouteInProgress: false,
-            }
-        } else if (action instanceof TurnNavigationRerouting) {
-            const path = action.path
-
-            // ensure that path and instruction are synced
-            const { instructionIndex, distanceToNext, remainingTime, remainingDistance } = getCurrentInstruction(
-                path.instructions,
-                state.coordinate
-            )
-
-            // current location is still not close
-            if (instructionIndex < 0) {
-                console.log('instruction after rerouting not found')
-                return {
-                    ...state,
-                    rerouteInProgress: false,
-                }
-            }
-
-            const text = path.instructions[instructionIndex].street_name
-            const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, state.coordinate, [
-                path.details.average_speed,
-                path.details.max_speed,
-                path.details.surface,
-                path.details.road_class,
-            ])
-
-            return {
-                ...state,
-                activePath: path,
-                rerouteInProgress: false,
-                instruction: { index: instructionIndex, distanceToNext, remainingTime, remainingDistance, text },
-                pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
             }
         } else if (action instanceof SetRoutingParametersAtOnce) {
             console.log('SetRoutingParametersAtOnce, profile: ' + action.routingProfile.name)
@@ -155,30 +126,29 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
             return {
                 ...state,
+                initialPath: action.path,
                 activePath: action.path,
             }
         } else if (action instanceof LocationUpdate) {
+            if (state.initialPath == null) throw new Error('initialPath must not be null')
+            if (state.activePath == null) throw new Error('activePath must not be null')
             const coordinate = action.coordinate
-            const path = state.activePath
-            const {
-                instructionIndex,
-                timeToNext,
-                distanceToNext,
-                distanceToRoute,
-                remainingTime,
-                remainingDistance,
-                nextWaypointIndex,
-            } = getCurrentInstruction(path.instructions, coordinate)
+            let path = state.activePath
+            let instr = getCurrentInstruction(path.instructions, coordinate)
+
+            // if (instr.index < 0 || instr.distanceToRoute > 50) {
+            //     path = state.initialPath
+            //     instr = getCurrentInstruction(path.instructions, coordinate)
+            // }
 
             // reroute only if already in turn navigation mode otherwise UI is not ready
-            if (state.enabled && distanceToRoute > 50 && nextWaypointIndex > 0) {
-                // TODO use correct customModel
-
+            if (state.enabled && instr.distanceToRoute > 50) {
+                let queriedAPI = false
                 if (state.activeProfile && !state.rerouteInProgress) {
                     const fromPoint: [number, number] = [coordinate.lng, coordinate.lat]
                     const toPoint: [number, number] = [
-                        path.snapped_waypoints.coordinates[nextWaypointIndex][0],
-                        path.snapped_waypoints.coordinates[nextWaypointIndex][1],
+                        path.snapped_waypoints.coordinates[instr.nextWaypointIndex][0],
+                        path.snapped_waypoints.coordinates[instr.nextWaypointIndex][1],
                     ]
                     const args: RoutingArgs = {
                         points: [fromPoint, toPoint],
@@ -186,13 +156,14 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                         heading: action.heading,
                         zoom: false,
                         profile: state.activeProfile,
+                        // TODO use correct customModel
                         customModel: null,
                     }
                     this.api
                         .route(args)
                         .then(result => {
                             if (result.paths.length > 0) {
-                                console.log('rerouting: {}', result.paths[0])
+                                console.log('rerouting -> ', result.paths[0].distance)
                                 Dispatcher.dispatch(new TurnNavigationRerouting(result.paths[0]))
                                 this.speechSynthesizer.synthesize(tr('reroute'))
                             } else {
@@ -204,25 +175,24 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                             console.warn('error for reroute request: ', error)
                             Dispatcher.dispatch(new TurnNavigationReroutingFailed())
                         })
+                    queriedAPI = true
                 } else {
-                    console.error(
-                        'profile=' + state.activeProfile + ', reroute in progress = ' + state.rerouteInProgress
-                    )
+                    console.log('profile=' + state.activeProfile + ', reroute in progress = ' + state.rerouteInProgress)
                 }
 
                 return {
                     ...state,
-                    rerouteInProgress: true,
+                    rerouteInProgress: queriedAPI,
                     heading: action.heading,
                     speed: action.speed,
                     coordinate: coordinate,
                 }
             }
 
-            if (instructionIndex < 0) throw new Error('Instruction should be valid if distanceToRoute is small')
+            if (instr.index < 0) throw new Error('Instruction should be valid if distanceToRoute is small')
 
             const instructionState = state.instruction
-            const nextInstruction: Instruction = path.instructions[instructionIndex]
+            const nextInstruction: Instruction = path.instructions[instr.index]
 
             const text = nextInstruction.street_name
             if (state.settings.soundEnabled) {
@@ -232,9 +202,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 let lastAnnounceDistance = 10 + 2 * Math.round(averageSpeed / 5) * 5
 
                 if (
-                    distanceToNext <= lastAnnounceDistance &&
-                    (instructionState.distanceToNext > lastAnnounceDistance ||
-                        instructionIndex != instructionState.index)
+                    instr.distanceToNext <= lastAnnounceDistance &&
+                    (instructionState.distanceToNext > lastAnnounceDistance || instr.index != instructionState.index)
                 ) {
                     this.speechSynthesizer.synthesize(nextInstruction.text)
                 }
@@ -242,15 +211,14 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 const firstAnnounceDistance = 1150
                 if (
                     averageSpeed > 15 && // two announcements only if faster speed
-                    distanceToNext > lastAnnounceDistance + 50 && // do not interfere with last announcement. also "1 km" should stay valid (approximately)
-                    distanceToNext <= firstAnnounceDistance &&
-                    (instructionState.distanceToNext > firstAnnounceDistance ||
-                        instructionIndex != instructionState.index)
+                    instr.distanceToNext > lastAnnounceDistance + 50 && // do not interfere with last announcement. also "1 km" should stay valid (approximately)
+                    instr.distanceToNext <= firstAnnounceDistance &&
+                    (instructionState.distanceToNext > firstAnnounceDistance || instr.index != instructionState.index)
                 ) {
                     let inString =
-                        distanceToNext > 800
+                        instr.distanceToNext > 800
                             ? tr('in_km_singular')
-                            : tr('in_m', ['' + Math.round(distanceToNext / 100) * 100])
+                            : tr('in_m', ['' + Math.round(instr.distanceToNext / 100) * 100])
                     this.speechSynthesizer.synthesize(inString + ' ' + nextInstruction.text)
                 }
             }
@@ -268,7 +236,46 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 heading: action.heading,
                 speed: action.speed,
                 coordinate: coordinate,
-                instruction: { index: instructionIndex, distanceToNext, remainingTime, remainingDistance, text },
+                instruction: {
+                    index: instr.index,
+                    distanceToNext: instr.distanceToNext,
+                    remainingTime: instr.remainingTime,
+                    remainingDistance: instr.remainingDistance,
+                    text,
+                },
+                pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
+            }
+        } else if (action instanceof TurnNavigationRerouting) {
+            const path = action.path
+
+            // ensure that path and instruction are synced
+            const { index, distanceToNext, remainingTime, remainingDistance } = getCurrentInstruction(
+                path.instructions,
+                state.coordinate
+            )
+
+            // current location is still not close
+            if (index < 0) {
+                console.log('instruction after rerouting not found')
+                return {
+                    ...state,
+                    rerouteInProgress: false,
+                }
+            }
+
+            const text = path.instructions[index].street_name
+            const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, state.coordinate, [
+                path.details.average_speed,
+                path.details.max_speed,
+                path.details.surface,
+                path.details.road_class,
+            ])
+
+            return {
+                ...state,
+                activePath: path,
+                rerouteInProgress: false,
+                instruction: { index: index, distanceToNext, remainingTime, remainingDistance, text },
                 pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
             }
         }

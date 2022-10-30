@@ -7,9 +7,12 @@ import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { TurnNavigationStop, ZoomMapToPoint } from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
+import { Path } from '@/api/graphhopper'
 
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
-    const path = turnNavigation.activePath
+    if (turnNavigation.activePath == null) new Error('activePath cannot be null if TurnNavigation is enabled')
+    // ugly workaround to make typescript happy
+    const path = turnNavigation.activePath == null ? ({} as Path) : turnNavigation.activePath
     const instruction = turnNavigation.instruction
     const pd = turnNavigation.pathDetails
 

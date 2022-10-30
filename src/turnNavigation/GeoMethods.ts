@@ -46,7 +46,7 @@ export function getCurrentInstruction(
     instructions: Instruction[],
     location: Coordinate
 ): {
-    instructionIndex: number
+    index: number
     timeToNext: number
     distanceToNext: number
     distanceToRoute: number
@@ -109,7 +109,7 @@ export function getCurrentInstruction(
     }
 
     return {
-        instructionIndex,
+        index: instructionIndex,
         timeToNext,
         distanceToNext,
         distanceToRoute,
