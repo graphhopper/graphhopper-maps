@@ -11,7 +11,7 @@ import { Path } from '@/api/graphhopper'
 
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
     if (turnNavigation.activePath == null) new Error('activePath cannot be null if TurnNavigation is enabled')
-    // ugly workaround to make typescript happy
+    // can we avoid this workaround to make typescript happy?
     const path = turnNavigation.activePath == null ? ({} as Path) : turnNavigation.activePath
     const instruction = turnNavigation.instruction
     const pd = turnNavigation.pathDetails

@@ -52,6 +52,7 @@ export function getCurrentInstruction(
     distanceToRoute: number
     remainingTime: number
     remainingDistance: number
+    distanceUntilNextWaypoint: number
     nextWaypointIndex: number
 } {
     let instructionIndex = -1
@@ -89,6 +90,7 @@ export function getCurrentInstruction(
         }
     }
 
+    let distanceUntilNextWaypoint = -1
     let timeToNext = 0
     let remainingTime = 0
     let remainingDistance = distanceToNext
@@ -105,7 +107,13 @@ export function getCurrentInstruction(
         for (let instrIdx = instructionIndex; instrIdx < instructions.length; instrIdx++) {
             remainingTime += instructions[instrIdx].time
             remainingDistance += instructions[instrIdx].distance
+
+            const sign = instructions[instrIdx].sign
+            if ((sign === 4 || sign === 5) && distanceUntilNextWaypoint < 0)
+                distanceUntilNextWaypoint = remainingDistance
         }
+        if (distanceUntilNextWaypoint < 0)
+            throw new Error("remaining instructions didn't include a via or finish!?" + instructions)
     }
 
     return {
@@ -115,6 +123,7 @@ export function getCurrentInstruction(
         distanceToRoute,
         remainingTime,
         remainingDistance,
+        distanceUntilNextWaypoint,
         nextWaypointIndex,
     }
 }
