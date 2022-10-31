@@ -31,12 +31,10 @@ import useQueryPointsLayer from '@/layers/UseQueryPointsLayer'
 import usePathsLayer from '@/layers/UsePathsLayer'
 import ContextMenu from '@/layers/ContextMenu'
 import usePathDetailsLayer from '@/layers/UsePathDetailsLayer'
-import PathDetailPopup from '@/layers/PathDetailPopup'
 import { Map } from 'ol'
 import { getMap } from '@/map/map'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
-import MapFeaturePopup from '@/layers/MapFeaturePopup'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
@@ -47,8 +45,8 @@ import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
 import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
 import PlainButton from '@/PlainButton'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
+import MapPopups from '@/map/MapPopups'
 import useCurrentLocationLayer from '@/layers/CurrentLocationLayer'
-import turnNavigation from '@/turnNavigation/TurnNavigation'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -123,9 +121,8 @@ export default function App() {
     return (
         <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
             <div className={styles.appWrapper}>
-                <PathDetailPopup map={map} pathDetails={pathDetails} />
+                <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
-                <MapFeaturePopup map={map} point={mapFeatures.point} properties={mapFeatures.properties} />
                 {isSmallScreen ? (
                     <SmallScreenLayout
                         query={query}

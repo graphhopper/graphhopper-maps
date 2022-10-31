@@ -6,6 +6,7 @@
     grid-template-rows: auto auto;
     grid-template-columns: 3rem auto;
     align-items: center;
+    cursor: pointer;
 }
 
 .sign {

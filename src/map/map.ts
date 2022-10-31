@@ -2,7 +2,8 @@ import Dispatcher from '@/stores/Dispatcher'
 import { Map, View } from 'ol'
 import { fromLonLat } from 'ol/proj'
 import { MapIsLoaded } from '@/actions/Actions'
-import { defaults as defaultControls } from 'ol/control'
+import { defaults as defaultControls, Zoom } from 'ol/control'
+import styles from '@/map/Map.module.css'
 
 let map: Map | undefined
 
