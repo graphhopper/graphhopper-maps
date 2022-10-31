@@ -46,10 +46,13 @@ function addCurrentLocation(map: Map, location: Coordinate) {
     currentLocationLayer.set('gh:current_location', true)
     currentLocationLayer.setZIndex(3)
 
-    // TODO avoid copy of navigation.svg
+    // we need a filled version of navigation.svg
     const svgData =
         '<svg xmlns="http://www.w3.org/2000/svg" height="48" width="48">' +
-        '<path style="fill: rgba(128,128,128,0.2); stroke: rgb(61,109,180); stroke-width: 2" d="M9.5 42 8 40.5 24 4l16 36.5-1.5 1.5L24 35.4Zm3.4-4.9L24 32.2l11.1 4.9L24 11.4ZM24 32.2Z"/></svg>'
+        '<path style="fill:rgb(107,165,255); stroke:none;" d="M 24.13483,3.8557243 8.1348294,40.355724 l 1.5,1.5 14.5000006,-6.6 z M 19.605832,31.73126 Z" />' +
+        '<path style="fill:rgb(3,89,194); stroke:none;" d="m 24.131517,3.8515376 16,36.4999994 -1.5,1.5 -14.5,-6.6 z m 4.528998,27.8755354 z" />' +
+        '</svg>'
+
     currentLocationLayer.setStyle(
         feature =>
             new Style({
