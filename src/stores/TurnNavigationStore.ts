@@ -48,6 +48,7 @@ export interface TNInstructionState {
     distanceToTurn: number
     timeToEnd: number
     distanceToEnd: number
+    nextWaypointIndex: number
     distanceToWaypoint: number
     text: string
 }
@@ -267,6 +268,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     distanceToTurn: instr.distanceToTurn,
                     timeToEnd: instr.timeToEnd,
                     distanceToEnd: instr.distanceToEnd,
+                    nextWaypointIndex: instr.nextWaypointIndex,
                     distanceToWaypoint: instr.distanceToWaypoint,
                     text,
                 },
@@ -276,7 +278,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const path = action.path
 
             // ensure that path and instruction are synced
-            const { index, distanceToTurn, timeToEnd, distanceToEnd, distanceToWaypoint } = getCurrentInstruction(
+            const { index, distanceToTurn, timeToEnd, distanceToEnd, nextWaypointIndex, distanceToWaypoint } = getCurrentInstruction(
                 path.instructions,
                 state.coordinate
             )
@@ -307,6 +309,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     distanceToTurn: distanceToTurn,
                     timeToEnd: timeToEnd,
                     distanceToEnd: distanceToEnd,
+                    nextWaypointIndex: nextWaypointIndex,
                     distanceToWaypoint: distanceToWaypoint,
                     text,
                 },

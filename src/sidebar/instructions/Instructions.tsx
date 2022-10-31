@@ -49,14 +49,14 @@ const Line = function ({ instruction, index }: { instruction: Instruction; index
                 )
             }
         >
-            {getTurnSign(instruction.sign, index)}
+            {getTurnSign(instruction.sign, index, undefined)}
             <span className={styles.mainText}>{instruction.text}</span>
             <span className={styles.distance}>{metersToText(instruction.distance, showDistanceInMiles)}</span>
         </li>
     )
 }
 
-export function getTurnSign(sign: number, index: number) {
+export function getTurnSign(sign: number, index: number, waypointIndex?: number) {
     // from, via and to signs are special
     if (index === 0 || sign === 4 || sign === 5) {
         let markerColor
@@ -70,7 +70,7 @@ export function getTurnSign(sign: number, index: number) {
 
         return (
             <div className={styles.sign}>
-                <MarkerComponent color={markerColor} />
+                <MarkerComponent color={markerColor} number={waypointIndex} />
             </div>
         )
     }

@@ -28,7 +28,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
         <>
             <div className={styles.turnInfo}>
                 <div className={styles.turnSign}>
-                    <div>{getTurnSign(path.instructions[instruction.index].sign, instruction.index)}</div>
+                    <div>{getTurnSign(path.instructions[instruction.index].sign, instruction.index, instruction.nextWaypointIndex)}</div>
                     <div>{metersToText(instruction.distanceToTurn, false)}</div>
                 </div>
                 <div className={styles.turnInfoRightSide}>
