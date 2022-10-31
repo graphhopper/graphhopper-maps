@@ -7,11 +7,13 @@ import { window } from '@/Window'
 import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
 import { getApi } from '@/api/Api'
+import config from 'config'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
     private readonly mapStore: MapOptionsStore
     private isIgnoreQueryStoreUpdates = false
+    private static DEFAULT_PROFILE = 'car'
 
     constructor(queryStore: QueryStore, mapStore: MapOptionsStore) {
         this.queryStore = queryStore
@@ -21,15 +23,17 @@ export default class NavBar {
         window.addEventListener('popstate', () => this.parseUrlAndReplaceQuery())
     }
 
-    private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState) {
+    private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState): URL {
         const result = new URL(baseUrl)
         queryStoreState.queryPoints
             .filter(point => point.isInitialized)
-            .map(point => this.pointToParam(point)) //coordinateToText(point.coordinate))
+            .map(point => this.pointToParam(point))
             .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
-        result.searchParams.append('profile', queryStoreState.routingProfile.name)
-        result.searchParams.append('layer', mapState.selectedStyle.name)
+        if (NavBar.DEFAULT_PROFILE != queryStoreState.routingProfile.name)
+            result.searchParams.append('profile', queryStoreState.routingProfile.name)
+        if (config.defaultTiles !== mapState.selectedStyle.name)
+            result.searchParams.append('layer', mapState.selectedStyle.name)
         if (queryStoreState.customModelEnabled && queryStoreState.customModel && queryStoreState.customModelValid)
             result.searchParams.append('custom_model', JSON.stringify(queryStoreState.customModel))
 
@@ -67,7 +71,7 @@ export default class NavBar {
 
         // support legacy URLs without coordinates (not initialized) and only text, see #199
         if (points.some(p => !p.isInitialized && p.queryText.length > 0)) {
-            if (!profile.name) profile = { name: 'car' }
+            if (!profile.name) profile = { name: NavBar.DEFAULT_PROFILE }
             let fullyInitPoints: QueryPoint[] = Array.from({ length: points.length })
             points.forEach((p, idx) => {
                 if (p.isInitialized) fullyInitPoints[idx] = p

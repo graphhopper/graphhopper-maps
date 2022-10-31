@@ -267,6 +267,34 @@ describe('NavBar', function () {
             // assert
             expect(queryStore.state.routingProfile.name).toEqual(profileName)
         })
+
+        it('should parse the url and set no profile when default', () => {
+            const url = new URL(window.location.origin + window.location.pathname)
+            window.location = {
+                ...window.location,
+                href: url.toString(),
+            }
+            queryStore.receive(new SetVehicleProfile({ name: 'car' }))
+            mapStore.receive(new SelectMapStyle({ name: 'OpenStreetMap', url: '', type: 'raster', attribution: '', maxZoom: 1 }))
+
+            // act
+            navBar.parseUrlAndReplaceQuery()
+
+            // default options shouldn't change pushState
+            expect(window.history.pushState).toHaveBeenCalledTimes(0)
+
+            queryStore.receive(new SetVehicleProfile({ name: 'bike' }))
+            mapStore.receive(new SelectMapStyle({ name: 'Omniscale', url: '', type: 'raster', attribution: '', maxZoom: 1 }))
+
+            // act
+            navBar.parseUrlAndReplaceQuery()
+            expect(window.history.pushState).toHaveBeenNthCalledWith(
+                2,
+                'last state',
+                '',
+                'https://current.origin/?profile=bike&layer=Omniscale'
+            )
+        })
     })
 
     it('should update the query store state on popstate (back-pressed)', () => {
