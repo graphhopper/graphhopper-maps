@@ -11,27 +11,27 @@ describe('calculate instruction', () => {
     // http://localhost:3000/?point=51.437233%2C14.246489&point=51.435514%2C14.239923&profile=car
     it('second instruction should not be "right turn"', () => {
         let path = ApiImpl.decodeResult(responseHoyerswerda1, true)[0]
-        const { index, distanceToNext, remainingTime, remainingDistance } = getCurrentInstruction(path.instructions, {
+        const { index, distanceToTurn, timeToEnd, distanceToEnd } = getCurrentInstruction(path.instructions, {
             lat: 51.435029,
             lng: 14.243259,
         })
 
-        expect(distanceToNext).toEqual(236)
-        expect(remainingDistance).toEqual(236)
-        expect(Math.round(remainingTime / 1000)).toEqual(30)
+        expect(distanceToTurn).toEqual(236)
+        expect(distanceToEnd).toEqual(236)
+        expect(Math.round(timeToEnd / 1000)).toEqual(30)
 
         expect(path.instructions[index].text).toEqual('Ziel erreicht')
     })
 
     it('remaining time should be correct', () => {
         let path = ApiImpl.decodeResult(responseHoyerswerda1, true)[0]
-        const { remainingTime, remainingDistance } = getCurrentInstruction(path.instructions, {
+        const { timeToEnd, distanceToEnd } = getCurrentInstruction(path.instructions, {
             lat: 51.439291,
             lng: 14.245254,
         })
 
-        expect(Math.round(remainingTime / 1000)).toEqual(101)
-        expect(Math.round(remainingDistance)).toEqual(578)
+        expect(Math.round(timeToEnd / 1000)).toEqual(101)
+        expect(Math.round(distanceToEnd)).toEqual(578)
     })
 
     it('nextWaypointIndex should be correct', () => {

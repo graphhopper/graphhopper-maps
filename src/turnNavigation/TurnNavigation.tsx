@@ -21,7 +21,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
 
     const arrivalDate = new Date()
     const currentSpeed = Math.round(turnNavigation.speed * 3.6)
-    arrivalDate.setMilliseconds(arrivalDate.getSeconds() + instruction.remainingTime)
+    arrivalDate.setMilliseconds(arrivalDate.getSeconds() + instruction.timeToEnd)
     const min = arrivalDate.getMinutes()
 
     return (
@@ -29,7 +29,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
             <div className={styles.turnInfo}>
                 <div className={styles.turnSign}>
                     <div>{getTurnSign(path.instructions[instruction.index].sign, instruction.index)}</div>
-                    <div>{metersToText(instruction.distanceToNext, false)}</div>
+                    <div>{metersToText(instruction.distanceToTurn, false)}</div>
                 </div>
                 <div className={styles.turnInfoRightSide}>
                     <div className={styles.arrival}>
@@ -44,7 +44,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                                 </div>
                             ) : (
                                 <div>
-                                    {milliSecondsToText(instruction.remainingTime)}
+                                    {milliSecondsToText(instruction.timeToEnd)}
                                     <svg width="30" height="8">
                                         <circle cx="5" cy="4" r="3" stroke="black" fill="white" />
                                         <circle cx="20" cy="4" r="3.5" />
@@ -52,7 +52,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                                 </div>
                             )}
                             <div className={styles.remainingDistance}>
-                                {metersToText(instruction.remainingDistance, false)}
+                                {metersToText(instruction.distanceToEnd, false)}
                             </div>
                         </div>
                         <div onClick={() => setShowDebug(!showDebug)}>

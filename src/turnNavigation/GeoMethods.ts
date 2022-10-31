@@ -47,17 +47,17 @@ export function getCurrentInstruction(
     location: Coordinate
 ): {
     index: number
-    timeToNext: number
-    distanceToNext: number
+    timeToTurn: number
+    distanceToTurn: number
     distanceToRoute: number
-    remainingTime: number
-    remainingDistance: number
-    distanceUntilNextWaypoint: number
+    timeToEnd: number
+    distanceToEnd: number
+    distanceToWaypoint: number
     nextWaypointIndex: number
 } {
     let instructionIndex = -1
     let distanceToRoute = Number.MAX_VALUE
-    let distanceToNext = 10.0
+    let distanceToTurn = 10.0
     let nextWaypointIndex = 0
     let waypointIndex = 0
 
@@ -84,50 +84,48 @@ export function getCurrentInstruction(
                 // use next instruction or finish
                 instructionIndex = instrIdx + 1 < instructions.length ? instrIdx + 1 : instrIdx
                 const last: number[] = points[points.length - 1]
-                distanceToNext = Math.round(distCalc(last[1], last[0], snapped.lat, snapped.lng))
+                distanceToTurn = Math.round(distCalc(last[1], last[0], snapped.lat, snapped.lng))
                 nextWaypointIndex = waypointIndex + 1
             }
         }
     }
 
-    let distanceUntilNextWaypoint = -1
-    let timeToNext = 0
-    let remainingTime = 0
-    let remainingDistance = distanceToNext
+    let distanceToWaypoint = -1
+    let timeToTurn = 0
+    let timeToEnd = 0
+    let distanceToEnd = distanceToTurn
     if (instructionIndex >= 0) {
         if (instructionIndex > 0) {
             // proportional estimate the time to the next instruction, TODO use time from path details instead
-            let prevInstruction = instructions[instructionIndex - 1]
-            timeToNext =
-                prevInstruction.distance > 0 ? prevInstruction.time * (distanceToNext / prevInstruction.distance) : 0
-            // console.log('time: ' + prevInstruction.time + ', ' + distanceToNext + ', ' + prevInstruction.distance)
+            let prevInstr = instructions[instructionIndex - 1]
+            timeToTurn = prevInstr.distance > 0 ? prevInstr.time * (distanceToEnd / prevInstr.distance) : 0
         }
-        remainingTime = timeToNext
-        remainingDistance = distanceToNext
+        timeToEnd = timeToTurn
+        distanceToEnd = distanceToTurn
         for (let instrIdx = instructionIndex; instrIdx < instructions.length; instrIdx++) {
-            remainingTime += instructions[instrIdx].time
-            remainingDistance += instructions[instrIdx].distance
+            timeToEnd += instructions[instrIdx].time
+            distanceToEnd += instructions[instrIdx].distance
 
             const sign = instructions[instrIdx].sign
-            if ((sign === 4 || sign === 5) && distanceUntilNextWaypoint < 0)
-                distanceUntilNextWaypoint = remainingDistance
+            if ((sign === 4 || sign === 5) && distanceToWaypoint < 0) distanceToWaypoint = distanceToEnd
         }
-        if (distanceUntilNextWaypoint < 0)
+        if (distanceToWaypoint < 0)
             throw new Error("remaining instructions didn't include a via or finish!?" + instructions)
     }
 
     return {
         index: instructionIndex,
-        timeToNext,
-        distanceToNext,
+        timeToTurn,
+        distanceToTurn,
         distanceToRoute,
-        remainingTime,
-        remainingDistance,
-        distanceUntilNextWaypoint,
+        timeToEnd,
+        distanceToEnd,
+        distanceToWaypoint,
         nextWaypointIndex,
     }
 }
 
+// TODO NOW merge with distUtils.calcDist
 export function distCalc(fromLat: number, fromLng: number, toLat: number, toLng: number): number {
     const sinDeltaLat: number = Math.sin(toRadians(toLat - fromLat) / 2)
     const sinDeltaLon: number = Math.sin(toRadians(toLng - fromLng) / 2)
