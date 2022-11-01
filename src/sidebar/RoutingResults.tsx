@@ -180,10 +180,9 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
     const file = new Blob([xmlString], { type: 'application/gpx+xml' })
     tmpElement.href = URL.createObjectURL(file)
     const date = new Date()
-    tmpElement.download = `GraphHopper-Route-${metersToText(
-        path.distance,
-        showDistanceInMiles
-    )}-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}.gpx`
+    tmpElement.download = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
+        date.getUTCDate()
+    )}-${Math.round(path.distance / 1000.0)}km.gpx`
     tmpElement.click()
 }
 
