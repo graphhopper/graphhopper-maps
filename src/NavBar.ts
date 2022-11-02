@@ -6,7 +6,7 @@ import {
     SelectMapStyle,
     SetInitialBBox,
     SetRoutingParametersAtOnce,
-    SetVehicleProfile
+    SetVehicleProfile,
 } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
@@ -104,7 +104,7 @@ export default class NavBar {
         const parsedProfileName = NavBar.parseProfile(url)
         if (parsedProfileName)
             // this won't trigger a route request because we just cleared the points
-            Dispatcher.dispatch(new SetVehicleProfile({name: parsedProfileName}))
+            Dispatcher.dispatch(new SetVehicleProfile({ name: parsedProfileName }))
         let parsedPoints = NavBar.parsePoints(url)
 
         // support legacy URLs without coordinates (not initialized) and only text, see #199
@@ -124,15 +124,11 @@ export default class NavBar {
                                 isInitialized: true,
                             }
                             if (fullyInitPoints.every(p => p && p.isInitialized)) {
-                                if (fullyInitPoints.length <= 2) this.fillPoints(fullyInitPoints)
                                 Dispatcher.dispatch(new SetRoutingParametersAtOnce(fullyInitPoints))
                             }
                         })
             })
         } else {
-            // this ensures that if no or one point parameter is specified in the URL there are still two input fields
-            if (parsedPoints.length > 2) parsedPoints = this.fillPoints(parsedPoints)
-
             // estimate map bounds from url points if there are any. this way we prevent loading tiles for the world view
             // only to zoom to the route shortly after
             const bbox = NavBar.getBBoxFromUrlPoints(parsedPoints.map(p => p.coordinate))
@@ -146,17 +142,6 @@ export default class NavBar {
         Dispatcher.dispatch(new SelectMapStyle(parsedStyleOption))
 
         this.isIgnoreQueryStoreUpdates = false
-    }
-
-    private fillPoints(parsedPoints: QueryPoint[]) {
-        const result: QueryPoint[] = this.queryStore.state.queryPoints
-
-        // assuming that at least two points should be present add un-initialized points if necessary
-        for (let i = 0; i < result.length && i < parsedPoints.length; i++) {
-            result[i] = parsedPoints[i]
-        }
-
-        return result
     }
 
     private onQueryStateChanged() {

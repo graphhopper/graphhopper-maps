@@ -201,6 +201,17 @@ export default class QueryStore extends Store<QueryStoreState> {
                     queryText: queryText,
                 }
             })
+            while (queryPoints.length < 2) {
+                const type = QueryStore.getPointType(queryPoints.length, 2)
+                queryPoints.push({
+                    id: queryPoints.length,
+                    type: type,
+                    color: QueryStore.getMarkerColor(type),
+                    queryText: '',
+                    isInitialized: false,
+                    coordinate: { lat: 0, lng: 0 },
+                })
+            }
             const nextId = state.nextQueryPointId + queryPoints.length
 
             return this.routeIfReady({
