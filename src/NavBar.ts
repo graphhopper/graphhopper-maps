@@ -1,7 +1,13 @@
 import { coordinateToText } from '@/Converters'
-import { Bbox, RoutingProfile } from '@/api/graphhopper'
+import { Bbox } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, SelectMapStyle, SetInitialBBox, SetRoutingParametersAtOnce } from '@/actions/Actions'
+import {
+    ClearPoints,
+    SelectMapStyle,
+    SetInitialBBox,
+    SetRoutingParametersAtOnce,
+    SetVehicleProfile
+} from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
@@ -96,12 +102,13 @@ export default class NavBar {
         const url = new URL(window.location.href)
 
         const parsedProfileName = NavBar.parseProfile(url)
-        let profile = parsedProfileName ? { name: parsedProfileName } : this.queryStore.state.routingProfile
+        if (parsedProfileName)
+            // this won't trigger a route request because we just cleared the points
+            Dispatcher.dispatch(new SetVehicleProfile({name: parsedProfileName}))
         let parsedPoints = NavBar.parsePoints(url)
 
         // support legacy URLs without coordinates (not initialized) and only text, see #199
         if (parsedPoints.some(p => !p.isInitialized && p.queryText.length > 0)) {
-            if (!profile.name) profile = { name: 'car' }
             const fullyInitPoints: QueryPoint[] = Array.from({ length: parsedPoints.length })
             parsedPoints.forEach((p, idx) => {
                 if (p.isInitialized) fullyInitPoints[idx] = p
@@ -118,7 +125,7 @@ export default class NavBar {
                             }
                             if (fullyInitPoints.every(p => p && p.isInitialized)) {
                                 if (fullyInitPoints.length <= 2) this.fillPoints(fullyInitPoints)
-                                Dispatcher.dispatch(new SetRoutingParametersAtOnce(fullyInitPoints, profile))
+                                Dispatcher.dispatch(new SetRoutingParametersAtOnce(fullyInitPoints))
                             }
                         })
             })
@@ -131,7 +138,7 @@ export default class NavBar {
             const bbox = NavBar.getBBoxFromUrlPoints(parsedPoints.map(p => p.coordinate))
             if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
 
-            if (parsedPoints.length > 0) Dispatcher.dispatch(new SetRoutingParametersAtOnce(parsedPoints, profile))
+            if (parsedPoints.length > 0) Dispatcher.dispatch(new SetRoutingParametersAtOnce(parsedPoints))
         }
 
         // add map style

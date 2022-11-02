@@ -207,7 +207,6 @@ export default class QueryStore extends Store<QueryStoreState> {
                 ...state,
                 queryPoints: queryPoints,
                 nextQueryPointId: nextId,
-                routingProfile: action.routingProfile,
             })
         } else if (action instanceof RemovePoint) {
             const newPoints = state.queryPoints
