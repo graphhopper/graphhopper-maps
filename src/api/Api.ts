@@ -198,7 +198,7 @@ export class ApiImpl implements Api {
         }
 
         // group similarly named profiles into the following predefined order
-        let reservedOrder = ['car', 'truck', 'scooter', 'foot', 'hike', 'bike']
+        const reservedOrder = ['car', 'truck', 'scooter', 'foot', 'hike', 'bike']
         profiles.sort((a, b) => {
             let idxa = reservedOrder.findIndex(str => a.name.indexOf(str) >= 0)
             let idxb = reservedOrder.findIndex(str => b.name.indexOf(str) >= 0)

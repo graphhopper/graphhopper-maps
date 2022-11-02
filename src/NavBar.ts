@@ -102,7 +102,7 @@ export default class NavBar {
         // support legacy URLs without coordinates (not initialized) and only text, see #199
         if (parsedPoints.some(p => !p.isInitialized && p.queryText.length > 0)) {
             if (!profile.name) profile = { name: 'car' }
-            let fullyInitPoints: QueryPoint[] = Array.from({ length: parsedPoints.length })
+            const fullyInitPoints: QueryPoint[] = Array.from({ length: parsedPoints.length })
             parsedPoints.forEach((p, idx) => {
                 if (p.isInitialized) fullyInitPoints[idx] = p
                 else
@@ -116,7 +116,7 @@ export default class NavBar {
                                 coordinate: { lat: res.hits[0].point.lat, lng: res.hits[0].point.lng },
                                 isInitialized: true,
                             }
-                            if (fullyInitPoints.every(p => p.isInitialized)) {
+                            if (fullyInitPoints.every(p => p && p.isInitialized)) {
                                 if (fullyInitPoints.length <= 2) this.fillPoints(fullyInitPoints)
                                 Dispatcher.dispatch(new SetRoutingParametersAtOnce(fullyInitPoints, profile))
                             }
