@@ -5,7 +5,7 @@ import {
     ClearPoints,
     SelectMapStyle,
     SetInitialBBox,
-    SetRoutingParametersAtOnce,
+    SetQueryPoints,
     SetVehicleProfile,
 } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
@@ -124,7 +124,7 @@ export default class NavBar {
                                 isInitialized: true,
                             }
                             if (fullyInitPoints.every(p => p && p.isInitialized)) {
-                                Dispatcher.dispatch(new SetRoutingParametersAtOnce(fullyInitPoints))
+                                Dispatcher.dispatch(new SetQueryPoints(fullyInitPoints))
                             }
                         })
             })
@@ -134,7 +134,7 @@ export default class NavBar {
             const bbox = NavBar.getBBoxFromUrlPoints(parsedPoints.map(p => p.coordinate))
             if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
 
-            if (parsedPoints.length > 0) Dispatcher.dispatch(new SetRoutingParametersAtOnce(parsedPoints))
+            if (parsedPoints.length > 0) Dispatcher.dispatch(new SetQueryPoints(parsedPoints))
         }
 
         // add map style

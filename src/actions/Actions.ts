@@ -42,7 +42,7 @@ export class AddPoint implements Action {
     }
 }
 
-export class SetRoutingParametersAtOnce implements Action {
+export class SetQueryPoints implements Action {
     readonly queryPoints: QueryPoint[]
 
     constructor(queryPoints: QueryPoint[]) {

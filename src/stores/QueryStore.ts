@@ -15,7 +15,7 @@ import {
     SetCustomModel,
     SetCustomModelBoxEnabled,
     SetPoint,
-    SetRoutingParametersAtOnce,
+    SetQueryPoints,
     SetVehicleProfile,
 } from '@/actions/Actions'
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
@@ -187,7 +187,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
 
             return this.routeIfReady(newState)
-        } else if (action instanceof SetRoutingParametersAtOnce) {
+        } else if (action instanceof SetQueryPoints) {
             // make sure that some things are set correctly, regardless of what was passed in here.
             const queryPoints = action.queryPoints.map((point, i) => {
                 const type = QueryStore.getPointType(i, action.queryPoints.length)
