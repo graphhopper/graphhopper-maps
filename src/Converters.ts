@@ -23,6 +23,17 @@ export function metersToText(meters: number, showDistanceInMiles: boolean, force
     }
 }
 
+// text does not contain decimal numbers or space
+export function metersToSimpleText(meters: number, showDistanceInMiles: boolean) {
+    if (showDistanceInMiles) {
+        if (meters < 160.934) return Math.floor(meters / 0.3048) + 'ft'
+        return Math.round(meters / 1609.34) + 'mi'
+    } else {
+        if (meters < 1000) return Math.floor(meters) + 'm'
+        return Math.round(meters / 1000) + 'km'
+    }
+}
+
 export function hitToItem(hit: GeocodingHit) {
     const mainText =
         hit.street && hit.name.indexOf(hit.street) >= 0
