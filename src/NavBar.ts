@@ -105,7 +105,7 @@ export default class NavBar {
         if (parsedProfileName)
             // this won't trigger a route request because we just cleared the points
             Dispatcher.dispatch(new SetVehicleProfile({ name: parsedProfileName }))
-        let parsedPoints = NavBar.parsePoints(url)
+        const parsedPoints = NavBar.parsePoints(url)
 
         // support legacy URLs without coordinates (not initialized) and only text, see #199
         if (parsedPoints.some(p => !p.isInitialized && p.queryText.length > 0)) {
