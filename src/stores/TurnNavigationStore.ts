@@ -132,6 +132,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 ...state,
                 initialPath: action.path,
                 activePath: action.path,
+                instruction: {} as TNInstructionState,
+                pathDetails: {} as TNPathDetailsState,
             }
         } else if (action instanceof LocationUpdate) {
             if (state.initialPath == null) throw new Error('initialPath must not be null')
