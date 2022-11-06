@@ -22,7 +22,13 @@ A user interface for the [GraphHopper routing engine](https://github.com/graphho
 
 ## Help with translations:
 
-GraphHopper Maps is translated into many languages. See [here](https://github.com/graphhopper/graphhopper/blob/master/docs/core/translations.md) how you can help with this.
+GraphHopper Maps is translated into many languages and you can help improve GraphHopper by adding or improving your language! See [this spreadsheet](https://docs.google.com/spreadsheets/d/10HKSFmxGVEIO92loVQetVmjXT0qpf3EA2jxuQSSYTdU/edit?pli=1#gid=0) to create a new or improve an existing language. Let us know if you changed something or submit a pull request with your changes after the following steps:
+
+ * Edit the spreadsheet
+ * Run `python3 update-translations.py`
+ * Review your changes via e.g. http://localhost:3000/?locale=en and with `git diff`. Make sure that is the only one with `git status`.
+ 
+Please note that the translations the server-side turn instructions are located in [a different repository](https://github.com/graphhopper/graphhopper/blob/master/docs/core/translations.md).
 
 ## Advanced configuration
 
