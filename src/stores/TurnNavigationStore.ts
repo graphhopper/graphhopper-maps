@@ -50,6 +50,7 @@ export interface TNInstructionState {
     distanceToEnd: number
     nextWaypointIndex: number
     distanceToWaypoint: number
+    sign: number
     text: string
 }
 
@@ -270,6 +271,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     distanceToEnd: instr.distanceToEnd,
                     nextWaypointIndex: instr.nextWaypointIndex,
                     distanceToWaypoint: instr.distanceToWaypoint,
+                    sign: path.instructions[instr.index].sign,
                     text,
                 },
                 pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
@@ -278,10 +280,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const path = action.path
 
             // ensure that path and instruction are synced
-            const { index, distanceToTurn, timeToEnd, distanceToEnd, nextWaypointIndex, distanceToWaypoint } = getCurrentInstruction(
-                path.instructions,
-                state.coordinate
-            )
+            const { index, distanceToTurn, timeToEnd, distanceToEnd, nextWaypointIndex, distanceToWaypoint } =
+                getCurrentInstruction(path.instructions, state.coordinate)
 
             // current location is still not close
             if (index < 0) {
@@ -311,6 +311,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     distanceToEnd: distanceToEnd,
                     nextWaypointIndex: nextWaypointIndex,
                     distanceToWaypoint: distanceToWaypoint,
+                    sign: path.instructions[index].sign,
                     text,
                 },
                 pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
