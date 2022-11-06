@@ -19,6 +19,7 @@ jest.mock('@/Window', () => ({
         },
         history: {
             pushState: jest.fn(),
+            replaceState: jest.fn()
         },
         addEventListener: jest.fn(),
     },
@@ -40,6 +41,7 @@ describe('NavBar', function () {
         queryStore = new QueryStore(new DummyApi())
         mapStore = new MapOptionsStore()
         navBar = new NavBar(queryStore, mapStore)
+        navBar.startSyncingUrlWithAppState()
         Dispatcher.register(queryStore)
         Dispatcher.register(mapStore)
     })
@@ -107,7 +109,7 @@ describe('NavBar', function () {
             expect(window.history.pushState).toHaveBeenCalledTimes(numberOfCalls)
             expect(window.history.pushState).toHaveBeenNthCalledWith(
                 numberOfCalls,
-                'last state',
+                null,
                 '',
                 expectedUrl.toString()
             )

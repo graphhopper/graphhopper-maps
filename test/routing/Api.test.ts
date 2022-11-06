@@ -60,7 +60,8 @@ describe('info api', () => {
     it('should issue an error action if anything fails', async () => {
         const message = 'some error message'
         fetchMock.mockReject(new Error(message))
-        expect(new ApiImpl('https://some.api/', 'key').info()).toThrow(new Error(message))
+        const api = new ApiImpl('https://some.api/', 'key')
+        await expect(api.info()).rejects.toEqual(new Error(message))
     })
 })
 
