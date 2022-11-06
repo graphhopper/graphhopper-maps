@@ -238,6 +238,9 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, turnNav
     if (turnNavigation.enabled)
         return (
             <>
+                <div className={styles.smallScreenRoutingResult}>
+                    <TurnNavigation turnNavigation={turnNavigation} />
+                </div>
                 <div className={styles.smallScreenMap}>
                     <MapComponent map={map} />
                 </div>
@@ -258,9 +261,6 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, turnNav
                             <VolumeOffIcon fill="#5b616a" />
                         )}
                     </PlainButton>
-                </div>
-                <div className={styles.smallScreenRoutingResult}>
-                    <TurnNavigation turnNavigation={turnNavigation} />
                 </div>
             </>
         )
