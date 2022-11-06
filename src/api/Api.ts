@@ -24,8 +24,6 @@ interface ApiProfile {
 export default interface Api {
     info(): Promise<ApiInfo>
 
-    infoWithDispatch(): void
-
     route(args: RoutingArgs): Promise<RoutingResult>
 
     routeWithDispatch(args: RoutingArgs): void
@@ -68,12 +66,6 @@ export class ApiImpl implements Api {
         } else {
             throw new Error('Could not connect to the Service. Try to reload!')
         }
-    }
-
-    infoWithDispatch() {
-        this.info()
-            .then(result => Dispatcher.dispatch(new InfoReceived(result)))
-            .catch(e => Dispatcher.dispatch(new ErrorAction(e.message)))
     }
 
     async geocode(query: string, provider: string) {

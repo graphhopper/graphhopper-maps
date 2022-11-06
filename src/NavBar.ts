@@ -11,14 +11,19 @@ import { getApi } from '@/api/Api'
 export default class NavBar {
     private readonly queryStore: QueryStore
     private readonly mapStore: MapOptionsStore
-    private isIgnoreQueryStoreUpdates = false
+    private ignoreStateUpdates = false
 
     constructor(queryStore: QueryStore, mapStore: MapOptionsStore) {
         this.queryStore = queryStore
-        this.queryStore.register(() => this.onQueryStateChanged())
         this.mapStore = mapStore
-        this.mapStore.register(() => this.onQueryStateChanged())
-        window.addEventListener('popstate', () => this.parseUrlAndReplaceQuery())
+        window.addEventListener('popstate', async () => await this.updateStateFromUrl())
+    }
+
+    async startSyncingUrlWithAppState() {
+        // our first history entry shall be the one that we end up with when the app loads for the first time
+        window.history.replaceState(null, '', this.createUrlFromState())
+        this.queryStore.register(() => this.updateUrlFromState())
+        this.mapStore.register(() => this.updateUrlFromState())
     }
 
     private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState) {
@@ -87,8 +92,9 @@ export default class NavBar {
         return url.searchParams.get('layer')
     }
 
-    parseUrlAndReplaceQuery() {
-        this.isIgnoreQueryStoreUpdates = true
+    async updateStateFromUrl() {
+        // We update the state several times ourselves, but we don't want to push history entries for each dispatch.
+        this.ignoreStateUpdates = true
 
         Dispatcher.dispatch(new ClearPoints())
         const url = new URL(window.location.href)
@@ -103,20 +109,24 @@ export default class NavBar {
         if (parsedPoints.some(p => !p.isInitialized && p.queryText.length > 0)) {
             const promises = parsedPoints.map(p => {
                 if (p.isInitialized) return Promise.resolve(p)
-                return getApi().geocode(p.queryText, 'nominatim')
-                    .then(res => {
-                        if (res.hits.length == 0) return p
-                        return {
-                            ...p,
-                            queryText: res.hits[0].name,
-                            coordinate: { lat: res.hits[0].point.lat, lng: res.hits[0].point.lng},
-                            isInitialized: true
-                        }
-                    })
-                    // if the geocoding request fails we just keep the point as it is, just as if no results were found
-                    .catch(() => Promise.resolve(p))
+                return (
+                    getApi()
+                        .geocode(p.queryText, 'nominatim')
+                        .then(res => {
+                            if (res.hits.length == 0) return p
+                            return {
+                                ...p,
+                                queryText: res.hits[0].name,
+                                coordinate: { lat: res.hits[0].point.lat, lng: res.hits[0].point.lng },
+                                isInitialized: true,
+                            }
+                        })
+                        // if the geocoding request fails we just keep the point as it is, just as if no results were found
+                        .catch(() => Promise.resolve(p))
+                )
             })
-            Promise.all(promises).then(points => NavBar.dispatchQueryPoints(points))
+            const points = await Promise.all(promises)
+            NavBar.dispatchQueryPoints(points)
         } else {
             NavBar.dispatchQueryPoints(parsedPoints)
         }
@@ -124,7 +134,7 @@ export default class NavBar {
         const parsedLayer = NavBar.parseLayer(url)
         if (parsedLayer) Dispatcher.dispatch(new SelectMapLayer(parsedLayer))
 
-        this.isIgnoreQueryStoreUpdates = false
+        this.ignoreStateUpdates = false
     }
 
     private static dispatchQueryPoints(points: QueryPoint[]) {
@@ -135,16 +145,18 @@ export default class NavBar {
         return Dispatcher.dispatch(new SetQueryPoints(points))
     }
 
-    private onQueryStateChanged() {
-        if (this.isIgnoreQueryStoreUpdates) return
+    public updateUrlFromState() {
+        if (this.ignoreStateUpdates) return
+        const newHref = this.createUrlFromState()
+        if (newHref !== window.location.href) window.history.pushState(null, '', newHref)
+    }
 
-        const newHref = NavBar.createUrl(
+    private createUrlFromState() {
+        return NavBar.createUrl(
             window.location.origin + window.location.pathname,
             this.queryStore.state,
             this.mapStore.state
         ).toString()
-
-        if (newHref !== window.location.href) window.history.pushState('last state', '', newHref)
     }
 
     private static getBBoxFromUrlPoints(urlPoints: Coordinate[]): Bbox | null {

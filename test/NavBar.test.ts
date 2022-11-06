@@ -138,7 +138,7 @@ describe('NavBar', function () {
             }
 
             // act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             //assert
             expect(queryStore.state.queryPoints.length).toEqual(2)
@@ -164,7 +164,7 @@ describe('NavBar', function () {
             const point2 = queryStore.state.queryPoints[1]
 
             // act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             //assert
             // we still want to have 2 points and they should have the same values as before - the ids are changed though
@@ -192,7 +192,7 @@ describe('NavBar', function () {
             )
 
             //act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             // assert
             expect(queryStore.state.queryPoints.length).toEqual(2)
@@ -207,7 +207,7 @@ describe('NavBar', function () {
             }
 
             // act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             //assert
             expect(queryStore.state.queryPoints.length).toEqual(2)
@@ -231,7 +231,7 @@ describe('NavBar', function () {
             const defaultProfile = queryStore.state.routingProfile
 
             // act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             //assert
             expect(queryStore.state.queryPoints.length).toEqual(2)
@@ -254,7 +254,7 @@ describe('NavBar', function () {
             }
 
             // act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             // assert
             expect(queryStore.state.routingProfile.name).toEqual(profileName)

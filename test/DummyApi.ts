@@ -20,8 +20,6 @@ export default class DummyApi implements Api {
         })
     }
 
-    infoWithDispatch(): void {}
-
     route(args: RoutingArgs): Promise<RoutingResult> {
         return Promise.resolve({
             info: { took: 0, copyright: [] },

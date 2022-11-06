@@ -52,26 +52,15 @@ describe('info api', () => {
             )
         })
 
-        const mockDispatcher = jest.spyOn(Dispatcher, 'dispatch')
-
-        new ApiImpl(ghApi, ghKey).infoWithDispatch()
-        await flushPromises()
-
-        // second: assert that the request issues 1 info received action with the expected payload
-        expect(mockDispatcher).toHaveBeenCalledTimes(1)
-        expect(mockDispatcher).toHaveBeenCalledWith(new InfoReceived(expected))
+        const info = await new ApiImpl(ghApi, ghKey).info()
+        // second assert that the request returns the expected payload
+        expect(info).toEqual(expected)
     })
 
     it('should issue an error action if anything fails', async () => {
         const message = 'some error message'
         fetchMock.mockReject(new Error(message))
-        const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
-
-        new ApiImpl('https://some.api/', 'key').infoWithDispatch()
-        await flushPromises()
-
-        expect(mockedDispatcher).toHaveBeenCalledTimes(1)
-        expect(mockedDispatcher).toHaveBeenCalledWith(new ErrorAction(message))
+        expect(new ApiImpl('https://some.api/', 'key').info()).toThrow(new Error(message))
     })
 })
 
