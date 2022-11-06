@@ -101,38 +101,38 @@ export default class NavBar {
 
         // support legacy URLs without coordinates (not initialized) and only text, see #199
         if (parsedPoints.some(p => !p.isInitialized && p.queryText.length > 0)) {
-            const fullyInitPoints: QueryPoint[] = Array.from({ length: parsedPoints.length })
-            parsedPoints.forEach((p, idx) => {
-                if (p.isInitialized) fullyInitPoints[idx] = p
-                else
-                    getApi()
-                        .geocode(p.queryText, 'nominatim')
-                        .then(res => {
-                            if (res.hits.length <= 0) return
-                            fullyInitPoints[idx] = {
-                                ...p,
-                                queryText: res.hits[0].name,
-                                coordinate: { lat: res.hits[0].point.lat, lng: res.hits[0].point.lng },
-                                isInitialized: true,
-                            }
-                            if (fullyInitPoints.every(p => p && p.isInitialized)) {
-                                Dispatcher.dispatch(new SetQueryPoints(fullyInitPoints))
-                            }
-                        })
+            const promises = parsedPoints.map(p => {
+                if (p.isInitialized) return Promise.resolve(p)
+                return getApi().geocode(p.queryText, 'nominatim')
+                    .then(res => {
+                        if (res.hits.length == 0) return p
+                        return {
+                            ...p,
+                            queryText: res.hits[0].name,
+                            coordinate: { lat: res.hits[0].point.lat, lng: res.hits[0].point.lng},
+                            isInitialized: true
+                        }
+                    })
+                    // if the geocoding request fails we just keep the point as it is, just as if no results were found
+                    .catch(() => Promise.resolve(p))
             })
+            Promise.all(promises).then(points => NavBar.dispatchQueryPoints(points))
         } else {
-            // estimate map bounds from url points if there are any. this way we prevent loading tiles for the world view
-            // only to zoom to the route shortly after
-            const bbox = NavBar.getBBoxFromUrlPoints(parsedPoints.map(p => p.coordinate))
-            if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
-
-            if (parsedPoints.length > 0) Dispatcher.dispatch(new SetQueryPoints(parsedPoints))
+            NavBar.dispatchQueryPoints(parsedPoints)
         }
 
         const parsedLayer = NavBar.parseLayer(url)
         if (parsedLayer) Dispatcher.dispatch(new SelectMapLayer(parsedLayer))
 
         this.isIgnoreQueryStoreUpdates = false
+    }
+
+    private static dispatchQueryPoints(points: QueryPoint[]) {
+        // estimate map bounds from url points if there are any. this way we prevent loading tiles for the world view
+        // only to zoom to the route shortly after
+        const bbox = NavBar.getBBoxFromUrlPoints(points.filter(p => p.isInitialized).map(p => p.coordinate))
+        if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
+        return Dispatcher.dispatch(new SetQueryPoints(points))
     }
 
     private onQueryStateChanged() {
