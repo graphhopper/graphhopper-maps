@@ -68,7 +68,8 @@
 "staticlink":"static link",
 "motorcycle":"Motorcycle",
 "back_to_map":"Back",
-"distance_unit":"Distances are in %1$s"
+"distance_unit":"Distances are in %1$s",
+"waiting_for_gps":"Waiting for the GPS signal..."
 },
 "ar":{
 "total_ascend":"%1$s اجمالى صعود",
@@ -140,7 +141,8 @@
 "staticlink":"رابط ثابت",
 "motorcycle":"دراجة نارية",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "ast":{
 "total_ascend":"%1$s d'ascensu total",
@@ -212,7 +214,81 @@
 "staticlink":"enllaz estáticu",
 "motorcycle":"Motocicleta",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
+},
+"az":{
+"total_ascend":"%1$s yüksəliş",
+"total_descend":"%1$s eniş",
+"way_contains_ford":"Yolda keçid var",
+"way_contains_ferry":"Bərəyə minin",
+"way_contains_private":"özəl yol",
+"way_contains_toll":"ödənişli yol",
+"way_crosses_border":"",
+"way_contains":"",
+"tracks":"",
+"steps":"",
+"start_label":"Başlanğıc",
+"intermediate_label":"Ara nöqtə",
+"end_label":"Son",
+"set_start":"Başlanğıcını burada təyin edin",
+"set_intermediate":"Ara nöqtə olaraq təyin edin",
+"set_end":"Bitmə məntəqəsi olaraq təyin edin",
+"center_map":"Xəritənin mərkəzini bura təyin edin",
+"show_coords":"Koordinatları göstər",
+"query_osm":"",
+"route":"Marşrut",
+"add_to_route":"",
+"delete_from_route":"Marşrutdan sil",
+"open_custom_model_box":"",
+"help_custom_model":"",
+"apply_custom_model":"",
+"exclude_motorway_example":"",
+"limit_speed_example":"",
+"exclude_area_example":"",
+"combined_example":"",
+"examples_custom_model":"",
+"marker":"İşarələyici",
+"gh_offline_info":"GraphHopper APİ ilə bağlantı qurulmadı?",
+"refresh_button":"Səhifəni yeniləyin",
+"server_status":"Server statusu",
+"zoom_in":"Yaxınlaşdır",
+"zoom_out":"Uzaqlaşdır",
+"drag_to_reorder":"Yol nöqtəsini köçürün",
+"route_timed_out":"Marşrutun hesablanma vaxtı keçdi",
+"route_request_failed":"Marşrut qurulması baş tutmadı",
+"current_location":"Hazırki yer",
+"searching_location":"Məkan axtarışı",
+"searching_location_failed":"Məkan axtarış baş tutmadı",
+"via_hint":"vasitəsilə",
+"from_hint":"-dan",
+"gpx_export_button":"GPX ixrac",
+"gpx_button":"",
+"hide_button":"",
+"details_button":"",
+"to_hint":"-dək",
+"route_info":"məsafə - %1$s vaxt - %2$s",
+"search_button":"Axtarış",
+"more_button":"daha",
+"pt_route_info":"Təxmini çatma vaxtı %1$s transfer - %2$s (%3$s)",
+"pt_route_info_walking":"Piyada olaraq təxmini çatma vaxtı  %1$s ( %2$s)",
+"locations_not_found":"Marşrut qurulmağı mümkün deyil. Yer müəyyən edilməyib.",
+"search_with_nominatim":"",
+"powered_by":"",
+"bike":"Velosiped",
+"racingbike":"Yarış velosipedi",
+"mtb":"Dağ velosipedi",
+"car":"Avtomobil",
+"foot":"Piyada",
+"hike":"Gəzinti",
+"small_truck":"yüngül yük maşını",
+"bus":"Avtobus",
+"truck":"Yük maşını",
+"staticlink":"Daimi keçid",
+"motorcycle":"Motosiklet",
+"back_to_map":"",
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "bg":{
 "total_ascend":"%1$s общо изкачване",
@@ -284,7 +360,8 @@
 "staticlink":"Постоянна препратка",
 "motorcycle":"Мотоциклет",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "bn_BN":{
 "total_ascend":"",
@@ -356,7 +433,8 @@
 "staticlink":"",
 "motorcycle":"",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "ca":{
 "total_ascend":"%1$s de pujada total",
@@ -428,7 +506,8 @@
 "staticlink":"Enllaç",
 "motorcycle":"Motocicleta",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "cs_CZ":{
 "total_ascend":"Celkové stoupání %1$s",
@@ -500,7 +579,8 @@
 "staticlink":"neměnný odkaz",
 "motorcycle":"Motocykl",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "da_DK":{
 "total_ascend":"%1$s samlet stigning",
@@ -572,7 +652,8 @@
 "staticlink":"statisk link",
 "motorcycle":"Motorcykel",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "de_DE":{
 "total_ascend":"%1$s Gesamtaufstieg",
@@ -644,7 +725,8 @@
 "staticlink":"Link",
 "motorcycle":"Motorrad",
 "back_to_map":"Zurück",
-"distance_unit":"Distanzen sind in %1$s"
+"distance_unit":"Distanzen sind in %1$s",
+"waiting_for_gps":"Warten auf das GPS Signal..."
 },
 "el":{
 "total_ascend":"%1$s συνολική ανάβαση",
@@ -716,7 +798,8 @@
 "staticlink":"στατική διεύθυνση",
 "motorcycle":"Μοτοσυκλέτα",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "eo":{
 "total_ascend":"%1$s supreniro tute",
@@ -788,7 +871,8 @@
 "staticlink":"konstanta ligilo",
 "motorcycle":"Motorciklo",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "es":{
 "total_ascend":"Ascender %1$s en total",
@@ -860,7 +944,8 @@
 "staticlink":"enlace estático",
 "motorcycle":"Motocicleta",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "fa":{
 "total_ascend":"مجموع صعود %1$s",
@@ -932,7 +1017,8 @@
 "staticlink":"پیوند ثابت",
 "motorcycle":"موتورسیکلت",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "fil":{
 "total_ascend":"",
@@ -1004,7 +1090,8 @@
 "staticlink":"static link",
 "motorcycle":"motorsiklo",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "fi":{
 "total_ascend":"nousu yhteensä %1$s",
@@ -1076,7 +1163,8 @@
 "staticlink":"yhteys",
 "motorcycle":"Moottoripyörällä",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "fr_FR":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1148,7 +1236,8 @@
 "staticlink":"Lien",
 "motorcycle":"Moto",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "fr_CH":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1220,7 +1309,8 @@
 "staticlink":"Lien",
 "motorcycle":"Moto",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "gl":{
 "total_ascend":"",
@@ -1292,7 +1382,8 @@
 "staticlink":"Enlace",
 "motorcycle":"Motocicleta",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "he":{
 "total_ascend":"עלייה כוללת של %1$s",
@@ -1364,7 +1455,8 @@
 "staticlink":"קישור קבוע",
 "motorcycle":"אופנוע",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "hr_HR":{
 "total_ascend":"%1$s ukupni uspon",
@@ -1436,7 +1528,8 @@
 "staticlink":"statička poveznica",
 "motorcycle":"Motocikl",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "hsb":{
 "total_ascend":"",
@@ -1508,19 +1601,20 @@
 "staticlink":"link",
 "motorcycle":"motorske",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "hu_HU":{
 "total_ascend":"Összes szintemelkedés: %1$s",
 "total_descend":"Összes szintcsökkenés: %1$s",
-"way_contains_ford":"gázló van az útvonalon",
-"way_contains_ferry":"",
-"way_contains_private":"",
-"way_contains_toll":"",
-"way_crosses_border":"",
-"way_contains":"",
-"tracks":"",
-"steps":"",
+"way_contains_ford":"Az útvonalon gázló található",
+"way_contains_ferry":"Az útvonalon kompátkelés található",
+"way_contains_private":"Az útvonalon magánút is található",
+"way_contains_toll":"Az útvonalon útdíjat kell fizetni",
+"way_crosses_border":"Az útvonal országhatárt keresztez",
+"way_contains":"Az útvonalon előfordul %1$s",
+"tracks":"burkolatlan földút",
+"steps":"lépcső",
 "start_label":"Indulás",
 "intermediate_label":"Köztes célpont",
 "end_label":"Célpont",
@@ -1529,18 +1623,18 @@
 "set_end":"Beállítás célpontnak",
 "center_map":"Beállítás a térkép középpontjának",
 "show_coords":"Pozíció megjelenítése",
-"query_osm":"",
+"query_osm":"OSM-lekérdezés",
 "route":"Útvonal",
-"add_to_route":"",
+"add_to_route":"Hely hozzáadása",
 "delete_from_route":"Eltávolítás az útvonalról",
-"open_custom_model_box":"",
-"help_custom_model":"",
-"apply_custom_model":"",
-"exclude_motorway_example":"",
-"limit_speed_example":"",
-"exclude_area_example":"",
-"combined_example":"",
-"examples_custom_model":"",
+"open_custom_model_box":"Egyedi modelldoboz megnyitása",
+"help_custom_model":"Súgó",
+"apply_custom_model":"Alkalmazás",
+"exclude_motorway_example":"Autópálya nélkül",
+"limit_speed_example":"Sebességkorlátozás",
+"exclude_area_example":"Terület elkerülése",
+"combined_example":"Kombinált példa",
+"examples_custom_model":"Példák",
 "marker":"Jelölő",
 "gh_offline_info":"Lehet, hogy a GraphHopper API nem érhető el?",
 "refresh_button":"Oldal frissítése",
@@ -1548,17 +1642,17 @@
 "zoom_in":"Nagyítás",
 "zoom_out":"Kicsinyítés",
 "drag_to_reorder":"Húzza el az átrendezéshez",
-"route_timed_out":"",
-"route_request_failed":"",
-"current_location":"",
-"searching_location":"",
-"searching_location_failed":"",
+"route_timed_out":"Időtúllépés az útvonaltervezéskor",
+"route_request_failed":"Útvonaltervezés sikertelen",
+"current_location":"Jelenlegi helyzet",
+"searching_location":"Helyzet keresése",
+"searching_location_failed":"A jelenlegi helyzet megtalálása sikertelen",
 "via_hint":"Ezen keresztül",
 "from_hint":"Innen",
 "gpx_export_button":"GPX export",
-"gpx_button":"",
-"hide_button":"",
-"details_button":"",
+"gpx_button":"GPX",
+"hide_button":"Elrejtés",
+"details_button":"Részletek",
 "to_hint":"Ide",
 "route_info":"%1$s ennyi ideig tart: %2$s",
 "search_button":"Keresés",
@@ -1566,8 +1660,8 @@
 "pt_route_info":"érkezés %1$s órakor, %2$s átszállással (%3$s)",
 "pt_route_info_walking":"érkezés %1$s órakor, csak gyalog (%2$s)",
 "locations_not_found":"Útvonaltervezés nem lehetséges. A megadott hely(ek) nem található(k) meg a területen.",
-"search_with_nominatim":"",
-"powered_by":"",
+"search_with_nominatim":"Keresés a Nominatim segítségével",
+"powered_by":"Motor:",
 "bike":"Kerékpár",
 "racingbike":"Versenykerékpár",
 "mtb":"Hegyi kerékpár",
@@ -1579,8 +1673,9 @@
 "truck":"Teherautó",
 "staticlink":"Statikus hivatkozás",
 "motorcycle":"Motorkerékpár",
-"back_to_map":"",
-"distance_unit":""
+"back_to_map":"Vissza",
+"distance_unit":"Távolság mértékegysége: %1$s",
+"waiting_for_gps":""
 },
 "in_ID":{
 "total_ascend":"naik dengan jarak %1$s",
@@ -1652,7 +1747,8 @@
 "staticlink":"Jalur tetap",
 "motorcycle":"Motor",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "it":{
 "total_ascend":"%1$s di dislivello positivo",
@@ -1724,7 +1820,8 @@
 "staticlink":"permalink",
 "motorcycle":"Moto",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "ja":{
 "total_ascend":"",
@@ -1796,7 +1893,8 @@
 "staticlink":"パーマリンク",
 "motorcycle":"オートバイ",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "ko":{
 "total_ascend":"오르막길 총 %1$s",
@@ -1868,7 +1966,8 @@
 "staticlink":"정적 링크",
 "motorcycle":"모터사이클",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "lt_LT":{
 "total_ascend":"",
@@ -1940,7 +2039,8 @@
 "staticlink":"statinė nuoroda",
 "motorcycle":"Motociklas",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "ne":{
 "total_ascend":"",
@@ -2012,7 +2112,8 @@
 "staticlink":"ईस्ट्यातिक लिंक",
 "motorcycle":"मोटरसाइकल ",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "nl":{
 "total_ascend":"%1$s totale klim",
@@ -2084,7 +2185,8 @@
 "staticlink":"statische link",
 "motorcycle":"motorfiets",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "pl_PL":{
 "total_ascend":"%1$s podejść ogółem",
@@ -2156,7 +2258,8 @@
 "staticlink":"link",
 "motorcycle":"Motocykl",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "pt_BR":{
 "total_ascend":"subida de %1$s",
@@ -2228,7 +2331,8 @@
 "staticlink":"Link estático",
 "motorcycle":"Motocicleta",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "pt_PT":{
 "total_ascend":"subida de %1$s",
@@ -2300,7 +2404,8 @@
 "staticlink":"Ligação permanente",
 "motorcycle":"Motocicleta",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "ro":{
 "total_ascend":"urcare %1$s",
@@ -2372,7 +2477,8 @@
 "staticlink":"link",
 "motorcycle":"Motocicletă",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "ru":{
 "total_ascend":"подъём на %1$s",
@@ -2444,81 +2550,10 @@
 "staticlink":"Постоянная ссылка",
 "motorcycle":"Мотоцикл",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
 "sk":{
-"total_ascend":"%1$s yüksəliş",
-"total_descend":"%1$s eniş",
-"way_contains_ford":"Yolda keçid var",
-"way_contains_ferry":"Bərəyə minin",
-"way_contains_private":"özəl yol",
-"way_contains_toll":"ödənişli yol",
-"way_crosses_border":"",
-"way_contains":"",
-"tracks":"",
-"steps":"",
-"start_label":"Başlanğıc",
-"intermediate_label":"Ara nöqtə",
-"end_label":"Son",
-"set_start":"Başlanğıcını burada təyin edin",
-"set_intermediate":"Ara nöqtə olaraq təyin edin",
-"set_end":"Bitmə məntəqəsi olaraq təyin edin",
-"center_map":"Xəritənin mərkəzini bura təyin edin",
-"show_coords":"Koordinatları göstər",
-"query_osm":"",
-"route":"Marşrut",
-"add_to_route":"",
-"delete_from_route":"Marşrutdan sil",
-"open_custom_model_box":"",
-"help_custom_model":"",
-"apply_custom_model":"",
-"exclude_motorway_example":"",
-"limit_speed_example":"",
-"exclude_area_example":"",
-"combined_example":"",
-"examples_custom_model":"",
-"marker":"İşarələyici",
-"gh_offline_info":"GraphHopper APİ ilə bağlantı qurulmadı?",
-"refresh_button":"Səhifəni yeniləyin",
-"server_status":"Server statusu",
-"zoom_in":"Yaxınlaşdır",
-"zoom_out":"Uzaqlaşdır",
-"drag_to_reorder":"Yol nöqtəsini köçürün",
-"route_timed_out":"Marşrutun hesablanma vaxtı keçdi",
-"route_request_failed":"Marşrut qurulması baş tutmadı",
-"current_location":"Hazırki yer",
-"searching_location":"Məkan axtarışı",
-"searching_location_failed":"Məkan axtarış baş tutmadı",
-"via_hint":"vasitəsilə",
-"from_hint":"-dan",
-"gpx_export_button":"GPX ixrac",
-"gpx_button":"",
-"hide_button":"",
-"details_button":"",
-"to_hint":"-dək",
-"route_info":"məsafə - %1$s vaxt - %2$s",
-"search_button":"Axtarış",
-"more_button":"daha",
-"pt_route_info":"Təxmini çatma vaxtı %1$s transfer - %2$s (%3$s)",
-"pt_route_info_walking":"Piyada olaraq təxmini çatma vaxtı  %1$s ( %2$s)",
-"locations_not_found":"Marşrut qurulmağı mümkün deyil. Yer müəyyən edilməyib.",
-"search_with_nominatim":"",
-"powered_by":"",
-"bike":"Velosiped",
-"racingbike":"Yarış velosipedi",
-"mtb":"Dağ velosipedi",
-"car":"Avtomobil",
-"foot":"Piyada",
-"hike":"Gəzinti",
-"small_truck":"yüngül yük maşını",
-"bus":"Avtobus",
-"truck":"Yük maşını",
-"staticlink":"Daimi keçid",
-"motorcycle":"Motosiklet",
-"back_to_map":"",
-"distance_unit":""
-},
-"sl_SI":{
 "total_ascend":"%1$s celkové stúpanie",
 "total_descend":"%1$s celkové klesanie",
 "way_contains_ford":"popri ceste sa nachádza brod",
@@ -2588,9 +2623,10 @@
 "staticlink":"nemenný odkaz",
 "motorcycle":"Motocykel",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
-"sr_RS":{
+"sl_SI":{
 "total_ascend":"Skupni vzpon: %1$s",
 "total_descend":"Skupni spust: %1$s",
 "way_contains_ford":"Na poti je pregaz",
@@ -2660,9 +2696,10 @@
 "staticlink":"Povezava",
 "motorcycle":"Motorno kolo",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
-"sv_SE":{
+"sr_RS":{
 "total_ascend":"%1$s ukupni uspon",
 "total_descend":"",
 "way_contains_ford":"",
@@ -2732,9 +2769,10 @@
 "staticlink":"statička veza",
 "motorcycle":"Motocikl",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
-"tr":{
+"sv_SE":{
 "total_ascend":"%1$s stigning",
 "total_descend":"%1$s nedstigning",
 "way_contains_ford":"Observera att det finns ett vadställe längs rutten",
@@ -2804,9 +2842,10 @@
 "staticlink":"direktlänk",
 "motorcycle":"Motorcykel",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
-"uk":{
+"tr":{
 "total_ascend":"%1$s toplam tırmanış",
 "total_descend":"%1$s toplam alçalış",
 "way_contains_ford":"Dikkat, yolda bir sığ yer var",
@@ -2876,9 +2915,10 @@
 "staticlink":"durağan bağlantı",
 "motorcycle":"motosiklet",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
-"vi_VN":{
+"uk":{
 "total_ascend":"%1$s загалом підйому",
 "total_descend":"%1$s загалом спуску",
 "way_contains_ford":"На шляху є брід",
@@ -2948,9 +2988,10 @@
 "staticlink":"статичне посилання",
 "motorcycle":"Мотоцикл",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
-"zh_CN":{
+"vi_VN":{
 "total_ascend":"Đi tiếp %1$s nữa",
 "total_descend":"Tổng số hạ %1$s ",
 "way_contains_ford":"Chú ý, có khúc sông cạn trên đường",
@@ -3020,9 +3061,10 @@
 "staticlink":"liên kết tĩnh",
 "motorcycle":"Mô tô",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
-"zh_HK":{
+"zh_CN":{
 "total_ascend":"总上升%1$s",
 "total_descend":"总下降%1$s",
 "way_contains_ford":"路径中包含河滩",
@@ -3092,9 +3134,10 @@
 "staticlink":"静态链接",
 "motorcycle":"摩托车",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
 },
-"zh_TW":{
+"zh_HK":{
 "total_ascend":"總共上昇 %1$s",
 "total_descend":"總共下降 %1$s",
 "way_contains_ford":"",
@@ -3164,5 +3207,79 @@
 "staticlink":"鏈接",
 "motorcycle":"電單車",
 "back_to_map":"",
-"distance_unit":""
+"distance_unit":"",
+"waiting_for_gps":""
+},
+"zh_TW":{
+"total_ascend":"總共上昇 %1$s",
+"total_descend":"總共下降 %1$s",
+"way_contains_ford":"路徑中含有淺灘",
+"way_contains_ferry":"搭乘渡輪",
+"way_contains_private":"私人道路",
+"way_contains_toll":"收費道路",
+"way_crosses_border":"",
+"way_contains":"",
+"tracks":"",
+"steps":"",
+"start_label":"出發點",
+"intermediate_label":"途經點",
+"end_label":"抵達點",
+"set_start":"設為出發點",
+"set_intermediate":"設為途經點",
+"set_end":"設為抵達點",
+"center_map":"設為地圖中心",
+"show_coords":"顯示坐標",
+"query_osm":"",
+"route":"路線",
+"add_to_route":"",
+"delete_from_route":"從路線中移除",
+"open_custom_model_box":"",
+"help_custom_model":"",
+"apply_custom_model":"",
+"exclude_motorway_example":"",
+"limit_speed_example":"",
+"exclude_area_example":"",
+"combined_example":"",
+"examples_custom_model":"",
+"marker":"標記",
+"gh_offline_info":"GraphHopper API 離線狀態？",
+"refresh_button":"刷新頁面",
+"server_status":"狀態",
+"zoom_in":"放大",
+"zoom_out":"縮小",
+"drag_to_reorder":"拖曳排序",
+"route_timed_out":"",
+"route_request_failed":"",
+"current_location":"",
+"searching_location":"",
+"searching_location_failed":"",
+"via_hint":"途經",
+"from_hint":"起點",
+"gpx_export_button":"匯出GPS",
+"gpx_button":"",
+"hide_button":"",
+"details_button":"",
+"to_hint":"迄點",
+"route_info":"%1$s 需時 %2$s",
+"search_button":"搜尋",
+"more_button":"更多",
+"pt_route_info":"於 %1$s 抵達，%2$s 次轉乘 (%3$s)",
+"pt_route_info_walking":"於 %1$s 抵達，僅步行 (%2$s)",
+"locations_not_found":"無法進行規劃。無法在此區域內找到指定的地點",
+"search_with_nominatim":"",
+"powered_by":"",
+"bike":"自行車",
+"racingbike":"競技自行車",
+"mtb":"登山車",
+"car":"汽車",
+"foot":"步行",
+"hike":"健行",
+"small_truck":"小貨車",
+"bus":"公車",
+"truck":"貨車",
+"staticlink":"永久鏈結",
+"motorcycle":"摩托車",
+"back_to_map":"",
+"distance_unit":"",
+"waiting_for_gps":""
 }}
