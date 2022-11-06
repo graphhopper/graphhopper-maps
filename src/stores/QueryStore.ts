@@ -201,6 +201,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     queryText: queryText,
                 }
             })
+            // make sure there are always at least two input boxes
             while (queryPoints.length < 2) {
                 const type = QueryStore.getPointType(queryPoints.length, 2)
                 queryPoints.push({

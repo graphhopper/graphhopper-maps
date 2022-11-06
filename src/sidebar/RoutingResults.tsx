@@ -4,7 +4,7 @@ import styles from './RoutingResult.module.css'
 import { useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
-import { metersToText, milliSecondsToText } from '@/Converters'
+import { metersToSimpleText, metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
@@ -180,10 +180,9 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
     const file = new Blob([xmlString], { type: 'application/gpx+xml' })
     tmpElement.href = URL.createObjectURL(file)
     const date = new Date()
-    tmpElement.download = `GraphHopper-Route-${metersToText(
-        path.distance,
-        showDistanceInMiles
-    )}-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}.gpx`
+    tmpElement.download = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
+        date.getUTCDate()
+    )}-${metersToSimpleText(path.distance, showDistanceInMiles)}.gpx`
     tmpElement.click()
 }
 
