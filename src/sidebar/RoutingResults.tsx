@@ -69,23 +69,24 @@ function RoutingResult({
                 {
                     // if this panel is still shown although we already confirmed the risk then we are waiting for GPS (or an error with location permission)
                     turnNavigation.settings.acceptedRisk ? (
-                    <span>{tr('waiting_for_gps')}</span>
-                ) : (
-                    <div className={styles.showRiskAccept}>
-                        <div>{tr('warning')}</div>
-                        <PlainButton
-                            onClick={() => {
-                                Dispatcher.dispatch(
-                                    new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState)
-                                )
-                                if (turnNavigation.settings.fakeGPS) getTurnNavigationStore().initFake()
-                                else getTurnNavigationStore().initReal()
-                            }}
-                        >
-                            {tr('accept_risks_after_warning')}
-                        </PlainButton>
-                    </div>
-                )}
+                        <span>{tr('waiting_for_gps')}</span>
+                    ) : (
+                        <div className={styles.showRiskAccept}>
+                            <div>{tr('warning')}</div>
+                            <PlainButton
+                                onClick={() => {
+                                    Dispatcher.dispatch(
+                                        new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState)
+                                    )
+                                    if (turnNavigation.settings.fakeGPS) getTurnNavigationStore().initFake()
+                                    else getTurnNavigationStore().initReal()
+                                }}
+                            >
+                                {tr('accept_risks_after_warning')}
+                            </PlainButton>
+                        </div>
+                    )
+                }
                 <PlainButton
                     className={styles.showRiskBack}
                     onClick={() => {

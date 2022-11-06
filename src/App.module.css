@@ -55,9 +55,8 @@
 .turnNavigation {
     grid-column: 1 / span 1;
     grid-row: 1 / span 1;
-    z-index: 5;
+    z-index: 3;
     max-height: 8em;
-
     margin: 0.5rem;
     padding: 0.5rem;
     background-color: white;
@@ -137,10 +136,14 @@
     background-color: white;
 }
 
+.smallScreenVolume svg {
+    transform: scale(1.5);
+}
+
 .smallScreenVolume {
     grid-row: 1 / span 1;
     grid-column: 1 / span 1;
-    padding: 5px 4px 3px 7px;
+    padding: 0.9em 0.8em 0.8em 0.9em;
     width: 30px;
     z-index: 2;
     background-color: white;

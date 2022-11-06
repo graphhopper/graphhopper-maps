@@ -1,6 +1,6 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { ToggleDistanceUnits, TurnNavigationSettingsUpdate } from '@/actions/Actions'
+import { ToggleDistanceUnits } from '@/actions/Actions'
 
 export interface Settings {
     showDistanceInMiles: boolean

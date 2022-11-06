@@ -195,7 +195,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                             if (result.paths.length > 0) {
                                 console.log('rerouted:' + state.activePath?.distance + '->' + result.paths[0].distance)
                                 Dispatcher.dispatch(new TurnNavigationRerouting(result.paths[0]))
-                                this.speechSynthesizer.synthesize(tr('reroute'))
+                                this.synthesize(tr('reroute'))
                             } else {
                                 console.log('rerouting found no path: {}', result)
                                 Dispatcher.dispatch(new TurnNavigationReroutingFailed())
@@ -235,7 +235,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     instr.distanceToTurn <= lastAnnounceDistance &&
                     (instructionState.distanceToTurn > lastAnnounceDistance || instr.index != instructionState.index)
                 ) {
-                    this.speechSynthesizer.synthesize(nextInstruction.text)
+                    this.synthesize(nextInstruction.text)
                 }
 
                 const firstAnnounceDistance = 1150
@@ -249,7 +249,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                         instr.distanceToTurn > 800
                             ? tr('in_km_singular')
                             : tr('in_m', ['' + Math.round(instr.distanceToTurn / 100) * 100])
-                    this.speechSynthesizer.synthesize(inString + ' ' + nextInstruction.text)
+                    this.synthesize(inString + ' ' + nextInstruction.text)
                 }
             }
 
@@ -320,6 +320,10 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             }
         }
         return state
+    }
+
+    private synthesize(text: string) {
+        if (this.state.settings.soundEnabled) this.speechSynthesizer.synthesize(text)
     }
 
     private static getWaypoint(path: Path, nextWaypointIndex: number): Coordinate {

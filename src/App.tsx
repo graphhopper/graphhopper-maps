@@ -241,16 +241,17 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, turnNav
                 <div className={styles.smallScreenMap}>
                     <MapComponent map={map} />
                 </div>
-                <div className={styles.smallScreenVolume}>
-                    <PlainButton
-                        onClick={() =>
-                            Dispatcher.dispatch(
-                                new TurnNavigationSettingsUpdate({
-                                    soundEnabled: !turnNavigation.settings.soundEnabled,
-                                } as TNSettingsState)
-                            )
-                        }
-                    >
+                <div
+                    className={styles.smallScreenVolume}
+                    onClick={() =>
+                        Dispatcher.dispatch(
+                            new TurnNavigationSettingsUpdate({
+                                soundEnabled: !turnNavigation.settings.soundEnabled,
+                            } as TNSettingsState)
+                        )
+                    }
+                >
+                    <PlainButton>
                         {turnNavigation.settings.soundEnabled ? (
                             <VolumeUpIcon fill="#5b616a" />
                         ) : (
