@@ -149,12 +149,20 @@
     padding-bottom: 1em;
 }
 
-.showRisk {
+.showRiskAccept button {
     padding: 0.5em;
+    margin: 0.1em;
+    background-color: #f97777;
+    color: white;
+}
+
+.showRiskBack svg {
+    width: 20px;
+    height: 20px;
 }
 
 .showRiskButtons {
-    padding: 0.5em;
+    padding: 1.5em 1.5em 3em 1.5em;
     display: flex;
     flex-direction: row;
     justify-content: space-around;

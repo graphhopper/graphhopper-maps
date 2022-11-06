@@ -1,7 +1,7 @@
 import { Instruction, Path } from '@/api/graphhopper'
 import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
-import { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath, TurnNavigationSettingsUpdate, TurnNavigationStop } from '@/actions/Actions'
 import { metersToSimpleText, metersToText, milliSecondsToText } from '@/Converters'
@@ -17,6 +17,7 @@ import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
 import { getTurnNavigationStore } from '@/stores/Stores'
 import { TNSettingsState, TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
+import Cross from '@/sidebar/times-solid.svg'
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -60,33 +61,40 @@ function RoutingResult({
     const showHints = hasFords || hasTolls || hasFerries || showAndHasBadTracks || showAndHasSteps || hasBorderCrossed
 
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
-    let [showRisk, setShowRisk] = useState(false)
-    if (!turnNavigation.settings.acceptedRisk && showRisk)
+    let [showBackAndRisk, setShowBackAndRisk] = useState(false)
+
+    if (showBackAndRisk)
         return (
-            <div className={styles.showRisk}>
-                <div>{tr('warning')}</div>
-                <div className={styles.showRiskButtons}>
-                    <PlainButton
-                        onClick={() => {
-                            setShowRisk(false)
-                            Dispatcher.dispatch(new TurnNavigationStop())
-                        }}
-                    >
-                        {tr('back')}
-                    </PlainButton>
-                    <PlainButton
-                        onClick={() => {
-                            Dispatcher.dispatch(
-                                new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState)
-                            )
-                            turnNavigation.settings.fakeGPS
-                                ? getTurnNavigationStore().initFake()
-                                : getTurnNavigationStore().initReal()
-                        }}
-                    >
-                        {tr('accept_risks_after_warning')}
-                    </PlainButton>
-                </div>
+            <div className={styles.showRiskButtons}>
+                {
+                    // if this panel is still shown although we already confirmed the risk then we are waiting for GPS (or an error with location permission)
+                    turnNavigation.settings.acceptedRisk ? (
+                    <span>{tr('waiting_for_gps')}</span>
+                ) : (
+                    <div className={styles.showRiskAccept}>
+                        <div>{tr('warning')}</div>
+                        <PlainButton
+                            onClick={() => {
+                                Dispatcher.dispatch(
+                                    new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState)
+                                )
+                                if (turnNavigation.settings.fakeGPS) getTurnNavigationStore().initFake()
+                                else getTurnNavigationStore().initReal()
+                            }}
+                        >
+                            {tr('accept_risks_after_warning')}
+                        </PlainButton>
+                    </div>
+                )}
+                <PlainButton
+                    className={styles.showRiskBack}
+                    onClick={() => {
+                        setShowBackAndRisk(false)
+                        Dispatcher.dispatch(new TurnNavigationStop())
+                    }}
+                >
+                    <Cross />
+                </PlainButton>
             </div>
         )
 
@@ -115,22 +123,22 @@ function RoutingResult({
                             </span>
                         )}
                     </div>
-                    {isSelected && !showRisk && (
+                    {isSelected && !showBackAndRisk && (
                         <PlainButton
                             className={styles.exportButton}
                             onClick={() => {
-                                if (!turnNavigation.settings.acceptedRisk) setShowRisk(true)
-                                else
-                                    turnNavigation.settings.fakeGPS
-                                        ? getTurnNavigationStore().initFake()
-                                        : getTurnNavigationStore().initReal()
+                                setShowBackAndRisk(true)
+                                if (turnNavigation.settings.acceptedRisk) {
+                                    if (turnNavigation.settings.fakeGPS) getTurnNavigationStore().initFake()
+                                    else getTurnNavigationStore().initReal()
+                                }
                             }}
                         >
                             <NaviSVG />
                             <div>{tr('Navi')}</div>
                         </PlainButton>
                     )}
-                    {isSelected && !showRisk && (
+                    {isSelected && !showBackAndRisk && (
                         <PlainButton
                             className={styles.exportButton}
                             onClick={() => downloadGPX(path, showDistanceInMiles)}
@@ -139,7 +147,7 @@ function RoutingResult({
                             <div>{tr('gpx_button')}</div>
                         </PlainButton>
                     )}
-                    {isSelected && !showRisk && (
+                    {isSelected && !showBackAndRisk && (
                         <PlainButton
                             className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
                             onClick={() => setExpanded(!isExpanded)}
