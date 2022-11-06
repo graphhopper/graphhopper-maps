@@ -137,11 +137,11 @@ export class SetSelectedPath implements Action {
 
 export class DismissLastError implements Action {}
 
-export class SelectMapStyle implements Action {
-    readonly styleOption: StyleOption
+export class SelectMapLayer implements Action {
+    readonly layer: string
 
-    constructor(styleOption: StyleOption) {
-        this.styleOption = styleOption
+    constructor(layer: string) {
+        this.layer = layer
     }
 }
 

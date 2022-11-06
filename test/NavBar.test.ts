@@ -1,7 +1,7 @@
 import NavBar from '@/NavBar'
 import QueryStore, { QueryPoint, QueryPointType } from '../src/stores/QueryStore'
 import DummyApi from './DummyApi'
-import { SelectMapStyle, SetPoint, SetVehicleProfile } from '@/actions/Actions'
+import { SelectMapLayer, SetPoint, SetVehicleProfile } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import { coordinateToText } from '@/Converters'
 
@@ -67,7 +67,7 @@ describe('NavBar', function () {
             testCreateUrl(
                 points,
                 { name: 'my-profile' },
-                { name: 'Lyrk', url: '', type: 'raster', attribution: '', maxZoom: 1 }
+                'Lyrk'
             )
         })
 
@@ -84,14 +84,10 @@ describe('NavBar', function () {
                 }
             })
 
-            testCreateUrl(
-                points,
-                { name: 'my-profile' },
-                { name: '', url: '', type: 'raster', attribution: '', maxZoom: 1 }
-            )
+            testCreateUrl(points, { name: 'my-profile' }, '')
         })
 
-        function testCreateUrl(points: QueryPoint[], profile: RoutingProfile, style: StyleOption) {
+        function testCreateUrl(points: QueryPoint[], profile: RoutingProfile, layer: string) {
             // build url which we expect at the end
             const expectedUrl = new URL(window.location.origin + window.location.pathname)
             for (const point of points) {
@@ -100,14 +96,14 @@ describe('NavBar', function () {
                 expectedUrl.searchParams.append('point', param)
             }
             expectedUrl.searchParams.append('profile', profile.name)
-            expectedUrl.searchParams.append('layer', style.name)
+            expectedUrl.searchParams.append('layer', layer)
 
             // modify state of stores which the nav bar depends on
             for (const point of points) {
                 queryStore.receive(new SetPoint(point, true))
             }
             queryStore.receive(new SetVehicleProfile(profile))
-            mapStore.receive(new SelectMapStyle(style))
+            mapStore.receive(new SelectMapLayer(layer))
 
             // make assertions
             // number of calls profile, style and how many points there are

@@ -1,13 +1,7 @@
 import { coordinateToText } from '@/Converters'
 import { Bbox } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import {
-    ClearPoints,
-    SelectMapStyle,
-    SetInitialBBox,
-    SetQueryPoints,
-    SetVehicleProfile,
-} from '@/actions/Actions'
+import { ClearPoints, SelectMapLayer, SetInitialBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
@@ -31,7 +25,7 @@ export default class NavBar {
         const result = new URL(baseUrl)
         queryStoreState.queryPoints
             .filter(point => point.isInitialized)
-            .map(point => this.pointToParam(point)) //coordinateToText(point.coordinate))
+            .map(point => NavBar.pointToParam(point)) //coordinateToText(point.coordinate))
             .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
@@ -89,10 +83,8 @@ export default class NavBar {
         return ''
     }
 
-    private parseLayer(url: URL) {
-        let layer = url.searchParams.get('layer')
-        const option = this.mapStore.state.styleOptions.find(option => option.name === layer)
-        return option ? option : this.mapStore.state.selectedStyle
+    private static parseLayer(url: URL): string | null {
+        return url.searchParams.get('layer')
     }
 
     parseUrlAndReplaceQuery() {
@@ -137,9 +129,8 @@ export default class NavBar {
             if (parsedPoints.length > 0) Dispatcher.dispatch(new SetQueryPoints(parsedPoints))
         }
 
-        // add map style
-        const parsedStyleOption = this.parseLayer(url)
-        Dispatcher.dispatch(new SelectMapStyle(parsedStyleOption))
+        const parsedLayer = NavBar.parseLayer(url)
+        if (parsedLayer) Dispatcher.dispatch(new SelectMapLayer(parsedLayer))
 
         this.isIgnoreQueryStoreUpdates = false
     }

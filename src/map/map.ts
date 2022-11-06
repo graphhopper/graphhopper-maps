@@ -3,7 +3,7 @@ import { Map, View } from 'ol'
 import { fromLonLat } from 'ol/proj'
 import { MapIsLoaded } from '@/actions/Actions'
 import { defaults as defaultControls, Zoom } from 'ol/control'
-import styles from "@/map/Map.module.css";
+import styles from '@/map/Map.module.css'
 
 let map: Map | undefined
 
@@ -19,11 +19,11 @@ export function createMap(): Map {
         controls: defaultControls({
             zoom: true,
             zoomOptions: {
-                className: styles.customZoom
+                className: styles.customZoom,
             },
             attribution: true,
             attributionOptions: {
-                collapsible: false
+                collapsible: false,
             },
         }),
     })
