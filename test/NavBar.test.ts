@@ -1,7 +1,7 @@
 import NavBar from '@/NavBar'
 import QueryStore, { QueryPoint, QueryPointType } from '../src/stores/QueryStore'
 import DummyApi from './DummyApi'
-import { SelectMapStyle, SetPoint, SetVehicleProfile } from '@/actions/Actions'
+import { SelectMapLayer, SetPoint, SetVehicleProfile } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import { coordinateToText } from '@/Converters'
 
@@ -19,6 +19,7 @@ jest.mock('@/Window', () => ({
         },
         history: {
             pushState: jest.fn(),
+            replaceState: jest.fn(),
         },
         addEventListener: jest.fn(),
     },
@@ -40,6 +41,7 @@ describe('NavBar', function () {
         queryStore = new QueryStore(new DummyApi())
         mapStore = new MapOptionsStore()
         navBar = new NavBar(queryStore, mapStore)
+        navBar.startSyncingUrlWithAppState()
         Dispatcher.register(queryStore)
         Dispatcher.register(mapStore)
     })
@@ -64,11 +66,7 @@ describe('NavBar', function () {
                 }
             })
 
-            testCreateUrl(
-                points,
-                { name: 'my-profile' },
-                { name: 'Lyrk', url: '', type: 'raster', attribution: '', maxZoom: 1 }
-            )
+            testCreateUrl(points, { name: 'my-profile' }, 'Lyrk')
         })
 
         it('should convert query store state into url params on change including addresses', () => {
@@ -84,14 +82,10 @@ describe('NavBar', function () {
                 }
             })
 
-            testCreateUrl(
-                points,
-                { name: 'my-profile' },
-                { name: '', url: '', type: 'raster', attribution: '', maxZoom: 1 }
-            )
+            testCreateUrl(points, { name: 'my-profile' }, 'Lyrk')
         })
 
-        function testCreateUrl(points: QueryPoint[], profile: RoutingProfile, style: StyleOption) {
+        function testCreateUrl(points: QueryPoint[], profile: RoutingProfile, layer: string) {
             // build url which we expect at the end
             const expectedUrl = new URL(window.location.origin + window.location.pathname)
             for (const point of points) {
@@ -100,25 +94,20 @@ describe('NavBar', function () {
                 expectedUrl.searchParams.append('point', param)
             }
             expectedUrl.searchParams.append('profile', profile.name)
-            expectedUrl.searchParams.append('layer', style.name)
+            expectedUrl.searchParams.append('layer', layer)
 
             // modify state of stores which the nav bar depends on
             for (const point of points) {
                 queryStore.receive(new SetPoint(point, true))
             }
             queryStore.receive(new SetVehicleProfile(profile))
-            mapStore.receive(new SelectMapStyle(style))
+            mapStore.receive(new SelectMapLayer(layer))
 
             // make assertions
             // number of calls profile, style and how many points there are
             const numberOfCalls = 2 + points.length
             expect(window.history.pushState).toHaveBeenCalledTimes(numberOfCalls)
-            expect(window.history.pushState).toHaveBeenNthCalledWith(
-                numberOfCalls,
-                'last state',
-                '',
-                expectedUrl.toString()
-            )
+            expect(window.history.pushState).toHaveBeenNthCalledWith(numberOfCalls, null, '', expectedUrl.toString())
         }
     })
 
@@ -146,7 +135,7 @@ describe('NavBar', function () {
             }
 
             // act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             //assert
             expect(queryStore.state.queryPoints.length).toEqual(2)
@@ -172,7 +161,7 @@ describe('NavBar', function () {
             const point2 = queryStore.state.queryPoints[1]
 
             // act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             //assert
             // we still want to have 2 points and they should have the same values as before - the ids are changed though
@@ -200,7 +189,7 @@ describe('NavBar', function () {
             )
 
             //act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             // assert
             expect(queryStore.state.queryPoints.length).toEqual(2)
@@ -215,7 +204,7 @@ describe('NavBar', function () {
             }
 
             // act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             //assert
             expect(queryStore.state.queryPoints.length).toEqual(2)
@@ -239,7 +228,7 @@ describe('NavBar', function () {
             const defaultProfile = queryStore.state.routingProfile
 
             // act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             //assert
             expect(queryStore.state.queryPoints.length).toEqual(2)
@@ -262,7 +251,7 @@ describe('NavBar', function () {
             }
 
             // act
-            navBar.parseUrlAndReplaceQuery()
+            navBar.updateStateFromUrl()
 
             // assert
             expect(queryStore.state.routingProfile.name).toEqual(profileName)

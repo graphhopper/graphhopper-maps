@@ -1,6 +1,6 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { MapIsLoaded, SelectMapStyle, ToggleRoutingGraph, ToggleUrbanDensityLayer } from '@/actions/Actions'
+import { MapIsLoaded, SelectMapLayer, ToggleRoutingGraph, ToggleUrbanDensityLayer } from '@/actions/Actions'
 import config from 'config'
 
 const osApiKey = config.keys.omniscale
@@ -238,11 +238,13 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
     }
 
     reduce(state: MapOptionsStoreState, action: Action): MapOptionsStoreState {
-        if (action instanceof SelectMapStyle) {
-            return {
-                ...state,
-                selectedStyle: action.styleOption,
-            }
+        if (action instanceof SelectMapLayer) {
+            const styleOption = state.styleOptions.find(o => o.name === action.layer)
+            if (styleOption)
+                return {
+                    ...state,
+                    selectedStyle: styleOption,
+                }
         } else if (action instanceof ToggleRoutingGraph) {
             return {
                 ...state,

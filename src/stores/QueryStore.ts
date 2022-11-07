@@ -15,7 +15,7 @@ import {
     SetCustomModel,
     SetCustomModelBoxEnabled,
     SetPoint,
-    SetRoutingParametersAtOnce,
+    SetQueryPoints,
     SetVehicleProfile,
 } from '@/actions/Actions'
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
@@ -187,7 +187,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
 
             return this.routeIfReady(newState)
-        } else if (action instanceof SetRoutingParametersAtOnce) {
+        } else if (action instanceof SetQueryPoints) {
             // make sure that some things are set correctly, regardless of what was passed in here.
             const queryPoints = action.queryPoints.map((point, i) => {
                 const type = QueryStore.getPointType(i, action.queryPoints.length)
@@ -201,13 +201,24 @@ export default class QueryStore extends Store<QueryStoreState> {
                     queryText: queryText,
                 }
             })
+            // make sure there are always at least two input boxes
+            while (queryPoints.length < 2) {
+                const type = QueryStore.getPointType(queryPoints.length, 2)
+                queryPoints.push({
+                    id: queryPoints.length,
+                    type: type,
+                    color: QueryStore.getMarkerColor(type),
+                    queryText: '',
+                    isInitialized: false,
+                    coordinate: { lat: 0, lng: 0 },
+                })
+            }
             const nextId = state.nextQueryPointId + queryPoints.length
 
             return this.routeIfReady({
                 ...state,
                 queryPoints: queryPoints,
                 nextQueryPointId: nextId,
-                routingProfile: action.routingProfile,
             })
         } else if (action instanceof RemovePoint) {
             const newPoints = state.queryPoints

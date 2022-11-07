@@ -24,8 +24,6 @@ interface ApiProfile {
 export default interface Api {
     info(): Promise<ApiInfo>
 
-    infoWithDispatch(): void
-
     route(args: RoutingArgs): Promise<RoutingResult>
 
     routeWithDispatch(args: RoutingArgs): void
@@ -68,12 +66,6 @@ export class ApiImpl implements Api {
         } else {
             throw new Error('Could not connect to the Service. Try to reload!')
         }
-    }
-
-    infoWithDispatch() {
-        this.info()
-            .then(result => Dispatcher.dispatch(new InfoReceived(result)))
-            .catch(e => Dispatcher.dispatch(new ErrorAction(e.message)))
     }
 
     async geocode(query: string, provider: string) {
@@ -204,7 +196,7 @@ export class ApiImpl implements Api {
         }
 
         // group similarly named profiles into the following predefined order
-        let reservedOrder = ['car', 'truck', 'scooter', 'foot', 'hike', 'bike']
+        const reservedOrder = ['car', 'truck', 'scooter', 'foot', 'hike', 'bike']
         profiles.sort((a, b) => {
             let idxa = reservedOrder.findIndex(str => a.name.indexOf(str) >= 0)
             let idxb = reservedOrder.findIndex(str => b.name.indexOf(str) >= 0)

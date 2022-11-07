@@ -3,7 +3,7 @@ import Store from '@/stores/Store'
 import {
     ErrorAction,
     LocationUpdate,
-    SetRoutingParametersAtOnce,
+    SetQueryPoints,
     SetSelectedPath,
     SetVehicleProfile,
     TurnNavigationRerouting,
@@ -111,12 +111,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             return {
                 ...state,
                 rerouteInProgress: false,
-            }
-        } else if (action instanceof SetRoutingParametersAtOnce) {
-            console.log('SetRoutingParametersAtOnce, profile: ' + action.routingProfile.name)
-            return {
-                ...state,
-                activeProfile: action.routingProfile.name,
             }
         } else if (action instanceof SetVehicleProfile) {
             console.log('SetVehicleProfile, profile: ' + action.profile.name)
