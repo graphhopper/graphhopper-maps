@@ -42,13 +42,11 @@ export class AddPoint implements Action {
     }
 }
 
-export class SetRoutingParametersAtOnce implements Action {
+export class SetQueryPoints implements Action {
     readonly queryPoints: QueryPoint[]
-    readonly routingProfile: RoutingProfile
 
-    constructor(queryPoints: QueryPoint[], routingProfile: RoutingProfile) {
+    constructor(queryPoints: QueryPoint[]) {
         this.queryPoints = queryPoints
-        this.routingProfile = routingProfile
     }
 }
 
@@ -139,11 +137,11 @@ export class SetSelectedPath implements Action {
 
 export class DismissLastError implements Action {}
 
-export class SelectMapStyle implements Action {
-    readonly styleOption: StyleOption
+export class SelectMapLayer implements Action {
+    readonly layer: string
 
-    constructor(styleOption: StyleOption) {
-        this.styleOption = styleOption
+    constructor(layer: string) {
+        this.layer = layer
     }
 }
 
@@ -214,6 +212,16 @@ export class RoutingGraphHover implements Action {
     constructor(point: Coordinate | null, properties: object) {
         this.point = point
         this.properties = properties
+    }
+}
+
+export class InstructionClicked implements Action {
+    readonly coordinate: Coordinate | null
+    readonly text: string
+
+    constructor(point: Coordinate | null, text: string) {
+        this.coordinate = point
+        this.text = text
     }
 }
 

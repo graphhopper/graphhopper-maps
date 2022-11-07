@@ -73,8 +73,6 @@ class DummyApi implements Api {
         throw Error('not implemented')
     }
 
-    infoWithDispatch(): void {}
-
     route(args: RoutingArgs): Promise<RoutingResult> {
         throw Error('not implemented')
     }

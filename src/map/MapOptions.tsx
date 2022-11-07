@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import styles from './MapOptions.modules.css'
-import { MapOptionsStoreState, StyleOption } from '@/stores/MapOptionsStore'
+import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { SelectMapStyle, ToggleRoutingGraph, ToggleUrbanDensityLayer } from '@/actions/Actions'
+import { SelectMapLayer, ToggleRoutingGraph, ToggleUrbanDensityLayer } from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
 import LayerImg from './layer-group-solid.svg'
 import * as config from 'config'
@@ -37,7 +37,7 @@ const Options = function ({ storeState, notifyChanged }: OptionsProps) {
             <div
                 onChange={e => {
                     notifyChanged()
-                    onStyleChange(e.target as HTMLInputElement, storeState.styleOptions)
+                    onStyleChange(e.target as HTMLInputElement)
                 }}
             >
                 {storeState.styleOptions.map(option => (
@@ -88,7 +88,6 @@ const Options = function ({ storeState, notifyChanged }: OptionsProps) {
     )
 }
 
-function onStyleChange(target: HTMLInputElement, options: StyleOption[]) {
-    const option = options.find(option => option.name === target.value)
-    if (option) Dispatcher.dispatch(new SelectMapStyle(option))
+function onStyleChange(target: HTMLInputElement) {
+    Dispatcher.dispatch(new SelectMapLayer(target.value))
 }
