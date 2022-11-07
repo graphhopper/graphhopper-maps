@@ -1,7 +1,7 @@
 import { coordinateToText } from '@/Converters'
-import { Bbox, RoutingProfile } from '@/api/graphhopper'
+import { Bbox } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, SelectMapStyle, SetInitialBBox, SetRoutingParametersAtOnce } from '@/actions/Actions'
+import { ClearPoints, SelectMapLayer, SetInitialBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
@@ -11,21 +11,26 @@ import { getApi } from '@/api/Api'
 export default class NavBar {
     private readonly queryStore: QueryStore
     private readonly mapStore: MapOptionsStore
-    private isIgnoreQueryStoreUpdates = false
+    private ignoreStateUpdates = false
 
     constructor(queryStore: QueryStore, mapStore: MapOptionsStore) {
         this.queryStore = queryStore
-        this.queryStore.register(() => this.onQueryStateChanged())
         this.mapStore = mapStore
-        this.mapStore.register(() => this.onQueryStateChanged())
-        window.addEventListener('popstate', () => this.parseUrlAndReplaceQuery())
+        window.addEventListener('popstate', async () => await this.updateStateFromUrl())
+    }
+
+    async startSyncingUrlWithAppState() {
+        // our first history entry shall be the one that we end up with when the app loads for the first time
+        window.history.replaceState(null, '', this.createUrlFromState())
+        this.queryStore.register(() => this.updateUrlFromState())
+        this.mapStore.register(() => this.updateUrlFromState())
     }
 
     private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState) {
         const result = new URL(baseUrl)
         queryStoreState.queryPoints
             .filter(point => point.isInitialized)
-            .map(point => this.pointToParam(point)) //coordinateToText(point.coordinate))
+            .map(point => NavBar.pointToParam(point)) //coordinateToText(point.coordinate))
             .forEach(pointAsString => result.searchParams.append('point', pointAsString))
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
@@ -41,8 +46,8 @@ export default class NavBar {
         return coordinate === point.queryText ? coordinate : coordinate + '_' + point.queryText
     }
 
-    private parsePoints(url: URL, profile: RoutingProfile): QueryPoint[] {
-        const points = url.searchParams.getAll('point').map((parameter, idx) => {
+    private static parsePoints(url: URL): QueryPoint[] {
+        return url.searchParams.getAll('point').map((parameter, idx) => {
             const split = parameter.split('_')
 
             const point = {
@@ -64,35 +69,6 @@ export default class NavBar {
 
             return point
         })
-
-        // support legacy URLs without coordinates (not initialized) and only text, see #199
-        if (points.some(p => !p.isInitialized && p.queryText.length > 0)) {
-            if (!profile.name) profile = { name: 'car' }
-            let fullyInitPoints: QueryPoint[] = Array.from({ length: points.length })
-            points.forEach((p, idx) => {
-                if (p.isInitialized) fullyInitPoints[idx] = p
-                else
-                    getApi()
-                        .geocode(p.queryText, 'nominatim')
-                        .then(res => {
-                            if (res.hits.length <= 0) return
-                            fullyInitPoints[idx] = {
-                                ...p,
-                                queryText: res.hits[0].name,
-                                coordinate: { lat: res.hits[0].point.lat, lng: res.hits[0].point.lng },
-                                isInitialized: true,
-                            }
-                            if (fullyInitPoints.every(p => p.isInitialized)) {
-                                if (fullyInitPoints.length <= 2) this.fillPoints(fullyInitPoints)
-                                Dispatcher.dispatch(new SetRoutingParametersAtOnce(fullyInitPoints, profile))
-                            }
-                        })
-            })
-            return [] // skip normal SetRoutingParametersAtOnce
-        }
-
-        // this ensures that if no or one point parameter is specified in the URL there are still two input fields
-        return points.length > 2 ? points : this.fillPoints(points)
     }
 
     private static parseCoordinate(params: string) {
@@ -112,60 +88,78 @@ export default class NavBar {
         return ''
     }
 
-    private parseLayer(url: URL) {
-        let layer = url.searchParams.get('layer')
-        const option = this.mapStore.state.styleOptions.find(option => option.name === layer)
-        return option ? option : this.mapStore.state.selectedStyle
+    private static parseLayer(url: URL): string | null {
+        return url.searchParams.get('layer')
     }
 
-    parseUrlAndReplaceQuery() {
-        this.isIgnoreQueryStoreUpdates = true
+    async updateStateFromUrl() {
+        // We update the state several times ourselves, but we don't want to push history entries for each dispatch.
+        this.ignoreStateUpdates = true
 
         Dispatcher.dispatch(new ClearPoints())
         const url = new URL(window.location.href)
 
         const parsedProfileName = NavBar.parseProfile(url)
-        const profile = parsedProfileName ? { name: parsedProfileName } : this.queryStore.state.routingProfile
-        const parsedPoints = this.parsePoints(url, profile)
+        if (parsedProfileName)
+            // this won't trigger a route request because we just cleared the points
+            Dispatcher.dispatch(new SetVehicleProfile({ name: parsedProfileName }))
+        const parsedPoints = NavBar.parsePoints(url)
 
-        // estimate map bounds from url points if there are any. this way we prevent loading tiles for the world view
-        // only to zoom to the route shortly after
-        const bbox = this.getBBoxFromUrlPoints(parsedPoints.map(p => p.coordinate))
-        if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
-
-        if (parsedPoints.length > 0) Dispatcher.dispatch(new SetRoutingParametersAtOnce(parsedPoints, profile))
-
-        // add map style
-        const parsedStyleOption = this.parseLayer(url)
-        Dispatcher.dispatch(new SelectMapStyle(parsedStyleOption))
-
-        this.isIgnoreQueryStoreUpdates = false
-    }
-
-    private fillPoints(parsedPoints: QueryPoint[]) {
-        const result: QueryPoint[] = this.queryStore.state.queryPoints
-
-        // assuming that at least two points should be present add un-initialized points if necessary
-        for (let i = 0; i < result.length && i < parsedPoints.length; i++) {
-            result[i] = parsedPoints[i]
+        // support legacy URLs without coordinates (not initialized) and only text, see #199
+        if (parsedPoints.some(p => !p.isInitialized && p.queryText.length > 0)) {
+            const promises = parsedPoints.map(p => {
+                if (p.isInitialized) return Promise.resolve(p)
+                return (
+                    getApi()
+                        .geocode(p.queryText, 'nominatim')
+                        .then(res => {
+                            if (res.hits.length == 0) return p
+                            return {
+                                ...p,
+                                queryText: res.hits[0].name,
+                                coordinate: { lat: res.hits[0].point.lat, lng: res.hits[0].point.lng },
+                                isInitialized: true,
+                            }
+                        })
+                        // if the geocoding request fails we just keep the point as it is, just as if no results were found
+                        .catch(() => Promise.resolve(p))
+                )
+            })
+            const points = await Promise.all(promises)
+            NavBar.dispatchQueryPoints(points)
+        } else {
+            NavBar.dispatchQueryPoints(parsedPoints)
         }
 
-        return result
+        const parsedLayer = NavBar.parseLayer(url)
+        if (parsedLayer) Dispatcher.dispatch(new SelectMapLayer(parsedLayer))
+
+        this.ignoreStateUpdates = false
     }
 
-    private onQueryStateChanged() {
-        if (this.isIgnoreQueryStoreUpdates) return
+    private static dispatchQueryPoints(points: QueryPoint[]) {
+        // estimate map bounds from url points if there are any. this way we prevent loading tiles for the world view
+        // only to zoom to the route shortly after
+        const bbox = NavBar.getBBoxFromUrlPoints(points.filter(p => p.isInitialized).map(p => p.coordinate))
+        if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
+        return Dispatcher.dispatch(new SetQueryPoints(points))
+    }
 
-        const newHref = NavBar.createUrl(
+    public updateUrlFromState() {
+        if (this.ignoreStateUpdates) return
+        const newHref = this.createUrlFromState()
+        if (newHref !== window.location.href) window.history.pushState(null, '', newHref)
+    }
+
+    private createUrlFromState() {
+        return NavBar.createUrl(
             window.location.origin + window.location.pathname,
             this.queryStore.state,
             this.mapStore.state
         ).toString()
-
-        if (newHref !== window.location.href) window.history.pushState('last state', '', newHref)
     }
 
-    private getBBoxFromUrlPoints(urlPoints: Coordinate[]): Bbox | null {
+    private static getBBoxFromUrlPoints(urlPoints: Coordinate[]): Bbox | null {
         const bbox: Bbox = urlPoints.reduce(
             (res: Bbox, c) => [
                 Math.min(res[0], c.lng),

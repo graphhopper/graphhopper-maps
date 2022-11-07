@@ -1,5 +1,4 @@
 import React from 'react'
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { setTranslation } from '@/translation/Translation'
@@ -7,13 +6,13 @@ import App from '@/App'
 import {
     getApiInfoStore,
     getErrorStore,
+    getMapFeatureStore,
     getMapOptionsStore,
     getPathDetailsStore,
-    getMapFeatureStore,
     getQueryStore,
     getRouteStore,
-    setStores,
     getSettingsStore,
+    setStores,
 } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
 import RouteStore from '@/stores/RouteStore'
@@ -29,6 +28,7 @@ import MapActionReceiver from '@/stores/MapActionReceiver'
 import { createMap, getMap, setMap } from '@/map/map'
 import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
+import { ErrorAction, InfoReceived } from '@/actions/Actions'
 
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 
@@ -72,12 +72,16 @@ const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
 const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
 Dispatcher.register(mapActionReceiver)
 
-getApi().infoWithDispatch() // get infos about the api as soon as possible
-
-// hook up the navbar to the query store and vice versa
 const navBar = new NavBar(getQueryStore(), getMapOptionsStore())
-// parse the initial url
-navBar.parseUrlAndReplaceQuery()
+
+// get infos about the api as soon as possible
+getApi()
+    .info()
+    .then(info => {
+        Dispatcher.dispatch(new InfoReceived(info))
+        navBar.updateStateFromUrl().then(() => navBar.startSyncingUrlWithAppState())
+    })
+    .catch(e => Dispatcher.dispatch(new ErrorAction(e.message)))
 
 // create a div which holds the app and render the 'App' component
 const rootDiv = document.createElement('div') as HTMLDivElement
