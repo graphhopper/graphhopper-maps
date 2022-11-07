@@ -39,12 +39,9 @@ module.exports = {
                 enforce: 'pre',
                 test: /\.js$/,
                 loader: 'source-map-loader',
-                // exclude react responsive module because it would cause build warnings. They say they've solved this issue with 9.0.0 but doesn't look like it
-                // excluding it from source maps for now. See also https://github.com/contra/react-responsive/issues/226
-                exclude: path.resolve(__dirname, 'node_modules', 'react-responsive'),
             },
             // load styles from node_modules but leave them un-touched
-            // this is important for mapbox-gl
+            // this is important for codemirror and ol
             {
                 test: /\.css$/,
                 include: path.resolve(__dirname, 'node_modules'),
