@@ -14,6 +14,7 @@ import {
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
+import InfoIcon from './info.svg'
 import PlainButton from '@/PlainButton'
 
 import AddressInput from '@/sidebar/search/AddressInput'
@@ -22,6 +23,7 @@ import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 
 export default function Search({ points }: { points: QueryPoint[] }) {
+    let [showInfo, setShowInfo] = useState(false)
     let [showTargetIcons, setShowTargetIcons] = useState(true)
     let [moveStartIndex, onMoveStartSelect] = useState(-1)
     let [dropPreviewIndex, onDropPreviewSelect] = useState(-1)
@@ -71,7 +73,19 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                 >
                     {showDistanceInMiles ? 'mi' : 'km'}
                 </PlainButton>
+                <PlainButton className={styles.infoButton} onClick={() => setShowInfo(!showInfo)}>
+                    <InfoIcon />
+                </PlainButton>
             </div>
+            {showInfo && (
+                <div className={styles.infoLine}>
+                    <a href="https://www.graphhopper.com/maps-route-planner/">Info</a>
+                    <a href="https://github.com/graphhopper/graphhopper-maps/issues">Feedback</a>
+                    <a href="https://www.graphhopper.com/imprint/">Imprint</a>
+                    <a href="https://www.graphhopper.com/privacy/">Privacy</a>
+                    <a href="https://www.graphhopper.com/terms/">Terms</a>
+                </div>
+            )}
         </div>
     )
 }

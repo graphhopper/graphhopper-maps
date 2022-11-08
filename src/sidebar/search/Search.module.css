@@ -52,29 +52,72 @@
 .lastSearchLine {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-right: 2px;
     padding-bottom: 1rem;
 }
 
-.addSearchBox:hover path {
+.addSearchBox:hover path,
+.infoButton:hover path {
     fill: black;
+}
+
+.infoButton:active path,
+.addSearchBox:active path,
+.markerTarget:active path {
+    fill: lightgray;
+}
+
+.infoButton {
+    padding-left: 7px;
+}
+
+.infoButton svg {
+    width: 19px;
+    height: 19px;
+}
+
+.infoLine {
+    padding: 0 4px 2px 2px;
+    font-size: 14px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.infoLine a {
+    color: gray;
+    text-decoration: none;
+}
+
+.infoLine a:hover {
+    color: black;
+}
+
+.addSearchBox svg {
+    width: 18px;
+    height: 18px;
 }
 
 .addSearchBox svg {
     color: #adadad;
-    width: 1.1rem;
     padding: 0 1.25em 0 0;
 }
 
 .addSearchBox {
+    flex-grow: 1;
     display: flex;
     flex-direction: row;
 }
 
 .addSearchBox,
 .mikm {
+    color: gray;
     font-size: 14px;
+}
+
+.infoButton svg {
+    fill: #adadad;
 }
 
 .markerContainer:hover svg {
@@ -96,10 +139,6 @@
 
 .markerTarget:hover svg {
     fill: black;
-}
-
-.markerTarget:active svg {
-    fill: lightgray;
 }
 
 .markerContainer > svg,
