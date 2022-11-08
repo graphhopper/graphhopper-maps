@@ -73,14 +73,11 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                 >
                     {showDistanceInMiles ? 'mi' : 'km'}
                 </PlainButton>
-                <PlainButton
-                    className={styles.infoButton}
-                    onClick={() => setShowInfo(!showInfo)}
-                >
-                    <InfoIcon/>
+                <PlainButton className={styles.infoButton} onClick={() => setShowInfo(!showInfo)}>
+                    <InfoIcon />
                 </PlainButton>
             </div>
-            { showInfo &&
+            {showInfo && (
                 <div className={styles.infoLine}>
                     <a href="https://www.graphhopper.com/maps-route-planner/">Info</a>
                     <a href="https://github.com/graphhopper/graphhopper-maps/issues">Feedback</a>
@@ -88,7 +85,7 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                     <a href="https://www.graphhopper.com/privacy/">Privacy</a>
                     <a href="https://www.graphhopper.com/terms/">Terms</a>
                 </div>
-            }
+            )}
         </div>
     )
 }
