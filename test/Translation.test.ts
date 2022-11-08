@@ -28,7 +28,13 @@ describe('translate', () => {
     })
 
     it('finland', () => {
-        const trFI = setTranslation('fi', true)
+        let trFI = setTranslation('fi', true)
+        expect(trFI.get('car')).toEqual('Auto')
+
+        trFI = setTranslation('fi-fi', true)
+        expect(trFI.get('car')).toEqual('Auto')
+
+        trFI = setTranslation('Fi-fi', true)
         expect(trFI.get('car')).toEqual('Auto')
     })
 })
