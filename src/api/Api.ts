@@ -1,5 +1,5 @@
 import Dispatcher from '@/stores/Dispatcher'
-import { ErrorAction, InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
+import { RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
 import {
     ApiInfo,
     Bbox,

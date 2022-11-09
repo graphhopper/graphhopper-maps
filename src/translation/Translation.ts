@@ -36,10 +36,10 @@ export function setTranslation(lang: string, overwrite = false): Translation {
     if (translation && !overwrite) throw new Error('translation already initialized')
     lang = lang.toLowerCase().replace('-', '_')
 
-    let json = trJson as Record<string, any>
+    const json = trJson as Record<string, any>
     let selectedLang = Object.keys(json).find(property => lang == property || lang == pickLang(property))
     if (!selectedLang) {
-        let genericLang = lang.length > 2 ? lang.substring(0, 2) : lang
+        const genericLang = lang.length > 2 ? lang.substring(0, 2) : lang
         selectedLang = Object.keys(json).find(property => genericLang == pickLang(property))
         if (!selectedLang) {
             selectedLang = 'en_US'

@@ -23,10 +23,10 @@ import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 
 export default function Search({ points }: { points: QueryPoint[] }) {
-    let [showInfo, setShowInfo] = useState(false)
-    let [showTargetIcons, setShowTargetIcons] = useState(true)
-    let [moveStartIndex, onMoveStartSelect] = useState(-1)
-    let [dropPreviewIndex, onDropPreviewSelect] = useState(-1)
+    const [showInfo, setShowInfo] = useState(false)
+    const [showTargetIcons, setShowTargetIcons] = useState(true)
+    const [moveStartIndex, onMoveStartSelect] = useState(-1)
+    const [dropPreviewIndex, onDropPreviewSelect] = useState(-1)
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
 
     return (
@@ -111,7 +111,7 @@ const SearchBox = ({
     dropPreviewIndex: number
     onDropPreviewSelect: (index: number) => void
 }) => {
-    let point = points[index]
+    const point = points[index]
 
     // With this ref and tabIndex=-1 we ensure that the first 'TAB' gives the focus the first input but the marker won't be included in the TAB sequence, #194
     const myMarkerRef = useRef<HTMLDivElement>(null)
@@ -122,7 +122,7 @@ const SearchBox = ({
 
     function onClickOrDrop() {
         onDropPreviewSelect(-1)
-        let newIndex = moveStartIndex < index ? index + 1 : index
+        const newIndex = moveStartIndex < index ? index + 1 : index
         Dispatcher.dispatch(new MovePoint(points[moveStartIndex], newIndex))
         onMoveStartSelect(index, false) // temporarily hide target icons
         setTimeout(() => {
