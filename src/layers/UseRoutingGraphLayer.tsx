@@ -59,7 +59,9 @@ function addRoutingGraphLayer(map: Map) {
         declutter: true,
         source: new VectorTileSource({
             attributions: '',
-            format: new MVT(),
+            format: new MVT({
+                featureClass: Feature,
+            }),
             url: `${config.api}mvt/{z}/{x}/{y}.mvt`,
         }),
         style: ((feature: Feature, resolution: number) =>
