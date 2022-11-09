@@ -19,7 +19,7 @@ jest.mock('@/Window', () => ({
         },
         history: {
             pushState: jest.fn(),
-            replaceState: jest.fn()
+            replaceState: jest.fn(),
         },
         addEventListener: jest.fn(),
     },
@@ -107,12 +107,7 @@ describe('NavBar', function () {
             // number of calls profile, style and how many points there are
             const numberOfCalls = 2 + points.length
             expect(window.history.pushState).toHaveBeenCalledTimes(numberOfCalls)
-            expect(window.history.pushState).toHaveBeenNthCalledWith(
-                numberOfCalls,
-                null,
-                '',
-                expectedUrl.toString()
-            )
+            expect(window.history.pushState).toHaveBeenNthCalledWith(numberOfCalls, null, '', expectedUrl.toString())
         }
     })
 
