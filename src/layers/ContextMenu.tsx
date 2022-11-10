@@ -37,7 +37,10 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 
         const longTouchHandler = new LongTouchHandler(e => openContextMenu(e))
 
-        map.once('change:target', () => {
+        map.on('change:target', () => {
+            // it is important to setup new listeners whenever the map target changes, like when we switch between the
+            // small and large screen layout, see #203
+
             // we cannot listen to right-click simply using map.on('contextmenu') and need to add the listener to
             // the map container instead
             // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
