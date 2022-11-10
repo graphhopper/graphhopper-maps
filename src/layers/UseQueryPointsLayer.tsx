@@ -20,6 +20,10 @@ export default function useQueryPointsLayer(map: Map, queryPoints: QueryPoint[])
         const queryPointsLayer = addQueryPointsLayer(map, queryPoints)
         removeDragInteractions(map)
         addDragInteractions(map, queryPointsLayer)
+        return () => {
+            removeQueryPoints(map)
+            removeDragInteractions(map)
+        }
     }, [map, queryPoints])
 }
 
