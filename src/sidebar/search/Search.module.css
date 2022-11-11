@@ -54,7 +54,6 @@
     flex-direction: row;
     justify-content: flex-end;
     margin-right: 2px;
-    padding-bottom: 1rem;
 }
 
 .addSearchBox:hover path,
@@ -78,7 +77,7 @@
 }
 
 .infoLine {
-    padding: 0 4px 2px 2px;
+    padding: 1.5em 4px 2px 2px;
     font-size: 14px;
     display: flex;
     flex-direction: row;
