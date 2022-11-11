@@ -4,10 +4,11 @@
     align-items: center;
     justify-content: center;
     gap: 0.3rem;
+    padding-top: 1.5em;
     font-size: x-small;
 }
 
-@media {
+@media (max-width: 44rem) {
     .poweredByContainer {
         padding: 0.1rem;
     }
