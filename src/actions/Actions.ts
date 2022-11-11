@@ -1,7 +1,6 @@
 import { Action } from '@/stores/Dispatcher'
 import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
-import { StyleOption } from '@/stores/MapOptionsStore'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 import { TNSettingsState } from '@/stores/TurnNavigationStore'
 

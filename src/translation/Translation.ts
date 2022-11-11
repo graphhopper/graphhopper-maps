@@ -34,22 +34,23 @@ export class Translation {
 let translation: Translation
 export function setTranslation(lang: string, overwrite = false): Translation {
     if (translation && !overwrite) throw new Error('translation already initialized')
-    lang = lang.replace('-', '_')
+    lang = lang.toLowerCase().replace('-', '_')
 
-    let json = trJson as Record<string, any>
-    let selectedLang = Object.keys(json).find(
-        property =>
-            lang == property || (property.indexOf('_') > 0 && lang == property.substring(0, property.indexOf('_')))
-    )
+    const json = trJson as Record<string, any>
+    let selectedLang = Object.keys(json).find(property => lang == property || lang == pickLang(property))
     if (!selectedLang) {
-        let genericLang = lang.length > 2 ? lang.substring(0, 2) : lang
-        selectedLang = Object.keys(json).find(property => property.startsWith(genericLang))
+        const genericLang = lang.length > 2 ? lang.substring(0, 2) : lang
+        selectedLang = Object.keys(json).find(property => genericLang == pickLang(property))
         if (!selectedLang) {
             selectedLang = 'en_US'
             console.warn('cannot find language ' + lang + ' fallback to ' + selectedLang)
         }
     }
     return (translation = new Translation(selectedLang, json[selectedLang], json['en_US']))
+}
+
+function pickLang(locale: string) {
+    return locale.indexOf('_') > 0 ? locale.substring(0, locale.indexOf('_')) : locale
 }
 
 export function getTranslation(): Translation {

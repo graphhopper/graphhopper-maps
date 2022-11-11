@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { ApiInfo, RoutingProfile } from '@/api/graphhopper'
+import { ApiInfo } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'

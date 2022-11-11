@@ -367,7 +367,7 @@ export default class QueryStore extends Store<QueryStoreState> {
     private static movePoint(points: QueryPoint[], point: QueryPoint, newIndex: number): QueryPoint[] {
         if (newIndex < 0) return points
 
-        let newPoints = points.filter((p, index) => {
+        const newPoints = points.filter((p, index) => {
             if (p.id == point.id) {
                 if (index < newIndex) newIndex-- // index adjustment is important
                 return false
