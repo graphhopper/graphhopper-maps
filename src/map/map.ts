@@ -23,7 +23,8 @@ export function createMap(): Map {
             },
             attribution: true,
             attributionOptions: {
-                collapsible: false,
+                className: styles.customAttribution,
+                collapsible: true,
             },
         }),
     })

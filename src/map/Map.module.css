@@ -8,6 +8,29 @@
 }
 
 .customZoom {
-    left: 0.5em;
-    bottom: 0.5em;
+    right: 0.5em;
+    top: 57px;
+}
+
+/* changing the position of the attribution is a bit complex as we have to repeat the other css */
+.customAttribution {
+    left: 0;
+    bottom: 0;
+    padding: 1px 5px;
+    background-color: rgba(255,255,255,0.8);
+    border-radius: 0 4px 0 0;
+}
+
+.customAttribution ul {
+    font-size: 12px;
+}
+
+.customAttribution a {
+    padding-right: 3px;
+    color: rgba(0,60,136,0.7);
+    text-decoration: none;
+}
+
+.customAttribution button {
+    display: none;
 }
