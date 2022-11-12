@@ -14,6 +14,8 @@ export class InfoReceived implements Action {
 
 export class TurnNavigationStop implements Action {}
 
+export class TurnNavigationStart implements Action {}
+
 export class LocationUpdate implements Action {
     readonly coordinate: Coordinate
     readonly speed: number

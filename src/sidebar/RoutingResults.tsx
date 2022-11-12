@@ -3,7 +3,13 @@ import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import React, { useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetSelectedPath, TurnNavigationSettingsUpdate, TurnNavigationStop } from '@/actions/Actions'
+import {
+    SelectMapLayer,
+    SetSelectedPath,
+    TurnNavigationSettingsUpdate,
+    TurnNavigationStart,
+    TurnNavigationStop
+} from '@/actions/Actions'
 import { metersToSimpleText, metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
@@ -15,9 +21,9 @@ import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
-import { getTurnNavigationStore } from '@/stores/Stores'
 import { TNSettingsState, TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import Cross from '@/sidebar/times-solid.svg'
+import * as config from 'config'
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -78,8 +84,7 @@ function RoutingResult({
                                     Dispatcher.dispatch(
                                         new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState)
                                     )
-                                    if (turnNavigation.settings.fakeGPS) getTurnNavigationStore().initFake()
-                                    else getTurnNavigationStore().initReal()
+                                    startNavigation()
                                 }}
                             >
                                 {tr('accept_risks_after_warning')}
@@ -91,6 +96,7 @@ function RoutingResult({
                     className={styles.showRiskBack}
                     onClick={() => {
                         setShowBackAndRisk(false)
+                        Dispatcher.dispatch(new SelectMapLayer(turnNavigation.oldTiles))
                         Dispatcher.dispatch(new TurnNavigationStop())
                     }}
                 >
@@ -129,14 +135,11 @@ function RoutingResult({
                             className={styles.exportButton}
                             onClick={() => {
                                 setShowBackAndRisk(true)
-                                if (turnNavigation.settings.acceptedRisk) {
-                                    if (turnNavigation.settings.fakeGPS) getTurnNavigationStore().initFake()
-                                    else getTurnNavigationStore().initReal()
-                                }
+                                if (turnNavigation.settings.acceptedRisk) startNavigation()
                             }}
                         >
                             <NaviSVG />
-                            <div>{tr('navigation_start')}</div>
+                            <div>{tr('start_navigation')}</div>
                         </PlainButton>
                     )}
                     {isSelected && !showBackAndRisk && (
@@ -172,6 +175,11 @@ function RoutingResult({
             {isExpanded && <Instructions instructions={path.instructions} />}
         </div>
     )
+}
+
+function startNavigation() {
+    Dispatcher.dispatch(new TurnNavigationStart())
+    Dispatcher.dispatch(new SelectMapLayer(config.navigationTiles))
 }
 
 function containsBadTracks(details: [number, number, string][]) {

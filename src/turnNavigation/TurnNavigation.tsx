@@ -5,7 +5,7 @@ import styles from '@/turnNavigation/TurnNavigation.module.css'
 import EndNavigation from '@/sidebar/times-solid.svg'
 import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { TurnNavigationStop, ZoomMapToPoint } from '@/actions/Actions'
+import {SelectMapLayer, TurnNavigationStop, ZoomMapToPoint} from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
 
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
@@ -68,6 +68,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                         <PlainButton
                             className={styles.thirdCol}
                             onClick={() => {
+                                Dispatcher.dispatch(new SelectMapLayer(turnNavigation.oldTiles))
                                 Dispatcher.dispatch(new TurnNavigationStop())
                                 Dispatcher.dispatch(new ZoomMapToPoint(turnNavigation.coordinate, 15, 0, false, 0))
                             }}

@@ -3,12 +3,12 @@ import Store from '@/stores/Store'
 import {
     ErrorAction,
     LocationUpdate,
-    SetQueryPoints,
+    SelectMapLayer,
     SetSelectedPath,
     SetVehicleProfile,
     TurnNavigationRerouting,
     TurnNavigationReroutingFailed,
-    TurnNavigationSettingsUpdate,
+    TurnNavigationSettingsUpdate, TurnNavigationStart,
     TurnNavigationStop,
     ZoomMapToPoint,
 } from '@/actions/Actions'
@@ -27,10 +27,12 @@ import * as config from 'config'
 import { Instruction, Path, RoutingArgs } from '@/api/graphhopper'
 import { tr } from '@/translation/Translation'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
+import {getTurnNavigationStore} from "@/stores/Stores";
 
 export interface TurnNavigationStoreState {
     // TODO replace "enabled" with a composite state depending on activePath, coordinate and instruction
     enabled: boolean
+    oldTiles: string
     coordinate: Coordinate
     speed: number
     heading: number
@@ -73,11 +75,11 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private interval: any
     private noSleep: any
     private readonly speechSynthesizer: SpeechSynthesizer
-    private started: boolean = false
 
     constructor(api: Api, speechSynthesizer: SpeechSynthesizer, fakeGPS: boolean) {
         super({
             enabled: false,
+            oldTiles: '',
             coordinate: { lat: 0, lng: 0 },
             speed: 0,
             heading: 0,
@@ -93,10 +95,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         this.speechSynthesizer = speechSynthesizer
     }
 
-    public getSpeechSynthesizer(): SpeechSynthesizer {
-        return this.speechSynthesizer
-    }
-
     reduce(state: TurnNavigationStoreState, action: Action): TurnNavigationStoreState {
         // For the navigation we need:
         // current location (frequently updated), the active path (updated on reroute) and the profile (required for rerouting)
@@ -105,7 +103,17 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             this.stop()
             return { ...state, enabled: false, speed: 0, heading: 0 }
         } else if (action instanceof TurnNavigationSettingsUpdate) {
-            return { ...state, settings: { ...state.settings, ...action.settings } }
+            return {...state, settings: {...state.settings, ...action.settings}}
+        } else if (action instanceof TurnNavigationStart) {
+            if (state.settings.fakeGPS) this.initFake()
+            else this.initReal()
+            return { ...state, enabled: true }
+        } else if (action instanceof SelectMapLayer) {
+            if(!this.state.enabled)
+                return {
+                    ...state,
+                    oldTiles: action.layer
+                }
         } else if (action instanceof TurnNavigationReroutingFailed) {
             console.log('TurnNavigationReroutingFailed')
             return {
@@ -340,9 +348,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         return prevStateDistanceToWaypoint < 80 && straightDistToWaypoint < 80
     }
 
-    public async initFake() {
+    private async initFake() {
         console.log('started fake GPS injection')
-        this.started = true
 
         // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car&layer=MapTiler&fake=true
         let api = new ApiImpl(config.api, config.keys.graphhopper)
@@ -407,8 +414,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         Dispatcher.dispatch(new LocationUpdate(c, pos.coords.speed, pos.coords.heading ? pos.coords.heading : 0))
     }
 
-    public initReal() {
-        this.started = true
+    private initReal() {
         if (!this.noSleep) this.noSleep = new NoSleep()
         this.noSleep.enable()
         if (!navigator.geolocation) {
@@ -431,7 +437,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 err => {
                     // TODO exit fullscreen does not work
                     //  Dispatcher.dispatch(new TurnNavigationStop())
-                    if (this.started) Dispatcher.dispatch(new ErrorAction('location watch error: ' + err.message))
+                    if (this.state.enabled) Dispatcher.dispatch(new ErrorAction('location watch error: ' + err.message))
                 },
                 {
                     timeout: 300_000,
@@ -446,7 +452,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         // console.log('LocationStore.stop', this.watchId, this.interval)
         if (document.fullscreenElement) document.exitFullscreen()
 
-        this.started = false
         if (this.interval) clearInterval(this.interval)
 
         if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
