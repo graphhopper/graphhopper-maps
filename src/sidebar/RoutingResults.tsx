@@ -136,7 +136,7 @@ function RoutingResult({
                             }}
                         >
                             <NaviSVG />
-                            <div>{tr('Navi')}</div>
+                            <div>{tr('navigation_start')}</div>
                         </PlainButton>
                     )}
                     {isSelected && !showBackAndRisk && (
