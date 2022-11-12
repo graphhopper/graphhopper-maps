@@ -38,6 +38,9 @@ import useMapBorderLayer from '@/layers/UseMapBorderLayer'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import MapPopups from '@/map/MapPopups'
+import Menu from '@/sidebar/menu.svg'
+import Cross from '@/sidebar/times-solid.svg'
+import PlainButton from '@/PlainButton'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -141,35 +144,47 @@ interface LayoutProps {
 }
 
 function LargeScreenLayout({ query, route, map, error, mapOptions, info }: LayoutProps) {
+    let [visible, setVisible] = useState(true)
     return (
         <>
-            <div className={styles.sidebar}>
-                <div className={styles.sidebarContent} id={SIDEBAR_CONTENT_ID}>
-                    <RoutingProfiles
-                        routingProfiles={info.profiles}
-                        selectedProfile={query.routingProfile}
-                        customModelAllowed={true}
-                        customModelEnabled={query.customModelEnabled}
-                    />
-                    <CustomModelBox
-                        enabled={query.customModelEnabled}
-                        encodedValues={info.encoded_values}
-                        initialCustomModelStr={query.initialCustomModelStr}
-                        queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                    />
-                    <Search points={query.queryPoints} />
-                    <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
-                    <RoutingResults
-                        paths={route.routingResult.paths}
-                        selectedPath={route.selectedPath}
-                        currentRequest={query.currentRequest}
-                        profile={query.routingProfile.name}
-                    />
-                    <div>
-                        <PoweredBy />
+            {visible ? (
+                <div className={styles.sidebar}>
+                    <div className={styles.sidebarContent} id={SIDEBAR_CONTENT_ID}>
+                        <PlainButton onClick={() => setVisible(false)} className={styles.sidebarCloseButton}>
+                            <Cross />
+                        </PlainButton>
+                        <RoutingProfiles
+                            routingProfiles={info.profiles}
+                            selectedProfile={query.routingProfile}
+                            customModelAllowed={true}
+                            customModelEnabled={query.customModelEnabled}
+                        />
+                        <CustomModelBox
+                            enabled={query.customModelEnabled}
+                            encodedValues={info.encoded_values}
+                            initialCustomModelStr={query.initialCustomModelStr}
+                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                        />
+                        <Search points={query.queryPoints} />
+                        <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
+                        <RoutingResults
+                            paths={route.routingResult.paths}
+                            selectedPath={route.selectedPath}
+                            currentRequest={query.currentRequest}
+                            profile={query.routingProfile.name}
+                        />
+                        <div>
+                            <PoweredBy />
+                        </div>
                     </div>
                 </div>
-            </div>
+            ) : (
+                <div className={styles.sidebarWhenClosed} onClick={() => setVisible(true)}>
+                    <PlainButton className={styles.sidebarOpenButton}>
+                        <Menu />
+                    </PlainButton>
+                </div>
+            )}
             <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
             <div className={styles.map}>
                 <MapComponent map={map} />

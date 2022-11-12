@@ -4,7 +4,7 @@
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: 25rem 1fr auto;
+    grid-template-columns: 26rem 1fr auto;
     grid-template-rows: 100%;
     justify-content: space-between;
     overflow: auto;
@@ -40,6 +40,7 @@
 }
 
 .sidebarContent {
+    position: relative;
     display: flex;
     flex-direction: column;
     border-radius: 0.5rem;
@@ -126,4 +127,41 @@
         grid-template-columns: 100%;
         grid-template-rows: auto 0 1fr auto auto;
     }
+}
+
+.sidebarCloseButton {
+    position: absolute;
+
+    color: lightgray !important; /* unsure why !important is necessary here but not in ErrorMessage.module.css for same <Cross/> */
+
+    height: 10px;
+    width: 10px;
+
+    right: 7px;
+    top: 6px;
+}
+
+.sidebarCloseButton:hover {
+    color: black !important;
+}
+
+.sidebarWhenClosed {
+    z-index: 1;
+    position: absolute;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
+    padding: 0.25em;
+    margin: 0.5em;
+}
+
+.sidebarOpenButton svg {
+    fill: gray;
+
+    width: 30px;
+    height: 24px;
+}
+
+.sidebarOpenButton:hover svg {
+    fill: black;
 }
