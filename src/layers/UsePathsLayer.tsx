@@ -21,7 +21,7 @@ const selectedPathLayerKey = 'selectedPathLayer'
 export default function usePathsLayer(map: Map, route: RouteStoreState, turnNavigation: TurnNavigationStoreState) {
     useEffect(() => {
         removeCurrentPathLayers(map)
-        if (turnNavigation.enabled && turnNavigation.activePath != null) {
+        if (turnNavigation.showUI && turnNavigation.activePath != null) {
             addSelectedPathsLayer(map, turnNavigation.activePath)
         } else {
             addUnselectedPathsLayer(
@@ -33,7 +33,7 @@ export default function usePathsLayer(map: Map, route: RouteStoreState, turnNavi
         return () => {
             removeCurrentPathLayers(map)
         }
-    }, [map, route.routingResult.paths, route.selectedPath, turnNavigation.enabled, turnNavigation.activePath])
+    }, [map, route.routingResult.paths, route.selectedPath, turnNavigation.showUI, turnNavigation.activePath])
 }
 
 function removeCurrentPathLayers(map: Map) {

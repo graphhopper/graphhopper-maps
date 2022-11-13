@@ -160,7 +160,7 @@ interface LayoutProps {
 }
 
 function LargeScreenLayout({ query, route, map, error, mapOptions, info, turnNavigation }: LayoutProps) {
-    if (turnNavigation.enabled)
+    if (turnNavigation.showUI)
         return (
             <>
                 <div className={styles.turnNavigation}>
@@ -235,7 +235,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info, turnNav
 }
 
 function SmallScreenLayout({ query, route, map, error, mapOptions, info, turnNavigation }: LayoutProps) {
-    if (turnNavigation.enabled)
+    if (turnNavigation.showUI)
         return (
             <>
                 <div className={styles.smallScreenRoutingResult}>

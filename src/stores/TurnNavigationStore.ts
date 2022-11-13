@@ -27,11 +27,11 @@ import * as config from 'config'
 import { Instruction, Path, RoutingArgs } from '@/api/graphhopper'
 import { tr } from '@/translation/Translation'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
-import {getTurnNavigationStore} from "@/stores/Stores";
 
 export interface TurnNavigationStoreState {
-    // TODO replace "enabled" with a composite state depending on activePath, coordinate and instruction
-    enabled: boolean
+    // TODO replace "showUI" with a composite state depending on activePath, coordinate and instruction
+    showUI: boolean
+    started: boolean
     oldTiles: string
     coordinate: Coordinate
     speed: number
@@ -78,7 +78,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
     constructor(api: Api, speechSynthesizer: SpeechSynthesizer, fakeGPS: boolean) {
         super({
-            enabled: false,
+            showUI: false,
+            started: false,
             oldTiles: '',
             coordinate: { lat: 0, lng: 0 },
             speed: 0,
@@ -101,15 +102,15 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         // and so we collect this from different actions
         if (action instanceof TurnNavigationStop) {
             this.stop()
-            return { ...state, enabled: false, speed: 0, heading: 0 }
+            return { ...state, showUI: false, started: false, speed: 0, heading: 0 }
         } else if (action instanceof TurnNavigationSettingsUpdate) {
             return {...state, settings: {...state.settings, ...action.settings}}
         } else if (action instanceof TurnNavigationStart) {
             if (state.settings.fakeGPS) this.initFake()
             else this.initReal()
-            return { ...state, enabled: true }
+            return { ...state, started: true }
         } else if (action instanceof SelectMapLayer) {
-            if(!this.state.enabled)
+            if(!this.state.started)
                 return {
                     ...state,
                     oldTiles: action.layer
@@ -128,7 +129,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             }
         } else if (action instanceof SetSelectedPath) {
             // no need to update instruction as changing the path should happen only outside of the navigation
-            if (state.enabled) throw new Error('Changing path while turn navigation should not happen')
+            if (state.showUI) throw new Error('Changing path while turn navigation should not happen')
 
             return {
                 ...state,
@@ -175,7 +176,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             }
 
             // reroute only if already in turn navigation mode otherwise UI is not ready
-            if (state.enabled && (instr.distanceToRoute > 50 || skipWaypoint)) {
+            if (state.showUI && (instr.distanceToRoute > 50 || skipWaypoint)) {
                 let queriedAPI = false
                 if (state.activeProfile && !state.rerouteInProgress) {
                     const toCoordinate = TurnNavigationStore.getWaypoint(path, instr.nextWaypointIndex)
@@ -264,7 +265,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
             return {
                 ...state,
-                enabled: true,
+                showUI: true,
                 heading: action.heading,
                 speed: action.speed,
                 coordinate: coordinate,
@@ -437,7 +438,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 err => {
                     // TODO exit fullscreen does not work
                     //  Dispatcher.dispatch(new TurnNavigationStop())
-                    if (this.state.enabled) Dispatcher.dispatch(new ErrorAction('location watch error: ' + err.message))
+                    if (this.state.started) Dispatcher.dispatch(new ErrorAction('location watch error: ' + err.message))
                 },
                 {
                     timeout: 300_000,
