@@ -8,7 +8,7 @@ import {
     SetSelectedPath,
     TurnNavigationSettingsUpdate,
     TurnNavigationStart,
-    TurnNavigationStop
+    TurnNavigationStop,
 } from '@/actions/Actions'
 import { metersToSimpleText, metersToText, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
@@ -45,11 +45,13 @@ function RoutingResult({
     path,
     isSelected,
     profile,
+    fullscreenForTN,
     turnNavigation,
 }: {
     path: Path
     isSelected: boolean
     profile: string
+    fullscreenForTN: boolean
     turnNavigation: TurnNavigationStoreState
 }) {
     const [isExpanded, setExpanded] = useState(false)
@@ -84,7 +86,7 @@ function RoutingResult({
                                     Dispatcher.dispatch(
                                         new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState)
                                     )
-                                    startNavigation()
+                                    startNavigation(fullscreenForTN)
                                 }}
                             >
                                 {tr('accept_risks_after_warning')}
@@ -135,7 +137,7 @@ function RoutingResult({
                             className={styles.exportButton}
                             onClick={() => {
                                 setShowBackAndRisk(true)
-                                if (turnNavigation.settings.acceptedRisk) startNavigation()
+                                if (turnNavigation.settings.acceptedRisk) startNavigation(fullscreenForTN)
                             }}
                         >
                             <NaviSVG />
@@ -177,8 +179,8 @@ function RoutingResult({
     )
 }
 
-function startNavigation() {
-    Dispatcher.dispatch(new TurnNavigationStart())
+function startNavigation(fullscreen: boolean) {
+    Dispatcher.dispatch(new TurnNavigationStart(fullscreen))
     Dispatcher.dispatch(new SelectMapLayer(config.navigationTiles))
 }
 
@@ -296,6 +298,7 @@ function createSingletonListContent(props: RoutingResultsProps) {
                 path={props.selectedPath}
                 isSelected={true}
                 profile={props.profile}
+                fullscreenForTN={true}
                 turnNavigation={props.turnNavigation}
             />
         )
@@ -315,6 +318,7 @@ function createListContent({ paths, currentRequest, selectedPath, profile, turnN
                     path={paths[i]}
                     isSelected={paths[i] === selectedPath}
                     profile={profile}
+                    fullscreenForTN={false}
                     turnNavigation={turnNavigation}
                 />
             )

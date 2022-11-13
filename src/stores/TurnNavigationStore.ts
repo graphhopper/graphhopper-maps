@@ -8,7 +8,8 @@ import {
     SetVehicleProfile,
     TurnNavigationRerouting,
     TurnNavigationReroutingFailed,
-    TurnNavigationSettingsUpdate, TurnNavigationStart,
+    TurnNavigationSettingsUpdate,
+    TurnNavigationStart,
     TurnNavigationStop,
     ZoomMapToPoint,
 } from '@/actions/Actions'
@@ -104,16 +105,16 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             this.stop()
             return { ...state, showUI: false, started: false, speed: 0, heading: 0 }
         } else if (action instanceof TurnNavigationSettingsUpdate) {
-            return {...state, settings: {...state.settings, ...action.settings}}
+            return { ...state, settings: { ...state.settings, ...action.settings } }
         } else if (action instanceof TurnNavigationStart) {
             if (state.settings.fakeGPS) this.initFake()
-            else this.initReal()
+            else this.initReal(action.enableFullscreen)
             return { ...state, started: true }
         } else if (action instanceof SelectMapLayer) {
-            if(!this.state.started)
+            if (!this.state.started)
                 return {
                     ...state,
-                    oldTiles: action.layer
+                    oldTiles: action.layer,
                 }
         } else if (action instanceof TurnNavigationReroutingFailed) {
             console.log('TurnNavigationReroutingFailed')
@@ -415,7 +416,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         Dispatcher.dispatch(new LocationUpdate(c, pos.coords.speed, pos.coords.heading ? pos.coords.heading : 0))
     }
 
-    private initReal() {
+    private initReal(doFullscreen: boolean) {
         if (!this.noSleep) this.noSleep = new NoSleep()
         this.noSleep.enable()
         if (!navigator.geolocation) {
@@ -425,13 +426,14 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             // force calling clearWatch can help to find GPS fix more reliable in android firefox
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
-            try {
-                let el = document.documentElement
-                let requestFullscreenFct = el.requestFullscreen
-                requestFullscreenFct.call(el)
-            } catch (e) {
-                console.log('error requesting full screen ' + JSON.stringify(e))
-            }
+            if (doFullscreen)
+                try {
+                    let el = document.documentElement
+                    let requestFullscreenFct = el.requestFullscreen
+                    requestFullscreenFct.call(el)
+                } catch (e) {
+                    console.log('error requesting full screen ' + JSON.stringify(e))
+                }
 
             this.watchId = navigator.geolocation.watchPosition(
                 this.locationUpdate,

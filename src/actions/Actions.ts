@@ -14,7 +14,13 @@ export class InfoReceived implements Action {
 
 export class TurnNavigationStop implements Action {}
 
-export class TurnNavigationStart implements Action {}
+export class TurnNavigationStart implements Action {
+    readonly enableFullscreen: boolean
+
+    constructor(enableFullscreen: boolean) {
+        this.enableFullscreen = enableFullscreen
+    }
+}
 
 export class LocationUpdate implements Action {
     readonly coordinate: Coordinate

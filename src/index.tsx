@@ -25,7 +25,7 @@ import {
     setStores,
 } from '@/stores/Stores'
 import MapOptionsStore from '@/stores/MapOptionsStore'
-import TurnNavigationStore  from '@/stores/TurnNavigationStore'
+import TurnNavigationStore from '@/stores/TurnNavigationStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
 import Dispatcher from '@/stores/Dispatcher'
 import NavBar from '@/NavBar'
