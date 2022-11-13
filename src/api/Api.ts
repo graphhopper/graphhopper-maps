@@ -179,6 +179,7 @@ export class ApiImpl implements Api {
         let bbox = [0, 0, 0, 0] as Bbox
         let version = ''
         let import_date = ''
+        let data_date = ''
         const profiles: RoutingProfile[] = []
 
         for (const profileIndex in response.profiles as ApiProfile[]) {
@@ -203,6 +204,7 @@ export class ApiImpl implements Api {
             if (property === 'bbox') bbox = response[property]
             else if (property === 'version') version = response[property]
             else if (property === 'import_date') import_date = response[property]
+            else if (property === 'data_date') data_date = response[property]
         }
 
         return {
@@ -211,6 +213,7 @@ export class ApiImpl implements Api {
             bbox: bbox,
             version: version,
             import_date: import_date,
+            data_date: data_date,
             encoded_values: response.encoded_values,
         }
     }

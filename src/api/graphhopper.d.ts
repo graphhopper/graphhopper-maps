@@ -48,6 +48,7 @@ export interface RawResult {
 
 export interface ApiInfo {
     readonly import_date: string
+    readonly data_date: string
     readonly version: string
     readonly bbox: Bbox
     readonly elevation: boolean

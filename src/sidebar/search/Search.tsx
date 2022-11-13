@@ -21,6 +21,7 @@ import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import { getApiInfoStore } from '@/stores/Stores'
 
 export default function Search({ points }: { points: QueryPoint[] }) {
     const [showInfo, setShowInfo] = useState(false)
@@ -78,6 +79,16 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                 </PlainButton>
             </div>
             {showInfo && (
+                <>
+                <div className={styles.dataVersionLine}>
+                    {(getApiInfoStore().state.data_date ==='') && (
+                       <div>Import from {getApiInfoStore().state.import_date} </div>
+                    )}
+                    {(getApiInfoStore().state.data_date !=='') && (
+                       <div>Graph data from {getApiInfoStore().state.data_date} </div>
+                    )}
+                    <div>Version {getApiInfoStore().state.version} </div>
+                </div>
                 <div className={styles.infoLine}>
                     <a href="https://www.graphhopper.com/maps-route-planner/">Info</a>
                     <a href="https://github.com/graphhopper/graphhopper-maps/issues">Feedback</a>
@@ -85,6 +96,7 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                     <a href="https://www.graphhopper.com/privacy/">Privacy</a>
                     <a href="https://www.graphhopper.com/terms/">Terms</a>
                 </div>
+                </>
             )}
         </div>
     )

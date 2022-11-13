@@ -15,6 +15,7 @@ export default class DummyApi implements Api {
             elevation: false,
             version: '',
             import_date: '',
+            data_date: '',
             profiles: [],
             encoded_values: [],
         })

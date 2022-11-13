@@ -76,6 +76,12 @@
     height: 19px;
 }
 
+.dataVersionLine {
+    padding: 1.5em 4px 2px 2px;
+    color: gray;
+    font-size: 14px;
+}
+
 .infoLine {
     padding: 1.5em 4px 2px 2px;
     font-size: 14px;

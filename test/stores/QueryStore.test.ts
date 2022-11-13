@@ -246,6 +246,7 @@ describe('QueryStore', () => {
                     elevation: true,
                     version: '',
                     import_date: '',
+                    data_date: '',
                     bbox: [0, 0, 0, 0],
                     encoded_values: [],
                 })
@@ -257,6 +258,7 @@ describe('QueryStore', () => {
             const expectedProfile = {
                 name: 'some-name',
                 import_date: 'some_date',
+                data_date: 'some_date',
                 elevation: false,
                 version: 'some-version',
             }
@@ -297,6 +299,7 @@ describe('QueryStore', () => {
                     elevation: false,
                     version: '',
                     import_date: '',
+                    data_date: '',
                     bbox: [0, 0, 0, 0],
                     encoded_values: [],
                 })
@@ -313,6 +316,7 @@ describe('QueryStore', () => {
             const profile = {
                 name: 'car',
                 import_date: 'some_date',
+                data_date: 'some_date',
                 features: { elevation: false },
                 version: 'some-version',
             }

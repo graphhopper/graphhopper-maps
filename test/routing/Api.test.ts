@@ -29,6 +29,7 @@ describe('info api', () => {
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
             import_date: 'some_date1',
+            data_date: 'some_date2',
             profiles: [],
             elevation: false,
             version: 'some_version',
@@ -44,6 +45,7 @@ describe('info api', () => {
                 JSON.stringify({
                     bbox: expected.bbox,
                     import_date: expected.import_date,
+                    data_date: expected.data_date,
                     version: expected.version,
                     profiles: [],
                     elevation: expected.elevation,
