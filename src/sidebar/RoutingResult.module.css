@@ -28,7 +28,7 @@
 
 .resultValues {
     cursor: pointer;
-    width: 50%;
+    width: 40%;
 
     display: flex;
     flex-direction: column;
