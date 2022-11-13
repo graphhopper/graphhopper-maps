@@ -1,6 +1,5 @@
 import { Instruction, Path } from '@/api/graphhopper'
 import { Coordinate } from '@/stores/QueryStore'
-import { or } from 'ol/format/filter'
 
 export function getCurrentDetails(path: Path, location: Coordinate, details: [any, any, any][][]): any[] {
     let smallestDist = Number.MAX_VALUE
@@ -10,13 +9,13 @@ export function getCurrentDetails(path: Path, location: Coordinate, details: [an
     for (let pIdx = 0; pIdx < points.length; pIdx++) {
         const p: number[] = points[pIdx]
         let snapped = { lat: p[1], lng: p[0] }
-        let dist = distCalc(p[1], p[0], location.lat, location.lng)
+        let dist = calcDist(snapped, location)
 
         if (pIdx + 1 < points.length) {
             const next: number[] = points[pIdx + 1]
             if (validEdgeDistance(location.lat, location.lng, p[1], p[0], next[1], next[0])) {
                 snapped = calcCrossingPointToEdge(location.lat, location.lng, p[1], p[0], next[1], next[0])
-                dist = Math.min(dist, distCalc(snapped.lat, snapped.lng, location.lat, location.lng))
+                dist = Math.min(dist, calcDist(snapped, location))
             }
         }
 
@@ -69,13 +68,13 @@ export function getCurrentInstruction(
         for (let pIdx = 0; pIdx < points.length; pIdx++) {
             const p: number[] = points[pIdx]
             let snapped = { lat: p[1], lng: p[0] }
-            let dist = distCalc(p[1], p[0], location.lat, location.lng)
+            let dist = calcDist(snapped, location)
             // calculate the snapped point, TODO use first point of next instruction for "next" if last point of current instruction
             if (pIdx + 1 < points.length) {
                 const next: number[] = points[pIdx + 1]
                 if (validEdgeDistance(location.lat, location.lng, p[1], p[0], next[1], next[0])) {
                     snapped = calcCrossingPointToEdge(location.lat, location.lng, p[1], p[0], next[1], next[0])
-                    dist = Math.min(dist, distCalc(snapped.lat, snapped.lng, location.lat, location.lng))
+                    dist = Math.min(dist, calcDist(snapped, location))
                 }
             }
 
@@ -84,7 +83,7 @@ export function getCurrentInstruction(
                 // use next instruction or finish
                 instructionIndex = instrIdx + 1 < instructions.length ? instrIdx + 1 : instrIdx
                 const last: number[] = points[points.length - 1]
-                distanceToTurn = Math.round(distCalc(last[1], last[0], snapped.lat, snapped.lng))
+                distanceToTurn = Math.round(calcDist({ lat: last[1], lng: last[0] }, snapped))
                 nextWaypointIndex = waypointIndex + 1
             }
         }
@@ -125,8 +124,15 @@ export function getCurrentInstruction(
     }
 }
 
-// TODO NOW merge with distUtils.calcDist
-export function distCalc(fromLat: number, fromLng: number, toLat: number, toLng: number): number {
+/**
+ * Calculates the great-circle distance between two points on Earth given the latitudes and longitudes
+ * assuming that Earth is a sphere with radius 6371km. The result is returned in meters.
+ */
+export function calcDist(point1: Coordinate, point2: Coordinate): number {
+    const fromLat = point1.lat
+    const toLat = point2.lat
+    const fromLng = point1.lng
+    const toLng = point2.lng
     const sinDeltaLat: number = Math.sin(toRadians(toLat - fromLat) / 2)
     const sinDeltaLon: number = Math.sin(toRadians(toLng - fromLng) / 2)
     const normedDist: number =

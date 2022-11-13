@@ -19,7 +19,7 @@ import {
     SetVehicleProfile,
 } from '@/actions/Actions'
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
-import { calcDist } from '@/distUtils'
+import {calcDist} from "@/turnNavigation/GeoMethods";
 
 export interface Coordinate {
     lat: number

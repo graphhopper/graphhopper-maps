@@ -17,8 +17,8 @@ import Dispatcher, { Action } from '@/stores/Dispatcher'
 import NoSleep from 'nosleep.js'
 import Api, { ApiImpl } from '@/api/Api'
 import {
+    calcDist,
     calcOrientation,
-    distCalc,
     getCurrentDetails,
     getCurrentInstruction,
     toDegrees,
@@ -345,7 +345,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     ): boolean {
         // if waypoint reached use next waypoint as destination
         if (prevStateDistanceToWaypoint < 50) return true
-        const straightDistToWaypoint = distCalc(actionCoord.lat, actionCoord.lng, waypoint.lat, waypoint.lng)
+        const straightDistToWaypoint = calcDist(actionCoord, waypoint)
         if (straightDistToWaypoint < 50) return true
         return prevStateDistanceToWaypoint < 80 && straightDistToWaypoint < 80
     }

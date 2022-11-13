@@ -7,8 +7,8 @@ import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelected } from '@/actions/Actions'
 import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
-import { calcDist } from '@/distUtils'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import {calcDist} from "@/turnNavigation/GeoMethods";
 
 interface PathDetailsProps {
     selectedPath: Path
