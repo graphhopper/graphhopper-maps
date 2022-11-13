@@ -32,7 +32,6 @@ import NavBar from '@/NavBar'
 import App from '@/App'
 import { ErrorAction, InfoReceived } from '@/actions/Actions'
 
-const speechSynthesizer = new SpeechSynthesizerImpl(navigator.language)
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 
 const url = new URL(window.location.href)
@@ -47,6 +46,7 @@ setApi(config.api, apiKey || '')
 const initialCustomModelStr = url.searchParams.get('custom_model')
 const queryStore = new QueryStore(getApi(), initialCustomModelStr)
 const routeStore = new RouteStore(queryStore)
+const speechSynthesizer = new SpeechSynthesizerImpl(navigator.language)
 
 setStores({
     settingsStore: new SettingsStore(),
@@ -55,7 +55,7 @@ setStores({
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
-    turnNavigationStore: new TurnNavigationStore(getApi(), speechSynthesizer, fake != null),
+    turnNavigationStore: new TurnNavigationStore(getApi(), speechSynthesizer, fake != null, config.defaultTiles),
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
 })

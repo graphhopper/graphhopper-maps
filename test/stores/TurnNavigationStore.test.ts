@@ -218,7 +218,7 @@ describe('TurnNavigationStore', () => {
     })
 
     function createStore(api: Api) {
-        const store = new TurnNavigationStore(api, new DummySpeech(), true)
+        const store = new TurnNavigationStore(api, new DummySpeech(), true, '')
         Dispatcher.register(store)
         return store
     }

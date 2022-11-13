@@ -77,11 +77,11 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private noSleep: any
     private readonly speechSynthesizer: SpeechSynthesizer
 
-    constructor(api: Api, speechSynthesizer: SpeechSynthesizer, fakeGPS: boolean) {
+    constructor(api: Api, speechSynthesizer: SpeechSynthesizer, fakeGPS: boolean, tiles: string) {
         super({
             showUI: false,
             started: false,
-            oldTiles: '',
+            oldTiles: tiles,
             coordinate: { lat: 0, lng: 0 },
             speed: 0,
             heading: 0,
