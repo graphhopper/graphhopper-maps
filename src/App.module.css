@@ -165,3 +165,22 @@
         grid-template-rows: auto 0 1fr auto auto;
     }
 }
+
+/* mapilion */
+@font-face {
+    font-family: 'Open Sans';
+    /*src: url(https://tiles.mapilion.com/fonts/Open%20Sans%20Regular/0-255.pbf?key=API_KEY) format('truetype');*/
+}
+
+/* maptiler */
+@font-face {
+    font-family: 'Noto Sans';
+}
+
+@font-face {
+    font-family: 'Roboto';
+}
+
+@font-face {
+    font-family: 'Roboto Condensed';
+}
