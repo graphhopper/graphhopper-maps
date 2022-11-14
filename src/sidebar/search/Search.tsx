@@ -3,6 +3,10 @@ import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint } from '@/stores/QueryStore'
 import {
+    ApiInfo
+} from '@/api/graphhopper'
+
+import {
     AddPoint,
     ClearRoute,
     InvalidatePoint,
@@ -21,9 +25,8 @@ import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
-import { getApiInfoStore } from '@/stores/Stores'
 
-export default function Search({ points }: { points: QueryPoint[] }) {
+export default function Search({ points, info }: { points: QueryPoint[], info: ApiInfo } ) {
     const [showInfo, setShowInfo] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
@@ -81,13 +84,13 @@ export default function Search({ points }: { points: QueryPoint[] }) {
             {showInfo && (
                 <>
                 <div className={styles.dataVersionLine}>
-                    {(getApiInfoStore().state.data_date ==='') && (
-                       <div>Import from {getApiInfoStore().state.import_date} </div>
+                    {(info.data_date ==='') && (
+                       <div>Import from {info.import_date} </div>
                     )}
-                    {(getApiInfoStore().state.data_date !=='') && (
-                       <div>Graph data from {getApiInfoStore().state.data_date} </div>
+                    {(info.data_date !=='') && (
+                       <div>Graph data from {info.data_date} </div>
                     )}
-                    <div>Version {getApiInfoStore().state.version} </div>
+                    <div>Version {info.version} </div>
                 </div>
                 <div className={styles.infoLine}>
                     <a href="https://www.graphhopper.com/maps-route-planner/">Info</a>

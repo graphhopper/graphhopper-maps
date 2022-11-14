@@ -55,7 +55,10 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                             customModelAllowed={false}
                             customModelEnabled={query.customModelEnabled}
                         />
-                        <Search points={query.queryPoints} />
+                        <Search 
+                            points={query.queryPoints}
+                            info={info}
+                        />
                     </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}

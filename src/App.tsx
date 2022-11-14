@@ -157,7 +157,10 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                         initialCustomModelStr={query.initialCustomModelStr}
                         queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                     />
-                    <Search points={query.queryPoints} />
+                    <Search 
+                        points={query.queryPoints}
+                        info={info} 
+                    />
                     <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                     <RoutingResults
                         paths={route.routingResult.paths}
