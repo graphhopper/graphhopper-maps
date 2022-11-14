@@ -131,17 +131,21 @@
 /* mapilion */
 @font-face {
     font-family: 'Open Sans';
+    src: url(./fonts/OpenSans-Variable.ttf) format('truetype');
 }
 
 /* maptiler */
 @font-face {
     font-family: 'Noto Sans';
+    src: url(./fonts/NotoSans-Regular.ttf) format('truetype');
 }
 
 @font-face {
     font-family: 'Roboto';
+    src: url(./fonts/Roboto-Regular.ttf) format('truetype');
 }
 
 @font-face {
     font-family: 'Roboto Condensed';
+    src: url(./fonts/RobotoCondensed-Regular.ttf) format('truetype');
 }
