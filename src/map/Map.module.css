@@ -17,7 +17,7 @@
     left: 0;
     bottom: 0;
     padding: 1px 5px;
-    background-color: rgba(255,255,255,0.8);
+    background-color: rgba(255, 255, 255, 0.8);
     border-radius: 0 4px 0 0;
 }
 
@@ -27,7 +27,7 @@
 
 .customAttribution a {
     padding-right: 3px;
-    color: rgba(0,60,136,0.7);
+    color: rgba(0, 60, 136, 0.7);
     text-decoration: none;
 }
 
