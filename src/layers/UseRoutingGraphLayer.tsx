@@ -16,7 +16,7 @@ export default function useRoutingGraphLayer(map: Map, routingGraphEnabled: bool
             source: new VectorTileSource({
                 attributions: '',
                 format: new MVT(),
-                url: `${config.api}mvt/{z}/{x}/{y}.mvt`,
+                url: `${config.routingApi}mvt/{z}/{x}/{y}.mvt`,
             }),
             // make sure the routing graph layer is shown on top of the background layer, but note that this also means it is
             // on top of the vector layer text labels (for now I don't really care). the layer order is determined by both the

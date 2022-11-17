@@ -2,8 +2,10 @@
  * Webpack will replace this file with config-local.js if it exists
  */
 const config = {
-    // the url of the GraphHopper backend, either use graphhopper.com or point it to your own GH instance
-    api: 'https://graphhopper.com/api/1/',
+    // the url of the GraphHopper routing backend, either use graphhopper.com or point it to your own GH instance
+    routingApi: 'https://graphhopper.com/api/1/',
+    // the url of the geocoding backend, either use graphhopper.com or point it to another geocoding service
+    geocodingApi: 'https://graphhopper.com/api/1',
     // the tile layer used by default, see MapOptionsStore.ts for all options
     defaultTiles: 'OpenStreetMap',
     // various api keys used for the GH backend and the different tile providers
