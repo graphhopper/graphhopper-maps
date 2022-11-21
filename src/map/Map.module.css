@@ -12,6 +12,13 @@
     top: 57px;
 }
 
+@media (max-width: 44rem) {
+    .customZoom {
+        top: unset;
+        bottom: 0.5em;
+    }
+}
+
 /* changing the position of the attribution is a bit complex as we have to repeat the other css */
 .customAttribution {
     left: 0;
