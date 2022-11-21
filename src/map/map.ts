@@ -17,8 +17,11 @@ export function createMap(): Map {
             zoom: 2,
         }),
         controls: defaultControls({
-            zoom: false, // zoom control is nice but currently overlaps with sound button
             rotate: false, // for now also disable this extra button
+            zoom: true,
+            zoomOptions: {
+                className: styles.customZoom
+            },
             attribution: true,
             attributionOptions: {
                 className: styles.customAttribution,

@@ -6,17 +6,19 @@ import {
     PathDetailsRangeSelected,
     RouteRequestSuccess,
     SetInitialBBox,
-    SetSelectedPath,
+    SetSelectedPath, TurnNavigationStart, TurnNavigationStop,
     ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
 import { toRadians } from 'ol/math'
+import {Zoom} from "ol/control";
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
     private readonly routeStore: RouteStore
     private readonly isSmallScreenQuery: () => boolean
+    private zoomCtrl: Zoom | null = null
 
     constructor(map: Map, routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
         this.map = map
@@ -31,6 +33,18 @@ export default class MapActionReceiver implements ActionReceiver {
             // we estimate the map size to be equal to the window size. we don't know better at this point, because
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
+        } else if (action instanceof TurnNavigationStop) {
+            if(this.zoomCtrl !== null)
+                this.map.getControls().insertAt(this.map.getControls().getLength() - 1, this.zoomCtrl)
+        } else if (action instanceof TurnNavigationStart) {
+            const arr = this.map.getControls()
+            for(let i = 0; i < arr.getLength(); i++) {
+                if (arr.item(i) instanceof Zoom) {
+                    this.zoomCtrl = arr.item(i) as Zoom
+                    arr.remove(this.zoomCtrl);
+                    break;
+                }
+            }
         } else if (action instanceof ZoomMapToPoint) {
             // if navigating then move icon (in center) to the lower half
             if (action.navigationOffset) {
