@@ -1,9 +1,10 @@
-import { Coordinate } from '@/stores/QueryStore'
+import { Coordinate, CustomModel, QueryStoreState } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
 import {
     ErrorAction,
     LocationUpdate,
     SelectMapLayer,
+    SetCustomModel,
     SetSelectedPath,
     SetVehicleProfile,
     TurnNavigationRerouting,
@@ -40,6 +41,7 @@ export interface TurnNavigationStoreState {
     initialPath: Path | null
     activePath: Path | null
     activeProfile: string
+    customModel: CustomModel | null
     rerouteInProgress: boolean
     settings: TNSettingsState
     instruction: TNInstructionState
@@ -87,6 +89,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             heading: 0,
             initialPath: null,
             activePath: null,
+            customModel: null,
             rerouteInProgress: false,
             activeProfile: '',
             settings: { acceptedRisk: false, fakeGPS: fakeGPS, soundEnabled: !fakeGPS } as TNSettingsState,
@@ -121,6 +124,11 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             return {
                 ...state,
                 rerouteInProgress: false,
+            }
+        } else if (action instanceof SetCustomModel) {
+            return {
+                ...state,
+                customModel: action.valid ? action.customModel : null,
             }
         } else if (action instanceof SetVehicleProfile) {
             console.log('SetVehicleProfile, profile: ' + action.profile.name)
@@ -190,8 +198,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                         heading: action.heading,
                         zoom: false,
                         profile: state.activeProfile,
-                        // TODO use correct customModel
-                        customModel: null,
+                        customModel: state.customModel,
                     }
                     this.api
                         .route(args)

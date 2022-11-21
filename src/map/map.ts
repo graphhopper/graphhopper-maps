@@ -20,7 +20,7 @@ export function createMap(): Map {
             rotate: false, // for now also disable this extra button
             zoom: true,
             zoomOptions: {
-                className: styles.customZoom
+                className: styles.customZoom,
             },
             attribution: true,
             attributionOptions: {

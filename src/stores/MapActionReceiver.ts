@@ -6,13 +6,15 @@ import {
     PathDetailsRangeSelected,
     RouteRequestSuccess,
     SetInitialBBox,
-    SetSelectedPath, TurnNavigationStart, TurnNavigationStop,
+    SetSelectedPath,
+    TurnNavigationStart,
+    TurnNavigationStop,
     ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
 import { toRadians } from 'ol/math'
-import {Zoom} from "ol/control";
+import { Zoom } from 'ol/control'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -34,15 +36,15 @@ export default class MapActionReceiver implements ActionReceiver {
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
         } else if (action instanceof TurnNavigationStop) {
-            if(this.zoomCtrl !== null)
+            if (this.zoomCtrl !== null)
                 this.map.getControls().insertAt(this.map.getControls().getLength() - 1, this.zoomCtrl)
         } else if (action instanceof TurnNavigationStart) {
             const arr = this.map.getControls()
-            for(let i = 0; i < arr.getLength(); i++) {
+            for (let i = 0; i < arr.getLength(); i++) {
                 if (arr.item(i) instanceof Zoom) {
                     this.zoomCtrl = arr.item(i) as Zoom
-                    arr.remove(this.zoomCtrl);
-                    break;
+                    arr.remove(this.zoomCtrl)
+                    break
                 }
             }
         } else if (action instanceof ZoomMapToPoint) {
