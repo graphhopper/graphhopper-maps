@@ -24,6 +24,7 @@ afterAll(() => fetchMock.disableMocks())
 describe('info api', () => {
     it('should query correct url and dispatch an InfoReceived action', async () => {
         const ghApi = 'https://some.api/'
+        const geocodingApi = 'https://some.api/'
         const ghKey = 'some-key'
         const expectedUrl = ghApi + 'info?key=' + ghKey
         const expected: ApiInfo = {
@@ -52,7 +53,7 @@ describe('info api', () => {
             )
         })
 
-        const info = await new ApiImpl(ghApi, ghKey).info()
+        const info = await new ApiImpl(ghApi, geocodingApi, ghKey).info()
         // second assert that the request returns the expected payload
         expect(info).toEqual(expected)
     })
@@ -60,7 +61,7 @@ describe('info api', () => {
     it('should issue an error action if anything fails', async () => {
         const message = 'some error message'
         fetchMock.mockReject(new Error(message))
-        const api = new ApiImpl('https://some.api/', 'key')
+        const api = new ApiImpl('https://some.api/', 'https://some.api/', 'key')
         await expect(api.info()).rejects.toEqual(new Error(message))
     })
 })
@@ -76,6 +77,7 @@ describe('route', () => {
         }
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
         const ghApi = 'https://some.api/'
+        const geocodingApi = 'https://some.api/'
         const ghKey = 'key'
 
         fetchMock.mockResponse(request => {
@@ -87,7 +89,7 @@ describe('route', () => {
             return Promise.resolve(JSON.stringify(getEmptyResult()))
         })
 
-        new ApiImpl(ghApi, ghKey).routeWithDispatch(args)
+        new ApiImpl(ghApi, geocodingApi, ghKey).routeWithDispatch(args)
         await flushPromises()
 
         expect(mockedDispatcher).toHaveBeenCalledTimes(1)
@@ -131,7 +133,7 @@ describe('route', () => {
             return compareRequestBodyAndResolve(request, expectedBody)
         })
 
-        new ApiImpl('https://some.api/', 'key').routeWithDispatch(args)
+        new ApiImpl('https://some.api/', 'https://some.api/', 'key').routeWithDispatch(args)
         await flushPromises()
 
         expect(mockedDispatcher).toHaveBeenCalledTimes(1)
@@ -177,7 +179,7 @@ describe('route', () => {
             return compareRequestBodyAndResolve(request, expectedBody)
         })
 
-        new ApiImpl('https://some.api/', 'key').routeWithDispatch(args)
+        new ApiImpl('https://some.api/', 'https://some.api/', 'key').routeWithDispatch(args)
         await flushPromises()
 
         expect(mockedDispatcher).toHaveBeenCalledTimes(1)
@@ -230,7 +232,7 @@ describe('route', () => {
             return compareRequestBodyAndResolve(request, expectedBody)
         })
 
-        new ApiImpl('https://some.api/', 'key').routeWithDispatch(args)
+        new ApiImpl('https://some.api/', 'https://some.api/', 'key').routeWithDispatch(args)
         await flushPromises()
 
         expect(mockedDispatcher).toHaveBeenCalledTimes(1)
@@ -253,7 +255,7 @@ describe('route', () => {
         fetchMock.mockResponseOnce(JSON.stringify(getEmptyResult()))
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
 
-        new ApiImpl('https://some.api/', 'key').routeWithDispatch(args)
+        new ApiImpl('https://some.api/', 'https://some.api', 'key').routeWithDispatch(args)
         await flushPromises()
 
         expect(mockedDispatcher).toHaveBeenCalledTimes(1)
@@ -280,7 +282,7 @@ describe('route', () => {
         fetchMock.mockRejectOnce(() => Promise.resolve(new Response(JSON.stringify(error), { status: 400 })))
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
 
-        new ApiImpl('https://some.api/', 'key').routeWithDispatch(args)
+        new ApiImpl('https://some.api/', 'https://some.api/', 'key').routeWithDispatch(args)
         await flushPromises()
 
         expect(mockedDispatcher).toHaveBeenCalledTimes(1)
@@ -296,7 +298,9 @@ describe('route', () => {
             zoom: true,
         }
         fetchMock.mockResponse(() => Promise.resolve({ status: 500 }))
-        await expect(new ApiImpl('https://some.api/', 'key').route(args)).rejects.toThrow('Route calculation timed out')
+        await expect(new ApiImpl('https://some.api/', 'https://some.api/', 'key').route(args)).rejects.toThrow(
+            'Route calculation timed out'
+        )
     })
 
     it('correct de locale', async () => {
@@ -338,7 +342,7 @@ describe('route', () => {
             return compareRequestBodyAndResolve(request, expectedBody)
         })
 
-        new ApiImpl('https://some.api/', 'key').routeWithDispatch(args)
+        new ApiImpl('https://some.api/', 'https://some.api/', 'key').routeWithDispatch(args)
         await flushPromises()
 
         expect(mockedDispatcher).toHaveBeenCalledTimes(1)

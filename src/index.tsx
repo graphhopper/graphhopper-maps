@@ -38,7 +38,7 @@ setTranslation(locale || navigator.language)
 
 // use graphhopper api key from url or try using one from the config
 const apiKey = url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
-setApi(config.api, apiKey || '')
+setApi(config.routingApi, config.geocodingApi, apiKey || '')
 
 const initialCustomModelStr = url.searchParams.get('custom_model')
 const queryStore = new QueryStore(getApi(), initialCustomModelStr)

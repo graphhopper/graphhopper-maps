@@ -28,4 +28,8 @@ export default class DummyApi implements Api {
     }
 
     routeWithDispatch(args: RoutingArgs): void {}
+
+    supportsGeocoding(): boolean {
+        return true
+    }
 }
