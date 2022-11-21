@@ -144,13 +144,13 @@ interface LayoutProps {
 }
 
 function LargeScreenLayout({ query, route, map, error, mapOptions, info }: LayoutProps) {
-    let [visible, setVisible] = useState(true)
+    const [showSidebar, setShowSidebar] = useState(true)
     return (
         <>
-            {visible ? (
+            {showSidebar ? (
                 <div className={styles.sidebar}>
                     <div className={styles.sidebarContent} id={SIDEBAR_CONTENT_ID}>
-                        <PlainButton onClick={() => setVisible(false)} className={styles.sidebarCloseButton}>
+                        <PlainButton onClick={() => setShowSidebar(false)} className={styles.sidebarCloseButton}>
                             <Cross />
                         </PlainButton>
                         <RoutingProfiles
@@ -179,7 +179,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                     </div>
                 </div>
             ) : (
-                <div className={styles.sidebarWhenClosed} onClick={() => setVisible(true)}>
+                <div className={styles.sidebarWhenClosed} onClick={() => setShowSidebar(true)}>
                     <PlainButton className={styles.sidebarOpenButton}>
                         <Menu />
                     </PlainButton>
