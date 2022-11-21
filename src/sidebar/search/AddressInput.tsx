@@ -48,7 +48,7 @@ export default function AddressInput(props: AddressInputProps) {
                 return new GeocodingItem(obj.mainText, obj.secondText, hit.point)
             })
 
-            if (provider !== 'nominatim') {
+            if (provider !== 'nominatim' && getApi().supportsGeocoding()) {
                 items.push(new MoreResultsItem(query))
                 setAutocompleteItems(items)
             } else {

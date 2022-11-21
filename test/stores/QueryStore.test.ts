@@ -35,6 +35,10 @@ class ApiMock implements Api {
     routeWithDispatch(args: RoutingArgs): void {
         this.callback(args)
     }
+
+    supportsGeocoding(): boolean {
+        return false
+    }
 }
 
 describe('QueryStore', () => {
