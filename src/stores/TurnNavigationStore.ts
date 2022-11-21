@@ -354,7 +354,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         console.log('started fake GPS injection')
 
         // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car&layer=MapTiler&fake=true
-        let api = new ApiImpl(config.api, config.keys.graphhopper)
+        let api = new ApiImpl(config.routingApi, config.geocodingApi, config.keys.graphhopper)
         let response = await api.route({
             points: [
                 [14.245254, 51.439291],

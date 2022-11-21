@@ -4,13 +4,13 @@ import styles from './App.module.css'
 import {
     getApiInfoStore,
     getErrorStore,
-    getTurnNavigationStore,
     getMapFeatureStore,
     getMapOptionsStore,
     getPathDetailsStore,
     getQueryStore,
     getRouteStore,
     getSettingsStore,
+    getTurnNavigationStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
 import { ApiInfo } from '@/api/graphhopper'
@@ -47,6 +47,8 @@ import PlainButton from '@/PlainButton'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
 import MapPopups from '@/map/MapPopups'
 import useCurrentLocationLayer from '@/layers/CurrentLocationLayer'
+import Menu from '@/sidebar/menu.svg'
+import Cross from '@/sidebar/times-solid.svg'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -160,6 +162,7 @@ interface LayoutProps {
 }
 
 function LargeScreenLayout({ query, route, map, error, mapOptions, info, turnNavigation }: LayoutProps) {
+    const [showSidebar, setShowSidebar] = useState(true)
     if (turnNavigation.showUI)
         return (
             <>
@@ -191,34 +194,45 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info, turnNav
 
     return (
         <>
-            <div className={styles.sidebar}>
-                <div className={styles.sidebarContent} id={SIDEBAR_CONTENT_ID}>
-                    <RoutingProfiles
-                        routingProfiles={info.profiles}
-                        selectedProfile={query.routingProfile}
-                        customModelAllowed={true}
-                        customModelEnabled={query.customModelEnabled}
-                    />
-                    <CustomModelBox
-                        enabled={query.customModelEnabled}
-                        encodedValues={info.encoded_values}
-                        initialCustomModelStr={query.initialCustomModelStr}
-                        queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                    />
-                    <Search points={query.queryPoints} />
-                    <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
-                    <RoutingResults
-                        paths={route.routingResult.paths}
-                        selectedPath={route.selectedPath}
-                        currentRequest={query.currentRequest}
-                        profile={query.routingProfile.name}
-                        turnNavigation={turnNavigation}
-                    />
-                    <div>
-                        <PoweredBy />
+            {showSidebar ? (
+                <div className={styles.sidebar}>
+                    <div className={styles.sidebarContent} id={SIDEBAR_CONTENT_ID}>
+                        <PlainButton onClick={() => setShowSidebar(false)} className={styles.sidebarCloseButton}>
+                            <Cross />
+                        </PlainButton>
+                        <RoutingProfiles
+                            routingProfiles={info.profiles}
+                            selectedProfile={query.routingProfile}
+                            customModelAllowed={true}
+                            customModelEnabled={query.customModelEnabled}
+                        />
+                        <CustomModelBox
+                            enabled={query.customModelEnabled}
+                            encodedValues={info.encoded_values}
+                            initialCustomModelStr={query.initialCustomModelStr}
+                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                        />
+                        <Search points={query.queryPoints} />
+                        <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
+                        <RoutingResults
+                            paths={route.routingResult.paths}
+                            selectedPath={route.selectedPath}
+                            currentRequest={query.currentRequest}
+                            profile={query.routingProfile.name}
+                            turnNavigation={turnNavigation}
+                        />
+                        <div>
+                            <PoweredBy />
+                        </div>
                     </div>
                 </div>
-            </div>
+            ) : (
+                <div className={styles.sidebarWhenClosed} onClick={() => setShowSidebar(true)}>
+                    <PlainButton className={styles.sidebarOpenButton}>
+                        <Menu />
+                    </PlainButton>
+                </div>
+            )}
             <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
             <div className={styles.map}>
                 <MapComponent map={map} />

@@ -252,6 +252,10 @@ describe('TurnNavigationStore', () => {
             })
         }
 
+        supportsGeocoding(): boolean {
+            return false
+        }
+
         info(): Promise<ApiInfo> {
             return Promise.resolve({
                 bbox: [0, 0, 0, 0],

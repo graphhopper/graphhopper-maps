@@ -29,12 +29,14 @@ export default interface Api {
     routeWithDispatch(args: RoutingArgs): void
 
     geocode(query: string, provider: string): Promise<GeocodingResult>
+
+    supportsGeocoding(): boolean
 }
 
 let api: Api | undefined
 
-export function setApi(apiAddress: string, apiKey: string) {
-    api = new ApiImpl(apiAddress, apiKey)
+export function setApi(routingApi: string, geocodingApi: string, apiKey: string) {
+    api = new ApiImpl(routingApi, geocodingApi, apiKey)
 }
 
 export function getApi() {
@@ -48,15 +50,17 @@ export function getApi() {
  */
 export class ApiImpl implements Api {
     private readonly apiKey: string
-    private readonly apiAddress: string
+    private readonly routingApi: string
+    private readonly geocodingApi: string
 
-    constructor(apiAddress: string, apiKey: string) {
-        this.apiAddress = apiAddress
+    constructor(routingApi: string, geocodingApi: string, apiKey: string) {
         this.apiKey = apiKey
+        this.routingApi = routingApi
+        this.geocodingApi = geocodingApi
     }
 
     async info(): Promise<ApiInfo> {
-        const response = await fetch(this.getURLWithKey('info').toString(), {
+        const response = await fetch(this.getRoutingURLWithKey('info').toString(), {
             headers: { Accept: 'application/json' },
         })
 
@@ -68,8 +72,13 @@ export class ApiImpl implements Api {
         }
     }
 
-    async geocode(query: string, provider: string) {
-        const url = this.getURLWithKey('geocode')
+    async geocode(query: string, provider: string): Promise<GeocodingResult> {
+        if (!this.supportsGeocoding())
+            return {
+                hits: [],
+                took: 0,
+            }
+        const url = this.getGeocodingURLWithKey('geocode')
         url.searchParams.append('q', query)
         url.searchParams.append('provider', provider)
         const langAndCountry = getTranslation().getLang().split('_')
@@ -86,10 +95,14 @@ export class ApiImpl implements Api {
         }
     }
 
+    supportsGeocoding(): boolean {
+        return this.geocodingApi !== ''
+    }
+
     async route(args: RoutingArgs): Promise<RoutingResult> {
         const completeRequest = ApiImpl.createRequest(args)
 
-        const response = await fetch(this.getURLWithKey('route').toString(), {
+        const response = await fetch(this.getRoutingURLWithKey('route').toString(), {
             method: 'POST',
             mode: 'cors',
             body: JSON.stringify(completeRequest),
@@ -139,8 +152,14 @@ export class ApiImpl implements Api {
             })
     }
 
-    private getURLWithKey(endpoint: string) {
-        const url = new URL(this.apiAddress + endpoint)
+    private getRoutingURLWithKey(endpoint: string) {
+        const url = new URL(this.routingApi + endpoint)
+        url.searchParams.append('key', this.apiKey)
+        return url
+    }
+
+    private getGeocodingURLWithKey(endpoint: string) {
+        const url = new URL(this.geocodingApi + endpoint)
         url.searchParams.append('key', this.apiKey)
         return url
     }

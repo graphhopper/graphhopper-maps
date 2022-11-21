@@ -5,7 +5,8 @@ declare module 'heightgraph/src/heightgraph'
 declare module 'custom-model-editor/src/index'
 
 declare module 'config' {
-    const api: string
+    const routingApi: string
+    const geocodingApi: string
     const defaultTiles: string
     const navigationTiles: string
     const keys: {

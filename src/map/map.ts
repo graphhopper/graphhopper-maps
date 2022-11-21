@@ -3,6 +3,7 @@ import { Map, View } from 'ol'
 import { fromLonLat } from 'ol/proj'
 import { MapIsLoaded } from '@/actions/Actions'
 import { defaults as defaultControls, Zoom } from 'ol/control'
+import styles from '@/map/Map.module.css'
 
 let map: Map | undefined
 
@@ -20,6 +21,7 @@ export function createMap(): Map {
             rotate: false, // for now also disable this extra button
             attribution: true,
             attributionOptions: {
+                className: styles.customAttribution,
                 collapsible: false,
             },
         }),
