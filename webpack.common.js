@@ -78,6 +78,10 @@ module.exports = {
                 test: /\.png$/i,
                 type: 'asset',
             },
+            {
+                test: /\.ttf$/i,
+                type: 'asset',
+            },
         ],
     },
     plugins: [
