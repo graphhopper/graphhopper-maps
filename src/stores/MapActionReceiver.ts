@@ -1,6 +1,6 @@
-import { Action, ActionReceiver } from '@/stores/Dispatcher'
-import { Map } from 'ol'
-import { fromLonLat } from 'ol/proj'
+import {Action, ActionReceiver} from '@/stores/Dispatcher'
+import {Map} from 'ol'
+import {fromLonLat} from 'ol/proj'
 import {
     InfoReceived,
     PathDetailsRangeSelected,
@@ -12,9 +12,9 @@ import {
     ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
-import { Bbox } from '@/api/graphhopper'
-import { toRadians } from 'ol/math'
-import { Zoom } from 'ol/control'
+import {Bbox} from '@/api/graphhopper'
+import {Zoom} from 'ol/control'
+import {toRadians} from "@/turnNavigation/GeoMethods";
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
