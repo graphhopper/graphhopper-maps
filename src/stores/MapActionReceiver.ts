@@ -64,7 +64,16 @@ export default class MapActionReceiver implements ActionReceiver {
                 zoom: action.zoom,
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
                 rotation: rotation,
-                duration: 400,
+                duration: 1000, // 1s simulates a smooth location change as we expect a location update every 1s too
+            }, () => {
+                // After animation render the arrow i.e. it can be out of synch with the map but only until the next location update and only window resizes.
+                // Animating the move of the arrow on the map AND keeping the view in sync with it is much more than these 4 lines.
+                const pixels = this.map.getPixelFromCoordinate(fromLonLat([action.coordinate.lng, action.coordinate.lat]));
+                const myLayer = document.getElementById("filledNavi") as HTMLElement | null
+                if(myLayer != null) {
+                    myLayer.style.left = (pixels[0] - 24) + 'px';
+                    myLayer.style.top = (pixels[1] - 24) + 'px';
+                }
             })
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
