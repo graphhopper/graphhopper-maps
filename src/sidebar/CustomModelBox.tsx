@@ -200,9 +200,6 @@ export default function CustomModelBox({
 function dispatchCustomModel(customModelString: string, isValid: boolean, withRouteRequest: boolean) {
     try {
         const parsedValue = JSON.parse(customModelString)
-        if (isValid) {
-            Dispatcher.dispatch(new DismissLastError())
-        }
         Dispatcher.dispatch(new SetCustomModel(parsedValue, isValid, withRouteRequest))
     } catch (e) {
         Dispatcher.dispatch(new SetCustomModel(null, false, withRouteRequest))
