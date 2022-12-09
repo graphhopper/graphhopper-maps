@@ -64,7 +64,7 @@ export default class MapActionReceiver implements ActionReceiver {
                 zoom: action.zoom,
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
                 rotation: rotation,
-                duration: 700, // 1s simulates a smooth location change as we expect a location update every 1s too
+                duration: 900, // 1s simulates a smooth location change as we expect a location update every 1s too
             }, () => {
                 // After animation render the arrow i.e. it can be out of synch with the map but only until the next location update and only window resizes.
                 // Animating the move of the arrow on the map AND keeping the view in sync with it is much more than these 4 lines.
