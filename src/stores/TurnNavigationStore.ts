@@ -232,15 +232,19 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
             if (instr.index < 0) throw new Error('Instruction should be valid if distanceToRoute is small')
 
+            const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, coordinate, [
+                path.details.average_speed,
+                path.details.max_speed,
+                path.details.surface,
+                path.details.road_class,
+            ])
+
             const instructionState = state.instruction
             const nextInstruction: Instruction = path.instructions[instr.index]
-
             const text = nextInstruction.street_name
             if (state.settings.soundEnabled) {
                 // making lastAnnounceDistance dependent on location.speed is tricky because then it can change while driving, so pick the constant average speed
-                // TODO use instruction average speed of current+next instruction instead of whole path
-                let averageSpeed = (path.distance / (path.time / 1000)) * 3.6
-                let lastAnnounceDistance = 10 + 2 * Math.round(averageSpeed / 5) * 5
+                let lastAnnounceDistance = 10 + 2 * Math.round(estimatedAvgSpeed / 5) * 5
 
                 if (
                     instr.distanceToTurn <= lastAnnounceDistance &&
@@ -251,7 +255,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
                 const firstAnnounceDistance = 1150
                 if (
-                    averageSpeed > 15 && // two announcements only if faster speed
+                    estimatedAvgSpeed > 15 && // two announcements only if faster speed
                     instr.distanceToTurn > lastAnnounceDistance + 50 && // do not interfere with last announcement. also "1 km" should stay valid (approximately)
                     instr.distanceToTurn <= firstAnnounceDistance &&
                     (instructionState.distanceToTurn > firstAnnounceDistance || instr.index != instructionState.index)
@@ -263,13 +267,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     this.synthesize(inString + ' ' + nextInstruction.text)
                 }
             }
-
-            const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, coordinate, [
-                path.details.average_speed,
-                path.details.max_speed,
-                path.details.surface,
-                path.details.road_class,
-            ])
 
             return {
                 ...state,
