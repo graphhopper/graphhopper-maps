@@ -1,4 +1,4 @@
-import { Coordinate, CustomModel, QueryStoreState } from '@/stores/QueryStore'
+import { Coordinate, CustomModel } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
 import {
     ErrorAction,
@@ -57,6 +57,7 @@ export interface TNInstructionState {
     distanceToWaypoint: number
     sign: number
     text: string
+    distanceToRoute: number
 }
 
 export interface TNPathDetailsState {
@@ -131,7 +132,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 customModel: action.valid ? action.customModel : null,
             }
         } else if (action instanceof SetVehicleProfile) {
-            console.log('SetVehicleProfile, profile: ' + action.profile.name)
+            // console.log('SetVehicleProfile, profile: ' + action.profile.name)
             return {
                 ...state,
                 activeProfile: action.profile.name,
@@ -150,6 +151,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         } else if (action instanceof LocationUpdate) {
             if (state.initialPath == null) throw new Error('initialPath must not be null')
             if (state.activePath == null) throw new Error('activePath must not be null')
+            if (!state.activeProfile) return this.state // throw new Error instead?
+
             const coordinate = action.coordinate
             let path = state.activePath
             let instr = getCurrentInstruction(path.instructions, coordinate)
@@ -185,9 +188,9 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             }
 
             // reroute only if already in turn navigation mode otherwise UI is not ready
-            if (state.showUI && (instr.distanceToRoute > 50 || skipWaypoint)) {
+            if ((state.showUI && this.distanceToRouteChange(instr.distanceToRoute)) || skipWaypoint) {
                 let queriedAPI = false
-                if (state.activeProfile && !state.rerouteInProgress) {
+                if (!state.rerouteInProgress) {
                     const toCoordinate = TurnNavigationStore.getWaypoint(path, instr.nextWaypointIndex)
                     const args: RoutingArgs = {
                         points: [
@@ -281,6 +284,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     distanceToEnd: instr.distanceToEnd,
                     nextWaypointIndex: instr.nextWaypointIndex,
                     distanceToWaypoint: instr.distanceToWaypoint,
+                    distanceToRoute: instr.distanceToRoute,
                     sign: path.instructions[instr.index].sign,
                     text,
                 },
@@ -290,11 +294,10 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const path = action.path
 
             // ensure that path and instruction are synced
-            const { index, distanceToTurn, timeToEnd, distanceToEnd, nextWaypointIndex, distanceToWaypoint } =
-                getCurrentInstruction(path.instructions, state.coordinate)
+            const instr = getCurrentInstruction(path.instructions, state.coordinate)
 
             // current location is still not close
-            if (index < 0) {
+            if (instr.index < 0) {
                 console.log('instruction after rerouting not found')
                 return {
                     ...state,
@@ -302,7 +305,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 }
             }
 
-            const text = path.instructions[index].street_name
+            const text = path.instructions[instr.index].street_name
             const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, state.coordinate, [
                 path.details.average_speed,
                 path.details.max_speed,
@@ -315,19 +318,26 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 activePath: path,
                 rerouteInProgress: false,
                 instruction: {
-                    index,
-                    distanceToTurn: distanceToTurn,
-                    timeToEnd: timeToEnd,
-                    distanceToEnd: distanceToEnd,
-                    nextWaypointIndex: nextWaypointIndex,
-                    distanceToWaypoint: distanceToWaypoint,
-                    sign: path.instructions[index].sign,
+                    index: instr.index,
+                    distanceToTurn: instr.distanceToTurn,
+                    timeToEnd: instr.timeToEnd,
+                    distanceToEnd: instr.distanceToEnd,
+                    nextWaypointIndex: instr.nextWaypointIndex,
+                    distanceToWaypoint: instr.distanceToWaypoint,
+                    distanceToRoute: instr.distanceToRoute,
+                    sign: path.instructions[instr.index].sign,
                     text,
                 },
                 pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
             }
         }
         return state
+    }
+
+    private distanceToRouteChange(actionDistance: number) {
+        if (isNaN(this.state.instruction.distanceToRoute)) return actionDistance > 50
+        // if we are far away from a route (which is already the result of a rerouting) then a new rerouting shouldn't be triggered
+        else return Math.abs(this.state.instruction.distanceToRoute - actionDistance) > 50
     }
 
     private synthesize(text: string) {

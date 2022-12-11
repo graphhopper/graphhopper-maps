@@ -101,30 +101,40 @@ describe('TurnNavigationStore', () => {
         it('should reroute', async () => {
             // TODO are these ugly numbers like 00000000001 from server-side snapped_waypoints array?
             const rerouteWaypoints = [
-                [14.266328, 51.434653],
+                [14.267587, 51.434226],
                 [14.267240000000001, 51.43253000000001],
             ] as [number, number][]
             const store = createStore(new LocalApi().setRerouteData(reroute1, rerouteWaypoints))
+            // no navigation without profile although path is already selected (this ensures that rerouting is based on proper previous states)
             Dispatcher.dispatch(new SetSelectedPath(reroute1.paths[0]))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266959, lat: 51.435051 }, 10, 120))
-            expect(store.state.speed).toEqual(10)
-            expect(store.state.activePath).toEqual(reroute1.paths[0])
-            expect(store.state.instruction.index).toEqual(1)
-
-            // no rerouting without profile
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.268302, lat: 51.435232 }, 12, 120))
-            expect(store.state.speed).toEqual(12)
-            expect(store.state.rerouteInProgress).toBeFalsy()
+            Dispatcher.dispatch(new LocationUpdate({ lat: 51.434681, lng: 14.267249 }, 12, 120))
+            expect(Math.round(store.state.instruction.distanceToRoute)).toBeNaN()
+            expect(store.state.showUI).toBeFalsy()
 
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, 12, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lat: 51.434681, lng: 14.267249 }, 10, 120))
+            expect(store.state.speed).toEqual(10)
+            expect(store.state.showUI).toBeTruthy()
+            expect(Math.round(store.state.instruction.distanceToRoute)).toEqual(59) // usually this would trigger a rerouting but showUI was false before
+            expect(store.state.activePath).toEqual(reroute1.paths[0])
+            expect(store.state.instruction.index).toEqual(1)
+            expect(store.state.rerouteInProgress).toBeFalsy()
+
+            Dispatcher.dispatch(new LocationUpdate({ lat: 51.434226, lng: 14.267587 }, 12, 120))
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeTruthy()
             await flushPromises()
             expect(store.state.rerouteInProgress).toBeFalsy()
+            expect(Math.round(store.state.instruction.distanceToRoute)).toEqual(5)
 
             expect(store.state.activePath).toEqual(reroute1.paths[0])
             expect(store.state.instruction.index).toEqual(1)
+
+            // now try again point which is more than 50m away but change of distanceToRoute is smaller than 50m
+            Dispatcher.dispatch(new LocationUpdate({ lat: 51.434621, lng: 14.267303 }, 10, 120))
+            expect(store.state.speed).toEqual(10)
+            expect(Math.round(store.state.instruction.distanceToRoute)).toEqual(51)
+            expect(store.state.rerouteInProgress).toBeFalsy()
         })
 
         it('should reroute with via point', async () => {
