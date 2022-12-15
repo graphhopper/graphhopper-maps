@@ -43,7 +43,7 @@ export class TurnNavigationSettingsUpdate implements Action {
 }
 
 export class TurnNavigationReroutingFailed implements Action {}
-
+export class TurnNavigationReroutingTimeResetForTest implements Action {}
 export class TurnNavigationRerouting implements Action {
     readonly path: Path
 

@@ -188,7 +188,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info, turnNav
                 <div className={styles.map}>
                     <MapComponent map={map} />
                 </div>
-                <FilledNaviSVG id="filledNavi" style={{position: "absolute"}}/>
+                <FilledNaviSVG id="filledNavi" style={{ position: 'absolute' }} />
             </>
         )
 
@@ -276,7 +276,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, turnNav
                         )}
                     </PlainButton>
                 </div>
-                <FilledNaviSVG id="filledNavi" style={{position: "absolute"}}/>
+                <FilledNaviSVG id="filledNavi" style={{ position: 'absolute' }} />
             </>
         )
 

@@ -1,4 +1,4 @@
-import { Coordinate, CustomModel, QueryStoreState } from '@/stores/QueryStore'
+import { Coordinate, CustomModel } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
 import {
     ErrorAction,
@@ -9,6 +9,7 @@ import {
     SetVehicleProfile,
     TurnNavigationRerouting,
     TurnNavigationReroutingFailed,
+    TurnNavigationReroutingTimeResetForTest,
     TurnNavigationSettingsUpdate,
     TurnNavigationStart,
     TurnNavigationStop,
@@ -36,6 +37,8 @@ export interface TurnNavigationStoreState {
     started: boolean
     oldTiles: string
     coordinate: Coordinate
+    lastRerouteTime: number
+    lastRerouteDistanceToRoute: number
     speed: number
     heading: number
     initialPath: Path | null
@@ -91,6 +94,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             activePath: null,
             customModel: null,
             rerouteInProgress: false,
+            lastRerouteTime: 0,
+            lastRerouteDistanceToRoute: 0,
             activeProfile: '',
             settings: { acceptedRisk: false, fakeGPS: fakeGPS, soundEnabled: !fakeGPS } as TNSettingsState,
             instruction: {} as TNInstructionState,
@@ -185,7 +190,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             }
 
             // reroute only if already in turn navigation mode otherwise UI is not ready
-            if (state.showUI && (instr.distanceToRoute > 50 || skipWaypoint)) {
+            if (state.showUI && (skipWaypoint || this.shouldReroute(instr.distanceToRoute))) {
                 let queriedAPI = false
                 if (state.activeProfile && !state.rerouteInProgress) {
                     const toCoordinate = TurnNavigationStore.getWaypoint(path, instr.nextWaypointIndex)
@@ -290,11 +295,10 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const path = action.path
 
             // ensure that path and instruction are synced
-            const { index, distanceToTurn, timeToEnd, distanceToEnd, nextWaypointIndex, distanceToWaypoint } =
-                getCurrentInstruction(path.instructions, state.coordinate)
+            const instr = getCurrentInstruction(path.instructions, state.coordinate)
 
             // current location is still not close
-            if (index < 0) {
+            if (instr.index < 0) {
                 console.log('instruction after rerouting not found')
                 return {
                     ...state,
@@ -302,7 +306,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 }
             }
 
-            const text = path.instructions[index].street_name
+            const text = path.instructions[instr.index].street_name
             const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, state.coordinate, [
                 path.details.average_speed,
                 path.details.max_speed,
@@ -314,20 +318,33 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 ...state,
                 activePath: path,
                 rerouteInProgress: false,
+                lastRerouteTime: new Date().getTime(),
+                lastRerouteDistanceToRoute: instr.distanceToRoute,
                 instruction: {
-                    index,
-                    distanceToTurn: distanceToTurn,
-                    timeToEnd: timeToEnd,
-                    distanceToEnd: distanceToEnd,
-                    nextWaypointIndex: nextWaypointIndex,
-                    distanceToWaypoint: distanceToWaypoint,
-                    sign: path.instructions[index].sign,
+                    index: instr.index,
+                    distanceToTurn: instr.distanceToTurn,
+                    timeToEnd: instr.timeToEnd,
+                    distanceToEnd: instr.distanceToEnd,
+                    nextWaypointIndex: instr.nextWaypointIndex,
+                    distanceToWaypoint: instr.distanceToWaypoint,
+                    sign: path.instructions[instr.index].sign,
                     text,
                 },
                 pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
             }
+        } else if (action instanceof TurnNavigationReroutingTimeResetForTest) {
+            return {
+                ...state,
+                lastRerouteTime: 0,
+            }
         }
         return state
+    }
+
+    private shouldReroute(currentDistanceToRoute: number) {
+        if (currentDistanceToRoute < 50) return false // close to current route
+        if (new Date().getTime() - this.state.lastRerouteTime < 10_000) return false // avoid frequent rerouting
+        return this.state.lastRerouteDistanceToRoute < currentDistanceToRoute // skip rerouting if getting closer to route
     }
 
     private synthesize(text: string) {

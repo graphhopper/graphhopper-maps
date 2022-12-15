@@ -1,5 +1,10 @@
 import Dispatcher from '@/stores/Dispatcher'
-import { LocationUpdate, SetSelectedPath, SetVehicleProfile } from '@/actions/Actions'
+import {
+    LocationUpdate,
+    SetSelectedPath,
+    SetVehicleProfile,
+    TurnNavigationReroutingTimeResetForTest,
+} from '@/actions/Actions'
 import TurnNavigationStore from '@/stores/TurnNavigationStore'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 import { ApiInfo, GeocodingResult, RawResult, RoutingArgs, RoutingResult } from '@/api/graphhopper'
@@ -100,24 +105,25 @@ describe('TurnNavigationStore', () => {
 
         it('should reroute', async () => {
             // TODO are these ugly numbers like 00000000001 from server-side snapped_waypoints array?
-            const rerouteWaypoints = [
-                [14.266328, 51.434653],
+            const api = new LocalApi()
+            api.setRerouteData(reroute1, [
+                [14.267238, 51.43475],
                 [14.267240000000001, 51.43253000000001],
-            ] as [number, number][]
-            const store = createStore(new LocalApi().setRerouteData(reroute1, rerouteWaypoints))
+            ])
+            const store = createStore(api)
             Dispatcher.dispatch(new SetSelectedPath(reroute1.paths[0]))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266959, lat: 51.435051 }, 10, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.268908, lat: 51.434871 }, 10, 120))
             expect(store.state.speed).toEqual(10)
             expect(store.state.activePath).toEqual(reroute1.paths[0])
             expect(store.state.instruction.index).toEqual(1)
 
             // no rerouting without profile
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.268302, lat: 51.435232 }, 12, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, 12, 120))
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeFalsy()
 
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, 12, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.267238, lat: 51.43475 }, 12, 120))
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeTruthy()
             await flushPromises()
@@ -125,6 +131,22 @@ describe('TurnNavigationStore', () => {
 
             expect(store.state.activePath).toEqual(reroute1.paths[0])
             expect(store.state.instruction.index).toEqual(1)
+
+            // avoid too frequent rerouting
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, 10, 120))
+            expect(store.state.speed).toEqual(10)
+            expect(store.state.rerouteInProgress).toBeFalsy()
+
+            api.setRerouteData(reroute1, [
+                [14.266328, 51.434653],
+                [14.267240000000001, 51.43253000000001],
+            ])
+            Dispatcher.dispatch(new TurnNavigationReroutingTimeResetForTest()) // skip waiting 10 seconds
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, 12, 120))
+            expect(store.state.speed).toEqual(12)
+            expect(store.state.rerouteInProgress).toBeTruthy()
+            await flushPromises()
+            expect(store.state.rerouteInProgress).toBeFalsy()
         })
 
         it('should reroute with via point', async () => {

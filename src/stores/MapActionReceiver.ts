@@ -1,6 +1,6 @@
-import {Action, ActionReceiver} from '@/stores/Dispatcher'
-import {Map} from 'ol'
-import {fromLonLat} from 'ol/proj'
+import { Action, ActionReceiver } from '@/stores/Dispatcher'
+import { Map } from 'ol'
+import { fromLonLat } from 'ol/proj'
 import {
     InfoReceived,
     PathDetailsRangeSelected,
@@ -12,9 +12,9 @@ import {
     ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
-import {Bbox} from '@/api/graphhopper'
-import {Zoom} from 'ol/control'
-import {toRadians} from "@/turnNavigation/GeoMethods";
+import { Bbox } from '@/api/graphhopper'
+import { Zoom } from 'ol/control'
+import { toRadians } from '@/turnNavigation/GeoMethods'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -60,21 +60,26 @@ export default class MapActionReceiver implements ActionReceiver {
                 action.heading === null || Number.isNaN(action.heading)
                     ? this.map.getView().getRotation()
                     : -toRadians(action.heading)
-            this.map.getView().animate({
-                zoom: action.zoom,
-                center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
-                rotation: rotation,
-                duration: 900, // 1s simulates a smooth location change as we expect a location update every 1s too
-            }, () => {
-                // After animation render the arrow i.e. it can be out of synch with the map but only until the next location update and only window resizes.
-                // Animating the move of the arrow on the map AND keeping the view in sync with it is much more than these 4 lines.
-                const pixels = this.map.getPixelFromCoordinate(fromLonLat([action.coordinate.lng, action.coordinate.lat]));
-                const myLayer = document.getElementById("filledNavi") as HTMLElement | null
-                if(myLayer != null) {
-                    myLayer.style.left = (pixels[0] - 24) + 'px';
-                    myLayer.style.top = (pixels[1] - 24) + 'px';
+            this.map.getView().animate(
+                {
+                    zoom: action.zoom,
+                    center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
+                    rotation: rotation,
+                    duration: 900, // 1s simulates a smooth location change as we expect a location update every 1s too
+                },
+                () => {
+                    // After animation render the arrow i.e. it can be out of synch with the map but only until the next location update and only window resizes.
+                    // Animating the move of the arrow on the map AND keeping the view in sync with it is much more than these 4 lines.
+                    const pixels = this.map.getPixelFromCoordinate(
+                        fromLonLat([action.coordinate.lng, action.coordinate.lat])
+                    )
+                    const myLayer = document.getElementById('filledNavi') as HTMLElement | null
+                    if (myLayer != null) {
+                        myLayer.style.left = pixels[0] - 24 + 'px'
+                        myLayer.style.top = pixels[1] - 24 + 'px'
+                    }
                 }
-            })
+            )
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route
