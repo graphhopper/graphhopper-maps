@@ -34,7 +34,7 @@ export default function ({
     const extraRoutingProfiles: RoutingProfile[] = config.extraProfiles
         ? Object.keys(config.extraProfiles).map(profile => ({ name: profile }))
         : []
-    const allRoutingProfiles = routingProfiles.concat(extraRoutingProfiles)
+    const allRoutingProfiles = routingProfiles.concat(extraRoutingProfiles).filter(profile => !config.excludeProfiles.includes(profile.name))
 
     return (
         <div className={styles.profilesParent}>

@@ -21,7 +21,9 @@ declare module 'config' {
     }
     const routingGraphLayerAllowed: boolean
     const extraProfiles: object
+    const excludeProfiles: string[]
 }
+
 declare module 'react-responsive' {
     function useMediaQuery(props: { query: string }): boolean
 }

@@ -38,6 +38,8 @@ const config = {
     // will add a profile named 'my_car' for which we send a request without the profile parameter and an additional
     // vehicle parameter that is set to 'car'
     extraProfiles: {},
+    // there can be profiles defined on the server-side, which you don't want to show up in the UI
+    excludeProfiles: [],
 }
 
 // this is needed for jest (with our current setup at least)
