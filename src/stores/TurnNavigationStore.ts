@@ -1,7 +1,8 @@
 import { Coordinate, CustomModel } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
 import {
-    ErrorAction, InfoReceived,
+    ErrorAction,
+    InfoReceived,
     LocationUpdate,
     SelectMapLayer,
     SetCustomModel,
