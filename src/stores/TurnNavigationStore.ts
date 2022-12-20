@@ -1,7 +1,7 @@
 import { Coordinate, CustomModel } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
 import {
-    ErrorAction,
+    ErrorAction, InfoReceived,
     LocationUpdate,
     SelectMapLayer,
     SetCustomModel,
@@ -134,6 +134,12 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             return {
                 ...state,
                 customModel: action.valid ? action.customModel : null,
+            }
+        } else if (action instanceof InfoReceived) {
+            if (state.activeProfile || action.result.profiles.length <= 0) return state
+            return {
+                ...state,
+                activeProfile: action.result.profiles[0].name,
             }
         } else if (action instanceof SetVehicleProfile) {
             console.log('SetVehicleProfile, profile: ' + action.profile.name)
