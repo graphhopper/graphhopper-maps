@@ -31,6 +31,9 @@ import * as config from 'config'
 import { Instruction, Path, RoutingArgs } from '@/api/graphhopper'
 import { tr } from '@/translation/Translation'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
+import { getMapFeatureStore } from '@/stores/Stores'
+import { getMap } from '@/map/map'
+import { fromLonLat, toLonLat } from 'ol/proj'
 
 export interface TurnNavigationStoreState {
     // TODO replace "showUI" with a composite state depending on activePath, coordinate and instruction
@@ -380,6 +383,33 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
     private async initFake() {
         console.log('started fake GPS injection')
+
+        let mouseControlled = true // control GPS movement via mouse or see below: along a predefined route
+        if (mouseControlled) {
+            let pixel = [] as number[]
+            let prevCoord = { lng: 0, lat: 0 } as Coordinate
+            addEventListener('mousemove', event => {
+                pixel[0] = event.x
+                pixel[1] = event.y
+            })
+
+            this.interval = setInterval(() => {
+                let coord = toLonLat(getMap().getCoordinateFromPixel(pixel))
+                let o = calcOrientation(prevCoord.lat, prevCoord.lng, coord[1], coord[0])
+                this.locationUpdate({
+                    coords: {
+                        latitude: coord[1],
+                        longitude: coord[0],
+                        heading: toDegrees(toNorthBased(o)),
+                        speed: 4,
+                    },
+                })
+
+                prevCoord.lng = coord[0]
+                prevCoord.lat = coord[1]
+            }, 3000)
+            return
+        }
 
         // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car&layer=MapTiler&fake=true
         let api = new ApiImpl(config.routingApi, config.geocodingApi, config.keys.graphhopper)
