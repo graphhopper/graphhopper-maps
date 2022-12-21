@@ -25,12 +25,14 @@ import {
     setStores,
 } from '@/stores/Stores'
 import MapOptionsStore from '@/stores/MapOptionsStore'
-import TurnNavigationStore from '@/stores/TurnNavigationStore'
+import TurnNavigationStore, { MapCoordinateSystem } from '@/stores/TurnNavigationStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
 import Dispatcher from '@/stores/Dispatcher'
 import NavBar from '@/NavBar'
 import App from '@/App'
 import { ErrorAction, InfoReceived } from '@/actions/Actions'
+import { toLonLat } from 'ol/proj'
+import { Pixel } from 'ol/pixel'
 
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 
@@ -48,6 +50,12 @@ const queryStore = new QueryStore(getApi(), initialCustomModelStr)
 const routeStore = new RouteStore(queryStore)
 const speechSynthesizer = new SpeechSynthesizerImpl(navigator.language)
 
+class CoordSysImpl implements MapCoordinateSystem {
+    getCoordinateFromPixel(pixel: Pixel) {
+        return toLonLat(getMap().getCoordinateFromPixel(pixel))
+    }
+}
+
 setStores({
     settingsStore: new SettingsStore(),
     queryStore: queryStore,
@@ -55,7 +63,13 @@ setStores({
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
-    turnNavigationStore: new TurnNavigationStore(getApi(), speechSynthesizer, fake != null, config.defaultTiles),
+    turnNavigationStore: new TurnNavigationStore(
+        getApi(),
+        speechSynthesizer,
+        new CoordSysImpl(),
+        fake != null,
+        config.defaultTiles
+    ),
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
 })

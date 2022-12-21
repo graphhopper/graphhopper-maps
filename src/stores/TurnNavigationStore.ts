@@ -31,9 +31,9 @@ import * as config from 'config'
 import { Instruction, Path, RoutingArgs } from '@/api/graphhopper'
 import { tr } from '@/translation/Translation'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
-import { getMapFeatureStore } from '@/stores/Stores'
 import { getMap } from '@/map/map'
-import { fromLonLat, toLonLat } from 'ol/proj'
+import { toLonLat } from 'ol/proj'
+import { Pixel } from 'ol/pixel'
 
 export interface TurnNavigationStoreState {
     // TODO replace "showUI" with a composite state depending on activePath, coordinate and instruction
@@ -79,14 +79,25 @@ export interface TNSettingsState {
     soundEnabled: boolean
 }
 
+export interface MapCoordinateSystem {
+    getCoordinateFromPixel(pixel: Pixel): number[]
+}
+
 export default class TurnNavigationStore extends Store<TurnNavigationStoreState> {
     private readonly api: Api
     private watchId: any = undefined
     private interval: any
     private noSleep: any
     private readonly speechSynthesizer: SpeechSynthesizer
+    private readonly cs: MapCoordinateSystem
 
-    constructor(api: Api, speechSynthesizer: SpeechSynthesizer, fakeGPS: boolean, tiles: string) {
+    constructor(
+        api: Api,
+        speechSynthesizer: SpeechSynthesizer,
+        cs: MapCoordinateSystem,
+        fakeGPS: boolean,
+        tiles: string
+    ) {
         super({
             showUI: false,
             started: false,
@@ -105,6 +116,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             instruction: {} as TNInstructionState,
             pathDetails: {} as TNPathDetailsState,
         })
+        this.cs = cs
         this.api = api
         this.speechSynthesizer = speechSynthesizer
     }
@@ -394,7 +406,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             })
 
             this.interval = setInterval(() => {
-                let coord = toLonLat(getMap().getCoordinateFromPixel(pixel))
+                let coord = this.cs.getCoordinateFromPixel(pixel)
                 let o = calcOrientation(prevCoord.lat, prevCoord.lng, coord[1], coord[0])
                 this.locationUpdate({
                     coords: {

@@ -5,12 +5,13 @@ import {
     SetVehicleProfile,
     TurnNavigationReroutingTimeResetForTest,
 } from '@/actions/Actions'
-import TurnNavigationStore from '@/stores/TurnNavigationStore'
+import TurnNavigationStore, { MapCoordinateSystem } from '@/stores/TurnNavigationStore'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 import { ApiInfo, GeocodingResult, RawResult, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 import Api, { ApiImpl } from '@/api/Api'
 import { setTranslation } from '@/translation/Translation'
 import { Coordinate } from '@/stores/QueryStore'
+import { Pixel } from 'ol/pixel'
 
 let routeWithVia = toRoutingResult(require('../turnNavigation/response-hoyerswerda2.json'))
 let reroute1 = toRoutingResult(require('../turnNavigation/reroute1.json'))
@@ -240,7 +241,7 @@ describe('TurnNavigationStore', () => {
     })
 
     function createStore(api: Api) {
-        const store = new TurnNavigationStore(api, new DummySpeech(), true, '')
+        const store = new TurnNavigationStore(api, new DummySpeech(), new DummyCS(), true, '')
         Dispatcher.register(store)
         return store
     }
@@ -248,6 +249,12 @@ describe('TurnNavigationStore', () => {
     class DummySpeech implements SpeechSynthesizer {
         synthesize(text: string, offline = true) {
             // TODO we could collect the text to ensure spoken words
+        }
+    }
+
+    class DummyCS implements MapCoordinateSystem {
+        getCoordinateFromPixel(pixel: Pixel): number[] {
+            return [0, 0]
         }
     }
 
