@@ -252,9 +252,6 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, turnNav
     if (turnNavigation.showUI)
         return (
             <>
-                <div>
-                    {turnNavigation.noSleep.isEnabled ? "locked" : "NoSleep" }
-                </div>
                 <div className={styles.smallScreenRoutingResult}>
                     <TurnNavigation turnNavigation={turnNavigation} />
                 </div>
@@ -295,9 +292,6 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, turnNav
                 <div className={styles.smallScreenMapOptionsContent}>
                     <MapOptions {...mapOptions} />
                 </div>
-            </div>
-            <div>
-                {turnNavigation.noSleep.isEnabled ? "locked" : "NoSleep" }
             </div>
             <div className={styles.smallScreenRoutingResult}>
                 <RoutingResults
