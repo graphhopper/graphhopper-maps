@@ -87,7 +87,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private readonly api: Api
     private watchId: any = undefined
     private interval: any
-    private noSleep: any
+    private noSleep = new NoSleep()
     private readonly speechSynthesizer: SpeechSynthesizer
     private readonly cs: MapCoordinateSystem
 
@@ -487,7 +487,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private initReal(doFullscreen: boolean) {
-        if (!this.noSleep) this.noSleep = new NoSleep()
         this.noSleep.enable()
         if (!navigator.geolocation) {
             console.log('location not supported. In firefox I had to set geo.enabled=true in about:config')
