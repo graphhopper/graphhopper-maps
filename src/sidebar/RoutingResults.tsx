@@ -298,7 +298,7 @@ function createSingletonListContent(props: RoutingResultsProps) {
                 path={props.selectedPath}
                 isSelected={true}
                 profile={props.profile}
-                fullscreenForTN={true}
+                fullscreenForTN={false}
                 turnNavigation={props.turnNavigation}
             />
         )
