@@ -31,8 +31,6 @@ import * as config from 'config'
 import { Instruction, Path, RoutingArgs } from '@/api/graphhopper'
 import { tr } from '@/translation/Translation'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
-import { getMap } from '@/map/map'
-import { toLonLat } from 'ol/proj'
 import { Pixel } from 'ol/pixel'
 
 export interface TurnNavigationStoreState {
@@ -50,6 +48,7 @@ export interface TurnNavigationStoreState {
     activeProfile: string
     customModel: CustomModel | null
     rerouteInProgress: boolean
+    noSleep: NoSleep
     settings: TNSettingsState
     instruction: TNInstructionState
     pathDetails: TNPathDetailsState
@@ -87,7 +86,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private readonly api: Api
     private watchId: any = undefined
     private interval: any
-    private noSleep = new NoSleep()
     private readonly speechSynthesizer: SpeechSynthesizer
     private readonly cs: MapCoordinateSystem
 
@@ -112,6 +110,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             lastRerouteTime: 0,
             lastRerouteDistanceToRoute: 0,
             activeProfile: '',
+            noSleep: new NoSleep(),
             settings: { acceptedRisk: false, fakeGPS: fakeGPS, soundEnabled: !fakeGPS } as TNSettingsState,
             instruction: {} as TNInstructionState,
             pathDetails: {} as TNPathDetailsState,
@@ -487,7 +486,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private initReal(doFullscreen: boolean) {
-        this.noSleep.enable()
+        this.state.noSleep.enable()
         if (!navigator.geolocation) {
             console.log('location not supported. In firefox I had to set geo.enabled=true in about:config')
         } else {
@@ -528,6 +527,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
         if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
-        if (this.noSleep) this.noSleep.disable()
+        this.state.noSleep.disable()
     }
 }
