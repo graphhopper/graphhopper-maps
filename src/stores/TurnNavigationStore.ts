@@ -42,7 +42,7 @@ export interface TurnNavigationStoreState {
     lastRerouteTime: number
     lastRerouteDistanceToRoute: number
     speed: number
-    heading: number
+    heading?: number
     initialPath: Path | null
     activePath: Path | null
     activeProfile: string
@@ -102,7 +102,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             oldTiles: tiles,
             coordinate: { lat: 0, lng: 0 },
             speed: 0,
-            heading: 0,
             initialPath: null,
             activePath: null,
             customModel: null,
@@ -215,7 +214,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 let queriedAPI = false
                 if (state.activeProfile && !state.rerouteInProgress) {
                     const toCoordinate = TurnNavigationStore.getWaypoint(path, instr.nextWaypointIndex)
-                    const args: RoutingArgs = {
+                    let args: RoutingArgs = {
                         points: [
                             [coordinate.lng, coordinate.lat],
                             [toCoordinate.lng, toCoordinate.lat],
@@ -256,7 +255,10 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 }
             }
 
-            if (instr.index < 0) throw new Error('Instruction should be valid if distanceToRoute is small')
+            if (instr.index < 0) {
+                console.error('Instruction cannot be determined. Current location too far away? ' + coordinate)
+                return state
+            }
 
             const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, coordinate, [
                 path.details.average_speed,
@@ -418,7 +420,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
                 prevCoord.lng = coord[0]
                 prevCoord.lat = coord[1]
-            }, 3000)
+            }, 1100)
             return
         }
 
@@ -481,8 +483,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
     private locationUpdate(pos: any) {
         let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        Dispatcher.dispatch(new ZoomMapToPoint(c, 17, 50, true, pos.coords.heading))
-        Dispatcher.dispatch(new LocationUpdate(c, pos.coords.speed, pos.coords.heading ? pos.coords.heading : 0))
+        Dispatcher.dispatch(new LocationUpdate(c, pos.coords.speed, pos.coords.heading))
     }
 
     private initReal(doFullscreen: boolean) {

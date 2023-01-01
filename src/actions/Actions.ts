@@ -25,9 +25,9 @@ export class TurnNavigationStart implements Action {
 export class LocationUpdate implements Action {
     readonly coordinate: Coordinate
     readonly speed: number
-    readonly heading: number
+    readonly heading?: number
 
-    constructor(coordinate: Coordinate, speed: number, heading: number) {
+    constructor(coordinate: Coordinate, speed: number, heading?: number) {
         this.coordinate = coordinate
         this.speed = speed
         this.heading = heading
@@ -207,22 +207,11 @@ export class ZoomMapToPoint implements Action {
     readonly coordinate: Coordinate
     readonly zoom: number
     readonly pitch: number
-    // in degrees, if null then map rotation stays
-    readonly heading: number | null
-    readonly navigationOffset: boolean
 
-    constructor(
-        coordinate: Coordinate,
-        zoom: number,
-        pitch: number,
-        navigationOffset: boolean,
-        heading: number | null
-    ) {
+    constructor(coordinate: Coordinate, zoom: number, pitch: number) {
         this.coordinate = coordinate
         this.zoom = zoom
         this.pitch = pitch
-        this.heading = heading
-        this.navigationOffset = navigationOffset
     }
 }
 

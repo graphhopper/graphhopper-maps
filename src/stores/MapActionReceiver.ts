@@ -14,7 +14,6 @@ import {
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
 import { Zoom } from 'ol/control'
-import { toRadians } from '@/turnNavigation/GeoMethods'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -38,6 +37,10 @@ export default class MapActionReceiver implements ActionReceiver {
         } else if (action instanceof TurnNavigationStop) {
             if (this.zoomCtrl !== null)
                 this.map.getControls().insertAt(this.map.getControls().getLength() - 1, this.zoomCtrl)
+
+            // reset padding
+            this.map.getView().padding = [0, 0, 0, 0]
+            this.map.getView().animate({ rotation: 0, zoom: 12, duration: 600 })
         } else if (action instanceof TurnNavigationStart) {
             const arr = this.map.getControls()
             for (let i = 0; i < arr.getLength(); i++) {
@@ -47,39 +50,20 @@ export default class MapActionReceiver implements ActionReceiver {
                     break
                 }
             }
+            // move center a bit down
+            const size = this.map.getSize() // [width, height]
+            this.map.getView().padding = [size ? size[1] / 2 : 0, 0, 0, 0]
+            this.map.getView().animate({
+                zoom: 15,
+                duration: 600,
+            })
         } else if (action instanceof ZoomMapToPoint) {
-            // if navigating then move icon (in center) to the lower half
-            if (action.navigationOffset) {
-                const size = this.map.getSize() // [width, height]
-                this.map.getView().padding = [size ? size[1] / 2 : 0, 0, 0, 0]
-            }
-
-            // The heading is in degrees and shows direction into which device is going.
-            // And although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
-            const rotation =
-                action.heading === null || Number.isNaN(action.heading)
-                    ? this.map.getView().getRotation()
-                    : -toRadians(action.heading)
-            this.map.getView().animate(
-                {
-                    zoom: action.zoom,
-                    center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
-                    rotation: rotation,
-                    duration: 900, // 1s simulates a smooth location change as we expect a location update every 1s too
-                },
-                () => {
-                    // After animation render the arrow i.e. it can be out of synch with the map but only until the next location update and only window resizes.
-                    // Animating the move of the arrow on the map AND keeping the view in sync with it is much more than these 4 lines.
-                    const pixels = this.map.getPixelFromCoordinate(
-                        fromLonLat([action.coordinate.lng, action.coordinate.lat])
-                    )
-                    const myLayer = document.getElementById('filledNavi') as HTMLElement | null
-                    if (myLayer != null) {
-                        myLayer.style.left = pixels[0] - 24 + 'px'
-                        myLayer.style.top = pixels[1] - 24 + 'px'
-                    }
-                }
-            )
+            // TODO use action.pitch
+            this.map.getView().animate({
+                zoom: action.zoom,
+                center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
+                duration: 600,
+            })
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route
