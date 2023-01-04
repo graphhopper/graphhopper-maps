@@ -18,6 +18,7 @@ import TruckIcon from './truck.svg'
 import WheelchairIcon from './wheelchair.svg'
 import { tr } from '@/translation/Translation'
 import SettingsSVG from '@/sidebar/settings.svg'
+import {profiles} from "config";
 
 export default function ({
     routingProfiles,
@@ -30,11 +31,8 @@ export default function ({
     customModelAllowed: boolean
     customModelEnabled: boolean
 }) {
-    // this first merges profiles set from config and those received from the backend.
-    const extraRoutingProfiles: RoutingProfile[] = config.extraProfiles
-        ? Object.keys(config.extraProfiles).map(profile => ({ name: profile }))
-        : []
-    const allRoutingProfiles = routingProfiles.concat(extraRoutingProfiles).filter(profile => !config.excludeProfiles.includes(profile.name))
+    // if there are profiles defined in the config file use them or use the routingProfiles (from /info endpoint)
+    const allRoutingProfiles = config.profiles? Object.keys(config.profiles).map(profile => ({ name: profile })) : routingProfiles
 
     return (
         <div className={styles.profilesParent}>

@@ -176,7 +176,7 @@ export class ApiImpl implements Api {
             points_encoded: true,
             snap_preventions: config.request?.snapPreventions ? config.request.snapPreventions : [],
             details: config.request?.details ? config.request.details : [],
-            ...(config.extraProfiles ? (config.extraProfiles as any)[args.profile] : {}),
+            ...(config.profiles ? (config.profiles as any)[args.profile] : {}),
         }
 
         if (args.customModel) {
