@@ -208,16 +208,6 @@ export class ApiImpl implements Api {
             profiles.push(profile)
         }
 
-        // group similarly named profiles into the following predefined order
-        const reservedOrder = ['car', 'truck', 'scooter', 'foot', 'hike', 'bike']
-        profiles.sort((a, b) => {
-            let idxa = reservedOrder.findIndex(str => a.name.indexOf(str) >= 0)
-            let idxb = reservedOrder.findIndex(str => b.name.indexOf(str) >= 0)
-            if (idxa < 0) idxa = reservedOrder.length
-            if (idxb < 0) idxb = reservedOrder.length
-            return idxa - idxb
-        })
-
         for (const property in response) {
             if (property === 'bbox') bbox = response[property]
             else if (property === 'version') version = response[property]
