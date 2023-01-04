@@ -32,12 +32,13 @@ const config = {
         ],
         snapPreventions: ['ferry'],
     },
-    // use this to add your own profiles. the key of each profile will be used as name and the given fields will
-    // overwrite the fields of the default routing request. e.g.
-    // extraProfiles: { my_car: { profile: undefined, vehicle: car }}
-    // will add a profile named 'my_car' for which we send a request without the profile parameter and an additional
-    // vehicle parameter that is set to 'car'
-    extraProfiles: {},
+    // Use 'profiles' to define which profiles are visible and how. Useful if the /info endpoint contains too many or too "ugly" profile 
+    // names or in the wrong order. The key of each profile will be used as name and the given fields will overwrite the fields of the 
+    // default routing request. e.g.
+    //
+    // profiles: { my_car: { profile: 'raw_car' } }
+    //
+    // will add a profile named 'my_car' for which we send a request with profile=raw_car, and you could add even further parameters.
 }
 
 // this is needed for jest (with our current setup at least)
