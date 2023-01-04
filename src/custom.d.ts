@@ -20,7 +20,7 @@ declare module 'config' {
         snapPreventions: string[]
     }
     const routingGraphLayerAllowed: boolean
-    const profiles: object
+    const profiles: object | null
 }
 
 declare module 'react-responsive' {
