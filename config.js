@@ -36,7 +36,7 @@ const config = {
     // The key of each profile will be used as name and the given fields will overwrite the fields of the default routing request. e.g.
     //
     // profiles: { my_car: { profile: 'raw_car' } }
-    // will add a profile named 'my_car' for which we send a request with profile=raw_car and you could add even further parameter.
+    // will add a profile named 'my_car' for which we send a request with profile=raw_car, and you could add even further parameters.
 }
 
 // this is needed for jest (with our current setup at least)
