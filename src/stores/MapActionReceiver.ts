@@ -15,6 +15,7 @@ import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
 import { Zoom } from 'ol/control'
 import {toRadians} from "@/turnNavigation/GeoMethods";
+import {linear} from "ol/easing";
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -71,6 +72,7 @@ export default class MapActionReceiver implements ActionReceiver {
                 zoom: action.zoom,
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
                 rotation: rotation,
+                easing: linear,
                 duration: 950, // 1s simulates a smooth location change as we expect a location update every 1s too
             }, () => {
                 // After animation render the arrow i.e. it can be out of synch with the map but only until the next location update and only window resizes.
