@@ -256,7 +256,9 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             }
 
             if (instr.index < 0) {
-                console.error('Instruction cannot be determined. Current location too far away? ' + coordinate)
+                console.error(
+                    'Instruction cannot be determined. Current location too far away? ' + JSON.stringify(coordinate)
+                )
                 return state
             }
 
@@ -399,28 +401,39 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
         let mouseControlled = true // control GPS movement via mouse or see below: along a predefined route
         if (mouseControlled) {
-            let pixel = [] as number[]
+            const pixel = [] as number[]
             let prevCoord = { lng: 0, lat: 0 } as Coordinate
+            let prevTime = Date.now()
             addEventListener('mousemove', event => {
                 pixel[0] = event.x
                 pixel[1] = event.y
             })
 
             this.interval = setInterval(() => {
+                const time = Date.now() / 1000.0
                 let coord = this.cs.getCoordinateFromPixel(pixel)
-                let o = calcOrientation(prevCoord.lat, prevCoord.lng, coord[1], coord[0])
+                if(!coord[0] || !coord[1]) {
+                    console.warn("mouse out of screen")
+                    return
+                }
+                const o = calcOrientation(prevCoord.lat, prevCoord.lng, coord[1], coord[0])
+                const distanceInM = calcDist(
+                    { lat: prevCoord.lat, lng: prevCoord.lng },
+                    { lat: coord[1], lng: coord[0] }
+                )
                 this.locationUpdate({
                     coords: {
                         latitude: coord[1],
                         longitude: coord[0],
                         heading: toDegrees(toNorthBased(o)),
-                        speed: 4,
+                        speed: time - prevTime < 1 ? 0 : distanceInM / (time - prevTime),
                     },
                 })
 
                 prevCoord.lng = coord[0]
                 prevCoord.lat = coord[1]
-            }, 1100)
+                prevTime = time
+            }, 1000)
             return
         }
 

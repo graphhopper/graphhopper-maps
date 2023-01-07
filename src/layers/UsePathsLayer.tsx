@@ -89,7 +89,7 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path, turnNavigation: Tur
                 lineCap: 'round',
                 lineJoin: 'round',
             }),
-        })
+        }),
     } as { [key: string]: Style }
     const features = [
         new Feature({
