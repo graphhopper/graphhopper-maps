@@ -129,6 +129,9 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         } else if (action instanceof TurnNavigationSettingsUpdate) {
             return { ...state, settings: { ...state.settings, ...action.settings } }
         } else if (action instanceof TurnNavigationStart) {
+            // Make sound work for Safari 16.1.2. Otherwise, it probably thinks that the LocationUpdates are NOT user-triggered.
+            this.speechSynthesizer.synthesize('')
+
             if (state.settings.fakeGPS) this.initFake()
             else this.initReal(action.enableFullscreen)
             return { ...state, started: true }
