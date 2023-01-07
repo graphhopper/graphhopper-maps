@@ -10,7 +10,7 @@ A user interface for the [GraphHopper routing engine](https://github.com/graphho
 ## Start development:
 
  * Clone this repository.
- * Make sure node/npm is installed. We recommend using the gallium LTS (node v16.17.0 & npm v8.15.0).
+ * Make sure node and npm are installed. We recommend using the gallium LTS (node v16.17.0 & npm v8.15.0).
  * npm install
  * npm run serve
  * Open your browser at http://0.0.0.0:3000/.

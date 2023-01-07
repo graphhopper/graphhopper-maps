@@ -176,7 +176,7 @@ export class ApiImpl implements Api {
             points_encoded: true,
             snap_preventions: config.request?.snapPreventions ? config.request.snapPreventions : [],
             details: config.request?.details ? config.request.details : [],
-            ...(config.extraProfiles ? (config.extraProfiles as any)[args.profile] : {}),
+            ...(config.profiles ? (config.profiles as any)[args.profile] : {}),
         }
 
         if (args.customModel) {
@@ -213,16 +213,6 @@ export class ApiImpl implements Api {
 
             profiles.push(profile)
         }
-
-        // group similarly named profiles into the following predefined order
-        const reservedOrder = ['car', 'truck', 'scooter', 'foot', 'hike', 'bike']
-        profiles.sort((a, b) => {
-            let idxa = reservedOrder.findIndex(str => a.name.indexOf(str) >= 0)
-            let idxb = reservedOrder.findIndex(str => b.name.indexOf(str) >= 0)
-            if (idxa < 0) idxa = reservedOrder.length
-            if (idxb < 0) idxb = reservedOrder.length
-            return idxa - idxb
-        })
 
         for (const property in response) {
             if (property === 'bbox') bbox = response[property]

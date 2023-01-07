@@ -21,8 +21,9 @@ declare module 'config' {
         snapPreventions: string[]
     }
     const routingGraphLayerAllowed: boolean
-    const extraProfiles: object
+    const profiles: object
 }
+
 declare module 'react-responsive' {
     function useMediaQuery(props: { query: string }): boolean
 }
