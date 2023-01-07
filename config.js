@@ -32,8 +32,8 @@ const config = {
         ],
         snapPreventions: ['ferry'],
     },
-    // Use 'profiles' to define which profiles are visible and how. Useful if the /info endpoint contains too many or too "ugly" profile 
-    // names or in the wrong order. The key of each profile will be used as name and the given fields will overwrite the fields of the 
+    // Use 'profiles' to define which profiles are visible and how. Useful if the /info endpoint contains too many or too "ugly" profile
+    // names or in the wrong order. The key of each profile will be used as name and the given fields will overwrite the fields of the
     // default routing request. e.g.
     //
     // profiles: { my_car: { profile: 'raw_car' } }
