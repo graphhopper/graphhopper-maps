@@ -478,11 +478,12 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     speed: latlon[currentIndex][3],
                 },
             })
-        }, 3000)
+        }, 1000)
     }
 
     private locationUpdate(pos: any) {
         let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        Dispatcher.dispatch(new ZoomMapToPoint(c, 16, 0, pos.coords.heading))
         Dispatcher.dispatch(new LocationUpdate(c, pos.coords.speed, pos.coords.heading))
     }
 

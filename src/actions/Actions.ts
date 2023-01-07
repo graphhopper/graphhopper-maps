@@ -207,11 +207,13 @@ export class ZoomMapToPoint implements Action {
     readonly coordinate: Coordinate
     readonly zoom: number
     readonly pitch: number
+    readonly heading: number
 
-    constructor(coordinate: Coordinate, zoom: number, pitch: number) {
+    constructor(coordinate: Coordinate, zoom: number, pitch: number, heading: number) {
         this.coordinate = coordinate
         this.zoom = zoom
         this.pitch = pitch
+        this.heading = heading
     }
 }
 

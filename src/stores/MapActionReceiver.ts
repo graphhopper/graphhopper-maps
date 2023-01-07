@@ -14,6 +14,7 @@ import {
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
 import { Zoom } from 'ol/control'
+import {toRadians} from "@/turnNavigation/GeoMethods";
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -58,11 +59,28 @@ export default class MapActionReceiver implements ActionReceiver {
                 duration: 600,
             })
         } else if (action instanceof ZoomMapToPoint) {
-            // TODO use action.pitch
+            // The heading is in degrees and shows direction into which device is going.
+            // And although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
+            const rotation =
+                action.heading === null || Number.isNaN(action.heading)
+                    ? this.map.getView().getRotation()
+                    : -toRadians(action.heading)
+
+            this.map.getView().cancelAnimations()
             this.map.getView().animate({
                 zoom: action.zoom,
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
-                duration: 600,
+                rotation: rotation,
+                duration: 950, // 1s simulates a smooth location change as we expect a location update every 1s too
+            }, () => {
+                // After animation render the arrow i.e. it can be out of synch with the map but only until the next location update and only window resizes.
+                // Animating the move of the arrow on the map AND keeping the view in sync with it is much more than these 4 lines.
+                const pixels = this.map.getPixelFromCoordinate(fromLonLat([action.coordinate.lng, action.coordinate.lat]));
+                const myLayer = document.getElementById("filledNavi") as HTMLElement | null
+                if(myLayer != null) {
+                    myLayer.style.left = (pixels[0] - 24) + 'px';
+                    myLayer.style.top = (pixels[1] - 24) + 'px';
+                }
             })
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
