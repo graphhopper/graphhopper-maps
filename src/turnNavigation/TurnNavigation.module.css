@@ -10,6 +10,11 @@
     flex-direction: column;
     justify-content: space-between;
 }
+.instructionText {
+    font-size: smaller;
+    overflow: hidden;
+    height: 20px;
+}
 
 .turnSign img {
     padding-top: 0.4rem;

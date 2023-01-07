@@ -13,7 +13,7 @@ import {
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
-import { Zoom } from 'ol/control'
+import { Attribution, Zoom } from 'ol/control'
 import { toRadians } from '@/turnNavigation/GeoMethods'
 import { linear } from 'ol/easing'
 
@@ -22,6 +22,7 @@ export default class MapActionReceiver implements ActionReceiver {
     private readonly routeStore: RouteStore
     private readonly isSmallScreenQuery: () => boolean
     private zoomCtrl: Zoom | null = null
+    private attributionCtrl: Attribution | null = null
 
     constructor(map: Map, routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
         this.map = map
@@ -37,23 +38,25 @@ export default class MapActionReceiver implements ActionReceiver {
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
         } else if (action instanceof TurnNavigationStop) {
-            if (this.zoomCtrl !== null)
-                this.map.getControls().insertAt(this.map.getControls().getLength() - 1, this.zoomCtrl)
+            if (this.zoomCtrl !== null) this.map.getControls().insertAt(0, this.zoomCtrl)
+            if (this.attributionCtrl !== null) this.map.getControls().insertAt(0, this.attributionCtrl)
 
             // reset padding
             this.map.getView().padding = [0, 0, 0, 0]
             this.map.getView().animate({ rotation: 0, zoom: 12, duration: 600 })
         } else if (action instanceof TurnNavigationStart) {
+            const size = this.map.getSize() // [width, height]
             const arr = this.map.getControls()
             for (let i = 0; i < arr.getLength(); i++) {
-                if (arr.item(i) instanceof Zoom) {
-                    this.zoomCtrl = arr.item(i) as Zoom
-                    arr.remove(this.zoomCtrl)
-                    break
-                }
+                if (arr.item(i) instanceof Zoom) this.zoomCtrl = arr.item(i) as Zoom
+                else if (arr.item(i) instanceof Attribution && size && size[1] < 840)
+                    // remove attribution if height too small
+                    this.attributionCtrl = arr.item(i) as Attribution
             }
+            if (this.zoomCtrl) arr.remove(this.zoomCtrl)
+            if (this.attributionCtrl) arr.remove(this.attributionCtrl)
+
             // move center a bit down
-            const size = this.map.getSize() // [width, height]
             this.map.getView().padding = [size ? size[1] / 2 : 0, 0, 0, 0]
             this.map.getView().animate({
                 zoom: 15,

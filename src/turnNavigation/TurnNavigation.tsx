@@ -75,7 +75,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                             <EndNavigation />
                         </PlainButton>
                     </div>
-                    <div>{instruction.text}</div>
+                    <div className={styles.instructionText}>{instruction.text}</div>
                 </div>
             </div>
         </>

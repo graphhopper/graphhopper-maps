@@ -412,8 +412,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             this.interval = setInterval(() => {
                 const time = Date.now() / 1000.0
                 let coord = this.cs.getCoordinateFromPixel(pixel)
-                if(!coord[0] || !coord[1]) {
-                    console.warn("mouse out of screen")
+                if (!coord[0] || !coord[1]) {
+                    console.warn('mouse out of screen')
                     return
                 }
                 const o = calcOrientation(prevCoord.lat, prevCoord.lng, coord[1], coord[0])
