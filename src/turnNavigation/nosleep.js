@@ -1,7 +1,6 @@
 // original code from https://github.com/richtr/NoSleep.js
 // with the following modifications:
 // https://github.com/richtr/NoSleep.js/pull/138
-// https://github.com/richtr/NoSleep.js/pull/151
 // https://github.com/Uriopass/NoSleep.js/pull/1
 // https://github.com/Uriopass/NoSleep.js/pull/2
 
@@ -79,8 +78,9 @@ class NoSleep {
 
             // instead of adding the element we declared it in the DOM (see comment about document.onload in #138) and set the style
             this.noSleepVideo = document.getElementById("_no_sleep_id_");
+            if(this.noSleepVideo.getAttribute("title")) console.warn("NoSleep.js setup should not be done twice")
 
-            this.noSleepVideo.setAttribute("title", document.location.hostname === "localhost" ? "NoSleep.js" : document.location.hostname);
+            this.noSleepVideo.setAttribute("title", "GraphHopper");
             this.noSleepVideo.setAttribute("playsinline", "");
             this.noSleepVideo.muted = true;
 

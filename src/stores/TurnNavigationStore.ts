@@ -503,8 +503,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private initReal(doFullscreen: boolean) {
-        if (!this.noSleep) this.noSleep = new NoSleep()
-        this.noSleep.enable()
         if (!navigator.geolocation) {
             console.log('location not supported. In firefox I had to set geo.enabled=true in about:config')
         } else {
@@ -534,6 +532,12 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     enableHighAccuracy: true,
                 }
             )
+
+            // initialize and enable after potential fullscreen change
+            if (!this.noSleep) this.noSleep = new NoSleep()
+            this.noSleep.enable().catch(err => {
+                console.warn("NoSleep.js couldn't be initialized: " + JSON.stringify(err))
+            })
         }
     }
 

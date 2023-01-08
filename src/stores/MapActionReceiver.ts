@@ -49,20 +49,17 @@ export default class MapActionReceiver implements ActionReceiver {
             const arr = this.map.getControls()
             for (let i = 0; i < arr.getLength(); i++) {
                 if (arr.item(i) instanceof Zoom) this.zoomCtrl = arr.item(i) as Zoom
+                // remove attribution if height too small
                 else if (arr.item(i) instanceof Attribution && size && size[1] < 840)
-                    // remove attribution if height too small
                     this.attributionCtrl = arr.item(i) as Attribution
             }
             if (this.zoomCtrl) arr.remove(this.zoomCtrl)
             if (this.attributionCtrl) arr.remove(this.attributionCtrl)
-
+        } else if (action instanceof ZoomMapToPoint) {
+            const size = this.map.getSize() // [width, height]
             // move center a bit down
             this.map.getView().padding = [size ? size[1] / 2 : 0, 0, 0, 0]
-            this.map.getView().animate({
-                zoom: 15,
-                duration: 600,
-            })
-        } else if (action instanceof ZoomMapToPoint) {
+
             // The heading is in degrees and shows direction into which device is going.
             // And although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
             const rotation =
@@ -70,7 +67,7 @@ export default class MapActionReceiver implements ActionReceiver {
                     ? this.map.getView().getRotation()
                     : -toRadians(action.heading)
 
-            this.map.getView().cancelAnimations()
+            this.map.getView().cancelAnimations() // if location updates are sent too fast animations might stack up
             this.map.getView().animate(
                 {
                     zoom: action.zoom,
