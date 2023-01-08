@@ -17,7 +17,7 @@ import {
     ZoomMapToPoint,
 } from '@/actions/Actions'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
-import NoSleep from 'nosleep.js'
+import NoSleep from '@/turnNavigation/nosleep.js'
 import Api, { ApiImpl } from '@/api/Api'
 import {
     calcDist,
@@ -48,7 +48,6 @@ export interface TurnNavigationStoreState {
     activeProfile: string
     customModel: CustomModel | null
     rerouteInProgress: boolean
-    noSleep: NoSleep
     settings: TNSettingsState
     instruction: TNInstructionState
     pathDetails: TNPathDetailsState
@@ -86,6 +85,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private readonly api: Api
     private watchId: any = undefined
     private interval: any
+    private noSleep: NoSleep | null = null
     private readonly speechSynthesizer: SpeechSynthesizer
     private readonly cs: MapCoordinateSystem
 
@@ -109,7 +109,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             lastRerouteTime: 0,
             lastRerouteDistanceToRoute: 0,
             activeProfile: '',
-            noSleep: new NoSleep(),
             settings: { acceptedRisk: false, fakeGPS: fakeGPS, soundEnabled: !fakeGPS } as TNSettingsState,
             instruction: {} as TNInstructionState,
             pathDetails: {} as TNPathDetailsState,
@@ -504,7 +503,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private initReal(doFullscreen: boolean) {
-        this.state.noSleep.enable()
+        if (!this.noSleep) this.noSleep = new NoSleep()
+        this.noSleep.enable()
         if (!navigator.geolocation) {
             console.log('location not supported. In firefox I had to set geo.enabled=true in about:config')
         } else {
@@ -545,6 +545,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
         if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
-        this.state.noSleep.disable()
+        if (this.noSleep) this.noSleep.disable()
     }
 }
