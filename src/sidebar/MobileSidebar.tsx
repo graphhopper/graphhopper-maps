@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { ApiInfo } from '@/api/graphhopper'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'
@@ -13,11 +12,10 @@ import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 type MobileSidebarProps = {
     query: QueryStoreState
     route: RouteStoreState
-    info: ApiInfo
     error: ErrorStoreState
 }
 
-export default function ({ query, route, info, error }: MobileSidebarProps) {
+export default function ({ query, route, error }: MobileSidebarProps) {
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
     const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen && hasResult(route))
@@ -50,7 +48,7 @@ export default function ({ query, route, info, error }: MobileSidebarProps) {
                 ) : (
                     <div className={styles.btnCloseContainer}>
                         <RoutingProfiles
-                            routingProfiles={info.profiles}
+                            routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
                             customModelAllowed={false}
                             customModelEnabled={query.customModelEnabled}

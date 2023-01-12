@@ -12,7 +12,6 @@ import {
     getSettingsStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
-import { ApiInfo } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
 import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
@@ -117,7 +116,7 @@ export default function App() {
                         map={map}
                         mapOptions={mapOptions}
                         error={error}
-                        info={info}
+                        encodedValues={info.encoded_values}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -126,7 +125,7 @@ export default function App() {
                         map={map}
                         mapOptions={mapOptions}
                         error={error}
-                        info={info}
+                        encodedValues={info.encoded_values}
                     />
                 )}
             </div>
@@ -140,10 +139,10 @@ interface LayoutProps {
     map: Map
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
-    info: ApiInfo
+    encodedValues: object[]
 }
 
-function LargeScreenLayout({ query, route, map, error, mapOptions, info }: LayoutProps) {
+function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     return (
         <>
@@ -154,14 +153,14 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
                             <Cross />
                         </PlainButton>
                         <RoutingProfiles
-                            routingProfiles={info.profiles}
+                            routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
                             customModelAllowed={true}
                             customModelEnabled={query.customModelEnabled}
                         />
                         <CustomModelBox
                             enabled={query.customModelEnabled}
-                            encodedValues={info.encoded_values}
+                            encodedValues={encodedValues}
                             initialCustomModelStr={query.initialCustomModelStr}
                             queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                         />
@@ -200,11 +199,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info }: Layou
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, info }: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar info={info} query={query} route={route} error={error} />
+                <MobileSidebar query={query} route={route} error={error} />
             </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />
