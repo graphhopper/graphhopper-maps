@@ -246,7 +246,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 : action.result.profiles
 
             // if a routing profile was in the url keep it, otherwise select the first entry as default profile
-            const profile = state.routingProfile.name ? state.routingProfile : action.result.profiles[0]
+            const profile = state.routingProfile.name ? state.routingProfile : profiles[0]
             return this.routeIfReady({
                 ...state,
                 profiles,
