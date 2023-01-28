@@ -20,6 +20,7 @@ import {
 } from '@/actions/Actions'
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist } from '@/turnNavigation/GeoMethods'
+import config from 'config'
 
 export interface Coordinate {
     lat: number
@@ -27,6 +28,7 @@ export interface Coordinate {
 }
 
 export interface QueryStoreState {
+    readonly profiles: RoutingProfile[]
     readonly queryPoints: QueryPoint[]
     readonly nextQueryPointId: number
     readonly currentRequest: CurrentRequest
@@ -88,6 +90,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     private static getInitialState(initialCustomModelStr: string | null): QueryStoreState {
         return {
+            profiles: [],
             queryPoints: [
                 QueryStore.getEmptyPoint(0, QueryPointType.From),
                 QueryStore.getEmptyPoint(1, QueryPointType.To),
@@ -234,13 +237,19 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
             return this.routeIfReady(newState)
         } else if (action instanceof InfoReceived) {
-            // if a routing profile was in the url keep it regardless. Also, do nothing if no routing profiles were received
-            if (state.routingProfile.name || action.result.profiles.length <= 0) return state
+            // Do nothing if no routing profiles were received
+            if (action.result.profiles.length <= 0) return state
 
-            // otherwise select the first entry as default routing mode
-            const profile = action.result.profiles[0]
+            // if there are profiles defined in the config file use them, otherwise use the profiles from /info
+            const profiles: RoutingProfile[] = config.profiles
+                ? Object.keys(config.profiles).map(profile => ({ name: profile }))
+                : action.result.profiles
+
+            // if a routing profile was in the url keep it, otherwise select the first entry as default profile
+            const profile = state.routingProfile.name ? state.routingProfile : profiles[0]
             return this.routeIfReady({
                 ...state,
+                profiles,
                 routingProfile: profile,
             })
         } else if (action instanceof SetVehicleProfile) {

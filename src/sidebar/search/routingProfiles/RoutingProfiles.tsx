@@ -3,7 +3,6 @@ import styles from './RoutingProfiles.modules.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { ClearRoute, DismissLastError, SetCustomModelBoxEnabled, SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
-import * as config from 'config'
 import PlainButton from '@/PlainButton'
 import BicycleIcon from './bike.svg'
 import CarIcon from './car.svg'
@@ -18,7 +17,6 @@ import TruckIcon from './truck.svg'
 import WheelchairIcon from './wheelchair.svg'
 import { tr } from '@/translation/Translation'
 import SettingsSVG from '@/sidebar/settings.svg'
-import { profiles } from 'config'
 
 export default function ({
     routingProfiles,
@@ -31,11 +29,6 @@ export default function ({
     customModelAllowed: boolean
     customModelEnabled: boolean
 }) {
-    // if there are profiles defined in the config file use them or use the routingProfiles (from /info endpoint)
-    const allRoutingProfiles = config.profiles
-        ? Object.keys(config.profiles).map(profile => ({ name: profile }))
-        : routingProfiles
-
     return (
         <div className={styles.profilesParent}>
             {customModelAllowed && (
@@ -52,7 +45,7 @@ export default function ({
                 </PlainButton>
             )}
             <ul className={styles.profiles}>
-                {allRoutingProfiles.map(profile => {
+                {routingProfiles.map(profile => {
                     const className =
                         profile.name === selectedProfile.name
                             ? styles.selectedProfile + ' ' + styles.profileBtn

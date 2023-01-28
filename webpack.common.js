@@ -24,7 +24,7 @@ module.exports = {
     entry: path.resolve(__dirname, 'src', 'index.tsx'),
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js',
+        filename: 'bundle.[contenthash].js',
     },
     resolve: {
         alias: {
@@ -76,6 +76,10 @@ module.exports = {
             },
             {
                 test: /\.png$/i,
+                type: 'asset',
+            },
+            {
+                test: /\.ttf$/i,
                 type: 'asset',
             },
         ],

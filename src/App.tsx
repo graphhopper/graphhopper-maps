@@ -13,7 +13,6 @@ import {
     getTurnNavigationStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
-import { ApiInfo } from '@/api/graphhopper'
 import MapOptions from '@/map/MapOptions'
 import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
@@ -132,8 +131,8 @@ export default function App() {
                         map={map}
                         mapOptions={mapOptions}
                         error={error}
-                        info={info}
                         turnNavigation={turnNavigation}
+                        encodedValues={info.encoded_values}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -142,8 +141,8 @@ export default function App() {
                         map={map}
                         mapOptions={mapOptions}
                         error={error}
-                        info={info}
                         turnNavigation={turnNavigation}
+                        encodedValues={info.encoded_values}
                     />
                 )}
             </div>
@@ -158,10 +157,10 @@ interface LayoutProps {
     map: Map
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
-    info: ApiInfo
+    encodedValues: object[]
 }
 
-function LargeScreenLayout({ query, route, map, error, mapOptions, info, turnNavigation }: LayoutProps) {
+function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, turnNavigation }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     if (turnNavigation.showUI)
         return (
@@ -202,14 +201,14 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info, turnNav
                             <Cross />
                         </PlainButton>
                         <RoutingProfiles
-                            routingProfiles={info.profiles}
+                            routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
                             customModelAllowed={true}
                             customModelEnabled={query.customModelEnabled}
                         />
                         <CustomModelBox
                             enabled={query.customModelEnabled}
-                            encodedValues={info.encoded_values}
+                            encodedValues={encodedValues}
                             initialCustomModelStr={query.initialCustomModelStr}
                             queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                         />
@@ -249,7 +248,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, info, turnNav
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, info, turnNavigation }: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions, turnNavigation }: LayoutProps) {
     if (turnNavigation.showUI)
         return (
             <>
@@ -284,7 +283,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, info, turnNav
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar info={info} query={query} route={route} error={error} />
+                <MobileSidebar query={query} route={route} error={error} />
             </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />

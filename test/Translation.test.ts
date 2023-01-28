@@ -24,7 +24,7 @@ describe('translate', () => {
 
         // empty string
         const trBN = setTranslation('bn_BN', true)
-        expect(trBN.get('search_button')).toEqual('Search')
+        expect(trBN.get('truck')).toEqual('Truck')
     })
 
     it('finland', () => {
