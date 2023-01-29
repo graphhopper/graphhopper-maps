@@ -76,22 +76,19 @@ class NoSleep {
             //     top: "-100%",
             // });
 
-            // instead of adding the element we declared it in the DOM (see comment about document.onload in #138) and set the style
-            this.noSleepVideo = document.getElementById("_no_sleep_id_");
+            this.noSleepVideo = document.createElement("video");
             if(this.noSleepVideo.getAttribute("title")) console.warn("NoSleep.js setup should not be done twice")
 
             this.noSleepVideo.setAttribute("title", "GraphHopper");
             this.noSleepVideo.setAttribute("playsinline", "");
+            this.noSleepVideo.setAttribute("loop", "");
             this.noSleepVideo.muted = true;
 
             this._addSourceToVideo(this.noSleepVideo, "webm", webm);
             this._addSourceToVideo(this.noSleepVideo, "mp4", mp4);
 
             this.noSleepVideo.addEventListener("loadedmetadata", () => {
-                if (this.noSleepVideo.duration <= 1) {
-                    // webm source
-                    this.noSleepVideo.setAttribute("loop", "");
-                } else {
+                if (this.noSleepVideo.duration > 1) {
                     // mp4 source
                     this.noSleepVideo.addEventListener("timeupdate", () => {
                         if (this.noSleepVideo.currentTime > 0.5) {

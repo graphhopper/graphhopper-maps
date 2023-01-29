@@ -494,6 +494,15 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 },
             })
         }, 1000)
+
+        this.doNoSleep()
+    }
+
+    private doNoSleep() {
+        if (!this.noSleep) this.noSleep = new NoSleep()
+        this.noSleep.enable().catch(err => {
+            console.warn("NoSleep.js couldn't be initialized: " + JSON.stringify(err))
+        })
     }
 
     private locationUpdate(pos: any) {
@@ -534,10 +543,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             )
 
             // initialize and enable after potential fullscreen change
-            if (!this.noSleep) this.noSleep = new NoSleep()
-            this.noSleep.enable().catch(err => {
-                console.warn("NoSleep.js couldn't be initialized: " + JSON.stringify(err))
-            })
+            this.doNoSleep()
         }
     }
 

@@ -123,7 +123,6 @@ export default function App() {
             <div className={styles.appWrapper}>
                 <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
-                <video id="_no_sleep_id_" style={{ position: 'absolute', left: '-100%', top: '-100%' }} />
                 {isSmallScreen ? (
                     <SmallScreenLayout
                         query={query}
