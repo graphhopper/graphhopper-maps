@@ -11,7 +11,7 @@ export function milliSecondsToText(seconds: number) {
     return hourText + ' ' + minutes + ' min'
 }
 
-const distanceFormat = new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 0 })
+const distanceFormat = new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 1 })
 
 export function metersToText(meters: number, showDistanceInMiles: boolean, forceSmallUnits: boolean = false) {
     if (showDistanceInMiles) {
