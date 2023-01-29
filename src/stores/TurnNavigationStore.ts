@@ -401,7 +401,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private async initFake() {
         console.log('started fake GPS injection')
 
-        let mouseControlled = true // control GPS movement via mouse or see below: along a predefined route
+        let mouseControlled = false // control GPS movement via mouse or see below: along a predefined route
         if (mouseControlled) {
             const pixel = [] as number[]
             let prevCoord = { lng: 0, lat: 0 } as Coordinate

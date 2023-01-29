@@ -170,7 +170,7 @@ class NoSleep {
                 this._wakeLock.release();
             }
             this._wakeLock = null;
-        } else if (oldIOS()) {
+        } else if (isIOSLowerThan(10)) {
             if (this.noSleepTimer) {
                 console.warn(`
           NoSleep now disabled for older iOS devices.
