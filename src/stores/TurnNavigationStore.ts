@@ -215,12 +215,12 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             if (state.showUI && (skipWaypoint || this.shouldReroute(instr.distanceToRoute))) {
                 let queriedAPI = false
                 if (state.activeProfile && !state.rerouteInProgress) {
-                    const toCoordinate = TurnNavigationStore.getWaypoint(path, instr.nextWaypointIndex)
+                    const nextWaypoints = path.snapped_waypoints.coordinates
+                        .slice(instr.nextWaypointIndex)
+                        .map(p => [p[0], p[1]] as [number, number])
+                    if(nextWaypoints.length == 0) throw Error('rerouting needs a destination but was empty ' + JSON.stringify(path))
                     let args: RoutingArgs = {
-                        points: [
-                            [coordinate.lng, coordinate.lat],
-                            [toCoordinate.lng, toCoordinate.lat],
-                        ],
+                        points: [[coordinate.lng, coordinate.lat] as [number, number]].concat(nextWaypoints),
                         maxAlternativeRoutes: 0,
                         heading: action.heading,
                         zoom: false,
