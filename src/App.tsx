@@ -99,7 +99,7 @@ export default function App() {
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
     useMapBorderLayer(map, info.bbox)
-    useAreasLayer(map, query.customModelValid ? query.customModel?.areas! : null)
+    useAreasLayer(map, query.customModelEnabled && query.customModelValid ? query.customModel?.areas! : null)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
