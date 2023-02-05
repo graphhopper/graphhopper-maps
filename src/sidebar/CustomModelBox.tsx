@@ -31,9 +31,10 @@ const examples: { [key: string]: CustomModel } = {
     exclude_area: {
         priority: [{ if: 'in_berlin_bbox', multiply_by: '0' }],
         areas: {
-            berlin_bbox: {
+            type: "FeatureCollection",
+            features: [{
+                id: "berlin_bbox",
                 type: 'Feature',
-                properties: {},
                 geometry: {
                     type: 'Polygon',
                     coordinates: [
@@ -46,7 +47,7 @@ const examples: { [key: string]: CustomModel } = {
                         ],
                     ],
                 },
-            },
+            }]
         },
     },
     combined: {
