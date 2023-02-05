@@ -2,8 +2,9 @@ import Dispatcher from '@/stores/Dispatcher'
 import { Map, View } from 'ol'
 import { fromLonLat } from 'ol/proj'
 import { MapIsLoaded } from '@/actions/Actions'
-import { defaults as defaultControls, Zoom } from 'ol/control'
+import { defaults as defaultControls } from 'ol/control'
 import styles from '@/map/Map.module.css'
+import {defaults} from "ol/interaction";
 
 let map: Map | undefined
 
@@ -16,6 +17,7 @@ export function createMap(): Map {
             center: fromLonLat([10, 10]),
             zoom: 2,
         }),
+        interactions: defaults({ pinchRotate: false }),
         controls: defaultControls({
             rotate: false, // for now also disable this extra button
             zoom: true,
