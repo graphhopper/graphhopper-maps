@@ -19,13 +19,13 @@ export default function useAreasLayer(map: Map, areas: object | null) {
 }
 
 function addAreasLayer(map: Map, areas: object | null) {
-    const features = readGeoJSONFeatures(areas);
+    const features = readGeoJSONFeatures(areas)
     // reading the GeoJSON can fail due to all kinds of missing fields, wrong types etc. in the input areas, so we
     // just don't display anything in these cases
     if (!features) return
     const layer = new VectorLayer({
         source: new VectorSource({
-            features: features
+            features: features,
         }),
         style: new Style({
             stroke: new Stroke({
