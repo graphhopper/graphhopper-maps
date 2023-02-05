@@ -81,7 +81,7 @@
 "for_mi":"for %1$s miles",
 "warning":"WARNING: The turn-by-turn navigation is highly experimental! Use at your own risk!",
 "accept_risks_after_warning":"I understand and agree",
-"start_navigation":"Navigate"
+"start_navigation":"Navigation"
 },
 "ar":{
 "total_ascend":"%1$s اجمالى صعود",
@@ -846,7 +846,7 @@
 "for_mi":"für %1$s Meilen",
 "warning":"Achtung: die Navigation ist sehr experimentell! Benutzung auf eigene Gefahr!",
 "accept_risks_after_warning":"I verstehe und akzeptiere das Risiko",
-"start_navigation":"Navi"
+"start_navigation":"Navigation"
 },
 "el":{
 "total_ascend":"%1$s συνολική ανάβαση",
