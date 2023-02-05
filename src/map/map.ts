@@ -4,7 +4,7 @@ import { fromLonLat } from 'ol/proj'
 import { MapIsLoaded } from '@/actions/Actions'
 import { defaults as defaultControls } from 'ol/control'
 import styles from '@/map/Map.module.css'
-import {defaults} from "ol/interaction";
+import { defaults } from 'ol/interaction'
 
 let map: Map | undefined
 

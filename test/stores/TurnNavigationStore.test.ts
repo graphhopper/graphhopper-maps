@@ -206,7 +206,7 @@ describe('TurnNavigationStore', () => {
             const rerouteWaypoints = [
                 [14.273946, 51.436422],
                 [14.27026, 51.435140000000004],
-                [14.267240000000001, 51.43253000000001]
+                [14.267240000000001, 51.43253000000001],
             ] as [number, number][]
             const api = new LocalApi()
             api.setRerouteData(reroute2, rerouteWaypoints)
