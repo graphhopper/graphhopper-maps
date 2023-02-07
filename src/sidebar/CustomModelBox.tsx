@@ -13,11 +13,10 @@ import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 
 const examples: { [key: string]: CustomModel } = {
-    empty: {
+    default_example: {
         distance_influence: 15,
+        priority: [{ if: 'road_environment == FERRY', multiply_by: '0.9' }],
         speed: [],
-        priority: [],
-        areas: {},
     },
     exclude_motorway: {
         priority: [{ if: 'road_class == MOTORWAY', multiply_by: '0.0' }],
@@ -49,11 +48,21 @@ const examples: { [key: string]: CustomModel } = {
             },
         },
     },
+    cargo_bike: {
+        speed: [
+            { if: "road_class == TRACK", limit_to: "2" },
+        ],
+        priority: [
+            { if: "max_width < 1.5 || road_class == STEPS", multiply_by: "0" },
+        ],
+    },
     combined: {
         distance_influence: 100,
-        speed: [{ if: 'road_class == STEPS || road_environment == FERRY', multiply_by: '0' }],
+        speed: [
+            { if: 'road_class == TRACK || road_environment == FERRY || surface == DIRT', limit_to: '10' }
+        ],
         priority: [
-            { if: 'road_environment == TUNNEL', multiply_by: '0.5' },
+            { if: 'road_environment == TUNNEL || toll == ALL', multiply_by: '0.5' },
             { if: 'max_weight < 3 || max_height < 2.5', multiply_by: '0.0' },
         ],
     },
@@ -90,7 +99,7 @@ export default function CustomModelBox({
             } catch (e) {}
         }
         instance.value =
-            initialCustomModelStr == null ? customModel2prettyString(examples['empty']) : initialCustomModelStr
+            initialCustomModelStr == null ? customModel2prettyString(examples['default_example']) : initialCustomModelStr
 
         if (enabled)
             // When we got a custom model from the url parameters we send the request right away
@@ -161,9 +170,10 @@ export default function CustomModelBox({
                             dispatchCustomModel(JSON.stringify(examples[e.target.value]), true, true)
                         }}
                     >
-                        <option value="empty">{tr('examples_custom_model')}</option>
+                        <option value="default_example">{tr('examples_custom_model')}</option>
                         <option value="exclude_motorway">{tr('exclude_motorway_example')}</option>
                         <option value="limit_speed">{tr('limit_speed_example')}</option>
+                        <option value="cargo_bike">{tr('cargo_bike_example')}</option>
                         <option value="exclude_area">{tr('exclude_area_example')}</option>
                         <option value="combined">{tr('combined_example')}</option>
                     </select>
