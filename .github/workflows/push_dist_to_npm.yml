@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - custom_area_feature_collection
 
 jobs:
   publish:
