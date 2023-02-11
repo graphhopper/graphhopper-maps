@@ -1,6 +1,0 @@
-<svg id="mySVGArrow" xmlns="http://www.w3.org/2000/svg" height="48" width="48">
-    <path style="fill:rgb(107,165,255); stroke:none;"
-          d="M 24.13483,3.8557243 8.1348294,40.355724 l 1.5,1.5 14.5000006,-6.6 z M 19.605832,31.73126 Z"/>
-    <path style="fill:rgb(3,89,194); stroke:none;"
-          d="m 24.131517,3.8515376 16,36.4999994 -1.5,1.5 -14.5,-6.6 z m 4.528998,27.8755354 z"/>
-</svg>

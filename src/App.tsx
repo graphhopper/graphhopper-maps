@@ -45,9 +45,9 @@ import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
 import PlainButton from '@/PlainButton'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
 import MapPopups from '@/map/MapPopups'
+import useCurrentLocationLayer from '@/layers/CurrentLocationLayer'
 import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
-import FilledNaviSVG from '@/sidebar/filled-navigation.svg'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -116,6 +116,7 @@ export default function App() {
     usePathsLayer(map, route, turnNavigation)
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
+    useCurrentLocationLayer(map, turnNavigation)
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
@@ -187,7 +188,6 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                 <div className={styles.map}>
                     <MapComponent map={map} />
                 </div>
-                <FilledNaviSVG id="filledNavi" style={{ position: 'absolute' }} />
             </>
         )
 
@@ -275,7 +275,6 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, turnNavigatio
                         )}
                     </PlainButton>
                 </div>
-                <FilledNaviSVG id="filledNavi" style={{ position: 'absolute' }} />
             </>
         )
 
