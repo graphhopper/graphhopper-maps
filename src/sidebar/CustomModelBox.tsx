@@ -1,13 +1,14 @@
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/lint/lint.css'
-// todo: this belongs to this app and we should not take it from the demo...
-import 'custom-model-editor/demo/style.css'
+// TODO NOW why does this not work?
+import './custom-model-style.css'
+// import 'custom-model-editor/demo/style.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { DismissLastError, SetCustomModel } from '@/actions/Actions'
+import { SetCustomModel } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'

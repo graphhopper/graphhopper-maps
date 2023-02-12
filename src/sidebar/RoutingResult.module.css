@@ -1,3 +1,10 @@
+@media (prefers-color-scheme: dark) {
+    .resultSelectableArea {
+        background-color: black;
+        color: white;
+    }
+}
+
 .resultRow {
     border-bottom: 1px lightgray solid;
 }

@@ -22,6 +22,22 @@
     -webkit-appearance: none;
 }
 
+@media (prefers-color-scheme: dark) {
+    .input,
+    .fullscreen {
+        background-color: black;
+    }
+    .input {
+        color: white;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .fullscreen {
+        background-color: white;
+    }
+}
+
 @media (max-width: 44rem) {
     .fullscreen {
         position: fixed;
@@ -29,7 +45,6 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background-color: white;
         z-index: 5;
         padding: 0.5rem;
     }

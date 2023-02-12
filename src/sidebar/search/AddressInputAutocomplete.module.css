@@ -1,3 +1,15 @@
+@media (prefers-color-scheme: dark) {
+    .autocompleteItem {
+        background-color: black;
+        color: white;
+    }
+
+    .highlightedItem,
+    .selectableItem:hover {
+        background-color: darkgray !important; /* to avoid !important create light color-scheme */
+    }
+}
+
 .autocompleteItem:not(:last-child) {
     border-bottom: 1px lightgray solid;
 }

@@ -1,3 +1,17 @@
+@media (prefers-color-scheme: dark) {
+    .examples {
+        background-color: black;
+        color: white;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .examples {
+        background-color: white;
+        color: rgba(0, 60, 136, 0.7);
+    }
+}
+
 .customModelBox {
     margin: 0.6em 0;
     padding: 0 0;
@@ -32,8 +46,6 @@
     border-right: #ececec solid 1px;
     padding-left: 1em;
     margin-left: 0;
-    background-color: white;
-    color: rgba(0, 60, 136, 0.7);
 }
 
 .examples option {

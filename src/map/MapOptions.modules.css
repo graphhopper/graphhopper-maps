@@ -1,3 +1,10 @@
+@media (prefers-color-scheme: dark) {
+    .mapOptionsContainer {
+        background-color: black;
+        color: white;
+    }
+}
+
 .mapOptionsContainer {
     display: flex;
 }
