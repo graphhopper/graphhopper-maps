@@ -68,15 +68,27 @@ export default class MapActionReceiver implements ActionReceiver {
                     : -toRadians(action.heading)
 
             this.map.getView().cancelAnimations() // if location updates are sent too fast animations might stack up
-            this.map.getView().animate({
-                zoom: action.zoom,
-                center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
-                rotation: rotation,
-                easing: linear,
-                // We could use 1000ms or more but map tiles won't update probably due to missing updateWhileAnimating.
-                // For now, due to performance reasons, we set this to true only for the layer.
-                duration: 800,
-            })
+            this.map.getView().animate(
+                {
+                    zoom: action.zoom,
+                    center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
+                    rotation: rotation,
+                    easing: linear,
+                    duration: 800, // we could use 1s but other map render work won't be properly done (e.g. the new route when re-routing won't show up)
+                },
+                () => {
+                    // After animation render the arrow i.e. it can be out of synch with the map but only until the next location update and only window resizes.
+                    // Animating the move of the arrow on the map AND keeping the view in sync with it is much more than these 4 lines.
+                    const pixels = this.map.getPixelFromCoordinate(
+                        fromLonLat([action.coordinate.lng, action.coordinate.lat])
+                    )
+                    const myLayer = document.getElementById('filledNavi') as HTMLElement | null
+                    if (myLayer != null) {
+                        myLayer.style.left = pixels[0] - 24 + 'px'
+                        myLayer.style.top = pixels[1] - 24 + 'px'
+                    }
+                }
+            )
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route

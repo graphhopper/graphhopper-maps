@@ -22,14 +22,14 @@ const selectedPathLayerKey = 'selectedPathLayer'
 export default function usePathsLayer(map: Map, route: RouteStoreState, turnNavigation: TurnNavigationStoreState) {
     useEffect(() => {
         removeCurrentPathLayers(map)
-        if (turnNavigation.showUI && turnNavigation.activePath) {
-            addSelectedPathsLayer(map, turnNavigation.activePath, true)
+        if (turnNavigation.showUI && turnNavigation.activePath != null) {
+            addSelectedPathsLayer(map, turnNavigation.activePath, turnNavigation)
         } else {
             addUnselectedPathsLayer(
                 map,
                 route.routingResult.paths.filter(p => p != route.selectedPath)
             )
-            addSelectedPathsLayer(map, route.selectedPath, false)
+            addSelectedPathsLayer(map, route.selectedPath, turnNavigation)
         }
         return () => {
             removeCurrentPathLayers(map)
@@ -80,7 +80,7 @@ function addUnselectedPathsLayer(map: Map, paths: Path[]) {
     map.addInteraction(select)
 }
 
-function addSelectedPathsLayer(map: Map, selectedPath: Path, updateMoreFrequently: boolean) {
+function addSelectedPathsLayer(map: Map, selectedPath: Path, turnNavigation: TurnNavigationStoreState) {
     const styles = {
         LineString: new Style({
             stroke: new Stroke({
@@ -97,14 +97,13 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path, updateMoreFrequentl
             geometry: new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))),
         }),
     ] as Feature[]
+    const coord = turnNavigation.coordinate
+    if (coord != null) features.push(new Feature({ geometry: new Point(fromLonLat([coord.lng, coord.lat])) }))
 
     const layer = new VectorLayer({
         source: new VectorSource({ features: features }),
         style: feature => styles[(feature.getGeometry() as Geometry).getType()],
         opacity: 0.8,
-        // when navigating we need this for re-routing:
-        updateWhileAnimating: updateMoreFrequently,
-        updateWhileInteracting: updateMoreFrequently
     })
 
     layer.set(selectedPathLayerKey, true)
