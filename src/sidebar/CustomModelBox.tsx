@@ -2,8 +2,8 @@ import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/lint/lint.css'
 // TODO NOW why does this not work?
-import './custom-model-style.css'
-// import 'custom-model-editor/demo/style.css'
+// import './custom-model-style.css'
+import 'custom-model-editor/demo/style.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
@@ -50,18 +50,12 @@ const examples: { [key: string]: CustomModel } = {
         },
     },
     cargo_bike: {
-        speed: [
-            { if: "road_class == TRACK", limit_to: "2" },
-        ],
-        priority: [
-            { if: "max_width < 1.5 || road_class == STEPS", multiply_by: "0" },
-        ],
+        speed: [{ if: 'road_class == TRACK', limit_to: '2' }],
+        priority: [{ if: 'max_width < 1.5 || road_class == STEPS', multiply_by: '0' }],
     },
     combined: {
         distance_influence: 100,
-        speed: [
-            { if: 'road_class == TRACK || road_environment == FERRY || surface == DIRT', limit_to: '10' }
-        ],
+        speed: [{ if: 'road_class == TRACK || road_environment == FERRY || surface == DIRT', limit_to: '10' }],
         priority: [
             { if: 'road_environment == TUNNEL || toll == ALL', multiply_by: '0.5' },
             { if: 'max_weight < 3 || max_height < 2.5', multiply_by: '0.0' },
@@ -100,7 +94,9 @@ export default function CustomModelBox({
             } catch (e) {}
         }
         instance.value =
-            initialCustomModelStr == null ? customModel2prettyString(examples['default_example']) : initialCustomModelStr
+            initialCustomModelStr == null
+                ? customModel2prettyString(examples['default_example'])
+                : initialCustomModelStr
 
         if (enabled)
             // When we got a custom model from the url parameters we send the request right away

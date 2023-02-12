@@ -29,6 +29,21 @@
                 min-height: 100%;
             }
 
+            /* TODO NOW:
+               1. set black background for selectors that set padding otherwise it is white frame like the map options or context menu
+               2. white graphhopper logo for dark mode
+               3. custom model box and heightgraph
+               4. buy stadia maps standard and remove maptiler or fix maptiler for dark mode
+               5. over over icons should not nearly hide them
+               6. white is too bright for auto complete and preview panel background is still white
+             */
+            @media (prefers-color-scheme: dark) {
+                body {
+                    background-color: black;
+                    color: white;
+                }
+            }
+
             ul {
                 list-style-type: none;
                 margin: 0;

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import styles from '@/pathDetails/PathDetails.module.css'
 import { HeightGraph } from 'heightgraph/src/heightgraph'
+// TODO NOW same problem like for custom model box:
 import 'heightgraph/src/heightgraph.css'
 import { Path } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'

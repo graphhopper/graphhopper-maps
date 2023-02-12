@@ -1,4 +1,7 @@
-.instructionsList {
+@media (prefers-color-scheme: dark) {
+    .instructionsList {
+        color: white;
+    }
 }
 
 .instruction {
