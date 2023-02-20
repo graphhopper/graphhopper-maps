@@ -17,7 +17,6 @@ const examples: { [key: string]: CustomModel } = {
         distance_influence: 15,
         priority: [{ if: 'road_environment == FERRY', multiply_by: '0.9' }],
         speed: [],
-        priority: [],
         areas: {
             type: 'FeatureCollection',
             features: [],
