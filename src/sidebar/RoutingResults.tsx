@@ -43,7 +43,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const hasFerries = containsAnyOf(path.details.road_environment, { ferry: true })
     const hasBadTracks = ApiImpl.isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
     const hasSteps = ApiImpl.isBikeLike(profile) && containsAnyOf(path.details.road_class, { steps: true })
-    const hasSteepSegments = !ApiImpl.isMotorVehicle(profile) && getMaxSlope(path.points) > 10
+    const hasSteepSegments = !ApiImpl.isMotorVehicle(profile) && getMaxSlope(path.points) > 15
     const hasFootways =
         ApiImpl.isBikeLike(profile) &&
         containsAnyOf(path.details.road_class, { footway: true, pedestrian: true, platform: true })
