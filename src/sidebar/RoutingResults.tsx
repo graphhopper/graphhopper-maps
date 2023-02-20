@@ -9,7 +9,8 @@ import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
-import { Position } from 'geojson'
+import { LineString, Position } from 'geojson'
+import { calcDist } from '@/distUtils'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
@@ -37,13 +38,26 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
-    const hasFords = containsValue(path.details.road_environment, 'ford')
-    const hasTolls = containsValue(path.details.toll, 'all')
-    const hasFerries = containsValue(path.details.road_environment, 'ferry')
-    const showAndHasBadTracks = ApiImpl.isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
-    const showAndHasSteps = ApiImpl.isBikeLike(profile) && containsValue(path.details.road_class, 'steps')
+    const hasFords = containsAnyOf(path.details.road_environment, { ford: true })
+    const hasTolls = containsAnyOf(path.details.toll, { all: true })
+    const hasFerries = containsAnyOf(path.details.road_environment, { ferry: true })
+    const hasBadTracks = ApiImpl.isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
+    const hasSteps = ApiImpl.isBikeLike(profile) && containsAnyOf(path.details.road_class, { steps: true })
+    const hasSteepSegments = !ApiImpl.isMotorVehicle(profile) && getMaxSlope(path.points) > 10
+    const hasFootways =
+        ApiImpl.isBikeLike(profile) &&
+        containsAnyOf(path.details.road_class, { footway: true, pedestrian: true, platform: true })
     const hasBorderCrossed = crossesBorder(path.details.country)
-    const showHints = hasFords || hasTolls || hasFerries || showAndHasBadTracks || showAndHasSteps || hasBorderCrossed
+    const showHints =
+        hasFords ||
+        hasTolls ||
+        hasFerries ||
+        hasBadTracks ||
+        hasSteps ||
+        hasBorderCrossed ||
+        hasFootways ||
+        hasSteepSegments
+
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
 
     return (
@@ -97,8 +111,10 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     {hasFerries && <div>{tr('way_contains_ferry')}</div>}
                     {hasBorderCrossed && <div>{tr('way_crosses_border')}</div>}
                     {hasTolls && <div>{tr('way_contains_toll')}</div>}
-                    {showAndHasSteps && <div>{tr('way_contains', [tr('steps')])}</div>}
-                    {showAndHasBadTracks && <div>{tr('way_contains', [tr('tracks')])}</div>}
+                    {hasSteps && <div>{tr('way_contains', [tr('steps')])}</div>}
+                    {hasBadTracks && <div>{tr('way_contains', [tr('tracks')])}</div>}
+                    {hasFootways && <div>{tr('way_contains', [tr('footways')])}</div>}
+                    {hasSteepSegments && <div>{tr('way_contains', [tr('steep_sections')])}</div>}
                 </div>
             )}
             {isExpanded && <Instructions instructions={path.instructions} />}
@@ -126,12 +142,36 @@ function crossesBorder(countryPathDetail: [number, number, string][]) {
     return false
 }
 
-function containsValue(details: [number, number, string][], value: string) {
+function containsAnyOf(details: [number, number, string][], values: { [Identifier: string]: boolean }) {
     if (!details) return false
     for (const i in details) {
-        if (details[i][2] == value) return true
+        if (values[details[i][2]]) return true
     }
     return false
+}
+
+function getMaxSlope(points: LineString): number {
+    if (points.coordinates.length == 0) return 0
+    if (points.coordinates[0].length != 3) return 0
+    let accumulatedDistance = 0
+    let prevElePoint = points.coordinates[0]
+    let prevDistPoint = points.coordinates[0]
+    let maxSlope = 0
+    points.coordinates.forEach(currPoint => {
+        accumulatedDistance += calcDist(
+            { lat: currPoint[0], lng: currPoint[1] },
+            { lat: prevDistPoint[0], lng: prevDistPoint[1] }
+        )
+        prevDistPoint = currPoint
+        if (accumulatedDistance > 100) {
+            // we assume that elevation data is not that precise and we can improve when using a minimum distance
+            const slope = (100.0 * Math.abs(prevElePoint[2] - currPoint[2])) / accumulatedDistance
+            if (slope > maxSlope) maxSlope = slope
+            prevElePoint = currPoint
+            accumulatedDistance = 0
+        }
+    })
+    return maxSlope
 }
 
 function downloadGPX(path: Path, showDistanceInMiles: boolean) {
