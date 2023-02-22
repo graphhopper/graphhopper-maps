@@ -28,9 +28,11 @@ export default class NavBar {
 
     private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState) {
         const result = new URL(baseUrl)
-        queryStoreState.queryPoints
-            .map(point => (!point.isInitialized ? '' : NavBar.pointToParam(point)))
-            .forEach(pointAsString => result.searchParams.append('point', pointAsString))
+        if (queryStoreState.queryPoints.filter(point => point.isInitialized).length > 0) {
+            queryStoreState.queryPoints
+                .map(point => (!point.isInitialized ? '' : NavBar.pointToParam(point)))
+                .forEach(pointAsString => result.searchParams.append('point', pointAsString))
+        }
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
