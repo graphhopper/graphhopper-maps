@@ -201,6 +201,22 @@ describe('NavBar', function () {
             )
         })
 
+        it('should zoom to route if all points are valid', () => {
+            const expectedUrl = 'https://current.origin/'
+            window.location = { ...window.location, href: expectedUrl }
+            navBar.updateStateFromUrl()
+
+            Dispatcher.dispatch(new SetPoint({...queryStore.state.queryPoints[0], isInitialized: true },
+                'point'))
+            // do NOT zoom to route
+            expect(queryStore.state.zoom).toEqual(false)
+
+            Dispatcher.dispatch(new SetPoint({...queryStore.state.queryPoints[1], isInitialized: true },
+                'route'))
+            // zoom to route (zoom is set to true even if not all points are valid)
+            expect(queryStore.state.zoom).toEqual(true)
+        })
+
         it('should parse the url and invalidate old points', () => {
             window.location = {
                 ...window.location,

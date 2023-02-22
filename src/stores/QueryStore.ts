@@ -108,7 +108,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             customModelEnabled: initialCustomModelStr != null,
             customModelValid: false,
             customModel: null,
-            zoom: true,
+            zoom: false,
             initialCustomModelStr: initialCustomModelStr,
         }
     }
