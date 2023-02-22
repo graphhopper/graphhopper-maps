@@ -4,7 +4,6 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { GeoJSON } from 'ol/format'
 import { Stroke, Style } from 'ol/style'
-import { fromLonLat } from 'ol/proj'
 
 const areasLayerKey = 'areasLayer'
 
@@ -41,24 +40,7 @@ function addAreasLayer(map: Map, areas: object | null) {
 
 function readGeoJSONFeatures(areas: object | null) {
     try {
-        // we need to transform the coordinates, not sure if there is an easier (and more stable) way to do this...
-        const transformedAreas = {
-            ...areas,
-            features: (areas as any)?.features?.map((f: any) => {
-                return {
-                    ...f,
-                    geometry: {
-                        ...f.geometry,
-                        coordinates: f.geometry.coordinates.map((c: number[][]) =>
-                            c.map((c: number[]) => {
-                                return fromLonLat(c)
-                            })
-                        ),
-                    },
-                }
-            }),
-        }
-        return new GeoJSON().readFeatures(transformedAreas)
+        return new GeoJSON({featureProjection: 'EPSG:3857'}).readFeatures(areas)
     } catch (e) {
         return null
     }
