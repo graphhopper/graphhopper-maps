@@ -173,6 +173,33 @@ describe('NavBar', function () {
             expect(queryStore.state.queryPoints[1].queryText).toEqual(point2.queryText)
         })
 
+        it('should parse the url and only skip invalid points', () => {
+            const expectedUrl = 'https://current.origin/?point=&point=11%2C12'
+            window.location = { ...window.location, href: expectedUrl }
+
+            // act
+            navBar.updateStateFromUrl()
+
+            //assert
+            expect(queryStore.state.queryPoints.length).toEqual(2)
+            expect(queryStore.state.queryPoints[0].isInitialized).toEqual(false)
+            expect(queryStore.state.queryPoints[0].queryText).toEqual('')
+            expect(queryStore.state.queryPoints[1].coordinate).toEqual({ lat: 11, lng: 12 })
+            expect(queryStore.state.queryPoints[1].isInitialized).toEqual(true)
+
+            // make sure the navbar doesn't change the window's location while parsing
+            expect(expectedUrl).toEqual(window.location.href)
+            expect(window.history.pushState).toHaveBeenCalledTimes(0)
+
+            navBar.updateUrlFromState()
+            expect(window.history.pushState).toHaveBeenNthCalledWith(
+                1,
+                null,
+                '',
+                expectedUrl + '&profile=&layer=OpenStreetMap'
+            )
+        })
+
         it('should parse the url and invalidate old points', () => {
             window.location = {
                 ...window.location,
