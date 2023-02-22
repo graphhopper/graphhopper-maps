@@ -51,6 +51,7 @@ export default class NavBar {
 
             const point = {
                 coordinate: { lat: 0, lng: 0 },
+                bbox: [0, 0, 0, 0] as Bbox,
                 isInitialized: false,
                 id: idx,
                 queryText: parameter,
@@ -62,12 +63,17 @@ export default class NavBar {
                     point.coordinate = NavBar.parseCoordinate(split[0])
                     if (!Number.isNaN(point.coordinate.lat) && !Number.isNaN(point.coordinate.lng)) {
                         point.queryText = split.length >= 2 ? split[1] : coordinateToText(point.coordinate)
+                        point.bbox = this.getBBox(point.coordinate)
                         point.isInitialized = true
                     }
                 } catch (e) {}
 
             return point
         })
+    }
+
+    public static getBBox(c: Coordinate): Bbox {
+        return [c.lng - 0.001, c.lat - 0.001, c.lng + 0.001, c.lat + 0.001]
     }
 
     private static parseCoordinate(params: string) {
@@ -117,6 +123,7 @@ export default class NavBar {
                                 ...p,
                                 queryText: res.hits[0].name,
                                 coordinate: { lat: res.hits[0].point.lat, lng: res.hits[0].point.lng },
+                                bbox: res.hits[0].extent,
                                 isInitialized: true,
                             }
                         })
@@ -139,7 +146,7 @@ export default class NavBar {
     private static dispatchQueryPoints(points: QueryPoint[]) {
         // estimate map bounds from url points if there are any. this way we prevent loading tiles for the world view
         // only to zoom to the route shortly after
-        const bbox = NavBar.getBBoxFromUrlPoints(points.filter(p => p.isInitialized).map(p => p.coordinate))
+        const bbox = NavBar.getBBoxFromUrlPoints(points.filter(p => p.isInitialized))
         if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
         return Dispatcher.dispatch(new SetQueryPoints(points))
     }
@@ -158,17 +165,21 @@ export default class NavBar {
         ).toString()
     }
 
-    private static getBBoxFromUrlPoints(urlPoints: Coordinate[]): Bbox | null {
-        const bbox: Bbox = urlPoints.reduce(
-            (res: Bbox, c) => [
-                Math.min(res[0], c.lng),
-                Math.min(res[1], c.lat),
-                Math.max(res[2], c.lng),
-                Math.max(res[3], c.lat),
-            ],
-            [180, 90, -180, -90] as Bbox
-        )
-        // return null if the bbox is not valid, e.g. if no url points were given at all
+    private static getBBoxFromUrlPoints(urlPoints: QueryPoint[]): Bbox | null {
+        if (urlPoints.length == 0) return null
+        if (urlPoints.length == 1) return urlPoints[0].bbox
+        const bbox: Bbox = urlPoints
+            .map(p => p.coordinate)
+            .reduce(
+                (res: Bbox, c) => [
+                    Math.min(res[0], c.lng),
+                    Math.min(res[1], c.lat),
+                    Math.max(res[2], c.lng),
+                    Math.max(res[3], c.lat),
+                ],
+                [180, 90, -180, -90] as Bbox
+            )
+        // return null if the bbox is not valid. When? 2 identical points?
         return bbox[0] < bbox[2] && bbox[1] < bbox[3] ? bbox : null
     }
 }

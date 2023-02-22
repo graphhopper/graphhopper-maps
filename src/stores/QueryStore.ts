@@ -18,9 +18,10 @@ import {
     SetQueryPoints,
     SetVehicleProfile,
 } from '@/actions/Actions'
-import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
+import { Bbox, RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist } from '@/distUtils'
 import config from 'config'
+import NavBar from '@/NavBar'
 
 export interface Coordinate {
     lat: number
@@ -45,6 +46,7 @@ export interface QueryStoreState {
 
 export interface QueryPoint {
     readonly coordinate: Coordinate
+    readonly bbox: Bbox
     readonly queryText: string
     readonly isInitialized: boolean
     readonly color: string
@@ -139,7 +141,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             const newState: QueryStoreState = {
                 ...state,
                 queryPoints: QueryStore.replacePoint(state.queryPoints, action.point),
-                zoom: action.zoom,
+                zoom: action.zoom == 'route',
             }
 
             return this.routeIfReady(newState)
@@ -170,6 +172,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             // add new point at the desired index
             tmp.splice(action.atIndex, 0, {
                 coordinate: action.coordinate,
+                bbox: NavBar.getBBox(action.coordinate),
                 id: state.nextQueryPointId,
                 queryText: queryText,
                 color: '',
@@ -209,6 +212,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 const type = QueryStore.getPointType(queryPoints.length, 2)
                 queryPoints.push({
                     id: queryPoints.length,
+                    bbox: [180, 90, -180, -90],
                     type: type,
                     color: QueryStore.getMarkerColor(type),
                     queryText: '',
@@ -444,6 +448,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             isInitialized: false,
             queryText: '',
             coordinate: { lat: 0, lng: 0 },
+            bbox: [0, 0, 0, 0],
             id: id,
             color: QueryStore.getMarkerColor(type),
             type: type,

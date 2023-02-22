@@ -12,7 +12,7 @@ describe('RouteStore', () => {
 
     describe('clear route information', () => {
         it('should revert to initial state on ClearPoints Action', () => {
-            executeTest(new SetPoint(createEmptyQueryPoint(), true))
+            executeTest(new SetPoint(createEmptyQueryPoint(), 'route'))
         })
         it('should revert to initial state on ClearRoute Action', () => {
             executeTest(new ClearRoute())
@@ -58,6 +58,7 @@ function createEmptyQueryPoint(): QueryPoint {
         isInitialized: false,
         queryText: '',
         coordinate: { lat: 0, lng: 0 },
+        bbox: [0, 0, 0, 0],
         id: 0,
         color: '',
         type: QueryPointType.To,

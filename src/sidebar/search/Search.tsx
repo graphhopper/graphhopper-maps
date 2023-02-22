@@ -192,7 +192,7 @@ const SearchBox = ({
                     index={index}
                     point={point}
                     onCancel={() => console.log('cancel')}
-                    onAddressSelected={(queryText, coordinate) =>
+                    onAddressSelected={(queryText, coordinate, bbox) =>
                         Dispatcher.dispatch(
                             new SetPoint(
                                 {
@@ -200,8 +200,9 @@ const SearchBox = ({
                                     isInitialized: !!coordinate,
                                     queryText: queryText,
                                     coordinate: coordinate ? coordinate : point.coordinate,
+                                    bbox: bbox ? bbox : point.bbox,
                                 },
-                                true
+                                points.filter(p => p.isInitialized).length == 0 ? 'point' : 'route'
                             )
                         )
                     }

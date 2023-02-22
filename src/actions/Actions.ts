@@ -13,9 +13,14 @@ export class InfoReceived implements Action {
 
 export class SetPoint implements Action {
     readonly point: QueryPoint
-    readonly zoom: boolean
+    readonly zoom: 'route' | 'point' | false
 
-    constructor(point: QueryPoint, zoom: boolean) {
+    /**
+     * If zoom is 'point' the map will be moved and zoomed to the specified point. The parameter zoom can also be 'route'
+     * and if all points of the route are valid instead of zooming to the specified point the map will be moved and
+     * zoomed to show the entire route.
+     */
+    constructor(point: QueryPoint, zoom: 'route' | 'point' | false) {
         this.point = point
         this.zoom = zoom
     }

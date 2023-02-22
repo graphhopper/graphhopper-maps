@@ -108,6 +108,7 @@ export interface GeocodingResult {
 
 export interface GeocodingHit {
     readonly point: { lat: number; lng: number }
+    readonly extent: Bbox
     readonly osm_id: string
     readonly osm_type: string
     readonly osm_key: string

@@ -98,7 +98,7 @@ describe('NavBar', function () {
 
             // modify state of stores which the nav bar depends on
             for (const point of points) {
-                queryStore.receive(new SetPoint(point, true))
+                queryStore.receive(new SetPoint(point, 'route'))
             }
             queryStore.receive(new SetVehicleProfile(profile))
             mapStore.receive(new SelectMapLayer(layer))
@@ -116,6 +116,7 @@ describe('NavBar', function () {
             // set up data
             const point: QueryPoint = {
                 coordinate: { lat: 1, lng: 1 },
+                bbox: [1, 1, 1, 1],
                 id: 0,
                 type: QueryPointType.To,
                 isInitialized: false,
@@ -211,7 +212,7 @@ describe('NavBar', function () {
                         ...queryStore.state.queryPoints[0],
                         isInitialized: true,
                     },
-                    true
+                    'route'
                 )
             )
 
@@ -289,6 +290,7 @@ describe('NavBar', function () {
         // set up data
         const point: QueryPoint = {
             coordinate: { lat: 1, lng: 1 },
+            bbox: [1, 1, 1, 1],
             id: 0,
             type: QueryPointType.To,
             isInitialized: false,

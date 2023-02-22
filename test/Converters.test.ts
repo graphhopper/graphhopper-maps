@@ -1,5 +1,4 @@
 import { textToCoordinate, nominatimHitToItem, hitToItem } from '@/Converters'
-import { GeocodingHit } from '@/api/graphhopper'
 
 describe('Converters', function () {
     describe('textToCoordinate', function () {
