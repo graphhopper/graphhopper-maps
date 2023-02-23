@@ -12,7 +12,6 @@ import {
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
-import NavBar from '@/NavBar'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -29,7 +28,7 @@ export default class MapActionReceiver implements ActionReceiver {
         // todo: port old ViewportStore.test.ts or otherwise test this
         const isSmallScreen = this.isSmallScreenQuery()
         if (action instanceof SetPoint) {
-            if (action.zoom == 'point' && action.point.isInitialized) {
+            if (action.zoom == 'to_point' && action.point.isInitialized) {
                 fitBounds(this.map, action.point.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
             }
         } else if (action instanceof SetInitialBBox) {

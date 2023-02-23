@@ -181,7 +181,7 @@ export default class NavBar {
                 ],
                 [180, 90, -180, -90] as Bbox
             )
-        // return null if the bbox is not valid. When? 2 identical points?
+        // returns null if the bbox is not valid, i.e. for identical points
         return bbox[0] < bbox[2] && bbox[1] < bbox[3] ? bbox : null
     }
 }

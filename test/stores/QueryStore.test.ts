@@ -58,7 +58,7 @@ describe('QueryStore', () => {
                 routingProfile: { name: 'car' },
             }
 
-            const state = store.reduce(storeState, new SetPoint(point, 'route'))
+            const state = store.reduce(storeState, new SetPoint(point, 'to_route'))
 
             expect(state.queryPoints[0]).toEqual(point)
         })
@@ -71,7 +71,7 @@ describe('QueryStore', () => {
             }
 
             for (const point of store.state.queryPoints) {
-                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, 'route'))
+                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, 'to_route'))
             }
 
             // the store should not send anything unless points and routing profile are specified
@@ -90,7 +90,7 @@ describe('QueryStore', () => {
                 routingProfile: { name: 'car' },
             }
             for (const point of store.state.queryPoints) {
-                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, 'route'))
+                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, 'to_route'))
             }
 
             expect(state.queryPoints.every(point => point.isInitialized)).toBeTruthy()
@@ -108,7 +108,7 @@ describe('QueryStore', () => {
             }
             state.queryPoints.push({ ...state.queryPoints[0], id: 2 })
             for (const point of store.state.queryPoints) {
-                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, 'route'))
+                state = store.reduce(state, new SetPoint({ ...point, isInitialized: true }, 'to_route'))
             }
 
             expect(state.queryPoints.every(point => point.isInitialized)).toBeTruthy()
@@ -282,7 +282,7 @@ describe('QueryStore', () => {
                         ...state.queryPoints[0],
                         isInitialized: true,
                     },
-                    'route'
+                    'to_route'
                 )
             )
             state = store.reduce(
@@ -292,7 +292,7 @@ describe('QueryStore', () => {
                         ...state.queryPoints[1],
                         isInitialized: true,
                     },
-                    'route'
+                    'to_route'
                 )
             )
             state = store.reduce(

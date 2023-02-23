@@ -98,7 +98,7 @@ describe('NavBar', function () {
 
             // modify state of stores which the nav bar depends on
             for (const point of points) {
-                queryStore.receive(new SetPoint(point, 'route'))
+                queryStore.receive(new SetPoint(point, 'to_route'))
             }
             queryStore.receive(new SetVehicleProfile(profile))
             mapStore.receive(new SelectMapLayer(layer))
@@ -207,12 +207,12 @@ describe('NavBar', function () {
             navBar.updateStateFromUrl()
 
             Dispatcher.dispatch(new SetPoint({...queryStore.state.queryPoints[0], isInitialized: true },
-                'point'))
+                'to_point'))
             // do NOT zoom to route
             expect(queryStore.state.zoom).toEqual(false)
 
             Dispatcher.dispatch(new SetPoint({...queryStore.state.queryPoints[1], isInitialized: true },
-                'route'))
+                'to_route'))
             // zoom to route (zoom is set to true even if not all points are valid)
             expect(queryStore.state.zoom).toEqual(true)
         })
@@ -228,7 +228,7 @@ describe('NavBar', function () {
                         ...queryStore.state.queryPoints[0],
                         isInitialized: true,
                     },
-                    'route'
+                    'to_route'
                 )
             )
 

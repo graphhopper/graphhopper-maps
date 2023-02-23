@@ -141,7 +141,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             const newState: QueryStoreState = {
                 ...state,
                 queryPoints: QueryStore.replacePoint(state.queryPoints, action.point),
-                zoom: action.zoom == 'route',
+                zoom: action.zoom == 'to_route',
             }
 
             return this.routeIfReady(newState)

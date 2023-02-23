@@ -202,7 +202,7 @@ const SearchBox = ({
                                     coordinate: coordinate ? coordinate : point.coordinate,
                                     bbox: bbox ? bbox : point.bbox,
                                 },
-                                points.filter(p => p.isInitialized).length == 0 ? 'point' : 'route'
+                                points.filter(p => p.isInitialized).length == 0 ? 'to_point' : 'to_route'
                             )
                         )
                     }

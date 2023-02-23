@@ -30,7 +30,7 @@ export function ContextMenuContent({
                     queryText: coordinateToText(coordinate),
                     isInitialized: true,
                 },
-                'route' // TODO NOW should probably be false as otherwise it is a bit inconsistent with dragging a point
+                false // avoid zoom to route like we do when dragging markers
             )
         )
     }
