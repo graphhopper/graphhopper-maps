@@ -17,6 +17,10 @@ const examples: { [key: string]: CustomModel } = {
         distance_influence: 15,
         priority: [{ if: 'road_environment == FERRY', multiply_by: '0.9' }],
         speed: [],
+        areas: {
+            type: 'FeatureCollection',
+            features: [],
+        },
     },
     exclude_motorway: {
         priority: [{ if: 'road_class == MOTORWAY', multiply_by: '0.0' }],
@@ -30,22 +34,26 @@ const examples: { [key: string]: CustomModel } = {
     exclude_area: {
         priority: [{ if: 'in_berlin_bbox', multiply_by: '0' }],
         areas: {
-            berlin_bbox: {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'Polygon',
-                    coordinates: [
-                        [
-                            [13.253, 52.608],
-                            [13.228, 52.437],
-                            [13.579, 52.447],
-                            [13.563, 52.609],
-                            [13.253, 52.608],
+            type: 'FeatureCollection',
+            features: [
+                {
+                    type: 'Feature',
+                    id: 'berlin_bbox',
+                    properties: {},
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [
+                            [
+                                [13.253, 52.608],
+                                [13.228, 52.437],
+                                [13.579, 52.447],
+                                [13.563, 52.609],
+                                [13.253, 52.608],
+                            ],
                         ],
-                    ],
+                    },
                 },
-            },
+            ],
         },
     },
     cargo_bike: {

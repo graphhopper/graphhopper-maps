@@ -48,6 +48,7 @@ import MapPopups from '@/map/MapPopups'
 import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
 import FilledNaviSVG from '@/sidebar/filled-navigation.svg'
+import useAreasLayer from '@/layers/UseAreasLayer'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -111,6 +112,7 @@ export default function App() {
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
     useMapBorderLayer(map, info.bbox)
+    useAreasLayer(map, query.customModelEnabled && query.customModelValid ? query.customModel?.areas! : null)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route, turnNavigation)

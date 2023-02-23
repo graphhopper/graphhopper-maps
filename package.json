@@ -15,7 +15,7 @@
         "test": "jest"
     },
     "dependencies": {
-        "custom-model-editor": "github:graphhopper/custom-model-editor#a8c97e4ef8e76c963be375984a3c08ff3c1e8288",
+        "custom-model-editor": "github:graphhopper/custom-model-editor#3a46b6981d170b7eb70d621bbb92caed149e5a97",
         "geojson": "^0.5.0",
         "heightgraph": "github:easbar/Leaflet.Heightgraph#a1014641c35c43490b31cb25d3072e6c1237ed0e",
         "ol": "7.1.0",
