@@ -46,7 +46,7 @@ export default function AddressInput(props: AddressInputProps) {
         new Geocoder(getApi(), (query, provider, hits) => {
             const items: AutocompleteItem[] = hits.map(hit => {
                 const obj = provider === 'nominatim' ? nominatimHitToItem(hit) : hitToItem(hit)
-                return new GeocodingItem(obj.mainText, obj.secondText, hit.point, hit.extent)
+                return new GeocodingItem(obj.mainText, obj.secondText, hit.point, hit.extent ? hit.extent : NavBar.getBBox(hit.point))
             })
 
             if (provider !== 'nominatim' && getApi().supportsGeocoding()) {

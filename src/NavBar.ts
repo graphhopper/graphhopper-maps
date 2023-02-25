@@ -75,7 +75,7 @@ export default class NavBar {
     }
 
     public static getBBox(c: Coordinate): Bbox {
-        return [c.lng - 0.001, c.lat - 0.001, c.lng + 0.001, c.lat + 0.001]
+        return [c.lng - 0.005, c.lat - 0.005, c.lng + 0.005, c.lat + 0.005]
     }
 
     private static parseCoordinate(params: string) {
