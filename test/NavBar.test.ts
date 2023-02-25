@@ -206,13 +206,11 @@ describe('NavBar', function () {
             window.location = { ...window.location, href: expectedUrl }
             navBar.updateStateFromUrl()
 
-            Dispatcher.dispatch(new SetPoint({...queryStore.state.queryPoints[0], isInitialized: true },
-                'to_point'))
+            Dispatcher.dispatch(new SetPoint({ ...queryStore.state.queryPoints[0], isInitialized: true }, 'to_point'))
             // do NOT zoom to route
             expect(queryStore.state.zoom).toEqual(false)
 
-            Dispatcher.dispatch(new SetPoint({...queryStore.state.queryPoints[1], isInitialized: true },
-                'to_route'))
+            Dispatcher.dispatch(new SetPoint({ ...queryStore.state.queryPoints[1], isInitialized: true }, 'to_route'))
             // zoom to route (zoom is set to true even if not all points are valid)
             expect(queryStore.state.zoom).toEqual(true)
         })
