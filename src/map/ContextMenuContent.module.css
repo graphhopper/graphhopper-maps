@@ -1,3 +1,15 @@
+@media (prefers-color-scheme: dark) {
+    .wrapper {
+        background-color: black;
+    }
+    .entry {
+        color: white;
+    }
+    .entry:hover {
+        color: black;
+    }
+}
+
 .wrapper {
     display: flex;
     flex-direction: column;

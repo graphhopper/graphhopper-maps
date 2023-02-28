@@ -11,7 +11,7 @@ declare module 'config' {
     const keys: {
         graphhopper: string
         omniscale: string
-        maptiler: string
+        stadiamaps: string
         thunderforest: string
         kurviger: string
     }

@@ -1,0 +1,21 @@
+@media (prefers-color-scheme: dark) {
+    .customModelBox.CodeMirror {
+        background-color: red !important;
+    }
+}
+
+.cm-s-default .cm-string {
+    color: #067d17 !important;
+}
+
+.cm-s-default .cm-property {
+    color: #871094 !important;
+}
+
+.cm-s-default .cm-number {
+    color: #1750eb !important;
+}
+
+.cm-s-default .cm-atom {
+    color: #0033b3 !important;
+}

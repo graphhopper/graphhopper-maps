@@ -1,3 +1,15 @@
+@media (prefers-color-scheme: light) {
+    .background {
+        background-color: white;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .background {
+        background-color: black;
+    }
+}
+
 .sidebar {
     height: 100%;
     display: flex;
@@ -7,7 +19,6 @@
 
 .background {
     pointer-events: all; /* we want all the content to behave normally*/
-    background-color: white;
 }
 
 .fullHeight {

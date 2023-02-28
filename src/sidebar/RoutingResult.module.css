@@ -1,3 +1,17 @@
+@media (prefers-color-scheme: dark) {
+    .resultSelectableArea {
+        background-color: black;
+        color: white;
+        border-left-color: black !important;
+    }
+    .resultSummary {
+        border-left-color: black !important;
+    }
+    .routeHints div, .routeHints {
+        background-color: black;
+    }
+}
+
 .resultRow {
     border-bottom: 1px lightgray solid;
 }

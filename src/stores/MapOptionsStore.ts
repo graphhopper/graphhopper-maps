@@ -4,7 +4,7 @@ import { MapIsLoaded, SelectMapLayer, ToggleRoutingGraph, ToggleUrbanDensityLaye
 import config from 'config'
 
 const osApiKey = config.keys.omniscale
-const mapTilerKey = config.keys.maptiler
+const stadiaMapsKey = config.keys.stadiamaps
 const thunderforestApiKey = config.keys.thunderforest
 const kurvigerApiKey = config.keys.kurviger
 
@@ -44,18 +44,16 @@ const isRetina = window.devicePixelRatio > 1 || (window.matchMedia && window.mat
 const tilePixelRatio = isRetina ? 2 : 1
 const retina2x = isRetina ? '@2x' : ''
 
-const mapTiler: VectorStyle = {
-    name: 'MapTiler',
+const stadiaMapsSatellite: VectorStyle = {
+    name: 'Stadia Maps Satellite TODO',
     type: 'vector',
-    url: 'https://api.maptiler.com/maps/1f566542-c726-4cc5-8f2d-2309b90083db/style.json?key=' + mapTilerKey,
-    attribution: osmAttribution + ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
+    // url: 'https://tiles.stadiamaps.com/styles/alidade_satellite.json?key=' + stadiaMapsKey, // TODO NOW not available in free
+    url: 'https://tiles.stadiamaps.com/styles/osm_bright.json?key=' + stadiaMapsKey,
+    attribution:
+        osmAttribution +
+        ', &copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
 }
-const mapTilerSatellite: VectorStyle = {
-    name: 'MapTiler Satellite',
-    type: 'vector',
-    url: 'https://api.maptiler.com/maps/hybrid/style.json?key=' + mapTilerKey,
-    attribution: osmAttribution + ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
-}
+
 const osmOrg: RasterStyle = {
     name: 'OpenStreetMap',
     type: 'raster',
@@ -161,6 +159,14 @@ const mapillion: VectorStyle = {
         osmAttribution +
         ', &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
 }
+const mapillionDark: VectorStyle = {
+    name: 'Mapilion Dark',
+    type: 'vector',
+    url: 'https://tiles.mapilion.com/assets/dark-matter/style.json?key=' + kurvigerApiKey,
+    attribution:
+        osmAttribution +
+        ', &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
+}
 const osmDe: RasterStyle = {
     name: 'OpenStreetmap.de',
     type: 'raster',
@@ -202,14 +208,14 @@ const styleOptions: StyleOption[] = [
     omniscale,
     osmOrg,
     esriSatellite,
-    mapTilerSatellite,
-    mapTiler,
+    stadiaMapsSatellite,
     tfTransport,
     tfCycle,
     tfOutdoors,
     tfAtlas,
     kurviger,
     mapillion,
+    mapillionDark,
     osmDe,
     lyrk,
     wanderreitkarte,

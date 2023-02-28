@@ -1,3 +1,25 @@
+@media (prefers-color-scheme: dark) {
+    .selectedProfile {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: darkgray;
+    }
+
+    .selectedProfile:hover {
+        color: lightgray;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .selectedProfile {
+        background-color: rgba(39, 93, 173, 0.2);
+        color: #275dad;
+    }
+
+    .selectedProfile:hover {
+        color: #275dad;
+    }
+}
+
 .profilesParent {
     display: flex;
     flex-direction: row;
@@ -10,15 +32,6 @@
     flex-direction: row;
     justify-content: center;
     padding-right: 0.5em;
-}
-
-.selectedProfile {
-    background-color: rgba(39, 93, 173, 0.2);
-    color: #275dad;
-}
-
-.selectedProfile:hover {
-    color: #275dad;
 }
 
 .profileBtn {
