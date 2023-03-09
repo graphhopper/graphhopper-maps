@@ -8,8 +8,8 @@ import ErrorMessage from '@/sidebar/ErrorMessage'
 import { useMediaQuery } from 'react-responsive'
 import { MarkerComponent } from '@/map/Marker'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
-import OpenInputsIcon from './unfold_less.svg'
-import CloseInputsIcon from './unfold.svg'
+import OpenInputsIcon from './unfold.svg'
+import CloseInputsIcon from './unfold_less.svg'
 
 type MobileSidebarProps = {
     query: QueryStoreState
