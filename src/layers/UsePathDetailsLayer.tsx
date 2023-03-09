@@ -34,22 +34,22 @@ function removePathSegmentsLayer(map: Map) {
 }
 
 function addPathSegmentsLayer(map: Map, pathDetails: PathDetailsStoreState) {
+    const style = new Style({
+        stroke: new Stroke({
+            // todo
+            color: 'red',
+            width: 4,
+            lineCap: 'round',
+            lineJoin: 'round',
+        }),
+    })
     const highlightedPathSegmentsLayer = new VectorLayer({
         source: new VectorSource({
             features: new GeoJSON().readFeatures(
                 createHighlightedPathSegments(pathDetails.pathDetailsHighlightedSegments)
             ),
         }),
-        style: () =>
-            new Style({
-                stroke: new Stroke({
-                    // todo
-                    color: 'red',
-                    width: 4,
-                    lineCap: 'round',
-                    lineJoin: 'round',
-                }),
-            }),
+        style: () => style,
     })
     highlightedPathSegmentsLayer.set(highlightedPathSegmentLayerKey, true)
     highlightedPathSegmentsLayer.setZIndex(3)

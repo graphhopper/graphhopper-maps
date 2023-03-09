@@ -22,16 +22,17 @@ function addAreasLayer(map: Map, areas: object | null) {
     // reading the GeoJSON can fail due to all kinds of missing fields, wrong types etc. in the input areas, so we
     // just don't display anything in these cases
     if (!features) return
+    const style = new Style({
+        stroke: new Stroke({
+            color: '#FF0000',
+            width: 2,
+        }),
+    })
     const layer = new VectorLayer({
         source: new VectorSource({
             features: features,
         }),
-        style: new Style({
-            stroke: new Stroke({
-                color: '#FF0000',
-                width: 2,
-            }),
-        }),
+        style: style,
     })
     layer.set(areasLayerKey, true)
     layer.setZIndex(10)
