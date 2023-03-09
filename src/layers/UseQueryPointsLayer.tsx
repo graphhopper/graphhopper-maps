@@ -59,15 +59,21 @@ function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     })
     queryPointsLayer.set('gh:query_points', true)
     queryPointsLayer.setZIndex(3)
-    queryPointsLayer.setStyle(
-        feature =>
-            new Style({
-                image: new Icon({
-                    src: 'data:image/svg+xml;utf8,' + createSvg(feature.get('gh:marker_props')),
-                    displacement: [0, MARKER_SIZE / 2],
-                }),
-            })
-    )
+    const cachedStyles: { [id: string]: Style } = {}
+    queryPointsLayer.setStyle(feature => {
+        const props = feature.get('gh:marker_props')
+        const key = props.number + '-' + props.color + '-' + props.size
+        let style = cachedStyles[key]
+        if (style) return style
+        style = new Style({
+            image: new Icon({
+                src: 'data:image/svg+xml;utf8,' + createSvg(props),
+                displacement: [0, MARKER_SIZE / 2],
+            }),
+        })
+        cachedStyles[key] = style
+        return style
+    })
     map.addLayer(queryPointsLayer)
     return queryPointsLayer
 }
