@@ -41,7 +41,7 @@ function addAreasLayer(map: Map, areas: object | null) {
 
 function readGeoJSONFeatures(areas: object | null) {
     try {
-        return new GeoJSON({featureProjection: 'EPSG:3857'}).readFeatures(areas)
+        return new GeoJSON({ featureProjection: 'EPSG:3857' }).readFeatures(areas)
     } catch (e) {
         return null
     }

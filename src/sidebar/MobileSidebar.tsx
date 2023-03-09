@@ -49,7 +49,9 @@ export default function ({ query, route, error }: MobileSidebarProps) {
                     <SmallSearchView points={query.queryPoints} onClick={() => setIsSmallSearchView(false)} />
                 ) : (
                     <div className={styles.btnCloseContainer}>
-                        <div className={styles.btnCloseInputs} onClick={() => setIsSmallSearchView(true)}><CloseInputsIcon/></div>
+                        <div className={styles.btnCloseInputs} onClick={() => setIsSmallSearchView(true)}>
+                            <CloseInputsIcon />
+                        </div>
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
@@ -75,7 +77,9 @@ function SmallSearchView(props: { points: QueryPoint[]; onClick: () => void }) {
 
     return (
         <div className={styles.btnOpenContainer} onClick={props.onClick}>
-            <div className={styles.btnOpenInputs}><OpenInputsIcon/></div>
+            <div className={styles.btnOpenInputs}>
+                <OpenInputsIcon />
+            </div>
             <div className={styles.mapView}>
                 <SmallQueryPoint text={from.queryText} color={from.color} position={from.type} />
                 <IntermediatePoint points={props.points} />
