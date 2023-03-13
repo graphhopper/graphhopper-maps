@@ -82,7 +82,7 @@
 "in_mi":"In %1$s miles",
 "in_ft":"In %1$s feet",
 "for_mi":"for %1$s miles",
-"warning":"WARNING: Turn-by-turn navigation is highly experimental! Use them at your own risk and always follow the road signs!",
+"warning":"WARNING: The turn-by-turn navigation feature is highly experimental. Use it at your own risk, pay attention to the road and do not touch the device while driving!",
 "accept_risks_after_warning":"I understand and agree",
 "start_navigation":"Navigation"
 },
@@ -874,7 +874,7 @@
 "in_mi":"In %1$s Meilen",
 "in_ft":"In %1$s Fuß",
 "for_mi":"für %1$s Meilen",
-"warning":"ACHTUNG: Die Navigation ist höchst experimentell! Verwenden Sie diese auf eigene Gefahr und folgen Sie immer den Straßenschildern!",
+"warning":"ACHTUNG: Die Navigation ist höchst experimentell. Verwenden Sie diese auf eigene Gefahr, achten Sie auf den Straßenverkehr und berühren Sie das Gerät nicht während der Fahrt!",
 "accept_risks_after_warning":"I verstehe und akzeptiere",
 "start_navigation":"Navigation"
 },
