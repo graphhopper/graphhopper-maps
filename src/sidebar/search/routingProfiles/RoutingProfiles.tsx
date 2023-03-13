@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import styles from './RoutingProfiles.modules.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearRoute, DismissLastError, SetCustomModelBoxEnabled, SetVehicleProfile } from '@/actions/Actions'
+import { SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import PlainButton from '@/PlainButton'
 import BicycleIcon from './bike.svg'
@@ -17,33 +17,27 @@ import TruckIcon from './truck.svg'
 import WheelchairIcon from './wheelchair.svg'
 import { tr } from '@/translation/Translation'
 import SettingsSVG from '@/sidebar/settings.svg'
+import { SettingsContext } from '@/SettingsContext'
 
 export default function ({
     routingProfiles,
     selectedProfile,
-    customModelAllowed,
-    customModelEnabled,
+    openSettingsHandle,
 }: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
-    customModelAllowed: boolean
-    customModelEnabled: boolean
+    openSettingsHandle: () => void
 }) {
+    const { showSettings } = useContext(SettingsContext)
     return (
         <div className={styles.profilesParent}>
-            {customModelAllowed && (
-                <PlainButton
-                    title={tr('open_custom_model_box')}
-                    className={customModelEnabled ? styles.enabledSettings : styles.settings}
-                    onClick={() => {
-                        if (customModelEnabled) Dispatcher.dispatch(new DismissLastError())
-                        Dispatcher.dispatch(new ClearRoute())
-                        Dispatcher.dispatch(new SetCustomModelBoxEnabled(!customModelEnabled))
-                    }}
-                >
-                    <SettingsSVG />
-                </PlainButton>
-            )}
+            <PlainButton
+                title={tr('show_settings')}
+                className={showSettings ? styles.enabledSettings : styles.settings}
+                onClick={openSettingsHandle}
+            >
+                <SettingsSVG />
+            </PlainButton>
             <ul className={styles.profiles}>
                 {routingProfiles.map(profile => {
                     const className =

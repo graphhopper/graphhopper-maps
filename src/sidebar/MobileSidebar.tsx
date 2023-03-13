@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { QueryPoint, QueryPointType, QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
@@ -10,14 +10,19 @@ import { MarkerComponent } from '@/map/Marker'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
+import SettingsBox from '@/sidebar/SettingsBox'
+import { SettingsContext } from '@/SettingsContext'
+import Dispatcher from '@/stores/Dispatcher'
+import { ToggleShowSettings } from '@/actions/Actions'
 
 type MobileSidebarProps = {
     query: QueryStoreState
     route: RouteStoreState
     error: ErrorStoreState
+    encodedValues: object[]
 }
 
-export default function ({ query, route, error }: MobileSidebarProps) {
+export default function ({ query, route, error, encodedValues }: MobileSidebarProps) {
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
     const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen && hasResult(route))
@@ -55,9 +60,9 @@ export default function ({ query, route, error }: MobileSidebarProps) {
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            customModelAllowed={false}
-                            customModelEnabled={query.customModelEnabled}
+                            openSettingsHandle={() => Dispatcher.dispatch(new ToggleShowSettings())}
                         />
+                        <SettingsBox query={query} encodedValues={encodedValues} />
                         <Search points={query.queryPoints} />
                     </div>
                 )}

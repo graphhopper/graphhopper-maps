@@ -20,14 +20,14 @@ import PlainButton from '@/PlainButton'
 import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import { SettingsContext } from '@/SettingsContext'
 
 export default function Search({ points }: { points: QueryPoint[] }) {
     const [showInfo, setShowInfo] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
     const [dropPreviewIndex, onDropPreviewSelect] = useState(-1)
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const { showDistanceInMiles } = useContext(SettingsContext)
 
     return (
         <div className={styles.searchBoxParent}>
@@ -65,13 +65,6 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                 >
                     <AddIcon />
                     <div>{tr('add_to_route')}</div>
-                </PlainButton>
-                <PlainButton
-                    className={styles.mikm}
-                    title={tr('distance_unit', [showDistanceInMiles ? 'mi' : 'km'])}
-                    onClick={() => Dispatcher.dispatch(new ToggleDistanceUnits())}
-                >
-                    {showDistanceInMiles ? 'mi' : 'km'}
                 </PlainButton>
                 <PlainButton className={styles.infoButton} onClick={() => setShowInfo(!showInfo)}>
                     <InfoIcon />

@@ -8,7 +8,7 @@ import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelecte
 import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
 import { calcDist } from '@/distUtils'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import { SettingsContext } from '@/SettingsContext'
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -52,7 +52,7 @@ export default function ({ selectedPath }: PathDetailsProps) {
         graph?.setData(pathDetailsData.data, pathDetailsData.mappings)
     }, [selectedPath, graph])
 
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const { showDistanceInMiles } = useContext(SettingsContext)
     useEffect(() => {
         graph?.setImperial(showDistanceInMiles)
         graph?.redraw()
