@@ -45,19 +45,19 @@ function removeCurrentPathLayers(map: Map) {
 }
 
 function addUnselectedPathsLayer(map: Map, paths: Path[]) {
+    const style = new Style({
+        stroke: new Stroke({
+            color: '#5B616A',
+            width: 5,
+            lineCap: 'round',
+            lineJoin: 'round',
+        }),
+    })
     const layer = new VectorLayer({
         source: new VectorSource({
             features: new GeoJSON().readFeatures(createUnselectedPaths(paths)),
         }),
-        style: () =>
-            new Style({
-                stroke: new Stroke({
-                    color: '#5B616A',
-                    width: 5,
-                    lineCap: 'round',
-                    lineJoin: 'round',
-                }),
-            }),
+        style: () => style,
         opacity: 0.8,
     })
     layer.set(pathsLayerKey, true)

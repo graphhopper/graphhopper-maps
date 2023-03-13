@@ -8,6 +8,8 @@ import ErrorMessage from '@/sidebar/ErrorMessage'
 import { useMediaQuery } from 'react-responsive'
 import { MarkerComponent } from '@/map/Marker'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
+import OpenInputsIcon from './unfold.svg'
+import CloseInputsIcon from './unfold_less.svg'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -47,6 +49,9 @@ export default function ({ query, route, error }: MobileSidebarProps) {
                     <SmallSearchView points={query.queryPoints} onClick={() => setIsSmallSearchView(false)} />
                 ) : (
                     <div className={styles.btnCloseContainer}>
+                        <div className={styles.btnCloseInputs} onClick={() => setIsSmallSearchView(true)}>
+                            <CloseInputsIcon />
+                        </div>
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
@@ -71,10 +76,15 @@ function SmallSearchView(props: { points: QueryPoint[]; onClick: () => void }) {
     const to = props.points[props.points.length - 1]
 
     return (
-        <div className={styles.mapView} onClick={props.onClick}>
-            <SmallQueryPoint text={from.queryText} color={from.color} position={from.type} />
-            <IntermediatePoint points={props.points} />
-            <SmallQueryPoint text={to.queryText} color={to.color} position={to.type} />
+        <div className={styles.btnOpenContainer} onClick={props.onClick}>
+            <div className={styles.btnOpenInputs}>
+                <OpenInputsIcon />
+            </div>
+            <div className={styles.mapView}>
+                <SmallQueryPoint text={from.queryText} color={from.color} position={from.type} />
+                <IntermediatePoint points={props.points} />
+                <SmallQueryPoint text={to.queryText} color={to.color} position={to.type} />
+            </div>
         </div>
     )
 }
