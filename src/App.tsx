@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
@@ -17,7 +17,7 @@ import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
 import RoutingResults from '@/sidebar/RoutingResults'
 import PoweredBy from '@/sidebar/PoweredBy'
-import { QueryStoreState } from '@/stores/QueryStore'
+import { QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
@@ -33,7 +33,6 @@ import { getMap } from '@/map/map'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
-import { SettingsContext } from '@/SettingsContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import MapPopups from '@/map/MapPopups'
 import Menu from '@/sidebar/menu.svg'
@@ -43,6 +42,8 @@ import useAreasLayer from '@/layers/UseAreasLayer'
 import SettingsBox from '@/sidebar/SettingsBox'
 import Dispatcher from '@/stores/Dispatcher'
 import { ToggleShowSettings } from '@/actions/Actions'
+import CustomModelBox from '@/sidebar/CustomModelBox'
+import { SettingsContext } from '@/stores/SettingsStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -101,7 +102,7 @@ export default function App() {
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
     useMapBorderLayer(map, info.bbox)
-    useAreasLayer(map, query.customModelEnabled && query.customModelValid ? query.customModel?.areas! : null)
+    useAreasLayer(map, settings.customModelEnabled && settings.customModelValid ? query.customModel?.areas! : null)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
@@ -161,7 +162,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                             selectedProfile={query.routingProfile}
                             openSettingsHandle={() => Dispatcher.dispatch(new ToggleShowSettings())}
                         />
-                        <SettingsBox query={query} encodedValues={encodedValues} />
+                        <SettingsBox />
+                        <CustomModelBox
+                            encodedValues={encodedValues}
+                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                        />
                         <Search points={query.queryPoints} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults

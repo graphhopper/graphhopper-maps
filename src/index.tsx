@@ -41,11 +41,12 @@ const apiKey = url.searchParams.has('key') ? url.searchParams.get('key') : confi
 setApi(config.routingApi, config.geocodingApi, apiKey || '')
 
 const initialCustomModelStr = url.searchParams.get('custom_model')
-const queryStore = new QueryStore(getApi(), initialCustomModelStr)
+const settingsStore = new SettingsStore(initialCustomModelStr)
+const queryStore = new QueryStore(getApi(), settingsStore)
 const routeStore = new RouteStore(queryStore)
 
 setStores({
-    settingsStore: new SettingsStore(),
+    settingsStore: settingsStore,
     queryStore: queryStore,
     routeStore: routeStore,
     infoStore: new ApiInfoStore(),
@@ -72,7 +73,7 @@ const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
 const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
 Dispatcher.register(mapActionReceiver)
 
-const navBar = new NavBar(getQueryStore(), getMapOptionsStore())
+const navBar = new NavBar(getQueryStore(), getMapOptionsStore(), getSettingsStore())
 
 // get infos about the api as soon as possible
 getApi()

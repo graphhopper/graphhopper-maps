@@ -4,13 +4,14 @@ import 'codemirror/addon/lint/lint.css'
 // todo: this belongs to this app and we should not take it from the demo...
 import 'custom-model-editor/demo/style.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { DismissLastError, SetCustomModel } from '@/actions/Actions'
+import { SetCustomModel } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
+import { SettingsContext } from '@/stores/SettingsStore'
 
 const examples: { [key: string]: CustomModel } = {
     default_example: {
@@ -71,18 +72,12 @@ const examples: { [key: string]: CustomModel } = {
 }
 
 export interface CustomModelBoxProps {
-    enabled: boolean
     encodedValues: object[]
-    initialCustomModelStr: string | null
     queryOngoing: boolean
 }
 
-export default function CustomModelBox({
-    enabled,
-    encodedValues,
-    initialCustomModelStr,
-    queryOngoing,
-}: CustomModelBoxProps) {
+export default function CustomModelBox({ encodedValues, queryOngoing }: CustomModelBoxProps) {
+    let { initialCustomModelStr, customModelEnabled, showSettings, customModel } = useContext(SettingsContext)
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)
@@ -94,18 +89,23 @@ export default function CustomModelBox({
         setEditor(instance)
 
         instance.cm.setSize('100%', '100%')
-        if (initialCustomModelStr != null) {
+        if (customModel != null) {
+            // init from settings in case of entire app recreation like window resizing
+            initialCustomModelStr = customModel2prettyString(customModel)
+        } else if (initialCustomModelStr != null) {
             // prettify the custom model if it can be parsed or leave it as is otherwise
             try {
                 initialCustomModelStr = customModel2prettyString(JSON.parse(initialCustomModelStr))
             } catch (e) {}
         }
+        // TODO NOW when changing the size from "desktop" to "mobile" and back we loose the custom model
+        console.warn("initial custom model string was set? " + initialCustomModelStr != null)
         instance.value =
             initialCustomModelStr == null
                 ? customModel2prettyString(examples['default_example'])
                 : initialCustomModelStr
 
-        if (enabled)
+        if (customModelEnabled)
             // When we got a custom model from the url parameters we send the request right away
             dispatchCustomModel(instance.value, true, true)
 
@@ -121,8 +121,8 @@ export default function CustomModelBox({
     // without this the editor is blank after opening the box and before clicking it or resizing the window?
     // but having the focus in the box after opening it is nice anyway
     useEffect(() => {
-        if (enabled) editor?.cm.focus()
-    }, [enabled])
+        if (customModelEnabled && showSettings) editor?.cm.focus()
+    }, [customModelEnabled, showSettings])
 
     useEffect(() => {
         if (!editor) return
@@ -160,10 +160,10 @@ export default function CustomModelBox({
             <div
                 ref={divElement}
                 className={styles.customModelBox}
-                style={{ display: enabled ? 'block' : 'none' }}
+                style={{ display: customModelEnabled && showSettings ? 'block' : 'none' }}
                 onKeyUp={triggerRouting}
             />
-            {enabled && (
+            {customModelEnabled && showSettings && (
                 <div className={styles.customModelBoxBottomBar}>
                     <select
                         className={styles.examples}

@@ -8,7 +8,7 @@ import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelecte
 import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
 import { calcDist } from '@/distUtils'
-import { SettingsContext } from '@/SettingsContext'
+import { SettingsContext } from '@/stores/SettingsStore'
 
 interface PathDetailsProps {
     selectedPath: Path

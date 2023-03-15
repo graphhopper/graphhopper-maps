@@ -2,9 +2,9 @@ import { useContext } from 'react'
 import styles from '@/layers/DefaultMapPopup.module.css'
 import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { metersToText } from '@/Converters'
-import { SettingsContext } from '@/SettingsContext'
 import MapPopup from '@/layers/MapPopup'
 import { Map } from 'ol'
+import { SettingsContext } from '@/stores/SettingsStore'
 
 interface PathDetailPopupProps {
     map: Map

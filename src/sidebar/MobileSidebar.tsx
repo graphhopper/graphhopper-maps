@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType, QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
@@ -11,9 +11,9 @@ import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import SettingsBox from '@/sidebar/SettingsBox'
-import { SettingsContext } from '@/SettingsContext'
 import Dispatcher from '@/stores/Dispatcher'
 import { ToggleShowSettings } from '@/actions/Actions'
+import CustomModelBox from '@/sidebar/CustomModelBox'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -62,7 +62,11 @@ export default function ({ query, route, error, encodedValues }: MobileSidebarPr
                             selectedProfile={query.routingProfile}
                             openSettingsHandle={() => Dispatcher.dispatch(new ToggleShowSettings())}
                         />
-                        <SettingsBox query={query} encodedValues={encodedValues} />
+                        <SettingsBox />
+                        <CustomModelBox
+                            encodedValues={encodedValues}
+                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                        />
                         <Search points={query.queryPoints} />
                     </div>
                 )}

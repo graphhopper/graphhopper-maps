@@ -13,7 +13,7 @@ import { LineString, Position } from 'geojson'
 import { calcDist } from '@/distUtils'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
-import { SettingsContext } from '@/SettingsContext'
+import { SettingsContext } from '@/stores/SettingsStore'
 import { ApiImpl } from '@/api/Api'
 
 export interface RoutingResultsProps {

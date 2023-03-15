@@ -12,6 +12,7 @@ import {
     SetPoint,
     SetVehicleProfile,
 } from '@/actions/Actions'
+import SettingsStore from '@/stores/SettingsStore'
 
 class ApiMock implements Api {
     private readonly callback: { (args: RoutingArgs): void }
@@ -47,7 +48,8 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     throw Error('not expected')
-                })
+                }),
+                new SettingsStore()
             )
             const point: QueryPoint = {
                 ...store.state.queryPoints[0],
@@ -64,7 +66,7 @@ describe('QueryStore', () => {
         })
         it('should only send a route request if all parameters are initialized', () => {
             let counter = 0
-            const store = new QueryStore(new ApiMock(() => counter++))
+            const store = new QueryStore(new ApiMock(() => counter++), new SettingsStore())
             let state = {
                 ...store.state,
                 maxAlternativeRoutes: 1,
@@ -83,7 +85,7 @@ describe('QueryStore', () => {
         })
         it('should send two requests with different parameters when maxAlternativeRoutes is > 1', () => {
             const requestArgs: RoutingArgs[] = []
-            const store = new QueryStore(new ApiMock(args => requestArgs.push(args)))
+            const store = new QueryStore(new ApiMock(args => requestArgs.push(args)), new SettingsStore())
 
             let state = {
                 ...store.state,
@@ -100,7 +102,7 @@ describe('QueryStore', () => {
         })
         it('should send one request when querypoints.length > 2 even though maxAlternativeRoutes > 1', () => {
             const requestArgs: RoutingArgs[] = []
-            const store = new QueryStore(new ApiMock(args => requestArgs.push(args)))
+            const store = new QueryStore(new ApiMock(args => requestArgs.push(args)), new SettingsStore())
 
             let state = {
                 ...store.state,
@@ -118,7 +120,7 @@ describe('QueryStore', () => {
     })
     describe('Invalidate point action', () => {
         it('should set point with the same id to isInitialized: false', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {}), new SettingsStore())
 
             const initializedPoints = store.state.queryPoints.map(p => ({
                 ...p,
@@ -140,7 +142,7 @@ describe('QueryStore', () => {
     })
     describe('Clear Points action', () => {
         it('should reset all points', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {}), new SettingsStore())
             const initializedPoints = store.state.queryPoints.map((p, i) => ({
                 ...p,
                 isInitialized: true,
@@ -163,7 +165,8 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     counter++
-                })
+                }),
+                new SettingsStore()
             )
             const newPointId = store.state.nextQueryPointId
             const atIndex = 1
@@ -179,7 +182,8 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     counter++
-                })
+                }),
+                new SettingsStore()
             )
             const newPointId = store.state.nextQueryPointId
             const atIndex = 1
@@ -203,7 +207,8 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     counter++
-                })
+                }),
+                new SettingsStore()
             )
 
             const initializedPoints = store.state.queryPoints.map(p => ({ ...p, isInitialized: true }))
@@ -233,7 +238,8 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     fail('no routing request when profile was already set.')
-                })
+                }),
+                new SettingsStore()
             )
 
             const profile = 'some-profile'
@@ -270,7 +276,8 @@ describe('QueryStore', () => {
                 new ApiMock(args => {
                     expect(args.profile).toEqual(expectedProfile.name)
                     routingRequestWasIssued = true
-                })
+                }),
+                new SettingsStore()
             )
             let state: QueryStoreState = store.state
 
@@ -313,7 +320,7 @@ describe('QueryStore', () => {
     })
     describe('SetVehicleProfile action', () => {
         it('should set the routing profile (surprise!)', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {}), new SettingsStore())
             const state: QueryStoreState = store.state
             const profile = {
                 name: 'car',
@@ -329,7 +336,7 @@ describe('QueryStore', () => {
     })
     describe('RouteRequestSuccess action', () => {
         it('should mark the correct subrequest as done', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {}), new SettingsStore())
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],
@@ -358,7 +365,7 @@ describe('QueryStore', () => {
     })
     describe('RouteRequestFailed action', () => {
         it('should mark the correct subrequest as done', () => {
-            const store = new QueryStore(new ApiMock(() => {}))
+            const store = new QueryStore(new ApiMock(() => {}), new SettingsStore())
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],

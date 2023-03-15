@@ -1,45 +1,39 @@
-import { QueryStoreState, RequestState } from '@/stores/QueryStore'
-import CustomModelBox from '@/sidebar/CustomModelBox'
 import { ClearRoute, DismissLastError, SetCustomModelBoxEnabled, ToggleDistanceUnits } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import { useContext } from 'react'
-import { SettingsContext } from '@/SettingsContext'
+import OnIcon from '@/sidebar/toggle_on.svg'
+import OffIcon from '@/sidebar/toggle_off.svg'
+import { SettingsContext } from '@/stores/SettingsStore'
 
-export default function SettingsBox({ query, encodedValues }: { query: QueryStoreState; encodedValues: object[] }) {
+export default function SettingsBox() {
     const settings = useContext(SettingsContext)
     return !settings.showSettings ? (
         <></>
     ) : (
-        <>
+        <div className={styles.settingsTable}>
             <PlainButton
-                className={styles.mileskm}
-                title={tr('distance_unit', [tr(settings.showDistanceInMiles ? 'miles' : 'kilometer')])}
+                style={{ color: settings.showDistanceInMiles ? '' : 'lightgray' }}
                 onClick={() => Dispatcher.dispatch(new ToggleDistanceUnits())}
             >
-                {tr('distance_unit', [tr(settings.showDistanceInMiles ? 'miles' : 'kilometer')])}
+                {settings.showDistanceInMiles ? <OnIcon /> : <OffIcon />}
             </PlainButton>
-            <div>
-            <input
-                name="customModelEnabled"
-                type="checkbox"
-                checked={query.customModelEnabled}
-                onChange={() => {
-                    if (query.customModelEnabled) Dispatcher.dispatch(new DismissLastError())
-                    Dispatcher.dispatch(new ClearRoute())
-                    Dispatcher.dispatch(new SetCustomModelBoxEnabled(!query.customModelEnabled))
-                }}
-            />{' '}
-            <div>custom model</div>
+            <div style={{ color: settings.showDistanceInMiles ? '' : 'gray' }}>
+                {tr('distance_unit', [tr(settings.showDistanceInMiles ? 'mi' : 'km')])}
             </div>
-            <CustomModelBox
-                enabled={query.customModelEnabled}
-                encodedValues={encodedValues}
-                initialCustomModelStr={query.initialCustomModelStr}
-                queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-            />
-        </>
+            <PlainButton
+                style={{ color: settings.customModelEnabled ? '' : 'lightgray' }}
+                onClick={() => {
+                    if (settings.customModelEnabled) Dispatcher.dispatch(new DismissLastError())
+                    Dispatcher.dispatch(new ClearRoute())
+                    Dispatcher.dispatch(new SetCustomModelBoxEnabled(!settings.customModelEnabled))
+                }}
+            >
+                {settings.customModelEnabled ? <OnIcon /> : <OffIcon />}
+            </PlainButton>
+            <div style={{ color: settings.customModelEnabled ? '' : 'gray' }}>{tr('custom model enabled')}</div>
+        </div>
     )
 }
