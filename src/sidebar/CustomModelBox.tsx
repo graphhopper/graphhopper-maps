@@ -142,7 +142,7 @@ export default function CustomModelBox({ encodedValues, queryOngoing }: CustomMo
         // todo: maybe do this 'conversion' in Api.ts already and use types from there on
         const categories = convertEV(encodedValues)
         if (!categories) {
-            console.log('encoded value: ' + JSON.stringify(encodedValues))
+            console.warn('encoded values invalid: ' + JSON.stringify(encodedValues))
         } else {
             editor.categories = categories
         }
