@@ -20,7 +20,7 @@ export default function SettingsBox() {
             >
                 {settings.showDistanceInMiles ? <OnIcon /> : <OffIcon />}
             </PlainButton>
-            <div style={{ color: settings.showDistanceInMiles ? '' : 'gray' }}>
+            <div style={{ color: settings.showDistanceInMiles ? '#5b616a' : 'gray' }}>
                 {tr('distance_unit', [tr(settings.showDistanceInMiles ? 'mi' : 'km')])}
             </div>
             <PlainButton
@@ -33,7 +33,7 @@ export default function SettingsBox() {
             >
                 {settings.customModelEnabled ? <OnIcon /> : <OffIcon />}
             </PlainButton>
-            <div style={{ color: settings.customModelEnabled ? '' : 'gray' }}>{tr('custom model enabled')}</div>
+            <div style={{ color: settings.customModelEnabled ? '#5b616a' : 'gray' }}>{tr('custom model enabled')}</div>
         </div>
     )
 }

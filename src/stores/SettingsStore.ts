@@ -1,8 +1,8 @@
 import Store from '@/stores/Store'
-import {Action} from '@/stores/Dispatcher'
-import {SetCustomModel, SetCustomModelBoxEnabled, ToggleDistanceUnits, ToggleShowSettings} from '@/actions/Actions'
+import { Action } from '@/stores/Dispatcher'
+import { SetCustomModel, SetCustomModelBoxEnabled, ToggleDistanceUnits, ToggleShowSettings } from '@/actions/Actions'
 import React from 'react'
-import {CustomModel} from "@/stores/QueryStore";
+import { CustomModel } from '@/stores/QueryStore'
 
 export interface Settings {
     showDistanceInMiles: boolean

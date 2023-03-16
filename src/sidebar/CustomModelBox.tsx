@@ -71,6 +71,21 @@ const examples: { [key: string]: CustomModel } = {
     },
 }
 
+function convertEV(encodedValues: object[]): any {
+    const categories: any = {}
+    Object.keys(encodedValues).forEach((k: any) => {
+        const v: any = encodedValues[k]
+        if (v.length === 2 && v[0] === 'true' && v[1] === 'false') {
+            categories[k] = { type: 'boolean' }
+        } else if (v.length === 2 && v[0] === '>number' && v[1] === '<number') {
+            categories[k] = { type: 'numeric' }
+        } else {
+            categories[k] = { type: 'enum', values: v.sort() }
+        }
+    })
+    return categories
+}
+
 export interface CustomModelBoxProps {
     encodedValues: object[]
     queryOngoing: boolean
@@ -84,8 +99,7 @@ export default function CustomModelBox({ encodedValues, queryOngoing }: CustomMo
     const divElement = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
-        // we start with empty categories. they will be set later using info
-        const instance = create({}, (element: Node) => divElement.current?.appendChild(element))
+        const instance = create(convertEV(encodedValues), (element: Node) => divElement.current?.appendChild(element))
         setEditor(instance)
 
         instance.cm.setSize('100%', '100%')
@@ -98,8 +112,6 @@ export default function CustomModelBox({ encodedValues, queryOngoing }: CustomMo
                 initialCustomModelStr = customModel2prettyString(JSON.parse(initialCustomModelStr))
             } catch (e) {}
         }
-        // TODO NOW when changing the size from "desktop" to "mobile" and back we loose the custom model
-        console.warn("initial custom model string was set? " + initialCustomModelStr != null)
         instance.value =
             initialCustomModelStr == null
                 ? customModel2prettyString(examples['default_example'])
@@ -128,18 +140,12 @@ export default function CustomModelBox({ encodedValues, queryOngoing }: CustomMo
         if (!editor) return
 
         // todo: maybe do this 'conversion' in Api.ts already and use types from there on
-        const categories: any = {}
-        Object.keys(encodedValues).forEach((k: any) => {
-            const v: any = encodedValues[k]
-            if (v.length === 2 && v[0] === 'true' && v[1] === 'false') {
-                categories[k] = { type: 'boolean' }
-            } else if (v.length === 2 && v[0] === '>number' && v[1] === '<number') {
-                categories[k] = { type: 'numeric' }
-            } else {
-                categories[k] = { type: 'enum', values: v.sort() }
-            }
-        })
-        editor.categories = categories
+        const categories = convertEV(encodedValues)
+        if (!categories) {
+            console.log('encoded value: ' + JSON.stringify(encodedValues))
+        } else {
+            editor.categories = categories
+        }
     }, [encodedValues])
 
     const triggerRouting = useCallback(
