@@ -62,8 +62,7 @@ export default function ({ query, route, error, encodedValues }: MobileSidebarPr
                             selectedProfile={query.routingProfile}
                             openSettingsHandle={() => Dispatcher.dispatch(new ToggleShowSettings())}
                         />
-                        <SettingsBox />
-                        <CustomModelBox
+                        <SettingsBox
                             encodedValues={encodedValues}
                             queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                         />

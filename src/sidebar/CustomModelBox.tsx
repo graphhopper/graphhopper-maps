@@ -162,57 +162,49 @@ export default function CustomModelBox({ encodedValues, queryOngoing }: CustomMo
 
     return (
         <>
-            {/*we use 'display: none' instead of conditional rendering to preserve the custom model box's state when it is closed*/}
-            <div
-                ref={divElement}
-                className={styles.customModelBox}
-                style={{ display: customModelEnabled && showSettings ? 'block' : 'none' }}
-                onKeyUp={triggerRouting}
-            />
-            {customModelEnabled && showSettings && (
-                <div className={styles.customModelBoxBottomBar}>
-                    <select
-                        className={styles.examples}
-                        onChange={(e: any) => {
-                            editor.value = customModel2prettyString(examples[e.target.value])
-                            // When selecting an example we request a routing request and act like the model is valid,
-                            // even when it is not according to the editor validation.
-                            dispatchCustomModel(JSON.stringify(examples[e.target.value]), true, true)
-                        }}
-                    >
-                        <option value="default_example">{tr('examples_custom_model')}</option>
-                        <option value="exclude_motorway">{tr('exclude_motorway_example')}</option>
-                        <option value="limit_speed">{tr('limit_speed_example')}</option>
-                        <option value="cargo_bike">{tr('cargo_bike_example')}</option>
-                        <option value="exclude_area">{tr('exclude_area_example')}</option>
-                        <option value="combined">{tr('combined_example')}</option>
-                    </select>
+            <div ref={divElement} className={styles.customModelBox} onKeyUp={triggerRouting} />
+            <div className={styles.customModelBoxBottomBar}>
+                <select
+                    className={styles.examples}
+                    onChange={(e: any) => {
+                        editor.value = customModel2prettyString(examples[e.target.value])
+                        // When selecting an example we request a routing request and act like the model is valid,
+                        // even when it is not according to the editor validation.
+                        dispatchCustomModel(JSON.stringify(examples[e.target.value]), true, true)
+                    }}
+                >
+                    <option value="default_example">{tr('examples_custom_model')}</option>
+                    <option value="exclude_motorway">{tr('exclude_motorway_example')}</option>
+                    <option value="limit_speed">{tr('limit_speed_example')}</option>
+                    <option value="cargo_bike">{tr('cargo_bike_example')}</option>
+                    <option value="exclude_area">{tr('exclude_area_example')}</option>
+                    <option value="combined">{tr('combined_example')}</option>
+                </select>
 
-                    <a
-                        target="_blank"
-                        className={styles.helpLink}
-                        href="https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md"
+                <a
+                    target="_blank"
+                    className={styles.helpLink}
+                    href="https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md"
+                >
+                    {tr('help_custom_model')}
+                </a>
+                <div
+                    className={`${styles.applyButton} ${!isValid ? styles.applyButtonInvalid : ''} ${
+                        queryOngoing ? styles.applyButtonProgress : ''
+                    }`}
+                >
+                    <PlainButton
+                        title={tr('Apply custom model of text box to routing request')}
+                        disabled={!isValid || queryOngoing}
+                        // If the model was invalid the button would be disabled anyway, so it does not really matter
+                        // if we set valid to true or false here.
+                        onClick={() => dispatchCustomModel(editor.value, true, true)}
                     >
-                        {tr('help_custom_model')}
-                    </a>
-                    <div
-                        className={`${styles.applyButton} ${!isValid ? styles.applyButtonInvalid : ''} ${
-                            queryOngoing ? styles.applyButtonProgress : ''
-                        }`}
-                    >
-                        <PlainButton
-                            title={tr('Apply custom model of text box to routing request')}
-                            disabled={!isValid || queryOngoing}
-                            // If the model was invalid the button would be disabled anyway, so it does not really matter
-                            // if we set valid to true or false here.
-                            onClick={() => dispatchCustomModel(editor.value, true, true)}
-                        >
-                            {tr('apply_custom_model')}
-                        </PlainButton>
-                        {queryOngoing && <div className={styles.infiniteProgressBar}></div>}
-                    </div>
+                        {tr('apply_custom_model')}
+                    </PlainButton>
+                    {queryOngoing && <div className={styles.infiniteProgressBar}></div>}
                 </div>
-            )}
+            </div>
         </>
     )
 }

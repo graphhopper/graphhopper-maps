@@ -162,8 +162,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                             selectedProfile={query.routingProfile}
                             openSettingsHandle={() => Dispatcher.dispatch(new ToggleShowSettings())}
                         />
-                        <SettingsBox />
-                        <CustomModelBox
+                        <SettingsBox
                             encodedValues={encodedValues}
                             queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                         />
