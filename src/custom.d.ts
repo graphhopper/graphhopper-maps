@@ -3,6 +3,7 @@ declare module '*.svg'
 declare module '*.png'
 declare module 'heightgraph/src/heightgraph'
 declare module 'custom-model-editor/src/index'
+declare module 'custom-model-editor/src/validate_json'
 
 declare module 'config' {
     const routingApi: string

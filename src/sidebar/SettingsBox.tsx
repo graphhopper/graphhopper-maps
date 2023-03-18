@@ -1,4 +1,10 @@
-import { ClearRoute, DismissLastError, SetCustomModelBoxEnabled, ToggleDistanceUnits } from '@/actions/Actions'
+import {
+    ClearRoute,
+    DismissLastError,
+    SetCustomModel,
+    SetCustomModelBoxEnabled,
+    ToggleDistanceUnits
+} from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
@@ -8,7 +14,6 @@ import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
 import { SettingsContext } from '@/stores/SettingsStore'
 import CustomModelBox from '@/sidebar/CustomModelBox'
-import { RequestState } from '@/stores/QueryStore'
 
 export default function SettingsBox({
     encodedValues,

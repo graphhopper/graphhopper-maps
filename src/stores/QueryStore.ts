@@ -82,12 +82,12 @@ export default class QueryStore extends Store<QueryStoreState> {
     private readonly settingsStore: SettingsStore
 
     constructor(api: Api, settingsStore: SettingsStore) {
-        super(QueryStore.getInitialState())
+        super(QueryStore.getInitialState(settingsStore.state.customModel))
         this.api = api
         this.settingsStore = settingsStore
     }
 
-    private static getInitialState(): QueryStoreState {
+    private static getInitialState(cm: CustomModel | null): QueryStoreState {
         return {
             profiles: [],
             queryPoints: [
@@ -102,7 +102,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
-            customModel: null,
+            customModel: cm,
             zoom: true,
         }
     }

@@ -42,7 +42,6 @@ import useAreasLayer from '@/layers/UseAreasLayer'
 import SettingsBox from '@/sidebar/SettingsBox'
 import Dispatcher from '@/stores/Dispatcher'
 import { ToggleShowSettings } from '@/actions/Actions'
-import CustomModelBox from '@/sidebar/CustomModelBox'
 import { SettingsContext } from '@/stores/SettingsStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'

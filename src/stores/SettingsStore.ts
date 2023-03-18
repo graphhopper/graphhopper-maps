@@ -3,6 +3,7 @@ import { Action } from '@/stores/Dispatcher'
 import { SetCustomModel, SetCustomModelBoxEnabled, ToggleDistanceUnits, ToggleShowSettings } from '@/actions/Actions'
 import React from 'react'
 import { CustomModel } from '@/stores/QueryStore'
+import {validateJson} from "custom-model-editor/src/validate_json"
 
 export interface Settings {
     showDistanceInMiles: boolean
@@ -24,12 +25,13 @@ export const SettingsContext = React.createContext<Settings>({
 
 export default class SettingsStore extends Store<Settings> {
     constructor(initialCustomModelStr: string | null = null) {
+        const valid = initialCustomModelStr ? validateJson(initialCustomModelStr).errors.length == 0 : false
         super({
             showDistanceInMiles: false,
             showSettings: false,
-            customModel: null,
-            customModelValid: false,
-            customModelEnabled: initialCustomModelStr != null,
+            customModel: initialCustomModelStr && valid ? JSON.parse(initialCustomModelStr) : null,
+            customModelValid: valid,
+            customModelEnabled: valid,
             initialCustomModelStr: initialCustomModelStr,
         })
     }

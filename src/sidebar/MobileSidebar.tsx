@@ -13,7 +13,6 @@ import CloseInputsIcon from './unfold_less.svg'
 import SettingsBox from '@/sidebar/SettingsBox'
 import Dispatcher from '@/stores/Dispatcher'
 import { ToggleShowSettings } from '@/actions/Actions'
-import CustomModelBox from '@/sidebar/CustomModelBox'
 
 type MobileSidebarProps = {
     query: QueryStoreState

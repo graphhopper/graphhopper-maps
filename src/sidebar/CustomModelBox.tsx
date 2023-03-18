@@ -105,27 +105,24 @@ export default function CustomModelBox({ encodedValues, queryOngoing }: CustomMo
         instance.cm.setSize('100%', '100%')
         if (customModel != null) {
             // init from settings in case of entire app recreation like window resizing
-            initialCustomModelStr = customModel2prettyString(customModel)
+            instance.value = customModel2prettyString(customModel)
         } else if (initialCustomModelStr != null) {
-            // prettify the custom model if it can be parsed or leave it as is otherwise
             try {
-                initialCustomModelStr = customModel2prettyString(JSON.parse(initialCustomModelStr))
-            } catch (e) {}
-        }
-        instance.value =
-            initialCustomModelStr == null
-                ? customModel2prettyString(examples['default_example'])
-                : initialCustomModelStr
-
-        if (customModelEnabled)
-            // When we got a custom model from the url parameters we send the request right away
+                instance.value = customModel2prettyString(JSON.parse(initialCustomModelStr))
+            } catch (e) {
+                instance.value = initialCustomModelStr
+            }
+        } else {
+            instance.value = customModel2prettyString(examples['default_example'])
             dispatchCustomModel(instance.value, true, true)
+        }
 
         instance.validListener = (valid: boolean) => {
-            // We update the app states' custom model, but we are not requesting a routing query every time the model
+            // We update the app state's custom model, but we are not requesting a routing query every time the model
             // becomes valid. Updating the model is still important, because the routing request might be triggered by
             // moving markers etc.
-            dispatchCustomModel(instance.value, valid, false)
+            // TODO NOW shouldn't we better ignore invalid custom models when moving markers and use last valid custom model for this?
+            // dispatchCustomModel(instance.value, valid, false)
             setIsValid(valid)
         }
     }, [])
