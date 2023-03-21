@@ -6,7 +6,7 @@ import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { DismissLastError, SetCustomModel } from '@/actions/Actions'
+import { SetCustomModel } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
@@ -71,6 +71,7 @@ const examples: { [key: string]: CustomModel } = {
 
 export interface CustomModelBoxProps {
     enabled: boolean
+    customModel: CustomModel | null
     encodedValues: object[]
     initialCustomModelStr: string | null
     queryOngoing: boolean
@@ -78,6 +79,7 @@ export interface CustomModelBoxProps {
 
 export default function CustomModelBox({
     enabled,
+    customModel,
     encodedValues,
     initialCustomModelStr,
     queryOngoing,
@@ -100,9 +102,11 @@ export default function CustomModelBox({
             } catch (e) {}
         }
         instance.value =
-            initialCustomModelStr == null
-                ? customModel2prettyString(examples['default_example'])
-                : initialCustomModelStr
+            initialCustomModelStr != null
+                ? initialCustomModelStr
+                : customModel != null
+                ? customModel2prettyString(customModel)
+                : customModel2prettyString(examples['default_example'])
 
         if (enabled)
             // When we got a custom model from the url parameters we send the request right away
