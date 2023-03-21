@@ -17,6 +17,7 @@ import {
     SetPoint,
     SetQueryPoints,
     SetVehicleProfile,
+    ToggleShowSettings,
 } from '@/actions/Actions'
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist } from '@/distUtils'
@@ -41,6 +42,8 @@ export interface QueryStoreState {
     readonly zoom: boolean
     // todo: ... and this also
     readonly initialCustomModelStr: string | null
+    // todo: ... and this
+    readonly showSettings: boolean
 }
 
 export interface QueryPoint {
@@ -108,6 +111,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             customModel: null,
             zoom: true,
             initialCustomModelStr: initialCustomModelStr,
+            showSettings: false,
         }
     }
 
@@ -270,6 +274,11 @@ export default class QueryStore extends Store<QueryStoreState> {
             else return newState
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
+        } else if (action instanceof ToggleShowSettings) {
+            return {
+                ...state,
+                showSettings: !state.showSettings,
+            }
         } else if (action instanceof SetCustomModelBoxEnabled) {
             const newState: QueryStoreState = {
                 ...state,

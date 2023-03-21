@@ -41,6 +41,7 @@ import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
+import SettingsBox from '@/sidebar/SettingsBox'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -157,16 +158,18 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            customModelAllowed={true}
-                            customModelEnabled={query.customModelEnabled}
+                            showSettings={query.showSettings}
                         />
-                        <CustomModelBox
-                            enabled={query.customModelEnabled}
-                            customModel={query.customModel}
-                            encodedValues={encodedValues}
-                            initialCustomModelStr={query.initialCustomModelStr}
-                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                        />
+                        {query.showSettings && <SettingsBox customModelEnabled={query.customModelEnabled} />}
+                        {query.customModelEnabled && (
+                            <CustomModelBox
+                                enabled={query.customModelEnabled}
+                                customModel={query.customModel}
+                                encodedValues={encodedValues}
+                                initialCustomModelStr={query.initialCustomModelStr}
+                                queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                            />
+                        )}
                         <Search points={query.queryPoints} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
@@ -202,11 +205,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions }: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar query={query} route={route} error={error} />
+                <MobileSidebar query={query} route={route} error={error} encodedValues={encodedValues} />
             </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />
