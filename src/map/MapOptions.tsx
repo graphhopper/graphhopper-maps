@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import styles from './MapOptions.modules.css'
+import styles from './MapOptions.module.css'
 import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SelectMapLayer, ToggleRoutingGraph, ToggleUrbanDensityLayer } from '@/actions/Actions'

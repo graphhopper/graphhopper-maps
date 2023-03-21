@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './RoutingProfiles.modules.css'
+import styles from './RoutingProfiles.module.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { ClearRoute, DismissLastError, SetCustomModelBoxEnabled, SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'

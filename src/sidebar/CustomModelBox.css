@@ -1,0 +1,15 @@
+.cm-s-default .cm-string {
+    color: #067D17;
+}
+
+.cm-s-default .cm-property {
+    color: #871094;
+}
+
+.cm-s-default .cm-number {
+    color: #1750EB;
+}
+
+.cm-s-default .cm-atom {
+    color: #0033B3;
+}
