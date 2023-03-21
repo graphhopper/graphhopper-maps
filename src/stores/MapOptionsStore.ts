@@ -69,7 +69,9 @@ const osmCycl: RasterStyle = {
         'https://b.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
         'https://c.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
     ],
-    attribution: osmAttribution + ', &copy; <a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" target="_blank">CyclOSM</a>',
+    attribution:
+        osmAttribution +
+        ', &copy; <a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" target="_blank">CyclOSM</a>',
     maxZoom: 19,
 }
 
@@ -187,7 +189,7 @@ const styleOptions: StyleOption[] = [
     kurviger,
     mapillion,
     lyrk,
-    wanderreitkarte
+    wanderreitkarte,
 ]
 
 export default class MapOptionsStore extends Store<MapOptionsStoreState> {

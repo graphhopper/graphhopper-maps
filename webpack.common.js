@@ -58,7 +58,7 @@ module.exports = {
                         loader: 'css-loader',
                         options: {
                             modules: {
-                                auto: (resourcePath) => resourcePath.endsWith(".module.css")
+                                auto: resourcePath => resourcePath.endsWith('.module.css'),
                             },
                         },
                     },
