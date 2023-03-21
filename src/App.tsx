@@ -161,7 +161,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                             showSettings={query.showSettings}
                         />
                         {query.showSettings && <SettingsBox customModelEnabled={query.customModelEnabled} />}
-                        {query.customModelEnabled && (
+                        {query.showSettings && query.customModelEnabled && (
                             <CustomModelBox
                                 enabled={query.customModelEnabled}
                                 customModel={query.customModel}

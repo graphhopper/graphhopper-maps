@@ -61,7 +61,7 @@ export default function ({ query, route, error, encodedValues }: MobileSidebarPr
                             showSettings={query.showSettings}
                         />
                         {query.showSettings && <SettingsBox customModelEnabled={query.customModelEnabled} />}
-                        {query.customModelEnabled && (
+                        {query.showSettings && query.customModelEnabled && (
                             <CustomModelBox
                                 enabled={query.customModelEnabled}
                                 customModel={query.customModel}
