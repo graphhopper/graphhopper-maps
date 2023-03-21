@@ -12,25 +12,6 @@ const develop = {
         port: 3000,
         host: '0.0.0.0',
     },
-    module: {
-        rules: [
-            {
-                test: /\.css$/,
-                exclude: path.resolve(__dirname, 'node_modules'),
-                use: [
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            modules: {
-                                auto: resourcePath => resourcePath.endsWith('.module.css'),
-                                localIdentName: '[path][name]__[local]',
-                            },
-                        },
-                    },
-                ],
-            },
-        ],
-    },
 }
 
 const mergePattern = {
