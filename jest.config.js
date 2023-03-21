@@ -6,7 +6,7 @@ module.exports = {
         config: '<rootDir>/config.js',
     },
     transform: {
-        "^.+\\.js?$": "ts-jest"
+        '^.+\\.js?$': 'ts-jest',
     },
-    transformIgnorePatterns: [ `<rootDir>/node_modules/(?!custom-model-editor/)` ]
+    transformIgnorePatterns: [`<rootDir>/node_modules/(?!custom-model-editor/)`],
 }
