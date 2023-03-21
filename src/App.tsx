@@ -162,6 +162,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         />
                         <CustomModelBox
                             enabled={query.customModelEnabled}
+                            customModel={query.customModel}
                             encodedValues={encodedValues}
                             initialCustomModelStr={query.initialCustomModelStr}
                             queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
