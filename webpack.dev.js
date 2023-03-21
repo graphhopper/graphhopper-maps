@@ -22,6 +22,7 @@ const develop = {
                         loader: 'css-loader',
                         options: {
                             modules: {
+                                auto: (resourcePath) => resourcePath.endsWith(".module.css"),
                                 localIdentName: '[path][name]__[local]',
                             },
                         },

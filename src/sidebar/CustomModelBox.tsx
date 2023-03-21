@@ -1,8 +1,7 @@
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/lint/lint.css'
-// todo: this belongs to this app and we should not take it from the demo...
-import 'custom-model-editor/demo/style.css'
+import '@/sidebar/CustomModelBox.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
