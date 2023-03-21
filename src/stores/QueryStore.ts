@@ -35,7 +35,6 @@ export interface QueryStoreState {
     readonly currentRequest: CurrentRequest
     readonly maxAlternativeRoutes: number
     readonly routingProfile: RoutingProfile
-    readonly customModel: CustomModel | null
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
 }
@@ -82,12 +81,12 @@ export default class QueryStore extends Store<QueryStoreState> {
     private readonly settingsStore: SettingsStore
 
     constructor(api: Api, settingsStore: SettingsStore) {
-        super(QueryStore.getInitialState(settingsStore.state.customModel))
+        super(QueryStore.getInitialState())
         this.api = api
         this.settingsStore = settingsStore
     }
 
-    private static getInitialState(cm: CustomModel | null): QueryStoreState {
+    private static getInitialState(): QueryStoreState {
         return {
             profiles: [],
             queryPoints: [
@@ -102,7 +101,6 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
-            customModel: cm,
             zoom: true,
         }
     }
@@ -256,13 +254,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             return this.routeIfReady(newState)
         } else if (action instanceof SetCustomModel) {
-            const newState: QueryStoreState = {
-                ...state,
-                customModel: action.customModel,
-            }
-
-            if (action.issueRouteRequest) return this.routeIfReady(newState)
-            else return newState
+            if (action.issueRouteRequest) return this.routeIfReady(state)
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
         } else if (action instanceof SetCustomModelBoxEnabled) {
@@ -288,14 +280,16 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     private routeIfReady(state: QueryStoreState): QueryStoreState {
         const cmEnabled = this.settingsStore.state.customModelEnabled
-        const cmValid = this.settingsStore.state.customModelValid
-        if (QueryStore.isReadyToRoute(state, cmEnabled, cmValid)) {
+        const cm = this.settingsStore.state.customModelValid && cmEnabled ? this.settingsStore.state.customModel : null
+        if (cmEnabled && !cm) return state
+
+        if (QueryStore.isReadyToRoute(state)) {
             let requests
             const maxDistance = getMaxDistance(state.queryPoints)
             if (cmEnabled) {
                 if (maxDistance < 200_000) {
                     // Use a single request, possibly including alternatives when custom models are enabled.
-                    requests = [QueryStore.buildRouteRequest(state, cmEnabled)]
+                    requests = [QueryStore.buildRouteRequest(state, cm)]
                 } else if (maxDistance < 500_000) {
                     // Force no alternatives for longer custom model routes.
                     requests = [
@@ -304,7 +298,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                                 ...state,
                                 maxAlternativeRoutes: 1,
                             },
-                            cmEnabled
+                            cm
                         ),
                     ]
                 } else {
@@ -329,7 +323,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                             ...state,
                             maxAlternativeRoutes: 1,
                         },
-                        cmEnabled
+                        cm
                     ),
                 ]
                 // ... and then a second, slower request including alternatives if they are enabled.
@@ -338,7 +332,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     state.maxAlternativeRoutes > 1 &&
                     (ApiImpl.isMotorVehicle(state.routingProfile.name) || maxDistance < 500_000)
                 )
-                    requests.push(QueryStore.buildRouteRequest(state, cmEnabled))
+                    requests.push(QueryStore.buildRouteRequest(state, cm))
             }
 
             return {
@@ -361,10 +355,8 @@ export default class QueryStore extends Store<QueryStoreState> {
         return subRequests
     }
 
-    private static isReadyToRoute(state: QueryStoreState, cmEnabled: boolean, cmValid: boolean) {
+    private static isReadyToRoute(state: QueryStoreState) {
         // deliberately chose this style of if statements, to make this readable.
-        if (cmEnabled && !state.customModel) return false
-        if (cmEnabled && state.customModel && !cmValid) return false
         if (state.queryPoints.length <= 1) return false
         if (!state.queryPoints.every(point => point.isInitialized)) return false
         if (!state.routingProfile.name) return false
@@ -423,7 +415,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return QueryPointType.Via
     }
 
-    private static buildRouteRequest(state: QueryStoreState, cmEnabled: boolean): RoutingArgs {
+    private static buildRouteRequest(state: QueryStoreState, cm: CustomModel | null): RoutingArgs {
         const coordinates = state.queryPoints.map(point => [point.coordinate.lng, point.coordinate.lat]) as [
             number,
             number
@@ -433,7 +425,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             points: coordinates,
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
-            customModel: cmEnabled ? state.customModel : null,
+            customModel: cm,
             zoom: state.zoom,
         }
     }

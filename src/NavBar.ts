@@ -4,7 +4,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, SelectMapLayer, SetInitialBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
-import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
+import QueryStore, { Coordinate, CustomModel, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
 import { getApi } from '@/api/Api'
 import SettingsStore from '@/stores/SettingsStore'
@@ -33,7 +33,7 @@ export default class NavBar {
         baseUrl: string,
         queryStoreState: QueryStoreState,
         mapState: MapOptionsStoreState,
-        addCustomModel: boolean
+        cm: CustomModel | null
     ) {
         const result = new URL(baseUrl)
         if (queryStoreState.queryPoints.filter(point => point.isInitialized).length > 0) {
@@ -44,8 +44,7 @@ export default class NavBar {
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
-        if (addCustomModel && queryStoreState.customModel)
-            result.searchParams.append('custom_model', JSON.stringify(queryStoreState.customModel))
+        if (cm) result.searchParams.append('custom_model', JSON.stringify(cm))
 
         return result
     }
@@ -166,6 +165,8 @@ export default class NavBar {
             this.queryStore.state,
             this.mapStore.state,
             this.settingsStore.state.customModelEnabled && this.settingsStore.state.customModelValid
+                ? this.settingsStore.state.customModel
+                : null
         ).toString()
     }
 

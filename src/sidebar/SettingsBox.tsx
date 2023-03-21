@@ -3,7 +3,7 @@ import {
     DismissLastError,
     SetCustomModel,
     SetCustomModelBoxEnabled,
-    ToggleDistanceUnits
+    ToggleDistanceUnits,
 } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'

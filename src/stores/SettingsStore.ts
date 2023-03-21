@@ -3,7 +3,7 @@ import { Action } from '@/stores/Dispatcher'
 import { SetCustomModel, SetCustomModelBoxEnabled, ToggleDistanceUnits, ToggleShowSettings } from '@/actions/Actions'
 import React from 'react'
 import { CustomModel } from '@/stores/QueryStore'
-import { validateJson } from "custom-model-editor/src/validate_json"
+import { validateJson } from 'custom-model-editor/src/validate_json'
 
 export interface Settings {
     showDistanceInMiles: boolean
