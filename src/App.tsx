@@ -162,7 +162,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                             showSettings={query.showSettings}
                         />
                         {query.showSettings && <SettingsBox queryStoreState={query} />}
-                        {query.showSettings && (
+                        {query.showSettings && query.customModelEnabled && (
                             <CustomModelBox
                                 enabled={query.customModelEnabled}
                                 encodedValues={encodedValues}
