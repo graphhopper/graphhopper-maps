@@ -1,7 +1,6 @@
 import {
     ClearRoute,
     DismissLastError,
-    SetCustomModel,
     SetCustomModelBoxEnabled,
     ToggleDistanceUnits,
 } from '@/actions/Actions'
@@ -9,20 +8,20 @@ import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
-import { useContext } from 'react'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
-import { SettingsContext } from '@/stores/SettingsStore'
 import CustomModelBox from '@/sidebar/CustomModelBox'
+import {Settings} from "@/stores/SettingsStore";
 
 export default function SettingsBox({
     encodedValues,
     queryOngoing,
+    settings,
 }: {
     encodedValues: object[]
     queryOngoing: boolean
+    settings: Settings
 }) {
-    const settings = useContext(SettingsContext)
     return !settings.showSettings ? (
         <></>
     ) : (
@@ -55,7 +54,7 @@ export default function SettingsBox({
                 </div>
             </div>
             {settings.customModelEnabled && (
-                <CustomModelBox encodedValues={encodedValues} queryOngoing={queryOngoing} />
+                <CustomModelBox encodedValues={encodedValues} queryOngoing={queryOngoing} settings={settings} />
             )}
         </>
     )

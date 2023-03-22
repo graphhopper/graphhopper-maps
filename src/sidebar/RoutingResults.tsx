@@ -13,8 +13,8 @@ import { LineString, Position } from 'geojson'
 import { calcDist } from '@/distUtils'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
-import { SettingsContext } from '@/stores/SettingsStore'
 import { ApiImpl } from '@/api/Api'
+import {ShowDistanceInMilesContext} from "@/ShowDistanceInMilesContext";
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -58,7 +58,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         hasFootways ||
         hasSteepSegments
 
-    const { showDistanceInMiles } = useContext(SettingsContext)
+    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
 
     return (
         <div className={styles.resultRow}>

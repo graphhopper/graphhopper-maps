@@ -1,7 +1,6 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { SetCustomModel, SetCustomModelBoxEnabled, ToggleDistanceUnits, ToggleShowSettings } from '@/actions/Actions'
-import React from 'react'
 import { CustomModel } from '@/stores/QueryStore'
 import { validateJson } from 'custom-model-editor/src/validate_json'
 
@@ -13,15 +12,6 @@ export interface Settings {
     customModelEnabled: boolean
     initialCustomModelStr: string | null
 }
-
-export const SettingsContext = React.createContext<Settings>({
-    showDistanceInMiles: false,
-    showSettings: false,
-    customModel: null,
-    customModelValid: false,
-    customModelEnabled: false,
-    initialCustomModelStr: '',
-})
 
 export default class SettingsStore extends Store<Settings> {
     constructor(initialCustomModelStr: string | null = null) {

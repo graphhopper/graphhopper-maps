@@ -17,24 +17,26 @@ import TruckIcon from './truck.svg'
 import WheelchairIcon from './wheelchair.svg'
 import { tr } from '@/translation/Translation'
 import SettingsSVG from '@/sidebar/settings.svg'
-import { SettingsContext } from '@/stores/SettingsStore'
 
 export default function ({
     routingProfiles,
     selectedProfile,
+ customModelEnabled,
+ showSettings,
     openSettingsHandle,
 }: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
+    customModelEnabled: boolean
+    showSettings: boolean
     openSettingsHandle: () => void
 }) {
-    const settings = useContext(SettingsContext)
     return (
         <div className={styles.profilesParent}>
             <PlainButton
                 title={tr('show_settings')}
-                style={{ boxShadow: settings.customModelEnabled ? '1px 1px gray' : '' }}
-                className={settings.showSettings ? styles.enabledSettings : styles.settings}
+                style={{ boxShadow: customModelEnabled ? '1px 1px gray' : '' }}
+                className={showSettings ? styles.enabledSettings : styles.settings}
                 onClick={openSettingsHandle}
             >
                 <SettingsSVG />

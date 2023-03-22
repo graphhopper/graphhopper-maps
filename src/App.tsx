@@ -33,6 +33,7 @@ import { getMap } from '@/map/map'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
+import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import MapPopups from '@/map/MapPopups'
 import Menu from '@/sidebar/menu.svg'
@@ -42,7 +43,7 @@ import useAreasLayer from '@/layers/UseAreasLayer'
 import SettingsBox from '@/sidebar/SettingsBox'
 import Dispatcher from '@/stores/Dispatcher'
 import { ToggleShowSettings } from '@/actions/Actions'
-import { SettingsContext } from '@/stores/SettingsStore'
+import {Settings} from "@/stores/SettingsStore";
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -109,7 +110,7 @@ export default function App() {
     usePathDetailsLayer(map, pathDetails)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
-        <SettingsContext.Provider value={settings}>
+        <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
             <div className={styles.appWrapper}>
                 <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
@@ -121,6 +122,7 @@ export default function App() {
                         mapOptions={mapOptions}
                         error={error}
                         encodedValues={info.encoded_values}
+                        settings={settings}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -130,10 +132,11 @@ export default function App() {
                         mapOptions={mapOptions}
                         error={error}
                         encodedValues={info.encoded_values}
+                        settings={settings}
                     />
                 )}
             </div>
-        </SettingsContext.Provider>
+        </ShowDistanceInMilesContext.Provider>
     )
 }
 
@@ -144,9 +147,10 @@ interface LayoutProps {
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     encodedValues: object[]
+    settings: Settings
 }
 
-function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues }: LayoutProps) {
+function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, settings }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     return (
         <>
@@ -159,11 +163,14 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
+                            customModelEnabled={settings.customModelEnabled}
+                            showSettings={settings.showSettings}
                             openSettingsHandle={() => Dispatcher.dispatch(new ToggleShowSettings())}
                         />
                         <SettingsBox
                             encodedValues={encodedValues}
                             queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                            settings={settings}
                         />
                         <Search points={query.queryPoints} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
@@ -200,11 +207,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues }: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, settings }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar query={query} route={route} error={error} encodedValues={encodedValues} />
+                <MobileSidebar query={query} route={route} error={error} encodedValues={encodedValues} settings={settings} />
             </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />

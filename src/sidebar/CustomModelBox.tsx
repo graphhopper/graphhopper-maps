@@ -10,7 +10,7 @@ import { SetCustomModel } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
-import { SettingsContext } from '@/stores/SettingsStore'
+import {Settings} from "@/stores/SettingsStore";
 
 const examples: { [key: string]: CustomModel } = {
     default_example: {
@@ -88,10 +88,11 @@ function convertEV(encodedValues: object[]): any {
 export interface CustomModelBoxProps {
     encodedValues: object[]
     queryOngoing: boolean
+    settings: Settings
 }
 
-export default function CustomModelBox({ encodedValues, queryOngoing }: CustomModelBoxProps) {
-    let { initialCustomModelStr, customModelEnabled, showSettings, customModel } = useContext(SettingsContext)
+export default function CustomModelBox({ encodedValues, queryOngoing, settings }: CustomModelBoxProps) {
+    const { initialCustomModelStr, customModelEnabled, showSettings, customModel } = settings
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)

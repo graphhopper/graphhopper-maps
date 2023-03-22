@@ -13,15 +13,17 @@ import CloseInputsIcon from './unfold_less.svg'
 import SettingsBox from '@/sidebar/SettingsBox'
 import Dispatcher from '@/stores/Dispatcher'
 import { ToggleShowSettings } from '@/actions/Actions'
+import {Settings} from "@/stores/SettingsStore";
 
 type MobileSidebarProps = {
     query: QueryStoreState
     route: RouteStoreState
     error: ErrorStoreState
     encodedValues: object[]
+    settings: Settings
 }
 
-export default function ({ query, route, error, encodedValues }: MobileSidebarProps) {
+export default function ({ query, route, error, encodedValues, settings }: MobileSidebarProps) {
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
     const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen && hasResult(route))
@@ -59,11 +61,14 @@ export default function ({ query, route, error, encodedValues }: MobileSidebarPr
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
+                            customModelEnabled={settings.customModelEnabled}
+                            showSettings={settings.showSettings}
                             openSettingsHandle={() => Dispatcher.dispatch(new ToggleShowSettings())}
                         />
                         <SettingsBox
                             encodedValues={encodedValues}
                             queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                            settings={settings}
                         />
                         <Search points={query.queryPoints} />
                     </div>
