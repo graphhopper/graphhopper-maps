@@ -121,8 +121,7 @@ export default function CustomModelBox({ encodedValues, queryOngoing, settings }
             // We update the app state's custom model, but we are not requesting a routing query every time the model
             // becomes valid. Updating the model is still important, because the routing request might be triggered by
             // moving markers etc.
-            // TODO NOW shouldn't we better ignore invalid custom models when moving markers and use last valid custom model for this?
-            // dispatchCustomModel(instance.value, valid, false)
+            dispatchCustomModel(instance.value, valid, false)
             setIsValid(valid)
         }
     }, [])
