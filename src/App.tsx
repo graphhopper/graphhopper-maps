@@ -41,6 +41,7 @@ import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
+import SettingsBox from '@/sidebar/SettingsBox'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -158,13 +159,17 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
                             customModelEnabled={query.customModelEnabled}
+                            showSettings={query.showSettings}
                         />
-                        <CustomModelBox
-                            enabled={query.customModelEnabled}
-                            encodedValues={encodedValues}
-                            initialCustomModelStr={query.initialCustomModelStr}
-                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                        />
+                        {query.showSettings && <SettingsBox queryStoreState={query} />}
+                        {query.showSettings && (
+                            <CustomModelBox
+                                enabled={query.customModelEnabled}
+                                encodedValues={encodedValues}
+                                initialCustomModelStr={query.initialCustomModelStr}
+                                queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                            />
+                        )}
                         <Search points={query.queryPoints} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
@@ -204,7 +209,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar query={query} route={route} error={error} encodedValues={encodedValues}/>
+                <MobileSidebar query={query} route={route} error={error} encodedValues={encodedValues} />
             </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />

@@ -104,15 +104,11 @@
 }
 
 .addSearchBox {
+    color: gray;
+    font-size: 14px;
     flex-grow: 1;
     display: flex;
     flex-direction: row;
-}
-
-.addSearchBox,
-.mikm {
-    color: gray;
-    font-size: 14px;
 }
 
 .infoButton svg {

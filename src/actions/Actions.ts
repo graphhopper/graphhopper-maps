@@ -225,3 +225,5 @@ export class InstructionClicked implements Action {
 }
 
 export class ToggleDistanceUnits implements Action {}
+
+export class ToggleShowSettings implements Action {}

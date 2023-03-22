@@ -10,6 +10,8 @@ import { MarkerComponent } from '@/map/Marker'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
+import SettingsBox from '@/sidebar/SettingsBox'
+import CustomModelBox from '@/sidebar/CustomModelBox'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -57,13 +59,17 @@ export default function ({ query, route, error, encodedValues }: MobileSidebarPr
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
                             customModelEnabled={query.customModelEnabled}
+                            showSettings={query.showSettings}
                         />
-                        <CustomModelBox
-                            enabled={query.customModelEnabled}
-                            encodedValues={encodedValues}
-                            initialCustomModelStr={query.initialCustomModelStr}
-                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                        />
+                        {query.showSettings && <SettingsBox queryStoreState={query} />}
+                        {query.showSettings && (
+                            <CustomModelBox
+                                enabled={query.customModelEnabled}
+                                encodedValues={encodedValues}
+                                initialCustomModelStr={query.initialCustomModelStr}
+                                queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                            />
+                        )}
                         <Search points={query.queryPoints} />
                     </div>
                 )}

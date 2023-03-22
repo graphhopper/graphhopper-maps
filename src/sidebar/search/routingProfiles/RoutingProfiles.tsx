@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './RoutingProfiles.module.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearRoute, DismissLastError, SetCustomModelBoxEnabled, SetVehicleProfile } from '@/actions/Actions'
+import { SetVehicleProfile, ToggleShowSettings } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import PlainButton from '@/PlainButton'
 import BicycleIcon from './bike.svg'
@@ -22,21 +22,21 @@ export default function ({
     routingProfiles,
     selectedProfile,
     customModelEnabled,
+    showSettings,
 }: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
     customModelEnabled: boolean
+    showSettings: boolean
 }) {
     return (
         <div className={styles.profilesParent}>
             <PlainButton
-                title={tr('open_custom_model_box')}
-                className={customModelEnabled ? styles.enabledSettings : styles.settings}
-                onClick={() => {
-                    if (customModelEnabled) Dispatcher.dispatch(new DismissLastError())
-                    Dispatcher.dispatch(new ClearRoute())
-                    Dispatcher.dispatch(new SetCustomModelBoxEnabled(!customModelEnabled))
-                }}
+                title={tr('show_settings')}
+                // todonow: move to css?
+                style={{ boxShadow: customModelEnabled ? '1px 1px gray' : '' }}
+                className={showSettings ? styles.enabledSettings : styles.settings}
+                onClick={() => Dispatcher.dispatch(new ToggleShowSettings())}
             >
                 <SettingsSVG />
             </PlainButton>
