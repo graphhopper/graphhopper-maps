@@ -42,6 +42,7 @@ import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import SettingsBox from '@/sidebar/SettingsBox'
+import { Settings } from '@/stores/SettingsStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -120,6 +121,7 @@ export default function App() {
                         mapOptions={mapOptions}
                         error={error}
                         encodedValues={info.encoded_values}
+                        settings={settings}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -129,6 +131,7 @@ export default function App() {
                         mapOptions={mapOptions}
                         error={error}
                         encodedValues={info.encoded_values}
+                        settings={settings}
                     />
                 )}
             </div>
@@ -143,9 +146,10 @@ interface LayoutProps {
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     encodedValues: object[]
+    settings: Settings
 }
 
-function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues }: LayoutProps) {
+function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, settings }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     return (
         <>
@@ -159,10 +163,10 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
                             customModelEnabled={query.customModelEnabled}
-                            showSettings={query.showSettings}
+                            showSettings={settings.showSettings}
                         />
-                        {query.showSettings && <SettingsBox queryStoreState={query} />}
-                        {query.showSettings && query.customModelEnabled && (
+                        {settings.showSettings && <SettingsBox queryStoreState={query} />}
+                        {settings.showSettings && query.customModelEnabled && (
                             <CustomModelBox
                                 customModelEnabled={query.customModelEnabled}
                                 encodedValues={encodedValues}
@@ -205,11 +209,17 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues }: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, settings }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar query={query} route={route} error={error} encodedValues={encodedValues} />
+                <MobileSidebar
+                    query={query}
+                    route={route}
+                    error={error}
+                    encodedValues={encodedValues}
+                    settings={settings}
+                />
             </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />

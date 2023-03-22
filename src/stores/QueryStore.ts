@@ -40,8 +40,6 @@ export interface QueryStoreState {
     readonly customModelStr: string
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
-    // todonow: ... and this
-    readonly showSettings: boolean
 }
 
 export interface QueryPoint {
@@ -115,7 +113,6 @@ export default class QueryStore extends Store<QueryStoreState> {
             customModelEnabled: customModelEnabledInitially,
             customModelStr: initialCustomModelStr,
             zoom: true,
-            showSettings: false,
         }
     }
 
@@ -275,11 +272,6 @@ export default class QueryStore extends Store<QueryStoreState> {
             return action.issueRoutingRequest ? this.routeIfReady(newState) : newState
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
-        } else if (action instanceof ToggleShowSettings) {
-            return {
-                ...state,
-                showSettings: !state.showSettings,
-            }
         } else if (action instanceof SetCustomModelBoxEnabled) {
             const newState: QueryStoreState = {
                 ...state,

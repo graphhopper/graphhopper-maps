@@ -12,15 +12,17 @@ import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import SettingsBox from '@/sidebar/SettingsBox'
 import CustomModelBox from '@/sidebar/CustomModelBox'
+import { Settings } from '@/stores/SettingsStore'
 
 type MobileSidebarProps = {
     query: QueryStoreState
     route: RouteStoreState
     error: ErrorStoreState
     encodedValues: object[]
+    settings: Settings
 }
 
-export default function ({ query, route, error, encodedValues }: MobileSidebarProps) {
+export default function ({ query, route, error, encodedValues, settings }: MobileSidebarProps) {
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
     const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen && hasResult(route))
@@ -59,10 +61,10 @@ export default function ({ query, route, error, encodedValues }: MobileSidebarPr
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
                             customModelEnabled={query.customModelEnabled}
-                            showSettings={query.showSettings}
+                            showSettings={settings.showSettings}
                         />
-                        {query.showSettings && <SettingsBox queryStoreState={query} />}
-                        {query.showSettings && query.customModelEnabled && (
+                        {settings.showSettings && <SettingsBox queryStoreState={query} />}
+                        {settings.showSettings && query.customModelEnabled && (
                             <CustomModelBox
                                 customModelEnabled={query.customModelEnabled}
                                 encodedValues={encodedValues}
