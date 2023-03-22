@@ -2,7 +2,6 @@ import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { SetCustomModel, SetCustomModelBoxEnabled, ToggleDistanceUnits, ToggleShowSettings } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
-import { validateJson } from 'custom-model-editor/src/validate_json'
 
 export interface Settings {
     showDistanceInMiles: boolean
@@ -15,13 +14,12 @@ export interface Settings {
 
 export default class SettingsStore extends Store<Settings> {
     constructor(initialCustomModelStr: string | null = null) {
-        const valid = initialCustomModelStr ? validateJson(initialCustomModelStr).errors.length == 0 : false
         super({
             showDistanceInMiles: false,
             showSettings: false,
-            customModel: initialCustomModelStr && valid ? JSON.parse(initialCustomModelStr) : null,
-            customModelValid: valid,
-            customModelEnabled: valid,
+            customModel: null, // initialCustomModelStr will be parsed later. We cannot report errors that early.
+            customModelValid: false,
+            customModelEnabled: !!initialCustomModelStr,
             initialCustomModelStr: initialCustomModelStr,
         })
     }

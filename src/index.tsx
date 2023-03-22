@@ -1,6 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-
+import { validateJson } from 'custom-model-editor/src/validate_json'
 import { setTranslation } from '@/translation/Translation'
 import App from '@/App'
 import {
@@ -28,7 +28,7 @@ import MapActionReceiver from '@/stores/MapActionReceiver'
 import { createMap, getMap, setMap } from '@/map/map'
 import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
-import { ErrorAction, InfoReceived } from '@/actions/Actions'
+import { ErrorAction, InfoReceived, SetCustomModel } from '@/actions/Actions'
 
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 
@@ -72,6 +72,19 @@ Dispatcher.register(getMapFeatureStore())
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
 const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
 Dispatcher.register(mapActionReceiver)
+
+if (initialCustomModelStr) {
+    try {
+        const rsp = validateJson(initialCustomModelStr)
+        if(rsp.errors.length == 0 && rsp.jsonErrors.length == 0)
+            Dispatcher.dispatch(new SetCustomModel(JSON.parse(initialCustomModelStr), true))
+        else
+            Dispatcher.dispatch(new ErrorAction('Open settings to fix error in custom model'))
+    } catch (e: any) {
+        Dispatcher.dispatch(new ErrorAction('Open settings to fix error in custom model: ' + e.toString()))
+        console.error('invalid custom model ' + initialCustomModelStr)
+    }
+}
 
 const navBar = new NavBar(getQueryStore(), getMapOptionsStore(), getSettingsStore())
 
