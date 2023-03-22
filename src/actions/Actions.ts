@@ -85,23 +85,13 @@ export class SetCustomModelBoxEnabled implements Action {
     }
 }
 
-export class SetCustomModelStr implements Action {
-    readonly customModelStr: string
-
-    constructor(customModelStr: string) {
-        this.customModelStr = customModelStr
-    }
-}
-
 export class SetCustomModel implements Action {
-    readonly customModel: CustomModel | null
-    readonly valid: boolean
-    readonly issueRouteRequest
+    readonly customModelStr: string
+    readonly issueRoutingRequest: boolean
 
-    constructor(customModel: CustomModel | null, valid: boolean, issueRouteRequest = false) {
-        this.customModel = customModel
-        this.valid = valid
-        this.issueRouteRequest = issueRouteRequest
+    constructor(customModelStr: string, issueRoutingRequest: boolean) {
+        this.customModelStr = customModelStr
+        this.issueRoutingRequest = issueRoutingRequest
     }
 }
 

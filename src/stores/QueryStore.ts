@@ -12,9 +12,8 @@ import {
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
-    SetCustomModel,
     SetCustomModelBoxEnabled,
-    SetCustomModelStr,
+    SetCustomModel,
     SetPoint,
     SetQueryPoints,
     SetVehicleProfile,
@@ -40,9 +39,7 @@ export interface QueryStoreState {
     readonly routingProfile: RoutingProfile
     readonly showCustomModelBox: boolean
     readonly customModelEnabled: boolean
-    readonly customModelValid: boolean
     readonly customModelStr: string
-    readonly customModel: CustomModel | null
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
     // todonow: ... and this
@@ -95,6 +92,7 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private static getInitialState(initialCustomModelStr: string | null): QueryStoreState {
+        const customModelEnabledInitially = initialCustomModelStr != null
         if (!initialCustomModelStr)
             initialCustomModelStr = customModel2prettyString(customModelExamples['default_example'])
         // prettify the custom model if it can be parsed or leave it as is otherwise
@@ -117,10 +115,8 @@ export default class QueryStore extends Store<QueryStoreState> {
                 name: '',
             },
             showCustomModelBox: false,
-            customModelEnabled: initialCustomModelStr != null,
-            customModelValid: false,
+            customModelEnabled: customModelEnabledInitially,
             customModelStr: initialCustomModelStr,
-            customModel: null,
             zoom: true,
             showSettings: false,
         }
@@ -274,20 +270,12 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
 
             return this.routeIfReady(newState)
-        } else if (action instanceof SetCustomModelStr) {
-            return {
+        } else if (action instanceof SetCustomModel) {
+            const newState = {
                 ...state,
                 customModelStr: action.customModelStr,
             }
-        } else if (action instanceof SetCustomModel) {
-            const newState: QueryStoreState = {
-                ...state,
-                customModel: action.customModel,
-                customModelValid: action.valid,
-            }
-
-            if (action.issueRouteRequest) return this.routeIfReady(newState)
-            else return newState
+            return action.issueRoutingRequest ? this.routeIfReady(newState) : newState
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
         } else if (action instanceof ToggleShowSettings) {
@@ -394,8 +382,6 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     private static isReadyToRoute(state: QueryStoreState) {
         // deliberately chose this style of if statements, to make this readable.
-        if (state.customModelEnabled && !state.customModel) return false
-        if (state.customModelEnabled && state.customModel && !state.customModelValid) return false
         if (state.queryPoints.length <= 1) return false
         if (!state.queryPoints.every(point => point.isInitialized)) return false
         if (!state.routingProfile.name) return false
@@ -464,7 +450,8 @@ export default class QueryStore extends Store<QueryStoreState> {
             points: coordinates,
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
-            customModel: state.customModelEnabled ? state.customModel : null,
+            // todonow: where to handle json parsing error? or maybe even turn this into a string instead and parse later? or never parse at all?
+            customModel: state.customModelEnabled ? JSON.parse(state.customModelStr) : null,
             zoom: state.zoom,
         }
     }

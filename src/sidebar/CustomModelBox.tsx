@@ -6,7 +6,7 @@ import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetCustomModel, SetCustomModelStr } from '@/actions/Actions'
+import { SetCustomModel } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
@@ -111,7 +111,7 @@ export default function CustomModelBox({
         setEditor(instance)
 
         instance.cm.setSize('100%', '100%')
-        instance.cm.on('change', () => Dispatcher.dispatch(new SetCustomModelStr(instance.value)))
+        instance.cm.on('change', () => Dispatcher.dispatch(new SetCustomModel(instance.value, false)))
         if (instance.value !== customModelStr) instance.value = customModelStr
 
         // todonow: this is no longer the right place to do this!
@@ -122,10 +122,6 @@ export default function CustomModelBox({
          */
 
         instance.validListener = (valid: boolean) => {
-            // We update the app state's custom model, but we are not requesting a routing query every time the model
-            // becomes valid. Updating the model is still important, because the routing request might be triggered by
-            // moving markers etc.
-            dispatchCustomModel(instance.value, valid, false)
             setIsValid(valid)
         }
     }, [])
@@ -142,8 +138,7 @@ export default function CustomModelBox({
             if (event.ctrlKey && event.key === 'Enter') {
                 // Using this keyboard shortcut we can skip the custom model validation and directly request a routing
                 // query.
-                const isValid = true
-                dispatchCustomModel(editor.value, isValid, true)
+                Dispatcher.dispatch(new SetCustomModel(editor.value, true))
             }
         },
         [editor, isValid]
@@ -156,10 +151,11 @@ export default function CustomModelBox({
                 <select
                     className={styles.examples}
                     onChange={(e: any) => {
-                        editor.value = customModel2prettyString(customModelExamples[e.target.value])
                         // When selecting an example we request a routing request and act like the model is valid,
                         // even when it is not according to the editor validation.
-                        dispatchCustomModel(JSON.stringify(customModelExamples[e.target.value]), true, true)
+                        Dispatcher.dispatch(
+                            new SetCustomModel(customModel2prettyString(customModelExamples[e.target.value]), true)
+                        )
                     }}
                 >
                     <option value="default_example">{tr('examples_custom_model')}</option>
@@ -187,7 +183,7 @@ export default function CustomModelBox({
                         disabled={!isValid || queryOngoing}
                         // If the model was invalid the button would be disabled anyway, so it does not really matter
                         // if we set valid to true or false here.
-                        onClick={() => dispatchCustomModel(editor.value, true, true)}
+                        onClick={() => Dispatcher.dispatch(new SetCustomModel(editor.value, true))}
                     >
                         {tr('apply_custom_model')}
                     </PlainButton>
@@ -196,15 +192,6 @@ export default function CustomModelBox({
             </div>
         </>
     )
-}
-
-function dispatchCustomModel(customModelString: string, isValid: boolean, withRouteRequest: boolean) {
-    try {
-        const parsedValue = JSON.parse(customModelString)
-        Dispatcher.dispatch(new SetCustomModel(parsedValue, isValid, withRouteRequest))
-    } catch (e) {
-        Dispatcher.dispatch(new SetCustomModel(null, false, withRouteRequest))
-    }
 }
 
 export function customModel2prettyString(customModel: CustomModel) {

@@ -1,12 +1,16 @@
-import { ClearRoute, DismissLastError, ToggleDistanceUnits, ToggleShowCustomModelBox } from '@/actions/Actions'
+import {
+    ClearRoute,
+    DismissLastError,
+    SetCustomModelBoxEnabled,
+    ToggleDistanceUnits,
+    ToggleShowCustomModelBox,
+} from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
-import CustomModelBox from '@/sidebar/CustomModelBox'
-import { Settings } from '@/stores/SettingsStore'
 import { useContext } from 'react'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { QueryStoreState } from '@/stores/QueryStore'
@@ -32,6 +36,7 @@ export default function SettingsBox({ queryStoreState }: { queryStoreState: Quer
                     onClick={() => {
                         if (queryStoreState.showCustomModelBox) Dispatcher.dispatch(new DismissLastError())
                         Dispatcher.dispatch(new ClearRoute())
+                        Dispatcher.dispatch(new SetCustomModelBoxEnabled(!queryStoreState.customModelEnabled))
                         Dispatcher.dispatch(new ToggleShowCustomModelBox())
                     }}
                 >
