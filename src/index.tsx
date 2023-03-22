@@ -1,6 +1,5 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { validateJson } from 'custom-model-editor/src/validate_json'
 import { setTranslation } from '@/translation/Translation'
 import App from '@/App'
 import {
@@ -75,11 +74,7 @@ Dispatcher.register(mapActionReceiver)
 
 if (initialCustomModelStr) {
     try {
-        const rsp = validateJson(initialCustomModelStr)
-        if(rsp.errors.length == 0 && rsp.jsonErrors.length == 0)
-            Dispatcher.dispatch(new SetCustomModel(JSON.parse(initialCustomModelStr), true))
-        else
-            Dispatcher.dispatch(new ErrorAction('Open settings to fix error in custom model'))
+        Dispatcher.dispatch(new SetCustomModel(JSON.parse(initialCustomModelStr), true))
     } catch (e: any) {
         Dispatcher.dispatch(new ErrorAction('Open settings to fix error in custom model: ' + e.toString()))
         console.error('invalid custom model ' + initialCustomModelStr)
