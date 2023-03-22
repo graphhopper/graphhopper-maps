@@ -35,7 +35,7 @@ export default function SettingsBox({ queryStoreState }: { queryStoreState: Quer
                         Dispatcher.dispatch(new ToggleShowCustomModelBox())
                     }}
                 >
-                    {queryStoreState.showCustomModelBox ? <OnIcon /> : <OffIcon />}
+                    {queryStoreState.customModelEnabled ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
                 {/* todonow: move to css? */}
                 <div style={{ color: queryStoreState.showCustomModelBox ? '#5b616a' : 'gray' }}>
