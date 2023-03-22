@@ -85,6 +85,14 @@ export class SetCustomModelBoxEnabled implements Action {
     }
 }
 
+export class SetCustomModelStr implements Action {
+    readonly customModelStr: string
+
+    constructor(customModelStr: string) {
+        this.customModelStr = customModelStr
+    }
+}
+
 export class SetCustomModel implements Action {
     readonly customModel: CustomModel | null
     readonly valid: boolean

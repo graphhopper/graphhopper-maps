@@ -14,6 +14,7 @@ import {
     RouteRequestSuccess,
     SetCustomModel,
     SetCustomModelBoxEnabled,
+    SetCustomModelStr,
     SetPoint,
     SetQueryPoints,
     SetVehicleProfile,
@@ -37,6 +38,7 @@ export interface QueryStoreState {
     readonly routingProfile: RoutingProfile
     readonly customModelEnabled: boolean
     readonly customModelValid: boolean
+    readonly customModelStr: string
     readonly customModel: CustomModel | null
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
@@ -108,6 +110,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             },
             customModelEnabled: initialCustomModelStr != null,
             customModelValid: false,
+            customModelStr: initialCustomModelStr ? initialCustomModelStr : '',
             customModel: null,
             zoom: true,
             initialCustomModelStr: initialCustomModelStr,
@@ -263,6 +266,11 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
 
             return this.routeIfReady(newState)
+        } else if (action instanceof SetCustomModelStr) {
+            return {
+                ...state,
+                customModelStr: action.customModelStr,
+            }
         } else if (action instanceof SetCustomModel) {
             const newState: QueryStoreState = {
                 ...state,

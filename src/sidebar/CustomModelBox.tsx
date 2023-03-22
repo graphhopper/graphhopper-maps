@@ -6,7 +6,7 @@ import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { DismissLastError, SetCustomModel } from '@/actions/Actions'
+import { DismissLastError, SetCustomModel, SetCustomModelStr } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
@@ -88,16 +88,11 @@ function convertEncodedValuesForEditor(encodedValues: object[]): any {
 export interface CustomModelBoxProps {
     enabled: boolean
     encodedValues: object[]
-    initialCustomModelStr: string | null
+    customModelStr: string
     queryOngoing: boolean
 }
 
-export default function CustomModelBox({
-    enabled,
-    encodedValues,
-    initialCustomModelStr,
-    queryOngoing,
-}: CustomModelBoxProps) {
+export default function CustomModelBox({ enabled, encodedValues, customModelStr, queryOngoing }: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)
@@ -105,10 +100,16 @@ export default function CustomModelBox({
 
     useEffect(() => {
         // we start with the encoded values we already have, but they might be empty still
-        const instance = create(convertEncodedValuesForEditor(encodedValues), (element: Node) => divElement.current?.appendChild(element))
+        const instance = create(convertEncodedValuesForEditor(encodedValues), (element: Node) =>
+            divElement.current?.appendChild(element)
+        )
         setEditor(instance)
 
         instance.cm.setSize('100%', '100%')
+        instance.cm.on('change', () => Dispatcher.dispatch(new SetCustomModelStr(instance.value)))
+        if (instance.value !== customModelStr) instance.value = customModelStr
+
+        /* todonow: ignoring the initial custom model str here for now!
         if (initialCustomModelStr != null) {
             // prettify the custom model if it can be parsed or leave it as is otherwise
             try {
@@ -119,13 +120,14 @@ export default function CustomModelBox({
             initialCustomModelStr == null
                 ? customModel2prettyString(examples['default_example'])
                 : initialCustomModelStr
+         */
 
         if (enabled)
             // When we got a custom model from the url parameters we send the request right away
             dispatchCustomModel(instance.value, true, true)
 
         instance.validListener = (valid: boolean) => {
-            // We update the app state's' custom model, but we are not requesting a routing query every time the model
+            // We update the app state's custom model, but we are not requesting a routing query every time the model
             // becomes valid. Updating the model is still important, because the routing request might be triggered by
             // moving markers etc.
             dispatchCustomModel(instance.value, valid, false)
