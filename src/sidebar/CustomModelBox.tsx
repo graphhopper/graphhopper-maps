@@ -69,6 +69,22 @@ const examples: { [key: string]: CustomModel } = {
     },
 }
 
+function convertEncodedValuesForEditor(encodedValues: object[]): any {
+    // todo: maybe do this 'conversion' in Api.ts already and use types from there on
+    const categories: any = {}
+    Object.keys(encodedValues).forEach((k: any) => {
+        const v: any = encodedValues[k]
+        if (v.length === 2 && v[0] === 'true' && v[1] === 'false') {
+            categories[k] = { type: 'boolean' }
+        } else if (v.length === 2 && v[0] === '>number' && v[1] === '<number') {
+            categories[k] = { type: 'numeric' }
+        } else {
+            categories[k] = { type: 'enum', values: v.sort() }
+        }
+    })
+    return categories
+}
+
 export interface CustomModelBoxProps {
     enabled: boolean
     encodedValues: object[]
@@ -88,8 +104,8 @@ export default function CustomModelBox({
     const divElement = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
-        // we start with empty categories. they will be set later using info
-        const instance = create({}, (element: Node) => divElement.current?.appendChild(element))
+        // we start with the encoded values we already have, but they might be empty still
+        const instance = create(convertEncodedValuesForEditor(encodedValues), (element: Node) => divElement.current?.appendChild(element))
         setEditor(instance)
 
         instance.cm.setSize('100%', '100%')
@@ -109,7 +125,7 @@ export default function CustomModelBox({
             dispatchCustomModel(instance.value, true, true)
 
         instance.validListener = (valid: boolean) => {
-            // We update the app states' custom model, but we are not requesting a routing query every time the model
+            // We update the app state's' custom model, but we are not requesting a routing query every time the model
             // becomes valid. Updating the model is still important, because the routing request might be triggered by
             // moving markers etc.
             dispatchCustomModel(instance.value, valid, false)
@@ -125,19 +141,7 @@ export default function CustomModelBox({
 
     useEffect(() => {
         if (!editor) return
-
-        // todo: maybe do this 'conversion' in Api.ts already and use types from there on
-        const categories: any = {}
-        Object.keys(encodedValues).forEach((k: any) => {
-            const v: any = encodedValues[k]
-            if (v.length === 2 && v[0] === 'true' && v[1] === 'false') {
-                categories[k] = { type: 'boolean' }
-            } else if (v.length === 2 && v[0] === '>number' && v[1] === '<number') {
-                categories[k] = { type: 'numeric' }
-            } else {
-                categories[k] = { type: 'enum', values: v.sort() }
-            }
-        })
+        const categories = convertEncodedValuesForEditor(encodedValues)
         editor.categories = categories
     }, [editor, encodedValues])
 
