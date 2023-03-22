@@ -2,9 +2,9 @@ import { useContext } from 'react'
 import styles from '@/layers/DefaultMapPopup.module.css'
 import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { metersToText } from '@/Converters'
+import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import MapPopup from '@/layers/MapPopup'
 import { Map } from 'ol'
-import {ShowDistanceInMilesContext} from "@/ShowDistanceInMilesContext";
 
 interface PathDetailPopupProps {
     map: Map

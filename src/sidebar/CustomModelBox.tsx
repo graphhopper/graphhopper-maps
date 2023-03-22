@@ -3,14 +3,14 @@ import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/lint/lint.css'
 import '@/sidebar/CustomModelBox.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetCustomModel } from '@/actions/Actions'
 import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
-import {Settings} from "@/stores/SettingsStore";
+import { Settings } from '@/stores/SettingsStore'
 
 const examples: { [key: string]: CustomModel } = {
     default_example: {

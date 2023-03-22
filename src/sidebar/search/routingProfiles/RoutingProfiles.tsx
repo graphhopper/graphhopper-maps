@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import styles from './RoutingProfiles.module.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetVehicleProfile } from '@/actions/Actions'
@@ -21,8 +21,8 @@ import SettingsSVG from '@/sidebar/settings.svg'
 export default function ({
     routingProfiles,
     selectedProfile,
- customModelEnabled,
- showSettings,
+    customModelEnabled,
+    showSettings,
     openSettingsHandle,
 }: {
     routingProfiles: RoutingProfile[]

@@ -8,7 +8,7 @@ import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelecte
 import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
 import { calcDist } from '@/distUtils'
-import {ShowDistanceInMilesContext} from "@/ShowDistanceInMilesContext";
+import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 
 interface PathDetailsProps {
     selectedPath: Path

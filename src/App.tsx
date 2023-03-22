@@ -43,7 +43,7 @@ import useAreasLayer from '@/layers/UseAreasLayer'
 import SettingsBox from '@/sidebar/SettingsBox'
 import Dispatcher from '@/stores/Dispatcher'
 import { ToggleShowSettings } from '@/actions/Actions'
-import {Settings} from "@/stores/SettingsStore";
+import { Settings } from '@/stores/SettingsStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -211,7 +211,13 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar query={query} route={route} error={error} encodedValues={encodedValues} settings={settings} />
+                <MobileSidebar
+                    query={query}
+                    route={route}
+                    error={error}
+                    encodedValues={encodedValues}
+                    settings={settings}
+                />
             </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />

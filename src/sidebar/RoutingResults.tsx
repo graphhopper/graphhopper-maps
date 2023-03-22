@@ -13,8 +13,8 @@ import { LineString, Position } from 'geojson'
 import { calcDist } from '@/distUtils'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
+import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
-import {ShowDistanceInMilesContext} from "@/ShowDistanceInMilesContext";
 
 export interface RoutingResultsProps {
     paths: Path[]
