@@ -115,8 +115,6 @@ export default function CustomModelBox({
         instance.validListener = (valid: boolean) => setIsValid(valid)
     }, [])
 
-    if (editor && editor.value !== customModelStr) editor.value = customModelStr
-
     useEffect(() => {
         if (!editor) return
         editor.categories = convertEncodedValuesForEditor(encodedValues)
