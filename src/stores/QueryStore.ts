@@ -23,6 +23,7 @@ import {
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist } from '@/distUtils'
 import config from 'config'
+import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelBox'
 
 export interface Coordinate {
     lat: number
@@ -42,8 +43,6 @@ export interface QueryStoreState {
     readonly customModel: CustomModel | null
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
-    // todo: ... and this also
-    readonly initialCustomModelStr: string | null
     // todonow: ... and this
     readonly showSettings: boolean
 }
@@ -94,6 +93,13 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private static getInitialState(initialCustomModelStr: string | null): QueryStoreState {
+        if (!initialCustomModelStr)
+            initialCustomModelStr = customModel2prettyString(customModelExamples['default_example'])
+         // prettify the custom model if it can be parsed or leave it as is otherwise
+         try {
+             initialCustomModelStr = customModel2prettyString(JSON.parse(initialCustomModelStr))
+         } catch (e) {}
+
         return {
             profiles: [],
             queryPoints: [
@@ -110,10 +116,9 @@ export default class QueryStore extends Store<QueryStoreState> {
             },
             customModelEnabled: initialCustomModelStr != null,
             customModelValid: false,
-            customModelStr: initialCustomModelStr ? initialCustomModelStr : '',
+            customModelStr: initialCustomModelStr,
             customModel: null,
             zoom: true,
-            initialCustomModelStr: initialCustomModelStr,
             showSettings: false,
         }
     }

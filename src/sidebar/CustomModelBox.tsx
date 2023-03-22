@@ -11,7 +11,7 @@ import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 
-const examples: { [key: string]: CustomModel } = {
+export const customModelExamples: { [key: string]: CustomModel } = {
     default_example: {
         distance_influence: 15,
         priority: [{ if: 'road_environment == FERRY', multiply_by: '0.9' }],
@@ -109,19 +109,6 @@ export default function CustomModelBox({ enabled, encodedValues, customModelStr,
         instance.cm.on('change', () => Dispatcher.dispatch(new SetCustomModelStr(instance.value)))
         if (instance.value !== customModelStr) instance.value = customModelStr
 
-        /* todonow: ignoring the initial custom model str here for now!
-        if (initialCustomModelStr != null) {
-            // prettify the custom model if it can be parsed or leave it as is otherwise
-            try {
-                initialCustomModelStr = customModel2prettyString(JSON.parse(initialCustomModelStr))
-            } catch (e) {}
-        }
-        instance.value =
-            initialCustomModelStr == null
-                ? customModel2prettyString(examples['default_example'])
-                : initialCustomModelStr
-         */
-
         if (enabled)
             // When we got a custom model from the url parameters we send the request right away
             dispatchCustomModel(instance.value, true, true)
@@ -166,10 +153,10 @@ export default function CustomModelBox({ enabled, encodedValues, customModelStr,
                 <select
                     className={styles.examples}
                     onChange={(e: any) => {
-                        editor.value = customModel2prettyString(examples[e.target.value])
+                        editor.value = customModel2prettyString(customModelExamples[e.target.value])
                         // When selecting an example we request a routing request and act like the model is valid,
                         // even when it is not according to the editor validation.
-                        dispatchCustomModel(JSON.stringify(examples[e.target.value]), true, true)
+                        dispatchCustomModel(JSON.stringify(customModelExamples[e.target.value]), true, true)
                     }}
                 >
                     <option value="default_example">{tr('examples_custom_model')}</option>
@@ -217,6 +204,6 @@ function dispatchCustomModel(customModelString: string, isValid: boolean, withRo
     }
 }
 
-function customModel2prettyString(customModel: CustomModel) {
+export function customModel2prettyString(customModel: CustomModel) {
     return JSON.stringify(customModel, null, 2)
 }
