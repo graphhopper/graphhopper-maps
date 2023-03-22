@@ -373,7 +373,13 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private static isReadyToRoute(state: QueryStoreState) {
-        // deliberately chose this style of if statements, to make this readable.
+        if (state.customModelEnabled)
+            try {
+                JSON.parse(state.customModelStr)
+            } catch {
+                return false
+            }
+        // Janek deliberately chose this style of if statements, to make this readable.
         if (state.queryPoints.length <= 1) return false
         if (!state.queryPoints.every(point => point.isInitialized)) return false
         if (!state.routingProfile.name) return false
@@ -438,12 +444,17 @@ export default class QueryStore extends Store<QueryStoreState> {
             number
         ][]
 
+        let customModel = null
+        if (state.customModelEnabled)
+            try {
+                customModel = JSON.parse(state.customModelStr)
+            } catch {}
+
         return {
             points: coordinates,
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
-            // todonow: where to handle json parsing error? or maybe even turn this into a string instead and parse later? or never parse at all?
-            customModel: state.customModelEnabled ? JSON.parse(state.customModelStr) : null,
+            customModel: customModel,
             zoom: state.zoom,
         }
     }

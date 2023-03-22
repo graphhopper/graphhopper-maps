@@ -112,26 +112,18 @@ export default function CustomModelBox({
 
         instance.cm.setSize('100%', '100%')
         instance.cm.on('change', () => Dispatcher.dispatch(new SetCustomModel(instance.value, false)))
-        if (instance.value !== customModelStr) instance.value = customModelStr
-
-        // todonow: this is no longer the right place to do this!
-        /*
-        if (enabled)
-            // When we got a custom model from the url parameters we send the request right away
-            dispatchCustomModel(instance.value, true, true)
-         */
-
-        instance.validListener = (valid: boolean) => {
-            setIsValid(valid)
-        }
+        instance.validListener = (valid: boolean) => setIsValid(valid)
     }, [])
+
+    if (editor && editor.value !== customModelStr) editor.value = customModelStr
 
     useEffect(() => {
         if (!editor) return
         editor.categories = convertEncodedValuesForEditor(encodedValues)
         // focus the box when it is opened
         if (customModelEnabled) editor.cm.focus()
-    }, [editor, encodedValues, customModelEnabled])
+        if (editor.value !== customModelStr) editor.value = customModelStr
+    }, [editor, encodedValues, customModelEnabled, customModelStr])
 
     const triggerRouting = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
