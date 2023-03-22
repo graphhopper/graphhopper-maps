@@ -139,7 +139,7 @@ export default function CustomModelBox({
             }
         })
         editor.categories = categories
-    }, [encodedValues])
+    }, [editor, encodedValues])
 
     const triggerRouting = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
