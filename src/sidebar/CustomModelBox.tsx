@@ -86,14 +86,14 @@ function convertEncodedValuesForEditor(encodedValues: object[]): any {
 }
 
 export interface CustomModelBoxProps {
-    showCustomModelBox: boolean
+    customModelEnabled: boolean
     encodedValues: object[]
     customModelStr: string
     queryOngoing: boolean
 }
 
 export default function CustomModelBox({
-    showCustomModelBox,
+    customModelEnabled,
     encodedValues,
     customModelStr,
     queryOngoing,
@@ -130,8 +130,8 @@ export default function CustomModelBox({
         if (!editor) return
         editor.categories = convertEncodedValuesForEditor(encodedValues)
         // focus the box when it is opened
-        if (showCustomModelBox) editor.cm.focus()
-    }, [editor, encodedValues, showCustomModelBox])
+        if (customModelEnabled) editor.cm.focus()
+    }, [editor, encodedValues, customModelEnabled])
 
     const triggerRouting = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {

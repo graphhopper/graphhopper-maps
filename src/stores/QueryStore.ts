@@ -17,7 +17,6 @@ import {
     SetPoint,
     SetQueryPoints,
     SetVehicleProfile,
-    ToggleShowCustomModelBox,
     ToggleShowSettings,
 } from '@/actions/Actions'
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
@@ -37,7 +36,6 @@ export interface QueryStoreState {
     readonly currentRequest: CurrentRequest
     readonly maxAlternativeRoutes: number
     readonly routingProfile: RoutingProfile
-    readonly showCustomModelBox: boolean
     readonly customModelEnabled: boolean
     readonly customModelStr: string
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
@@ -114,7 +112,6 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
-            showCustomModelBox: false,
             customModelEnabled: customModelEnabledInitially,
             customModelStr: initialCustomModelStr,
             zoom: true,
@@ -282,11 +279,6 @@ export default class QueryStore extends Store<QueryStoreState> {
             return {
                 ...state,
                 showSettings: !state.showSettings,
-            }
-        } else if (action instanceof ToggleShowCustomModelBox) {
-            return {
-                ...state,
-                showCustomModelBox: !state.showCustomModelBox,
             }
         } else if (action instanceof SetCustomModelBoxEnabled) {
             const newState: QueryStoreState = {
