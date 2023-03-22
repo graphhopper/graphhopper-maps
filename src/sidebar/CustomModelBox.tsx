@@ -86,13 +86,18 @@ function convertEncodedValuesForEditor(encodedValues: object[]): any {
 }
 
 export interface CustomModelBoxProps {
-    enabled: boolean
+    showCustomModelBox: boolean
     encodedValues: object[]
     customModelStr: string
     queryOngoing: boolean
 }
 
-export default function CustomModelBox({ enabled, encodedValues, customModelStr, queryOngoing }: CustomModelBoxProps) {
+export default function CustomModelBox({
+    showCustomModelBox,
+    encodedValues,
+    customModelStr,
+    queryOngoing,
+}: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)
@@ -109,9 +114,12 @@ export default function CustomModelBox({ enabled, encodedValues, customModelStr,
         instance.cm.on('change', () => Dispatcher.dispatch(new SetCustomModelStr(instance.value)))
         if (instance.value !== customModelStr) instance.value = customModelStr
 
+        // todonow: this is no longer the right place to do this!
+        /*
         if (enabled)
             // When we got a custom model from the url parameters we send the request right away
             dispatchCustomModel(instance.value, true, true)
+         */
 
         instance.validListener = (valid: boolean) => {
             // We update the app state's custom model, but we are not requesting a routing query every time the model
@@ -122,17 +130,12 @@ export default function CustomModelBox({ enabled, encodedValues, customModelStr,
         }
     }, [])
 
-    // without this the editor is blank after opening the box and before clicking it or resizing the window?
-    // but having the focus in the box after opening it is nice anyway
-    useEffect(() => {
-        if (enabled) editor?.cm.focus()
-    }, [enabled])
-
     useEffect(() => {
         if (!editor) return
-        const categories = convertEncodedValuesForEditor(encodedValues)
-        editor.categories = categories
-    }, [editor, encodedValues])
+        editor.categories = convertEncodedValuesForEditor(encodedValues)
+        // focus the box when it is opened
+        if (showCustomModelBox) editor.cm.focus()
+    }, [editor, encodedValues, showCustomModelBox])
 
     const triggerRouting = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {

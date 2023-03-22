@@ -1,4 +1,4 @@
-import { ClearRoute, DismissLastError, SetCustomModelBoxEnabled, ToggleDistanceUnits } from '@/actions/Actions'
+import { ClearRoute, DismissLastError, ToggleDistanceUnits, ToggleShowCustomModelBox } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
@@ -28,17 +28,17 @@ export default function SettingsBox({ queryStoreState }: { queryStoreState: Quer
                 </div>
                 <PlainButton
                     // todonow: move to css?
-                    style={{ color: queryStoreState.customModelEnabled ? '' : 'lightgray' }}
+                    style={{ color: queryStoreState.showCustomModelBox ? '' : 'lightgray' }}
                     onClick={() => {
-                        if (queryStoreState.customModelEnabled) Dispatcher.dispatch(new DismissLastError())
+                        if (queryStoreState.showCustomModelBox) Dispatcher.dispatch(new DismissLastError())
                         Dispatcher.dispatch(new ClearRoute())
-                        Dispatcher.dispatch(new SetCustomModelBoxEnabled(!queryStoreState.customModelEnabled))
+                        Dispatcher.dispatch(new ToggleShowCustomModelBox())
                     }}
                 >
-                    {queryStoreState.customModelEnabled ? <OnIcon /> : <OffIcon />}
+                    {queryStoreState.showCustomModelBox ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
                 {/* todonow: move to css? */}
-                <div style={{ color: queryStoreState.customModelEnabled ? '#5b616a' : 'gray' }}>
+                <div style={{ color: queryStoreState.showCustomModelBox ? '#5b616a' : 'gray' }}>
                     {tr('custom model enabled')}
                 </div>
             </div>

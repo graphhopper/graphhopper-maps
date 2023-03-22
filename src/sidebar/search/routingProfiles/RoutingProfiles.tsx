@@ -34,6 +34,7 @@ export default function ({
             <PlainButton
                 title={tr('show_settings')}
                 // todonow: move to css?
+                // todonow: do we really want to use this tiny shadow to distinguish between 'settings are open' and 'settings are open and custom model is active'?
                 style={{ boxShadow: customModelEnabled ? '1px 1px gray' : '' }}
                 className={showSettings ? styles.enabledSettings : styles.settings}
                 onClick={() => Dispatcher.dispatch(new ToggleShowSettings())}

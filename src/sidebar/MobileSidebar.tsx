@@ -62,9 +62,9 @@ export default function ({ query, route, error, encodedValues }: MobileSidebarPr
                             showSettings={query.showSettings}
                         />
                         {query.showSettings && <SettingsBox queryStoreState={query} />}
-                        {query.showSettings && query.customModelEnabled && (
+                        {query.showSettings && query.showCustomModelBox && (
                             <CustomModelBox
-                                enabled={query.customModelEnabled}
+                                showCustomModelBox={query.showCustomModelBox}
                                 encodedValues={encodedValues}
                                 customModelStr={query.customModelStr}
                                 queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
