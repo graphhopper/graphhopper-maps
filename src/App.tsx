@@ -157,7 +157,6 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            customModelAllowed={true}
                             customModelEnabled={query.customModelEnabled}
                         />
                         <CustomModelBox
@@ -201,11 +200,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions }: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar query={query} route={route} error={error} />
+                <MobileSidebar query={query} route={route} error={error} encodedValues={encodedValues}/>
             </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />

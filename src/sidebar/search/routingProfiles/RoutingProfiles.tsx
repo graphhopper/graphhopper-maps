@@ -21,29 +21,25 @@ import SettingsSVG from '@/sidebar/settings.svg'
 export default function ({
     routingProfiles,
     selectedProfile,
-    customModelAllowed,
     customModelEnabled,
 }: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
-    customModelAllowed: boolean
     customModelEnabled: boolean
 }) {
     return (
         <div className={styles.profilesParent}>
-            {customModelAllowed && (
-                <PlainButton
-                    title={tr('open_custom_model_box')}
-                    className={customModelEnabled ? styles.enabledSettings : styles.settings}
-                    onClick={() => {
-                        if (customModelEnabled) Dispatcher.dispatch(new DismissLastError())
-                        Dispatcher.dispatch(new ClearRoute())
-                        Dispatcher.dispatch(new SetCustomModelBoxEnabled(!customModelEnabled))
-                    }}
-                >
-                    <SettingsSVG />
-                </PlainButton>
-            )}
+            <PlainButton
+                title={tr('open_custom_model_box')}
+                className={customModelEnabled ? styles.enabledSettings : styles.settings}
+                onClick={() => {
+                    if (customModelEnabled) Dispatcher.dispatch(new DismissLastError())
+                    Dispatcher.dispatch(new ClearRoute())
+                    Dispatcher.dispatch(new SetCustomModelBoxEnabled(!customModelEnabled))
+                }}
+            >
+                <SettingsSVG />
+            </PlainButton>
             <ul className={styles.profiles}>
                 {routingProfiles.map(profile => {
                     const className =
