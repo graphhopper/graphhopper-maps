@@ -22,7 +22,7 @@ import {
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist } from '@/distUtils'
 import config from 'config'
-import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelBox'
+import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 
 export interface Coordinate {
     lat: number
