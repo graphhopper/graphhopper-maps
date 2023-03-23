@@ -12,7 +12,7 @@ import {
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
-    SetCustomModelBoxEnabled,
+    SetCustomModelEnabled,
     SetCustomModel,
     SetPoint,
     SetQueryPoints,
@@ -271,7 +271,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             return action.issueRoutingRequest ? this.routeIfReady(newState) : newState
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
-        } else if (action instanceof SetCustomModelBoxEnabled) {
+        } else if (action instanceof SetCustomModelEnabled) {
             const newState: QueryStoreState = {
                 ...state,
                 customModelEnabled: action.enabled,

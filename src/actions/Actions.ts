@@ -77,7 +77,7 @@ export class InvalidatePoint implements Action {
     }
 }
 
-export class SetCustomModelBoxEnabled implements Action {
+export class SetCustomModelEnabled implements Action {
     readonly enabled: boolean
 
     constructor(enabled: boolean) {

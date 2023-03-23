@@ -1,4 +1,4 @@
-import { ClearRoute, DismissLastError, SetCustomModelBoxEnabled, ToggleDistanceUnits } from '@/actions/Actions'
+import { ClearRoute, DismissLastError, SetCustomModelEnabled, ToggleDistanceUnits } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
@@ -30,7 +30,7 @@ export default function SettingsBox({ queryStoreState }: { queryStoreState: Quer
                     onClick={() => {
                         if (queryStoreState.customModelEnabled) Dispatcher.dispatch(new DismissLastError())
                         Dispatcher.dispatch(new ClearRoute())
-                        Dispatcher.dispatch(new SetCustomModelBoxEnabled(!queryStoreState.customModelEnabled))
+                        Dispatcher.dispatch(new SetCustomModelEnabled(!queryStoreState.customModelEnabled))
                     }}
                 >
                     {queryStoreState.customModelEnabled ? <OnIcon /> : <OffIcon />}
