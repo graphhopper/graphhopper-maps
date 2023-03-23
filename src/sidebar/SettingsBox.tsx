@@ -15,15 +15,17 @@ export default function SettingsBox({ queryStoreState }: { queryStoreState: Quer
         <>
             <div className={styles.settingsTable}>
                 <PlainButton
-                    style={{ color: showDistanceInMiles ? '' : 'lightgray' }}
+                    style={{ color: showDistanceInMiles ? '' : 'lightgray' }} // todonow: move to css?
                     onClick={() => Dispatcher.dispatch(new ToggleDistanceUnits())}
                 >
                     {showDistanceInMiles ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
+                {/*todonow: move to css?*/}
                 <div style={{ color: showDistanceInMiles ? '#5b616a' : 'gray' }}>
                     {tr('distance_unit', [tr(showDistanceInMiles ? 'mi' : 'km')])}
                 </div>
                 <PlainButton
+                    // todonow: move to css?
                     style={{ color: queryStoreState.customModelEnabled ? '' : 'lightgray' }}
                     onClick={() => {
                         if (queryStoreState.customModelEnabled) Dispatcher.dispatch(new DismissLastError())
@@ -33,6 +35,7 @@ export default function SettingsBox({ queryStoreState }: { queryStoreState: Quer
                 >
                     {queryStoreState.customModelEnabled ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
+                {/* todonow: move to css? */}
                 <div style={{ color: queryStoreState.customModelEnabled ? '#5b616a' : 'gray' }}>
                     {tr('custom model enabled')}
                 </div>
