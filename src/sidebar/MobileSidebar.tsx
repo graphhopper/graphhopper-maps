@@ -59,10 +59,11 @@ export default function ({ query, route, error, encodedValues, settings }: Mobil
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            customModelEnabled={settings.customModelEnabled}
+                            customModelEnabled={query.customModelEnabled}
                             showSettings={settings.showSettings}
                         />
                         <SettingsBox
+                            queryStoreState={query}
                             encodedValues={encodedValues}
                             queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                             settings={settings}

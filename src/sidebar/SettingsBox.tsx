@@ -7,12 +7,15 @@ import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import { Settings } from '@/stores/SettingsStore'
+import { QueryStoreState } from '@/stores/QueryStore'
 
 export default function SettingsBox({
+    queryStoreState,
     encodedValues,
     queryOngoing,
     settings,
 }: {
+    queryStoreState: QueryStoreState
     encodedValues: object[]
     queryOngoing: boolean
     settings: Settings
@@ -32,24 +35,29 @@ export default function SettingsBox({
                     {tr('distance_unit', [tr(settings.showDistanceInMiles ? 'mi' : 'km')])}
                 </div>
                 <PlainButton
-                    style={{ color: settings.customModelEnabled ? '' : 'lightgray' }}
+                    style={{ color: queryStoreState.customModelEnabled ? '' : 'lightgray' }}
                     onClick={() => {
-                        if (settings.customModelEnabled) Dispatcher.dispatch(new DismissLastError())
+                        if (queryStoreState.customModelEnabled) Dispatcher.dispatch(new DismissLastError())
                         Dispatcher.dispatch(new ClearRoute())
-                        Dispatcher.dispatch(new SetCustomModelBoxEnabled(!settings.customModelEnabled))
+                        Dispatcher.dispatch(new SetCustomModelBoxEnabled(!queryStoreState.customModelEnabled))
                     }}
                 >
-                    {settings.customModelEnabled ? <OnIcon /> : <OffIcon />}
+                    {queryStoreState.customModelEnabled ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
-                <div style={{ color: settings.customModelEnabled ? '#5b616a' : 'gray' }}>
+                <div style={{ color: queryStoreState.customModelEnabled ? '#5b616a' : 'gray' }}>
                     {tr('custom model enabled')}
                 </div>
                 <div>
                     {/*move custom model box outside settingsTable to give it the entire width, i.e. keep this option as last */}
                 </div>
             </div>
-            {settings.customModelEnabled && (
-                <CustomModelBox encodedValues={encodedValues} queryOngoing={queryOngoing} settings={settings} />
+            {queryStoreState.customModelEnabled && (
+                <CustomModelBox
+                    encodedValues={encodedValues}
+                    queryOngoing={queryOngoing}
+                    queryStoreState={queryStoreState}
+                    showSettings={settings.showSettings}
+                />
             )}
         </>
     )

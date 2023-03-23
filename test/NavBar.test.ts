@@ -10,7 +10,6 @@ import { window } from '@/Window'
 import MapOptionsStore, { StyleOption } from '@/stores/MapOptionsStore'
 import * as config from 'config'
 import { RoutingProfile } from '@/api/graphhopper'
-import SettingsStore from '@/stores/SettingsStore'
 
 jest.mock('@/Window', () => ({
     window: {
@@ -39,10 +38,9 @@ describe('NavBar', function () {
         window.addEventListener = jest.fn((type: any, listener: any) => {
             callbacks.push(listener)
         })
-        const settingsStore = new SettingsStore()
-        queryStore = new QueryStore(new DummyApi(), settingsStore)
+        queryStore = new QueryStore(new DummyApi())
         mapStore = new MapOptionsStore()
-        navBar = new NavBar(queryStore, mapStore, settingsStore)
+        navBar = new NavBar(queryStore, mapStore)
         navBar.startSyncingUrlWithAppState()
         Dispatcher.register(queryStore)
         Dispatcher.register(mapStore)

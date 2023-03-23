@@ -100,7 +100,7 @@ export default function App() {
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
     useMapBorderLayer(map, info.bbox)
-    useAreasLayer(map, getCustomModelAreas(settings))
+    useAreasLayer(map, getCustomModelAreas(query))
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
@@ -161,10 +161,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            customModelEnabled={settings.customModelEnabled}
+                            customModelEnabled={query.customModelEnabled}
                             showSettings={settings.showSettings}
                         />
                         <SettingsBox
+                            queryStoreState={query}
                             encodedValues={encodedValues}
                             queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                             settings={settings}
@@ -241,6 +242,8 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function getCustomModelAreas(settings: Settings) {
-    return settings.customModelEnabled && settings.customModelValid ? settings.customModel?.areas! : null
+function getCustomModelAreas(queryStoreState: QueryStoreState) : object | null {
+    return queryStoreState.customModelEnabled && queryStoreState.customModelValid
+        ? queryStoreState.customModel?.areas!
+        : null
 }

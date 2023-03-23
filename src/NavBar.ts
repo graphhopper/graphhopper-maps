@@ -7,18 +7,15 @@ import { window } from '@/Window'
 import QueryStore, { Coordinate, CustomModel, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
 import { getApi } from '@/api/Api'
-import SettingsStore from '@/stores/SettingsStore'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
     private readonly mapStore: MapOptionsStore
-    private readonly settingsStore: SettingsStore
     private ignoreStateUpdates = false
 
-    constructor(queryStore: QueryStore, mapStore: MapOptionsStore, settingsStore: SettingsStore) {
+    constructor(queryStore: QueryStore, mapStore: MapOptionsStore) {
         this.queryStore = queryStore
         this.mapStore = mapStore
-        this.settingsStore = settingsStore
         window.addEventListener('popstate', async () => await this.updateStateFromUrl())
     }
 
@@ -164,8 +161,8 @@ export default class NavBar {
             window.location.origin + window.location.pathname,
             this.queryStore.state,
             this.mapStore.state,
-            this.settingsStore.state.customModelEnabled && this.settingsStore.state.customModelValid
-                ? this.settingsStore.state.customModel
+            this.queryStore.state.customModelEnabled && this.queryStore.state.customModelValid
+                ? this.queryStore.state.customModel
                 : null
         ).toString()
     }

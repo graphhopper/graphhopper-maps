@@ -9,8 +9,8 @@ import Dispatcher from '@/stores/Dispatcher'
 import { SetCustomModel } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
-import { Settings } from '@/stores/SettingsStore'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
+import { QueryStoreState } from '@/stores/QueryStore'
 
 function convertEncodedValuesForEditor(encodedValues: object[]): any {
     // todo: maybe do this 'conversion' in Api.ts already and use types from there on
@@ -31,18 +31,26 @@ function convertEncodedValuesForEditor(encodedValues: object[]): any {
 export interface CustomModelBoxProps {
     encodedValues: object[]
     queryOngoing: boolean
-    settings: Settings
+    queryStoreState: QueryStoreState
+    showSettings: boolean
 }
 
-export default function CustomModelBox({ encodedValues, queryOngoing, settings }: CustomModelBoxProps) {
-    const { initialCustomModelStr, customModelEnabled, showSettings, customModel } = settings
+export default function CustomModelBox({
+    encodedValues,
+    queryOngoing,
+    queryStoreState,
+    showSettings,
+}: CustomModelBoxProps) {
+    const { initialCustomModelStr, customModelEnabled, customModel } = queryStoreState
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)
     const divElement = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
-        const instance = create(convertEncodedValuesForEditor(encodedValues), (element: Node) => divElement.current?.appendChild(element))
+        const instance = create(convertEncodedValuesForEditor(encodedValues), (element: Node) =>
+            divElement.current?.appendChild(element)
+        )
         setEditor(instance)
 
         instance.cm.setSize('100%', '100%')

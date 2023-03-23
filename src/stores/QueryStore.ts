@@ -21,7 +21,6 @@ import {
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist } from '@/distUtils'
 import config from 'config'
-import SettingsStore from '@/stores/SettingsStore'
 
 export interface Coordinate {
     lat: number
@@ -35,8 +34,12 @@ export interface QueryStoreState {
     readonly currentRequest: CurrentRequest
     readonly maxAlternativeRoutes: number
     readonly routingProfile: RoutingProfile
+    readonly customModelEnabled: boolean
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
+    readonly initialCustomModelStr: string | null
+    readonly customModel: CustomModel | null
+    readonly customModelValid: boolean
 }
 
 export interface QueryPoint {
@@ -78,15 +81,13 @@ export interface SubRequest {
 
 export default class QueryStore extends Store<QueryStoreState> {
     private readonly api: Api
-    private readonly settingsStore: SettingsStore
 
-    constructor(api: Api, settingsStore: SettingsStore) {
-        super(QueryStore.getInitialState())
+    constructor(api: Api, initialCustomModelStr: string | null = null) {
+        super(QueryStore.getInitialState(initialCustomModelStr))
         this.api = api
-        this.settingsStore = settingsStore
     }
 
-    private static getInitialState(): QueryStoreState {
+    private static getInitialState(initialCustomModelStr: string | null): QueryStoreState {
         return {
             profiles: [],
             queryPoints: [
@@ -101,7 +102,11 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
+            customModelEnabled: !!initialCustomModelStr,
             zoom: true,
+            initialCustomModelStr: initialCustomModelStr,
+            customModel: null, // initialCustomModelStr will be parsed later. We cannot report errors that early.
+            customModelValid: false,
         }
     }
 
@@ -253,8 +258,19 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
 
             return this.routeIfReady(newState)
+        } else if (action instanceof SetCustomModelBoxEnabled) {
+            return {
+                ...state,
+                customModelEnabled: !state.customModelEnabled,
+            }
         } else if (action instanceof SetCustomModel) {
-            if (action.issueRouteRequest) return this.routeIfReady(state)
+            const newState = {
+                ...state,
+                customModel: action.customModel,
+                customModelValid: action.valid,
+            }
+            if (action.issueRouteRequest) return this.routeIfReady(newState)
+            return newState
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
         } else if (action instanceof SetCustomModelBoxEnabled) {
@@ -279,8 +295,8 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private routeIfReady(state: QueryStoreState): QueryStoreState {
-        const cmEnabled = this.settingsStore.state.customModelEnabled
-        const cm = this.settingsStore.state.customModelValid && cmEnabled ? this.settingsStore.state.customModel : null
+        const cmEnabled = state.customModelEnabled
+        const cm = state.customModelValid && cmEnabled ? state.customModel : null
         if (cmEnabled && !cm) return state
 
         if (QueryStore.isReadyToRoute(state)) {
