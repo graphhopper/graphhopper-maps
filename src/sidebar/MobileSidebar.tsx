@@ -12,6 +12,7 @@ import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import SettingsBox from '@/sidebar/SettingsBox'
 import { Settings } from '@/stores/SettingsStore'
+import CustomModelBox from '@/sidebar/CustomModelBox'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -62,12 +63,15 @@ export default function ({ query, route, error, encodedValues, settings }: Mobil
                             customModelEnabled={query.customModelEnabled}
                             showSettings={settings.showSettings}
                         />
-                        <SettingsBox
-                            queryStoreState={query}
-                            encodedValues={encodedValues}
-                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                            settings={settings}
-                        />
+                        {settings.showSettings && <SettingsBox queryStoreState={query} />}
+                        {settings.showSettings && query.customModelEnabled && (
+                            <CustomModelBox
+                                encodedValues={encodedValues}
+                                queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                                queryStoreState={query}
+                                showSettings={settings.showSettings}
+                            />
+                        )}
                         <Search points={query.queryPoints} />
                     </div>
                 )}

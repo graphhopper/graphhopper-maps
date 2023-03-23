@@ -42,6 +42,7 @@ import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import SettingsBox from '@/sidebar/SettingsBox'
 import { Settings } from '@/stores/SettingsStore'
+import CustomModelBox from '@/sidebar/CustomModelBox'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -164,12 +165,15 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                             customModelEnabled={query.customModelEnabled}
                             showSettings={settings.showSettings}
                         />
-                        <SettingsBox
-                            queryStoreState={query}
-                            encodedValues={encodedValues}
-                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                            settings={settings}
-                        />
+                        {settings.showSettings && <SettingsBox queryStoreState={query} />}
+                        {settings.showSettings && query.customModelEnabled && (
+                            <CustomModelBox
+                                encodedValues={encodedValues}
+                                queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                                queryStoreState={query}
+                                showSettings={settings.showSettings}
+                            />
+                        )}
                         <Search points={query.queryPoints} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
@@ -242,7 +246,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function getCustomModelAreas(queryStoreState: QueryStoreState) : object | null {
+function getCustomModelAreas(queryStoreState: QueryStoreState): object | null {
     return queryStoreState.customModelEnabled && queryStoreState.customModelValid
         ? queryStoreState.customModel?.areas!
         : null

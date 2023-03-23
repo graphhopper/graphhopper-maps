@@ -5,27 +5,13 @@ import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
-import CustomModelBox from '@/sidebar/CustomModelBox'
-import { Settings } from '@/stores/SettingsStore'
 import { useContext } from 'react'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { QueryStoreState } from '@/stores/QueryStore'
 
-export default function SettingsBox({
-    queryStoreState,
-    encodedValues,
-    queryOngoing,
-    settings,
-}: {
-    queryStoreState: QueryStoreState
-    encodedValues: object[]
-    queryOngoing: boolean
-    settings: Settings
-}) {
+export default function SettingsBox({ queryStoreState }: { queryStoreState: QueryStoreState }) {
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
-    return !settings.showSettings ? (
-        <></>
-    ) : (
+    return (
         <>
             <div className={styles.settingsTable}>
                 <PlainButton
@@ -50,18 +36,7 @@ export default function SettingsBox({
                 <div style={{ color: queryStoreState.customModelEnabled ? '#5b616a' : 'gray' }}>
                     {tr('custom model enabled')}
                 </div>
-                <div>
-                    {/*move custom model box outside settingsTable to give it the entire width, i.e. keep this option as last */}
-                </div>
             </div>
-            {queryStoreState.customModelEnabled && (
-                <CustomModelBox
-                    encodedValues={encodedValues}
-                    queryOngoing={queryOngoing}
-                    queryStoreState={queryStoreState}
-                    showSettings={settings.showSettings}
-                />
-            )}
         </>
     )
 }
