@@ -12,7 +12,8 @@ import PlainButton from '@/PlainButton'
 import { Settings } from '@/stores/SettingsStore'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelBoxExamples'
 
-function convertEV(encodedValues: object[]): any {
+function convertEncodedValuesForEditor(encodedValues: object[]): any {
+    // todo: maybe do this 'conversion' in Api.ts already and use types from there on
     const categories: any = {}
     Object.keys(encodedValues).forEach((k: any) => {
         const v: any = encodedValues[k]
@@ -41,7 +42,7 @@ export default function CustomModelBox({ encodedValues, queryOngoing, settings }
     const divElement = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
-        const instance = create(convertEV(encodedValues), (element: Node) => divElement.current?.appendChild(element))
+        const instance = create(convertEncodedValuesForEditor(encodedValues), (element: Node) => divElement.current?.appendChild(element))
         setEditor(instance)
 
         instance.cm.setSize('100%', '100%')
@@ -77,8 +78,7 @@ export default function CustomModelBox({ encodedValues, queryOngoing, settings }
     useEffect(() => {
         if (!editor) return
 
-        // todo: maybe do this 'conversion' in Api.ts already and use types from there on
-        const categories = convertEV(encodedValues)
+        const categories = convertEncodedValuesForEditor(encodedValues)
         if (!categories) {
             console.warn('encoded values invalid: ' + JSON.stringify(encodedValues))
         } else {
