@@ -11,8 +11,8 @@ import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import SettingsBox from '@/sidebar/SettingsBox'
-import { Settings } from '@/stores/SettingsStore'
 import CustomModelBox from '@/sidebar/CustomModelBox'
+import { Settings } from '@/stores/SettingsStore'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -66,10 +66,10 @@ export default function ({ query, route, error, encodedValues, settings }: Mobil
                         {settings.showSettings && <SettingsBox queryStoreState={query} />}
                         {settings.showSettings && query.customModelEnabled && (
                             <CustomModelBox
+                                customModelEnabled={query.customModelEnabled}
                                 encodedValues={encodedValues}
+                                customModelStr={query.customModelStr}
                                 queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                                queryStoreState={query}
-                                showSettings={settings.showSettings}
                             />
                         )}
                         <Search points={query.queryPoints} />

@@ -10,7 +10,6 @@ import { SetCustomModel } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
-import { QueryStoreState } from '@/stores/QueryStore'
 
 function convertEncodedValuesForEditor(encodedValues: object[]): any {
     // todo: maybe do this 'conversion' in Api.ts already and use types from there on
@@ -29,19 +28,18 @@ function convertEncodedValuesForEditor(encodedValues: object[]): any {
 }
 
 export interface CustomModelBoxProps {
+    customModelEnabled: boolean
     encodedValues: object[]
+    customModelStr: string
     queryOngoing: boolean
-    queryStoreState: QueryStoreState
-    showSettings: boolean
 }
 
 export default function CustomModelBox({
+    customModelEnabled,
     encodedValues,
+    customModelStr,
     queryOngoing,
-    queryStoreState,
-    showSettings,
 }: CustomModelBoxProps) {
-    const { initialCustomModelStr, customModelEnabled, customModel } = queryStoreState
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)
@@ -55,47 +53,24 @@ export default function CustomModelBox({
         setEditor(instance)
 
         instance.cm.setSize('100%', '100%')
-        if (customModel != null) {
-            // init from settings in case of entire app recreation like window resizing
-            instance.value = customModel2prettyString(customModel)
-        } else if (initialCustomModelStr != null) {
-            try {
-                instance.value = customModel2prettyString(JSON.parse(initialCustomModelStr))
-            } catch (e) {
-                instance.value = initialCustomModelStr
-            }
-        } else {
-            instance.value = customModel2prettyString(customModelExamples['default_example'])
-            dispatchCustomModel(instance.value, true, true)
-        }
-
-        instance.validListener = (valid: boolean) => {
-            // We update the app state's custom model, but we are not requesting a routing query every time the model
-            // becomes valid. Updating the model is still important, because the routing request might be triggered by
-            // moving markers etc.
-            dispatchCustomModel(instance.value, valid, false)
-            setIsValid(valid)
-        }
+        instance.cm.on('change', () => Dispatcher.dispatch(new SetCustomModel(instance.value, false)))
+        instance.validListener = (valid: boolean) => setIsValid(valid)
     }, [])
-
-    // without this the editor is blank after opening the box and before clicking it or resizing the window?
-    // but having the focus in the box after opening it is nice anyway
-    useEffect(() => {
-        if (customModelEnabled && showSettings) editor?.cm.focus()
-    }, [customModelEnabled, showSettings])
 
     useEffect(() => {
         if (!editor) return
         editor.categories = convertEncodedValuesForEditor(encodedValues)
-    }, [encodedValues])
+        // focus the box when it is opened
+        if (customModelEnabled) editor.cm.focus()
+        if (editor.value !== customModelStr) editor.value = customModelStr
+    }, [editor, encodedValues, customModelEnabled, customModelStr])
 
     const triggerRouting = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.ctrlKey && event.key === 'Enter') {
                 // Using this keyboard shortcut we can skip the custom model validation and directly request a routing
                 // query.
-                const isValid = true
-                dispatchCustomModel(editor.value, isValid, true)
+                Dispatcher.dispatch(new SetCustomModel(editor.value, true))
             }
         },
         [editor, isValid]
@@ -108,10 +83,11 @@ export default function CustomModelBox({
                 <select
                     className={styles.examples}
                     onChange={(e: any) => {
-                        editor.value = customModel2prettyString(customModelExamples[e.target.value])
                         // When selecting an example we request a routing request and act like the model is valid,
                         // even when it is not according to the editor validation.
-                        dispatchCustomModel(JSON.stringify(customModelExamples[e.target.value]), true, true)
+                        Dispatcher.dispatch(
+                            new SetCustomModel(customModel2prettyString(customModelExamples[e.target.value]), true)
+                        )
                     }}
                 >
                     <option value="default_example">{tr('examples_custom_model')}</option>
@@ -139,7 +115,7 @@ export default function CustomModelBox({
                         disabled={!isValid || queryOngoing}
                         // If the model was invalid the button would be disabled anyway, so it does not really matter
                         // if we set valid to true or false here.
-                        onClick={() => dispatchCustomModel(editor.value, true, true)}
+                        onClick={() => Dispatcher.dispatch(new SetCustomModel(editor.value, true))}
                     >
                         {tr('apply_custom_model')}
                     </PlainButton>
@@ -150,11 +126,3 @@ export default function CustomModelBox({
     )
 }
 
-function dispatchCustomModel(customModelString: string, isValid: boolean, withRouteRequest: boolean) {
-    try {
-        const parsedValue = JSON.parse(customModelString)
-        Dispatcher.dispatch(new SetCustomModel(parsedValue, isValid, withRouteRequest))
-    } catch (e) {
-        Dispatcher.dispatch(new SetCustomModel(null, false, withRouteRequest))
-    }
-}

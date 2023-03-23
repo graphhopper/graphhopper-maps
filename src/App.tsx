@@ -30,6 +30,7 @@ import ContextMenu from '@/layers/ContextMenu'
 import usePathDetailsLayer from '@/layers/UsePathDetailsLayer'
 import { Map } from 'ol'
 import { getMap } from '@/map/map'
+import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
@@ -42,7 +43,6 @@ import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import SettingsBox from '@/sidebar/SettingsBox'
 import { Settings } from '@/stores/SettingsStore'
-import CustomModelBox from '@/sidebar/CustomModelBox'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -168,10 +168,10 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         {settings.showSettings && <SettingsBox queryStoreState={query} />}
                         {settings.showSettings && query.customModelEnabled && (
                             <CustomModelBox
+                                customModelEnabled={query.customModelEnabled}
                                 encodedValues={encodedValues}
+                                customModelStr={query.customModelStr}
                                 queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                                queryStoreState={query}
-                                showSettings={settings.showSettings}
                             />
                         )}
                         <Search points={query.queryPoints} />
@@ -247,7 +247,10 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
 }
 
 function getCustomModelAreas(queryStoreState: QueryStoreState): object | null {
-    return queryStoreState.customModelEnabled && queryStoreState.customModelValid
-        ? queryStoreState.customModel?.areas!
-        : null
+    if (!queryStoreState.customModelEnabled) return null
+    try {
+        return JSON.parse(queryStoreState.customModelStr)['areas']
+    } catch {
+        return null
+    }
 }

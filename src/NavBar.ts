@@ -4,7 +4,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, SelectMapLayer, SetInitialBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
-import QueryStore, { Coordinate, CustomModel, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
+import QueryStore, { Coordinate, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
 import { getApi } from '@/api/Api'
 
@@ -26,12 +26,7 @@ export default class NavBar {
         this.mapStore.register(() => this.updateUrlFromState())
     }
 
-    private static createUrl(
-        baseUrl: string,
-        queryStoreState: QueryStoreState,
-        mapState: MapOptionsStoreState,
-        cm: CustomModel | null
-    ) {
+    private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState) {
         const result = new URL(baseUrl)
         if (queryStoreState.queryPoints.filter(point => point.isInitialized).length > 0) {
             queryStoreState.queryPoints
@@ -41,7 +36,8 @@ export default class NavBar {
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
-        if (cm) result.searchParams.append('custom_model', JSON.stringify(cm))
+        if (queryStoreState.customModelEnabled)
+            result.searchParams.append('custom_model', queryStoreState.customModelStr.replace(/\s+/g, ''))
 
         return result
     }
@@ -160,10 +156,7 @@ export default class NavBar {
         return NavBar.createUrl(
             window.location.origin + window.location.pathname,
             this.queryStore.state,
-            this.mapStore.state,
-            this.queryStore.state.customModelEnabled && this.queryStore.state.customModelValid
-                ? this.queryStore.state.customModel
-                : null
+            this.mapStore.state
         ).toString()
     }
 

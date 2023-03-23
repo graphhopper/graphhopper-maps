@@ -12,8 +12,8 @@ import {
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
-    SetCustomModel,
     SetCustomModelBoxEnabled,
+    SetCustomModel,
     SetPoint,
     SetQueryPoints,
     SetVehicleProfile,
@@ -21,6 +21,7 @@ import {
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist } from '@/distUtils'
 import config from 'config'
+import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 
 export interface Coordinate {
     lat: number
@@ -35,11 +36,9 @@ export interface QueryStoreState {
     readonly maxAlternativeRoutes: number
     readonly routingProfile: RoutingProfile
     readonly customModelEnabled: boolean
+    readonly customModelStr: string
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
-    readonly initialCustomModelStr: string | null
-    readonly customModel: CustomModel | null
-    readonly customModelValid: boolean
 }
 
 export interface QueryPoint {
@@ -88,6 +87,14 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private static getInitialState(initialCustomModelStr: string | null): QueryStoreState {
+        const customModelEnabledInitially = initialCustomModelStr != null
+        if (!initialCustomModelStr)
+            initialCustomModelStr = customModel2prettyString(customModelExamples['default_example'])
+        // prettify the custom model if it can be parsed or leave it as is otherwise
+        try {
+            initialCustomModelStr = customModel2prettyString(JSON.parse(initialCustomModelStr))
+        } catch (e) {}
+
         return {
             profiles: [],
             queryPoints: [
@@ -102,11 +109,9 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
-            customModelEnabled: !!initialCustomModelStr,
+            customModelEnabled: customModelEnabledInitially,
+            customModelStr: initialCustomModelStr,
             zoom: true,
-            initialCustomModelStr: initialCustomModelStr,
-            customModel: null, // initialCustomModelStr will be parsed later. We cannot report errors that early.
-            customModelValid: false,
         }
     }
 
@@ -261,15 +266,13 @@ export default class QueryStore extends Store<QueryStoreState> {
         } else if (action instanceof SetCustomModel) {
             const newState = {
                 ...state,
-                customModel: action.customModel,
-                customModelValid: action.valid,
+                customModelStr: action.customModelStr,
             }
-            if (action.issueRouteRequest) return this.routeIfReady(newState)
-            return newState
+            return action.issueRoutingRequest ? this.routeIfReady(newState) : newState
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
         } else if (action instanceof SetCustomModelBoxEnabled) {
-            const newState = {
+            const newState: QueryStoreState = {
                 ...state,
                 customModelEnabled: action.enabled,
             }
@@ -294,27 +297,20 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private routeIfReady(state: QueryStoreState): QueryStoreState {
-        const cmEnabled = state.customModelEnabled
-        const cm = state.customModelValid && cmEnabled ? state.customModel : null
-        if (cmEnabled && !cm) return state
-
         if (QueryStore.isReadyToRoute(state)) {
             let requests
             const maxDistance = getMaxDistance(state.queryPoints)
-            if (cmEnabled) {
+            if (state.customModelEnabled) {
                 if (maxDistance < 200_000) {
                     // Use a single request, possibly including alternatives when custom models are enabled.
-                    requests = [QueryStore.buildRouteRequest(state, cm)]
+                    requests = [QueryStore.buildRouteRequest(state)]
                 } else if (maxDistance < 500_000) {
                     // Force no alternatives for longer custom model routes.
                     requests = [
-                        QueryStore.buildRouteRequest(
-                            {
-                                ...state,
-                                maxAlternativeRoutes: 1,
-                            },
-                            cm
-                        ),
+                        QueryStore.buildRouteRequest({
+                            ...state,
+                            maxAlternativeRoutes: 1,
+                        }),
                     ]
                 } else {
                     // Custom model requests with large distances take too long, so we just error.
@@ -333,13 +329,10 @@ export default class QueryStore extends Store<QueryStoreState> {
             } else {
                 requests = [
                     // We first send a fast request without alternatives ...
-                    QueryStore.buildRouteRequest(
-                        {
-                            ...state,
-                            maxAlternativeRoutes: 1,
-                        },
-                        cm
-                    ),
+                    QueryStore.buildRouteRequest({
+                        ...state,
+                        maxAlternativeRoutes: 1,
+                    }),
                 ]
                 // ... and then a second, slower request including alternatives if they are enabled.
                 if (
@@ -347,7 +340,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     state.maxAlternativeRoutes > 1 &&
                     (ApiImpl.isMotorVehicle(state.routingProfile.name) || maxDistance < 500_000)
                 )
-                    requests.push(QueryStore.buildRouteRequest(state, cm))
+                    requests.push(QueryStore.buildRouteRequest(state))
             }
 
             return {
@@ -371,6 +364,12 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private static isReadyToRoute(state: QueryStoreState) {
+        if (state.customModelEnabled)
+            try {
+                JSON.parse(state.customModelStr)
+            } catch {
+                return false
+            }
         // Janek deliberately chose this style of if statements, to make this readable.
         if (state.queryPoints.length <= 1) return false
         if (!state.queryPoints.every(point => point.isInitialized)) return false
@@ -430,17 +429,23 @@ export default class QueryStore extends Store<QueryStoreState> {
         return QueryPointType.Via
     }
 
-    private static buildRouteRequest(state: QueryStoreState, cm: CustomModel | null): RoutingArgs {
+    private static buildRouteRequest(state: QueryStoreState): RoutingArgs {
         const coordinates = state.queryPoints.map(point => [point.coordinate.lng, point.coordinate.lat]) as [
             number,
             number
         ][]
 
+        let customModel = null
+        if (state.customModelEnabled)
+            try {
+                customModel = JSON.parse(state.customModelStr)
+            } catch {}
+
         return {
             points: coordinates,
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
-            customModel: cm,
+            customModel: customModel,
             zoom: state.zoom,
         }
     }
