@@ -77,13 +77,7 @@ export default function CustomModelBox({ encodedValues, queryOngoing, settings }
 
     useEffect(() => {
         if (!editor) return
-
-        const categories = convertEncodedValuesForEditor(encodedValues)
-        if (!categories) {
-            console.warn('encoded values invalid: ' + JSON.stringify(encodedValues))
-        } else {
-            editor.categories = categories
-        }
+        editor.categories = convertEncodedValuesForEditor(encodedValues)
     }, [encodedValues])
 
     const triggerRouting = useCallback(
