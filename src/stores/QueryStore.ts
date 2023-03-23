@@ -258,11 +258,6 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
 
             return this.routeIfReady(newState)
-        } else if (action instanceof SetCustomModelBoxEnabled) {
-            return {
-                ...state,
-                customModelEnabled: !state.customModelEnabled,
-            }
         } else if (action instanceof SetCustomModel) {
             const newState = {
                 ...state,
@@ -274,7 +269,11 @@ export default class QueryStore extends Store<QueryStoreState> {
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
         } else if (action instanceof SetCustomModelBoxEnabled) {
-            return this.routeIfReady(state)
+            const newState = {
+                ...state,
+                customModelEnabled: action.enabled,
+            }
+            return this.routeIfReady(newState)
         }
         return state
     }
