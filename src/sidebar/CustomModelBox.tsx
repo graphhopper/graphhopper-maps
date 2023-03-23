@@ -10,7 +10,7 @@ import { SetCustomModel } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import { Settings } from '@/stores/SettingsStore'
-import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelBoxExamples'
+import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 
 function convertEncodedValuesForEditor(encodedValues: object[]): any {
     // todo: maybe do this 'conversion' in Api.ts already and use types from there on
