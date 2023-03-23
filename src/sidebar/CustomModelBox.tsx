@@ -7,70 +7,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetCustomModel } from '@/actions/Actions'
-import { CustomModel } from '@/stores/QueryStore'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
-import { Settings } from '@/stores/SettingsStore'
+import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 
-const examples: { [key: string]: CustomModel } = {
-    default_example: {
-        distance_influence: 15,
-        priority: [{ if: 'road_environment == FERRY', multiply_by: '0.9' }],
-        speed: [],
-        areas: {
-            type: 'FeatureCollection',
-            features: [],
-        },
-    },
-    exclude_motorway: {
-        priority: [{ if: 'road_class == MOTORWAY', multiply_by: '0.0' }],
-    },
-    limit_speed: {
-        speed: [
-            { if: 'true', limit_to: '100' },
-            { if: 'road_class == TERTIARY', limit_to: '80' },
-        ],
-    },
-    exclude_area: {
-        priority: [{ if: 'in_berlin_bbox', multiply_by: '0' }],
-        areas: {
-            type: 'FeatureCollection',
-            features: [
-                {
-                    type: 'Feature',
-                    id: 'berlin_bbox',
-                    properties: {},
-                    geometry: {
-                        type: 'Polygon',
-                        coordinates: [
-                            [
-                                [13.253, 52.608],
-                                [13.228, 52.437],
-                                [13.579, 52.447],
-                                [13.563, 52.609],
-                                [13.253, 52.608],
-                            ],
-                        ],
-                    },
-                },
-            ],
-        },
-    },
-    cargo_bike: {
-        speed: [{ if: 'road_class == TRACK', limit_to: '2' }],
-        priority: [{ if: 'max_width < 1.5 || road_class == STEPS', multiply_by: '0' }],
-    },
-    combined: {
-        distance_influence: 100,
-        speed: [{ if: 'road_class == TRACK || road_environment == FERRY || surface == DIRT', limit_to: '10' }],
-        priority: [
-            { if: 'road_environment == TUNNEL || toll == ALL', multiply_by: '0.5' },
-            { if: 'max_weight < 3 || max_height < 2.5', multiply_by: '0.0' },
-        ],
-    },
-}
-
-function convertEV(encodedValues: object[]): any {
+function convertEncodedValuesForEditor(encodedValues: object[]): any {
+    // todo: maybe do this 'conversion' in Api.ts already and use types from there on
     const categories: any = {}
     Object.keys(encodedValues).forEach((k: any) => {
         const v: any = encodedValues[k]
@@ -86,71 +28,49 @@ function convertEV(encodedValues: object[]): any {
 }
 
 export interface CustomModelBoxProps {
+    customModelEnabled: boolean
     encodedValues: object[]
+    customModelStr: string
     queryOngoing: boolean
-    settings: Settings
 }
 
-export default function CustomModelBox({ encodedValues, queryOngoing, settings }: CustomModelBoxProps) {
-    const { initialCustomModelStr, customModelEnabled, showSettings, customModel } = settings
+export default function CustomModelBox({
+    customModelEnabled,
+    encodedValues,
+    customModelStr,
+    queryOngoing,
+}: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
     const [isValid, setIsValid] = useState(false)
     const divElement = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
-        const instance = create(convertEV(encodedValues), (element: Node) => divElement.current?.appendChild(element))
+        // we start with the encoded values we already have, but they might be empty still
+        const instance = create(convertEncodedValuesForEditor(encodedValues), (element: Node) =>
+            divElement.current?.appendChild(element)
+        )
         setEditor(instance)
 
         instance.cm.setSize('100%', '100%')
-        if (customModel != null) {
-            // init from settings in case of entire app recreation like window resizing
-            instance.value = customModel2prettyString(customModel)
-        } else if (initialCustomModelStr != null) {
-            try {
-                instance.value = customModel2prettyString(JSON.parse(initialCustomModelStr))
-            } catch (e) {
-                instance.value = initialCustomModelStr
-            }
-        } else {
-            instance.value = customModel2prettyString(examples['default_example'])
-            dispatchCustomModel(instance.value, true, true)
-        }
-
-        instance.validListener = (valid: boolean) => {
-            // We update the app state's custom model, but we are not requesting a routing query every time the model
-            // becomes valid. Updating the model is still important, because the routing request might be triggered by
-            // moving markers etc.
-            dispatchCustomModel(instance.value, valid, false)
-            setIsValid(valid)
-        }
+        instance.cm.on('change', () => Dispatcher.dispatch(new SetCustomModel(instance.value, false)))
+        instance.validListener = (valid: boolean) => setIsValid(valid)
     }, [])
-
-    // without this the editor is blank after opening the box and before clicking it or resizing the window?
-    // but having the focus in the box after opening it is nice anyway
-    useEffect(() => {
-        if (customModelEnabled && showSettings) editor?.cm.focus()
-    }, [customModelEnabled, showSettings])
 
     useEffect(() => {
         if (!editor) return
-
-        // todo: maybe do this 'conversion' in Api.ts already and use types from there on
-        const categories = convertEV(encodedValues)
-        if (!categories) {
-            console.warn('encoded values invalid: ' + JSON.stringify(encodedValues))
-        } else {
-            editor.categories = categories
-        }
-    }, [encodedValues])
+        editor.categories = convertEncodedValuesForEditor(encodedValues)
+        // focus the box when it is opened
+        if (customModelEnabled) editor.cm.focus()
+        if (editor.value !== customModelStr) editor.value = customModelStr
+    }, [editor, encodedValues, customModelEnabled, customModelStr])
 
     const triggerRouting = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             if (event.ctrlKey && event.key === 'Enter') {
                 // Using this keyboard shortcut we can skip the custom model validation and directly request a routing
                 // query.
-                const isValid = true
-                dispatchCustomModel(editor.value, isValid, true)
+                Dispatcher.dispatch(new SetCustomModel(editor.value, true))
             }
         },
         [editor, isValid]
@@ -163,10 +83,11 @@ export default function CustomModelBox({ encodedValues, queryOngoing, settings }
                 <select
                     className={styles.examples}
                     onChange={(e: any) => {
-                        editor.value = customModel2prettyString(examples[e.target.value])
                         // When selecting an example we request a routing request and act like the model is valid,
                         // even when it is not according to the editor validation.
-                        dispatchCustomModel(JSON.stringify(examples[e.target.value]), true, true)
+                        Dispatcher.dispatch(
+                            new SetCustomModel(customModel2prettyString(customModelExamples[e.target.value]), true)
+                        )
                     }}
                 >
                     <option value="default_example">{tr('examples_custom_model')}</option>
@@ -194,7 +115,7 @@ export default function CustomModelBox({ encodedValues, queryOngoing, settings }
                         disabled={!isValid || queryOngoing}
                         // If the model was invalid the button would be disabled anyway, so it does not really matter
                         // if we set valid to true or false here.
-                        onClick={() => dispatchCustomModel(editor.value, true, true)}
+                        onClick={() => Dispatcher.dispatch(new SetCustomModel(editor.value, true))}
                     >
                         {tr('apply_custom_model')}
                     </PlainButton>
@@ -205,15 +126,3 @@ export default function CustomModelBox({ encodedValues, queryOngoing, settings }
     )
 }
 
-function dispatchCustomModel(customModelString: string, isValid: boolean, withRouteRequest: boolean) {
-    try {
-        const parsedValue = JSON.parse(customModelString)
-        Dispatcher.dispatch(new SetCustomModel(parsedValue, isValid, withRouteRequest))
-    } catch (e) {
-        Dispatcher.dispatch(new SetCustomModel(null, false, withRouteRequest))
-    }
-}
-
-function customModel2prettyString(customModel: CustomModel) {
-    return JSON.stringify(customModel, null, 2)
-}

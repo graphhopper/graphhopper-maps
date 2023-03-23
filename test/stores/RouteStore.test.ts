@@ -4,7 +4,6 @@ import Api from '@/api/Api'
 import { ApiInfo, GeocodingResult, Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import { ClearPoints, ClearRoute, RemovePoint, SetPoint, SetSelectedPath } from '@/actions/Actions'
-import SettingsStore from '@/stores/SettingsStore'
 
 describe('RouteStore', () => {
     afterEach(() => {
@@ -49,7 +48,7 @@ describe('RouteStore', () => {
 })
 
 function createStore() {
-    const store = new RouteStore(new QueryStore(new DummyApi(), new SettingsStore()))
+    const store = new RouteStore(new QueryStore(new DummyApi()))
     Dispatcher.register(store)
     return store
 }

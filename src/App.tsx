@@ -30,6 +30,7 @@ import ContextMenu from '@/layers/ContextMenu'
 import usePathDetailsLayer from '@/layers/UsePathDetailsLayer'
 import { Map } from 'ol'
 import { getMap } from '@/map/map'
+import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
@@ -41,8 +42,6 @@ import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import SettingsBox from '@/sidebar/SettingsBox'
-import Dispatcher from '@/stores/Dispatcher'
-import { ToggleShowSettings } from '@/actions/Actions'
 import { Settings } from '@/stores/SettingsStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
@@ -102,7 +101,7 @@ export default function App() {
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
     useMapBorderLayer(map, info.bbox)
-    useAreasLayer(map, settings.customModelEnabled && settings.customModelValid ? settings.customModel?.areas! : null)
+    useAreasLayer(map, getCustomModelAreas(query))
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
@@ -163,15 +162,18 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            customModelEnabled={settings.customModelEnabled}
+                            customModelEnabled={query.customModelEnabled}
                             showSettings={settings.showSettings}
-                            openSettingsHandle={() => Dispatcher.dispatch(new ToggleShowSettings())}
                         />
-                        <SettingsBox
-                            encodedValues={encodedValues}
-                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                            settings={settings}
-                        />
+                        {settings.showSettings && <SettingsBox queryStoreState={query} />}
+                        {settings.showSettings && query.customModelEnabled && (
+                            <CustomModelBox
+                                customModelEnabled={query.customModelEnabled}
+                                encodedValues={encodedValues}
+                                customModelStr={query.customModelStr}
+                                queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                            />
+                        )}
                         <Search points={query.queryPoints} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
@@ -242,4 +244,13 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
             </div>
         </>
     )
+}
+
+function getCustomModelAreas(queryStoreState: QueryStoreState): object | null {
+    if (!queryStoreState.customModelEnabled) return null
+    try {
+        return JSON.parse(queryStoreState.customModelStr)['areas']
+    } catch {
+        return null
+    }
 }
