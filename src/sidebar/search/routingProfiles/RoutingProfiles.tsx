@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './RoutingProfiles.module.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetVehicleProfile } from '@/actions/Actions'
+import { SetVehicleProfile, ToggleShowSettings } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import PlainButton from '@/PlainButton'
 import BicycleIcon from './bike.svg'
@@ -23,21 +23,20 @@ export default function ({
     selectedProfile,
     customModelEnabled,
     showSettings,
-    openSettingsHandle,
 }: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
     customModelEnabled: boolean
     showSettings: boolean
-    openSettingsHandle: () => void
 }) {
     return (
         <div className={styles.profilesParent}>
             <PlainButton
                 title={tr('show_settings')}
+                // todonow: do we really want to use this tiny shadow to distinguish between 'settings are open' and 'settings are open and custom model is active'?
                 style={{ boxShadow: customModelEnabled ? '1px 1px gray' : '' }}
                 className={showSettings ? styles.enabledSettings : styles.settings}
-                onClick={openSettingsHandle}
+                onClick={() => Dispatcher.dispatch(new ToggleShowSettings())}
             >
                 <SettingsSVG />
             </PlainButton>

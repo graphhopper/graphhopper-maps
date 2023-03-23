@@ -41,8 +41,6 @@ import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import SettingsBox from '@/sidebar/SettingsBox'
-import Dispatcher from '@/stores/Dispatcher'
-import { ToggleShowSettings } from '@/actions/Actions'
 import { Settings } from '@/stores/SettingsStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
@@ -165,7 +163,6 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                             selectedProfile={query.routingProfile}
                             customModelEnabled={settings.customModelEnabled}
                             showSettings={settings.showSettings}
-                            openSettingsHandle={() => Dispatcher.dispatch(new ToggleShowSettings())}
                         />
                         <SettingsBox
                             encodedValues={encodedValues}

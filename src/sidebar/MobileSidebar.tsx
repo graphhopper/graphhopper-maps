@@ -11,8 +11,6 @@ import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import SettingsBox from '@/sidebar/SettingsBox'
-import Dispatcher from '@/stores/Dispatcher'
-import { ToggleShowSettings } from '@/actions/Actions'
 import { Settings } from '@/stores/SettingsStore'
 
 type MobileSidebarProps = {
@@ -63,7 +61,6 @@ export default function ({ query, route, error, encodedValues, settings }: Mobil
                             selectedProfile={query.routingProfile}
                             customModelEnabled={settings.customModelEnabled}
                             showSettings={settings.showSettings}
-                            openSettingsHandle={() => Dispatcher.dispatch(new ToggleShowSettings())}
                         />
                         <SettingsBox
                             encodedValues={encodedValues}
