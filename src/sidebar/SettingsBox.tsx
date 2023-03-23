@@ -7,6 +7,8 @@ import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import { Settings } from '@/stores/SettingsStore'
+import { useContext } from 'react'
+import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { QueryStoreState } from '@/stores/QueryStore'
 
 export default function SettingsBox({
@@ -20,19 +22,20 @@ export default function SettingsBox({
     queryOngoing: boolean
     settings: Settings
 }) {
+    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
     return !settings.showSettings ? (
         <></>
     ) : (
         <>
             <div className={styles.settingsTable}>
                 <PlainButton
-                    style={{ color: settings.showDistanceInMiles ? '' : 'lightgray' }}
+                    style={{ color: showDistanceInMiles ? '' : 'lightgray' }}
                     onClick={() => Dispatcher.dispatch(new ToggleDistanceUnits())}
                 >
-                    {settings.showDistanceInMiles ? <OnIcon /> : <OffIcon />}
+                    {showDistanceInMiles ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
-                <div style={{ color: settings.showDistanceInMiles ? '#5b616a' : 'gray' }}>
-                    {tr('distance_unit', [tr(settings.showDistanceInMiles ? 'mi' : 'km')])}
+                <div style={{ color: showDistanceInMiles ? '#5b616a' : 'gray' }}>
+                    {tr('distance_unit', [tr(showDistanceInMiles ? 'mi' : 'km')])}
                 </div>
                 <PlainButton
                     style={{ color: queryStoreState.customModelEnabled ? '' : 'lightgray' }}

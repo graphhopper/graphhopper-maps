@@ -48,6 +48,7 @@ export default function CustomModelBox({
     const divElement = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
+        // we start with the encoded values we already have, but they might be empty still
         const instance = create(convertEncodedValuesForEditor(encodedValues), (element: Node) =>
             divElement.current?.appendChild(element)
         )

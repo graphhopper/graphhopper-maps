@@ -372,7 +372,7 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private static isReadyToRoute(state: QueryStoreState) {
-        // deliberately chose this style of if statements, to make this readable.
+        // Janek deliberately chose this style of if statements, to make this readable.
         if (state.queryPoints.length <= 1) return false
         if (!state.queryPoints.every(point => point.isInitialized)) return false
         if (!state.routingProfile.name) return false
