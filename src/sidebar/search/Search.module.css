@@ -78,7 +78,6 @@
 
 .infoLine {
     padding: 1.5em 4px 2px 2px;
-    font-size: 14px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -93,6 +92,11 @@
     color: black;
 }
 
+.infoLine, .addSearchBox, .cmButton {
+    font-size: 14px;
+    color: gray;
+}
+
 .addSearchBox svg {
     width: 18px;
     height: 18px;
@@ -104,8 +108,6 @@
 }
 
 .addSearchBox {
-    color: gray;
-    font-size: 14px;
     flex-grow: 1;
     display: flex;
     flex-direction: row;

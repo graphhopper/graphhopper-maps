@@ -60,7 +60,6 @@ export default function ({ query, route, error, encodedValues, settings }: Mobil
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            customModelEnabled={query.customModelEnabled}
                             showSettings={settings.showSettings}
                         />
                         {settings.showSettings && <SettingsBox queryStoreState={query} />}
@@ -72,7 +71,7 @@ export default function ({ query, route, error, encodedValues, settings }: Mobil
                                 queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                             />
                         )}
-                        <Search points={query.queryPoints} />
+                        <Search points={query.queryPoints} customModelEnabled={query.customModelEnabled} />
                     </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}

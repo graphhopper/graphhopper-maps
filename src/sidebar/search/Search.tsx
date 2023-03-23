@@ -9,7 +9,7 @@ import {
     MovePoint,
     RemovePoint,
     SetPoint,
-    ToggleDistanceUnits,
+    ToggleDistanceUnits, ToggleShowSettings,
 } from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
@@ -21,7 +21,10 @@ import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 
-export default function Search({ points }: { points: QueryPoint[] }) {
+export default function Search({ points, customModelEnabled }: {
+    points: QueryPoint[]
+    customModelEnabled: boolean
+}) {
     const [showInfo, setShowInfo] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
@@ -64,6 +67,9 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                     <AddIcon />
                     <div>{tr('add_to_route')}</div>
                 </PlainButton>
+                {customModelEnabled && <PlainButton className={styles.cmButton} onClick={() => Dispatcher.dispatch(new ToggleShowSettings())}>
+                    {tr('custom_model_enabled')}
+                </PlainButton>}
                 <PlainButton className={styles.infoButton} onClick={() => setShowInfo(!showInfo)}>
                     <InfoIcon />
                 </PlainButton>

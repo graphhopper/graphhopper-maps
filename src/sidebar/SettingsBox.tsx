@@ -37,7 +37,7 @@ export default function SettingsBox({ queryStoreState }: { queryStoreState: Quer
                 </PlainButton>
                 {/* todonow: move to css? */}
                 <div style={{ color: queryStoreState.customModelEnabled ? '#5b616a' : 'gray' }}>
-                    {tr('custom model enabled')}
+                    {tr('custom_model_enabled')}
                 </div>
             </div>
         </>

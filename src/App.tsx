@@ -162,7 +162,6 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            customModelEnabled={query.customModelEnabled}
                             showSettings={settings.showSettings}
                         />
                         {settings.showSettings && <SettingsBox queryStoreState={query} />}
@@ -174,7 +173,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                 queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                             />
                         )}
-                        <Search points={query.queryPoints} />
+                        <Search points={query.queryPoints} customModelEnabled={query.customModelEnabled} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
                             paths={route.routingResult.paths}
