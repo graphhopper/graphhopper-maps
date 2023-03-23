@@ -41,7 +41,6 @@ import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
-import SettingsBox from '@/sidebar/SettingsBox'
 import { Settings } from '@/stores/SettingsStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
@@ -149,8 +148,9 @@ interface LayoutProps {
     settings: Settings
 }
 
-function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, settings }: LayoutProps) {
+function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
+    const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     return (
         <>
             {showSidebar ? (
@@ -162,10 +162,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            showSettings={settings.showSettings}
+                            showCustomModelBox={showCustomModelBox}
+                            toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}
+                            customModelBoxEnabled={query.customModelEnabled}
                         />
-                        {settings.showSettings && <SettingsBox queryStoreState={query} />}
-                        {settings.showSettings && query.customModelEnabled && (
+                        {showCustomModelBox && (
                             <CustomModelBox
                                 customModelEnabled={query.customModelEnabled}
                                 encodedValues={encodedValues}
@@ -173,7 +174,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                 queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                             />
                         )}
-                        <Search points={query.queryPoints} customModelEnabled={query.customModelEnabled} />
+                        <Search points={query.queryPoints} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
                             paths={route.routingResult.paths}

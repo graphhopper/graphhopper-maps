@@ -28,50 +28,58 @@
     transform: scale(1.1);
 }
 
-.enabledSettings,
-.settings {
+.asIndicator {
+    position: absolute;
+    left: -21px;
+    top: -40px;
+    z-index: 1;
+    scale: 0.1;
+}
+
+.enabledCMBox,
+.cmBox {
     border-radius: 50%;
 }
 
-.enabledSettings svg path,
-.settings svg path {
+.enabledCMBox svg path,
+.cmBox svg path {
     fill: #a8a8a8;
     stroke: #a8a8a8;
 }
 
-.enabledSettings:active svg path,
-.settings:active svg path {
+.enabledCMBox:active svg path,
+.cmBox:active svg path {
     fill: lightgray;
     stroke: lightgray;
 }
 
-.settings:hover svg path,
-.enabledSettings:hover svg path {
+.cmBox:hover svg path,
+.enabledCMBox:hover svg path {
     fill: #000000;
     stroke: #000000;
 }
 
-.settings:active svg path,
-.enabledSettings:active svg path {
+.cmBox:active svg path,
+.enabledCMBox:active svg path {
     fill: lightgray;
     stroke: lightgray;
 }
 
-.enabledSettings svg,
-.settings svg {
+.enabledCMBox svg,
+.cmBox svg {
     margin: 0;
     padding: 8px;
     width: 18px;
     height: 18px;
 }
 
-.settings svg {
+.cmBox svg {
     transform: rotate(0);
     animation-name: reverse_rotate;
     animation-duration: 0.2s;
 }
 
-.enabledSettings svg {
+.enabledCMBox svg {
     transform: rotate(180deg);
     animation-name: setting_rotate;
     animation-duration: 0.2s;

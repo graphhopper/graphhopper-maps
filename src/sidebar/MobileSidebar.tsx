@@ -10,7 +10,6 @@ import { MarkerComponent } from '@/map/Marker'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
-import SettingsBox from '@/sidebar/SettingsBox'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import { Settings } from '@/stores/SettingsStore'
 
@@ -23,6 +22,7 @@ type MobileSidebarProps = {
 }
 
 export default function ({ query, route, error, encodedValues, settings }: MobileSidebarProps) {
+    const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
     const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen && hasResult(route))
@@ -60,10 +60,11 @@ export default function ({ query, route, error, encodedValues, settings }: Mobil
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            showSettings={settings.showSettings}
+                            showCustomModelBox={showCustomModelBox}
+                            toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}
+                            customModelBoxEnabled={query.customModelEnabled}
                         />
-                        {settings.showSettings && <SettingsBox queryStoreState={query} />}
-                        {settings.showSettings && query.customModelEnabled && (
+                        {showCustomModelBox && (
                             <CustomModelBox
                                 customModelEnabled={query.customModelEnabled}
                                 encodedValues={encodedValues}
@@ -71,7 +72,7 @@ export default function ({ query, route, error, encodedValues, settings }: Mobil
                                 queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                             />
                         )}
-                        <Search points={query.queryPoints} customModelEnabled={query.customModelEnabled} />
+                        <Search points={query.queryPoints} />
                     </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}

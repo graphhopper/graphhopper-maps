@@ -49,6 +49,12 @@
     grid-column: 1 / span 3;
 }
 
+.addSearchBox,
+.settingsButton {
+    font-size: 14px;
+    color: gray;
+}
+
 .lastSearchLine {
     display: flex;
     flex-direction: row;
@@ -65,36 +71,6 @@
 .addSearchBox:active path,
 .markerTarget:active path {
     fill: lightgray;
-}
-
-.infoButton {
-    padding-left: 7px;
-}
-
-.infoButton svg {
-    width: 19px;
-    height: 19px;
-}
-
-.infoLine {
-    padding: 1.5em 4px 2px 2px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-.infoLine a {
-    color: gray;
-    text-decoration: none;
-}
-
-.infoLine a:hover {
-    color: black;
-}
-
-.infoLine, .addSearchBox, .cmButton {
-    font-size: 14px;
-    color: gray;
 }
 
 .addSearchBox svg {

@@ -6,10 +6,12 @@ import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetCustomModel } from '@/actions/Actions'
+import { ClearRoute, DismissLastError, SetCustomModel, SetCustomModelEnabled } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
+import OnIcon from '@/sidebar/toggle_on.svg'
+import OffIcon from '@/sidebar/toggle_off.svg'
 
 function convertEncodedValuesForEditor(encodedValues: object[]): any {
     // todo: maybe do this 'conversion' in Api.ts already and use types from there on
@@ -78,6 +80,19 @@ export default function CustomModelBox({
 
     return (
         <>
+            <div className={styles.customModelOptionTable}>
+                <PlainButton
+                    style={{ color: customModelEnabled ? '' : 'lightgray' }}
+                    onClick={() => {
+                        if (customModelEnabled) Dispatcher.dispatch(new DismissLastError())
+                        Dispatcher.dispatch(new ClearRoute())
+                        Dispatcher.dispatch(new SetCustomModelEnabled(!customModelEnabled))
+                    }}
+                >
+                    {customModelEnabled ? <OnIcon /> : <OffIcon />}
+                </PlainButton>
+                <div style={{ color: customModelEnabled ? '#5b616a' : 'gray' }}>{tr('custom_model_enabled')}</div>
+            </div>
             <div ref={divElement} className={styles.customModelBox} onKeyUp={triggerRouting} />
             <div className={styles.customModelBoxBottomBar}>
                 <select
@@ -115,7 +130,10 @@ export default function CustomModelBox({
                         disabled={!isValid || queryOngoing}
                         // If the model was invalid the button would be disabled anyway, so it does not really matter
                         // if we set valid to true or false here.
-                        onClick={() => Dispatcher.dispatch(new SetCustomModel(editor.value, true))}
+                        onClick={() => {
+                            if (!customModelEnabled) Dispatcher.dispatch(new SetCustomModelEnabled(true))
+                            Dispatcher.dispatch(new SetCustomModel(editor.value, true))
+                        }}
                     >
                         {tr('apply_custom_model')}
                     </PlainButton>
@@ -125,4 +143,3 @@ export default function CustomModelBox({
         </>
     )
 }
-

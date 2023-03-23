@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from './RoutingProfiles.module.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetVehicleProfile, ToggleShowSettings } from '@/actions/Actions'
+import { SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import PlainButton from '@/PlainButton'
 import BicycleIcon from './bike.svg'
@@ -16,25 +16,29 @@ import SmallTruckIcon from './small_truck.svg'
 import TruckIcon from './truck.svg'
 import WheelchairIcon from './wheelchair.svg'
 import { tr } from '@/translation/Translation'
-import SettingsSVG from '@/sidebar/settings.svg'
+import CustomModelBoxSVG from '@/sidebar/open_custom_model.svg'
 
 export default function ({
     routingProfiles,
     selectedProfile,
-    showSettings,
+    showCustomModelBox,
+    toggleCustomModelBox,
+    customModelBoxEnabled,
 }: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
-    showSettings: boolean
+    showCustomModelBox: boolean
+    toggleCustomModelBox: () => void
+    customModelBoxEnabled: boolean
 }) {
     return (
         <div className={styles.profilesParent}>
             <PlainButton
-                title={tr('show_settings')}
-                className={showSettings ? styles.enabledSettings : styles.settings}
-                onClick={() => Dispatcher.dispatch(new ToggleShowSettings())}
+                title={tr('open_custom_model_box')}
+                className={showCustomModelBox ? styles.enabledCMBox : styles.cmBox}
+                onClick={toggleCustomModelBox}
             >
-                <SettingsSVG />
+                <CustomModelBoxSVG />
             </PlainButton>
             <ul className={styles.profiles}>
                 {routingProfiles.map(profile => {
@@ -49,6 +53,9 @@ export default function ({
                                 onClick={() => Dispatcher.dispatch(new SetVehicleProfile(profile))}
                                 className={className}
                             >
+                                {customModelBoxEnabled && profile.name === selectedProfile.name && (
+                                    <CustomModelBoxSVG className={styles.asIndicator} />
+                                )}
                                 {getIcon(profile)}
                             </PlainButton>
                         </li>
