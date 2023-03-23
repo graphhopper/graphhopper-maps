@@ -102,7 +102,7 @@ export default function App() {
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
     useMapBorderLayer(map, info.bbox)
-    useAreasLayer(map, settings.customModelEnabled && settings.customModelValid ? settings.customModel?.areas! : null)
+    useAreasLayer(map, getCustomModelAreas(settings))
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
@@ -242,4 +242,8 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
             </div>
         </>
     )
+}
+
+function getCustomModelAreas(settings: Settings) {
+    return settings.customModelEnabled && settings.customModelValid ? settings.customModel?.areas! : null
 }
