@@ -120,7 +120,6 @@ export default function App() {
                         mapOptions={mapOptions}
                         error={error}
                         encodedValues={info.encoded_values}
-                        settings={settings}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -130,7 +129,6 @@ export default function App() {
                         mapOptions={mapOptions}
                         error={error}
                         encodedValues={info.encoded_values}
-                        settings={settings}
                     />
                 )}
             </div>
@@ -145,7 +143,6 @@ interface LayoutProps {
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     encodedValues: object[]
-    settings: Settings
 }
 
 function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues }: LayoutProps) {
@@ -209,7 +206,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, settings }: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>

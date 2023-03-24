@@ -11,14 +11,12 @@ import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import CustomModelBox from '@/sidebar/CustomModelBox'
-import { Settings } from '@/stores/SettingsStore'
 
 type MobileSidebarProps = {
     query: QueryStoreState
     route: RouteStoreState
     error: ErrorStoreState
     encodedValues: object[]
-    settings: Settings
 }
 
 export default function ({ query, route, error, encodedValues }: MobileSidebarProps) {
