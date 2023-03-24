@@ -87,7 +87,8 @@
 "for_mi":"for %1$s miles",
 "warning":"WARNING: The turn-by-turn navigation feature is highly experimental. Use it at your own risk, pay attention to the road and do not touch the device while driving!",
 "accept_risks_after_warning":"I understand and agree",
-"start_navigation":"Navigation"
+"start_navigation":"Navigation",
+"vector_tiles_for_navigation":"Use vector tiles for turn-by-turn navigation"
 },
 "ar":{
 "total_ascend":"%1$s اجمالى صعود",
@@ -178,7 +179,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "ast":{
 "total_ascend":"%1$s d'ascensu total",
@@ -269,7 +271,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "az":{
 "total_ascend":"%1$s yüksəliş",
@@ -360,7 +363,8 @@
 "for_mi":"%1$s mildə",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "bg":{
 "total_ascend":"%1$s общо изкачване",
@@ -451,7 +455,8 @@
 "for_mi":"за %1$s мили",
 "warning":"Внимание: Приложението е експериментално! Използвайте на свой риск!",
 "accept_risks_after_warning":"Разбирам и се съгласявам",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "bn_BN":{
 "total_ascend":"",
@@ -542,7 +547,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "ca":{
 "total_ascend":"%1$s de pujada total",
@@ -633,7 +639,8 @@
 "for_mi":"per %1$s milles",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "cs_CZ":{
 "total_ascend":"celkové stoupání %1$s",
@@ -724,7 +731,8 @@
 "for_mi":"%1$s mil",
 "warning":"POZOR: Navigace je vysoce experimentální. Použití je na vlastní nebezpečí, soustřeďte se na řízení a věnujte pozornost dopravní situaci. Neovládejte přístroj za jízdy!",
 "accept_risks_after_warning":"Rozumím a souhlasím",
-"start_navigation":"Navigace"
+"start_navigation":"Navigace",
+"vector_tiles_for_navigation":""
 },
 "da_DK":{
 "total_ascend":"%1$s samlet stigning",
@@ -815,7 +823,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "de_DE":{
 "total_ascend":"%1$s Gesamtaufstieg",
@@ -906,7 +915,8 @@
 "for_mi":"für %1$s Meilen",
 "warning":"ACHTUNG: Die Navigation ist höchst experimentell. Verwenden Sie diese auf eigene Gefahr, achten Sie auf den Straßenverkehr und berühren Sie das Gerät nicht während der Fahrt!",
 "accept_risks_after_warning":"Ich verstehe und akzeptiere",
-"start_navigation":"Navigation"
+"start_navigation":"Navigation",
+"vector_tiles_for_navigation":"Nutze Vector tiles für die Navigation"
 },
 "el":{
 "total_ascend":"%1$s συνολική ανάβαση",
@@ -997,7 +1007,8 @@
 "for_mi":"για %1$s μίλια",
 "warning":"ΠΡΟΣΟΧΗ: Αυτή η εφαρμογή είναι πειραματική! Χρησιμοποιήστε την με δική σας ευθύνη!",
 "accept_risks_after_warning":"Καταλαβαίνω και συμφωνώ",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "eo":{
 "total_ascend":"%1$s supreniro tute",
@@ -1088,7 +1099,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "es":{
 "total_ascend":"Ascender %1$s en total",
@@ -1179,7 +1191,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "fa":{
 "total_ascend":"مجموع صعود %1$s",
@@ -1270,7 +1283,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "fil":{
 "total_ascend":"",
@@ -1361,7 +1375,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "fi":{
 "total_ascend":"nousu yhteensä %1$s",
@@ -1452,7 +1467,8 @@
 "for_mi":"kulje %1$s mailia",
 "warning":"VAROITUS: Tämä sovellus on erittäin kokeellinen! Käytä omalla vastuullasi!",
 "accept_risks_after_warning":"Ymmärrän ja hyväksyn",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "fr_FR":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1543,7 +1559,8 @@
 "for_mi":"Pendant %1$s miles",
 "warning":"ATTENTION : Cette application est hautement expérimentale ! À utiliser à vos risques et périls !",
 "accept_risks_after_warning":"Je comprends et j'accepte",
-"start_navigation":"Naviguer"
+"start_navigation":"Naviguer",
+"vector_tiles_for_navigation":""
 },
 "fr_CH":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1634,7 +1651,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "gl":{
 "total_ascend":"",
@@ -1725,7 +1743,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "he":{
 "total_ascend":"עלייה כוללת של %1$s",
@@ -1816,7 +1835,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "hr_HR":{
 "total_ascend":"%1$s ukupni uspon",
@@ -1907,7 +1927,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "hsb":{
 "total_ascend":"",
@@ -1998,7 +2019,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "hu_HU":{
 "total_ascend":"Összes szintemelkedés: %1$s",
@@ -2089,7 +2111,8 @@
 "for_mi":"",
 "warning":"FIGYELEM! Ez az alkalmazás erősen kísérleti jellegű. Használat csak saját felelősségre!",
 "accept_risks_after_warning":"Megértettem és elfogadom",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "in_ID":{
 "total_ascend":"naik dengan jarak %1$s",
@@ -2180,7 +2203,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "it":{
 "total_ascend":"%1$s di dislivello positivo",
@@ -2271,7 +2295,8 @@
 "for_mi":"per %1$s miglia",
 "warning":"ATTENZIONE: Questa applicazione è ancora sperimentale! Utilizzala a tuo rischio e pericolo!",
 "accept_risks_after_warning":"Ho capito e accetto",
-"start_navigation":"Naviga"
+"start_navigation":"Naviga",
+"vector_tiles_for_navigation":""
 },
 "ja":{
 "total_ascend":"",
@@ -2362,7 +2387,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "kk":{
 "total_ascend":"%1$s көтерілу",
@@ -2453,7 +2479,8 @@
 "for_mi":"",
 "warning":"Ескерту: бұрылыстан бұрылысқа навигация функциясы эксперименталды. Оны өз жауапкершілігіңізбен пайдаланыңыз, жолға назар аударыңыз және қозғалыс кезінде құрылғыға қол тигізбеңіз!",
 "accept_risks_after_warning":"мен түсіндім және келісемін",
-"start_navigation":"навигация"
+"start_navigation":"навигация",
+"vector_tiles_for_navigation":""
 },
 "ko":{
 "total_ascend":"오르막길 총 %1$s",
@@ -2544,7 +2571,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "lt_LT":{
 "total_ascend":"",
@@ -2635,7 +2663,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "nb_NO":{
 "total_ascend":"%1$s totale høydemeter",
@@ -2726,7 +2755,8 @@
 "for_mi":"",
 "warning":"VARSEL: Denne appen er svært eksperimentell. Brukes på eget ansvar!",
 "accept_risks_after_warning":"Jeg forstår og samtykker",
-"start_navigation":"Start navigasjon"
+"start_navigation":"Start navigasjon",
+"vector_tiles_for_navigation":""
 },
 "ne":{
 "total_ascend":"",
@@ -2817,7 +2847,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "nl":{
 "total_ascend":"%1$s totale klim",
@@ -2908,7 +2939,8 @@
 "for_mi":"Voor %1$s mijl",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "pl_PL":{
 "total_ascend":"%1$s w górę",
@@ -2999,7 +3031,8 @@
 "for_mi":"przez %1$s mil",
 "warning":"OSTRZEŻENIE: Ta aplikacja jest wysoce eksperymentalna! Używaj na własne ryzyko!",
 "accept_risks_after_warning":"Rozumiem i akceptuję",
-"start_navigation":"Nawiguj"
+"start_navigation":"Nawiguj",
+"vector_tiles_for_navigation":""
 },
 "pt_BR":{
 "total_ascend":"subida de %1$s",
@@ -3090,7 +3123,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "pt_PT":{
 "total_ascend":"subida de %1$s",
@@ -3181,7 +3215,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "ro":{
 "total_ascend":"urcare %1$s",
@@ -3272,7 +3307,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "ru":{
 "total_ascend":"подъём на %1$s",
@@ -3363,7 +3399,8 @@
 "for_mi":"В %1$s милях",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "sk":{
 "total_ascend":"%1$s celkové stúpanie",
@@ -3454,7 +3491,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "sl_SI":{
 "total_ascend":"Skupni vzpon: %1$s",
@@ -3545,7 +3583,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "sr_RS":{
 "total_ascend":"%1$s ukupni uspon",
@@ -3636,7 +3675,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "sv_SE":{
 "total_ascend":"%1$s stigning",
@@ -3727,7 +3767,8 @@
 "for_mi":"i %1$s mil",
 "warning":"VARNING: Sväng-för-sväng-navigeringen är mycket experimentell! Använd på egen risk!",
 "accept_risks_after_warning":"Jag förstår och godkänner",
-"start_navigation":"Navigera"
+"start_navigation":"Navigera",
+"vector_tiles_for_navigation":""
 },
 "tr":{
 "total_ascend":"%1$s toplam tırmanış",
@@ -3818,7 +3859,8 @@
 "for_mi":"%1$s mil boyunca",
 "warning":"",
 "accept_risks_after_warning":"Anladım ve kabul ediyorum",
-"start_navigation":"Başla"
+"start_navigation":"Başla",
+"vector_tiles_for_navigation":""
 },
 "uk":{
 "total_ascend":"%1$s загалом підйому",
@@ -3909,7 +3951,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "vi_VN":{
 "total_ascend":"Đi tiếp %1$s nữa",
@@ -4000,7 +4043,8 @@
 "for_mi":"Khoảng %1$s dặm",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "zh_CN":{
 "total_ascend":"总上升 %1$s",
@@ -4091,7 +4135,8 @@
 "for_mi":"行驶 %1$s 英里",
 "warning":"警告：该应用程序处于早期实验阶段，使用时风险自负！",
 "accept_risks_after_warning":"我理解并同意",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "zh_HK":{
 "total_ascend":"總共上昇 %1$s",
@@ -4182,7 +4227,8 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 },
 "zh_TW":{
 "total_ascend":"總共上昇 %1$s",
@@ -4273,5 +4319,6 @@
 "for_mi":"",
 "warning":"",
 "accept_risks_after_warning":"",
-"start_navigation":""
+"start_navigation":"",
+"vector_tiles_for_navigation":""
 }}

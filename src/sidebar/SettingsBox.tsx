@@ -1,4 +1,4 @@
-import { ToggleDistanceUnits } from '@/actions/Actions'
+import { ToggleDistanceUnits, ToggleVectorTilesForNavigation } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
@@ -8,7 +8,7 @@ import OffIcon from '@/sidebar/toggle_off.svg'
 import { useContext } from 'react'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 
-export default function SettingsBox() {
+export default function SettingsBox({ vectorTilesForNav }: { vectorTilesForNav: boolean }) {
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
     return (
         <div className={styles.parent}>
@@ -23,6 +23,13 @@ export default function SettingsBox() {
                 <div style={{ color: showDistanceInMiles ? '#5b616a' : 'gray' }}>
                     {tr('distance_unit', [tr(showDistanceInMiles ? 'mi' : 'km')])}
                 </div>
+                <PlainButton
+                    style={{ color: vectorTilesForNav ? '' : 'lightgray' }} // todonow: move to css?
+                    onClick={() => Dispatcher.dispatch(new ToggleVectorTilesForNavigation())}
+                >
+                    {vectorTilesForNav ? <OnIcon /> : <OffIcon />}
+                </PlainButton>
+                <div style={{ color: vectorTilesForNav ? '#5b616a' : 'gray' }}>{tr('vector_tiles_for_navigation')}</div>
             </div>
             <div className={styles.infoLine}>
                 <a href="https://www.graphhopper.com/maps-route-planner/">Info</a>

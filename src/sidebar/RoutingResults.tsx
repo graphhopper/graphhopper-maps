@@ -99,7 +99,7 @@ function RoutingResult({
                                     Dispatcher.dispatch(
                                         new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState)
                                     )
-                                    startNavigation(fullscreenForTN)
+                                    startNavigation(fullscreenForTN, turnNavigation.settings.forceVectorTiles)
                                 }}
                             >
                                 {tr('accept_risks_after_warning')}
@@ -111,7 +111,8 @@ function RoutingResult({
                     className={styles.showRiskBack}
                     onClick={() => {
                         setShowBackAndRisk(false)
-                        Dispatcher.dispatch(new SelectMapLayer(turnNavigation.oldTiles))
+                        if (turnNavigation.settings.forceVectorTiles)
+                            Dispatcher.dispatch(new SelectMapLayer(turnNavigation.oldTiles))
                         Dispatcher.dispatch(new TurnNavigationStop())
                     }}
                 >
@@ -150,7 +151,8 @@ function RoutingResult({
                             className={styles.exportButton}
                             onClick={() => {
                                 setShowBackAndRisk(true)
-                                if (turnNavigation.settings.acceptedRisk) startNavigation(fullscreenForTN)
+                                if (turnNavigation.settings.acceptedRisk)
+                                    startNavigation(fullscreenForTN, turnNavigation.settings.forceVectorTiles)
                             }}
                         >
                             <NaviSVG />
@@ -194,9 +196,9 @@ function RoutingResult({
     )
 }
 
-function startNavigation(fullscreen: boolean) {
+function startNavigation(fullscreen: boolean, forceVectorTiles: boolean) {
     Dispatcher.dispatch(new TurnNavigationStart(fullscreen))
-    Dispatcher.dispatch(new SelectMapLayer(config.navigationTiles))
+    if (forceVectorTiles) Dispatcher.dispatch(new SelectMapLayer(config.navigationTiles))
 }
 
 function containsBadTracks(details: [number, number, string][]) {

@@ -68,7 +68,8 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                         <PlainButton
                             className={styles.thirdCol}
                             onClick={() => {
-                                Dispatcher.dispatch(new SelectMapLayer(turnNavigation.oldTiles))
+                                if (turnNavigation.settings.forceVectorTiles)
+                                    Dispatcher.dispatch(new SelectMapLayer(turnNavigation.oldTiles))
                                 Dispatcher.dispatch(new TurnNavigationStop())
                             }}
                         >

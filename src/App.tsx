@@ -222,7 +222,10 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                 queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                             />
                         )}
-                        <Search points={query.queryPoints} />
+                        <Search
+                            points={query.queryPoints}
+                            vectorTilesForNav={turnNavigation.settings.forceVectorTiles}
+                        />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
                             paths={route.routingResult.paths}
@@ -258,7 +261,16 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, settings, turnNavigation }: LayoutProps) {
+function SmallScreenLayout({
+    query,
+    route,
+    map,
+    error,
+    mapOptions,
+    encodedValues,
+    settings,
+    turnNavigation,
+}: LayoutProps) {
     if (turnNavigation.showUI)
         return (
             <>
@@ -299,6 +311,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                     error={error}
                     encodedValues={encodedValues}
                     settings={settings}
+                    turnNavigation={turnNavigation}
                 />
             </div>
             <div className={styles.smallScreenMap}>

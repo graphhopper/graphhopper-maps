@@ -14,7 +14,7 @@ import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
 
-export default function Search({ points }: { points: QueryPoint[] }) {
+export default function Search({ points, vectorTilesForNav }: { points: QueryPoint[]; vectorTilesForNav: boolean }) {
     const [showSettings, setShowSettings] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
@@ -61,7 +61,7 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                     {showSettings ? tr('settings_close') : tr('settings')}
                 </PlainButton>
             </div>
-            {showSettings && <SettingsBox />}
+            {showSettings && <SettingsBox vectorTilesForNav={vectorTilesForNav} />}
         </div>
     )
 }

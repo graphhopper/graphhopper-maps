@@ -5,9 +5,11 @@ import {
     InfoReceived,
     LocationUpdate,
     SelectMapLayer,
-    SetCustomModel, SetCustomModelEnabled,
+    SetCustomModel,
+    SetCustomModelEnabled,
     SetSelectedPath,
     SetVehicleProfile,
+    ToggleVectorTilesForNavigation,
     TurnNavigationRerouting,
     TurnNavigationReroutingFailed,
     TurnNavigationReroutingTimeResetForTest,
@@ -76,6 +78,7 @@ export interface TNSettingsState {
     fakeGPS: boolean
     acceptedRisk: boolean
     soundEnabled: boolean
+    forceVectorTiles: boolean
 }
 
 export interface MapCoordinateSystem {
@@ -111,7 +114,12 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             lastRerouteTime: 0,
             lastRerouteDistanceToRoute: 0,
             activeProfile: '',
-            settings: { acceptedRisk: false, fakeGPS: fakeGPS, soundEnabled: !fakeGPS } as TNSettingsState,
+            settings: {
+                acceptedRisk: false,
+                fakeGPS: fakeGPS,
+                soundEnabled: !fakeGPS,
+                forceVectorTiles: true,
+            } as TNSettingsState,
             instruction: {} as TNInstructionState,
             pathDetails: {} as TNPathDetailsState,
         })
@@ -136,6 +144,11 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             if (state.settings.fakeGPS) this.initFake()
             else this.initReal(action.enableFullscreen)
             return { ...state, started: true }
+        } else if (action instanceof ToggleVectorTilesForNavigation) {
+            return {
+                ...state,
+                settings: { ...state.settings, forceVectorTiles: !state.settings.forceVectorTiles },
+            }
         } else if (action instanceof SelectMapLayer) {
             if (!this.state.started)
                 return {
@@ -151,12 +164,12 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         } else if (action instanceof SetCustomModelEnabled) {
             return {
                 ...state,
-                customModelEnabled: action.enabled
+                customModelEnabled: action.enabled,
             }
         } else if (action instanceof SetCustomModel) {
             return {
                 ...state,
-                customModelStr: action.customModelStr
+                customModelStr: action.customModelStr,
             }
         } else if (action instanceof InfoReceived) {
             if (state.activeProfile || action.result.profiles.length <= 0) return state
