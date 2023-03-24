@@ -916,7 +916,7 @@
 "warning":"ACHTUNG: Die Navigation ist höchst experimentell. Verwenden Sie diese auf eigene Gefahr, achten Sie auf den Straßenverkehr und berühren Sie das Gerät nicht während der Fahrt!",
 "accept_risks_after_warning":"Ich verstehe und akzeptiere",
 "start_navigation":"Navigation",
-"vector_tiles_for_navigation":"Nutze Vector tiles für die Navigation"
+"vector_tiles_for_navigation":"Nutze Vector Tiles für die Navigation"
 },
 "el":{
 "total_ascend":"%1$s συνολική ανάβαση",
