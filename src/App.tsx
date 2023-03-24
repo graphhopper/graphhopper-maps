@@ -41,6 +41,7 @@ import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
+import { Settings } from '@/stores/SettingsStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -99,7 +100,7 @@ export default function App() {
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
     useMapBorderLayer(map, info.bbox)
-    useAreasLayer(map, query.customModelEnabled && query.customModelValid ? query.customModel?.areas! : null)
+    useAreasLayer(map, getCustomModelAreas(query))
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath)
@@ -119,6 +120,7 @@ export default function App() {
                         mapOptions={mapOptions}
                         error={error}
                         encodedValues={info.encoded_values}
+                        settings={settings}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -128,6 +130,7 @@ export default function App() {
                         mapOptions={mapOptions}
                         error={error}
                         encodedValues={info.encoded_values}
+                        settings={settings}
                     />
                 )}
             </div>
@@ -142,10 +145,12 @@ interface LayoutProps {
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     encodedValues: object[]
+    settings: Settings
 }
 
 function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
+    const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     return (
         <>
             {showSidebar ? (
@@ -157,15 +162,18 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            customModelAllowed={true}
-                            customModelEnabled={query.customModelEnabled}
+                            showCustomModelBox={showCustomModelBox}
+                            toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}
+                            customModelBoxEnabled={query.customModelEnabled}
                         />
-                        <CustomModelBox
-                            enabled={query.customModelEnabled}
-                            encodedValues={encodedValues}
-                            initialCustomModelStr={query.initialCustomModelStr}
-                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                        />
+                        {showCustomModelBox && (
+                            <CustomModelBox
+                                customModelEnabled={query.customModelEnabled}
+                                encodedValues={encodedValues}
+                                customModelStr={query.customModelStr}
+                                queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                            />
+                        )}
                         <Search points={query.queryPoints} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
@@ -201,11 +209,17 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions }: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, settings }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar query={query} route={route} error={error} />
+                <MobileSidebar
+                    query={query}
+                    route={route}
+                    error={error}
+                    encodedValues={encodedValues}
+                    settings={settings}
+                />
             </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />
@@ -230,4 +244,13 @@ function SmallScreenLayout({ query, route, map, error, mapOptions }: LayoutProps
             </div>
         </>
     )
+}
+
+function getCustomModelAreas(queryStoreState: QueryStoreState): object | null {
+    if (!queryStoreState.customModelEnabled) return null
+    try {
+        return JSON.parse(queryStoreState.customModelStr)['areas']
+    } catch {
+        return null
+    }
 }

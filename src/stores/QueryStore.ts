@@ -12,8 +12,8 @@ import {
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
+    SetCustomModelEnabled,
     SetCustomModel,
-    SetCustomModelBoxEnabled,
     SetPoint,
     SetQueryPoints,
     SetVehicleProfile,
@@ -21,6 +21,7 @@ import {
 import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist } from '@/distUtils'
 import config from 'config'
+import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 
 export interface Coordinate {
     lat: number
@@ -35,12 +36,9 @@ export interface QueryStoreState {
     readonly maxAlternativeRoutes: number
     readonly routingProfile: RoutingProfile
     readonly customModelEnabled: boolean
-    readonly customModelValid: boolean
-    readonly customModel: CustomModel | null
+    readonly customModelStr: string
     // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
     readonly zoom: boolean
-    // todo: ... and this also
-    readonly initialCustomModelStr: string | null
 }
 
 export interface QueryPoint {
@@ -89,6 +87,14 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private static getInitialState(initialCustomModelStr: string | null): QueryStoreState {
+        const customModelEnabledInitially = initialCustomModelStr != null
+        if (!initialCustomModelStr)
+            initialCustomModelStr = customModel2prettyString(customModelExamples['default_example'])
+        // prettify the custom model if it can be parsed or leave it as is otherwise
+        try {
+            initialCustomModelStr = customModel2prettyString(JSON.parse(initialCustomModelStr))
+        } catch (e) {}
+
         return {
             profiles: [],
             queryPoints: [
@@ -103,11 +109,9 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
-            customModelEnabled: initialCustomModelStr != null,
-            customModelValid: false,
-            customModel: null,
+            customModelEnabled: customModelEnabledInitially,
+            customModelStr: initialCustomModelStr,
             zoom: true,
-            initialCustomModelStr: initialCustomModelStr,
         }
     }
 
@@ -260,17 +264,14 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             return this.routeIfReady(newState)
         } else if (action instanceof SetCustomModel) {
-            const newState: QueryStoreState = {
+            const newState = {
                 ...state,
-                customModel: action.customModel,
-                customModelValid: action.valid,
+                customModelStr: action.customModelStr,
             }
-
-            if (action.issueRouteRequest) return this.routeIfReady(newState)
-            else return newState
+            return action.issueRoutingRequest ? this.routeIfReady(newState) : newState
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
-        } else if (action instanceof SetCustomModelBoxEnabled) {
+        } else if (action instanceof SetCustomModelEnabled) {
             const newState: QueryStoreState = {
                 ...state,
                 customModelEnabled: action.enabled,
@@ -363,9 +364,13 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     private static isReadyToRoute(state: QueryStoreState) {
-        // deliberately chose this style of if statements, to make this readable.
-        if (state.customModelEnabled && !state.customModel) return false
-        if (state.customModelEnabled && state.customModel && !state.customModelValid) return false
+        if (state.customModelEnabled)
+            try {
+                JSON.parse(state.customModelStr)
+            } catch {
+                return false
+            }
+        // Janek deliberately chose this style of if statements, to make this readable.
         if (state.queryPoints.length <= 1) return false
         if (!state.queryPoints.every(point => point.isInitialized)) return false
         if (!state.routingProfile.name) return false
@@ -430,11 +435,17 @@ export default class QueryStore extends Store<QueryStoreState> {
             number
         ][]
 
+        let customModel = null
+        if (state.customModelEnabled)
+            try {
+                customModel = JSON.parse(state.customModelStr)
+            } catch {}
+
         return {
             points: coordinates,
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
-            customModel: state.customModelEnabled ? state.customModel : null,
+            customModel: customModel,
             zoom: state.zoom,
         }
     }
