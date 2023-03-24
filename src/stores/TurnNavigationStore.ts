@@ -5,7 +5,7 @@ import {
     InfoReceived,
     LocationUpdate,
     SelectMapLayer,
-    SetCustomModel,
+    SetCustomModel, SetCustomModelEnabled,
     SetSelectedPath,
     SetVehicleProfile,
     TurnNavigationRerouting,
@@ -46,7 +46,8 @@ export interface TurnNavigationStoreState {
     initialPath: Path | null
     activePath: Path | null
     activeProfile: string
-    customModel: CustomModel | null
+    customModelEnabled: boolean
+    customModelStr: string
     rerouteInProgress: boolean
     settings: TNSettingsState
     instruction: TNInstructionState
@@ -104,7 +105,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             speed: 0,
             initialPath: null,
             activePath: null,
-            customModel: null,
+            customModelEnabled: false,
+            customModelStr: '',
             rerouteInProgress: false,
             lastRerouteTime: 0,
             lastRerouteDistanceToRoute: 0,
@@ -146,10 +148,15 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 ...state,
                 rerouteInProgress: false,
             }
+        } else if (action instanceof SetCustomModelEnabled) {
+            return {
+                ...state,
+                customModelEnabled: action.enabled
+            }
         } else if (action instanceof SetCustomModel) {
             return {
                 ...state,
-                customModel: action.valid ? action.customModel : null,
+                customModelStr: action.customModelStr
             }
         } else if (action instanceof InfoReceived) {
             if (state.activeProfile || action.result.profiles.length <= 0) return state
@@ -220,13 +227,14 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                         .map(p => [p[0], p[1]] as [number, number])
                     if (nextWaypoints.length == 0)
                         throw Error('rerouting needs a destination but was empty ' + JSON.stringify(path))
+                    const customModel = TurnNavigationStore.getCustomModel(state)
                     let args: RoutingArgs = {
                         points: [[coordinate.lng, coordinate.lat] as [number, number]].concat(nextWaypoints),
                         maxAlternativeRoutes: 0,
                         heading: action.heading,
                         zoom: false,
                         profile: state.activeProfile,
-                        customModel: state.customModel,
+                        customModel: customModel,
                     }
                     this.api
                         .route(args)
@@ -367,6 +375,14 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             }
         }
         return state
+    }
+
+    private static getCustomModel(state: TurnNavigationStoreState) {
+        try {
+            return state.customModelEnabled ? JSON.parse(state.customModelStr) : null
+        } catch {
+            return null
+        }
     }
 
     private shouldReroute(currentDistanceToRoute: number) {

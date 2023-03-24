@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import Dispatcher from '@/stores/Dispatcher'
 import {
     LocationUpdate,

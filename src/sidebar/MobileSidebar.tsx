@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType, QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
@@ -10,14 +10,19 @@ import { MarkerComponent } from '@/map/Marker'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
+import CustomModelBox from '@/sidebar/CustomModelBox'
+import { Settings } from '@/stores/SettingsStore'
 
 type MobileSidebarProps = {
     query: QueryStoreState
     route: RouteStoreState
     error: ErrorStoreState
+    encodedValues: object[]
+    settings: Settings
 }
 
-export default function ({ query, route, error }: MobileSidebarProps) {
+export default function ({ query, route, error, encodedValues, settings }: MobileSidebarProps) {
+    const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
     const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen && hasResult(route))
@@ -55,9 +60,18 @@ export default function ({ query, route, error }: MobileSidebarProps) {
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
-                            customModelAllowed={false}
-                            customModelEnabled={query.customModelEnabled}
+                            showCustomModelBox={showCustomModelBox}
+                            toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}
+                            customModelBoxEnabled={query.customModelEnabled}
                         />
+                        {showCustomModelBox && (
+                            <CustomModelBox
+                                customModelEnabled={query.customModelEnabled}
+                                encodedValues={encodedValues}
+                                customModelStr={query.customModelStr}
+                                queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                            />
+                        )}
                         <Search points={query.queryPoints} />
                     </div>
                 )}

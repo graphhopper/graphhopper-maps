@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import fetchMock from 'jest-fetch-mock'
 import { ErrorAction, InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
 import { setTranslation } from '@/translation/Translation'

@@ -5,6 +5,20 @@
     height: 18rem;
 }
 
+.customModelOptionTable {
+    display: grid;
+    font-size: 14px;
+    grid-template-columns: 15% auto;
+    grid-template-rows: 1.3rem;
+    align-content: center;
+    align-items: center;
+    margin: 1.5rem 0.5rem 0.5rem 0;
+}
+
+.customModelOptionTable svg {
+    scale: 0.7;
+}
+
 #element::-webkit-scrollbar {
     display: none;
 }
@@ -22,7 +36,6 @@
 .examples,
 .helpLink,
 .applyButton button {
-    font-family: Arial, serif;
     font-size: 14px;
 }
 

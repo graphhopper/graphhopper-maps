@@ -44,12 +44,6 @@ const isRetina = window.devicePixelRatio > 1 || (window.matchMedia && window.mat
 const tilePixelRatio = isRetina ? 2 : 1
 const retina2x = isRetina ? '@2x' : ''
 
-const mapTiler: VectorStyle = {
-    name: 'MapTiler',
-    type: 'vector',
-    url: 'https://api.maptiler.com/maps/1f566542-c726-4cc5-8f2d-2309b90083db/style.json?key=' + mapTilerKey,
-    attribution: osmAttribution + ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
-}
 const mapTilerSatellite: VectorStyle = {
     name: 'MapTiler Satellite',
     type: 'vector',
@@ -67,6 +61,20 @@ const osmOrg: RasterStyle = {
     attribution: osmAttribution,
     maxZoom: 19,
 }
+const osmCycl: RasterStyle = {
+    name: 'Cyclosm',
+    type: 'raster',
+    url: [
+        'https://a.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
+        'https://b.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
+        'https://c.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
+    ],
+    attribution:
+        osmAttribution +
+        ', &copy; <a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" target="_blank">CyclOSM</a>',
+    maxZoom: 19,
+}
+
 const omniscale: RasterStyle = {
     name: 'Omniscale',
     type: 'raster',
@@ -124,18 +132,6 @@ const tfOutdoors: RasterStyle = {
         ', <a href="https://www.thunderforest.com/maps/outdoors/" target="_blank">Thunderforest Outdoors</a>',
     tilePixelRatio: tilePixelRatio,
 }
-const tfAtlas: RasterStyle = {
-    name: 'TF Atlas',
-    type: 'raster',
-    url: [
-        'https://a.tile.thunderforest.com/atlas/{z}/{x}/{y}' + retina2x + '.png?apikey=' + thunderforestApiKey,
-        'https://b.tile.thunderforest.com/atlas/{z}/{x}/{y}' + retina2x + '.png?apikey=' + thunderforestApiKey,
-        'https://c.tile.thunderforest.com/atlas/{z}/{x}/{y}' + retina2x + '.png?apikey=' + thunderforestApiKey,
-    ],
-    attribution:
-        osmAttribution + ', <a href="https://thunderforest.com/maps/atlas/" target="_blank">Thunderforest Atlas</a>',
-    tilePixelRatio: tilePixelRatio,
-}
 const path = '/raster/styles/kurviger-liberty/{z}/{x}/{y}' + retina2x + '.png?key=' + kurvigerApiKey
 const kurviger: RasterStyle = {
     name: 'Kurviger Liberty',
@@ -161,17 +157,6 @@ const mapillion: VectorStyle = {
         osmAttribution +
         ', &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
 }
-const osmDe: RasterStyle = {
-    name: 'OpenStreetmap.de',
-    type: 'raster',
-    url: [
-        'https://a.tile.openstreetmap.de/{z}/{x}/{y}.png',
-        'https://b.tile.openstreetmap.de/{z}/{x}/{y}.png',
-        'https://c.tile.openstreetmap.de/{z}/{x}/{y}.png',
-    ],
-    attribution: osmAttribution,
-    maxZoom: 18,
-}
 const lyrk: RasterStyle = {
     name: 'Lyrk',
     type: 'raster',
@@ -191,30 +176,20 @@ const wanderreitkarte: RasterStyle = {
     attribution: osmAttribution + ', <a href="https://wanderreitkarte.de" target="_blank">WanderReitKarte</a>',
     maxZoom: 18,
 }
-const sorbian: RasterStyle = {
-    name: 'Sorbian Language',
-    type: 'raster',
-    url: ['https://a.tile.openstreetmap.de/tilesbw/osmhrb/{z}/{x}/{y}.png'],
-    attribution: osmAttribution + ', <a href="https://www.alberding.eu/">&copy; Alberding GmbH, CC-BY-SA</a>',
-}
 
 const styleOptions: StyleOption[] = [
     omniscale,
     osmOrg,
+    osmCycl,
     esriSatellite,
     mapTilerSatellite,
-    mapTiler,
     tfTransport,
     tfCycle,
     tfOutdoors,
-    tfAtlas,
     kurviger,
     mapillion,
-    osmDe,
     lyrk,
     wanderreitkarte,
-    // This one is extremely slow with mapbox and openlayers?!
-    // sorbian
 ]
 
 export default class MapOptionsStore extends Store<MapOptionsStoreState> {
