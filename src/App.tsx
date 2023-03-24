@@ -213,13 +213,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar
-                    query={query}
-                    route={route}
-                    error={error}
-                    encodedValues={encodedValues}
-                    settings={settings}
-                />
+                <MobileSidebar query={query} route={route} error={error} encodedValues={encodedValues} />
             </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />
