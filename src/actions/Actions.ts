@@ -14,13 +14,7 @@ export class InfoReceived implements Action {
 
 export class TurnNavigationStop implements Action {}
 
-export class TurnNavigationStart implements Action {
-    readonly enableFullscreen: boolean
-
-    constructor(enableFullscreen: boolean) {
-        this.enableFullscreen = enableFullscreen
-    }
-}
+export class TurnNavigationStart implements Action {}
 
 export class LocationUpdate implements Action {
     readonly coordinate: Coordinate
@@ -270,3 +264,4 @@ export class InstructionClicked implements Action {
 export class ToggleDistanceUnits implements Action {}
 
 export class ToggleVectorTilesForNavigation implements Action {}
+export class ToggleFullScreenForNavigation implements Action {}

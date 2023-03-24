@@ -72,10 +72,7 @@ export default function ({ query, route, error, encodedValues, turnNavigation }:
                                 queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
                             />
                         )}
-                        <Search
-                            points={query.queryPoints}
-                            vectorTilesForNav={turnNavigation.settings.forceVectorTiles}
-                        />
+                        <Search points={query.queryPoints} turnNavigationSettings={turnNavigation.settings} />
                     </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}

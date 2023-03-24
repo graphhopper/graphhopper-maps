@@ -9,6 +9,7 @@ import {
     SetCustomModelEnabled,
     SetSelectedPath,
     SetVehicleProfile,
+    ToggleFullScreenForNavigation,
     ToggleVectorTilesForNavigation,
     TurnNavigationRerouting,
     TurnNavigationReroutingFailed,
@@ -79,6 +80,7 @@ export interface TNSettingsState {
     acceptedRisk: boolean
     soundEnabled: boolean
     forceVectorTiles: boolean
+    fullScreen: boolean
 }
 
 export interface MapCoordinateSystem {
@@ -119,6 +121,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 fakeGPS: fakeGPS,
                 soundEnabled: !fakeGPS,
                 forceVectorTiles: true,
+                fullScreen: true,
             } as TNSettingsState,
             instruction: {} as TNInstructionState,
             pathDetails: {} as TNPathDetailsState,
@@ -142,12 +145,17 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             this.speechSynthesizer.synthesize('')
 
             if (state.settings.fakeGPS) this.initFake()
-            else this.initReal(action.enableFullscreen)
+            else this.initReal(this.state.settings.fullScreen)
             return { ...state, started: true }
         } else if (action instanceof ToggleVectorTilesForNavigation) {
             return {
                 ...state,
                 settings: { ...state.settings, forceVectorTiles: !state.settings.forceVectorTiles },
+            }
+        } else if (action instanceof ToggleFullScreenForNavigation) {
+            return {
+                ...state,
+                settings: { ...state.settings, fullScreen: !state.settings.fullScreen },
             }
         } else if (action instanceof SelectMapLayer) {
             if (!this.state.started)

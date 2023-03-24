@@ -88,7 +88,9 @@
 "warning":"WARNING: The turn-by-turn navigation feature is highly experimental. Use it at your own risk, pay attention to the road and do not touch the device while driving!",
 "accept_risks_after_warning":"I understand and agree",
 "start_navigation":"Navigation",
-"vector_tiles_for_navigation":"Use vector tiles for turn-by-turn navigation"
+"vector_tiles_for_navigation":"Use vector tiles",
+"full_screen_for_navigation":"Set full screen",
+"turn_navigation_settings_title":"Turn-by-turn navigation"
 },
 "ar":{
 "total_ascend":"%1$s اجمالى صعود",
@@ -180,7 +182,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "ast":{
 "total_ascend":"%1$s d'ascensu total",
@@ -272,7 +276,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "az":{
 "total_ascend":"%1$s yüksəliş",
@@ -364,7 +370,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "bg":{
 "total_ascend":"%1$s общо изкачване",
@@ -456,7 +464,9 @@
 "warning":"Внимание: Приложението е експериментално! Използвайте на свой риск!",
 "accept_risks_after_warning":"Разбирам и се съгласявам",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "bn_BN":{
 "total_ascend":"",
@@ -548,7 +558,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "ca":{
 "total_ascend":"%1$s de pujada total",
@@ -640,7 +652,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "cs_CZ":{
 "total_ascend":"celkové stoupání %1$s",
@@ -732,7 +746,9 @@
 "warning":"POZOR: Navigace je vysoce experimentální. Použití je na vlastní nebezpečí, soustřeďte se na řízení a věnujte pozornost dopravní situaci. Neovládejte přístroj za jízdy!",
 "accept_risks_after_warning":"Rozumím a souhlasím",
 "start_navigation":"Navigace",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "da_DK":{
 "total_ascend":"%1$s samlet stigning",
@@ -824,7 +840,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "de_DE":{
 "total_ascend":"%1$s Gesamtaufstieg",
@@ -916,7 +934,9 @@
 "warning":"ACHTUNG: Die Navigation ist höchst experimentell. Verwenden Sie diese auf eigene Gefahr, achten Sie auf den Straßenverkehr und berühren Sie das Gerät nicht während der Fahrt!",
 "accept_risks_after_warning":"Ich verstehe und akzeptiere",
 "start_navigation":"Navigation",
-"vector_tiles_for_navigation":"Nutze Vector Tiles für die Navigation"
+"vector_tiles_for_navigation":"Nutze Vector Tiles",
+"full_screen_for_navigation":"Wechsle zum Vollbild",
+"turn_navigation_settings_title":"Navigation"
 },
 "el":{
 "total_ascend":"%1$s συνολική ανάβαση",
@@ -1008,7 +1028,9 @@
 "warning":"ΠΡΟΣΟΧΗ: Αυτή η εφαρμογή είναι πειραματική! Χρησιμοποιήστε την με δική σας ευθύνη!",
 "accept_risks_after_warning":"Καταλαβαίνω και συμφωνώ",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "eo":{
 "total_ascend":"%1$s supreniro tute",
@@ -1100,7 +1122,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "es":{
 "total_ascend":"Ascender %1$s en total",
@@ -1192,7 +1216,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "fa":{
 "total_ascend":"مجموع صعود %1$s",
@@ -1284,7 +1310,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "fil":{
 "total_ascend":"",
@@ -1376,7 +1404,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "fi":{
 "total_ascend":"nousu yhteensä %1$s",
@@ -1468,7 +1498,9 @@
 "warning":"VAROITUS: Tämä sovellus on erittäin kokeellinen! Käytä omalla vastuullasi!",
 "accept_risks_after_warning":"Ymmärrän ja hyväksyn",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "fr_FR":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1560,7 +1592,9 @@
 "warning":"ATTENTION : Cette application est hautement expérimentale ! À utiliser à vos risques et périls !",
 "accept_risks_after_warning":"Je comprends et j'accepte",
 "start_navigation":"Naviguer",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "fr_CH":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1652,7 +1686,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "gl":{
 "total_ascend":"",
@@ -1744,7 +1780,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "he":{
 "total_ascend":"עלייה כוללת של %1$s",
@@ -1836,7 +1874,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "hr_HR":{
 "total_ascend":"%1$s ukupni uspon",
@@ -1928,7 +1968,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "hsb":{
 "total_ascend":"",
@@ -2020,7 +2062,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "hu_HU":{
 "total_ascend":"Összes szintemelkedés: %1$s",
@@ -2112,7 +2156,9 @@
 "warning":"FIGYELEM! Ez az alkalmazás erősen kísérleti jellegű. Használat csak saját felelősségre!",
 "accept_risks_after_warning":"Megértettem és elfogadom",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "in_ID":{
 "total_ascend":"naik dengan jarak %1$s",
@@ -2204,7 +2250,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "it":{
 "total_ascend":"%1$s di dislivello positivo",
@@ -2296,7 +2344,9 @@
 "warning":"ATTENZIONE: Questa applicazione è ancora sperimentale! Utilizzala a tuo rischio e pericolo!",
 "accept_risks_after_warning":"Ho capito e accetto",
 "start_navigation":"Naviga",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "ja":{
 "total_ascend":"",
@@ -2388,7 +2438,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "kk":{
 "total_ascend":"%1$s көтерілу",
@@ -2480,7 +2532,9 @@
 "warning":"Ескерту: бұрылыстан бұрылысқа навигация функциясы эксперименталды. Оны өз жауапкершілігіңізбен пайдаланыңыз, жолға назар аударыңыз және қозғалыс кезінде құрылғыға қол тигізбеңіз!",
 "accept_risks_after_warning":"мен түсіндім және келісемін",
 "start_navigation":"навигация",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "ko":{
 "total_ascend":"오르막길 총 %1$s",
@@ -2572,7 +2626,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "lt_LT":{
 "total_ascend":"",
@@ -2664,7 +2720,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "nb_NO":{
 "total_ascend":"%1$s totale høydemeter",
@@ -2756,7 +2814,9 @@
 "warning":"VARSEL: Denne appen er svært eksperimentell. Brukes på eget ansvar!",
 "accept_risks_after_warning":"Jeg forstår og samtykker",
 "start_navigation":"Start navigasjon",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "ne":{
 "total_ascend":"",
@@ -2848,7 +2908,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "nl":{
 "total_ascend":"%1$s totale klim",
@@ -2940,7 +3002,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "pl_PL":{
 "total_ascend":"%1$s w górę",
@@ -3032,7 +3096,9 @@
 "warning":"OSTRZEŻENIE: Ta aplikacja jest wysoce eksperymentalna! Używaj na własne ryzyko!",
 "accept_risks_after_warning":"Rozumiem i akceptuję",
 "start_navigation":"Nawiguj",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "pt_BR":{
 "total_ascend":"subida de %1$s",
@@ -3124,7 +3190,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "pt_PT":{
 "total_ascend":"subida de %1$s",
@@ -3216,7 +3284,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "ro":{
 "total_ascend":"urcare %1$s",
@@ -3308,7 +3378,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "ru":{
 "total_ascend":"подъём на %1$s",
@@ -3400,7 +3472,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "sk":{
 "total_ascend":"%1$s celkové stúpanie",
@@ -3492,7 +3566,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "sl_SI":{
 "total_ascend":"Skupni vzpon: %1$s",
@@ -3584,7 +3660,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "sr_RS":{
 "total_ascend":"%1$s ukupni uspon",
@@ -3676,7 +3754,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "sv_SE":{
 "total_ascend":"%1$s stigning",
@@ -3768,7 +3848,9 @@
 "warning":"VARNING: Sväng-för-sväng-navigeringen är mycket experimentell! Använd på egen risk!",
 "accept_risks_after_warning":"Jag förstår och godkänner",
 "start_navigation":"Navigera",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "tr":{
 "total_ascend":"%1$s toplam tırmanış",
@@ -3860,7 +3942,9 @@
 "warning":"",
 "accept_risks_after_warning":"Anladım ve kabul ediyorum",
 "start_navigation":"Başla",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "uk":{
 "total_ascend":"%1$s загалом підйому",
@@ -3952,7 +4036,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "vi_VN":{
 "total_ascend":"Đi tiếp %1$s nữa",
@@ -4044,7 +4130,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "zh_CN":{
 "total_ascend":"总上升 %1$s",
@@ -4136,7 +4224,9 @@
 "warning":"警告：该应用程序处于早期实验阶段，使用时风险自负！",
 "accept_risks_after_warning":"我理解并同意",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "zh_HK":{
 "total_ascend":"總共上昇 %1$s",
@@ -4228,7 +4318,9 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 },
 "zh_TW":{
 "total_ascend":"總共上昇 %1$s",
@@ -4320,5 +4412,7 @@
 "warning":"",
 "accept_risks_after_warning":"",
 "start_navigation":"",
-"vector_tiles_for_navigation":""
+"vector_tiles_for_navigation":"",
+"full_screen_for_navigation":"",
+"turn_navigation_settings_title":""
 }}

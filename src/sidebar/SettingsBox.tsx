@@ -1,4 +1,4 @@
-import { ToggleDistanceUnits, ToggleVectorTilesForNavigation } from '@/actions/Actions'
+import { ToggleDistanceUnits, ToggleFullScreenForNavigation, ToggleVectorTilesForNavigation } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
@@ -7,9 +7,11 @@ import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
 import { useContext } from 'react'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import { TNSettingsState } from '@/stores/TurnNavigationStore'
 
-export default function SettingsBox({ vectorTilesForNav }: { vectorTilesForNav: boolean }) {
+export default function SettingsBox({ turnNavSettings }: { turnNavSettings: TNSettingsState }) {
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const { forceVectorTiles, fullScreen } = turnNavSettings
     return (
         <div className={styles.parent}>
             <div className={styles.title}>{tr('settings')}</div>
@@ -23,13 +25,23 @@ export default function SettingsBox({ vectorTilesForNav }: { vectorTilesForNav: 
                 <div style={{ color: showDistanceInMiles ? '#5b616a' : 'gray' }}>
                     {tr('distance_unit', [tr(showDistanceInMiles ? 'mi' : 'km')])}
                 </div>
+            </div>
+            <div className={styles.title}>{tr('turn_navigation_settings_title')}</div>
+            <div className={styles.settingsTable}>
                 <PlainButton
-                    style={{ color: vectorTilesForNav ? '' : 'lightgray' }} // todonow: move to css?
+                    style={{ color: forceVectorTiles ? '' : 'lightgray' }}
                     onClick={() => Dispatcher.dispatch(new ToggleVectorTilesForNavigation())}
                 >
-                    {vectorTilesForNav ? <OnIcon /> : <OffIcon />}
+                    {forceVectorTiles ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
-                <div style={{ color: vectorTilesForNav ? '#5b616a' : 'gray' }}>{tr('vector_tiles_for_navigation')}</div>
+                <div style={{ color: forceVectorTiles ? '#5b616a' : 'gray' }}>{tr('vector_tiles_for_navigation')}</div>
+                <PlainButton
+                    style={{ color: fullScreen ? '' : 'lightgray' }}
+                    onClick={() => Dispatcher.dispatch(new ToggleFullScreenForNavigation())}
+                >
+                    {fullScreen ? <OnIcon /> : <OffIcon />}
+                </PlainButton>
+                <div style={{ color: fullScreen ? '#5b616a' : 'gray' }}>{tr('full_screen_for_navigation')}</div>
             </div>
             <div className={styles.infoLine}>
                 <a href="https://www.graphhopper.com/maps-route-planner/">Info</a>
