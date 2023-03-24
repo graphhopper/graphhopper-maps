@@ -11,7 +11,6 @@ import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import CustomModelBox from '@/sidebar/CustomModelBox'
-import { Settings } from '@/stores/SettingsStore'
 import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 
 type MobileSidebarProps = {
@@ -19,11 +18,10 @@ type MobileSidebarProps = {
     route: RouteStoreState
     error: ErrorStoreState
     encodedValues: object[]
-    settings: Settings
     turnNavigation: TurnNavigationStoreState
 }
 
-export default function ({ query, route, error, encodedValues, settings, turnNavigation }: MobileSidebarProps) {
+export default function ({ query, route, error, encodedValues, turnNavigation }: MobileSidebarProps) {
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })

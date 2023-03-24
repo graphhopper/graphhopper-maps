@@ -49,7 +49,6 @@ import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
 import FilledNaviSVG from '@/sidebar/filled-navigation.svg'
 import useAreasLayer from '@/layers/UseAreasLayer'
-import { Settings } from '@/stores/SettingsStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -135,7 +134,6 @@ export default function App() {
                         error={error}
                         turnNavigation={turnNavigation}
                         encodedValues={info.encoded_values}
-                        settings={settings}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -146,7 +144,6 @@ export default function App() {
                         error={error}
                         turnNavigation={turnNavigation}
                         encodedValues={info.encoded_values}
-                        settings={settings}
                     />
                 )}
             </div>
@@ -162,7 +159,6 @@ interface LayoutProps {
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     encodedValues: object[]
-    settings: Settings
 }
 
 function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, turnNavigation }: LayoutProps) {
@@ -261,16 +257,8 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function SmallScreenLayout({
-    query,
-    route,
-    map,
-    error,
-    mapOptions,
-    encodedValues,
-    settings,
-    turnNavigation,
-}: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, turnNavigation }: LayoutProps) {
+
     if (turnNavigation.showUI)
         return (
             <>
@@ -305,14 +293,7 @@ function SmallScreenLayout({
     return (
         <>
             <div className={styles.smallScreenSidebar}>
-                <MobileSidebar
-                    query={query}
-                    route={route}
-                    error={error}
-                    encodedValues={encodedValues}
-                    settings={settings}
-                    turnNavigation={turnNavigation}
-                />
+                <MobileSidebar query={query} route={route} error={error} encodedValues={encodedValues} turnNavigation={turnNavigation} />
             </div>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />
