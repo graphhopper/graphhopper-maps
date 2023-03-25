@@ -38,25 +38,29 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
-    const hasFords = containsAnyOf(path.details.road_environment, { ford: true })
-    const hasTolls = containsAnyOf(path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
-    const hasFerries = containsAnyOf(path.details.road_environment, { ferry: true })
-    const hasBadTracks = ApiImpl.isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
-    const hasSteps = ApiImpl.isBikeLike(profile) && containsAnyOf(path.details.road_class, { steps: true })
-    const hasSteepSegments = !ApiImpl.isMotorVehicle(profile) && getMaxSlope(path.points) > 15
-    const hasFootways =
-        ApiImpl.isBikeLike(profile) &&
-        containsAnyOf(path.details.road_class, { footway: true, pedestrian: true, platform: true })
+    const fordLength = getLengthFor(path.points, path.details.road_environment, { ford: true })
+    const tollLength = getLengthFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
+    const ferryLength = getLengthFor(path.points, path.details.road_environment, { ferry: true })
+    const badTrackLength = !ApiImpl.isMotorVehicle(profile)
+        ? 0
+        : getLengthBadTracks(path.points, path.details.track_type)
+    const stepsLength = !ApiImpl.isBikeLike(profile)
+        ? 0
+        : getLengthFor(path.points, path.details.road_class, { steps: true })
+    const steepLength = ApiImpl.isMotorVehicle(profile) ? 0 : getHighSlopeLength(path.points, 15)
+    const footwayLength = !ApiImpl.isBikeLike(profile)
+        ? 0
+        : getLengthFor(path.points, path.details.road_class, { footway: true, pedestrian: true, platform: true })
     const hasBorderCrossed = crossesBorder(path.details.country)
     const showHints =
-        hasFords ||
-        hasTolls ||
-        hasFerries ||
-        hasBadTracks ||
-        hasSteps ||
+        fordLength > 0 ||
+        tollLength > 0 ||
+        ferryLength > 0 ||
+        badTrackLength > 0 ||
+        stepsLength > 0 ||
         hasBorderCrossed ||
-        hasFootways ||
-        hasSteepSegments
+        footwayLength > 0 ||
+        steepLength > 0
 
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
 
@@ -107,14 +111,14 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
             </div>
             {isSelected && !isExpanded && showHints && (
                 <div className={styles.routeHints}>
-                    {hasFords && <div>{tr('way_contains_ford')}</div>}
-                    {hasFerries && <div>{tr('way_contains_ferry')}</div>}
+                    {getHint(tr('way_contains_ford'), fordLength, showDistanceInMiles)}
+                    {getHint(tr('way_contains_ferry'), ferryLength, showDistanceInMiles)}
                     {hasBorderCrossed && <div>{tr('way_crosses_border')}</div>}
-                    {hasTolls && <div>{tr('way_contains_toll')}</div>}
-                    {hasSteps && <div>{tr('way_contains', [tr('steps')])}</div>}
-                    {hasBadTracks && <div>{tr('way_contains', [tr('tracks')])}</div>}
-                    {hasFootways && <div>{tr('way_contains', [tr('footways')])}</div>}
-                    {hasSteepSegments && <div>{tr('way_contains', [tr('steep_sections')])}</div>}
+                    {getHint(tr('way_contains_toll'), tollLength, showDistanceInMiles)}
+                    {getHint(tr('way_contains', [tr('steps')]), stepsLength, showDistanceInMiles)}
+                    {getHint(tr('way_contains', [tr('tracks')]), badTrackLength, showDistanceInMiles)}
+                    {getHint(tr('way_contains', [tr('footways')]), footwayLength, showDistanceInMiles)}
+                    {getHint(tr('way_contains', [tr('steep_sections')]), steepLength, showDistanceInMiles)}
                 </div>
             )}
             {isExpanded && <Instructions instructions={path.instructions} />}
@@ -122,15 +126,19 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     )
 }
 
-function containsBadTracks(details: [number, number, string][]) {
-    if (!details) return false
+function getHint(str: string, value: number, showDistanceInMiles: boolean) {
+    return value <= 0 ? null : <div>{str + ': ' + metersToSimpleText(value, showDistanceInMiles)}</div>
+}
+
+function getLengthBadTracks(points: LineString, details: [number, number, string][]) {
+    if (!details) return 0
+    let distance = 0
     for (const i in details) {
-        if (details[i][2] == 'grade2') return true
-        if (details[i][2] == 'grade3') return true
-        if (details[i][2] == 'grade4') return true
-        if (details[i][2] == 'grade5') return true
+        const grade = details[i][2]
+        if (grade == 'grade2' || grade == 'grade3' || grade == 'grade4' || grade == 'grade5')
+            distance += calcDistPos(points.coordinates[details[i][0]], points.coordinates[details[i][1]])
     }
-    return false
+    return distance
 }
 
 function crossesBorder(countryPathDetail: [number, number, string][]) {
@@ -142,36 +150,51 @@ function crossesBorder(countryPathDetail: [number, number, string][]) {
     return false
 }
 
-function containsAnyOf(details: [number, number, string][], values: { [Identifier: string]: boolean }) {
-    if (!details) return false
+function getLengthFor(
+    points: LineString,
+    details: [number, number, string][],
+    values: { [Identifier: string]: boolean }
+) {
+    if (!details) return 0
+    let distance = 0
     for (const i in details) {
-        if (values[details[i][2]]) return true
+        if (values[details[i][2]]) distance += calcDistAlong(points.coordinates, details[i][0], details[i][1])
     }
-    return false
+    return distance
 }
 
-function getMaxSlope(points: LineString): number {
+function calcDistAlong(coordinates: Position[], from: number, to: number) {
+    let dist = 0
+    for (let i = from; i < to; i++) {
+        dist += calcDistPos(coordinates[i], coordinates[i + 1])
+    }
+    return dist
+}
+
+function calcDistPos(from: Position, to: Position): number {
+    return calcDist({ lat: from[1], lng: from[0] }, { lat: to[1], lng: to[0] })
+}
+
+// sums up the lengths of the road segments with a slope bigger than steepSlope
+function getHighSlopeLength(points: LineString, steepSlope: number): number {
     if (points.coordinates.length == 0) return 0
     if (points.coordinates[0].length != 3) return 0
-    let accumulatedDistance = 0
+    let sumDistance = 0
+    let distForSlope = 0
     let prevElePoint = points.coordinates[0]
     let prevDistPoint = points.coordinates[0]
-    let maxSlope = 0
     points.coordinates.forEach(currPoint => {
-        accumulatedDistance += calcDist(
-            { lat: currPoint[0], lng: currPoint[1] },
-            { lat: prevDistPoint[0], lng: prevDistPoint[1] }
-        )
+        distForSlope += calcDistPos(currPoint, prevDistPoint)
         prevDistPoint = currPoint
-        if (accumulatedDistance > 100) {
-            // we assume that elevation data is not that precise and we can improve when using a minimum distance
-            const slope = (100.0 * Math.abs(prevElePoint[2] - currPoint[2])) / accumulatedDistance
-            if (slope > maxSlope) maxSlope = slope
+        // we assume that elevation data is not that precise and we can improve when using a minimum distance:
+        if (distForSlope > 100) {
+            const slope = (100.0 * Math.abs(prevElePoint[2] - currPoint[2])) / distForSlope
+            if (slope > steepSlope) sumDistance += distForSlope
             prevElePoint = currPoint
-            accumulatedDistance = 0
+            distForSlope = 0
         }
     })
-    return maxSlope
+    return sumDistance
 }
 
 function downloadGPX(path: Path, showDistanceInMiles: boolean) {
