@@ -39,7 +39,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
     const hasFords = containsAnyOf(path.details.road_environment, { ford: true })
-    const hasTolls = containsAnyOf(path.details.toll, { all: true })
+    const hasTolls = containsAnyOf(path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
     const hasFerries = containsAnyOf(path.details.road_environment, { ferry: true })
     const hasBadTracks = ApiImpl.isMotorVehicle(profile) && containsBadTracks(path.details.track_type)
     const hasSteps = ApiImpl.isBikeLike(profile) && containsAnyOf(path.details.road_class, { steps: true })
