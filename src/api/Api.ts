@@ -165,6 +165,11 @@ export class ApiImpl implements Api {
     }
 
     static createRequest(args: RoutingArgs): RoutingRequest {
+        let profileConfig = config.profiles ? (config.profiles as any)[args.profile] : {}
+        let details = config.request?.details ? config.request.details : []
+        // don't query all path details for all profiles (e.g. foot_network and get_off_bike are not enabled for motor vehicles)
+        if (profileConfig.details) details = [...details, ...profileConfig.details] // don't modify original arrays!
+
         const request: RoutingRequest = {
             points: args.points,
             profile: args.profile,
@@ -175,8 +180,8 @@ export class ApiImpl implements Api {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: config.request?.snapPreventions ? config.request.snapPreventions : [],
-            details: config.request?.details ? config.request.details : [],
-            ...(config.profiles ? (config.profiles as any)[args.profile] : {}),
+            ...profileConfig,
+            details: details,
         }
 
         if (args.customModel) {
