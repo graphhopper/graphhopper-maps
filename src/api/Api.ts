@@ -68,7 +68,7 @@ export class ApiImpl implements Api {
             const result = await response.json()
             return ApiImpl.convertToApiInfo(result)
         } else {
-            throw new Error('Could not connect to the Service. Try to reload!')
+            throw new Error('Could not connect to the Service. ' + response.statusText)
         }
     }
 
@@ -168,7 +168,7 @@ export class ApiImpl implements Api {
         let profileConfig = config.profiles ? (config.profiles as any)[args.profile] : {}
         let details = config.request?.details ? config.request.details : []
         // don't query all path details for all profiles (e.g. foot_network and get_off_bike are not enabled for motor vehicles)
-        if (profileConfig.details) details = [...details, ...profileConfig.details] // don't modify original arrays!
+        if (profileConfig?.details) details = [...details, ...profileConfig.details] // don't modify original arrays!
 
         const request: RoutingRequest = {
             points: args.points,
