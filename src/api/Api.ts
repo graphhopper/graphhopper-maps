@@ -26,7 +26,7 @@ export default interface Api {
 
     route(args: RoutingArgs): Promise<RoutingResult>
 
-    routeWithDispatch(args: RoutingArgs): void
+    routeWithDispatch(args: RoutingArgs, zoom: boolean): void
 
     geocode(query: string, provider: string): Promise<GeocodingResult>
 
@@ -143,9 +143,9 @@ export class ApiImpl implements Api {
         }
     }
 
-    routeWithDispatch(args: RoutingArgs) {
+    routeWithDispatch(args: RoutingArgs, zoomOnSuccess: boolean) {
         this.route(args)
-            .then(result => Dispatcher.dispatch(new RouteRequestSuccess(args, result)))
+            .then(result => Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result)))
             .catch(error => {
                 console.warn('error when performing /route request: ', error)
                 return Dispatcher.dispatch(new RouteRequestFailed(args, error.message))

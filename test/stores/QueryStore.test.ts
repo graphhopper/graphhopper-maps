@@ -335,7 +335,6 @@ describe('QueryStore', () => {
                 points: [],
                 profile: 'some-profile',
                 customModel: null,
-                zoom: true,
             }
             const subRequest: SubRequest = {
                 state: RequestState.SENT,
@@ -350,7 +349,7 @@ describe('QueryStore', () => {
 
             const newState = store.reduce(
                 state,
-                new RouteRequestSuccess(routingArgs, { paths: [], info: { took: 1, copyright: [] } })
+                new RouteRequestSuccess(routingArgs, true, { paths: [], info: { took: 1, copyright: [] } })
             )
 
             expect(newState.currentRequest.subRequests[0].state).toEqual(RequestState.SUCCESS)
@@ -364,7 +363,6 @@ describe('QueryStore', () => {
                 points: [],
                 profile: 'some-profile',
                 customModel: null,
-                zoom: true,
             }
             const subRequest: SubRequest = {
                 state: RequestState.SENT,

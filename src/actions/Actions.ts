@@ -98,10 +98,12 @@ export class SetCustomModel implements Action {
 export class RouteRequestSuccess implements Action {
     readonly result: RoutingResult
     readonly request: RoutingArgs
+    readonly zoom: boolean
 
-    constructor(request: RoutingArgs, result: RoutingResult) {
+    constructor(request: RoutingArgs, zoom: boolean, result: RoutingResult) {
         this.result = result
         this.request = request
+        this.zoom = zoom
     }
 }
 

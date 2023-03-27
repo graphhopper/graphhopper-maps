@@ -12,8 +12,8 @@ import {
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
-    SetCustomModelEnabled,
     SetCustomModel,
+    SetCustomModelEnabled,
     SetPoint,
     SetQueryPoints,
     SetVehicleProfile,
@@ -345,13 +345,13 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             return {
                 ...state,
-                currentRequest: { subRequests: this.send(requests) },
+                currentRequest: { subRequests: this.send(requests, this.state.zoom) },
             }
         }
         return state
     }
 
-    private send(args: RoutingArgs[]) {
+    private send(args: RoutingArgs[], zoom: boolean) {
         const subRequests = args.map(arg => {
             return {
                 args: arg,
@@ -359,7 +359,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
         })
 
-        subRequests.forEach(subRequest => this.api.routeWithDispatch(subRequest.args))
+        subRequests.forEach((subRequest, i) => this.api.routeWithDispatch(subRequest.args, i == 0 ? zoom : false))
         return subRequests
     }
 
@@ -446,7 +446,6 @@ export default class QueryStore extends Store<QueryStoreState> {
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
             customModel: customModel,
-            zoom: state.zoom,
         }
     }
 
