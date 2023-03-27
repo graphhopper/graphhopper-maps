@@ -62,18 +62,20 @@ export class ApiImpl implements Api {
     async info(): Promise<ApiInfo> {
         const response = await fetch(this.getRoutingURLWithKey('info').toString(), {
             headers: { Accept: 'application/json' },
-        })
+        }).catch(() => { throw new Error('Could not connect to the Service. Try to reload!') });
+
         if (response.ok) {
             const result = await response.json()
             return ApiImpl.convertToApiInfo(result)
         }
-        else if(response.status >= 400){
+        else {
             const body = await response.json()
             if(body.hasOwnProperty("message")){
                 throw new Error(body.message)
             }
+            else throw new Error('Could not connect to the Service. Try to reload!')
         }
-        throw new Error('Could not connect to the Service. Try to reload!')
+
     }
 
     async geocode(query: string, provider: string): Promise<GeocodingResult> {
