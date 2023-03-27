@@ -64,18 +64,16 @@ export class ApiImpl implements Api {
             headers: { Accept: 'application/json' },
         }).catch(() => { throw new Error('Could not connect to the Service. Try to reload!') });
 
+        const result = await response.json()
         if (response.ok) {
-            const result = await response.json()
             return ApiImpl.convertToApiInfo(result)
         }
         else {
-            const body = await response.json()
-            if(body.hasOwnProperty("message")){
-                throw new Error(body.message)
+            if(result.hasOwnProperty("message")) {
+                throw new Error(result.message)
             }
-            else throw new Error('Could not connect to the Service. Try to reload!')
+            else throw new Error('There has been an error. Server responded with status code ' + response.status)
         }
-
     }
 
     async geocode(query: string, provider: string): Promise<GeocodingResult> {
