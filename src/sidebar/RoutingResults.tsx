@@ -48,9 +48,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         ? 0
         : getLengthFor(path.points, path.details.road_class, { steps: true })
     const steepLength = ApiImpl.isMotorVehicle(profile) ? 0 : getHighSlopeLength(path.points, 15)
-    const footwayLength = !ApiImpl.isBikeLike(profile)
+    const getOffBikeLength = !ApiImpl.isBikeLike(profile)
         ? 0
-        : getLengthFor(path.points, path.details.road_class, { footway: true, pedestrian: true, platform: true })
+        : getLengthFor(path.points, path.details.get_off_bike, { true: true })
     const hasBorderCrossed = crossesBorder(path.details.country)
     const showHints =
         fordLength > 0 ||
@@ -59,7 +59,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         badTrackLength > 0 ||
         stepsLength > 0 ||
         hasBorderCrossed ||
-        footwayLength > 0 ||
+        getOffBikeLength > 0 ||
         steepLength > 0
 
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
@@ -117,7 +117,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     {getHint(tr('way_contains_toll'), tollLength, showDistanceInMiles)}
                     {getHint(tr('way_contains', [tr('steps')]), stepsLength, showDistanceInMiles)}
                     {getHint(tr('way_contains', [tr('tracks')]), badTrackLength, showDistanceInMiles)}
-                    {getHint(tr('way_contains', [tr('footways')]), footwayLength, showDistanceInMiles)}
+                    {getOffBikeLength > 0 && (
+                        <div>{tr('get_off_bike_for', [metersToSimpleText(getOffBikeLength, showDistanceInMiles)])}</div>
+                    )}
                     {getHint(tr('way_contains', [tr('steep_sections')]), steepLength, showDistanceInMiles)}
                 </div>
             )}
@@ -150,11 +152,7 @@ function crossesBorder(countryPathDetail: [number, number, string][]) {
     return false
 }
 
-function getLengthFor(
-    points: LineString,
-    details: [number, number, string][],
-    values: { [Identifier: string]: boolean }
-) {
+function getLengthFor(points: LineString, details: [number, number, any][], values: { [Identifier: string]: boolean }) {
     if (!details) return 0
     let distance = 0
     for (const i in details) {
