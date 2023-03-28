@@ -7,6 +7,7 @@ import {
     RouteRequestSuccess,
     SetInitialBBox,
     SetSelectedPath,
+    ZoomMapToBBox,
     ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
@@ -30,6 +31,8 @@ export default class MapActionReceiver implements ActionReceiver {
             // we estimate the map size to be equal to the window size. we don't know better at this point, because
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
+        } else if (action instanceof ZoomMapToBBox) {
+            if (action.bbox) fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
         } else if (action instanceof ZoomMapToPoint) {
             this.map.getView().animate({
                 zoom: action.zoom,

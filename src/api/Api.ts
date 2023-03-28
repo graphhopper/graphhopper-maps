@@ -16,6 +16,7 @@ import {
 import { LineString } from 'geojson'
 import { getTranslation, tr, Translation } from '@/translation/Translation'
 import * as config from 'config'
+import { Coordinate } from '@/stores/QueryStore'
 
 interface ApiProfile {
     name: string
@@ -71,7 +72,9 @@ export class ApiImpl implements Api {
             return ApiImpl.convertToApiInfo(result)
         } else {
             if (result.message) throw new Error(result.message)
-            throw new Error('There has been an error. Server responded with ' + response.statusText + " (" + response.status + ")")
+            throw new Error(
+                'There has been an error. Server responded with ' + response.statusText + ' (' + response.status + ')'
+            )
         }
     }
 

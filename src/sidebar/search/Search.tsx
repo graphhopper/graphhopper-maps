@@ -1,8 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { QueryPoint } from '@/stores/QueryStore'
-import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint } from '@/actions/Actions'
+import { getBBoxFromCoord, QueryPoint } from '@/stores/QueryStore'
+import {
+    AddPoint,
+    ClearRoute,
+    InvalidatePoint,
+    MovePoint,
+    RemovePoint,
+    SetPoint,
+    ZoomMapToBBox,
+} from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
@@ -168,8 +176,10 @@ const SearchBox = ({
                     point={point}
                     onCancel={() => console.log('cancel')}
                     onAddressSelected={(queryText, coordinate) => {
-                        // if(coordinate && points.filter(p => p.isInitialized).length == 0)
-                        //    Dispatcher.dispatch(new ZoomMapToPoint(coordinate, 5))
+                        const initCount = points.filter(p => p.isInitialized).length
+                        if (coordinate && initCount == 0)
+                            Dispatcher.dispatch(new ZoomMapToBBox(coordinate, getBBoxFromCoord(coordinate)))
+
                         Dispatcher.dispatch(
                             new SetPoint(
                                 {
@@ -178,7 +188,7 @@ const SearchBox = ({
                                     queryText: queryText,
                                     coordinate: coordinate ? coordinate : point.coordinate,
                                 },
-                                points.length > 0
+                                initCount > 0
                             )
                         )
                     }}

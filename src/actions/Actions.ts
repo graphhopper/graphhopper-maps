@@ -168,6 +168,16 @@ export class ToggleUrbanDensityLayer implements Action {
 
 export class MapIsLoaded implements Action {}
 
+export class ZoomMapToBBox implements Action {
+    readonly coordinate: Coordinate
+    readonly bbox: Bbox
+
+    constructor(coordinate: Coordinate, bbox: Bbox) {
+        this.coordinate = coordinate
+        this.bbox = bbox
+    }
+}
+
 export class ZoomMapToPoint implements Action {
     readonly coordinate: Coordinate
     readonly zoom: number
