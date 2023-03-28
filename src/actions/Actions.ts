@@ -17,8 +17,9 @@ export class SetPoint implements Action {
 
     /**
      * @param point
-     * @param zoomResponse if true the map will be zoomed so that the entire response geometry fits on the screen.
-     * If one of the points is invalid nothing happens.
+     * @param zoomResponse This action triggers a route request (if the specified point and all existing points
+     * are initialized) and if this response returns and zoomResponse is set to "true" the map will be zoomed to fit
+     * the geometry of the first route on the screen.
      */
     constructor(point: QueryPoint, zoomResponse: boolean) {
         this.point = point
