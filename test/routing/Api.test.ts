@@ -62,7 +62,7 @@ describe('info api', () => {
     })
 
     it('should issue an error action if anything fails', async () => {
-        const message = 'some error message'
+        const message = 'Could not connect to the Service. Try to reload!'
         fetchMock.mockReject(new Error(message))
         const api = new ApiImpl('https://some.api/', 'https://some.api/', 'key')
         await expect(api.info()).rejects.toEqual(new Error(message))
