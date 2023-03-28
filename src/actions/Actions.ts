@@ -17,7 +17,7 @@ export class SetPoint implements Action {
 
     /**
      * @param point
-     * @param zoomResponse if true the map will be zoomed according to all current query points incl. the specified one.
+     * @param zoomResponse if true the map will be zoomed so that the entire response geometry fits on the screen.
      * If one of the points is invalid nothing happens.
      */
     constructor(point: QueryPoint, zoomResponse: boolean) {
