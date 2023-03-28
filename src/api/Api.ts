@@ -62,13 +62,16 @@ export class ApiImpl implements Api {
     async info(): Promise<ApiInfo> {
         const response = await fetch(this.getRoutingURLWithKey('info').toString(), {
             headers: { Accept: 'application/json' },
+        }).catch(() => {
+            throw new Error('Could not connect to the Service. Try to reload!')
         })
 
+        const result = await response.json()
         if (response.ok) {
-            const result = await response.json()
             return ApiImpl.convertToApiInfo(result)
         } else {
-            throw new Error('Could not connect to the Service. ' + response.statusText)
+            if (result.message) throw new Error(result.message)
+            throw new Error('There has been an error. Server responded with ' + response.statusText + " (" + response.status + ")")
         }
     }
 
