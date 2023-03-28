@@ -1,5 +1,5 @@
 import { Action } from '@/stores/Dispatcher'
-import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
+import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 
@@ -13,11 +13,16 @@ export class InfoReceived implements Action {
 
 export class SetPoint implements Action {
     readonly point: QueryPoint
-    readonly zoom: boolean
+    readonly zoomResponse: boolean
 
-    constructor(point: QueryPoint, zoom: boolean) {
+    /**
+     * @param point
+     * @param zoomResponse if true the map will be zoomed according to all current query points incl. the specified one.
+     * If one of the points is invalid nothing happens.
+     */
+    constructor(point: QueryPoint, zoomResponse: boolean) {
         this.point = point
-        this.zoom = zoom
+        this.zoomResponse = zoomResponse
     }
 }
 
