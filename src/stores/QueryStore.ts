@@ -18,7 +18,7 @@ import {
     SetQueryPoints,
     SetVehicleProfile,
 } from '@/actions/Actions'
-import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
+import { Bbox, RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist } from '@/distUtils'
 import config from 'config'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
@@ -26,6 +26,10 @@ import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomM
 export interface Coordinate {
     lat: number
     lng: number
+}
+
+export function getBBoxFromCoord(c: Coordinate, offset: number = 0.005): Bbox {
+    return [c.lng - offset, c.lat - offset, c.lng + offset, c.lat + offset]
 }
 
 export interface QueryStoreState {
