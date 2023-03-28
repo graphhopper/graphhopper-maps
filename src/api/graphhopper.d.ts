@@ -99,6 +99,7 @@ interface Details {
     readonly road_environment: [number, number, string][]
     readonly track_type: [number, number, string][]
     readonly country: [number, number, string][]
+    readonly get_off_bike: [number, number, boolean][]
 }
 
 export interface GeocodingResult {

@@ -38,7 +38,7 @@ const config = {
     //
     // profiles: { my_car: { profile: 'raw_car' } }
     //
-    // will add a profile named 'my_car' for which we send a request with profile=raw_car, and you could add even further parameters.
+    // will add a profile named 'my_car' for which we send a request with profile=raw_car, and you could add other parameters like custom_model.
 }
 
 // this is needed for jest (with our current setup at least)

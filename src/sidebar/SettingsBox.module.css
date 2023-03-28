@@ -1,0 +1,50 @@
+.parent {
+    margin-top: 15px;
+    padding: 15px 5px 10px 5px;
+    border-top: 1px lightgray solid;
+    border-bottom: 1px lightgray solid;
+}
+
+.settingsTable {
+    display: grid;
+    grid-template-columns: 50px auto;
+    grid-template-rows: 1.3rem;
+    align-content: flex-start;
+    align-items: center;
+    margin: 1rem 0.5rem 1.5rem 0;
+}
+
+.settingsTable svg {
+    scale: 0.7;
+    margin-left: calc(-8px); /* scaling svg creates white space around it */
+}
+
+.settingsTable button {
+}
+
+.infoLine {
+    padding: 10px 2px 0 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.infoLine a {
+    color: gray;
+    text-decoration: none;
+}
+
+.infoLine a:hover {
+    color: black;
+}
+
+.title {
+    font-weight: bold;
+}
+
+.title,
+.infoLine,
+.settingsTable {
+    font-size: 14px;
+    color: gray;
+}

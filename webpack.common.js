@@ -40,17 +40,9 @@ module.exports = {
                 test: /\.js$/,
                 loader: 'source-map-loader',
             },
-            // load styles from node_modules but leave them un-touched
-            // this is important for codemirror and ol
+            // We use css modules for our own code, which uses .module.css as naming convention.
             {
-                test: /\.css$/,
-                include: path.resolve(__dirname, 'node_modules'),
-                exclude: path.resolve(__dirname, 'src'),
-                use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
-            },
-            // load styles from sources and apply css modules to them
-            {
-                test: /\.css$/,
+                test: /\.module\.css$/,
                 exclude: path.resolve(__dirname, 'node_modules'),
                 use: [
                     { loader: 'style-loader' },
@@ -58,11 +50,18 @@ module.exports = {
                         loader: 'css-loader',
                         options: {
                             modules: {
-                                auto: resourcePath => resourcePath.endsWith('.module.css'),
+                                localIdentName: '[path][name]__[local]',
                             },
                         },
                     },
                 ],
+            },
+            // All other css files are simply processed without modules.
+            // We use these for some 3rd party dependencies like ol and codemirror.
+            {
+                test: /\.css$/,
+                exclude: /\.module\.css$/,
+                use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
             },
             // this loader inlines svg images as react components
             {
