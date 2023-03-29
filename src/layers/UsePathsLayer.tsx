@@ -116,13 +116,13 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
             lineJoin: 'round',
         }),
     })
-    var layer = new VectorLayer({
+    const layer = new VectorLayer({
         source: new VectorSource(),
     })
     layer.setStyle(style)
     for (let i = 0; i < selectedPath.snapped_waypoints.coordinates.length; i++) {
-        let start = fromLonLat([queryPoints[i].coordinate.lng, queryPoints[i].coordinate.lat])
-        let end = fromLonLat(selectedPath.snapped_waypoints.coordinates[i])
+        const start = fromLonLat([queryPoints[i].coordinate.lng, queryPoints[i].coordinate.lat])
+        const end = fromLonLat(selectedPath.snapped_waypoints.coordinates[i])
         layer.getSource()?.addFeature(new Feature(createBezierLineString(start, end)))
     }
     layer.set(accessNetworkLayerKey, true)
