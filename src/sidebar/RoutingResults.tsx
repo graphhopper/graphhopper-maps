@@ -48,18 +48,18 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
-    let fordLength = getLengthFor(path.points, path.details.road_environment, { ford: true })
-    let tollLength = getLengthFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
-    let ferryLength = getLengthFor(path.points, path.details.road_environment, { ferry: true })
-    let badTrackLength = !ApiImpl.isMotorVehicle(profile) ? 0 : getLengthBadTracks(path.points, path.details.track_type)
-    let stepsLength = !ApiImpl.isBikeLike(profile)
+    const fordLength = getLengthFor(path.points, path.details.road_environment, { ford: true })
+    const tollLength = getLengthFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
+    const ferryLength = getLengthFor(path.points, path.details.road_environment, { ferry: true })
+    const badTrackLength = !ApiImpl.isMotorVehicle(profile) ? 0 : getLengthBadTracks(path.points, path.details.track_type)
+    const stepsLength = !ApiImpl.isBikeLike(profile)
         ? 0
         : getLengthFor(path.points, path.details.road_class, { steps: true })
-    let steepLength = ApiImpl.isMotorVehicle(profile) ? 0 : getHighSlopeLength(path.points, 15)
-    let getOffBikeLength = !ApiImpl.isBikeLike(profile)
+    const steepLength = ApiImpl.isMotorVehicle(profile) ? 0 : getHighSlopeLength(path.points, 15)
+    const getOffBikeLength = !ApiImpl.isBikeLike(profile)
         ? 0
         : getLengthFor(path.points, path.details.get_off_bike, { true: true })
-    let countries = crossesBorder(path.details.country)
+    const countries = crossesBorder(path.details.country)
 
     const showHints =
         fordLength > 0 ||
