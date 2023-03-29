@@ -8,8 +8,6 @@ export interface RoutingArgs {
     readonly points: [number, number][]
     readonly profile: string
     readonly maxAlternativeRoutes: number
-    // todo: probably this should go somewhere else, see: https://github.com/graphhopper/graphhopper-maps/pull/193
-    readonly zoom: boolean
     readonly customModel: CustomModel | null
 }
 
@@ -99,6 +97,7 @@ interface Details {
     readonly road_environment: [number, number, string][]
     readonly track_type: [number, number, string][]
     readonly country: [number, number, string][]
+    readonly get_off_bike: [number, number, boolean][]
 }
 
 export interface GeocodingResult {
@@ -108,6 +107,7 @@ export interface GeocodingResult {
 
 export interface GeocodingHit {
     readonly point: { lat: number; lng: number }
+    readonly extent: Bbox
     readonly osm_id: string
     readonly osm_type: string
     readonly osm_key: string

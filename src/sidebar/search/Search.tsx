@@ -1,33 +1,31 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { QueryPoint } from '@/stores/QueryStore'
+import { getBBoxFromCoord, QueryPoint } from '@/stores/QueryStore'
 import {
     AddPoint,
     ClearRoute,
     InvalidatePoint,
     MovePoint,
     RemovePoint,
+    SetInitialBBox,
     SetPoint,
-    ToggleDistanceUnits,
 } from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
-import InfoIcon from './info.svg'
 import PlainButton from '@/PlainButton'
 
 import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import SettingsBox from '@/sidebar/SettingsBox'
 
 export default function Search({ points }: { points: QueryPoint[] }) {
-    const [showInfo, setShowInfo] = useState(false)
+    const [showSettings, setShowSettings] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
     const [dropPreviewIndex, onDropPreviewSelect] = useState(-1)
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
 
     return (
         <div className={styles.searchBoxParent}>
@@ -66,26 +64,11 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                     <AddIcon />
                     <div>{tr('add_to_route')}</div>
                 </PlainButton>
-                <PlainButton
-                    className={styles.mikm}
-                    title={tr('distance_unit', [showDistanceInMiles ? 'mi' : 'km'])}
-                    onClick={() => Dispatcher.dispatch(new ToggleDistanceUnits())}
-                >
-                    {showDistanceInMiles ? 'mi' : 'km'}
-                </PlainButton>
-                <PlainButton className={styles.infoButton} onClick={() => setShowInfo(!showInfo)}>
-                    <InfoIcon />
+                <PlainButton className={styles.settingsButton} onClick={() => setShowSettings(!showSettings)}>
+                    {showSettings ? tr('settings_close') : tr('settings')}
                 </PlainButton>
             </div>
-            {showInfo && (
-                <div className={styles.infoLine}>
-                    <a href="https://www.graphhopper.com/maps-route-planner/">Info</a>
-                    <a href="https://github.com/graphhopper/graphhopper-maps/issues">Feedback</a>
-                    <a href="https://www.graphhopper.com/imprint/">Imprint</a>
-                    <a href="https://www.graphhopper.com/privacy/">Privacy</a>
-                    <a href="https://www.graphhopper.com/terms/">Terms</a>
-                </div>
-            )}
+            {showSettings && <SettingsBox />}
         </div>
     )
 }
@@ -192,7 +175,11 @@ const SearchBox = ({
                     index={index}
                     point={point}
                     onCancel={() => console.log('cancel')}
-                    onAddressSelected={(queryText, coordinate) =>
+                    onAddressSelected={(queryText, coordinate) => {
+                        const initCount = points.filter(p => p.isInitialized).length
+                        if (coordinate && initCount == 0)
+                            Dispatcher.dispatch(new SetInitialBBox(getBBoxFromCoord(coordinate)))
+
                         Dispatcher.dispatch(
                             new SetPoint(
                                 {
@@ -201,10 +188,10 @@ const SearchBox = ({
                                     queryText: queryText,
                                     coordinate: coordinate ? coordinate : point.coordinate,
                                 },
-                                true
+                                initCount > 0
                             )
                         )
-                    }
+                    }}
                     clearSelectedInput={() => {
                         onMoveStartSelect(-1, true)
                         onDropPreviewSelect(-1)

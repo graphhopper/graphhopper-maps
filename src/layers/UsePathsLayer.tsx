@@ -13,7 +13,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
 import { SelectEvent } from 'ol/interaction/Select'
 import { QueryPoint } from '@/stores/QueryStore'
-import { Coordinate, distance } from 'ol/coordinate'
+import { distance } from 'ol/coordinate'
 import LineString from 'ol/geom/LineString'
 
 const pathsLayerKey = 'pathsLayer'

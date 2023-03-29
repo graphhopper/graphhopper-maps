@@ -1,5 +1,5 @@
 import { Action } from '@/stores/Dispatcher'
-import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
+import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 
@@ -13,11 +13,17 @@ export class InfoReceived implements Action {
 
 export class SetPoint implements Action {
     readonly point: QueryPoint
-    readonly zoom: boolean
+    readonly zoomResponse: boolean
 
-    constructor(point: QueryPoint, zoom: boolean) {
+    /**
+     * @param point
+     * @param zoomResponse This action triggers a route request (if the specified point and all existing points
+     * are initialized) and if this response returns and zoomResponse is set to "true" the map will be zoomed to fit
+     * the geometry of the first route on the screen.
+     */
+    constructor(point: QueryPoint, zoomResponse: boolean) {
         this.point = point
-        this.zoom = zoom
+        this.zoomResponse = zoomResponse
     }
 }
 
@@ -77,7 +83,7 @@ export class InvalidatePoint implements Action {
     }
 }
 
-export class SetCustomModelBoxEnabled implements Action {
+export class SetCustomModelEnabled implements Action {
     readonly enabled: boolean
 
     constructor(enabled: boolean) {
@@ -86,24 +92,24 @@ export class SetCustomModelBoxEnabled implements Action {
 }
 
 export class SetCustomModel implements Action {
-    readonly customModel: CustomModel | null
-    readonly valid: boolean
-    readonly issueRouteRequest
+    readonly customModelStr: string
+    readonly issueRoutingRequest: boolean
 
-    constructor(customModel: CustomModel | null, valid: boolean, issueRouteRequest = false) {
-        this.customModel = customModel
-        this.valid = valid
-        this.issueRouteRequest = issueRouteRequest
+    constructor(customModelStr: string, issueRoutingRequest: boolean) {
+        this.customModelStr = customModelStr
+        this.issueRoutingRequest = issueRoutingRequest
     }
 }
 
 export class RouteRequestSuccess implements Action {
     readonly result: RoutingResult
     readonly request: RoutingArgs
+    readonly zoom: boolean
 
-    constructor(request: RoutingArgs, result: RoutingResult) {
+    constructor(request: RoutingArgs, zoom: boolean, result: RoutingResult) {
         this.result = result
         this.request = request
+        this.zoom = zoom
     }
 }
 
