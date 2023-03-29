@@ -19,7 +19,8 @@ import FordIcon from '@/sidebar/routeHints/water.svg'
 import FerryIcon from '@/sidebar/routeHints/directions_boat.svg'
 import StepsIcon from '@/sidebar/routeHints/floor.svg'
 import BorderCrossingIcon from '@/sidebar/routeHints/border.svg'
-import TollIcon from '@/sidebar/routeHints/euro.svg'
+import EuroIcon from '@/sidebar/routeHints/euro.svg'
+import DollarIcon from '@/sidebar/routeHints/attach_money.svg'
 import GetOffBikeIcon from '@/sidebar/routeHints/push_bike.svg'
 import SteepIcon from '@/sidebar/routeHints/elevation.svg'
 import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
@@ -153,7 +154,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             description={tr('way_contains_toll')}
                             setType={t => setSelectedRH(t)}
                             type={'toll'}
-                            child={<TollIcon />}
+                            child={showDistanceInMiles ? <DollarIcon/> : <EuroIcon />}
                             value={tollLength > 0 && metersToSimpleText(tollLength, showDistanceInMiles)}
                             selected={selectedRH}
                         />
