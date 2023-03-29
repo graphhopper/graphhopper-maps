@@ -177,9 +177,11 @@
 .routeHintButton,
 .routeHintButton span {
     color: gray;
+    padding-top: 1px;
 }
 
 .selectedRouteHintButton,
 .selectedRouteHintButton span {
     color: #383838;
+    padding-top: 1px;
 }
