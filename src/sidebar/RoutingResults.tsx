@@ -61,14 +61,6 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         : getLengthFor(path.points, path.details.get_off_bike, { true: true })
     let countries = crossesBorder(path.details.country)
 
-    fordLength = 999
-    tollLength = 99
-    ferryLength = 999
-    badTrackLength = 999
-    stepsLength = 999
-    getOffBikeLength = 999
-    steepLength = 999
-
     const showHints =
         fordLength > 0 ||
         tollLength > 0 ||
