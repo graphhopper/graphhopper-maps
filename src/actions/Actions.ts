@@ -1,5 +1,5 @@
 import { Action } from '@/stores/Dispatcher'
-import { Coordinate, CustomModel, QueryPoint } from '@/stores/QueryStore'
+import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 import { TNSettingsState } from '@/stores/TurnNavigationStore'
@@ -48,11 +48,17 @@ export class TurnNavigationRerouting implements Action {
 
 export class SetPoint implements Action {
     readonly point: QueryPoint
-    readonly zoom: boolean
+    readonly zoomResponse: boolean
 
-    constructor(point: QueryPoint, zoom: boolean) {
+    /**
+     * @param point
+     * @param zoomResponse This action triggers a route request (if the specified point and all existing points
+     * are initialized) and if this response returns and zoomResponse is set to "true" the map will be zoomed to fit
+     * the geometry of the first route on the screen.
+     */
+    constructor(point: QueryPoint, zoomResponse: boolean) {
         this.point = point
-        this.zoom = zoom
+        this.zoomResponse = zoomResponse
     }
 }
 
@@ -133,10 +139,12 @@ export class SetCustomModel implements Action {
 export class RouteRequestSuccess implements Action {
     readonly result: RoutingResult
     readonly request: RoutingArgs
+    readonly zoom: boolean
 
-    constructor(request: RoutingArgs, result: RoutingResult) {
+    constructor(request: RoutingArgs, zoom: boolean, result: RoutingResult) {
         this.result = result
         this.request = request
+        this.zoom = zoom
     }
 }
 

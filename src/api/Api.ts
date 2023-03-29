@@ -16,6 +16,7 @@ import {
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
+import { Coordinate } from '@/stores/QueryStore'
 
 interface ApiProfile {
     name: string
@@ -26,7 +27,7 @@ export default interface Api {
 
     route(args: RoutingArgs): Promise<RoutingResult>
 
-    routeWithDispatch(args: RoutingArgs): void
+    routeWithDispatch(args: RoutingArgs, zoom: boolean): void
 
     geocode(query: string, provider: string): Promise<GeocodingResult>
 
@@ -62,13 +63,18 @@ export class ApiImpl implements Api {
     async info(): Promise<ApiInfo> {
         const response = await fetch(this.getRoutingURLWithKey('info').toString(), {
             headers: { Accept: 'application/json' },
+        }).catch(() => {
+            throw new Error('Could not connect to the Service. Try to reload!')
         })
 
+        const result = await response.json()
         if (response.ok) {
-            const result = await response.json()
             return ApiImpl.convertToApiInfo(result)
         } else {
-            throw new Error('Could not connect to the Service. Try to reload!')
+            if (result.message) throw new Error(result.message)
+            throw new Error(
+                'There has been an error. Server responded with ' + response.statusText + ' (' + response.status + ')'
+            )
         }
     }
 
@@ -143,9 +149,9 @@ export class ApiImpl implements Api {
         }
     }
 
-    routeWithDispatch(args: RoutingArgs) {
+    routeWithDispatch(args: RoutingArgs, zoomOnSuccess: boolean) {
         this.route(args)
-            .then(result => Dispatcher.dispatch(new RouteRequestSuccess(args, result)))
+            .then(result => Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result)))
             .catch(error => {
                 console.warn('error when performing /route request: ', error)
                 return Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
@@ -165,6 +171,11 @@ export class ApiImpl implements Api {
     }
 
     static createRequest(args: RoutingArgs): RoutingRequest {
+        let profileConfig = config.profiles ? (config.profiles as any)[args.profile] : {}
+        let details = config.request?.details ? config.request.details : []
+        // don't query all path details for all profiles (e.g. foot_network and get_off_bike are not enabled for motor vehicles)
+        if (profileConfig?.details) details = [...details, ...profileConfig.details] // don't modify original arrays!
+
         const request: RoutingRequest = {
             points: args.points,
             profile: args.profile,
@@ -175,8 +186,8 @@ export class ApiImpl implements Api {
             optimize: 'false',
             points_encoded: true,
             snap_preventions: config.request?.snapPreventions ? config.request.snapPreventions : [],
-            details: config.request?.details ? config.request.details : [],
-            ...(config.profiles ? (config.profiles as any)[args.profile] : {}),
+            ...profileConfig,
+            details: details,
         }
 
         if (args.customModel) {
@@ -331,5 +342,9 @@ export class ApiImpl implements Api {
 
     public static isMotorVehicle(profile: string) {
         return profile.includes('car') || profile.includes('truck') || profile.includes('scooter')
+    }
+
+    public static isTruck(profile: string) {
+        return profile.includes('truck')
     }
 }

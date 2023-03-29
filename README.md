@@ -42,3 +42,12 @@ Every branch of this repository can be tested at https://graphhopper.com/maps-de
 
 There is also [an experimental `navi` branch](https://github.com/graphhopper/graphhopper-maps/tree/navi) that implements
 turn-by-turn navigation [directly in the browser](https://navi.graphhopper.org).
+
+## Powered By
+
+This project uses
+
+ * the great [OpenLayers library](https://openlayers.org/).
+ * the [codemirror](https://codemirror.net/) code editor for the custom model editor.
+ * many icons from Google's [open source font library](https://fonts.google.com/icons).
+ * many more open source projects - see the package.json

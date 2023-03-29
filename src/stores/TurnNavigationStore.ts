@@ -1,4 +1,4 @@
-import { Coordinate, CustomModel } from '@/stores/QueryStore'
+import { Coordinate } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
 import {
     ErrorAction,
@@ -253,7 +253,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                         points: [[coordinate.lng, coordinate.lat] as [number, number]].concat(nextWaypoints),
                         maxAlternativeRoutes: 0,
                         heading: action.heading,
-                        zoom: false,
                         profile: state.activeProfile,
                         customModel: customModel,
                     }
@@ -487,7 +486,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             heading: 0,
             profile: 'car',
             maxAlternativeRoutes: 0,
-            zoom: false,
             customModel: null,
         })
 

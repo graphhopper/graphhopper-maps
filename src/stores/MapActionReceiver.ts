@@ -110,7 +110,7 @@ export default class MapActionReceiver implements ActionReceiver {
                 widerBBox[1] -= 0.0005
                 widerBBox[3] += 0.0005
             }
-            if (action.request.zoom) fitBounds(this.map, widerBBox, isSmallScreen)
+            if (action.zoom) fitBounds(this.map, widerBBox, isSmallScreen)
         } else if (action instanceof SetSelectedPath) {
             fitBounds(this.map, action.path.bbox!, isSmallScreen)
         } else if (action instanceof PathDetailsRangeSelected) {

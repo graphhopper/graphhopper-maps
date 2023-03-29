@@ -1,12 +1,19 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { QueryPoint } from '@/stores/QueryStore'
-import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetPoint } from '@/actions/Actions'
+import { getBBoxFromCoord, QueryPoint } from '@/stores/QueryStore'
+import {
+    AddPoint,
+    ClearRoute,
+    InvalidatePoint,
+    MovePoint,
+    RemovePoint,
+    SetInitialBBox,
+    SetPoint,
+} from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
-import InfoIcon from './info.svg'
 import PlainButton from '@/PlainButton'
 
 import AddressInput from '@/sidebar/search/AddressInput'
@@ -175,7 +182,11 @@ const SearchBox = ({
                     index={index}
                     point={point}
                     onCancel={() => console.log('cancel')}
-                    onAddressSelected={(queryText, coordinate) =>
+                    onAddressSelected={(queryText, coordinate) => {
+                        const initCount = points.filter(p => p.isInitialized).length
+                        if (coordinate && initCount == 0)
+                            Dispatcher.dispatch(new SetInitialBBox(getBBoxFromCoord(coordinate)))
+
                         Dispatcher.dispatch(
                             new SetPoint(
                                 {
@@ -184,10 +195,10 @@ const SearchBox = ({
                                     queryText: queryText,
                                     coordinate: coordinate ? coordinate : point.coordinate,
                                 },
-                                true
+                                initCount > 0
                             )
                         )
-                    }
+                    }}
                     clearSelectedInput={() => {
                         onMoveStartSelect(-1, true)
                         onDropPreviewSelect(-1)

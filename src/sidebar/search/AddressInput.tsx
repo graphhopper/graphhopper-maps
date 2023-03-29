@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
-import { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
-import { GeocodingHit } from '@/api/graphhopper'
+import { Coordinate, getBBoxFromCoord, QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { Bbox, GeocodingHit } from '@/api/graphhopper'
 import { ErrorAction } from '@/actions/Actions'
 import Autocomplete, {
     AutocompleteItem,
@@ -21,7 +21,7 @@ import PlainButton from '@/PlainButton'
 export interface AddressInputProps {
     point: QueryPoint
     onCancel: () => void
-    onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
+    onAddressSelected: (queryText: string, coord: Coordinate | undefined, bbox: Bbox | undefined) => void
     onChange: (value: string) => void
     clearSelectedInput: () => void
     moveStartIndex: number
@@ -45,7 +45,12 @@ export default function AddressInput(props: AddressInputProps) {
         new Geocoder(getApi(), (query, provider, hits) => {
             const items: AutocompleteItem[] = hits.map(hit => {
                 const obj = provider === 'nominatim' ? nominatimHitToItem(hit) : hitToItem(hit)
-                return new GeocodingItem(obj.mainText, obj.secondText, hit.point)
+                return new GeocodingItem(
+                    obj.mainText,
+                    obj.secondText,
+                    hit.point,
+                    hit.extent ? hit.extent : getBBoxFromCoord(hit.point)
+                )
             })
 
             if (provider !== 'nominatim' && getApi().supportsGeocoding()) {
@@ -59,7 +64,7 @@ export default function AddressInput(props: AddressInputProps) {
             }
         })
     )
-    // if item is selected we need to clear the auto completion list
+    // if item is selected we need to clear the autocompletion list
     useEffect(() => setAutocompleteItems([]), [props.point])
     // if no items but input is selected show current location item
     useEffect(() => {
@@ -91,12 +96,12 @@ export default function AddressInput(props: AddressInputProps) {
                     // try to parse input as coordinate. Otherwise use autocomplete results
                     const coordinate = textToCoordinate(text)
                     if (coordinate) {
-                        props.onAddressSelected(text, coordinate)
+                        props.onAddressSelected(text, coordinate, getBBoxFromCoord(coordinate))
                     } else if (autocompleteItems.length > 0) {
                         // by default use the first result, otherwise the highlighted one
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
-                        if (item instanceof GeocodingItem) props.onAddressSelected(item.toText(), item.point)
+                        if (item instanceof GeocodingItem) props.onAddressSelected(item.toText(), item.point, item.bbox)
                     }
                     searchInput.current!.blur()
                     break
@@ -162,7 +167,7 @@ export default function AddressInput(props: AddressInputProps) {
                         onSelect={item => {
                             if (item instanceof GeocodingItem) {
                                 searchInput.current!.blur()
-                                props.onAddressSelected(item.toText(), item.point)
+                                props.onAddressSelected(item.toText(), item.point, item.bbox)
                             } else if (item instanceof SelectCurrentLocationItem) {
                                 searchInput.current!.blur()
                                 onCurrentLocationSelected(props.onAddressSelected)
@@ -194,20 +199,23 @@ function ResponsiveAutocomplete({ inputRef, children }: { inputRef: HTMLElement;
     )
 }
 
-function onCurrentLocationSelected(onSelect: (queryText: string, coordinate: Coordinate | undefined) => void) {
+function onCurrentLocationSelected(
+    onSelect: (queryText: string, coordinate: Coordinate | undefined, bbox: Bbox | undefined) => void
+) {
     if (!navigator.geolocation) {
         Dispatcher.dispatch(new ErrorAction('Geolocation is not supported in this browser'))
         return
     }
 
-    onSelect(tr('searching_location') + ' ...', undefined)
+    onSelect(tr('searching_location') + ' ...', undefined, undefined)
     navigator.geolocation.getCurrentPosition(
         position => {
-            onSelect(tr('current_location'), { lat: position.coords.latitude, lng: position.coords.longitude })
+            const coordinate = { lat: position.coords.latitude, lng: position.coords.longitude }
+            onSelect(tr('current_location'), coordinate, getBBoxFromCoord(coordinate))
         },
         error => {
             Dispatcher.dispatch(new ErrorAction(tr('searching_location_failed') + ': ' + error.message))
-            onSelect('', undefined)
+            onSelect('', undefined, undefined)
         },
         // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
         { timeout: 300_000, enableHighAccuracy: true }

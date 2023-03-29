@@ -115,7 +115,7 @@ export default function App() {
     useAreasLayer(map, getCustomModelAreas(query))
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
-    usePathsLayer(map, route, turnNavigation)
+    usePathsLayer(map, route, query.queryPoints, turnNavigation)
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
 

@@ -2,6 +2,7 @@ import styles from './AddressInputAutocomplete.module.css'
 import { useState } from 'react'
 import CurrentLocationIcon from './current-location.svg'
 import { tr } from '@/translation/Translation'
+import { Bbox } from '@/api/graphhopper'
 
 export interface AutocompleteItem {}
 
@@ -9,11 +10,13 @@ export class GeocodingItem implements AutocompleteItem {
     mainText: string
     secondText: string
     point: { lat: number; lng: number }
+    bbox: Bbox
 
-    constructor(mainText: string, secondText: string, point: { lat: number; lng: number }) {
+    constructor(mainText: string, secondText: string, point: { lat: number; lng: number }, bbox: Bbox) {
         this.mainText = mainText
         this.secondText = secondText
         this.point = point
+        this.bbox = bbox
     }
 
     toText() {
