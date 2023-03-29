@@ -15,7 +15,7 @@ const distanceFormat = new Intl.NumberFormat(navigator.language, { maximumFracti
 
 export function metersToText(meters: number, showDistanceInMiles: boolean, forceSmallUnits: boolean = false) {
     if (showDistanceInMiles) {
-        if (meters < 1609.34 || forceSmallUnits) return Math.floor(meters / 0.3048) + ' ft'
+        if (meters < 160.934 || forceSmallUnits) return Math.floor(meters / 0.3048) + ' ft'
         return distanceFormat.format(meters / 1609.34) + ' mi'
     } else {
         if (meters < 1000 || forceSmallUnits) return Math.floor(meters) + ' m'
@@ -26,7 +26,7 @@ export function metersToText(meters: number, showDistanceInMiles: boolean, force
 // text does not contain decimal numbers or space
 export function metersToSimpleText(meters: number, showDistanceInMiles: boolean) {
     if (showDistanceInMiles) {
-        if (meters < 160.934) return Math.floor(meters / 0.3048) + 'ft'
+        if (meters < 1609.34) return Math.floor(meters / 0.3048) + 'ft'
         return Math.round(meters / 1609.34) + 'mi'
     } else {
         if (meters < 1000) return Math.floor(meters) + 'm'
