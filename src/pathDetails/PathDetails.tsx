@@ -24,7 +24,7 @@ export default function ({ selectedPath }: PathDetailsProps) {
     useEffect(() => {
         const options = {
             width: clampWidth(containerRef.current!.clientWidth),
-            height: 224,
+            height: 160,
             expandControls: true,
             // todo: add selected_detail url parameter
         }

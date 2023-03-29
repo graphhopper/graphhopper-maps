@@ -4,6 +4,7 @@
     display: none;
     cursor: default;
     user-select: none;
+    height: 155px;
 }
 
 .heightgraph-toggle {
@@ -39,7 +40,13 @@
     fill: none;
 }
 
+#selectionText {
+    font-size: 14px;
+    transform: translate(-2px, 2px); /* TODO fix in original positioning ;) */
+}
+
 .legend-hover {
+    font-size: 14px;
     cursor: pointer;
 }
 
