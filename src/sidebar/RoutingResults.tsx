@@ -1,7 +1,7 @@
 import { Instruction, Path } from '@/api/graphhopper'
 import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
-import { useContext, useEffect, useState } from 'react'
+import { ReactNode, useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
 import { metersToSimpleText, metersToText, milliSecondsToText } from '@/Converters'
@@ -15,6 +15,14 @@ import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
+import FordIcon from '@/sidebar/routeHints/water.svg'
+import FerryIcon from '@/sidebar/routeHints/directions_boat.svg'
+import StepsIcon from '@/sidebar/routeHints/floor.svg'
+import BorderCrossingIcon from '@/sidebar/routeHints/border.svg'
+import TollIcon from '@/sidebar/routeHints/euro.svg'
+import GetOffBikeIcon from '@/sidebar/routeHints/push_bike.svg'
+import SteepIcon from '@/sidebar/routeHints/elevation.svg'
+import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -33,32 +41,41 @@ export default function RoutingResults(props: RoutingResultsProps) {
 
 function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: boolean; profile: string }) {
     const [isExpanded, setExpanded] = useState(false)
+    const [selectedRH, setSelectedRH] = useState('')
+    const [descriptionRH, setDescriptionRH] = useState('')
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
-    const fordLength = getLengthFor(path.points, path.details.road_environment, { ford: true })
-    const tollLength = getLengthFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
-    const ferryLength = getLengthFor(path.points, path.details.road_environment, { ferry: true })
-    const badTrackLength = !ApiImpl.isMotorVehicle(profile)
-        ? 0
-        : getLengthBadTracks(path.points, path.details.track_type)
-    const stepsLength = !ApiImpl.isBikeLike(profile)
+    let fordLength = getLengthFor(path.points, path.details.road_environment, { ford: true })
+    let tollLength = getLengthFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
+    let ferryLength = getLengthFor(path.points, path.details.road_environment, { ferry: true })
+    let badTrackLength = !ApiImpl.isMotorVehicle(profile) ? 0 : getLengthBadTracks(path.points, path.details.track_type)
+    let stepsLength = !ApiImpl.isBikeLike(profile)
         ? 0
         : getLengthFor(path.points, path.details.road_class, { steps: true })
-    const steepLength = ApiImpl.isMotorVehicle(profile) ? 0 : getHighSlopeLength(path.points, 15)
-    const getOffBikeLength = !ApiImpl.isBikeLike(profile)
+    let steepLength = ApiImpl.isMotorVehicle(profile) ? 0 : getHighSlopeLength(path.points, 15)
+    let getOffBikeLength = !ApiImpl.isBikeLike(profile)
         ? 0
         : getLengthFor(path.points, path.details.get_off_bike, { true: true })
-    const hasBorderCrossed = crossesBorder(path.details.country)
+    let countries = crossesBorder(path.details.country)
+
+    fordLength = 999
+    tollLength = 99
+    ferryLength = 999
+    badTrackLength = 999
+    stepsLength = 999
+    getOffBikeLength = 999
+    steepLength = 999
+
     const showHints =
         fordLength > 0 ||
         tollLength > 0 ||
         ferryLength > 0 ||
         badTrackLength > 0 ||
         stepsLength > 0 ||
-        hasBorderCrossed ||
+        countries.length > 1 ||
         getOffBikeLength > 0 ||
         steepLength > 0
 
@@ -111,16 +128,83 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
             </div>
             {isSelected && !isExpanded && showHints && (
                 <div className={styles.routeHints}>
-                    {getHint(tr('way_contains_ford'), fordLength, showDistanceInMiles)}
-                    {getHint(tr('way_contains_ferry'), ferryLength, showDistanceInMiles)}
-                    {hasBorderCrossed && <div>{tr('way_crosses_border')}</div>}
-                    {getHint(tr('way_contains_toll'), tollLength, showDistanceInMiles)}
-                    {getHint(tr('way_contains', [tr('steps')]), stepsLength, showDistanceInMiles)}
-                    {getHint(tr('way_contains', [tr('tracks')]), badTrackLength, showDistanceInMiles)}
-                    {getOffBikeLength > 0 && (
-                        <div>{tr('get_off_bike_for', [metersToSimpleText(getOffBikeLength, showDistanceInMiles)])}</div>
-                    )}
-                    {getHint(tr('way_contains', [tr('steep_sections')]), steepLength, showDistanceInMiles)}
+                    <div className={styles.icons}>
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains_ford')}
+                            setType={t => setSelectedRH(t)}
+                            type={'ford'}
+                            child={<FordIcon />}
+                            value={fordLength > 0 && metersToSimpleText(fordLength, showDistanceInMiles)}
+                            selected={selectedRH}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_crosses_border')}
+                            setType={t => setSelectedRH(t)}
+                            type={'country'}
+                            child={<BorderCrossingIcon />}
+                            value={countries.length > 1 && countries.join(' - ')}
+                            selected={selectedRH}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains_ferry')}
+                            setType={t => setSelectedRH(t)}
+                            type={'ferry'}
+                            child={<FerryIcon />}
+                            value={ferryLength > 0 && metersToSimpleText(ferryLength, showDistanceInMiles)}
+                            selected={selectedRH}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains_toll')}
+                            setType={t => setSelectedRH(t)}
+                            type={'toll'}
+                            child={<TollIcon />}
+                            value={tollLength > 0 && metersToSimpleText(tollLength, showDistanceInMiles)}
+                            selected={selectedRH}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains', [tr('steps')])}
+                            setType={t => setSelectedRH(t)}
+                            type={'steps'}
+                            child={<StepsIcon />}
+                            value={stepsLength > 0 && metersToSimpleText(stepsLength, showDistanceInMiles)}
+                            selected={selectedRH}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains', [tr('tracks')])}
+                            setType={t => setSelectedRH(t)}
+                            type={'tracks'}
+                            child={<BadTrackIcon />}
+                            value={badTrackLength > 0 && metersToSimpleText(badTrackLength, showDistanceInMiles)}
+                            selected={selectedRH}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('get_off_bike_for', [
+                                metersToSimpleText(getOffBikeLength, showDistanceInMiles),
+                            ])}
+                            setType={t => setSelectedRH(t)}
+                            type={'get_off_bike'}
+                            child={<GetOffBikeIcon />}
+                            value={getOffBikeLength > 0 && metersToSimpleText(getOffBikeLength, showDistanceInMiles)}
+                            selected={selectedRH}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains', [tr('steep_sections')])}
+                            setType={t => setSelectedRH(t)}
+                            type={'steep_sections'}
+                            child={<SteepIcon />}
+                            value={steepLength > 0 && metersToSimpleText(steepLength, showDistanceInMiles)}
+                            selected={selectedRH}
+                        />
+                    </div>
+                    {descriptionRH && <div>{descriptionRH}</div>}
                 </div>
             )}
             {isExpanded && <Instructions instructions={path.instructions} />}
@@ -128,8 +212,29 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     )
 }
 
-function getHint(str: string, value: number, showDistanceInMiles: boolean) {
-    return value <= 0 ? null : <div>{str + ': ' + metersToSimpleText(value, showDistanceInMiles)}</div>
+function RHButton(p: {
+    setDescription: (s: string) => void
+    description: string
+    setType: (s: string) => void
+    type: string
+    child: ReactNode
+    value: string | false
+    selected: string
+}) {
+    if (p.value === false) return null
+    return (
+        <PlainButton
+            className={p.selected == p.type ? styles.selectedRouteHintButton : styles.routeHintButton}
+            onClick={() => {
+                p.setType(p.type)
+                p.setDescription(p.description + (p.type == 'get_off_bike' ? '' : ': ' + p.value))
+            }}
+            title={p.description}
+        >
+            {p.child}
+            {<span>{p.type == 'country' ? p.value.split(' ')[0] : p.value}</span>}
+        </PlainButton>
+    )
 }
 
 function getLengthBadTracks(points: LineString, details: [number, number, string][]) {
@@ -144,12 +249,12 @@ function getLengthBadTracks(points: LineString, details: [number, number, string
 }
 
 function crossesBorder(countryPathDetail: [number, number, string][]) {
-    if (!countryPathDetail || countryPathDetail.length == 0) return false
-    const init = countryPathDetail[0][2]
+    if (!countryPathDetail || countryPathDetail.length == 0) return []
+    const countries = [countryPathDetail[0][2]]
     for (const i in countryPathDetail) {
-        if (countryPathDetail[i][2] != init) return true
+        if (countryPathDetail[i][2] != countries[0]) countries.push(countryPathDetail[i][2])
     }
-    return false
+    return countries
 }
 
 function getLengthFor(points: LineString, details: [number, number, any][], values: { [Identifier: string]: boolean }) {
