@@ -1,5 +1,5 @@
 .heightgraph-container {
-    background-color: rgba(250,250,250,.8);
+    background-color: rgba(250, 250, 250, 0.8);
     border-radius: 10px;
     display: none;
     cursor: default;
@@ -9,7 +9,7 @@
 
 .heightgraph-toggle {
     cursor: pointer;
-    box-shadow: 0 1px 7px rgba(0, 0, 0, .4);
+    box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);
     border-radius: 5px;
     width: 28px;
     height: 28px;
@@ -56,7 +56,8 @@
     cursor: pointer;
 }
 
-.tick, .tick text {
+.tick,
+.tick text {
     fill: #000;
     pointer-events: none;
 }
@@ -115,11 +116,11 @@
 }
 
 .height-focus.circle {
-    stroke: #FFF;
+    stroke: #fff;
     stroke-width: 1px;
 }
 
-.mouse-height-box-text{
+.mouse-height-box-text {
     font-size: 12px;
 }
 
@@ -128,7 +129,7 @@
 }
 
 .grid .tick line {
-    stroke: #EEE;
+    stroke: #eee;
     stroke-width: 1px;
     shape-rendering: crispEdges;
 }
