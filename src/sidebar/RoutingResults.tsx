@@ -4,7 +4,7 @@ import styles from './RoutingResult.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
-import { metersToSimpleText, metersToText, milliSecondsToText } from '@/Converters'
+import { metersToShortText, metersToTextForFile, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
@@ -52,7 +52,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const fordLength = getLengthFor(path.points, path.details.road_environment, { ford: true })
     const tollLength = getLengthFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
     const ferryLength = getLengthFor(path.points, path.details.road_environment, { ferry: true })
-    const badTrackLength = !ApiImpl.isMotorVehicle(profile) ? 0 : getLengthBadTracks(path.points, path.details.track_type)
+    const badTrackLength = !ApiImpl.isMotorVehicle(profile)
+        ? 0
+        : getLengthBadTracks(path.points, path.details.track_type)
     const stepsLength = !ApiImpl.isBikeLike(profile)
         ? 0
         : getLengthFor(path.points, path.details.road_class, { steps: true })
@@ -81,15 +83,15 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
                         <span className={styles.resultSecondaryText}>
-                            {metersToText(path.distance, showDistanceInMiles)}
+                            {metersToShortText(path.distance, showDistanceInMiles)}
                         </span>
                         {isSelected && !ApiImpl.isMotorVehicle(profile) && (
                             <div className={styles.elevationHint}>
                                 <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
-                                    ↗{metersToText(path.ascend, showDistanceInMiles)}{' '}
+                                    ↗{metersToShortText(path.ascend, showDistanceInMiles)}{' '}
                                 </span>
                                 <span title={tr('total_descend', [Math.round(path.descend) + 'm'])}>
-                                    ↘{metersToText(path.descend, showDistanceInMiles)}
+                                    ↘{metersToShortText(path.descend, showDistanceInMiles)}
                                 </span>
                             </div>
                         )}
@@ -128,7 +130,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'ford'}
                             child={<FordIcon />}
-                            value={fordLength > 0 && metersToSimpleText(fordLength, showDistanceInMiles)}
+                            value={fordLength > 0 && metersToShortText(fordLength, showDistanceInMiles)}
                             selected={selectedRH}
                         />
                         <RHButton
@@ -146,7 +148,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'ferry'}
                             child={<FerryIcon />}
-                            value={ferryLength > 0 && metersToSimpleText(ferryLength, showDistanceInMiles)}
+                            value={ferryLength > 0 && metersToShortText(ferryLength, showDistanceInMiles)}
                             selected={selectedRH}
                         />
                         <RHButton
@@ -154,8 +156,8 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             description={tr('way_contains_toll')}
                             setType={t => setSelectedRH(t)}
                             type={'toll'}
-                            child={showDistanceInMiles ? <DollarIcon/> : <EuroIcon />}
-                            value={tollLength > 0 && metersToSimpleText(tollLength, showDistanceInMiles)}
+                            child={showDistanceInMiles ? <DollarIcon /> : <EuroIcon />}
+                            value={tollLength > 0 && metersToShortText(tollLength, showDistanceInMiles)}
                             selected={selectedRH}
                         />
                         <RHButton
@@ -164,7 +166,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'steps'}
                             child={<StepsIcon />}
-                            value={stepsLength > 0 && metersToSimpleText(stepsLength, showDistanceInMiles)}
+                            value={stepsLength > 0 && metersToShortText(stepsLength, showDistanceInMiles)}
                             selected={selectedRH}
                         />
                         <RHButton
@@ -173,18 +175,18 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'tracks'}
                             child={<BadTrackIcon />}
-                            value={badTrackLength > 0 && metersToSimpleText(badTrackLength, showDistanceInMiles)}
+                            value={badTrackLength > 0 && metersToShortText(badTrackLength, showDistanceInMiles)}
                             selected={selectedRH}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
                             description={tr('get_off_bike_for', [
-                                metersToSimpleText(getOffBikeLength, showDistanceInMiles),
+                                metersToShortText(getOffBikeLength, showDistanceInMiles),
                             ])}
                             setType={t => setSelectedRH(t)}
                             type={'get_off_bike'}
                             child={<GetOffBikeIcon />}
-                            value={getOffBikeLength > 0 && metersToSimpleText(getOffBikeLength, showDistanceInMiles)}
+                            value={getOffBikeLength > 0 && metersToShortText(getOffBikeLength, showDistanceInMiles)}
                             selected={selectedRH}
                         />
                         <RHButton
@@ -193,7 +195,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'steep_sections'}
                             child={<SteepIcon />}
-                            value={steepLength > 0 && metersToSimpleText(steepLength, showDistanceInMiles)}
+                            value={steepLength > 0 && metersToShortText(steepLength, showDistanceInMiles)}
                             selected={selectedRH}
                         />
                     </div>
@@ -341,7 +343,7 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
     const date = new Date()
     tmpElement.download = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
         date.getUTCDate()
-    )}-${metersToSimpleText(path.distance, showDistanceInMiles)}.gpx`
+    )}-${metersToTextForFile(path.distance, showDistanceInMiles)}.gpx`
     tmpElement.click()
 }
 
