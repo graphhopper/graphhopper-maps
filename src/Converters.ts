@@ -34,15 +34,15 @@ export function metersToTextForFile(meters: number, showDistanceInMiles: boolean
     }
 }
 
-// create fewer characters e.g. less precision for bigger values and use mi instead of ft already for >0.1mi
+// create fewer characters e.g. less precision for bigger values (>100km / 100mi) and use mi instead of ft already for >0.1mi
 export function metersToShortText(meters: number, showDistanceInMiles: boolean) {
     if (showDistanceInMiles) {
-        if (meters < 160.934) return Math.floor(meters / 0.3048) + 'ft'
-        if (meters < 1609.34) return distanceFormat.format(meters / 1609.34) + 'mi'
+        if (meters < 160.934) return Math.floor(meters / 0.3048) + 'ft' // e.g. 0.2mi is better than 1056ft
+        if (meters < 160934) return distanceFormat.format(meters / 1609.34) + 'mi'
         return Math.round(meters / 1609.34) + 'mi'
     } else {
-        if (meters < 300) return Math.floor(meters) + 'm'
-        if (meters < 1000) return Math.round(meters / 100) * 100 + 'm'
+        if (meters < 1_000) return Math.floor(meters) + 'm'
+        if (meters < 100_000) return distanceFormat.format(meters / 1000) + 'km'
         return Math.round(meters / 1000) + 'km'
     }
 }
