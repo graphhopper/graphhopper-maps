@@ -4,7 +4,7 @@ A user interface for the [GraphHopper routing engine](https://github.com/graphho
 
 [Try it out](https://graphhopper.com/maps/)!
 
-[![GraphHopper Maps route planner](https://www.graphhopper.com/wp-content/uploads/2022/10/maps2-1024x661.png)](https://graphhopper.com/maps/)
+[![GraphHopper Maps route planner](https://www.graphhopper.com/wp-content/uploads/2023/03/gh-maps-202303.png)](https://graphhopper.com/maps/)
 
 
 ## Start development:
