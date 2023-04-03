@@ -94,6 +94,7 @@ interface Details {
     readonly toll: [number, number, string][]
     readonly max_speed: [number, number, number][]
     readonly road_class: [number, number, string][]
+    readonly road_access: [number, number, string][]
     readonly road_environment: [number, number, string][]
     readonly track_type: [number, number, string][]
     readonly country: [number, number, string][]

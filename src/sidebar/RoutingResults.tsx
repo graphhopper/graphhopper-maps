@@ -17,6 +17,7 @@ import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
 import FordIcon from '@/sidebar/routeHints/water.svg'
 import FerryIcon from '@/sidebar/routeHints/directions_boat.svg'
+import PrivateIcon from '@/sidebar/routeHints/privacy_tip.svg'
 import StepsIcon from '@/sidebar/routeHints/floor.svg'
 import BorderCrossingIcon from '@/sidebar/routeHints/border.svg'
 import EuroIcon from '@/sidebar/routeHints/toll_euro.svg'
@@ -52,6 +53,11 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const fordLength = getLengthFor(path.points, path.details.road_environment, { ford: true })
     const tollLength = getLengthFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
     const ferryLength = getLengthFor(path.points, path.details.road_environment, { ferry: true })
+    const privateOrDeliveryLength = getLengthFor(path.points, path.details.road_access, {
+        private: true,
+        customers: true,
+        delivery: true,
+    })
     const badTrackLength = !ApiImpl.isMotorVehicle(profile)
         ? 0
         : getLengthBadTracks(path.points, path.details.track_type)
@@ -68,6 +74,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         fordLength > 0 ||
         tollLength > 0 ||
         ferryLength > 0 ||
+        privateOrDeliveryLength > 0 ||
         badTrackLength > 0 ||
         stepsLength > 0 ||
         countries.length > 1 ||
@@ -149,6 +156,18 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             type={'ferry'}
                             child={<FerryIcon />}
                             value={ferryLength > 0 && metersToShortText(ferryLength, showDistanceInMiles)}
+                            selected={selectedRH}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains', [tr('private_sections')])}
+                            setType={t => setSelectedRH(t)}
+                            type={'private'}
+                            child={<PrivateIcon />}
+                            value={
+                                privateOrDeliveryLength > 0 &&
+                                metersToShortText(privateOrDeliveryLength, showDistanceInMiles)
+                            }
                             selected={selectedRH}
                         />
                         <RHButton
