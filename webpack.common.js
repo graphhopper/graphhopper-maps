@@ -66,13 +66,13 @@ module.exports = {
             // this loader inlines svg images as react components
             {
                 test: /\.svg$/,
-                exclude: path.resolve(__dirname, 'node_modules/heightgraph'),
+                exclude: path.resolve(__dirname, 'src/pathDetails/img'),
                 use: ['@svgr/webpack'],
             },
-            // heightgraph.css loads svg files using url(), so we need to add them as asset modules
+            // HeightGraph.css loads svg files using url(), so we need to add them as asset modules
             {
                 test: /\.svg$/,
-                include: path.resolve(__dirname, 'node_modules/heightgraph'),
+                include: path.resolve(__dirname, 'src/pathDetails/img'),
                 type: 'asset',
             },
             {
