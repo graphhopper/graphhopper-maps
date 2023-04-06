@@ -14,7 +14,7 @@ import { SetSelectedPath } from '@/actions/Actions'
 import { SelectEvent } from 'ol/interaction/Select'
 import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { Geometry, LineString, Point } from 'ol/geom'
+import { Geometry, LineString } from 'ol/geom'
 import { QueryPoint } from '@/stores/QueryStore'
 import { distance } from 'ol/coordinate'
 
@@ -30,14 +30,14 @@ export default function usePathsLayer(
 ) {
     useEffect(() => {
         removeCurrentPathLayers(map)
-        if (turnNavigation.showUI && turnNavigation.activePath != null) {
-            addSelectedPathsLayer(map, turnNavigation.activePath, turnNavigation)
+        if (turnNavigation.showUI && turnNavigation.activePath) {
+            addSelectedPathsLayer(map, turnNavigation.activePath, true)
         } else {
             addUnselectedPathsLayer(
                 map,
                 route.routingResult.paths.filter(p => p != route.selectedPath)
             )
-            addSelectedPathsLayer(map, route.selectedPath, turnNavigation)
+            addSelectedPathsLayer(map, route.selectedPath, false)
             addAccessNetworkLayer(map, route.selectedPath, queryPoints)
         }
         return () => {
@@ -141,7 +141,7 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
     map.addLayer(layer)
 }
 
-function addSelectedPathsLayer(map: Map, selectedPath: Path, turnNavigation: TurnNavigationStoreState) {
+function addSelectedPathsLayer(map: Map, selectedPath: Path, updateMoreFrequently: boolean) {
     const styles = {
         LineString: new Style({
             stroke: new Stroke({
@@ -158,13 +158,14 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path, turnNavigation: Tur
             geometry: new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))),
         }),
     ] as Feature[]
-    const coord = turnNavigation.coordinate
-    if (coord != null) features.push(new Feature({ geometry: new Point(fromLonLat([coord.lng, coord.lat])) }))
 
     const layer = new VectorLayer({
         source: new VectorSource({ features: features }),
         style: feature => styles[(feature.getGeometry() as Geometry).getType()],
         opacity: 0.8,
+        // when navigating we need this for re-routing:
+        updateWhileAnimating: updateMoreFrequently,
+        updateWhileInteracting: updateMoreFrequently
     })
 
     layer.set(selectedPathLayerKey, true)
