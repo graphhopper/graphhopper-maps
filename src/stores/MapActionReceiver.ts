@@ -1,10 +1,9 @@
-import Dispatcher, { Action, ActionReceiver } from '@/stores/Dispatcher'
+import { Action, ActionReceiver } from '@/stores/Dispatcher'
 import { Map } from 'ol'
 import { fromLonLat } from 'ol/proj'
 import {
     InfoReceived,
     LocationUpdate,
-    LocationUpdateSync,
     PathDetailsRangeSelected,
     RouteRequestSuccess,
     SetInitialBBox,
@@ -49,7 +48,7 @@ export default class MapActionReceiver implements ActionReceiver {
             this.map.getView().padding = [0, 0, 0, 0]
             this.map.getView().animate({ rotation: 0, zoom: 12, duration: 600 })
             this.map.un('pointerdrag', this.onMove)
-            this.map.getView().un('change:resolution', this.onMove)
+            // this.map.getView().un('change:resolution', this.onMove)
         } else if (action instanceof TurnNavigationStart) {
             const size = this.map.getSize() // [width, height]
             const arr = this.map.getControls()
@@ -62,7 +61,8 @@ export default class MapActionReceiver implements ActionReceiver {
             if (this.zoomCtrl) arr.remove(this.zoomCtrl)
             if (this.attributionCtrl) arr.remove(this.attributionCtrl)
             this.map.on('pointerdrag', this.onMove) // disable auto moving&zooming the map if *moving* the map
-            this.map.getView().on('change:resolution', this.onMove) // disable auto moving&zooming the map if *zooming* the map
+            // TODO this interferes with zooming from inside the application
+            // this.map.getView().on('change:resolution', this.onMove) // disable auto moving&zooming the map if *zooming* the map
         } else if (action instanceof LocationUpdate) {
             const size = this.map.getSize() // [width, height]
             // move center a bit down
