@@ -3,13 +3,14 @@ import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import React, { ReactNode, useContext, useEffect, useState } from 'react'
 import {
-    SelectMapLayer, SetSelectedPath,
+    SelectMapLayer,
+    SetSelectedPath,
     TurnNavigationSettingsUpdate,
     TurnNavigationStart,
     TurnNavigationStop,
 } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
-import {metersToShortText, metersToTextForFile, milliSecondsToText} from '@/Converters'
+import { metersToShortText, metersToTextForFile, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import NaviSVG from '@/sidebar/navigation.svg'

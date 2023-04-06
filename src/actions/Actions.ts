@@ -16,15 +16,27 @@ export class TurnNavigationStop implements Action {}
 
 export class TurnNavigationStart implements Action {}
 
+export class LocationUpdateSync implements Action {
+    readonly enableViewSync: boolean
+
+    constructor(enableViewSync: boolean) {
+        this.enableViewSync = enableViewSync
+    }
+}
+
 export class LocationUpdate implements Action {
     readonly coordinate: Coordinate
     readonly speed: number
-    readonly heading?: number
+    readonly heading: number
+    readonly zoom: number
+    readonly syncView: boolean
 
-    constructor(coordinate: Coordinate, speed: number, heading?: number) {
+    constructor(coordinate: Coordinate, syncView: boolean, speed: number, heading: number, zoom: number) {
         this.coordinate = coordinate
         this.speed = speed
+        this.syncView = syncView
         this.heading = heading
+        this.zoom = zoom
     }
 }
 
@@ -206,14 +218,10 @@ export class MapIsLoaded implements Action {}
 export class ZoomMapToPoint implements Action {
     readonly coordinate: Coordinate
     readonly zoom: number
-    readonly pitch: number
-    readonly heading: number
 
-    constructor(coordinate: Coordinate, zoom: number, pitch: number, heading: number) {
+    constructor(coordinate: Coordinate, zoom: number) {
         this.coordinate = coordinate
         this.zoom = zoom
-        this.pitch = pitch
-        this.heading = heading
     }
 }
 

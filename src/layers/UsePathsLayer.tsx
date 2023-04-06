@@ -165,7 +165,7 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path, updateMoreFrequentl
         opacity: 0.8,
         // when navigating we need this for re-routing:
         updateWhileAnimating: updateMoreFrequently,
-        updateWhileInteracting: updateMoreFrequently
+        updateWhileInteracting: updateMoreFrequently,
     })
 
     layer.set(selectedPathLayerKey, true)

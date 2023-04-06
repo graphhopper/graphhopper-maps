@@ -4,6 +4,7 @@ import {
     ErrorAction,
     InfoReceived,
     LocationUpdate,
+    LocationUpdateSync,
     SelectMapLayer,
     SetCustomModel,
     SetCustomModelEnabled,
@@ -77,6 +78,7 @@ export interface TNPathDetailsState {
 
 export interface TNSettingsState {
     fakeGPS: boolean
+    syncView: boolean
     acceptedRisk: boolean
     soundEnabled: boolean
     forceVectorTiles: boolean
@@ -119,6 +121,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             settings: {
                 acceptedRisk: false,
                 fakeGPS: fakeGPS,
+                syncView: true,
                 soundEnabled: !fakeGPS,
                 forceVectorTiles: true,
                 fullScreen: true,
@@ -191,6 +194,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 ...state,
                 activeProfile: action.profile.name,
             }
+        } else if (action instanceof LocationUpdateSync) {
+            return { ...state, settings: { ...state.settings, syncView: action.enableViewSync } }
         } else if (action instanceof SetSelectedPath) {
             // no need to update instruction as changing the path should happen only outside of the navigation
             if (state.showUI) throw new Error('Changing path while turn navigation should not happen')
@@ -543,8 +548,9 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
     private locationUpdate(pos: any) {
         let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        Dispatcher.dispatch(new ZoomMapToPoint(c, 16, 0, pos.coords.heading))
-        Dispatcher.dispatch(new LocationUpdate(c, pos.coords.speed, pos.coords.heading))
+        Dispatcher.dispatch(
+            new LocationUpdate(c, this.state.settings.syncView, pos.coords.speed, pos.coords.heading, 16)
+        )
     }
 
     private initReal(doFullscreen: boolean) {

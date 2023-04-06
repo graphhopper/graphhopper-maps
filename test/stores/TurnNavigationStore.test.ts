@@ -116,18 +116,18 @@ describe('TurnNavigationStore', () => {
             ])
             const store = createStore(api)
             Dispatcher.dispatch(new SetSelectedPath(reroute1.paths[0]))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.268908, lat: 51.434871 }, 10, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.268908, lat: 51.434871 }, true, 10, 120, 16))
             expect(store.state.speed).toEqual(10)
             expect(store.state.activePath).toEqual(reroute1.paths[0])
             expect(store.state.instruction.index).toEqual(1)
 
             // no rerouting without profile
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, 12, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, true, 12, 120, 16))
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeFalsy()
 
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.267238, lat: 51.43475 }, 12, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.267238, lat: 51.43475 }, true, 12, 120, 16))
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeTruthy()
             await flushPromises()
@@ -137,7 +137,7 @@ describe('TurnNavigationStore', () => {
             expect(store.state.instruction.index).toEqual(1)
 
             // avoid too frequent rerouting
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, 10, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, true, 10, 120, 16))
             expect(store.state.speed).toEqual(10)
             expect(store.state.rerouteInProgress).toBeFalsy()
 
@@ -146,7 +146,7 @@ describe('TurnNavigationStore', () => {
                 [14.267240000000001, 51.43253000000001],
             ])
             Dispatcher.dispatch(new TurnNavigationReroutingTimeResetForTest()) // skip waiting 10 seconds
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, 12, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, true, 12, 120, 16))
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeTruthy()
             await flushPromises()
@@ -161,13 +161,13 @@ describe('TurnNavigationStore', () => {
             const store = createStore(new LocalApi().setRerouteData(reroute1, rerouteWaypoints))
             Dispatcher.dispatch(new SetSelectedPath(routeWithVia.paths[0]))
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266959, lat: 51.435051 }, 10, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266959, lat: 51.435051 }, true, 10, 120, 16))
             expect(store.state.speed).toEqual(10)
             expect(store.state.instruction.index).toEqual(1)
             expect(store.state.activePath).toEqual(routeWithVia.paths[0])
 
             // close to via point it should force rerouting to avoid potential interferences with overlapping edges
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.269289, lat: 51.434764 }, 12, 70))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.269289, lat: 51.434764 }, true, 12, 70, 16))
             expect(store.state.speed).toEqual(12)
 
             expect(store.state.rerouteInProgress).toBeTruthy()
@@ -186,15 +186,15 @@ describe('TurnNavigationStore', () => {
             const store = createStore(new LocalApi().setRerouteData(reroute1, rerouteWaypoints))
             Dispatcher.dispatch(new SetSelectedPath(routeWithSimpleVia.paths[0]))
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.2727, lat: 51.436269 }, 10, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.2727, lat: 51.436269 }, true, 10, 120, 16))
             expect(store.state.activePath).toEqual(routeWithSimpleVia.paths[0])
 
             // close to middle waypoint but not within 50m
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.27109, lat: 51.435472 }, 12, 70))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.27109, lat: 51.435472 }, true, 12, 70, 16))
             expect(store.state.speed).toEqual(12)
 
             // close to middle waypoint but again not within 50m but still rerouting as skipWaypoint was true
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.271099, lat: 51.435433 }, 14, 70))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.271099, lat: 51.435433 }, true, 14, 70, 16))
             expect(store.state.speed).toEqual(14)
 
             expect(store.state.rerouteInProgress).toBeTruthy()
@@ -216,11 +216,11 @@ describe('TurnNavigationStore', () => {
             const store = createStore(api)
             Dispatcher.dispatch(new SetSelectedPath(routeWithSimpleVia.paths[0]))
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.2727, lat: 51.436269 }, 10, 120))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.2727, lat: 51.436269 }, true, 10, 120, 16))
             expect(store.state.activePath).toEqual(routeWithSimpleVia.paths[0])
 
             // force reroute
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.273946, lat: 51.436422 }, 12, 70))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.273946, lat: 51.436422 }, true, 12, 70, 16))
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeTruthy()
             await flushPromises()
@@ -233,7 +233,7 @@ describe('TurnNavigationStore', () => {
                 [14.267240000000001, 51.43253000000001],
             ] as [number, number][]
             api.setRerouteData(reroute1, newWaypoints)
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.270589, lat: 51.435272 }, 16, 70))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.270589, lat: 51.435272 }, true, 16, 70, 16))
             expect(store.state.speed).toEqual(16)
 
             expect(store.state.rerouteInProgress).toBeTruthy()

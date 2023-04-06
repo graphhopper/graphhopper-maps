@@ -38,10 +38,11 @@ import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
-import { TurnNavigationSettingsUpdate } from '@/actions/Actions'
+import { LocationUpdateSync, TurnNavigationSettingsUpdate } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
 import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
+import SyncLocationIcon from '@/turnNavigation/location_searching.svg'
 import PlainButton from '@/PlainButton'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
 import MapPopups from '@/map/MapPopups'
@@ -188,6 +189,13 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         )}
                     </PlainButton>
                 </div>
+                {!turnNavigation.settings.syncView && (
+                    <div className={styles.syncLocation}>
+                        <PlainButton onClick={() => Dispatcher.dispatch(new LocationUpdateSync(true))}>
+                            <SyncLocationIcon />
+                        </PlainButton>
+                    </div>
+                )}
                 <div className={styles.map}>
                     <MapComponent map={map} />
                 </div>
@@ -281,6 +289,16 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         )}
                     </PlainButton>
                 </div>
+                {!turnNavigation.settings.syncView && (
+                    <div
+                        className={styles.smallScreenSyncLocation}
+                        onClick={() => Dispatcher.dispatch(new LocationUpdateSync(true))}
+                    >
+                        <PlainButton>
+                            <SyncLocationIcon />
+                        </PlainButton>
+                    </div>
+                )}
             </>
         )
 

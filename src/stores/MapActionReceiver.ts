@@ -1,33 +1,37 @@
-import { Action, ActionReceiver } from '@/stores/Dispatcher'
+import Dispatcher, { Action, ActionReceiver } from '@/stores/Dispatcher'
 import { Map } from 'ol'
 import { fromLonLat } from 'ol/proj'
 import {
     InfoReceived,
+    LocationUpdate,
+    LocationUpdateSync,
     PathDetailsRangeSelected,
     RouteRequestSuccess,
     SetInitialBBox,
     SetSelectedPath,
     TurnNavigationStart,
     TurnNavigationStop,
-    ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
 import { Attribution, Zoom } from 'ol/control'
 import { toRadians } from '@/turnNavigation/GeoMethods'
 import { linear } from 'ol/easing'
+import VectorLayer from 'ol/layer/Vector'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
     private readonly routeStore: RouteStore
     private readonly isSmallScreenQuery: () => boolean
+    private readonly onMove: () => boolean
     private zoomCtrl: Zoom | null = null
     private attributionCtrl: Attribution | null = null
 
-    constructor(map: Map, routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
+    constructor(map: Map, routeStore: RouteStore, isSmallScreenQuery: () => boolean, onMove: () => boolean) {
         this.map = map
         this.routeStore = routeStore
         this.isSmallScreenQuery = isSmallScreenQuery
+        this.onMove = onMove
     }
 
     receive(action: Action) {
@@ -44,6 +48,8 @@ export default class MapActionReceiver implements ActionReceiver {
             // reset padding
             this.map.getView().padding = [0, 0, 0, 0]
             this.map.getView().animate({ rotation: 0, zoom: 12, duration: 600 })
+            this.map.un('pointerdrag', this.onMove)
+            this.map.getView().un('change:resolution', this.onMove)
         } else if (action instanceof TurnNavigationStart) {
             const size = this.map.getSize() // [width, height]
             const arr = this.map.getControls()
@@ -55,28 +61,42 @@ export default class MapActionReceiver implements ActionReceiver {
             }
             if (this.zoomCtrl) arr.remove(this.zoomCtrl)
             if (this.attributionCtrl) arr.remove(this.attributionCtrl)
-        } else if (action instanceof ZoomMapToPoint) {
+            this.map.on('pointerdrag', this.onMove) // disable auto moving&zooming the map if *moving* the map
+            this.map.getView().on('change:resolution', this.onMove) // disable auto moving&zooming the map if *zooming* the map
+        } else if (action instanceof LocationUpdate) {
             const size = this.map.getSize() // [width, height]
             // move center a bit down
             this.map.getView().padding = [size ? size[1] / 2 : 0, 0, 0, 0]
-
-            // The heading is in degrees and shows direction into which device is going.
-            // And although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
-            const rotation =
-                action.heading === null || Number.isNaN(action.heading)
-                    ? this.map.getView().getRotation()
-                    : -toRadians(action.heading)
-
             this.map.getView().cancelAnimations() // if location updates are sent too fast animations might stack up
-            this.map.getView().animate({
-                zoom: action.zoom,
-                center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
-                rotation: rotation,
-                easing: linear,
-                // We could use 1000ms or more but map tiles won't update probably due to missing updateWhileAnimating.
-                // For now, due to performance reasons, we set this to true only for the layer.
-                duration: 800,
-            })
+
+            const center = fromLonLat([action.coordinate.lng, action.coordinate.lat])
+            if (action.syncView) {
+                // The heading is in degrees and shows direction into which device is going.
+                // And although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
+                const rotation =
+                    action.heading === null || Number.isNaN(action.heading)
+                        ? this.map.getView().getRotation()
+                        : -toRadians(action.heading)
+                this.map.getView().animate({
+                    zoom: action.zoom,
+                    center: center,
+                    rotation: rotation,
+                    easing: linear,
+                    // We could use 1000ms or more but map tiles won't update probably due to missing updateWhileAnimating.
+                    // For now, due to performance reasons, we set this to true only for the layer.
+                    duration: 800,
+                })
+            } else {
+                // TODO why does this layer not yet exist in the constructor
+                const layer = this.map
+                    .getLayers()
+                    .getArray()
+                    .find(layer => layer.get('gh:current_location'))
+                if (layer && (layer as VectorLayer<any>).getSource()) {
+                    const currentPoint = (layer as VectorLayer<any>).getSource().getFeatures()[0].getGeometry()
+                    if (currentPoint) currentPoint.setCoordinates(center)
+                }
+            }
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route

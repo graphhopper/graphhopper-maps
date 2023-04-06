@@ -30,9 +30,10 @@ import PathDetailsStore from '@/stores/PathDetailsStore'
 import Dispatcher from '@/stores/Dispatcher'
 import NavBar from '@/NavBar'
 import App from '@/App'
-import { ErrorAction, InfoReceived } from '@/actions/Actions'
+import { ErrorAction, InfoReceived, LocationUpdateSync } from '@/actions/Actions'
 import { toLonLat } from 'ol/proj'
 import { Pixel } from 'ol/pixel'
+import turnNavigation from '@/turnNavigation/TurnNavigation'
 
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 
@@ -55,7 +56,13 @@ class CoordSysImpl implements MapCoordinateSystem {
         return toLonLat(getMap().getCoordinateFromPixel(pixel))
     }
 }
-
+const turnNavigationStore = new TurnNavigationStore(
+    getApi(),
+    speechSynthesizer,
+    new CoordSysImpl(),
+    fake != null,
+    config.defaultTiles
+)
 setStores({
     settingsStore: new SettingsStore(),
     queryStore: queryStore,
@@ -63,13 +70,7 @@ setStores({
     infoStore: new ApiInfoStore(),
     errorStore: new ErrorStore(),
     mapOptionsStore: new MapOptionsStore(),
-    turnNavigationStore: new TurnNavigationStore(
-        getApi(),
-        speechSynthesizer,
-        new CoordSysImpl(),
-        fake != null,
-        config.defaultTiles
-    ),
+    turnNavigationStore: turnNavigationStore,
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
 })
@@ -89,7 +90,15 @@ Dispatcher.register(getMapFeatureStore())
 
 // register map action receiver
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
-const mapActionReceiver = new MapActionReceiver(getMap(), routeStore, () => smallScreenMediaQuery.matches)
+const mapActionReceiver = new MapActionReceiver(
+    getMap(),
+    routeStore,
+    () => smallScreenMediaQuery.matches,
+    () => {
+        if (turnNavigationStore.state.settings.syncView) Dispatcher.dispatch(new LocationUpdateSync(false))
+        return true
+    }
+)
 Dispatcher.register(mapActionReceiver)
 
 const navBar = new NavBar(getQueryStore(), getMapOptionsStore())
