@@ -571,7 +571,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 }
 
             this.watchId = navigator.geolocation.watchPosition(
-                this.locationUpdate,
+                this.locationUpdate.bind(this),
                 err => {
                     // TODO exit fullscreen does not work
                     //  Dispatcher.dispatch(new TurnNavigationStop())
