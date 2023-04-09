@@ -18,7 +18,6 @@ import {
     TurnNavigationSettingsUpdate,
     TurnNavigationStart,
     TurnNavigationStop,
-    ZoomMapToPoint,
 } from '@/actions/Actions'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import NoSleep from '@/turnNavigation/nosleep.js'
@@ -549,7 +548,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private locationUpdate(pos: any) {
         let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
         Dispatcher.dispatch(
-            new LocationUpdate(c, this.state.settings.syncView, pos.coords.speed, pos.coords.heading, 16)
+            new LocationUpdate(c, this.state.settings.syncView, pos.coords.speed, pos.coords.heading, 17)
         )
     }
 
