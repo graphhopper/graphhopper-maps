@@ -74,10 +74,10 @@ export function getTurnSign(sign: number, index: number, waypointIndex?: number)
             </div>
         )
     }
-    return <img className={styles.sign} src={getSignName(sign, index)} alt={'turn instruction'} />
+    return <img className={styles.sign} src={getSignName(sign)} alt={'turn instruction'} />
 }
 
-export function getSignName(sign: number, index: number) {
+export function getSignName(sign: number) {
     switch (sign) {
         case -98:
             return uTurn

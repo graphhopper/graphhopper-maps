@@ -56,21 +56,15 @@
 }
 
 .thirdCol {
-    width: 30px;
-    height: 30px;
+    height: 0;
 }
 
 .thirdCol svg {
-    width: 30px;
-    height: 30px;
-    padding-left: 0;
-    padding-right: 0;
+    width: 20px;
+    height: 20px;
+    padding: 0;
 }
 
-.thirdCol svg path {
-    fill: black;
-    stroke: black;
-}
 
 .maxSpeed {
     padding: 7px;

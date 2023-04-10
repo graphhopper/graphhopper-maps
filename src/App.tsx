@@ -265,40 +265,42 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
     if (turnNavigation.showUI)
         return (
             <>
+                <div className={styles.smallScreenFirstRow}>
+                    <div
+                        className={styles.smallScreenVolume}
+                        onClick={() =>
+                            Dispatcher.dispatch(
+                                new TurnNavigationSettingsUpdate({
+                                    soundEnabled: !turnNavigation.settings.soundEnabled,
+                                } as TNSettingsState)
+                            )
+                        }
+                    >
+                        <PlainButton>
+                            {turnNavigation.settings.soundEnabled ? (
+                                <VolumeUpIcon fill="#5b616a" />
+                            ) : (
+                                <VolumeOffIcon fill="#5b616a" />
+                            )}
+                        </PlainButton>
+                    </div>
+                    {!turnNavigation.settings.syncView && (
+                        <div
+                            className={styles.smallScreenSyncLocation}
+                            onClick={() => Dispatcher.dispatch(new LocationUpdateSync(true))}
+                        >
+                            <PlainButton>
+                                <SyncLocationIcon />
+                            </PlainButton>
+                        </div>
+                    )}
+                </div>
                 <div className={styles.smallScreenRoutingResult}>
                     <TurnNavigation turnNavigation={turnNavigation} />
                 </div>
                 <div className={styles.smallScreenMap}>
                     <MapComponent map={map} />
                 </div>
-                <div
-                    className={styles.smallScreenVolume}
-                    onClick={() =>
-                        Dispatcher.dispatch(
-                            new TurnNavigationSettingsUpdate({
-                                soundEnabled: !turnNavigation.settings.soundEnabled,
-                            } as TNSettingsState)
-                        )
-                    }
-                >
-                    <PlainButton>
-                        {turnNavigation.settings.soundEnabled ? (
-                            <VolumeUpIcon fill="#5b616a" />
-                        ) : (
-                            <VolumeOffIcon fill="#5b616a" />
-                        )}
-                    </PlainButton>
-                </div>
-                {!turnNavigation.settings.syncView && (
-                    <div
-                        className={styles.smallScreenSyncLocation}
-                        onClick={() => Dispatcher.dispatch(new LocationUpdateSync(true))}
-                    >
-                        <PlainButton>
-                            <SyncLocationIcon />
-                        </PlainButton>
-                    </div>
-                )}
             </>
         )
 
@@ -310,7 +312,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                     route={route}
                     error={error}
                     encodedValues={encodedValues}
-                    turnNavigation={turnNavigation}
+                    turnNavigationSettings={turnNavigation.settings}
                 />
             </div>
             <div className={styles.smallScreenMap}>

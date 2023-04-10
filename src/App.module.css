@@ -93,19 +93,23 @@
     grid-row: 1 / span 1;
     margin: 5px 5px;
     padding: 7px 7px 2px 7px;
-    height: 30px;
+    height: 53px;
     z-index: 2;
     background-color: white;
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
     border-radius: 0.5rem;
 }
 
+.syncLocation svg {
+    scale: 0.8;
+}
+
 .syncLocation {
     grid-column: 3 / span 1;
     grid-row: 1 / span 1;
-    margin: 50px 5px 5px 5px;
+    margin: 75px 5px 5px 5px;
     padding: 7px 7px 2px 7px;
-    height: 30px;
+    height: 53px;
     z-index: 2;
     background-color: white;
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
@@ -150,30 +154,28 @@
     background-color: white;
 }
 
-.smallScreenVolume svg,
-.smallScreenSyncLocation svg {
-    transform: scale(1.5);
+.smallScreenFirstRow {
+    grid-row: 1 / span 1;
+    grid-column: 1 / span 1;
+
+    display: flex;
+    justify-content: space-between;
+    z-index: 2;
 }
 
-.smallScreenSyncLocation {
-    grid-row: 2 / span 1;
-    grid-column: 1 / span 1;
-    margin-top: 5px;
-    padding: 0.9em 0.7em 0.7em 0.9em;
-    width: 30px;
-    height: 30px;
-    z-index: 2;
+.smallScreenVolume {
+    align-self: flex-start;
+    width: 48px;
+    padding: 5px;
     background-color: white;
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
     border-radius: 0.5rem;
 }
 
-.smallScreenVolume {
-    grid-row: 1 / span 1;
-    grid-column: 1 / span 1;
-    padding: 0.9em 0.7em 0.7em 0.9em;
-    width: 30px;
-    z-index: 2;
+.smallScreenSyncLocation {
+    align-self: flex-end;
+    width: 48px;
+    padding: 5px;
     background-color: white;
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
     border-radius: 0.5rem;
@@ -221,8 +223,8 @@
 
     fill: lightgray;
 
-    height: 14px;
-    width: 14px;
+    height: 12px;
+    width: 12px;
 
     right: 6px;
     top: 5px;
