@@ -11,7 +11,7 @@ import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import CustomModelBox from '@/sidebar/CustomModelBox'
-import {TNSettingsState, TurnNavigationStoreState} from '@/stores/TurnNavigationStore'
+import { TNSettingsState, TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 
 type MobileSidebarProps = {
     query: QueryStoreState

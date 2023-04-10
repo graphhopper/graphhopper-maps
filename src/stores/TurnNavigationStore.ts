@@ -139,7 +139,14 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         // and so we collect this from different actions
         if (action instanceof TurnNavigationStop) {
             this.stop()
-            return { ...state, showUI: false, started: false, speed: 0, heading: 0 }
+            return {
+                ...state,
+                showUI: false,
+                started: false,
+                speed: 0,
+                heading: 0,
+                settings: { ...state.settings, syncView: true },
+            }
         } else if (action instanceof TurnNavigationSettingsUpdate) {
             return { ...state, settings: { ...state.settings, ...action.settings } }
         } else if (action instanceof TurnNavigationStart) {
