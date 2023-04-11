@@ -20,6 +20,7 @@ export default function useAreasLayer(map: Map, cmEnabled: boolean, customModelS
     }, [map, cmEnabled, customModelStr])
 }
 
+let index = 0
 function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
     if (!cmEnabled) return
     let customModel
@@ -29,7 +30,8 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
         return
     }
 
-    console.log('custom model ' + JSON.stringify(customModel))
+    index++
+    console.log('custom model ' + index+ ' ' + customModelStr.length)
 
     const style = new Style({
         stroke: new Stroke({
@@ -53,29 +55,7 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
     layer.setZIndex(10)
     map.addLayer(layer)
 
-    // if interactions were already added
-    // prettier-ignore
-    if (map.getInteractions().getArray().some(i => i instanceof Draw))
-        return
-
-    const modify = new Modify({ source: source })
-    map.addInteraction(modify)
-
-    const draw = new Draw({ source: source, type: 'Polygon' })
-    map.addInteraction(draw)
-
-    modify.on('modifyend', e => {
-        e.features.forEach(function (feature) {
-            // TODO NOW
-            return true
-        })
-    })
-
-    draw.on('drawstart', () => {
-        /*source.clear()*/
-    })
-
-    // draw.on('drawend', e => {}) seems to be the same as source.on('addfeature')
+    // it seems we don't need to call source.un when we remove the layer
     source.on('addfeature', e => {
         if (!cmEnabled) return
         if (!e.feature) return
@@ -85,6 +65,7 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
             return
         }
 
+        console.log("addfeature => " + index + " length: " + customModelStr.length)
         // clone! Because otherwise the object itself will be transformed and it disappears from the map
         const geometry = e.feature.getGeometry()?.clone().transform('EPSG:3857', 'EPSG:4326')
 
@@ -113,10 +94,41 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
         customModel.areas.features.push(areaFeature)
         // add rule that excludes the new area
         customModel.priority.push({ if: 'in_' + areaFeature.id, multiply_by: '0' })
-        customModelStr = JSON.stringify(customModel, null, 2) // update local variable
+        // TODO NOW why is customModelStr stale and I need this here?
+        //  and even with this if we edit the custom model box directly and afterwards add an area the removed areas disappear!?
+        //  we can try useRef?
+        customModelStr = JSON.stringify(customModel, null, 2)
         Dispatcher.dispatch(new SetCustomModel(customModelStr, true))
         return false
     })
+
+    // if interactions were already added
+    // prettier-ignore
+    if (map.getInteractions().getArray().some(i => i instanceof Draw))
+        return
+    // map.getInteractions().getArray().forEach(i => {
+    //     if (i instanceof Draw || i instanceof Modify || i instanceof Snap)
+    //         map.removeInteraction(i)
+    // })
+
+    const modify = new Modify({ source: source })
+    map.addInteraction(modify)
+
+    const draw = new Draw({ source: source, type: 'Polygon' })
+    map.addInteraction(draw)
+
+    modify.on('modifyend', e => {
+        e.features.forEach(function (feature) {
+            // TODO NOW
+            return true
+        })
+    })
+
+    draw.on('drawstart', () => {
+        /*source.clear()*/
+    })
+
+    // draw.on('drawend', e => {}) seems to be the same as source.on('addfeature')
 
     const snap = new Snap({ source: source })
     map.addInteraction(snap)
