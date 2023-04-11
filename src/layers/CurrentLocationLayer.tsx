@@ -8,6 +8,7 @@ import { Icon, Style } from 'ol/style'
 import { getCenter } from 'ol/extent'
 import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import { Tile } from 'ol/layer'
+import { getCurrentBackgroundLayers } from '@/layers/UseBackgroundLayer'
 
 export default function useCurrentLocationLayer(map: Map, turnNavigation: TurnNavigationStoreState) {
     const point = new Point(fromLonLat([turnNavigation.coordinate.lng, turnNavigation.coordinate.lat]))
@@ -23,12 +24,7 @@ export default function useCurrentLocationLayer(map: Map, turnNavigation: TurnNa
         // attach postrender to current background layer, because for currentLocationLayer it might not be triggered if empty
         // (somehow it will be empty for longer zoom durations e.g. here point=51.438901%2C14.245252&point=53.550341%2C10.000654&fake )
         // (if background would be a VectorLayer we could just add the arrow as feature there but we allow rasters and so we need a separate currentLocationLayer)
-        const layers = map
-            .getLayers()
-            .getArray()
-            .filter(l => {
-                return l.get('mapbox-source') || l.get('background-raster-layer')
-            })
+        const layers = getCurrentBackgroundLayers(map)
         const backgroundLayer = layers.length > 0 ? (layers[0] as Tile<any>) : null
         if (backgroundLayer == null) console.error('Cannot find background layer ' + JSON.stringify(layers))
         else if (turnNavigation.settings.syncView) backgroundLayer.on('postrender', onPostrender)

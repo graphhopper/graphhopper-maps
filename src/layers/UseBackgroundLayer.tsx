@@ -16,15 +16,18 @@ export default function useBackgroundLayer(map: Map, styleOption: StyleOption) {
     }, [map, styleOption])
 }
 
-function removeCurrentBackgroundLayers(map: Map) {
-    const backgroundLayers = map
+export function getCurrentBackgroundLayers(map: Map) {
+    return map
         .getLayers()
         .getArray()
         .filter(l => {
             // vector layers added via olms#addLayers have the mapbox-source key
             return l.get('mapbox-source') || l.get('background-raster-layer')
         })
-    backgroundLayers.forEach(l => map.removeLayer(l))
+}
+
+function removeCurrentBackgroundLayers(map: Map) {
+    getCurrentBackgroundLayers(map).forEach(l => map.removeLayer(l))
 }
 
 function addNewBackgroundLayers(map: Map, styleOption: StyleOption) {
