@@ -41,7 +41,6 @@ import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
-import { Settings } from '@/stores/SettingsStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -100,7 +99,7 @@ export default function App() {
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
     useMapBorderLayer(map, info.bbox)
-    useAreasLayer(map, getCustomModelAreas(query))
+    useAreasLayer(map, query.customModelEnabled, query.customModelStr)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints)
@@ -237,11 +236,3 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function getCustomModelAreas(queryStoreState: QueryStoreState): object | null {
-    if (!queryStoreState.customModelEnabled) return null
-    try {
-        return JSON.parse(queryStoreState.customModelStr)['areas']
-    } catch {
-        return null
-    }
-}
