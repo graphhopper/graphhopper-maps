@@ -235,4 +235,3 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
         </>
     )
 }
-
