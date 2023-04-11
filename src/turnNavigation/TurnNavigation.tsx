@@ -7,6 +7,7 @@ import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { SelectMapLayer, TurnNavigationStop } from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
+import {ApiImpl} from "@/api/Api";
 
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
     if (turnNavigation.activePath == null) new Error('activePath cannot be null if TurnNavigation is enabled')
@@ -54,9 +55,16 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                         </div>
                         <div onClick={() => setShowDebug(!showDebug)}>
                             <div>{currentSpeed} km/h</div>
-                            {pd.maxSpeed != null ? (
-                                <div className={styles.maxSpeed}>{Math.round(pd.maxSpeed)}</div>
+                            <div>
+                            {pd.maxSpeed != null && (ApiImpl.isMotorVehicle(turnNavigation.activeProfile) || pd.maxSpeed > 50) ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48px" height="48px">
+                                    <circle cx="24" cy="24" r="22" stroke="rgba(255, 0, 0, 0.6)" strokeWidth="3px" fill="none" />
+                                    <text x="50%" y="30" textAnchor="middle" style={{fontSize: '20px'}}>
+                                        {Math.round(pd.maxSpeed)}
+                                    </text>
+                                </svg>
                             ) : null}
+                            </div>
                             {showDebug ? (
                                 <div className={styles.debug}>
                                     <div>{pd.estimatedAvgSpeed}</div>
