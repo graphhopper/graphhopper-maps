@@ -4,27 +4,30 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { GeoJSON } from 'ol/format'
 import { Fill, Stroke, Style } from 'ol/style'
-import {Draw, Modify, Select, Snap, Translate} from 'ol/interaction'
+import { Draw, Interaction, Modify, Snap } from 'ol/interaction'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetCustomModel } from '@/actions/Actions'
 import { Geometry } from 'ol/geom'
 
 const areasLayerKey = 'areasLayer'
 
-export default function useAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
+export default function useAreasLayer(map: Map, drawAreas: boolean, customModelStr: string, cmEnabled: boolean) {
     const cmRef = useRef(customModelStr)
     useEffect(() => {
         removeAreasLayer(map)
         cmRef.current = customModelStr // workaround to always get the most recent custom model into the addfeature callback
-        addAreasLayer(map, cmEnabled, cmRef)
+        addAreasLayer(map, drawAreas, cmRef, cmEnabled)
         return () => {
             removeAreasLayer(map)
         }
-    }, [map, cmEnabled, customModelStr])
+    }, [map, drawAreas, cmEnabled, customModelStr])
 }
 
-function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: MutableRefObject<string>) {
-    if (!cmEnabled) return
+function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefObject<string>, cmEnabled: boolean) {
+    if (!cmEnabled) {
+        callOnAllInteractions(map, i => map.removeInteraction(i))
+        return
+    }
     let tmpCustomModel = getCustomModel(customModelStr.current)
     if (tmpCustomModel == null) return
 
@@ -50,9 +53,17 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: MutableRefO
     layer.setZIndex(10)
     map.addLayer(layer)
 
+    if (!drawAreas) {
+        callOnAllInteractions(map, i => i.setActive(false))
+        return
+    }
+
+    // if interactions were already added and e.g. just the custom model changed
+    // TODO skip adding them instead of removing here?
+    callOnAllInteractions(map, i => map.removeInteraction(i))
+
     // it seems we don't need to call source.un when we remove the layer
     source.on('addfeature', e => {
-        if (!cmEnabled) return
         if (!e.feature) return
         const customModel = getCustomModel(customModelStr.current)
         if (customModel == null) return
@@ -76,13 +87,6 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: MutableRefO
         const str = JSON.stringify(customModel, null, 2)
         Dispatcher.dispatch(new SetCustomModel(str, true))
         return false
-    })
-
-    // if interactions were already added
-    // prettier-ignore
-    map.getInteractions().getArray().forEach(i => {
-        if (i instanceof Draw || i instanceof Modify || i instanceof Snap)
-            map.removeInteraction(i)
     })
 
     const modify = new Modify({ source: source })
@@ -126,21 +130,29 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: MutableRefO
     //         color: 'rgba(229,229,229,0.5)',
     //     }),
     // })
-    // const selectSingleClick = new Select({style: selectStyle });
+    // const selectSingleClick = new Select({style: selectStyle })
     // map.addInteraction(selectSingleClick)
     //
     // selectSingleClick.on('select', e => {
     //     e.target.getFeatures().forEach((f:any) => console.log(f.getId()))
-    // });
+    // })
 
     // map.addInteraction(
     //     new Translate({
     //         condition: function (event) {
-    //             return primaryAction(event) && platformModifierKeyOnly(event);
+    //             return primaryAction(event) && platformModifierKeyOnly(event)
     //         },
     //         layers: [vector],
     //     })
-    // );
+    // )
+}
+
+function callOnAllInteractions(map: Map, method: (i: Interaction) => void) {
+    // prettier-ignore
+    map.getInteractions().getArray().forEach(i => {
+        if (i instanceof Draw || i instanceof Modify || i instanceof Snap)
+            method(i)
+    })
 }
 
 function getCustomModel(cm: string) {

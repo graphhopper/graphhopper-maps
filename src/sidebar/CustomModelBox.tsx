@@ -6,7 +6,7 @@ import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearRoute, DismissLastError, SetCustomModel, SetCustomModelEnabled } from '@/actions/Actions'
+import { ClearRoute, DismissLastError, DrawAreas, SetCustomModel, SetCustomModelEnabled } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
@@ -34,6 +34,7 @@ export interface CustomModelBoxProps {
     encodedValues: object[]
     customModelStr: string
     queryOngoing: boolean
+    drawAreas: boolean
 }
 
 export default function CustomModelBox({
@@ -41,6 +42,7 @@ export default function CustomModelBox({
     encodedValues,
     customModelStr,
     queryOngoing,
+    drawAreas,
 }: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
@@ -92,6 +94,15 @@ export default function CustomModelBox({
                     {customModelEnabled ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
                 <div style={{ color: customModelEnabled ? '#5b616a' : 'gray' }}>{tr('custom_model_enabled')}</div>
+                <PlainButton
+                    style={{ color: drawAreas ? '' : 'lightgray' }}
+                    onClick={() => {
+                        Dispatcher.dispatch(new DrawAreas(!drawAreas))
+                    }}
+                >
+                    {drawAreas ? <OnIcon /> : <OffIcon />}
+                </PlainButton>
+                <div style={{ color: drawAreas ? '#5b616a' : 'gray' }}>{tr('draw_areas_enabled')}</div>
             </div>
             <div ref={divElement} className={styles.customModelBox} onKeyUp={triggerRouting} />
             <div className={styles.customModelBoxBottomBar}>
