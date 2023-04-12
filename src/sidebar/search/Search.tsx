@@ -8,7 +8,7 @@ import {
     InvalidatePoint,
     MovePoint,
     RemovePoint,
-    SetInitialBBox,
+    SetBBox,
     SetPoint,
 } from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
@@ -178,7 +178,7 @@ const SearchBox = ({
                     onAddressSelected={(queryText, coordinate) => {
                         const initCount = points.filter(p => p.isInitialized).length
                         if (coordinate && initCount == 0)
-                            Dispatcher.dispatch(new SetInitialBBox(getBBoxFromCoord(coordinate)))
+                            Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coordinate)))
 
                         Dispatcher.dispatch(
                             new SetPoint(

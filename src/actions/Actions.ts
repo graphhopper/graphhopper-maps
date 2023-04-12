@@ -178,7 +178,7 @@ export class ZoomMapToPoint implements Action {
     }
 }
 
-export class SetInitialBBox implements Action {
+export class SetBBox implements Action {
     readonly bbox: Bbox
 
     constructor(bbox: Bbox) {

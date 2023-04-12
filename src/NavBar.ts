@@ -1,7 +1,7 @@
 import { coordinateToText } from '@/Converters'
 import { Bbox } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, SelectMapLayer, SetInitialBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
+import { ClearPoints, SelectMapLayer, SetBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, {
@@ -152,7 +152,7 @@ export default class NavBar {
             initializedPoints.length == 1
                 ? getBBoxFromCoord(initializedPoints[0].coordinate)
                 : NavBar.getBBoxFromUrlPoints(initializedPoints.map(p => p.coordinate))
-        if (bbox) Dispatcher.dispatch(new SetInitialBBox(bbox))
+        if (bbox) Dispatcher.dispatch(new SetBBox(bbox))
         return Dispatcher.dispatch(new SetQueryPoints(points))
     }
 

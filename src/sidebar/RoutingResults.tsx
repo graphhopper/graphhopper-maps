@@ -1,9 +1,9 @@
 import { Instruction, Path } from '@/api/graphhopper'
-import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
+import {Coordinate, CurrentRequest, getBBoxFromCoord, RequestState, SubRequest} from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetSelectedPath } from '@/actions/Actions'
+import {PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
 import { metersToShortText, metersToTextForFile, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
@@ -25,6 +25,7 @@ import DollarIcon from '@/sidebar/routeHints/toll_dollar.svg'
 import GetOffBikeIcon from '@/sidebar/routeHints/push_bike.svg'
 import SteepIcon from '@/sidebar/routeHints/elevation.svg'
 import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
+import { Bbox } from '@/api/graphhopper'
 
 export interface RoutingResultsProps {
     paths: Path[]
@@ -50,36 +51,36 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
-    const fordLength = getLengthFor(path.points, path.details.road_environment, { ford: true })
-    const tollLength = getLengthFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
-    const ferryLength = getLengthFor(path.points, path.details.road_environment, { ferry: true })
-    const privateOrDeliveryLength = getLengthFor(path.points, path.details.road_access, {
+    const fordInfo = getInfoFor(path.points, path.details.road_environment, { ford: true })
+    const tollInfo = getInfoFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
+    const ferryInfo = getInfoFor(path.points, path.details.road_environment, { ferry: true })
+    const privateOrDeliveryInfo = getInfoFor(path.points, path.details.road_access, {
         private: true,
         customers: true,
         delivery: true,
     })
-    const badTrackLength = !ApiImpl.isMotorVehicle(profile)
-        ? 0
-        : getLengthBadTracks(path.points, path.details.track_type)
-    const stepsLength = !ApiImpl.isBikeLike(profile)
-        ? 0
-        : getLengthFor(path.points, path.details.road_class, { steps: true })
-    const steepLength = ApiImpl.isMotorVehicle(profile) ? 0 : getHighSlopeLength(path.points, 15)
-    const getOffBikeLength = !ApiImpl.isBikeLike(profile)
-        ? 0
-        : getLengthFor(path.points, path.details.get_off_bike, { true: true })
-    const countries = crossesBorder(path.details.country)
+    const badTrackInfo = !ApiImpl.isMotorVehicle(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.track_type, { grade2: true, grade3: true, grade4: true, grade5: true })
+    const stepsInfo = !ApiImpl.isBikeLike(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.road_class, { steps: true })
+    const steepInfo = ApiImpl.isMotorVehicle(profile) ? new RouteInfo() : getHighSlopeInfo(path.points, 15)
+    const getOffBikeInfo = !ApiImpl.isBikeLike(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.get_off_bike, { true: true })
+    const countriesInfo = crossesBorderInfo(path.points, path.details.country)
 
     const showHints =
-        fordLength > 0 ||
-        tollLength > 0 ||
-        ferryLength > 0 ||
-        privateOrDeliveryLength > 0 ||
-        badTrackLength > 0 ||
-        stepsLength > 0 ||
-        countries.length > 1 ||
-        getOffBikeLength > 0 ||
-        steepLength > 0
+        fordInfo.distance > 0 ||
+        tollInfo.distance > 0 ||
+        ferryInfo.distance > 0 ||
+        privateOrDeliveryInfo.distance > 0 ||
+        badTrackInfo.distance > 0 ||
+        stepsInfo.distance > 0 ||
+        countriesInfo.values.length > 1 ||
+        getOffBikeInfo.distance > 0 ||
+        steepInfo.distance > 0
 
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
 
@@ -137,8 +138,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'ford'}
                             child={<FordIcon />}
-                            value={fordLength > 0 && metersToShortText(fordLength, showDistanceInMiles)}
+                            value={fordInfo.distance > 0 && metersToShortText(fordInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
+                            segments={fordInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -146,8 +148,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'country'}
                             child={<BorderCrossingIcon />}
-                            value={countries.length > 1 && countries.join(' - ')}
+                            value={countriesInfo.values.length > 1 && countriesInfo.values.join(' - ')}
                             selected={selectedRH}
+                            segments={countriesInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -155,8 +158,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'ferry'}
                             child={<FerryIcon />}
-                            value={ferryLength > 0 && metersToShortText(ferryLength, showDistanceInMiles)}
+                            value={ferryInfo.distance > 0 && metersToShortText(ferryInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
+                            segments={ferryInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -165,10 +169,11 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             type={'private'}
                             child={<PrivateIcon />}
                             value={
-                                privateOrDeliveryLength > 0 &&
-                                metersToShortText(privateOrDeliveryLength, showDistanceInMiles)
+                                privateOrDeliveryInfo.distance > 0 &&
+                                metersToShortText(privateOrDeliveryInfo.distance, showDistanceInMiles)
                             }
                             selected={selectedRH}
+                            segments={privateOrDeliveryInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -176,8 +181,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'toll'}
                             child={showDistanceInMiles ? <DollarIcon /> : <EuroIcon />}
-                            value={tollLength > 0 && metersToShortText(tollLength, showDistanceInMiles)}
+                            value={tollInfo.distance > 0 && metersToShortText(tollInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
+                            segments={tollInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -185,8 +191,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'steps'}
                             child={<StepsIcon />}
-                            value={stepsLength > 0 && metersToShortText(stepsLength, showDistanceInMiles)}
+                            value={stepsInfo.distance > 0 && metersToShortText(stepsInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
+                            segments={stepsInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -194,19 +201,27 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'tracks'}
                             child={<BadTrackIcon />}
-                            value={badTrackLength > 0 && metersToShortText(badTrackLength, showDistanceInMiles)}
+                            value={
+                                badTrackInfo.distance > 0 &&
+                                metersToShortText(badTrackInfo.distance, showDistanceInMiles)
+                            }
                             selected={selectedRH}
+                            segments={badTrackInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
                             description={tr('get_off_bike_for', [
-                                metersToShortText(getOffBikeLength, showDistanceInMiles),
+                                metersToShortText(getOffBikeInfo.distance, showDistanceInMiles),
                             ])}
                             setType={t => setSelectedRH(t)}
                             type={'get_off_bike'}
                             child={<GetOffBikeIcon />}
-                            value={getOffBikeLength > 0 && metersToShortText(getOffBikeLength, showDistanceInMiles)}
+                            value={
+                                getOffBikeInfo.distance > 0 &&
+                                metersToShortText(getOffBikeInfo.distance, showDistanceInMiles)
+                            }
                             selected={selectedRH}
+                            segments={getOffBikeInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -214,8 +229,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'steep_sections'}
                             child={<SteepIcon />}
-                            value={steepLength > 0 && metersToShortText(steepLength, showDistanceInMiles)}
+                            value={steepInfo.distance > 0 && metersToShortText(steepInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
+                            segments={steepInfo.segments}
                         />
                     </div>
                     {descriptionRH && <div>{descriptionRH}</div>}
@@ -234,7 +250,9 @@ function RHButton(p: {
     child: ReactNode
     value: string | false
     selected: string
+    segments: Coordinate[][]
 }) {
+    let [index, setIndex] = useState(0)
     if (p.value === false) return null
     return (
         <PlainButton
@@ -242,6 +260,9 @@ function RHButton(p: {
             onClick={() => {
                 p.setType(p.type)
                 p.setDescription(p.description + (p.type == 'get_off_bike' ? '' : ': ' + p.value))
+                Dispatcher.dispatch(new PathDetailsElevationSelected(p.segments))
+                if (p.segments.length > index) Dispatcher.dispatch(new SetBBox(toBBox(p.segments[index])))
+                setIndex((index + 1) % p.segments.length)
             }}
             title={p.description}
         >
@@ -251,41 +272,63 @@ function RHButton(p: {
     )
 }
 
-function getLengthBadTracks(points: LineString, details: [number, number, string][]) {
-    if (!details) return 0
-    let distance = 0
-    for (const i in details) {
-        const grade = details[i][2]
-        if (grade == 'grade2' || grade == 'grade3' || grade == 'grade4' || grade == 'grade5')
-            distance += calcDistPos(points.coordinates[details[i][0]], points.coordinates[details[i][1]])
-    }
-    return distance
-}
-
-function crossesBorder(countryPathDetail: [number, number, string][]) {
-    if (!countryPathDetail || countryPathDetail.length == 0) return []
-    const countries = [countryPathDetail[0][2]]
+function crossesBorderInfo(points: LineString, countryPathDetail: [number, number, string][]) {
+    if (!countryPathDetail || countryPathDetail.length == 0) return new RouteInfo()
+    const info = new RouteInfo()
+    info.values = [countryPathDetail[0][2]]
+    const coords = points.coordinates
     for (const i in countryPathDetail) {
-        if (countryPathDetail[i][2] != countries[0]) countries.push(countryPathDetail[i][2])
+        if (countryPathDetail[i][2] != info.values[0]) {
+            info.values.push(countryPathDetail[i][2])
+            info.segments.push([
+                toCoordinate(coords[countryPathDetail[i][0] - 1]),
+                toCoordinate(coords[countryPathDetail[i][0]]),
+            ])
+        }
     }
-    return countries
+    return info
 }
 
-function getLengthFor(points: LineString, details: [number, number, any][], values: { [Identifier: string]: boolean }) {
-    if (!details) return 0
-    let distance = 0
+class RouteInfo {
+    segments: Coordinate[][] = []
+    distance: number = 0
+    values: string[] = []
+}
+
+function toCoordinate(pos: Position): Coordinate {
+    return { lng: pos[0], lat: pos[1] }
+}
+
+function toBBox(segment: Coordinate[]) : Bbox {
+    const bbox = getBBoxFromCoord(segment[0], 0.001)
+    if(segment.length == 1) bbox
+    segment.forEach(c => {
+        bbox[0] = Math.min(bbox[0], c.lng)
+        bbox[1] = Math.min(bbox[1], c.lat)
+        bbox[2] = Math.max(bbox[2], c.lng)
+        bbox[3] = Math.max(bbox[3], c.lat)
+    })
+    return bbox as Bbox
+}
+
+function getInfoFor(points: LineString, details: [number, number, any][], values: { [Identifier: string]: boolean }) {
+    if (!details) return new RouteInfo()
+    let info = new RouteInfo()
+    const coords = points.coordinates
     for (const i in details) {
-        if (values[details[i][2]]) distance += calcDistAlong(points.coordinates, details[i][0], details[i][1])
+        if (values[details[i][2]]) {
+            const from = details[i][0],
+                to = details[i][1]
+            const segCoords: Coordinate[] = []
+            for (let i = from; i < to; i++) {
+                info.distance += calcDistPos(coords[i], coords[i + 1])
+                segCoords.push(toCoordinate(coords[i]))
+            }
+            segCoords.push(toCoordinate(coords[to]))
+            info.segments.push(segCoords)
+        }
     }
-    return distance
-}
-
-function calcDistAlong(coordinates: Position[], from: number, to: number) {
-    let dist = 0
-    for (let i = from; i < to; i++) {
-        dist += calcDistPos(coordinates[i], coordinates[i + 1])
-    }
-    return dist
+    return info
 }
 
 function calcDistPos(from: Position, to: Position): number {
@@ -293,10 +336,10 @@ function calcDistPos(from: Position, to: Position): number {
 }
 
 // sums up the lengths of the road segments with a slope bigger than steepSlope
-function getHighSlopeLength(points: LineString, steepSlope: number): number {
-    if (points.coordinates.length == 0) return 0
-    if (points.coordinates[0].length != 3) return 0
-    let sumDistance = 0
+function getHighSlopeInfo(points: LineString, steepSlope: number) {
+    if (points.coordinates.length == 0) return new RouteInfo()
+    if (points.coordinates[0].length != 3) return new RouteInfo()
+    const info = new RouteInfo()
     let distForSlope = 0
     let prevElePoint = points.coordinates[0]
     let prevDistPoint = points.coordinates[0]
@@ -306,12 +349,15 @@ function getHighSlopeLength(points: LineString, steepSlope: number): number {
         // we assume that elevation data is not that precise and we can improve when using a minimum distance:
         if (distForSlope > 100) {
             const slope = (100.0 * Math.abs(prevElePoint[2] - currPoint[2])) / distForSlope
-            if (slope > steepSlope) sumDistance += distForSlope
+            if (slope > steepSlope) {
+                info.distance += distForSlope
+                info.segments.push([toCoordinate(prevElePoint), toCoordinate(currPoint)])
+            }
             prevElePoint = currPoint
             distForSlope = 0
         }
     })
-    return sumDistance
+    return info
 }
 
 function downloadGPX(path: Path, showDistanceInMiles: boolean) {
