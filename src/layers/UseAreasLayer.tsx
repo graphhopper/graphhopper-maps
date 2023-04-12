@@ -15,7 +15,7 @@ export default function useAreasLayer(map: Map, modifyOrNewAreas: boolean, custo
     const cmRef = useRef(customModelStr)
     useEffect(() => {
         removeAreasLayer(map)
-        cmRef.current = customModelStr // workaround to always get the most recent custom model into the addfeature callback
+        cmRef.current = customModelStr // ensure to always get the most recent custom model into the 'addfeature' callback
         addAreasLayer(map, modifyOrNewAreas, cmRef)
         return () => {
             removeAreasLayer(map)
@@ -30,7 +30,7 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
 
     const style = new Style({
         stroke: new Stroke({
-            color: '#0e6dff',
+            color: '#F97777',
             width: 3,
         }),
         fill: new Fill({
@@ -57,7 +57,7 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
 
     // Until here we just showed the areas. Now add user interactions to create new areas and modify existing.
     const modify = new Modify({ source: source })
-    modify.set('source', 'areas')
+    modify.set('source', 'gh:areas')
     map.addInteraction(modify)
     modify.on('modifyend', e => {
         const customModel = getCustomModel(customModelStr.current)
@@ -75,7 +75,7 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
     })
 
     const draw = new Draw({ source: source, type: 'Polygon' })
-    draw.set('source', 'areas')
+    draw.set('source', 'gh:areas')
     map.addInteraction(draw)
     // it seems we don't need to call source.un when we remove the interaction
     draw.on('drawend', e => {
@@ -105,14 +105,14 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
     })
 
     const snap = new Snap({ source: source })
-    snap.set('source', 'areas')
+    snap.set('source', 'gh:areas')
     map.addInteraction(snap)
 }
 
 function forEachInteractions(map: Map, method: (i: Interaction) => void) {
     // prettier-ignore
     map.getInteractions().getArray().forEach(i => {
-        if ('areas' == i.get('source') && (i instanceof Draw || i instanceof Modify || i instanceof Snap || i instanceof Select))
+        if ('gh:areas' == i.get('source') && (i instanceof Draw || i instanceof Modify || i instanceof Snap || i instanceof Select))
             method(i)
     })
 }
