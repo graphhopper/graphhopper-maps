@@ -25,7 +25,7 @@ export default function useAreasLayer(map: Map, drawAreas: boolean, customModelS
 
 function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefObject<string>, cmEnabled: boolean) {
     if (!cmEnabled) {
-        callOnAllInteractions(map, i => map.removeInteraction(i))
+        forEachInteractions(map, i => map.removeInteraction(i))
         return
     }
     let tmpCustomModel = getCustomModel(customModelStr.current)
@@ -50,20 +50,42 @@ function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefO
         style: style,
     })
     layer.set(areasLayerKey, true)
-    layer.setZIndex(10)
+    layer.setZIndex(1)
     map.addLayer(layer)
 
     if (!drawAreas) {
-        callOnAllInteractions(map, i => i.setActive(false))
+        forEachInteractions(map, i => i.setActive(false))
         return
     }
 
     // if interactions were already added and e.g. just the custom model changed
     // TODO skip adding them instead of removing here?
-    callOnAllInteractions(map, i => map.removeInteraction(i))
+    forEachInteractions(map, i => map.removeInteraction(i))
 
-    // it seems we don't need to call source.un when we remove the layer
-    source.on('addfeature', e => {
+    const modify = new Modify({ source: source })
+    map.addInteraction(modify)
+
+    modify.on('modifyend', e => {
+        const customModel = getCustomModel(customModelStr.current)
+        if (customModel == null) return
+        // e.features.forEach(f => console.log(JSON.stringify(f)))
+        e.features.getArray().forEach(feature => {
+            const newFeature = convertFeature(feature as Feature<Geometry>)
+            newFeature.id = feature.getId()
+            customModel.areas.features = customModel.areas.features.map((f: any) =>
+                f.id == feature.getId() ? newFeature : f
+            )
+        })
+
+        const str = JSON.stringify(customModel, null, 2)
+        Dispatcher.dispatch(new SetCustomModel(str, true))
+    })
+
+    const draw = new Draw({ source: source, type: 'Polygon' })
+    map.addInteraction(draw)
+
+    // it seems we don't need to call source.un when we remove the interaction
+    draw.on('drawend', e => {
         if (!e.feature) return
         const customModel = getCustomModel(customModelStr.current)
         if (customModel == null) return
@@ -88,34 +110,6 @@ function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefO
         Dispatcher.dispatch(new SetCustomModel(str, true))
         return false
     })
-
-    const modify = new Modify({ source: source })
-    map.addInteraction(modify)
-
-    const draw = new Draw({ source: source, type: 'Polygon' })
-    map.addInteraction(draw)
-
-    modify.on('modifyend', e => {
-        const customModel = getCustomModel(customModelStr.current)
-        if (customModel == null) return
-        // e.features.forEach(f => console.log(JSON.stringify(f)))
-        e.features.getArray().forEach(feature => {
-            const newFeature = convertFeature(feature as Feature<Geometry>)
-            newFeature.id = feature.getId()
-            customModel.areas.features = customModel.areas.features.map((f: any) =>
-                f.id == feature.getId() ? newFeature : f
-            )
-        })
-
-        const str = JSON.stringify(customModel, null, 2)
-        Dispatcher.dispatch(new SetCustomModel(str, true))
-    })
-
-    draw.on('drawstart', () => {
-        /*source.clear()*/
-    })
-
-    // draw.on('drawend', e => {}) seems to be the same as source.on('addfeature')
 
     const snap = new Snap({ source: source })
     map.addInteraction(snap)
@@ -147,7 +141,7 @@ function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefO
     // )
 }
 
-function callOnAllInteractions(map: Map, method: (i: Interaction) => void) {
+function forEachInteractions(map: Map, method: (i: Interaction) => void) {
     // prettier-ignore
     map.getInteractions().getArray().forEach(i => {
         if (i instanceof Draw || i instanceof Modify || i instanceof Snap)

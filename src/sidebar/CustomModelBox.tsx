@@ -95,6 +95,7 @@ export default function CustomModelBox({
                 </PlainButton>
                 <div style={{ color: customModelEnabled ? '#5b616a' : 'gray' }}>{tr('custom_model_enabled')}</div>
                 <PlainButton
+                    disabled={!customModelEnabled}
                     style={{ color: drawAreas ? '' : 'lightgray' }}
                     onClick={() => {
                         Dispatcher.dispatch(new DrawAreas(!drawAreas))
