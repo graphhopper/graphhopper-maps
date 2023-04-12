@@ -1,37 +1,32 @@
 import { Feature, Map } from 'ol'
-import { useEffect } from 'react'
+import { MutableRefObject, useEffect, useRef } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { GeoJSON } from 'ol/format'
 import { Fill, Stroke, Style } from 'ol/style'
-import { Draw, Modify, Snap } from 'ol/interaction'
+import {Draw, Modify, Select, Snap, Translate} from 'ol/interaction'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetCustomModel } from '@/actions/Actions'
+import { Geometry } from 'ol/geom'
 
 const areasLayerKey = 'areasLayer'
 
 export default function useAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
+    const cmRef = useRef(customModelStr)
     useEffect(() => {
         removeAreasLayer(map)
-        addAreasLayer(map, cmEnabled, customModelStr)
+        cmRef.current = customModelStr // workaround to always get the most recent custom model into the addfeature callback
+        addAreasLayer(map, cmEnabled, cmRef)
         return () => {
             removeAreasLayer(map)
         }
     }, [map, cmEnabled, customModelStr])
 }
 
-let index = 0
-function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
+function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: MutableRefObject<string>) {
     if (!cmEnabled) return
-    let customModel
-    try {
-        customModel = JSON.parse(customModelStr)
-    } catch {
-        return
-    }
-
-    index++
-    console.log('custom model ' + index+ ' ' + customModelStr.length)
+    let tmpCustomModel = getCustomModel(customModelStr.current)
+    if (tmpCustomModel == null) return
 
     const style = new Style({
         stroke: new Stroke({
@@ -42,7 +37,7 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
             color: 'rgba(229,229,229,0.5)',
         }),
     })
-    const areas = readGeoJSONFeatures(customModel?.areas)
+    const areas = readGeoJSONFeatures(tmpCustomModel?.areas)
     const features = areas ? areas : []
     const source = new VectorSource({
         features: features,
@@ -59,22 +54,11 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
     source.on('addfeature', e => {
         if (!cmEnabled) return
         if (!e.feature) return
-        try {
-            customModel = JSON.parse(customModelStr)
-        } catch (e) {
-            return
-        }
+        const customModel = getCustomModel(customModelStr.current)
+        if (customModel == null) return
 
-        console.log("addfeature => " + index + " length: " + customModelStr.length)
-        // clone! Because otherwise the object itself will be transformed and it disappears from the map
-        const geometry = e.feature.getGeometry()?.clone().transform('EPSG:3857', 'EPSG:4326')
-
-        // https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md#areas
-        const writer = new GeoJSON()
-        const featureAsString = writer.writeFeature(new Feature(geometry))
-        const areaFeature = JSON.parse(featureAsString)
         let maxId = 0
-        if (customModel.areas?.features) {
+        if ((customModel.areas as any).features) {
             const numArr = customModel.areas.features.map((obj: any) =>
                 obj['id'] ? parseInt(obj['id'].match(/\d+/)[0]) : 0
             )
@@ -83,33 +67,23 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
             customModel.areas = { type: 'FeatureCollection', features: [] }
         }
 
+        const areaFeature = convertFeature(e.feature)
         areaFeature.id = 'area' + (maxId + 1)
-        areaFeature.properties = {}
-        // reduce precision
-        areaFeature.geometry.coordinates[0] = areaFeature.geometry.coordinates[0].map((arr: number[]) => [
-            Math.round(arr[0] * 1_000_000) / 1_000_000,
-            Math.round(arr[1] * 1_000_000) / 1_000_000,
-        ])
-
         customModel.areas.features.push(areaFeature)
+
         // add rule that excludes the new area
         customModel.priority.push({ if: 'in_' + areaFeature.id, multiply_by: '0' })
-        // TODO NOW why is customModelStr stale and I need this here?
-        //  and even with this if we edit the custom model box directly and afterwards add an area the removed areas disappear!?
-        //  we can try useRef?
-        customModelStr = JSON.stringify(customModel, null, 2)
-        Dispatcher.dispatch(new SetCustomModel(customModelStr, true))
+        const str = JSON.stringify(customModel, null, 2)
+        Dispatcher.dispatch(new SetCustomModel(str, true))
         return false
     })
 
     // if interactions were already added
     // prettier-ignore
-    if (map.getInteractions().getArray().some(i => i instanceof Draw))
-        return
-    // map.getInteractions().getArray().forEach(i => {
-    //     if (i instanceof Draw || i instanceof Modify || i instanceof Snap)
-    //         map.removeInteraction(i)
-    // })
+    map.getInteractions().getArray().forEach(i => {
+        if (i instanceof Draw || i instanceof Modify || i instanceof Snap)
+            map.removeInteraction(i)
+    })
 
     const modify = new Modify({ source: source })
     map.addInteraction(modify)
@@ -118,10 +92,19 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
     map.addInteraction(draw)
 
     modify.on('modifyend', e => {
-        e.features.forEach(function (feature) {
-            // TODO NOW
-            return true
+        const customModel = getCustomModel(customModelStr.current)
+        if (customModel == null) return
+        // e.features.forEach(f => console.log(JSON.stringify(f)))
+        e.features.getArray().forEach(feature => {
+            const newFeature = convertFeature(feature as Feature<Geometry>)
+            newFeature.id = feature.getId()
+            customModel.areas.features = customModel.areas.features.map((f: any) =>
+                f.id == feature.getId() ? newFeature : f
+            )
         })
+
+        const str = JSON.stringify(customModel, null, 2)
+        Dispatcher.dispatch(new SetCustomModel(str, true))
     })
 
     draw.on('drawstart', () => {
@@ -132,6 +115,60 @@ function addAreasLayer(map: Map, cmEnabled: boolean, customModelStr: string) {
 
     const snap = new Snap({ source: source })
     map.addInteraction(snap)
+
+    // interfers with drawing:
+    // const selectStyle = new Style({
+    //     stroke: new Stroke({
+    //         color: '#ff720e',
+    //         width: 3,
+    //     }),
+    //     fill: new Fill({
+    //         color: 'rgba(229,229,229,0.5)',
+    //     }),
+    // })
+    // const selectSingleClick = new Select({style: selectStyle });
+    // map.addInteraction(selectSingleClick)
+    //
+    // selectSingleClick.on('select', e => {
+    //     e.target.getFeatures().forEach((f:any) => console.log(f.getId()))
+    // });
+
+    // map.addInteraction(
+    //     new Translate({
+    //         condition: function (event) {
+    //             return primaryAction(event) && platformModifierKeyOnly(event);
+    //         },
+    //         layers: [vector],
+    //     })
+    // );
+}
+
+function getCustomModel(cm: string) {
+    try {
+        return JSON.parse(cm)
+    } catch {
+        return null
+    }
+}
+
+/**
+ * Coordinate transformation from openlayers to GeoJSON and reduce coordinate precision to reduce body size when querying
+ */
+function convertFeature(feature: Feature<Geometry>) {
+    // clone! Because otherwise the object itself will be transformed and it disappears from the map
+    const geometry = feature.getGeometry()?.clone().transform('EPSG:3857', 'EPSG:4326')
+
+    // https://github.com/graphhopper/graphhopper/blob/master/docs/core/custom-models.md#areas
+    const writer = new GeoJSON()
+    const featureAsString = writer.writeFeature(new Feature(geometry))
+    const areaFeature = JSON.parse(featureAsString)
+    areaFeature.properties = {}
+    // reduce precision
+    areaFeature.geometry.coordinates[0] = areaFeature.geometry.coordinates[0].map((arr: number[]) => [
+        Math.round(arr[0] * 1_000_000) / 1_000_000,
+        Math.round(arr[1] * 1_000_000) / 1_000_000,
+    ])
+    return areaFeature
 }
 
 function readGeoJSONFeatures(areas: object | null) {
