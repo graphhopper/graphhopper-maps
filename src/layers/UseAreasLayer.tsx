@@ -11,22 +11,20 @@ import { Geometry } from 'ol/geom'
 
 const areasLayerKey = 'areasLayer'
 
-export default function useAreasLayer(map: Map, drawAreas: boolean, customModelStr: string, cmEnabled: boolean) {
+export default function useAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: string, cmEnabled: boolean) {
     const cmRef = useRef(customModelStr)
     useEffect(() => {
         removeAreasLayer(map)
         cmRef.current = customModelStr // workaround to always get the most recent custom model into the addfeature callback
-        addAreasLayer(map, drawAreas, cmRef, cmEnabled)
+        addAreasLayer(map, modifyOrNewAreas, cmRef)
         return () => {
             removeAreasLayer(map)
             forEachInteractions(map, i => map.removeInteraction(i))
         }
-    }, [map, drawAreas, cmEnabled, customModelStr])
+    }, [map, modifyOrNewAreas, cmEnabled, customModelStr])
 }
 
-function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefObject<string>, cmEnabled: boolean) {
-    if (!cmEnabled) return
-
+function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: MutableRefObject<string>) {
     let tmpCustomModel = getCustomModel(customModelStr.current)
     if (tmpCustomModel == null) return
 
@@ -52,11 +50,12 @@ function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefO
     layer.setZIndex(1)
     map.addLayer(layer)
 
-    if (!drawAreas) {
+    if (!modifyOrNewAreas) {
         forEachInteractions(map, i => i.setActive(false))
         return
     }
 
+    // Until here we just showed the areas. Now add user interactions to create new areas and modify existing.
     const modify = new Modify({ source: source })
     modify.set('source', 'areas')
     map.addInteraction(modify)
@@ -108,40 +107,13 @@ function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefO
     const snap = new Snap({ source: source })
     snap.set('source', 'areas')
     map.addInteraction(snap)
-
-    // interferes with drawing:
-    // const selectStyle = new Style({
-    //     stroke: new Stroke({
-    //         color: '#ff720e',
-    //         width: 3,
-    //     }),
-    //     fill: new Fill({
-    //         color: 'rgba(229,229,229,0.5)',
-    //     }),
-    // })
-    // const selectSingleClick = new Select({style: selectStyle })
-    // map.addInteraction(selectSingleClick)
-    //
-    // selectSingleClick.on('select', e => {
-    //     e.target.getFeatures().forEach((f:any) => console.log(f.getId()))
-    // })
-
-    // map.addInteraction(
-    //     new Translate({
-    //         condition: function (event) {
-    //             return primaryAction(event) && platformModifierKeyOnly(event)
-    //         },
-    //         layers: [vector],
-    //     })
-    // )
 }
 
 function forEachInteractions(map: Map, method: (i: Interaction) => void) {
     // prettier-ignore
     map.getInteractions().getArray().forEach(i => {
-        if ("areas" == i.get('source') && (i instanceof Draw || i instanceof Modify || i instanceof Snap || i instanceof Select)) {
+        if ('areas' == i.get('source') && (i instanceof Draw || i instanceof Modify || i instanceof Snap || i instanceof Select))
             method(i)
-        }
     })
 }
 
