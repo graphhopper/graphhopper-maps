@@ -1,9 +1,9 @@
 import { Instruction, Path } from '@/api/graphhopper'
-import {Coordinate, CurrentRequest, getBBoxFromCoord, RequestState, SubRequest} from '@/stores/QueryStore'
+import { Coordinate, CurrentRequest, getBBoxFromCoord, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import {PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
+import { PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
 import { metersToShortText, metersToTextForFile, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
@@ -299,15 +299,23 @@ function toCoordinate(pos: Position): Coordinate {
     return { lng: pos[0], lat: pos[1] }
 }
 
-function toBBox(segment: Coordinate[]) : Bbox {
-    const bbox = getBBoxFromCoord(segment[0], 0.001)
-    if(segment.length == 1) bbox
+function toBBox(segment: Coordinate[]): Bbox {
+    const bbox = getBBoxFromCoord(segment[0], 0.002)
+    if (segment.length == 1) bbox
     segment.forEach(c => {
         bbox[0] = Math.min(bbox[0], c.lng)
         bbox[1] = Math.min(bbox[1], c.lat)
         bbox[2] = Math.max(bbox[2], c.lng)
         bbox[3] = Math.max(bbox[3], c.lat)
     })
+    if (bbox[2] - bbox[0] < 0.005) {
+        bbox[0] -= 0.005 / 2
+        bbox[2] += 0.005 / 2
+    }
+    if (bbox[3] - bbox[1] < 0.005) {
+        bbox[1] -= 0.005 / 2
+        bbox[3] += 0.005 / 2
+    }
     return bbox as Bbox
 }
 

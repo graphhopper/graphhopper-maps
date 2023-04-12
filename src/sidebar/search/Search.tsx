@@ -2,15 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { getBBoxFromCoord, QueryPoint } from '@/stores/QueryStore'
-import {
-    AddPoint,
-    ClearRoute,
-    InvalidatePoint,
-    MovePoint,
-    RemovePoint,
-    SetBBox,
-    SetPoint,
-} from '@/actions/Actions'
+import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetBBox, SetPoint } from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
@@ -177,8 +169,7 @@ const SearchBox = ({
                     onCancel={() => console.log('cancel')}
                     onAddressSelected={(queryText, coordinate) => {
                         const initCount = points.filter(p => p.isInitialized).length
-                        if (coordinate && initCount == 0)
-                            Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coordinate)))
+                        if (coordinate && initCount == 0) Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coordinate)))
 
                         Dispatcher.dispatch(
                             new SetPoint(
