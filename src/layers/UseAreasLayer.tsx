@@ -4,7 +4,7 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { GeoJSON } from 'ol/format'
 import { Fill, Stroke, Style } from 'ol/style'
-import { Draw, Interaction, Modify, Snap } from 'ol/interaction'
+import { Draw, Interaction, Modify, Select, Snap } from 'ol/interaction'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetCustomModel } from '@/actions/Actions'
 import { Geometry } from 'ol/geom'
@@ -19,15 +19,14 @@ export default function useAreasLayer(map: Map, drawAreas: boolean, customModelS
         addAreasLayer(map, drawAreas, cmRef, cmEnabled)
         return () => {
             removeAreasLayer(map)
+            forEachInteractions(map, i => map.removeInteraction(i))
         }
     }, [map, drawAreas, cmEnabled, customModelStr])
 }
 
 function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefObject<string>, cmEnabled: boolean) {
-    if (!cmEnabled) {
-        forEachInteractions(map, i => map.removeInteraction(i))
-        return
-    }
+    if (!cmEnabled) return
+
     let tmpCustomModel = getCustomModel(customModelStr.current)
     if (tmpCustomModel == null) return
 
@@ -58,17 +57,12 @@ function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefO
         return
     }
 
-    // if interactions were already added and e.g. just the custom model changed
-    // TODO skip adding them instead of removing here?
-    forEachInteractions(map, i => map.removeInteraction(i))
-
     const modify = new Modify({ source: source })
+    modify.set('source', 'areas')
     map.addInteraction(modify)
-
     modify.on('modifyend', e => {
         const customModel = getCustomModel(customModelStr.current)
         if (customModel == null) return
-        // e.features.forEach(f => console.log(JSON.stringify(f)))
         e.features.getArray().forEach(feature => {
             const newFeature = convertFeature(feature as Feature<Geometry>)
             newFeature.id = feature.getId()
@@ -82,8 +76,8 @@ function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefO
     })
 
     const draw = new Draw({ source: source, type: 'Polygon' })
+    draw.set('source', 'areas')
     map.addInteraction(draw)
-
     // it seems we don't need to call source.un when we remove the interaction
     draw.on('drawend', e => {
         if (!e.feature) return
@@ -112,9 +106,10 @@ function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefO
     })
 
     const snap = new Snap({ source: source })
+    snap.set('source', 'areas')
     map.addInteraction(snap)
 
-    // interfers with drawing:
+    // interferes with drawing:
     // const selectStyle = new Style({
     //     stroke: new Stroke({
     //         color: '#ff720e',
@@ -144,8 +139,9 @@ function addAreasLayer(map: Map, drawAreas: boolean, customModelStr: MutableRefO
 function forEachInteractions(map: Map, method: (i: Interaction) => void) {
     // prettier-ignore
     map.getInteractions().getArray().forEach(i => {
-        if (i instanceof Draw || i instanceof Modify || i instanceof Snap)
+        if ("areas" == i.get('source') && (i instanceof Draw || i instanceof Modify || i instanceof Snap || i instanceof Select)) {
             method(i)
+        }
     })
 }
 
