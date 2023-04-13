@@ -1,8 +1,8 @@
 .CodeMirror {
     resize: horizontal;
 
-    /* avoid that the resize button can be used to decrease the space -> on mobile the button just disappears if too narrow
-       but does not seem to work on Android and isn't supported on iOS anyway */
+    /* See #333, avoid that the resize button can be used to decrease the space -> on mobile the button just
+       disappears if too narrow. But does not seem to work on Android and isn't supported on iOS anyway. */
     min-width: 26rem;
 }
 
