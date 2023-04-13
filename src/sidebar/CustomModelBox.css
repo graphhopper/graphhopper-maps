@@ -1,10 +1,18 @@
 .CodeMirror {
     resize: horizontal;
 
-    /* See #333, avoid that the resize button can be used to decrease the space -> on mobile the button just
-       disappears if too narrow. But does not seem to work on Android and isn't supported on iOS anyway. */
-    min-width: 26rem;
+    /* See #333, avoid that the resize button can be used to decrease the space */
+    min-width: 25rem;
+    max-width: 100%;
 }
+
+@media (max-width: 44rem) {
+    .CodeMirror {
+        /* on mobile the button fixed size. But resize doesn't seem to work with touch on Android and isn't supported on iOS anyway. */
+        min-width: 100%;
+    }
+}
+
 
 .cm-s-default .cm-string {
     color: #067d17;
