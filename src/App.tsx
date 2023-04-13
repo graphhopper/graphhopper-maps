@@ -106,7 +106,7 @@ export default function App() {
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
 
-    const minSidebarWidth = 26 * 16 /*26rem*/
+    const minSidebarWidth = 26 * 18
     const [sidebarWidth, setSidebarWidth] = useState(minSidebarWidth)
 
     const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -116,7 +116,7 @@ export default function App() {
 
             const handleMouseMove = (event: MouseEvent) => {
                 const delta = event.clientX - initialX
-                if (initialWidth + delta > minSidebarWidth) setSidebarWidth(initialWidth + delta)
+                if (initialWidth + delta > minSidebarWidth * 0.8) setSidebarWidth(initialWidth + delta)
             }
 
             const handleMouseUp = () => {
