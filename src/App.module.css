@@ -5,7 +5,7 @@
     margin: 0;
     display: grid;
 
-    grid-template-columns: minmax(26rem, max-content) 1fr auto;
+    grid-template-columns: minmax(26rem, auto) 1fr auto;
     grid-template-rows: 100%;
     justify-content: space-between;
     overflow: auto;
