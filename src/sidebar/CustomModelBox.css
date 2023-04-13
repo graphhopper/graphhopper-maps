@@ -1,3 +1,9 @@
+.CodeMirror {
+    resize: horizontal;
+    /* avoid that the resize button can be used to decrease the space -> on mobile the button just disappears if too narrow */
+    min-width: 26rem;
+}
+
 .cm-s-default .cm-string {
     color: #067d17;
 }
