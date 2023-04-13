@@ -111,7 +111,7 @@ export default function App() {
 
     const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
         const initialX = event.clientX
-        if (initialX > sidebarWidth * 0.95) {
+        if (initialX > sidebarWidth * 0.95 && initialX < sidebarWidth) {
             const initialWidth = sidebarWidth
 
             const handleMouseMove = (event: MouseEvent) => {
