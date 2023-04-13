@@ -4,7 +4,7 @@
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: 26rem 1fr auto;
+    /* overwritten via code to achieve width change: grid-template-columns: 26rem 1fr auto; */
     grid-template-rows: 100%;
     justify-content: space-between;
     overflow: auto;
@@ -51,6 +51,24 @@
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
     pointer-events: all;
     overflow: auto;
+}
+
+/* we need this empty div as the ::after pseudo-element for sidebarContent would not work properly in combination with the :hover pseudo-selector*/
+.changeSizeSlider {
+    background-color: transparent;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 100%;
+    pointer-events: all;
+    cursor: ew-resize;
+}
+
+.changeSizeSlider:hover {
+    width: 4px;
+    background-color: #76d0f7;
 }
 
 .mapOptions {

@@ -41,7 +41,6 @@ import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
-import { Settings } from '@/stores/SettingsStore'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -106,10 +105,38 @@ export default function App() {
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints)
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
+
+    const minSidebarWidth = 26 * 18 /*26rem*/
+    const [sidebarWidth, setSidebarWidth] = useState(minSidebarWidth)
+
+    const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+        const initialX = event.clientX
+        if (initialX > sidebarWidth * 0.95) {
+            const initialWidth = sidebarWidth
+
+            const handleMouseMove = (event: MouseEvent) => {
+                const delta = event.clientX - initialX
+                if (initialWidth + delta > minSidebarWidth) setSidebarWidth(initialWidth + delta)
+            }
+
+            const handleMouseUp = () => {
+                window.removeEventListener('mousemove', handleMouseMove)
+                window.removeEventListener('mouseup', handleMouseUp)
+            }
+
+            window.addEventListener('mousemove', handleMouseMove)
+            window.addEventListener('mouseup', handleMouseUp)
+        }
+    }
+
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
-            <div className={styles.appWrapper}>
+            <div
+                className={styles.appWrapper}
+                style={{ gridTemplateColumns: sidebarWidth + 'px 1fr auto' }}
+                onMouseDown={handleMouseDown}
+            >
                 <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
                 {isSmallScreen ? (
@@ -182,6 +209,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         <div>
                             <PoweredBy />
                         </div>
+                        <div className={styles.changeSizeSlider} />
                     </div>
                 </div>
             ) : (
