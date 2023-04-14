@@ -6,12 +6,14 @@ import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearRoute, DismissLastError, SetCustomModel, SetCustomModelEnabled } from '@/actions/Actions'
+import { ClearRoute, DismissLastError, DrawAreas, SetCustomModel, SetCustomModelEnabled } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
+import DrawAreasIcon from '@/sidebar/edit_square.svg'
+import DrawAreasDisabledIcon from '@/sidebar/edit_square_disabled.svg'
 
 function convertEncodedValuesForEditor(encodedValues: object[]): any {
     // todo: maybe do this 'conversion' in Api.ts already and use types from there on
@@ -34,6 +36,7 @@ export interface CustomModelBoxProps {
     encodedValues: object[]
     customModelStr: string
     queryOngoing: boolean
+    drawAreas: boolean
 }
 
 export default function CustomModelBox({
@@ -41,6 +44,7 @@ export default function CustomModelBox({
     encodedValues,
     customModelStr,
     queryOngoing,
+    drawAreas,
 }: CustomModelBoxProps) {
     // todo: add types for custom model editor later
     const [editor, setEditor] = useState<any>()
@@ -92,6 +96,11 @@ export default function CustomModelBox({
                     {customModelEnabled ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
                 <div style={{ color: customModelEnabled ? '#5b616a' : 'gray' }}>{tr('custom_model_enabled')}</div>
+                {customModelEnabled && (
+                    <PlainButton className={styles.drawAreas} title={tr('draw_areas_enabled')} style={{ color: drawAreas ? '' : 'lightgray' }} onClick={() => Dispatcher.dispatch(new DrawAreas(!drawAreas))}>
+                        {drawAreas ? <DrawAreasIcon /> : <DrawAreasDisabledIcon />}
+                    </PlainButton>
+                )}
             </div>
             <div ref={divElement} className={styles.customModelBox} onKeyUp={triggerRouting} />
             <div className={styles.customModelBoxBottomBar}>

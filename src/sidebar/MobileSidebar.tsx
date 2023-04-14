@@ -17,9 +17,10 @@ type MobileSidebarProps = {
     route: RouteStoreState
     error: ErrorStoreState
     encodedValues: object[]
+    drawAreas: boolean
 }
 
-export default function ({ query, route, error, encodedValues }: MobileSidebarProps) {
+export default function ({ query, route, error, encodedValues, drawAreas }: MobileSidebarProps) {
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
@@ -68,6 +69,7 @@ export default function ({ query, route, error, encodedValues }: MobileSidebarPr
                                 encodedValues={encodedValues}
                                 customModelStr={query.customModelStr}
                                 queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                                drawAreas={drawAreas}
                             />
                         )}
                         <Search points={query.queryPoints} />

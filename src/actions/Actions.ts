@@ -231,3 +231,11 @@ export class InstructionClicked implements Action {
 }
 
 export class ToggleDistanceUnits implements Action {}
+
+export class DrawAreas implements Action {
+    readonly enabled: boolean
+
+    constructor(enabled: boolean) {
+        this.enabled = enabled
+    }
+}
