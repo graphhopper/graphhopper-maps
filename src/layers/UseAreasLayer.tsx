@@ -19,7 +19,6 @@ export default function useAreasLayer(map: Map, modifyOrNewAreas: boolean, custo
         addAreasLayer(map, modifyOrNewAreas, cmRef)
         return () => {
             removeAreasLayer(map)
-            forEachInteractions(map, i => map.removeInteraction(i))
         }
     }, [map, modifyOrNewAreas, cmEnabled, customModelStr])
 }
@@ -51,7 +50,7 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
     map.addLayer(layer)
 
     if (!modifyOrNewAreas) {
-        forEachInteractions(map, i => i.setActive(false))
+        disableInteractions(map)
         return
     }
 
@@ -109,11 +108,11 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
     map.addInteraction(snap)
 }
 
-function forEachInteractions(map: Map, method: (i: Interaction) => void) {
+function disableInteractions(map: Map) {
     // prettier-ignore
     map.getInteractions().getArray().forEach(i => {
         if ('gh:areas' == i.get('source') && (i instanceof Draw || i instanceof Modify || i instanceof Snap || i instanceof Select))
-            method(i)
+            i.setActive(false)
     })
 }
 
