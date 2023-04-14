@@ -8,7 +8,7 @@
 .customModelOptionTable {
     display: grid;
     font-size: 14px;
-    grid-template-columns: 15% auto;
+    grid-template-columns: 50px auto 50px;
     grid-template-rows: 1.3rem;
     align-content: center;
     align-items: center;
@@ -17,6 +17,11 @@
 
 .customModelOptionTable svg {
     scale: 0.7;
+}
+
+.drawAreas {
+    justify-content: end;
+    scale: 0.8;
 }
 
 #element::-webkit-scrollbar {
