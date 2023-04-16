@@ -83,7 +83,7 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
         if (customModel == null) return
 
         let maxId = 0
-        if ((customModel.areas as any).features) {
+        if ((customModel.areas as any)?.features) {
             const numArr = customModel.areas.features.map((obj: any) =>
                 obj['id'] ? parseInt(obj['id'].match(/\d+/)[0]) : 0
             )
