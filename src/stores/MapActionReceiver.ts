@@ -6,7 +6,7 @@ import {
     LocationUpdate,
     PathDetailsRangeSelected,
     RouteRequestSuccess,
-    SetInitialBBox,
+    SetBBox,
     SetSelectedPath,
     TurnNavigationStart,
     TurnNavigationStop,
@@ -36,7 +36,7 @@ export default class MapActionReceiver implements ActionReceiver {
     receive(action: Action) {
         // todo: port old ViewportStore.test.ts or otherwise test this
         const isSmallScreen = this.isSmallScreenQuery()
-        if (action instanceof SetInitialBBox) {
+        if (action instanceof SetBBox) {
             // we estimate the map size to be equal to the window size. we don't know better at this point, because
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])

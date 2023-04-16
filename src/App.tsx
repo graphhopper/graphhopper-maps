@@ -50,6 +50,7 @@ import useCurrentLocationLayer from '@/layers/CurrentLocationLayer'
 import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
 import useAreasLayer from '@/layers/UseAreasLayer'
+
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
 
@@ -112,7 +113,7 @@ export default function App() {
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
     useMapBorderLayer(map, info.bbox)
-    useAreasLayer(map, getCustomModelAreas(query))
+    useAreasLayer(map, settings.drawAreasEnabled, query.customModelStr, query.customModelEnabled)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route, query.queryPoints, turnNavigation)
@@ -135,6 +136,7 @@ export default function App() {
                         error={error}
                         turnNavigation={turnNavigation}
                         encodedValues={info.encoded_values}
+                        drawAreas={settings.drawAreasEnabled}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -145,6 +147,7 @@ export default function App() {
                         error={error}
                         turnNavigation={turnNavigation}
                         encodedValues={info.encoded_values}
+                        drawAreas={settings.drawAreasEnabled}
                     />
                 )}
             </div>
@@ -155,14 +158,24 @@ export default function App() {
 interface LayoutProps {
     query: QueryStoreState
     route: RouteStoreState
-    turnNavigation: TurnNavigationStoreState
     map: Map
     mapOptions: MapOptionsStoreState
     error: ErrorStoreState
     encodedValues: object[]
+    drawAreas: boolean
+    turnNavigation: TurnNavigationStoreState
 }
 
-function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, turnNavigation }: LayoutProps) {
+function LargeScreenLayout({
+    query,
+    route,
+    map,
+    error,
+    mapOptions,
+    encodedValues,
+    drawAreas,
+    turnNavigation,
+}: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
 
@@ -223,6 +236,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                 encodedValues={encodedValues}
                                 customModelStr={query.customModelStr}
                                 queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                                drawAreas={drawAreas}
                             />
                         )}
                         <Search points={query.queryPoints} turnNavigationSettings={turnNavigation.settings} />
@@ -261,7 +275,16 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, turnNavigation }: LayoutProps) {
+function SmallScreenLayout({
+    query,
+    route,
+    map,
+    error,
+    mapOptions,
+    encodedValues,
+    drawAreas,
+    turnNavigation,
+}: LayoutProps) {
     if (turnNavigation.showUI)
         return (
             <>
@@ -313,6 +336,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                     error={error}
                     encodedValues={encodedValues}
                     turnNavigationSettings={turnNavigation.settings}
+                    drawAreas={drawAreas}
                 />
             </div>
             <div className={styles.smallScreenMap}>
@@ -338,13 +362,4 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
             </div>
         </>
     )
-}
-
-function getCustomModelAreas(queryStoreState: QueryStoreState): object | null {
-    if (!queryStoreState.customModelEnabled) return null
-    try {
-        return JSON.parse(queryStoreState.customModelStr)['areas']
-    } catch {
-        return null
-    }
 }

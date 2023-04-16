@@ -225,7 +225,7 @@ export class ZoomMapToPoint implements Action {
     }
 }
 
-export class SetInitialBBox implements Action {
+export class SetBBox implements Action {
     readonly bbox: Bbox
 
     constructor(bbox: Bbox) {
@@ -277,7 +277,15 @@ export class InstructionClicked implements Action {
     }
 }
 
-export class ToggleDistanceUnits implements Action {}
-
 export class ToggleVectorTilesForNavigation implements Action {}
 export class ToggleFullScreenForNavigation implements Action {}
+
+export class ToggleDistanceUnits implements Action {}
+
+export class DrawAreas implements Action {
+    readonly enabled: boolean
+
+    constructor(enabled: boolean) {
+        this.enabled = enabled
+    }
+}
