@@ -61,7 +61,8 @@ const turnNavigationStore = new TurnNavigationStore(
     speechSynthesizer,
     new CoordSysImpl(),
     fake != null,
-    config.defaultTiles
+    config.defaultTiles,
+    queryStore.state.customModelEnabled ? queryStore.state.customModelStr : ''
 )
 setStores({
     settingsStore: new SettingsStore(),

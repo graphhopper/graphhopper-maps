@@ -101,7 +101,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         speechSynthesizer: SpeechSynthesizer,
         cs: MapCoordinateSystem,
         fakeGPS: boolean,
-        tiles: string
+        tiles: string,
+        customModelStr: string,
     ) {
         super({
             showUI: false,
@@ -111,8 +112,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             speed: 0,
             initialPath: null,
             activePath: null,
-            customModelEnabled: false,
-            customModelStr: '',
+            customModelEnabled: !!customModelStr,
+            customModelStr: customModelStr,
             rerouteInProgress: false,
             lastRerouteTime: 0,
             lastRerouteDistanceToRoute: 0,
@@ -184,6 +185,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 customModelEnabled: action.enabled,
             }
         } else if (action instanceof SetCustomModel) {
+            console.log("SetCustomModel " + action.customModelStr)
             return {
                 ...state,
                 customModelStr: action.customModelStr,
@@ -260,6 +262,10 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     if (nextWaypoints.length == 0)
                         throw Error('rerouting needs a destination but was empty ' + JSON.stringify(path))
                     const customModel = TurnNavigationStore.getCustomModel(state)
+
+                    if(customModel) console.log("custom model areas " + customModel.areas.length)
+                    else console.log("no custom model")
+
                     let args: RoutingArgs = {
                         points: [[coordinate.lng, coordinate.lat] as [number, number]].concat(nextWaypoints),
                         maxAlternativeRoutes: 0,
