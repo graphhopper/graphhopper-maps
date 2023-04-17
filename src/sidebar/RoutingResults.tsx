@@ -25,6 +25,7 @@ import DollarIcon from '@/sidebar/routeHints/toll_dollar.svg'
 import GetOffBikeIcon from '@/sidebar/routeHints/push_bike.svg'
 import SteepIcon from '@/sidebar/routeHints/elevation.svg'
 import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
+import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
 import { Bbox } from '@/api/graphhopper'
 
 export interface RoutingResultsProps {
@@ -62,6 +63,9 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const badTrackInfo = !ApiImpl.isMotorVehicle(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.track_type, { grade2: true, grade3: true, grade4: true, grade5: true })
+    const trunkInfo = ApiImpl.isMotorVehicle(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.road_class, { motorway: true, trunk: true })
     const stepsInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.road_class, { steps: true })
@@ -76,6 +80,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         tollInfo.distance > 0 ||
         ferryInfo.distance > 0 ||
         privateOrDeliveryInfo.distance > 0 ||
+        trunkInfo.distance > 0 ||
         badTrackInfo.distance > 0 ||
         stepsInfo.distance > 0 ||
         countriesInfo.values.length > 1 ||
@@ -207,6 +212,19 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             }
                             selected={selectedRH}
                             segments={badTrackInfo.segments}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('trunk_roads_warn')}
+                            setType={t => setSelectedRH(t)}
+                            type={'trunk'}
+                            child={<DangerousIcon />}
+                            value={
+                                trunkInfo.distance > 0 &&
+                                metersToShortText(trunkInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={trunkInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
