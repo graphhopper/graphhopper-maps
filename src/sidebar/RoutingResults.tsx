@@ -294,14 +294,16 @@ function crossesBorderInfo(points: LineString, countryPathDetail: [number, numbe
     if (!countryPathDetail || countryPathDetail.length == 0) return new RouteInfo()
     const info = new RouteInfo()
     info.values = [countryPathDetail[0][2]]
+    let prev = countryPathDetail[0][2]
     const coords = points.coordinates
     for (const i in countryPathDetail) {
-        if (countryPathDetail[i][2] != info.values[0]) {
+        if (countryPathDetail[i][2] != prev) {
             info.values.push(countryPathDetail[i][2])
             info.segments.push([
                 toCoordinate(coords[countryPathDetail[i][0] - 1]),
                 toCoordinate(coords[countryPathDetail[i][0]]),
             ])
+            prev = countryPathDetail[i][2]
         }
     }
     return info
