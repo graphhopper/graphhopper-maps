@@ -2,7 +2,7 @@ import { useState } from 'react'
 import styles from './MapOptions.module.css'
 import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { SelectMapLayer, ToggleRoutingGraph, ToggleUrbanDensityLayer } from '@/actions/Actions'
+import { SelectMapLayer, ToggleExternalMVTLayer, ToggleRoutingGraph, ToggleUrbanDensityLayer } from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
 import LayerImg from './layer-group-solid.svg'
 import * as config from 'config'
@@ -81,6 +81,22 @@ const Options = function ({ storeState, notifyChanged }: OptionsProps) {
                             }}
                         />
                         <label htmlFor="urban-density-checkbox">Show Urban Density</label>
+                    </div>
+                </>
+            )}
+            {config.externalMVTLayer && (
+                <>
+                    <div className={styles.option}>
+                        <input
+                            type="checkbox"
+                            id="external-mvt-layer-checkbox"
+                            checked={storeState.externalMVTEnabled}
+                            onChange={e => {
+                                notifyChanged()
+                                Dispatcher.dispatch(new ToggleExternalMVTLayer(e.target.checked))
+                            }}
+                        />
+                        <label htmlFor="external-mvt-layer-checkbox">Show External MVT</label>
                     </div>
                 </>
             )}

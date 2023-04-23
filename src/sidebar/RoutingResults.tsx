@@ -219,10 +219,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             setType={t => setSelectedRH(t)}
                             type={'trunk'}
                             child={<DangerousIcon />}
-                            value={
-                                trunkInfo.distance > 0 &&
-                                metersToShortText(trunkInfo.distance, showDistanceInMiles)
-                            }
+                            value={trunkInfo.distance > 0 && metersToShortText(trunkInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={trunkInfo.segments}
                         />
