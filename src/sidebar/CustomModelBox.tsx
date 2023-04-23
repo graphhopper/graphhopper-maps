@@ -97,7 +97,12 @@ export default function CustomModelBox({
                 </PlainButton>
                 <div style={{ color: customModelEnabled ? '#5b616a' : 'gray' }}>{tr('custom_model_enabled')}</div>
                 {customModelEnabled && (
-                    <PlainButton className={styles.drawAreas} title={tr('draw_areas_enabled')} style={{ color: drawAreas ? '' : 'lightgray' }} onClick={() => Dispatcher.dispatch(new DrawAreas(!drawAreas))}>
+                    <PlainButton
+                        className={styles.drawAreas}
+                        title={tr('draw_areas_enabled')}
+                        style={{ color: drawAreas ? '' : 'lightgray' }}
+                        onClick={() => Dispatcher.dispatch(new DrawAreas(!drawAreas))}
+                    >
                         {drawAreas ? <DrawAreasIcon /> : <DrawAreasDisabledIcon />}
                     </PlainButton>
                 )}
