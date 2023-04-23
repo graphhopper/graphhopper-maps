@@ -24,6 +24,7 @@ export default function useExternalMVTLayer(map: Map, externalMVTLayerEnabled: b
                 url: config.externalMVTLayer ? config.externalMVTLayer.url : '',
                 maxZoom: config.externalMVTLayer ? config.externalMVTLayer.maxZoom : 14,
             }),
+            // without this the features become very blurry when we zoom beyond the maximum zoom level of the mvt source
             renderMode: 'vector',
             // make sure this layer is on top of the background layer
             zIndex: 0.6,
