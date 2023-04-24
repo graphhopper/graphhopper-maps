@@ -22,6 +22,7 @@ import { Bbox, RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist } from '@/distUtils'
 import config from 'config'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
+import LZString from 'lz-string'
 
 export interface Coordinate {
     lat: number
@@ -90,12 +91,18 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     private static getInitialState(initialCustomModelStr: string | null): QueryStoreState {
         const customModelEnabledInitially = initialCustomModelStr != null
-        if (!initialCustomModelStr)
+        if (initialCustomModelStr) {
+            try {
+                if (initialCustomModelStr.startsWith('lz64_'))
+                    // keep formatting when model is compressed
+                    initialCustomModelStr = LZString.decompressFromBase64(initialCustomModelStr.substring(5))
+                else
+                    // prettify the custom model only if given as raw string
+                    initialCustomModelStr = customModel2prettyString(JSON.parse(initialCustomModelStr))
+            } catch (e) {}
+        } else {
             initialCustomModelStr = customModel2prettyString(customModelExamples['default_example'])
-        // prettify the custom model if it can be parsed or leave it as is otherwise
-        try {
-            initialCustomModelStr = customModel2prettyString(JSON.parse(initialCustomModelStr))
-        } catch (e) {}
+        }
 
         return {
             profiles: [],

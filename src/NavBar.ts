@@ -1,4 +1,5 @@
 import { coordinateToText } from '@/Converters'
+import LZString from 'lz-string'
 import { Bbox } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, SelectMapLayer, SetBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
@@ -42,8 +43,10 @@ export default class NavBar {
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
         result.searchParams.append('layer', mapState.selectedStyle.name)
-        if (queryStoreState.customModelEnabled)
-            result.searchParams.append('custom_model', queryStoreState.customModelStr.replace(/\s+/g, ''))
+        if (queryStoreState.customModelEnabled) {
+            const compressed = LZString.compressToBase64(queryStoreState.customModelStr)
+            result.searchParams.append('custom_model', 'lz64_' + compressed)
+        }
 
         return result
     }
