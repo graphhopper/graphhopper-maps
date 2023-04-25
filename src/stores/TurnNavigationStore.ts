@@ -495,15 +495,35 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
         const path = this.state.initialPath ? this.state.initialPath : await this.createFixedPathFromAPICall()
 
-        // TODO: skip too close points and interpolate if too big distance
-        let coords: number[][] = path.points.coordinates
-        let latlon: number[][] = new Array(coords.length)
+        // TODO: skip too close points
+        let origCoords: number[][] = path.points.coordinates
+        if(origCoords.length == 0) return
+        let coords : number[][] = []
 
+        // interpolate if too big distance
+        for(let idx = 0; idx < origCoords.length - 1; idx++) {
+            const currC = origCoords[idx]
+            const nextC = origCoords[idx + 1]
+            const dist = calcDist({ lng: currC[0], lat: currC[1] }, { lng: nextC[0], lat: nextC[1] })
+            const count = Math.round(dist / 15)
+            coords.push(currC)
+            for (let i = 1; i < count; i++) {
+                const lng = currC[0] + i / count * (nextC[0] - currC[0])
+                const lat = currC[1] + i / count * (nextC[1] - currC[1])
+                coords.push([lng, lat])
+            }
+            if(idx == origCoords.length - 1)
+                coords.push(nextC)
+        }
+
+        let latLngHeadSpeed: number[][] = new Array(coords.length)
         const delta = this.state.settings.fakeGPSDelta
         for (let idx = 0; idx < coords.length; idx++) {
             // very ugly: in JS the random object cannot be initialed with a seed
             const lat = coords[idx][1] + delta * Math.random() // add randomness
             const lon = coords[idx][0] + delta * Math.random()
+            console.log(idx + " " + lat + "," + lon)
+
             let heading = 0
             if (idx > 0) {
                 const prevLat = coords[idx - 1][1]
@@ -511,18 +531,18 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 let o = calcOrientation(prevLat, prevLon, lat, lon)
                 heading = toDegrees(toNorthBased(o))
             }
-            latlon[idx] = [lat, lon, heading, 4]
+            latLngHeadSpeed[idx] = [lat, lon, heading, 4]
         }
 
         let currentIndex: number = 0
         this.interval = setInterval(() => {
-            currentIndex %= latlon.length
+            currentIndex %= latLngHeadSpeed.length
             this.locationUpdate({
                 coords: {
-                    latitude: latlon[currentIndex][0],
-                    longitude: latlon[currentIndex][1],
-                    heading: latlon[currentIndex][2],
-                    speed: latlon[currentIndex][3],
+                    latitude: latLngHeadSpeed[currentIndex][0],
+                    longitude: latLngHeadSpeed[currentIndex][1],
+                    heading: latLngHeadSpeed[currentIndex][2],
+                    speed: latLngHeadSpeed[currentIndex][3],
                 },
             })
             currentIndex++
@@ -556,7 +576,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
     private locationUpdate(pos: any) {
         let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        console.log(c)
         Dispatcher.dispatch(
             new LocationUpdate(c, this.state.settings.syncView, pos.coords.speed, pos.coords.heading, 17)
         )
