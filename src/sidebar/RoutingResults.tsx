@@ -332,7 +332,7 @@ function RoutingResult({
 }
 
 function startNavigation(forceVectorTiles: boolean) {
-    if (forceVectorTiles) Dispatcher.dispatch(new SelectMapLayer(config.navigationTiles))
+    if (forceVectorTiles) Dispatcher.dispatch(new SelectMapLayer(config.navigationTiles, true))
     Dispatcher.dispatch(new TurnNavigationStart())
 }
 

@@ -168,7 +168,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 settings: { ...state.settings, fullScreen: !state.settings.fullScreen },
             }
         } else if (action instanceof SelectMapLayer) {
-            if (!this.state.started)
+            if (!this.state.started && !action.forNavigation)
                 return {
                     ...state,
                     oldTiles: action.layer,

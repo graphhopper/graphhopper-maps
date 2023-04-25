@@ -191,9 +191,11 @@ export class DismissLastError implements Action {}
 
 export class SelectMapLayer implements Action {
     readonly layer: string
+    readonly forNavigation: boolean
 
-    constructor(layer: string) {
+    constructor(layer: string, forNavigation: boolean = false) {
         this.layer = layer
+        this.forNavigation = forNavigation
     }
 }
 
