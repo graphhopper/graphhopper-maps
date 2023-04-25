@@ -28,7 +28,7 @@ export default function useCurrentLocationLayer(map: Map, turnNavigation: TurnNa
         const backgroundLayer = layers.length > 0 ? (layers[0] as Tile<any>) : null
         if (backgroundLayer == null) console.error('Cannot find background layer ' + layers.length)
         else if (turnNavigation.settings.syncView) {
-            console.info('Found background layer ' + layers.length)
+            console.log('Found background layer ' + layers.length)
             backgroundLayer.on('postrender', onPostrender)
         }
 
