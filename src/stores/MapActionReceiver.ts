@@ -17,6 +17,7 @@ import { Attribution, Zoom } from 'ol/control'
 import { toRadians } from '@/turnNavigation/GeoMethods'
 import { linear } from 'ol/easing'
 import VectorLayer from 'ol/layer/Vector'
+import { LineString } from 'ol/geom'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -64,20 +65,25 @@ export default class MapActionReceiver implements ActionReceiver {
             // TODO this interferes with zooming from inside the application
             // this.map.getView().on('change:resolution', this.onMove) // disable auto moving&zooming the map if *zooming* the map
         } else if (action instanceof LocationUpdate) {
+            const mapView = this.map.getView()
             const size = this.map.getSize() // [width, height]
             // move center a bit down
-            this.map.getView().padding = [size ? size[1] / 2 : 0, 0, 0, 0]
-            this.map.getView().cancelAnimations() // if location updates are sent too fast animations might stack up
+            mapView.padding = [size ? size[1] / 2 : 0, 0, 0, 0]
+            mapView.cancelAnimations() // if location updates are sent too fast animations might stack up
 
             const center = fromLonLat([action.coordinate.lng, action.coordinate.lat])
             if (action.syncView) {
                 // The heading is in degrees and shows direction into which device is going.
-                // And although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
-                const rotation =
-                    action.heading === null || Number.isNaN(action.heading)
-                        ? this.map.getView().getRotation()
-                        : -toRadians(action.heading)
-                this.map.getView().animate({
+                // Although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
+                let rotation = Number.isNaN(action.heading) ? mapView.getRotation() : -toRadians(action.heading)
+
+                // Ignore heavy rotation when nearly no movement.
+                const arr = mapView.getCenter()
+                const rotDelta = Math.abs(mapView.getRotation() - rotation)
+                if (arr && new LineString([arr, center]).getLength() < 1 && rotDelta > Math.PI / 2)
+                    rotation = mapView.getRotation()
+
+                mapView.animate({
                     zoom: action.zoom,
                     center: center,
                     rotation: rotation,
