@@ -263,9 +263,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                         throw Error('rerouting needs a destination but was empty ' + JSON.stringify(path))
                     const customModel = TurnNavigationStore.getCustomModel(state)
 
-                    if(customModel) console.log("custom model areas " + customModel.areas.length)
-                    else console.log("no custom model")
-
                     let args: RoutingArgs = {
                         points: [[coordinate.lng, coordinate.lat] as [number, number]].concat(nextWaypoints),
                         maxAlternativeRoutes: 0,

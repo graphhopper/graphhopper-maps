@@ -26,8 +26,11 @@ export default function useCurrentLocationLayer(map: Map, turnNavigation: TurnNa
         // (if background would be a VectorLayer we could just add the arrow as feature there but we allow rasters and so we need a separate currentLocationLayer)
         const layers = getCurrentBackgroundLayers(map)
         const backgroundLayer = layers.length > 0 ? (layers[0] as Tile<any>) : null
-        if (backgroundLayer == null) console.error('Cannot find background layer ' + JSON.stringify(layers))
-        else if (turnNavigation.settings.syncView) backgroundLayer.on('postrender', onPostrender)
+        if (backgroundLayer == null) console.error('Cannot find background layer ' + layers.length)
+        else if (turnNavigation.settings.syncView) {
+            console.info('Found background layer ' + layers.length)
+            backgroundLayer.on('postrender', onPostrender)
+        }
 
         return () => {
             if (!turnNavigation.showUI) return
