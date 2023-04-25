@@ -50,6 +50,7 @@ import useCurrentLocationLayer from '@/layers/CurrentLocationLayer'
 import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
 import useAreasLayer from '@/layers/UseAreasLayer'
+import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -112,6 +113,7 @@ export default function App() {
 
     // our different map layers
     useBackgroundLayer(map, mapOptions.selectedStyle)
+    useExternalMVTLayer(map, mapOptions.externalMVTEnabled)
     useMapBorderLayer(map, info.bbox)
     useAreasLayer(map, settings.drawAreasEnabled, query.customModelStr, query.customModelEnabled)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)

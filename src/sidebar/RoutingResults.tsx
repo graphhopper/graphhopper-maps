@@ -37,6 +37,7 @@ import DollarIcon from '@/sidebar/routeHints/toll_dollar.svg'
 import GetOffBikeIcon from '@/sidebar/routeHints/push_bike.svg'
 import SteepIcon from '@/sidebar/routeHints/elevation.svg'
 import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
+import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
 import { Bbox } from '@/api/graphhopper'
 
 export interface RoutingResultsProps {
@@ -85,6 +86,9 @@ function RoutingResult({
     const badTrackInfo = !ApiImpl.isMotorVehicle(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.track_type, { grade2: true, grade3: true, grade4: true, grade5: true })
+    const trunkInfo = ApiImpl.isMotorVehicle(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.road_class, { motorway: true, trunk: true })
     const stepsInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.road_class, { steps: true })
@@ -99,6 +103,7 @@ function RoutingResult({
         tollInfo.distance > 0 ||
         ferryInfo.distance > 0 ||
         privateOrDeliveryInfo.distance > 0 ||
+        trunkInfo.distance > 0 ||
         badTrackInfo.distance > 0 ||
         stepsInfo.distance > 0 ||
         countriesInfo.values.length > 1 ||
@@ -284,6 +289,16 @@ function RoutingResult({
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
+                            description={tr('trunk_roads_warn')}
+                            setType={t => setSelectedRH(t)}
+                            type={'trunk'}
+                            child={<DangerousIcon />}
+                            value={trunkInfo.distance > 0 && metersToShortText(trunkInfo.distance, showDistanceInMiles)}
+                            selected={selectedRH}
+                            segments={trunkInfo.segments}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
                             description={tr('get_off_bike_for', [
                                 metersToShortText(getOffBikeInfo.distance, showDistanceInMiles),
                             ])}
@@ -355,14 +370,16 @@ function crossesBorderInfo(points: LineString, countryPathDetail: [number, numbe
     if (!countryPathDetail || countryPathDetail.length == 0) return new RouteInfo()
     const info = new RouteInfo()
     info.values = [countryPathDetail[0][2]]
+    let prev = countryPathDetail[0][2]
     const coords = points.coordinates
     for (const i in countryPathDetail) {
-        if (countryPathDetail[i][2] != info.values[0]) {
+        if (countryPathDetail[i][2] != prev) {
             info.values.push(countryPathDetail[i][2])
             info.segments.push([
                 toCoordinate(coords[countryPathDetail[i][0] - 1]),
                 toCoordinate(coords[countryPathDetail[i][0]]),
             ])
+            prev = countryPathDetail[i][2]
         }
     }
     return info

@@ -213,6 +213,14 @@ export class ToggleUrbanDensityLayer implements Action {
     }
 }
 
+export class ToggleExternalMVTLayer implements Action {
+    readonly externalMVTLayerEnabled: boolean
+
+    constructor(externalMVTLayerEnabled: boolean) {
+        this.externalMVTLayerEnabled = externalMVTLayerEnabled
+    }
+}
+
 export class MapIsLoaded implements Action {}
 
 export class ZoomMapToPoint implements Action {
