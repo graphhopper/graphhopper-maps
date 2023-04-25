@@ -279,7 +279,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                             if (result.paths.length > 0) {
                                 console.log('rerouted:' + state.activePath?.distance + '->' + result.paths[0].distance)
                                 Dispatcher.dispatch(new TurnNavigationRerouting(result.paths[0]))
-                                this.synthesize(tr('reroute'))
+                                if (!skipWaypoint) this.synthesize(tr('reroute'))
                             } else {
                                 console.log('rerouting found no path: {}', result)
                                 Dispatcher.dispatch(new TurnNavigationReroutingFailed())
