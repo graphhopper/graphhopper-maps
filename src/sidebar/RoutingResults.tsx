@@ -332,8 +332,8 @@ function RoutingResult({
 }
 
 function startNavigation(forceVectorTiles: boolean) {
-    Dispatcher.dispatch(new TurnNavigationStart())
     if (forceVectorTiles) Dispatcher.dispatch(new SelectMapLayer(config.navigationTiles))
+    Dispatcher.dispatch(new TurnNavigationStart())
 }
 
 function RHButton(p: {
