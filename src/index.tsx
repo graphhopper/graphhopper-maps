@@ -39,7 +39,8 @@ console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/$
 
 const url = new URL(window.location.href)
 const locale = url.searchParams.get('locale')
-const fake = url.searchParams.get('fake')
+const fakeParam = url.searchParams.get('fake')
+const fakeGPSDelta = fakeParam ? parseFloat(fakeParam) : NaN
 setTranslation(locale || navigator.language)
 
 // use graphhopper api key from url or try using one from the config
@@ -60,7 +61,7 @@ const turnNavigationStore = new TurnNavigationStore(
     getApi(),
     speechSynthesizer,
     new CoordSysImpl(),
-    fake != null,
+    fakeGPSDelta,
     config.defaultTiles,
     queryStore.state.customModelEnabled ? queryStore.state.customModelStr : ''
 )

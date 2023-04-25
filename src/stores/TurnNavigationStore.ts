@@ -30,7 +30,6 @@ import {
     toDegrees,
     toNorthBased,
 } from '@/turnNavigation/GeoMethods'
-import * as config from 'config'
 import { Instruction, Path, RoutingArgs } from '@/api/graphhopper'
 import { tr } from '@/translation/Translation'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
@@ -76,7 +75,7 @@ export interface TNPathDetailsState {
 }
 
 export interface TNSettingsState {
-    fakeGPS: boolean
+    fakeGPSDelta: number
     syncView: boolean
     acceptedRisk: boolean
     soundEnabled: boolean
@@ -100,7 +99,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         api: Api,
         speechSynthesizer: SpeechSynthesizer,
         cs: MapCoordinateSystem,
-        fakeGPS: boolean,
+        fakeGPSDelta: number,
         tiles: string,
         customModelStr: string
     ) {
@@ -120,9 +119,9 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             activeProfile: '',
             settings: {
                 acceptedRisk: false,
-                fakeGPS: fakeGPS,
+                fakeGPSDelta: fakeGPSDelta,
                 syncView: true,
-                soundEnabled: !fakeGPS,
+                soundEnabled: Number.isNaN(fakeGPSDelta),
                 forceVectorTiles: true,
                 fullScreen: true,
             } as TNSettingsState,
@@ -154,8 +153,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             // Make sound work for Safari 16.1.2. Otherwise, it probably thinks that the LocationUpdates are NOT user-triggered.
             this.speechSynthesizer.synthesize('')
 
-            if (state.settings.fakeGPS) this.initFake()
-            else this.initReal(this.state.settings.fullScreen)
+            if (Number.isNaN(state.settings.fakeGPSDelta)) this.initReal()
+            else this.initFake()
             return { ...state, started: true }
         } else if (action instanceof ToggleVectorTilesForNavigation) {
             return {
@@ -165,7 +164,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         } else if (action instanceof ToggleFullScreenForNavigation) {
             return {
                 ...state,
-                settings: { ...state.settings, fullScreen: !state.settings.fullScreen },
+                settings: {...state.settings, fullScreen: !state.settings.fullScreen},
             }
         } else if (action instanceof SelectMapLayer) {
             if (!this.state.started && !action.forNavigation)
@@ -216,8 +215,12 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 pathDetails: {} as TNPathDetailsState,
             }
         } else if (action instanceof LocationUpdate) {
-            if (state.initialPath == null) throw new Error('initialPath must not be null')
-            if (state.activePath == null) throw new Error('activePath must not be null')
+            if (state.initialPath == null || state.activePath == null) {
+                // this can happen e.g. if the turn navigation was stopped before a location update came in
+                console.log("LocationUpdate skipped due to activePath or initialPath being null")
+                return state
+            }
+
             const coordinate = action.coordinate
             let path = state.activePath
             let instr = getCurrentInstruction(path.instructions, coordinate)
@@ -490,27 +493,17 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             return
         }
 
-        // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car&layer=MapTiler&fake=true
-        let api = new ApiImpl(config.routingApi, config.geocodingApi, config.keys.graphhopper)
-        let response = await api.route({
-            points: [
-                [14.245254, 51.439291],
-                [14.234999, 51.43322],
-            ],
-            heading: 0,
-            profile: 'car',
-            maxAlternativeRoutes: 0,
-            customModel: null,
-        })
+        const path = this.state.initialPath ? this.state.initialPath : await this.createFixedPathFromAPICall()
 
         // TODO: skip too close points and interpolate if too big distance
-        let coords: number[][] = response.paths[0].points.coordinates
+        let coords: number[][] = path.points.coordinates
         let latlon: number[][] = new Array(coords.length)
 
+        const delta = this.state.settings.fakeGPSDelta
         for (let idx = 0; idx < coords.length; idx++) {
             // very ugly: in JS the random object cannot be initialed with a seed
-            const lat = coords[idx][1] + 0.0001 * Math.random() // approx +-5m ?
-            const lon = coords[idx][0] + 0.0001 * Math.random()
+            const lat = coords[idx][1] + delta * Math.random() // add randomness
+            const lon = coords[idx][0] + delta * Math.random()
             let heading = 0
             if (idx > 0) {
                 const prevLat = coords[idx - 1][1]
@@ -522,19 +515,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         }
 
         let currentIndex: number = 0
-        this.locationUpdate({
-            coords: {
-                latitude: latlon[currentIndex][0],
-                longitude: latlon[currentIndex][1],
-                heading: latlon[currentIndex][2],
-                speed: latlon[currentIndex][3],
-            },
-        })
-
         this.interval = setInterval(() => {
-            currentIndex++
             currentIndex %= latlon.length
-            // console.log(currentIndex)
             this.locationUpdate({
                 coords: {
                     latitude: latlon[currentIndex][0],
@@ -543,9 +525,26 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     speed: latlon[currentIndex][3],
                 },
             })
+            currentIndex++
         }, 1000)
 
         this.doNoSleep()
+    }
+
+    private async createFixedPathFromAPICall() {
+        // http://localhost:3000/?point=51.439291%2C14.245254&point=51.43322%2C14.234999&profile=car&layer=MapTiler&fake=true
+        let response = await this.api.route({
+            points: [
+                [14.245254, 51.439291],
+                [14.234999, 51.43322],
+            ],
+            heading: 0,
+            profile: 'car',
+            maxAlternativeRoutes: 0,
+            customModel: null,
+        })
+
+        return response.paths[0]
     }
 
     private doNoSleep() {
@@ -557,12 +556,13 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
     private locationUpdate(pos: any) {
         let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        console.log(c)
         Dispatcher.dispatch(
             new LocationUpdate(c, this.state.settings.syncView, pos.coords.speed, pos.coords.heading, 17)
         )
     }
 
-    private initReal(doFullscreen: boolean) {
+    private initReal() {
         if (!navigator.geolocation) {
             console.log('location not supported. In firefox I had to set geo.enabled=true in about:config')
         } else {
@@ -570,7 +570,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             // force calling clearWatch can help to find GPS fix more reliable in android firefox
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
-            if (doFullscreen)
+            if (this.state.settings.fullScreen)
                 try {
                     let el = document.documentElement
                     let requestFullscreenFct = el.requestFullscreen
