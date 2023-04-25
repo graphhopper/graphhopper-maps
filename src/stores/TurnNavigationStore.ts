@@ -321,8 +321,10 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const nextInstruction: Instruction = path.instructions[instr.index]
             const text = nextInstruction.street_name
             if (state.settings.soundEnabled) {
-                // making lastAnnounceDistance dependent on location.speed is tricky because then it can change while driving, so pick the constant average speed
-                let lastAnnounceDistance = 10 + 2 * Math.round(estimatedAvgSpeed / 5) * 5
+                // announce proportional earlier if faster
+                const factor = estimatedAvgSpeed < 40 ? 2 : estimatedAvgSpeed < 80 ? 4 : 8
+                // prefer nearly constant average speed because location.speed changes more often while driving
+                const lastAnnounceDistance = 10 + factor * estimatedAvgSpeed
 
                 if (
                     instr.distanceToTurn <= lastAnnounceDistance &&
@@ -331,7 +333,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     this.synthesize(nextInstruction.text)
                 }
 
-                const firstAnnounceDistance = 1150
+                const firstAnnounceDistance = 1150 + factor * estimatedAvgSpeed
+                console.log('first announce: ' + firstAnnounceDistance + ' last: ' + lastAnnounceDistance)
                 if (
                     estimatedAvgSpeed > 15 && // two announcements only if faster speed
                     instr.distanceToTurn > lastAnnounceDistance + 50 && // do not interfere with last announcement. also "1 km" should stay valid (approximately)
@@ -339,7 +342,9 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     (instructionState.distanceToTurn > firstAnnounceDistance || instr.index != instructionState.index)
                 ) {
                     let inString =
-                        instr.distanceToTurn > 800
+                        instr.distanceToTurn > 1200
+                            ? tr('in_km', [(instr.distanceToTurn / 1000).toFixed(1)])
+                            : instr.distanceToTurn > 900
                             ? tr('in_km_singular')
                             : tr('in_m', ['' + Math.round(instr.distanceToTurn / 100) * 100])
                     this.synthesize(inString + ' ' + nextInstruction.text)
@@ -429,6 +434,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private synthesize(text: string) {
+        console.log('speak: ' + text)
         if (this.state.settings.soundEnabled) this.speechSynthesizer.synthesize(text)
     }
 
@@ -497,32 +503,30 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
         // TODO: skip too close points
         let origCoords: number[][] = path.points.coordinates
-        if(origCoords.length == 0) return
-        let coords : number[][] = []
+        if (origCoords.length == 0) return
+        let coords: number[][] = []
 
         // interpolate if too big distance
-        for(let idx = 0; idx < origCoords.length - 1; idx++) {
+        for (let idx = 0; idx < origCoords.length - 1; idx++) {
             const currC = origCoords[idx]
             const nextC = origCoords[idx + 1]
             const dist = calcDist({ lng: currC[0], lat: currC[1] }, { lng: nextC[0], lat: nextC[1] })
-            const count = Math.round(dist / 15)
+            const count = Math.round(dist / this.state.settings.fakeGPSDelta)
             coords.push(currC)
             for (let i = 1; i < count; i++) {
-                const lng = currC[0] + i / count * (nextC[0] - currC[0])
-                const lat = currC[1] + i / count * (nextC[1] - currC[1])
+                const lng = currC[0] + (i / count) * (nextC[0] - currC[0])
+                const lat = currC[1] + (i / count) * (nextC[1] - currC[1])
                 coords.push([lng, lat])
             }
-            if(idx == origCoords.length - 1)
-                coords.push(nextC)
+            if (idx == origCoords.length - 1) coords.push(nextC)
         }
 
         let latLngHeadSpeed: number[][] = new Array(coords.length)
-        const delta = this.state.settings.fakeGPSDelta
+        const delta = 0
         for (let idx = 0; idx < coords.length; idx++) {
             // very ugly: in JS the random object cannot be initialed with a seed
             const lat = coords[idx][1] + delta * Math.random() // add randomness
             const lon = coords[idx][0] + delta * Math.random()
-            console.log(idx + " " + lat + "," + lon)
 
             let heading = 0
             if (idx > 0) {
