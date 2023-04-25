@@ -164,7 +164,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         } else if (action instanceof ToggleFullScreenForNavigation) {
             return {
                 ...state,
-                settings: {...state.settings, fullScreen: !state.settings.fullScreen},
+                settings: { ...state.settings, fullScreen: !state.settings.fullScreen },
             }
         } else if (action instanceof SelectMapLayer) {
             if (!this.state.started && !action.forNavigation)
@@ -217,7 +217,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         } else if (action instanceof LocationUpdate) {
             if (state.initialPath == null || state.activePath == null) {
                 // this can happen e.g. if the turn navigation was stopped before a location update came in
-                console.log("LocationUpdate skipped due to activePath or initialPath being null")
+                console.log('LocationUpdate skipped due to activePath or initialPath being null')
                 return state
             }
 
