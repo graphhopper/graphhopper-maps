@@ -3,7 +3,9 @@
  */
 import Dispatcher from '@/stores/Dispatcher'
 import {
-    LocationUpdate, SetCustomModel, SetCustomModelEnabled,
+    LocationUpdate,
+    SetCustomModel,
+    SetCustomModelEnabled,
     SetSelectedPath,
     SetVehicleProfile,
     TurnNavigationReroutingTimeResetForTest,
@@ -244,7 +246,8 @@ describe('TurnNavigationStore', () => {
         })
 
         it('should reroute with custom model', async () => {
-            const customModelStr = "{\"distance_influence\": 60, \"speed\":[{ \"if\": \"road_class == PRIMARY\", \"multiply_by\": \"0.9\"}]}"
+            const customModelStr =
+                '{"distance_influence": 60, "speed":[{ "if": "road_class == PRIMARY", "multiply_by": "0.9"}]}'
             const api = new LocalApi()
             api.setRerouteData(reroute1, [
                 [14.267238, 51.43475],
@@ -254,14 +257,14 @@ describe('TurnNavigationStore', () => {
             Dispatcher.dispatch(new SetCustomModel(customModelStr, false))
             Dispatcher.dispatch(new SetCustomModelEnabled(true))
             Dispatcher.dispatch(new SetSelectedPath(reroute1.paths[0]))
-            Dispatcher.dispatch(new LocationUpdate({lng: 14.268908, lat: 51.434871}, true, 10, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.268908, lat: 51.434871 }, true, 10, 120, 16))
             expect(store.state.customModelStr).toEqual(customModelStr)
             expect(store.state.speed).toEqual(10)
             expect(store.state.activePath).toEqual(reroute1.paths[0])
             expect(store.state.instruction.index).toEqual(1)
 
-            Dispatcher.dispatch(new SetVehicleProfile({name: 'car'}))
-            Dispatcher.dispatch(new LocationUpdate({lng: 14.267238, lat: 51.43475}, true, 12, 120, 16))
+            Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.267238, lat: 51.43475 }, true, 12, 120, 16))
             expect(store.state.customModelStr).toEqual(customModelStr)
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeTruthy()

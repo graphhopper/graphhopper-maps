@@ -102,7 +102,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         cs: MapCoordinateSystem,
         fakeGPS: boolean,
         tiles: string,
-        customModelStr: string,
+        customModelStr: string
     ) {
         super({
             showUI: false,
@@ -185,7 +185,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 customModelEnabled: action.enabled,
             }
         } else if (action instanceof SetCustomModel) {
-            console.log("SetCustomModel " + action.customModelStr)
+            console.log('SetCustomModel ' + action.customModelStr)
             return {
                 ...state,
                 customModelStr: action.customModelStr,
