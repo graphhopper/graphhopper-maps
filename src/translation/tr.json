@@ -32,7 +32,7 @@
 "apply_custom_model":"Apply",
 "custom_model_enabled":"Custom Model Active",
 "data_import_date":"Graph data import date",
-"data_source_date":"Graph data source date",
+"data_source_date":"OSM data from",
 "settings":"Settings",
 "settings_close":"Close",
 "exclude_motorway_example":"Exclude Motorway",
