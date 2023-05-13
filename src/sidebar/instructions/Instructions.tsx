@@ -29,13 +29,13 @@ export default function (props: { instructions: Instruction[] }) {
     return (
         <ul className={styles.instructionsList}>
             {props.instructions.map((instruction, i) => (
-                <Line key={i} instruction={instruction} index={i} />
+                <Line key={i} instruction={instruction} index={i} lastInstruction={i==(props.instructions.length-1)}/>
             ))}
         </ul>
     )
 }
 
-const Line = function ({ instruction, index }: { instruction: Instruction; index: number }) {
+const Line = function ({ instruction, index , lastInstruction}: { instruction: Instruction; index: number, lastInstruction:boolean}) {
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
     return (
         <li
@@ -51,7 +51,8 @@ const Line = function ({ instruction, index }: { instruction: Instruction; index
         >
             {getTurnSign(instruction.sign, index)}
             <span className={styles.mainText}>{instruction.text}</span>
-            <span className={styles.distance}>{metersToText(instruction.distance, showDistanceInMiles)}</span>
+            {(!lastInstruction) && <span className={styles.distance}>{metersToText(instruction.distance, showDistanceInMiles)}</span>}
+            {(lastInstruction) && <span className={styles.lastDistance}>{metersToText(instruction.distance, showDistanceInMiles)}</span>}
         </li>
     )
 }

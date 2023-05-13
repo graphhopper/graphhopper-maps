@@ -34,13 +34,25 @@ export interface ErrorResponse {
     hints: any[]
 }
 
+export interface Info
+{ 
+    copyright: string[]; 
+    data_import_date: string; 
+    data_source_date: string; 
+    took: number 
+}
+
 export interface RoutingResult {
-    readonly info: { copyright: string[]; took: number }
+    readonly info: Info
     readonly paths: Path[]
 }
 
 export interface RawResult {
-    readonly info: { copyright: string[]; took: number }
+    readonly info: {
+        copyright: string[];
+        data_import_date: string;
+        data_source_date: string;
+        took: number }
     readonly paths: RawPath[]
 }
 

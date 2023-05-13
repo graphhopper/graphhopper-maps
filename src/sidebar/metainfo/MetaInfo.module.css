@@ -1,0 +1,9 @@
+.MetaInfoUpperList {
+    border-top: 1px solid lightgray;
+}
+
+.MetaInfoList {
+    text-align: left;
+    padding-left: 1rem;
+    font-size:x-small;
+}

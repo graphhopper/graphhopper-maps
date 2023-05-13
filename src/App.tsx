@@ -179,6 +179,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         <Search points={query.queryPoints} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
+                            info={route.routingResult.info}
                             paths={route.routingResult.paths}
                             selectedPath={route.selectedPath}
                             currentRequest={query.currentRequest}
@@ -234,6 +235,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
 
             <div className={styles.smallScreenRoutingResult}>
                 <RoutingResults
+                    info={route.routingResult.info}
                     paths={route.routingResult.paths}
                     selectedPath={route.selectedPath}
                     currentRequest={query.currentRequest}

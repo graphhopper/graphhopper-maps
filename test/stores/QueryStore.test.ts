@@ -349,7 +349,7 @@ describe('QueryStore', () => {
 
             const newState = store.reduce(
                 state,
-                new RouteRequestSuccess(routingArgs, true, { paths: [], info: { took: 1, copyright: [] } })
+                new RouteRequestSuccess(routingArgs, true, { paths: [], info: { took: 1, copyright: [], data_import_date:"", data_source_date:"" }})
             )
 
             expect(newState.currentRequest.subRequests[0].state).toEqual(RequestState.SUCCESS)

@@ -33,3 +33,10 @@
     padding-bottom: 1rem;
     border-bottom: 1px solid lightgray;
 }
+
+.lastDistance {
+    grid-column: 2 / span 1;
+    font-size: small;
+    color: #5b616a;
+    padding-bottom: 1rem;
+}
