@@ -324,7 +324,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 // announce proportional earlier if faster
                 const factor = estimatedAvgSpeed < 70 ? 2 : (roadClass == "trunk" || roadClass == "motorway" ? 7 : 4)
                 // prefer nearly constant average speed because location.speed changes more often while driving
-                const lastAnnounceDistance = 10 + factor * estimatedAvgSpeed
+                const lastAnnounceDistance = Math.max(30, 20 + factor * estimatedAvgSpeed)
 
                 if (
                     instr.distanceToTurn <= lastAnnounceDistance &&
