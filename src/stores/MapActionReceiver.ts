@@ -80,7 +80,7 @@ export default class MapActionReceiver implements ActionReceiver {
                 // Ignore heavy rotation when nearly no movement.
                 const arr = mapView.getCenter()
                 const rotDelta = Math.abs(mapView.getRotation() - rotation)
-                if (arr && (new LineString([arr, center]).getLength() < 1 || action.speed < 3) && rotDelta > Math.PI / 4)
+                if (arr && ((new LineString([arr, center]).getLength() < 1 || action.speed <= 1) && rotDelta > Math.PI / 4 || action.speed == 0))
                     rotation = mapView.getRotation()
 
                 mapView.animate({

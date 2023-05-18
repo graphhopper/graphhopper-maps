@@ -26,7 +26,7 @@ export class LocationUpdateSync implements Action {
 
 export class LocationUpdate implements Action {
     readonly coordinate: Coordinate
-    readonly speed: number
+    readonly speed: number // in meter/sec
     readonly heading: number
     readonly zoom: number
     readonly syncView: boolean
