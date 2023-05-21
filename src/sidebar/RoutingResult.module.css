@@ -151,8 +151,8 @@
 }
 
 .showRiskAccept button {
-    padding: 0.5em;
-    margin: 0.1em;
+    padding: 0.4em;
+    margin: 1em 0 0 0;
     background-color: #f97777;
     color: white;
 }
@@ -163,7 +163,7 @@
 }
 
 .showRiskButtons {
-    padding: 1.5em 1.5em 3em 1.5em;
+    padding: 1em 1em 2em 1em;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
