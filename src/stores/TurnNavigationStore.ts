@@ -322,7 +322,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const text = nextInstruction.street_name
             if (state.settings.soundEnabled) {
                 // announce proportional earlier if faster
-                const factor = estimatedAvgSpeed < 70 ? 2 : (roadClass == "trunk" || roadClass == "motorway" ? 7 : 4)
+                const factor = estimatedAvgSpeed < 70 ? 2 : roadClass == 'trunk' || roadClass == 'motorway' ? 7 : 4
                 // prefer nearly constant average speed because location.speed changes more often while driving
                 const lastAnnounceDistance = Math.max(30, 20 + factor * estimatedAvgSpeed)
 
