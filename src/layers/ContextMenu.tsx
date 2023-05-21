@@ -20,6 +20,7 @@ const overlay = new Overlay({
 export default function ContextMenu({ map, route, queryPoints, navigation }: ContextMenuProps) {
     const [menuCoordinate, setMenuCoordinate] = useState<Coordinate | null>(null)
     const container = useRef<HTMLDivElement | null>(null)
+    const navigationRef = useRef(navigation)
 
     const closeContextMenu = () => {
         setMenuCoordinate(null)
@@ -28,9 +29,11 @@ export default function ContextMenu({ map, route, queryPoints, navigation }: Con
     useEffect(() => {
         overlay.setElement(container.current!)
         map.addOverlay(overlay)
+        navigationRef.current = navigation
 
         function openContextMenu(e: any) {
             e.preventDefault()
+            if (navigationRef.current) return
             const coordinate = map.getEventCoordinate(e)
             const lonLat = toLonLat(coordinate)
             setMenuCoordinate({ lng: lonLat[0], lat: lonLat[1] })
@@ -59,7 +62,7 @@ export default function ContextMenu({ map, route, queryPoints, navigation }: Con
             map.getTargetElement().removeEventListener('click', closeContextMenu)
             map.removeOverlay(overlay)
         }
-    }, [map])
+    }, [map, navigation])
 
     useEffect(() => {
         overlay.setPosition(menuCoordinate ? fromLonLat([menuCoordinate.lng, menuCoordinate.lat]) : undefined)
@@ -67,7 +70,7 @@ export default function ContextMenu({ map, route, queryPoints, navigation }: Con
 
     return (
         <div className={styles.contextMenu} ref={container}>
-            {menuCoordinate && !navigation && (
+            {menuCoordinate && (
                 <ContextMenuContent
                     coordinate={menuCoordinate!}
                     queryPoints={queryPoints}
