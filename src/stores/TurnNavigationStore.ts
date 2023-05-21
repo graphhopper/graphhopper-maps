@@ -269,7 +269,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     let args: RoutingArgs = {
                         points: [[coordinate.lng, coordinate.lat] as [number, number]].concat(nextWaypoints),
                         maxAlternativeRoutes: 0,
-                        heading: action.heading,
+                        heading: ApiImpl.isMotorVehicle(state.activeProfile) ? action.heading : undefined,
                         profile: state.activeProfile,
                         customModel: customModel,
                     }
