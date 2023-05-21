@@ -128,7 +128,12 @@ export default function App() {
         <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
             <div className={styles.appWrapper}>
                 <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
-                <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
+                <ContextMenu
+                    map={map}
+                    route={route}
+                    queryPoints={query.queryPoints}
+                    navigation={turnNavigation.showUI}
+                />
                 {isSmallScreen ? (
                     <SmallScreenLayout
                         query={query}

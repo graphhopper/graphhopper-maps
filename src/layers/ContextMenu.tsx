@@ -10,13 +10,14 @@ interface ContextMenuProps {
     map: Map
     route: RouteStoreState
     queryPoints: QueryPoint[]
+    navigation: boolean
 }
 
 const overlay = new Overlay({
     autoPan: true,
 })
 
-export default function ContextMenu({ map, route, queryPoints }: ContextMenuProps) {
+export default function ContextMenu({ map, route, queryPoints, navigation }: ContextMenuProps) {
     const [menuCoordinate, setMenuCoordinate] = useState<Coordinate | null>(null)
     const container = useRef<HTMLDivElement | null>(null)
 
@@ -66,7 +67,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 
     return (
         <div className={styles.contextMenu} ref={container}>
-            {menuCoordinate && (
+            {menuCoordinate && !navigation && (
                 <ContextMenuContent
                     coordinate={menuCoordinate!}
                     queryPoints={queryPoints}
