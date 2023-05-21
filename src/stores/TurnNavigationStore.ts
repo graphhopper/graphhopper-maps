@@ -322,7 +322,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const text = nextInstruction.street_name
             if (state.settings.soundEnabled) {
                 // announce proportional earlier if faster
-                const factor = estimatedAvgSpeed < 70 ? 2 : roadClass == 'trunk' || roadClass == 'motorway' ? 7 : 4
+                const factor = estimatedAvgSpeed < 70 ? 2 : roadClass == 'trunk' || roadClass == 'motorway' ? 7 : 3
                 // prefer nearly constant average speed because location.speed changes more often while driving
                 const lastAnnounceDistance = Math.max(30, 20 + factor * estimatedAvgSpeed)
 
@@ -334,7 +334,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 }
 
                 const firstAnnounceDistance = 1150 + factor * estimatedAvgSpeed
-                console.log('first announce: ' + firstAnnounceDistance + ' last: ' + lastAnnounceDistance)
+                console.log('first announce:' + firstAnnounceDistance + ' last:' + lastAnnounceDistance)
+                console.log('factor:' + factor + ', avg-speed:' + estimatedAvgSpeed)
                 if (
                     estimatedAvgSpeed > 15 && // two announcements only if faster speed
                     instr.distanceToTurn > lastAnnounceDistance * 1.2 + 50 && // do not interfere with last announcement
@@ -346,7 +347,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                             ? tr('in_km', [(instr.distanceToTurn / 1000).toFixed(1)])
                             : instr.distanceToTurn > 900
                             ? tr('in_km_singular')
-                            : tr('in_m', ['' + Math.round(instr.distanceToTurn / 100) * 100])
+                            : tr('in_m', ['' + Math.floor(instr.distanceToTurn / 100) * 100])
                     this.synthesize(inString + ' ' + nextInstruction.text)
                 }
             }

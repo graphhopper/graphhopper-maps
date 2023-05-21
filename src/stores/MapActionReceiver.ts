@@ -81,7 +81,7 @@ export default class MapActionReceiver implements ActionReceiver {
                 const arr = mapView.getCenter()
                 const rotDelta = Math.abs(mapView.getRotation() - rotation)
                 const smallMove = arr && new LineString([arr, center]).getLength() < 1
-                if (action.speed == 0 || (smallMove || action.speed <= 0.5) && rotDelta > Math.PI / 4)
+                if (action.speed == 0 || ((smallMove || action.speed <= 0.5) && rotDelta > Math.PI / 4))
                     rotation = mapView.getRotation()
 
                 mapView.animate({
