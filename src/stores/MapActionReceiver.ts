@@ -18,6 +18,7 @@ import { toRadians } from '@/turnNavigation/GeoMethods'
 import { linear } from 'ol/easing'
 import VectorLayer from 'ol/layer/Vector'
 import { LineString } from 'ol/geom'
+import { AnimationOptions } from 'ol/View'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -73,26 +74,31 @@ export default class MapActionReceiver implements ActionReceiver {
 
             const center = fromLonLat([action.coordinate.lng, action.coordinate.lat])
             if (action.syncView) {
-                // The heading is in degrees and shows direction into which device is going.
-                // Although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
-                let rotation = Number.isNaN(action.heading) ? mapView.getRotation() : -toRadians(action.heading)
-
-                // Ignore heavy rotation when nearly no movement.
-                const arr = mapView.getCenter()
-                const rotDelta = Math.abs(mapView.getRotation() - rotation)
-                const smallMove = arr && new LineString([arr, center]).getLength() < 1
-                if (action.speed == 0 || ((smallMove || action.speed <= 0.5) && rotDelta > Math.PI / 4))
-                    rotation = mapView.getRotation()
-
-                mapView.animate({
+                const args: AnimationOptions = {
                     zoom: action.zoom,
                     center: center,
-                    rotation: rotation,
                     easing: linear,
                     // We could use 1000ms or more but map tiles won't update probably due to missing updateWhileAnimating.
                     // For now, due to performance reasons, we set this to true only for the layer.
                     duration: 800,
-                })
+                }
+
+                if (!Number.isNaN(action.heading) && action.speed == 0) {
+                    // The heading is in degrees and shows direction into which device is going.
+                    // Although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
+                    const rotation = -toRadians(action.heading)
+                    const rotDelta = Math.abs(mapView.getRotation() - rotation)
+                    const arr = mapView.getCenter()
+                    const smallMove = arr && new LineString([arr, center]).getLength() < 1
+
+                    if ((smallMove || action.speed <= 0.5) && rotDelta > Math.PI / 4) {
+                        // Ignore heavy rotation when nearly no movement or tiny rotation (avoids jitty https://github.com/openlayers/openlayers/discussions/14764)
+                    } else {
+                        args.rotation = rotation
+                    }
+                }
+
+                mapView.animate(args)
             } else {
                 // TODO why does this layer not yet exist in the constructor
                 const layer = this.map

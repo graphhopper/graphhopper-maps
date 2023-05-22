@@ -332,8 +332,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
             if (instr.index != instructionState.index) announcementsToDo = instr.distanceToTurn > 1000 ? 2 : 1
 
-            const details = factor + ', avg-speed:' + estimatedAvgSpeed + ', announcements:' + announcementsToDo
-            console.log('first:' + firstAnnounceDistance + ' last:' + lastAnnounceDistance + ', factor:' + details)
+            // const details = factor + ', avg-speed:' + estimatedAvgSpeed + ', announcements:' + announcementsToDo
+            // console.log('first:' + firstAnnounceDistance + ' last:' + lastAnnounceDistance + ', factor:' + details)
 
             if (instr.distanceToTurn <= lastAnnounceDistance && announcementsToDo > 0) {
                 announcementsToDo = 0
