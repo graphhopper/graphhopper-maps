@@ -334,8 +334,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 }
 
                 const firstAnnounceDistance = 1150 + factor * estimatedAvgSpeed
-                console.log('first announce:' + firstAnnounceDistance + ' last:' + lastAnnounceDistance)
-                console.log('factor:' + factor + ', avg-speed:' + estimatedAvgSpeed)
+                const details = ', factor:' + factor + ', avg-speed:' + estimatedAvgSpeed
+                console.log('first:' + firstAnnounceDistance + ' last:' + lastAnnounceDistance + details)
                 if (
                     estimatedAvgSpeed > 15 && // two announcements only if faster speed
                     instr.distanceToTurn > lastAnnounceDistance * 1.2 + 50 && // do not interfere with last announcement
