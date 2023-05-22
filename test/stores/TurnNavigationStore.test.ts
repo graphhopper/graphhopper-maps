@@ -9,8 +9,9 @@ import {
     SetSelectedPath,
     SetVehicleProfile,
     TurnNavigationReroutingTimeResetForTest,
+    TurnNavigationSettingsUpdate,
 } from '@/actions/Actions'
-import TurnNavigationStore, { MapCoordinateSystem } from '@/stores/TurnNavigationStore'
+import TurnNavigationStore, { MapCoordinateSystem, TNSettingsState } from '@/stores/TurnNavigationStore'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 import { ApiInfo, GeocodingResult, RawResult, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 import Api, { ApiImpl } from '@/api/Api'
@@ -22,6 +23,9 @@ let routeWithVia = toRoutingResult(require('../turnNavigation/response-hoyerswer
 let reroute1 = toRoutingResult(require('../turnNavigation/reroute1.json'))
 let routeWithSimpleVia = toRoutingResult(require('../turnNavigation/routeWithSimpleVia.json'))
 let reroute2 = toRoutingResult(require('../turnNavigation/reroute2.json'))
+
+let announceBug = toRoutingResult(require('../turnNavigation/announce-bug-original.json'))
+let announceBugReroute = toRoutingResult(require('../turnNavigation/announce-bug-reroute.json'))
 
 function toRoutingResult(rawResult: RawResult): RoutingResult {
     return {
@@ -116,12 +120,15 @@ describe('TurnNavigationStore', () => {
                 [14.267238, 51.43475],
                 [14.267240000000001, 51.43253000000001],
             ])
-            const store = createStore(api)
+            const speech = new DummySpeech()
+            const store = createStore(api, speech)
             Dispatcher.dispatch(new SetSelectedPath(reroute1.paths[0]))
             Dispatcher.dispatch(new LocationUpdate({ lng: 14.268908, lat: 51.434871 }, true, 10, 120, 16))
             expect(store.state.speed).toEqual(10)
             expect(store.state.activePath).toEqual(reroute1.paths[0])
             expect(store.state.instruction.index).toEqual(1)
+
+            Dispatcher.dispatch(new TurnNavigationSettingsUpdate({ soundEnabled: true } as TNSettingsState))
 
             // no rerouting without profile
             Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, true, 12, 120, 16))
@@ -134,6 +141,7 @@ describe('TurnNavigationStore', () => {
             expect(store.state.rerouteInProgress).toBeTruthy()
             await flushPromises()
             expect(store.state.rerouteInProgress).toBeFalsy()
+            expect(speech.getTexts()).toEqual(['reroute'])
 
             expect(store.state.activePath).toEqual(reroute1.paths[0])
             expect(store.state.instruction.index).toEqual(1)
@@ -215,11 +223,14 @@ describe('TurnNavigationStore', () => {
             ] as [number, number][]
             const api = new LocalApi()
             api.setRerouteData(reroute2, rerouteWaypoints)
-            const store = createStore(api)
+            const speech = new DummySpeech()
+            const store = createStore(api, speech)
             Dispatcher.dispatch(new SetSelectedPath(routeWithSimpleVia.paths[0]))
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
+            Dispatcher.dispatch(new TurnNavigationSettingsUpdate({ soundEnabled: true } as TNSettingsState))
             Dispatcher.dispatch(new LocationUpdate({ lng: 14.2727, lat: 51.436269 }, true, 10, 120, 16))
             expect(store.state.activePath).toEqual(routeWithSimpleVia.paths[0])
+            expect(speech.getTexts()).toEqual(['Turn right onto Franz-Liszt-Straße'])
 
             // force reroute
             Dispatcher.dispatch(new LocationUpdate({ lng: 14.273946, lat: 51.436422 }, true, 12, 70, 16))
@@ -275,17 +286,54 @@ describe('TurnNavigationStore', () => {
             expect(store.state.activePath).toEqual(reroute1.paths[0])
             expect(store.state.instruction.index).toEqual(1)
         })
+
+        it('should reroute and announce turn instruction close to junction', async () => {
+            const api = new LocalApi()
+            const speech = new DummySpeech()
+            const store = createStore(api, speech)
+            Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
+            Dispatcher.dispatch(new SetSelectedPath(announceBug.paths[0]))
+            Dispatcher.dispatch(new TurnNavigationSettingsUpdate({ soundEnabled: true } as TNSettingsState))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.191677, lat: 51.432878 }, true, 16, 70, 16))
+            expect(store.state.activePath).toEqual(announceBug.paths[0])
+
+            api.setRerouteData(announceBugReroute, [
+                [14.190732, 51.431834],
+                [14.193150000000001, 51.43121000000001],
+            ])
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.190732, lat: 51.431834 }, true, 10, 120, 16))
+            expect(store.state.rerouteInProgress).toBeTruthy()
+            await flushPromises()
+            expect(store.state.rerouteInProgress).toBeFalsy()
+            expect(store.state.activePath).toEqual(announceBugReroute.paths[0])
+            expect(store.state.instruction.index).toEqual(1)
+
+            // the first LocationUpdate was "used" to force the re-routing -> we need another LocationUpdate
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.190732, lat: 51.431834 }, true, 10, 120, 16))
+
+            expect(speech.getTexts()).toEqual(['Links halten', 'reroute', 'Scharf links abbiegen'])
+        })
     })
 
-    function createStore(api: Api) {
-        const store = new TurnNavigationStore(api, new DummySpeech(), new DummyCS(), 0, '', '')
+    function createStore(api: Api, speech = new DummySpeech()) {
+        const store = new TurnNavigationStore(api, speech, new DummyCS(), 0, '', '')
         Dispatcher.register(store)
         return store
     }
 
     class DummySpeech implements SpeechSynthesizer {
+        private texts: string[] = []
+
         synthesize(text: string, offline = true) {
-            // TODO we could collect the text to ensure spoken words
+            this.texts.push(text)
+        }
+
+        getTexts() {
+            return this.texts
+        }
+
+        clear() {
+            this.texts = []
         }
     }
 

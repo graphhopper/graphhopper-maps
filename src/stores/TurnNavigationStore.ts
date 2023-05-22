@@ -58,6 +58,7 @@ export interface TurnNavigationStoreState {
 
 export interface TNInstructionState {
     index: number
+    announcementsToDo: number
     distanceToTurn: number
     timeToEnd: number
     distanceToEnd: number
@@ -221,6 +222,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 return state
             }
 
+            let announcementsToDo = state.instruction.announcementsToDo
+
             const coordinate = action.coordinate
             let path = state.activePath
             let instr = getCurrentInstruction(path.instructions, coordinate)
@@ -291,7 +294,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                         })
                     queriedAPI = true
                 } else {
-                    console.log('profile=' + state.activeProfile + ', reroute in progress = ' + state.rerouteInProgress)
+                    console.log('reroute skipped (' + state.activeProfile + ') progress = ' + state.rerouteInProgress)
                 }
 
                 return {
@@ -320,28 +323,27 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const instructionState = state.instruction
             const nextInstruction: Instruction = path.instructions[instr.index]
             const text = nextInstruction.street_name
-            if (state.settings.soundEnabled) {
-                // announce proportional earlier if faster
-                const factor = estimatedAvgSpeed < 70 ? 2 : roadClass == 'trunk' || roadClass == 'motorway' ? 7 : 3
-                // prefer nearly constant average speed because location.speed changes more often while driving
-                const lastAnnounceDistance = Math.max(30, 20 + factor * estimatedAvgSpeed)
 
-                if (
-                    instr.distanceToTurn <= lastAnnounceDistance &&
-                    (instructionState.distanceToTurn > lastAnnounceDistance || instr.index != instructionState.index)
-                ) {
-                    this.synthesize(nextInstruction.text)
-                }
+            // announce proportional earlier if faster
+            const factor = estimatedAvgSpeed < 70 ? 2 : roadClass == 'trunk' || roadClass == 'motorway' ? 7 : 3
+            // prefer nearly constant average speed because location.speed changes more often while driving
+            const lastAnnounceDistance = Math.max(30, 20 + factor * estimatedAvgSpeed)
+            const firstAnnounceDistance = 1150 + factor * estimatedAvgSpeed
 
-                const firstAnnounceDistance = 1150 + factor * estimatedAvgSpeed
-                const details = ', factor:' + factor + ', avg-speed:' + estimatedAvgSpeed
-                console.log('first:' + firstAnnounceDistance + ' last:' + lastAnnounceDistance + details)
-                if (
-                    estimatedAvgSpeed > 15 && // two announcements only if faster speed
-                    instr.distanceToTurn > lastAnnounceDistance * 1.2 + 50 && // do not interfere with last announcement
-                    instr.distanceToTurn <= firstAnnounceDistance &&
-                    (instructionState.distanceToTurn > firstAnnounceDistance || instr.index != instructionState.index)
-                ) {
+            if (instr.index != instructionState.index) announcementsToDo = instr.distanceToTurn > 1000 ? 2 : 1
+
+            const details = factor + ', avg-speed:' + estimatedAvgSpeed + ', announcements:' + announcementsToDo
+            console.log('first:' + firstAnnounceDistance + ' last:' + lastAnnounceDistance + ', factor:' + details)
+
+            if (instr.distanceToTurn <= lastAnnounceDistance && announcementsToDo > 0) {
+                announcementsToDo = 0
+                this.synthesize(nextInstruction.text)
+            }
+
+            if (instr.distanceToTurn <= firstAnnounceDistance && announcementsToDo == 2) {
+                announcementsToDo = 1
+                if (instr.distanceToTurn > lastAnnounceDistance * 1.2 + 50) {
+                    // do not interfere with last announcement
                     let inString =
                         instr.distanceToTurn > 1200
                             ? tr('in_km', [(instr.distanceToTurn / 1000).toFixed(1)])
@@ -366,6 +368,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     nextWaypointIndex: instr.nextWaypointIndex,
                     distanceToWaypoint: instr.distanceToWaypoint,
                     sign: path.instructions[instr.index].sign,
+                    announcementsToDo,
                     text,
                 },
                 pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
@@ -407,6 +410,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     nextWaypointIndex: instr.nextWaypointIndex,
                     distanceToWaypoint: instr.distanceToWaypoint,
                     sign: path.instructions[instr.index].sign,
+                    announcementsToDo: instr.distanceToTurn > 1000 ? 2 : 1,
                     text,
                 },
                 pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
