@@ -20,6 +20,17 @@ declare module 'config' {
         snapPreventions: string[]
     }
     const routingGraphLayerAllowed: boolean
+    const externalMVTLayer: {
+        url: string
+        styles: {
+            // Maps mvt layer names to style properties. Only the layers listed here will be visible.
+            [key: string]: {
+                color: string
+                width: number
+            }
+        }
+        maxZoom?: number
+    }
     const profiles: object
 }
 

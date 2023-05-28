@@ -19,34 +19,12 @@ export const customModelExamples: { [key: string]: CustomModel } = {
             { if: 'road_class == TERTIARY', limit_to: '80' },
         ],
     },
-    exclude_area: {
-        priority: [{ if: 'in_berlin_bbox', multiply_by: '0' }],
-        areas: {
-            type: 'FeatureCollection',
-            features: [
-                {
-                    type: 'Feature',
-                    id: 'berlin_bbox',
-                    properties: {},
-                    geometry: {
-                        type: 'Polygon',
-                        coordinates: [
-                            [
-                                [13.253, 52.608],
-                                [13.228, 52.437],
-                                [13.579, 52.447],
-                                [13.563, 52.609],
-                                [13.253, 52.608],
-                            ],
-                        ],
-                    },
-                },
-            ],
-        },
-    },
     cargo_bike: {
         speed: [{ if: 'road_class == TRACK', limit_to: '2' }],
         priority: [{ if: 'max_width < 1.5 || road_class == STEPS', multiply_by: '0' }],
+    },
+    bike_network: {
+        priority: [{ if: 'bike_network == MISSING', multiply_by: '0.5' }],
     },
     combined: {
         distance_influence: 100,
