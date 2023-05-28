@@ -108,11 +108,12 @@ export default function App() {
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
 
-    const minSidebarWidth = 26
+    const minSidebarWidth = 500
     const [sidebarWidth, setSidebarWidth] = useState(minSidebarWidth)
 
     const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
         const initialX = event.clientX
+
         if (initialX > sidebarWidth * 0.95 && initialX <= sidebarWidth) {
             const initialWidth = sidebarWidth
 
@@ -137,7 +138,7 @@ export default function App() {
             <div
                 className={styles.appWrapper}
                 /* TODO still allow media media query on mobile to set it to grid-template-columns: 100%; */
-                style={{ gridTemplateColumns: sidebarWidth + 'rem 1fr auto' }}
+                style={{ gridTemplateColumns: sidebarWidth + 'px 1fr auto' }}
                 onMouseDown={handleMouseDown}
             >
                 <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
