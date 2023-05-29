@@ -83,7 +83,7 @@ export default class MapActionReceiver implements ActionReceiver {
                     duration: 800,
                 }
 
-                if (!Number.isNaN(action.heading) && action.speed == 0) {
+                if (!Number.isNaN(action.heading) && action.speed > 0) {
                     // The heading is in degrees and shows direction into which device is going.
                     // Although in openlayers docs they say rotation is clockwise it seems to be CCW or just a different view port definition.
                     const rotation = -toRadians(action.heading)

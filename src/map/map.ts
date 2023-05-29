@@ -12,6 +12,7 @@ export function createMap(): Map {
     map = new Map({
         view: new View({
             enableRotation: true,
+            constrainRotation: false,
             multiWorld: false,
             constrainResolution: true,
             center: fromLonLat([10, 10]),
