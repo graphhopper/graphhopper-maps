@@ -325,7 +325,7 @@ function SmallScreenLayout({
                         </div>
                     )}
                 </div>
-                <div className={styles.smallScreenRoutingResult}>
+                <div>
                     <TurnNavigation turnNavigation={turnNavigation} />
                 </div>
                 <div className={styles.smallScreenMap}>

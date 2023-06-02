@@ -53,51 +53,55 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                                 {metersToText(instruction.distanceToEnd, false)}
                             </div>
                         </div>
-                        <div onClick={() => setShowDebug(!showDebug)}>
-                            <div>{currentSpeed} km/h</div>
-                            <div>
+                    </div>
+                    <div className={styles.currentData} onClick={() => setShowDebug(!showDebug)}>
+                        <div className={styles.speedRow}>
+                            <div className={styles.currentSpeed}>{currentSpeed} km/h</div>
+                            <div className={styles.maxSpeed}>
                                 {pd.maxSpeed != null &&
                                 (ApiImpl.isMotorVehicle(turnNavigation.activeProfile) || pd.maxSpeed > 50) ? (
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 48 48"
-                                        width="48px"
-                                        height="48px"
+                                        viewBox="0 0 40 40"
+                                        width="40px"
+                                        height="40px"
                                     >
                                         <circle
-                                            cx="24"
-                                            cy="24"
-                                            r="22"
+                                            cx="19"
+                                            cy="19"
+                                            r="17"
                                             stroke="rgba(255, 0, 0, 0.6)"
                                             strokeWidth="3px"
                                             fill="none"
                                         />
-                                        <text x="50%" y="30" textAnchor="middle" style={{ fontSize: '20px' }}>
+                                        <text x="50%" y="25" textAnchor="middle" style={{ fontSize: '18px' }}>
                                             {Math.round(pd.maxSpeed)}
                                         </text>
                                     </svg>
                                 ) : null}
                             </div>
-                            {showDebug ? (
-                                <div className={styles.debug}>
-                                    <div>{pd.estimatedAvgSpeed}</div>
-                                    <div>{pd.surface}</div>
-                                    <div>{pd.roadClass}</div>
-                                </div>
-                            ) : null}
                         </div>
-                        <PlainButton
-                            className={styles.thirdCol}
-                            onClick={() => {
-                                if (turnNavigation.settings.forceVectorTiles)
-                                    Dispatcher.dispatch(new SelectMapLayer(turnNavigation.oldTiles))
-                                Dispatcher.dispatch(new TurnNavigationStop())
-                            }}
-                        >
-                            <EndNavigation />
-                        </PlainButton>
+                        <div className={styles.instructionText} title={instruction.text}>
+                            {instruction.text}
+                        </div>
+                        {showDebug ? (
+                            <div className={styles.debug}>
+                                <span>{pd.estimatedAvgSpeed}, </span>
+                                <span>{pd.surface}, </span>
+                                <span>{pd.roadClass}</span>
+                            </div>
+                        ) : null}
                     </div>
-                    <div className={styles.instructionText}>{instruction.text}</div>
+                    <PlainButton
+                        className={styles.thirdCol}
+                        onClick={() => {
+                            if (turnNavigation.settings.forceVectorTiles)
+                                Dispatcher.dispatch(new SelectMapLayer(turnNavigation.oldTiles))
+                            Dispatcher.dispatch(new TurnNavigationStop())
+                        }}
+                    >
+                        <EndNavigation />
+                    </PlainButton>
                 </div>
             </div>
         </>

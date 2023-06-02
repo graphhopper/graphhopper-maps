@@ -1,48 +1,81 @@
 .turnInfo {
     font-size: 20px;
     display: flex;
-    padding: 0.5rem;
+    padding: 3px;
 }
 
 .turnInfoRightSide {
     display: flex;
     width: 100%;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-between;
 }
+
 .instructionText {
     font-size: smaller;
     overflow: hidden;
-    height: 20px;
 }
 
 .turnSign img {
     padding-top: 0.4rem;
-    height: 3.5rem;
+    height: 45px;
+    padding-bottom: 4px;
 }
 
 .turnSign div:first-child {
-    padding-bottom: 0.7em;
+    padding-bottom: 7px;
+    min-height: 50px;
 }
+
 .turnSign {
     padding-left: 0.4rem;
-    min-width: 25%;
+
+    min-width: 80px;
+    font-size: smaller;
     flex-direction: column;
     font-weight: bold;
 }
 
+.currentData {
+    padding-bottom: 4px;
+    width: 45%;
+    flex-grow: 1;
+
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.speedRow {
+    display: flex;
+    flex-direction: row;
+}
+
+.currentSpeed {
+    font-size: 22px;
+    padding-right: 10px;
+    padding-top: 3px;
+}
+
+.maxSpeed {
+    /*background-color: red;*/
+}
+
 .arrival .remainingDistance {
     color: gray;
-    padding-top: 10px;
+    font-size: smaller;
+    padding-top: 20px;
     padding-bottom: 3px;
     float: right;
 }
 
 .arrival {
+    flex-grow: 2;
+    padding-top: 4px;
     display: flex;
     font-size: larger;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 .arrival svg {
@@ -57,6 +90,7 @@
 
 .thirdCol {
     height: 20px;
+    width: 20px;
 }
 
 .thirdCol svg {
