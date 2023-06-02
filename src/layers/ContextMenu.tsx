@@ -20,6 +20,13 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
     const [menuCoordinate, setMenuCoordinate] = useState<Coordinate | null>(null)
     const container = useRef<HTMLDivElement | null>(null)
 
+    const openContextMenu = (e: any) => {
+        e.preventDefault()
+        const coordinate = map.getEventCoordinate(e)
+        const lonLat = toLonLat(coordinate)
+        setMenuCoordinate({ lng: lonLat[0], lat: lonLat[1] })
+    }
+
     const closeContextMenu = () => {
         setMenuCoordinate(null)
     }
@@ -28,16 +35,9 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
         overlay.setElement(container.current!)
         map.addOverlay(overlay)
 
-        function openContextMenu(e: any) {
-            e.preventDefault()
-            const coordinate = map.getEventCoordinate(e)
-            const lonLat = toLonLat(coordinate)
-            setMenuCoordinate({ lng: lonLat[0], lat: lonLat[1] })
-        }
-
         const longTouchHandler = new LongTouchHandler(e => openContextMenu(e))
 
-        map.on('change:target', () => {
+        function onMapTargetChange() {
             // it is important to setup new listeners whenever the map target changes, like when we switch between the
             // small and large screen layout, see #203
 
@@ -51,12 +51,14 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
 
             map.getTargetElement().addEventListener('click', closeContextMenu)
-        })
+        }
+        map.on('change:target', onMapTargetChange)
 
         return () => {
             map.getTargetElement().removeEventListener('contextmenu', openContextMenu)
             map.getTargetElement().removeEventListener('click', closeContextMenu)
             map.removeOverlay(overlay)
+            map.un('change:target', onMapTargetChange)
         }
     }, [map])
 
