@@ -37,6 +37,7 @@
 }
 
 .currentData {
+    padding-top: 2px;
     padding-bottom: 4px;
     width: 45%;
     flex-grow: 1;
@@ -54,7 +55,7 @@
 .currentSpeed {
     font-size: 22px;
     padding-right: 10px;
-    padding-top: 3px;
+    padding-top: 5px;
 }
 
 .maxSpeed {
@@ -89,8 +90,8 @@
 }
 
 .thirdCol {
-    height: 20px;
-    width: 20px;
+    height: 30px;
+    width: 25px;
 }
 
 .thirdCol svg {

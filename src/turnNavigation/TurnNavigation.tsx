@@ -62,19 +62,19 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                                 (ApiImpl.isMotorVehicle(turnNavigation.activeProfile) || pd.maxSpeed > 50) ? (
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 40 40"
-                                        width="40px"
-                                        height="40px"
+                                        viewBox="0 0 42 42"
+                                        width="42px"
+                                        height="42px"
                                     >
                                         <circle
-                                            cx="19"
-                                            cy="19"
-                                            r="17"
+                                            cx="21"
+                                            cy="21"
+                                            r="19"
                                             stroke="rgba(255, 0, 0, 0.6)"
                                             strokeWidth="3px"
                                             fill="none"
                                         />
-                                        <text x="50%" y="25" textAnchor="middle" style={{ fontSize: '18px' }}>
+                                        <text x="50%" y="27" textAnchor="middle" style={{ fontSize: '18px' }}>
                                             {Math.round(pd.maxSpeed)}
                                         </text>
                                     </svg>
