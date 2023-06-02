@@ -22,6 +22,20 @@ export default function ContextMenu({ map, route, queryPoints, navigation }: Con
     const container = useRef<HTMLDivElement | null>(null)
     const navigationRef = useRef(navigation)
 
+    useEffect(() => {
+        // we need the reference so we get the up-to-date value of the navigation prop in the openContextMenu callback
+        navigationRef.current = navigation
+        if (!navigation) closeContextMenu()
+    }, [navigation])
+
+    const openContextMenu = (e: any) => {
+        e.preventDefault()
+        if (navigationRef.current) return
+        const coordinate = map.getEventCoordinate(e)
+        const lonLat = toLonLat(coordinate)
+        setMenuCoordinate({ lng: lonLat[0], lat: lonLat[1] })
+    }
+
     const closeContextMenu = () => {
         setMenuCoordinate(null)
     }
@@ -29,19 +43,10 @@ export default function ContextMenu({ map, route, queryPoints, navigation }: Con
     useEffect(() => {
         overlay.setElement(container.current!)
         map.addOverlay(overlay)
-        navigationRef.current = navigation
-
-        function openContextMenu(e: any) {
-            e.preventDefault()
-            if (navigationRef.current) return
-            const coordinate = map.getEventCoordinate(e)
-            const lonLat = toLonLat(coordinate)
-            setMenuCoordinate({ lng: lonLat[0], lat: lonLat[1] })
-        }
 
         const longTouchHandler = new LongTouchHandler(e => openContextMenu(e))
 
-        map.on('change:target', () => {
+        function onMapTargetChange() {
             // it is important to setup new listeners whenever the map target changes, like when we switch between the
             // small and large screen layout, see #203
 
@@ -55,14 +60,16 @@ export default function ContextMenu({ map, route, queryPoints, navigation }: Con
             map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
 
             map.getTargetElement().addEventListener('click', closeContextMenu)
-        })
+        }
+        map.on('change:target', onMapTargetChange)
 
         return () => {
             map.getTargetElement().removeEventListener('contextmenu', openContextMenu)
             map.getTargetElement().removeEventListener('click', closeContextMenu)
             map.removeOverlay(overlay)
+            map.un('change:target', onMapTargetChange)
         }
-    }, [map, navigation])
+    }, [map])
 
     useEffect(() => {
         overlay.setPosition(menuCoordinate ? fromLonLat([menuCoordinate.lng, menuCoordinate.lat]) : undefined)
