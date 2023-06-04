@@ -16,12 +16,13 @@
 }
 
 .layerButton {
-    width: 1.2rem;
-    height: 1.2rem;
-    margin: 0.5rem;
+    margin: 5px 0 5px 6px !important;
+    width: 32px;
+    height: 32px;
 }
 
 .layerButton svg {
+    color: gray;
+    height: 100%;
     width: 100%;
-    display: block;
 }
