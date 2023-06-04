@@ -30,7 +30,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                     <div>{metersToText(instruction.distanceToTurn, false)}</div>
                 </div>
                 <div className={styles.turnInfoRightSide}>
-                    <div className={styles.arrival}>
+                    <div className={styles.secondCol}>
                         <div onClick={() => setShowTime(!showTime)}>
                             {showTime ? (
                                 <div>
@@ -54,7 +54,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                             </div>
                         </div>
                     </div>
-                    <div className={styles.currentData} onClick={() => setShowDebug(!showDebug)}>
+                    <div className={styles.thirdCol} onClick={() => setShowDebug(!showDebug)}>
                         <div className={styles.speedRow}>
                             <div className={styles.currentSpeed}>{currentSpeed} km/h</div>
                             <div className={styles.maxSpeed}>
@@ -74,7 +74,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                                             strokeWidth="3px"
                                             fill="none"
                                         />
-                                        <text x="50%" y="27" textAnchor="middle" style={{ fontSize: '18px' }}>
+                                        <text x="50%" y="26" textAnchor="middle" style={{ fontSize: '18px' }}>
                                             {Math.round(pd.maxSpeed)}
                                         </text>
                                     </svg>
@@ -93,7 +93,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                         ) : null}
                     </div>
                     <PlainButton
-                        className={styles.thirdCol}
+                        className={styles.fourthCol}
                         onClick={() => {
                             if (turnNavigation.settings.forceVectorTiles)
                                 Dispatcher.dispatch(new SelectMapLayer(turnNavigation.oldTiles))

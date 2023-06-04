@@ -1,7 +1,7 @@
 .turnInfo {
     font-size: 20px;
     display: flex;
-    padding: 3px;
+    padding: 3px 3px 6px 12px /* left needs a bit more space -> rounded screens */;
 }
 
 .turnInfoRightSide {
@@ -36,9 +36,30 @@
     font-weight: bold;
 }
 
-.currentData {
-    padding-top: 2px;
-    padding-bottom: 4px;
+.secondCol .remainingDistance {
+    color: #000000;
+    font-size: smaller;
+    padding-top: 20px;
+    padding-bottom: 3px;
+    float: right;
+}
+
+.secondCol {
+    flex-grow: 2;
+    padding-top: 4px;
+    display: flex;
+    font-size: larger;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.secondCol svg {
+    padding-left: 22px;
+    padding-right: 22px;
+}
+
+.thirdCol {
+    padding: 2px 20px 4px 20px;
     width: 45%;
     flex-grow: 1;
 
@@ -55,33 +76,11 @@
 .currentSpeed {
     font-size: 22px;
     padding-right: 10px;
-    padding-top: 5px;
+    padding-top: 4px;
 }
 
 .maxSpeed {
     /*background-color: red;*/
-}
-
-.arrival .remainingDistance {
-    color: gray;
-    font-size: smaller;
-    padding-top: 20px;
-    padding-bottom: 3px;
-    float: right;
-}
-
-.arrival {
-    flex-grow: 2;
-    padding-top: 4px;
-    display: flex;
-    font-size: larger;
-    flex-direction: row;
-    justify-content: center;
-}
-
-.arrival svg {
-    padding-left: 22px;
-    padding-right: 22px;
 }
 
 .debug {
@@ -89,12 +88,12 @@
     float: right;
 }
 
-.thirdCol {
-    height: 30px;
-    width: 25px;
+.fourthCol {
+    height: 38px;
+    width: 27px;
 }
 
-.thirdCol svg {
+.fourthCol svg {
     width: 20px;
     height: 20px;
     padding: 0;

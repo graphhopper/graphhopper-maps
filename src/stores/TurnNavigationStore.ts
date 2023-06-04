@@ -464,6 +464,15 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private async initFake() {
+        if (this.state.settings.fullScreen)
+            try {
+                let el = document.documentElement
+                let requestFullscreenFct = el.requestFullscreen
+                requestFullscreenFct.call(el)
+            } catch (e) {
+                console.log('error requesting full screen ' + JSON.stringify(e))
+            }
+
         console.log('started fake GPS injection')
 
         let mouseControlled = false // control GPS movement via mouse or see below: along a predefined route
