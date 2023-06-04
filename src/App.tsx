@@ -11,13 +11,13 @@ import {
     getRouteStore,
     getSettingsStore,
 } from '@/stores/Stores'
-import MapComponent, { onCurrentLocationButtonClicked } from '@/map/MapComponent'
+import MapComponent from '@/map/MapComponent'
 import MapOptions from '@/map/MapOptions'
 import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
 import RoutingResults from '@/sidebar/RoutingResults'
 import PoweredBy from '@/sidebar/PoweredBy'
-import { getBBoxFromCoord, QueryStoreState, RequestState } from '@/stores/QueryStore'
+import { QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
@@ -42,11 +42,7 @@ import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
-import LocationOn from './map/location_on.svg'
-import LocationError from './map/location_error.svg'
-import LocationSearching from './map/location_searching.svg'
-import Dispatcher from '@/stores/Dispatcher'
-import { SetBBox } from '@/actions/Actions'
+import LocationButton from "@/map/LocationButton";
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -157,7 +153,6 @@ interface LayoutProps {
 function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
-    const [locationSearch, setLocationSearch] = useState('synched_map_or_initial')
     return (
         <>
             {showSidebar ? (
@@ -210,23 +205,8 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                 <div className={styles.mapOptions}>
                     <MapOptions {...mapOptions} />
                 </div>
-                <div
-                    className={styles.locationOnOff}
-                    onClick={() => {
-                        setLocationSearch('search')
-                        onCurrentLocationButtonClicked(coord => {
-                            if (coord) {
-                                Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coord)))
-                                // We do not reset state of this button when map is moved, so we do not know if
-                                // the map is currently showing the location.
-                                setLocationSearch('synched_map_or_initial')
-                            } else setLocationSearch('error')
-                        })
-                    }}
-                >
-                    {locationSearch == 'error' && <LocationError />}
-                    {locationSearch == 'search' && <LocationSearching />}
-                    {locationSearch == 'synched_map_or_initial' && <LocationOn />}
+                <div>
+                    <LocationButton/>
                 </div>
             </div>
 
@@ -255,6 +235,9 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.smallScreenMapOptionsContent}>
                     <MapOptions {...mapOptions} />
+                </div>
+                <div className={styles.smallScreenMapOptionsContent}>
+                    <LocationButton/>
                 </div>
             </div>
 
