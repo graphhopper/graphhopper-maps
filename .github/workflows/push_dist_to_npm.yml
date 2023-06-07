@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - urban_density_dev
 
 jobs:
   publish:
