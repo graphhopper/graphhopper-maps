@@ -111,7 +111,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             routingProfile: {
                 name: '',
             },
-            customModelEnabled: customModelEnabledInitially,
+            customModelEnabled: true,
             customModelStr: initialCustomModelStr,
         }
     }

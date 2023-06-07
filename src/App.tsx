@@ -104,7 +104,7 @@ export default function App() {
     useMapBorderLayer(map, info.bbox)
     const [roads, setRoads] = useState([])
     const [radius, setRadius] = useState(300)
-    const [sensitivity, setSensitivity] = useState(60)
+    const [sensitivity, setSensitivity] = useState(6000)
     useRoadDensitiesLayer(map, roads)
     useAreasLayer(
         map,
