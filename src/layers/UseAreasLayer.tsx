@@ -1,5 +1,5 @@
 import { Feature, Map } from 'ol'
-import { MutableRefObject, useEffect, useRef } from 'react'
+import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { GeoJSON } from 'ol/format'
@@ -8,22 +8,57 @@ import { Draw, Interaction, Modify, Select, Snap } from 'ol/interaction'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetCustomModel } from '@/actions/Actions'
 import { Geometry } from 'ol/geom'
+import { Bbox } from '@/api/graphhopper'
+import * as config from 'config'
 
 const areasLayerKey = 'areasLayer'
 
-export default function useAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: string, cmEnabled: boolean) {
+export default function useAreasLayer(
+    map: Map,
+    modifyOrNewAreas: boolean,
+    customModelStr: string,
+    cmEnabled: boolean,
+    setRoads: any,
+    radius: number,
+    sensitivity: number
+) {
+    const [box, setBox] = useState()
+
+    useEffect(() => {
+        requestRoadDensities(box, radius, sensitivity, setRoads)
+    }, [box, radius, sensitivity])
+
     const cmRef = useRef(customModelStr)
     useEffect(() => {
         removeAreasLayer(map)
         cmRef.current = customModelStr // ensure to always get the most recent custom model into the 'addfeature' callback
-        addAreasLayer(map, modifyOrNewAreas, cmRef)
+        addAreasLayer(map, modifyOrNewAreas, cmRef, setRoads, setBox, radius, sensitivity)
         return () => {
             removeAreasLayer(map)
         }
     }, [map, modifyOrNewAreas, cmEnabled, customModelStr])
 }
 
-function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: MutableRefObject<string>) {
+function requestRoadDensities(box: any, radius: number, sensitivity: number, setRoads: any) {
+    if (!box) return
+    fetch(
+        `${config.routingApi}urban-density?min_lon=${box[0]}&min_lat=${box[1]}&max_lon=${box[2]}&max_lat=${box[3]}&radius=${radius}&sensitivity=${sensitivity}`
+    )
+        .then(res => res.json())
+        .then(res => {
+            setRoads(res)
+        })
+}
+
+function addAreasLayer(
+    map: Map,
+    modifyOrNewAreas: boolean,
+    customModelStr: MutableRefObject<string>,
+    setRoads: any,
+    setBox: any,
+    radius: number,
+    sensitivity: number
+) {
     let tmpCustomModel = getCustomModel(customModelStr.current)
     if (tmpCustomModel == null) return
 
@@ -37,7 +72,7 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
         }),
     })
     const areas = readGeoJSONFeatures(tmpCustomModel?.areas)
-    const features = areas ? areas : []
+    const features = [] as any
     const source = new VectorSource({
         features: features,
     })
@@ -73,7 +108,7 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
         Dispatcher.dispatch(new SetCustomModel(str, true))
     })
 
-    const draw = new Draw({ source: source, type: 'Polygon' })
+    const draw = new Draw({ type: 'Polygon' })
     draw.set('source', 'gh:areas')
     map.addInteraction(draw)
     // it seems we don't need to call source.un when we remove the interaction
@@ -93,13 +128,24 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
         }
 
         const areaFeature = convertFeature(e.feature)
+        const coordinates = areaFeature.geometry.coordinates
+        const box = [180, 90, -180, -90] as Bbox
+        coordinates.forEach((c: any) => {
+            c.forEach((cc: any) => {
+                box[0] = Math.min(box[0], cc[0])
+                box[1] = Math.min(box[1], cc[1])
+                box[2] = Math.max(box[2], cc[0])
+                box[3] = Math.max(box[3], cc[1])
+            })
+        })
+        setBox(box)
         areaFeature.id = 'area' + (maxId + 1)
         customModel.areas.features.push(areaFeature)
 
         // add rule that excludes the new area
         customModel.priority.push({ if: 'in_' + areaFeature.id, multiply_by: '0' })
         const str = JSON.stringify(customModel, null, 2)
-        Dispatcher.dispatch(new SetCustomModel(str, true))
+        // Dispatcher.dispatch(new SetCustomModel(str, true))
         return false
     })
 

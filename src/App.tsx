@@ -42,6 +42,7 @@ import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
+import useRoadDensitiesLayer from '@/layers/UseRoadDensitiesLayer'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -101,7 +102,19 @@ export default function App() {
     useBackgroundLayer(map, mapOptions.selectedStyle)
     useExternalMVTLayer(map, mapOptions.externalMVTEnabled)
     useMapBorderLayer(map, info.bbox)
-    useAreasLayer(map, settings.drawAreasEnabled, query.customModelStr, query.customModelEnabled)
+    const [roads, setRoads] = useState([])
+    const [radius, setRadius] = useState(300)
+    const [sensitivity, setSensitivity] = useState(60)
+    useRoadDensitiesLayer(map, roads)
+    useAreasLayer(
+        map,
+        settings.drawAreasEnabled,
+        query.customModelStr,
+        query.customModelEnabled,
+        setRoads,
+        radius,
+        sensitivity
+    )
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints)
@@ -122,6 +135,10 @@ export default function App() {
                         error={error}
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
+                        radius={radius}
+                        setRadius={setRadius}
+                        sensitivity={sensitivity}
+                        setSensitivity={setSensitivity}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -132,6 +149,10 @@ export default function App() {
                         error={error}
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
+                        radius={radius}
+                        setRadius={setRadius}
+                        sensitivity={sensitivity}
+                        setSensitivity={setSensitivity}
                     />
                 )}
             </div>
@@ -147,11 +168,28 @@ interface LayoutProps {
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
+    radius: number
+    setRadius: any
+    sensitivity: number
+    setSensitivity: any
 }
 
-function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
+function LargeScreenLayout({
+    query,
+    route,
+    map,
+    error,
+    mapOptions,
+    encodedValues,
+    drawAreas,
+    radius,
+    setRadius,
+    sensitivity,
+    setSensitivity,
+}: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
-    const [showCustomModelBox, setShowCustomModelBox] = useState(false)
+    const [showCustomModelBox, setShowCustomModelBox] = useState(true)
+
     return (
         <>
             {showSidebar ? (
@@ -167,6 +205,29 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                             toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}
                             customModelBoxEnabled={query.customModelEnabled}
                         />
+                        <p>
+                            <label htmlFor="radius-id">Radius</label>
+                            <input
+                                type={'number'}
+                                defaultValue={radius}
+                                id={'radius-id'}
+                                onKeyDown={(e: any) => {
+                                    if (e.key === 'Enter') setRadius(e.target.value)
+                                }}
+                            />
+                        </p>
+                        <p>
+                            <label htmlFor="sensitivity-id">Sensitivity</label>
+                            <input
+                                type={'number'}
+                                defaultValue={sensitivity}
+                                id={'sensitivity-id'}
+                                onKeyDown={(e: any) => {
+                                    if (e.key === 'Enter') setSensitivity(e.target.value)
+                                }}
+                            />
+                        </p>
+                        <p>Use the Draw+Modify Icon to draw an area where urban densities shall be calculated </p>
                         {showCustomModelBox && (
                             <CustomModelBox
                                 customModelEnabled={query.customModelEnabled}
