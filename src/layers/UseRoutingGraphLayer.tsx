@@ -16,7 +16,7 @@ export default function useRoutingGraphLayer(map: Map, routingGraphEnabled: bool
             source: new VectorTileSource({
                 attributions: '',
                 format: new MVT(),
-                url: `${config.routingApi}mvt/{z}/{x}/{y}.mvt`,
+                url: `${config.routingApi}mvt/{z}/{x}/{y}.mvt?render_all=true`,
             }),
             // make sure the routing graph layer is shown on top of the background layer, but note that this also means it is
             // on top of the vector layer text labels (for now I don't really care). the layer order is determined by both the
@@ -76,18 +76,12 @@ export default function useRoutingGraphLayer(map: Map, routingGraphEnabled: bool
 
 function getStyle(feature: Feature, zoom: number): Style | undefined {
     if (feature.get('layer') === 'roads') {
-        const roadClass = feature.get('road_class')
-        let color = '#aaa5a7'
+        const isUrban = feature.get('urban_ee')
+        let color = '#0aaff1'
         let width = 1
-        if (roadClass === 'motorway') {
-            color = '#dd504b'
-            width = 3
-        } else if (roadClass === 'primary' || roadClass === 'trunk') {
-            color = '#e2a012'
-            width = 2
-        } else if (roadClass === 'secondary') {
-            color = '#f7c913'
-            width = 2
+        if (isUrban === 'true') {
+            color = '#fd084a'
+            width = 1
         }
         if (zoom > 16) width += 3
         else if (zoom > 15) width += 2
