@@ -42,7 +42,7 @@ import Cross from '@/sidebar/times-solid.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
-import LocationButton from "@/map/LocationButton";
+import LocationButton from '@/map/LocationButton'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -206,7 +206,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                     <MapOptions {...mapOptions} />
                 </div>
                 <div>
-                    <LocationButton/>
+                    <LocationButton queryPoints={query.queryPoints} />
                 </div>
             </div>
 
@@ -237,7 +237,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                     <MapOptions {...mapOptions} />
                 </div>
                 <div className={styles.smallScreenMapOptionsContent}>
-                    <LocationButton/>
+                    <LocationButton queryPoints={query.queryPoints} />
                 </div>
             </div>
 
