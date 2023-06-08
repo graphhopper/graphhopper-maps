@@ -67,6 +67,7 @@ export default function useRoutingGraphLayer(map: Map, routingGraphEnabled: bool
             map.on('pointermove', onHover)
         }
         return () => {
+            Dispatcher.dispatch(new RoutingGraphHover(null, {}))
             map.un('pointermove', onHover)
             map.removeLayer(routingGraphLayer)
             map.removeLayer(selectionLayer)
