@@ -157,7 +157,7 @@ export class ApiImpl implements Api {
                     this.lastRouteStarted = start
                     Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
                 } else {
-                    console.warn('Ignore response of earlier started route ' + JSON.stringify(args))
+                    console.log('Ignore response of earlier started route ' + JSON.stringify(args))
                 }
             })
             .catch(error => {
@@ -166,7 +166,7 @@ export class ApiImpl implements Api {
                     this.lastRouteStarted = start
                     Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
                 } else {
-                    console.warn('Ignore error ' + error.message + ' of earlier started route ' + JSON.stringify(args))
+                    console.log('Ignore error ' + error.message + ' of earlier started route ' + JSON.stringify(args))
                 }
             })
     }
