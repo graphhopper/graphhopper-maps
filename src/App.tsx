@@ -43,6 +43,7 @@ import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import useRoadDensitiesLayer from '@/layers/UseRoadDensitiesLayer'
+import LocationButton from '@/map/LocationButton'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -258,11 +259,12 @@ function LargeScreenLayout({
                 </div>
             )}
             <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
+            <div className={styles.onMapRightSide}>
+                <MapOptions {...mapOptions} />
+                <LocationButton queryPoints={query.queryPoints} />
+            </div>
             <div className={styles.map}>
                 <MapComponent map={map} />
-            </div>
-            <div className={styles.mapOptions}>
-                <MapOptions {...mapOptions} />
             </div>
 
             <div className={styles.pathDetails}>
@@ -288,8 +290,9 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                 <MapComponent map={map} />
             </div>
             <div className={styles.smallScreenMapOptions}>
-                <div className={styles.smallScreenMapOptionsContent}>
+                <div className={styles.onMapRightSide}>
                     <MapOptions {...mapOptions} />
+                    <LocationButton queryPoints={query.queryPoints} />
                 </div>
             </div>
 

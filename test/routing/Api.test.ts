@@ -32,7 +32,6 @@ describe('info api', () => {
         const expectedUrl = ghApi + 'info?key=' + ghKey
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
-            import_date: 'some_date1',
             profiles: [],
             elevation: false,
             version: 'some_version',
@@ -47,7 +46,6 @@ describe('info api', () => {
             return Promise.resolve(
                 JSON.stringify({
                     bbox: expected.bbox,
-                    import_date: expected.import_date,
                     version: expected.version,
                     profiles: [],
                     elevation: expected.elevation,

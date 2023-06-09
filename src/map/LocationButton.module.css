@@ -1,0 +1,16 @@
+.locationOnOff {
+    position: absolute;
+    right: 10px;
+    top: 62px;
+    background-color: red;
+
+    padding: 4px;
+    width: 34px;
+    height: 34px;
+}
+
+.locationOnOff svg {
+    color: gray;
+    width: 100%;
+    height: 100%;
+}

@@ -208,7 +208,6 @@ export class ApiImpl implements Api {
     static convertToApiInfo(response: any): ApiInfo {
         let bbox = [0, 0, 0, 0] as Bbox
         let version = ''
-        let import_date = ''
         const profiles: RoutingProfile[] = []
 
         for (const profileIndex in response.profiles as ApiProfile[]) {
@@ -222,7 +221,6 @@ export class ApiImpl implements Api {
         for (const property in response) {
             if (property === 'bbox') bbox = response[property]
             else if (property === 'version') version = response[property]
-            else if (property === 'import_date') import_date = response[property]
         }
 
         return {
@@ -230,7 +228,6 @@ export class ApiImpl implements Api {
             elevation: response.elevation,
             bbox: bbox,
             version: version,
-            import_date: import_date,
             encoded_values: response.encoded_values,
         }
     }

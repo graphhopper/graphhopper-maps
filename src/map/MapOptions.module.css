@@ -1,8 +1,13 @@
 .mapOptionsContainer {
+    position: absolute;
+    z-index: 2;
+    top: 10px;
+    right: 10px;
     display: flex;
 }
 
 .options {
+    width: 220px;
     display: flex;
     flex-direction: column;
     margin: 0.5rem;
@@ -16,12 +21,13 @@
 }
 
 .layerButton {
-    width: 1.2rem;
-    height: 1.2rem;
-    margin: 0.5rem;
+    margin: 5px !important;
+    width: 32px;
+    height: 32px;
 }
 
 .layerButton svg {
+    color: gray;
+    height: 100%;
     width: 100%;
-    display: block;
 }

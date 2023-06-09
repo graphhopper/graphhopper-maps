@@ -14,7 +14,6 @@ export default class DummyApi implements Api {
             bbox: [0, 0, 0, 0],
             elevation: false,
             version: '',
-            import_date: '',
             profiles: [],
             encoded_values: [],
         })
