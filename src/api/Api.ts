@@ -14,9 +14,8 @@ import {
     RoutingResult,
 } from '@/api/graphhopper'
 import { LineString } from 'geojson'
-import { getTranslation, tr, Translation } from '@/translation/Translation'
+import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
-import { Coordinate } from '@/stores/QueryStore'
 
 interface ApiProfile {
     name: string
@@ -53,6 +52,7 @@ export class ApiImpl implements Api {
     private readonly apiKey: string
     private readonly routingApi: string
     private readonly geocodingApi: string
+    private lastRouteStarted: number = -1
 
     constructor(routingApi: string, geocodingApi: string, apiKey: string) {
         this.apiKey = apiKey
@@ -150,11 +150,25 @@ export class ApiImpl implements Api {
     }
 
     routeWithDispatch(args: RoutingArgs, zoomOnSuccess: boolean) {
+        const start = Date.now()
         this.route(args)
-            .then(result => Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result)))
+            .then(result => {
+                if (start > this.lastRouteStarted) {
+                    this.lastRouteStarted = start
+                    Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
+                    console.log('now ' + new Date() + ' ' + args)
+                } else {
+                    console.warn('Ignore earlier started route ' + args)
+                }
+            })
             .catch(error => {
                 console.warn('error when performing /route request: ', error)
-                return Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
+                if (start > this.lastRouteStarted) {
+                    this.lastRouteStarted = start
+                    Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
+                } else {
+                    console.warn('Ignore earlier started route ' + args)
+                }
             })
     }
 
