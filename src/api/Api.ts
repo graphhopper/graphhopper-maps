@@ -53,7 +53,7 @@ export class ApiImpl implements Api {
     private readonly routingApi: string
     private readonly geocodingApi: string
     private routeCounter = 0
-    private lastRouteStarted = -1
+    private lastRouteNumber = -1
 
     constructor(routingApi: string, geocodingApi: string, apiKey: string) {
         this.apiKey = apiKey
@@ -151,24 +151,24 @@ export class ApiImpl implements Api {
     }
 
     routeWithDispatch(args: RoutingArgs, zoomOnSuccess: boolean) {
-        const start = this.routeCounter++
+        const routeNumber = this.routeCounter++
         this.route(args)
             .then(result => {
-                if (start > this.lastRouteStarted) {
-                    this.lastRouteStarted = start
+                if (routeNumber > this.lastRouteNumber) {
+                    this.lastRouteNumber = routeNumber
                     Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
                 } else {
-                    const tmp = JSON.stringify(args) + ' ' + start + ' <= ' + this.lastRouteStarted
+                    const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
                     console.log('Ignore response of earlier started route ' + tmp)
                 }
             })
             .catch(error => {
-                console.warn('error when performing /route request ' + start + ': ', error)
-                if (start > this.lastRouteStarted) {
-                    this.lastRouteStarted = start
+                console.warn('error when performing /route request ' + routeNumber + ': ', error)
+                if (routeNumber > this.lastRouteNumber) {
+                    this.lastRouteNumber = routeNumber
                     Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
                 } else {
-                    const tmp = JSON.stringify(args) + ' ' + start + ' <= ' + this.lastRouteStarted
+                    const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
                     console.log('Ignore error ' + error.message + ' of earlier started route ' + tmp)
                 }
             })
