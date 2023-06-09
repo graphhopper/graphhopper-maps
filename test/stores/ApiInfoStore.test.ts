@@ -7,14 +7,12 @@ describe('ApiInfoStore', () => {
         const state: ApiInfo = {
             profiles: [],
             version: '',
-            import_date: '',
             elevation: true,
             bbox: [0, 0, 0, 0],
             encoded_values: [],
         }
         const receivedInfo: ApiInfo = {
             bbox: [1, 1, 1, 1],
-            import_date: 'some-date',
             version: 'some-version',
             elevation: true,
             profiles: [{ name: 'some-profile' }],
@@ -31,7 +29,6 @@ describe('ApiInfoStore', () => {
             profiles: [],
             elevation: false,
             version: '',
-            import_date: '',
             bbox: [0, 0, 0, 0],
             encoded_values: [],
         }
