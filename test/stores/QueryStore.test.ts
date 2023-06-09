@@ -250,7 +250,6 @@ describe('QueryStore', () => {
                     profiles: [{ name: 'some-other-profile' }],
                     elevation: true,
                     version: '',
-                    import_date: '',
                     bbox: [0, 0, 0, 0],
                     encoded_values: [],
                 })
@@ -301,7 +300,6 @@ describe('QueryStore', () => {
                     profiles: [expectedProfile, { name: 'other' }],
                     elevation: false,
                     version: '',
-                    import_date: '',
                     bbox: [0, 0, 0, 0],
                     encoded_values: [],
                 })

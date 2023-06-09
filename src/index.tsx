@@ -33,7 +33,6 @@ import App from '@/App'
 import { ErrorAction, InfoReceived, LocationUpdateSync } from '@/actions/Actions'
 import { toLonLat } from 'ol/proj'
 import { Pixel } from 'ol/pixel'
-import turnNavigation from '@/turnNavigation/TurnNavigation'
 
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 

@@ -85,8 +85,6 @@ export default class RouteStore extends Store<RouteStoreState> {
     }
 
     private reduceRouteReceived(state: RouteStoreState, action: RouteRequestSuccess) {
-        if (this.isStaleRequest(action.request)) return state
-
         if (RouteStore.containsPaths(action.result.paths)) {
             return {
                 routingResult: action.result,
@@ -94,24 +92,6 @@ export default class RouteStore extends Store<RouteStoreState> {
             }
         }
         return RouteStore.getInitialState()
-    }
-
-    private isStaleRequest(request: RoutingArgs) {
-        // this could be probably written less tedious...
-        const subRequests = this.queryStore.state.currentRequest.subRequests
-        let requestIndex = -1
-        let mostRecentAndFinishedIndex = -1
-        for (let i = 0; i < subRequests.length; i++) {
-            const element = subRequests[i]
-            if (element.args === request) {
-                requestIndex = i
-            }
-            if (element.state === RequestState.SUCCESS) {
-                mostRecentAndFinishedIndex = i
-            }
-        }
-
-        return requestIndex < 0 && requestIndex < mostRecentAndFinishedIndex
     }
 
     private static containsPaths(paths: Path[]) {
