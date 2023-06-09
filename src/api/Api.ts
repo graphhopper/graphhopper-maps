@@ -52,7 +52,8 @@ export class ApiImpl implements Api {
     private readonly apiKey: string
     private readonly routingApi: string
     private readonly geocodingApi: string
-    private lastRouteStarted: number = -1
+    private routeCounter = 0
+    private lastRouteStarted = -1
 
     constructor(routingApi: string, geocodingApi: string, apiKey: string) {
         this.apiKey = apiKey
@@ -150,23 +151,25 @@ export class ApiImpl implements Api {
     }
 
     routeWithDispatch(args: RoutingArgs, zoomOnSuccess: boolean) {
-        const start = Date.now()
+        const start = this.routeCounter++
         this.route(args)
             .then(result => {
                 if (start > this.lastRouteStarted) {
                     this.lastRouteStarted = start
                     Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
                 } else {
-                    console.log('Ignore response of earlier started route ' + JSON.stringify(args))
+                    const tmp = JSON.stringify(args) + ' ' + start + ' <= ' + this.lastRouteStarted
+                    console.log('Ignore response of earlier started route ' + tmp)
                 }
             })
             .catch(error => {
-                console.warn('error when performing /route request: ', error)
+                console.warn('error when performing /route request ' + start + ': ', error)
                 if (start > this.lastRouteStarted) {
                     this.lastRouteStarted = start
                     Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
                 } else {
-                    console.log('Ignore error ' + error.message + ' of earlier started route ' + JSON.stringify(args))
+                    const tmp = JSON.stringify(args) + ' ' + start + ' <= ' + this.lastRouteStarted
+                    console.log('Ignore error ' + error.message + ' of earlier started route ' + tmp)
                 }
             })
     }
