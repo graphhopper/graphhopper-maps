@@ -163,8 +163,8 @@ export class ApiImpl implements Api {
                 }
             })
             .catch(error => {
-                console.warn('error when performing /route request ' + routeNumber + ': ', error)
                 if (routeNumber > this.lastRouteNumber) {
+                    console.warn('error when performing /route request ' + routeNumber + ': ', error)
                     this.lastRouteNumber = routeNumber
                     Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
                 } else {
