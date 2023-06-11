@@ -10,27 +10,18 @@ interface ContextMenuProps {
     map: Map
     route: RouteStoreState
     queryPoints: QueryPoint[]
-    navigation: boolean
 }
 
 const overlay = new Overlay({
     autoPan: true,
 })
 
-export default function ContextMenu({ map, route, queryPoints, navigation }: ContextMenuProps) {
+export default function ContextMenu({ map, route, queryPoints }: ContextMenuProps) {
     const [menuCoordinate, setMenuCoordinate] = useState<Coordinate | null>(null)
     const container = useRef<HTMLDivElement | null>(null)
-    const navigationRef = useRef(navigation)
-
-    useEffect(() => {
-        // we need the reference so we get the up-to-date value of the navigation prop in the openContextMenu callback
-        navigationRef.current = navigation
-        if (!navigation) closeContextMenu()
-    }, [navigation])
 
     const openContextMenu = (e: any) => {
         e.preventDefault()
-        if (navigationRef.current) return
         const coordinate = map.getEventCoordinate(e)
         const lonLat = toLonLat(coordinate)
         setMenuCoordinate({ lng: lonLat[0], lat: lonLat[1] })

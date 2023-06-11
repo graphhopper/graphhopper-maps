@@ -3,11 +3,14 @@ import { metersToText, milliSecondsToText } from '@/Converters'
 import { getTurnSign } from '@/sidebar/instructions/Instructions'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
 import EndNavigation from '@/sidebar/times-solid.svg'
-import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
+import { TNSettingsState, TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { SelectMapLayer, TurnNavigationStop } from '@/actions/Actions'
+import { LocationUpdateSync, SelectMapLayer, TurnNavigationSettingsUpdate, TurnNavigationStop } from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
 import { ApiImpl } from '@/api/Api'
+import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
+import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
+import SyncLocationIcon from '@/turnNavigation/location_searching.svg'
 
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
     if (turnNavigation.activePath == null) new Error('activePath cannot be null if TurnNavigation is enabled')
@@ -24,12 +27,80 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
 
     return (
         <>
+            <div className={styles.firstRow}>
+                    <div className={styles.turnSign}>
+                        <div>{getTurnSign(instruction.sign, instruction.index, instruction.nextWaypointIndex)}</div>
+                        <div className={styles.nextDistance}>{metersToText(instruction.distanceToTurn, false)}</div>
+                    </div>
+                    <div
+                        className={styles.instructionText}
+                        title={instruction.text}
+                        onClick={() => setShowDebug(!showDebug)}
+                    >
+                        {instruction.text}
+                        {showDebug ? (
+                            <div className={styles.debug}>
+                                <span>{pd.estimatedAvgSpeed}, </span>
+                                <span>{pd.surface}, </span>
+                                <span>{pd.roadClass}</span>
+                            </div>
+                        ) : null}
+                    </div>
+
+                    <div className={styles.buttonCol}>
+                        <div
+                            className={styles.volume}
+                            onClick={() =>
+                                Dispatcher.dispatch(
+                                    new TurnNavigationSettingsUpdate({
+                                        soundEnabled: !turnNavigation.settings.soundEnabled,
+                                    } as TNSettingsState)
+                                )
+                            }
+                        >
+                            <PlainButton>
+                                {turnNavigation.settings.soundEnabled ? (
+                                    <VolumeUpIcon fill="#5b616a"/>
+                                ) : (
+                                    <VolumeOffIcon fill="#5b616a"/>
+                                )}
+                            </PlainButton>
+                        </div>
+                        {!turnNavigation.settings.syncView && (
+                            <div
+                                className={styles.syncLocation}
+                                onClick={() => Dispatcher.dispatch(new LocationUpdateSync(true))}
+                            >
+                                <PlainButton>
+                                    <SyncLocationIcon/>
+                                </PlainButton>
+                            </div>
+                        )}
+                    </div>
+            </div>
             <div className={styles.turnInfo}>
-                <div className={styles.turnSign}>
-                    <div>{getTurnSign(instruction.sign, instruction.index, instruction.nextWaypointIndex)}</div>
-                    <div>{metersToText(instruction.distanceToTurn, false)}</div>
-                </div>
                 <div className={styles.turnInfoRightSide}>
+                    <div className={styles.firstCol}>
+                        <div className={styles.currentSpeed}>{currentSpeed} km/h</div>
+                        <div className={styles.maxSpeed}>
+                            {pd.maxSpeed != null &&
+                            (ApiImpl.isMotorVehicle(turnNavigation.activeProfile) || pd.maxSpeed > 50) ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 42" width="42px" height="42px">
+                                    <circle
+                                        cx="21"
+                                        cy="21"
+                                        r="19"
+                                        stroke="rgba(255, 0, 0, 0.6)"
+                                        strokeWidth="3px"
+                                        fill="none"
+                                    />
+                                    <text x="50%" y="26" textAnchor="middle" style={{ fontSize: '18px' }}>
+                                        {Math.round(pd.maxSpeed)}
+                                    </text>
+                                </svg>
+                            ) : null}
+                        </div>
+                    </div>
                     <div className={styles.secondCol}>
                         <div onClick={() => setShowTime(!showTime)}>
                             {showTime ? (
@@ -49,48 +120,10 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                                     </svg>
                                 </div>
                             )}
-                            <div className={styles.remainingDistance}>
-                                {metersToText(instruction.distanceToEnd, false)}
-                            </div>
                         </div>
                     </div>
-                    <div className={styles.thirdCol} onClick={() => setShowDebug(!showDebug)}>
-                        <div className={styles.speedRow}>
-                            <div className={styles.currentSpeed}>{currentSpeed} km/h</div>
-                            <div className={styles.maxSpeed}>
-                                {pd.maxSpeed != null &&
-                                (ApiImpl.isMotorVehicle(turnNavigation.activeProfile) || pd.maxSpeed > 50) ? (
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 42 42"
-                                        width="42px"
-                                        height="42px"
-                                    >
-                                        <circle
-                                            cx="21"
-                                            cy="21"
-                                            r="19"
-                                            stroke="rgba(255, 0, 0, 0.6)"
-                                            strokeWidth="3px"
-                                            fill="none"
-                                        />
-                                        <text x="50%" y="26" textAnchor="middle" style={{ fontSize: '18px' }}>
-                                            {Math.round(pd.maxSpeed)}
-                                        </text>
-                                    </svg>
-                                ) : null}
-                            </div>
-                        </div>
-                        <div className={styles.instructionText} title={instruction.text}>
-                            {instruction.text}
-                        </div>
-                        {showDebug ? (
-                            <div className={styles.debug}>
-                                <span>{pd.estimatedAvgSpeed}, </span>
-                                <span>{pd.surface}, </span>
-                                <span>{pd.roadClass}</span>
-                            </div>
-                        ) : null}
+                    <div className={styles.thirdCol}>
+                        <div className={styles.remainingDistance}>{metersToText(instruction.distanceToEnd, false)}</div>
                     </div>
                     <PlainButton
                         className={styles.fourthCol}

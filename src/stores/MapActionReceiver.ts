@@ -69,7 +69,7 @@ export default class MapActionReceiver implements ActionReceiver {
             const mapView = this.map.getView()
             const size = this.map.getSize() // [width, height]
             // move center a bit down
-            mapView.padding = [size ? size[1] / 2 : 0, 0, 0, 0]
+            mapView.padding = [size ? (size[1] * 2) / 3 : 0, 0, 0, 0]
             mapView.cancelAnimations() // if location updates are sent too fast animations might stack up
 
             const center = fromLonLat([action.coordinate.lng, action.coordinate.lat])

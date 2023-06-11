@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
@@ -24,7 +24,7 @@ import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
-import { TNSettingsState, TurnNavigationStoreState } from './stores/TurnNavigationStore'
+import { TurnNavigationStoreState } from './stores/TurnNavigationStore'
 import useBackgroundLayer from '@/layers/UseBackgroundLayer'
 import useQueryPointsLayer from '@/layers/UseQueryPointsLayer'
 import usePathsLayer from '@/layers/UsePathsLayer'
@@ -38,11 +38,6 @@ import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
-import { LocationUpdateSync, TurnNavigationSettingsUpdate } from '@/actions/Actions'
-import Dispatcher from '@/stores/Dispatcher'
-import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
-import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
-import SyncLocationIcon from '@/turnNavigation/location_searching.svg'
 import PlainButton from '@/PlainButton'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
 import MapPopups from '@/map/MapPopups'
@@ -127,15 +122,17 @@ export default function App() {
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
-            <div className={styles.appWrapper}>
+            <div className={turnNavigation.showUI ? styles.appNaviWrapper : styles.appWrapper}>
                 <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
-                <ContextMenu
-                    map={map}
-                    route={route}
-                    queryPoints={query.queryPoints}
-                    navigation={turnNavigation.showUI}
-                />
-                {isSmallScreen ? (
+                <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
+                {turnNavigation.showUI ? (
+                    <>
+                        <TurnNavigation turnNavigation={turnNavigation} />
+                        <div className={styles.map}>
+                            <MapComponent map={map} />
+                        </div>
+                    </>
+                ) : isSmallScreen ? (
                     <SmallScreenLayout
                         query={query}
                         route={route}
@@ -186,42 +183,6 @@ function LargeScreenLayout({
 }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
-
-    if (turnNavigation.showUI)
-        return (
-            <>
-                <div className={styles.turnNavigation}>
-                    <TurnNavigation turnNavigation={turnNavigation} />
-                </div>
-                <div className={styles.volume}>
-                    <PlainButton
-                        onClick={() =>
-                            Dispatcher.dispatch(
-                                new TurnNavigationSettingsUpdate({
-                                    soundEnabled: !turnNavigation.settings.soundEnabled,
-                                } as TNSettingsState)
-                            )
-                        }
-                    >
-                        {turnNavigation.settings.soundEnabled ? (
-                            <VolumeUpIcon fill="#5b616a" />
-                        ) : (
-                            <VolumeOffIcon fill="#5b616a" />
-                        )}
-                    </PlainButton>
-                </div>
-                {!turnNavigation.settings.syncView && (
-                    <div className={styles.syncLocation}>
-                        <PlainButton onClick={() => Dispatcher.dispatch(new LocationUpdateSync(true))}>
-                            <SyncLocationIcon />
-                        </PlainButton>
-                    </div>
-                )}
-                <div className={styles.map}>
-                    <MapComponent map={map} />
-                </div>
-            </>
-        )
 
     return (
         <>
@@ -294,48 +255,6 @@ function SmallScreenLayout({
     drawAreas,
     turnNavigation,
 }: LayoutProps) {
-    if (turnNavigation.showUI)
-        return (
-            <>
-                <div className={styles.smallScreenFirstRow}>
-                    <div
-                        className={styles.smallScreenVolume}
-                        onClick={() =>
-                            Dispatcher.dispatch(
-                                new TurnNavigationSettingsUpdate({
-                                    soundEnabled: !turnNavigation.settings.soundEnabled,
-                                } as TNSettingsState)
-                            )
-                        }
-                    >
-                        <PlainButton>
-                            {turnNavigation.settings.soundEnabled ? (
-                                <VolumeUpIcon fill="#5b616a" />
-                            ) : (
-                                <VolumeOffIcon fill="#5b616a" />
-                            )}
-                        </PlainButton>
-                    </div>
-                    {!turnNavigation.settings.syncView && (
-                        <div
-                            className={styles.smallScreenSyncLocation}
-                            onClick={() => Dispatcher.dispatch(new LocationUpdateSync(true))}
-                        >
-                            <PlainButton>
-                                <SyncLocationIcon />
-                            </PlainButton>
-                        </div>
-                    )}
-                </div>
-                <div>
-                    <TurnNavigation turnNavigation={turnNavigation} />
-                </div>
-                <div className={styles.smallScreenMap}>
-                    <MapComponent map={map} />
-                </div>
-            </>
-        )
-
     return (
         <>
             <div className={styles.smallScreenSidebar}>

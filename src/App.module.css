@@ -4,12 +4,38 @@
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: 27rem 1fr auto;
+    grid-template-columns: 26rem 1fr auto;
     grid-template-rows: 100%;
     justify-content: space-between;
     overflow: auto;
     -webkit-user-select: none;
     user-select: none; /* firefox does not ignore -webkit-user-select so make this explicit, see #217 */
+}
+
+.appNaviWrapper {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 30rem 1fr;
+    grid-template-rows: 1fr auto;
+    justify-content: space-between;
+    overflow: auto;
+    -webkit-user-select: none;
+    user-select: none; /* firefox does not ignore -webkit-user-select so make this explicit, see #217 */
+}
+
+@media (max-width: 44rem) {
+    .appWrapper {
+        grid-template-columns: 100%;
+        grid-template-rows: auto 0 1fr auto auto;
+    }
+
+    .appNaviWrapper {
+        grid-template-columns: 100%;
+        grid-template-rows: 1fr auto;
+    }
 }
 
 .map {
@@ -53,18 +79,6 @@
     overflow: auto;
 }
 
-.turnNavigation {
-    grid-column: 1 / span 1;
-    grid-row: 1 / span 1;
-    z-index: 3;
-    max-height: 94px;
-    margin: 0.5rem;
-    padding: 0.5rem;
-    background-color: white;
-    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 0.5rem;
-}
-
 .onMapRightSide {
     position: relative;
     grid-column: 3 / span 1;
@@ -94,34 +108,6 @@
     pointer-events: none;
 }
 
-.volume {
-    grid-column: 3 / span 1;
-    grid-row: 1 / span 1;
-    margin: 5px 5px;
-    padding: 7px 7px 2px 7px;
-    height: 53px;
-    z-index: 2;
-    background-color: white;
-    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 0.5rem;
-}
-
-.syncLocation svg {
-    scale: 0.8;
-}
-
-.syncLocation {
-    grid-column: 3 / span 1;
-    grid-row: 1 / span 1;
-    margin: 75px 5px 5px 5px;
-    padding: 7px 7px 2px 7px;
-    height: 53px;
-    z-index: 2;
-    background-color: white;
-    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 0.5rem;
-}
-
 .smallScreenMap {
     grid-row: 1 / span 3;
     grid-column: 1 / span 1;
@@ -147,46 +133,12 @@
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
 }
 
-.smallScreenFirstRow {
-    grid-row: 1 / span 1;
-    grid-column: 1 / span 1;
-
-    display: flex;
-    justify-content: space-between;
-    z-index: 2;
-}
-
-.smallScreenVolume {
-    align-self: flex-start;
-    width: 48px;
-    padding: 5px;
-    background-color: white;
-    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 0.5rem;
-}
-
-.smallScreenSyncLocation {
-    align-self: flex-end;
-    width: 48px;
-    padding: 5px;
-    background-color: white;
-    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 0.5rem;
-}
-
 .smallScreenPoweredBy {
     grid-row: 5 / span 1;
     grid-column: 1 / span 1;
     margin: 0;
     border-radius: 0;
     z-index: 2;
-}
-
-@media (max-width: 44rem) {
-    .appWrapper {
-        grid-template-columns: 100%;
-        grid-template-rows: auto 0 1fr auto auto;
-    }
 }
 
 /* mapilion */
