@@ -34,6 +34,8 @@ import { Instruction, Path, RoutingArgs } from '@/api/graphhopper'
 import { tr } from '@/translation/Translation'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 import { Pixel } from 'ol/pixel'
+import SettingsStore from '@/stores/SettingsStore'
+import { meterToFt, meterToMiles } from '@/Converters'
 
 export interface TurnNavigationStoreState {
     // TODO replace "showUI" with a composite state depending on activePath, coordinate and instruction
@@ -95,6 +97,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private noSleep: NoSleep | null = null
     private readonly speechSynthesizer: SpeechSynthesizer
     private readonly cs: MapCoordinateSystem
+    private readonly settingsStore: SettingsStore
 
     constructor(
         api: Api,
@@ -102,6 +105,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         cs: MapCoordinateSystem,
         fakeGPSDelta: number,
         tiles: string,
+        settingsStore: SettingsStore,
         customModelStr: string
     ) {
         super({
@@ -132,6 +136,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         this.cs = cs
         this.api = api
         this.speechSynthesizer = speechSynthesizer
+        this.settingsStore = settingsStore
     }
 
     reduce(state: TurnNavigationStoreState, action: Action): TurnNavigationStoreState {
@@ -185,7 +190,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 customModelEnabled: action.enabled,
             }
         } else if (action instanceof SetCustomModel) {
-            console.log('SetCustomModel ' + action.customModelStr)
+            // console.log('SetCustomModel ' + action.customModelStr)
             return {
                 ...state,
                 customModelStr: action.customModelStr,
@@ -197,7 +202,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 activeProfile: action.result.profiles[0].name,
             }
         } else if (action instanceof SetVehicleProfile) {
-            console.log('SetVehicleProfile, profile: ' + action.profile.name)
+            // console.log('SetVehicleProfile, profile: ' + action.profile.name)
             return {
                 ...state,
                 activeProfile: action.profile.name,
@@ -280,7 +285,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                         .route(args)
                         .then(result => {
                             if (result.paths.length > 0) {
-                                console.log('rerouted:' + state.activePath?.distance + '->' + result.paths[0].distance)
+                                // console.log('rerouted:' + state.activePath?.distance + '->' + result.paths[0].distance)
                                 Dispatcher.dispatch(new TurnNavigationRerouting(result.paths[0]))
                                 if (!skipWaypoint) this.synthesize(tr('reroute'))
                             } else {
@@ -340,17 +345,26 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 this.synthesize(nextInstruction.text)
             }
 
-            if (instr.distanceToTurn <= firstAnnounceDistance && announcementsToDo == 2) {
+            const dist = instr.distanceToTurn
+            if (dist <= firstAnnounceDistance && announcementsToDo == 2) {
                 announcementsToDo = 1
-                if (instr.distanceToTurn > lastAnnounceDistance * 1.2 + 50) {
+                if (dist > lastAnnounceDistance * 1.2 + 50) {
                     // do not interfere with last announcement
-                    let inString =
-                        instr.distanceToTurn > 1200
-                            ? tr('in_km', [(instr.distanceToTurn / 1000).toFixed(1)])
-                            : instr.distanceToTurn > 900
-                            ? tr('in_km_singular')
-                            : tr('in_m', ['' + Math.floor(instr.distanceToTurn / 100) * 100])
-                    this.synthesize(inString + ' ' + nextInstruction.text)
+                    if (this.settingsStore.state.showDistanceInMiles) {
+                        let inString =
+                            dist > 1800
+                                ? tr('in_mi', [meterToMiles(dist).toFixed(1)])
+                                : tr('in_ft', ['' + Math.round(meterToFt(dist) / 100) * 100])
+                        this.synthesize(inString + ' ' + nextInstruction.text)
+                    } else {
+                        let inString =
+                            dist > 1200
+                                ? tr('in_km', [(dist / 1000).toFixed(1)])
+                                : dist > 900
+                                ? tr('in_km_singular')
+                                : tr('in_m', ['' + Math.floor(dist / 100) * 100])
+                        this.synthesize(inString + ' ' + nextInstruction.text)
+                    }
                 }
             }
 
@@ -439,7 +453,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private synthesize(text: string) {
-        console.log('speak: ' + text)
+        // console.log('speak: ' + text)
         if (this.state.settings.soundEnabled) this.speechSynthesizer.synthesize(text)
     }
 

@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { metersToText, milliSecondsToText } from '@/Converters'
+import React, { useContext, useState } from 'react'
+import { kmToMPHIfMiles, metersToText, milliSecondsToText } from '@/Converters'
 import { getTurnSign } from '@/sidebar/instructions/Instructions'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
 import EndNavigation from '@/sidebar/times-solid.svg'
@@ -11,9 +11,11 @@ import { ApiImpl } from '@/api/Api'
 import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
 import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
 import SyncLocationIcon from '@/turnNavigation/location_searching.svg'
+import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
     if (turnNavigation.activePath == null) new Error('activePath cannot be null if TurnNavigation is enabled')
+    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
     const instruction = turnNavigation.instruction
     const pd = turnNavigation.pathDetails
 
@@ -21,67 +23,71 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
     let [showDebug, setShowDebug] = useState(false)
 
     const arrivalDate = new Date()
-    const currentSpeed = Math.round(turnNavigation.speed * 3.6)
+    const currentSpeed = kmToMPHIfMiles(turnNavigation.speed * 3.6, showDistanceInMiles)
     arrivalDate.setMilliseconds(arrivalDate.getSeconds() + instruction.timeToEnd)
     const min = arrivalDate.getMinutes()
 
     return (
         <>
             <div className={styles.firstRow}>
-                    <div className={styles.turnSign}>
-                        <div>{getTurnSign(instruction.sign, instruction.index, instruction.nextWaypointIndex)}</div>
-                        <div className={styles.nextDistance}>{metersToText(instruction.distanceToTurn, false)}</div>
+                <div className={styles.turnSign}>
+                    <div>{getTurnSign(instruction.sign, instruction.index, instruction.nextWaypointIndex)}</div>
+                    <div className={styles.nextDistance}>
+                        {metersToText(instruction.distanceToTurn, showDistanceInMiles)}
                     </div>
-                    <div
-                        className={styles.instructionText}
-                        title={instruction.text}
-                        onClick={() => setShowDebug(!showDebug)}
-                    >
-                        {instruction.text}
-                        {showDebug ? (
-                            <div className={styles.debug}>
-                                <span>{pd.estimatedAvgSpeed}, </span>
-                                <span>{pd.surface}, </span>
-                                <span>{pd.roadClass}</span>
-                            </div>
-                        ) : null}
-                    </div>
+                </div>
+                <div
+                    className={styles.instructionText}
+                    title={instruction.text}
+                    onClick={() => setShowDebug(!showDebug)}
+                >
+                    {instruction.text}
+                    {showDebug ? (
+                        <div className={styles.debug}>
+                            <span>{pd.estimatedAvgSpeed}, </span>
+                            <span>{pd.surface}, </span>
+                            <span>{pd.roadClass}</span>
+                        </div>
+                    ) : null}
+                </div>
 
-                    <div className={styles.buttonCol}>
+                <div className={styles.buttonCol}>
+                    <div
+                        className={styles.volume}
+                        onClick={() =>
+                            Dispatcher.dispatch(
+                                new TurnNavigationSettingsUpdate({
+                                    soundEnabled: !turnNavigation.settings.soundEnabled,
+                                } as TNSettingsState)
+                            )
+                        }
+                    >
+                        <PlainButton>
+                            {turnNavigation.settings.soundEnabled ? (
+                                <VolumeUpIcon fill="#5b616a" />
+                            ) : (
+                                <VolumeOffIcon fill="#5b616a" />
+                            )}
+                        </PlainButton>
+                    </div>
+                    {!turnNavigation.settings.syncView && (
                         <div
-                            className={styles.volume}
-                            onClick={() =>
-                                Dispatcher.dispatch(
-                                    new TurnNavigationSettingsUpdate({
-                                        soundEnabled: !turnNavigation.settings.soundEnabled,
-                                    } as TNSettingsState)
-                                )
-                            }
+                            className={styles.syncLocation}
+                            onClick={() => Dispatcher.dispatch(new LocationUpdateSync(true))}
                         >
                             <PlainButton>
-                                {turnNavigation.settings.soundEnabled ? (
-                                    <VolumeUpIcon fill="#5b616a"/>
-                                ) : (
-                                    <VolumeOffIcon fill="#5b616a"/>
-                                )}
+                                <SyncLocationIcon />
                             </PlainButton>
                         </div>
-                        {!turnNavigation.settings.syncView && (
-                            <div
-                                className={styles.syncLocation}
-                                onClick={() => Dispatcher.dispatch(new LocationUpdateSync(true))}
-                            >
-                                <PlainButton>
-                                    <SyncLocationIcon/>
-                                </PlainButton>
-                            </div>
-                        )}
-                    </div>
+                    )}
+                </div>
             </div>
             <div className={styles.turnInfo}>
                 <div className={styles.turnInfoRightSide}>
                     <div className={styles.firstCol}>
-                        <div className={styles.currentSpeed}>{currentSpeed} km/h</div>
+                        <div className={styles.currentSpeed}>
+                            {currentSpeed} {showDistanceInMiles ? 'mph' : 'km/h'}
+                        </div>
                         <div className={styles.maxSpeed}>
                             {pd.maxSpeed != null &&
                             (ApiImpl.isMotorVehicle(turnNavigation.activeProfile) || pd.maxSpeed > 50) ? (
@@ -95,7 +101,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                                         fill="none"
                                     />
                                     <text x="50%" y="26" textAnchor="middle" style={{ fontSize: '18px' }}>
-                                        {Math.round(pd.maxSpeed)}
+                                        {kmToMPHIfMiles(pd.maxSpeed, showDistanceInMiles, true)}
                                     </text>
                                 </svg>
                             ) : null}
@@ -123,7 +129,9 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                         </div>
                     </div>
                     <div className={styles.thirdCol}>
-                        <div className={styles.remainingDistance}>{metersToText(instruction.distanceToEnd, false)}</div>
+                        <div className={styles.remainingDistance}>
+                            {metersToText(instruction.distanceToEnd, showDistanceInMiles)}
+                        </div>
                     </div>
                     <PlainButton
                         className={styles.fourthCol}

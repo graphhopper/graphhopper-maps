@@ -48,6 +48,7 @@ setApi(config.routingApi, config.geocodingApi, apiKey || '')
 
 const initialCustomModelStr = url.searchParams.get('custom_model')
 const queryStore = new QueryStore(getApi(), initialCustomModelStr)
+const settingsStore = new SettingsStore()
 const routeStore = new RouteStore(queryStore)
 const speechSynthesizer = new SpeechSynthesizerImpl(navigator.language)
 
@@ -62,10 +63,11 @@ const turnNavigationStore = new TurnNavigationStore(
     new CoordSysImpl(),
     fakeGPSDelta,
     config.defaultTiles,
+    settingsStore,
     queryStore.state.customModelEnabled ? queryStore.state.customModelStr : ''
 )
 setStores({
-    settingsStore: new SettingsStore(),
+    settingsStore: settingsStore,
     queryStore: queryStore,
     routeStore: routeStore,
     infoStore: new ApiInfoStore(),

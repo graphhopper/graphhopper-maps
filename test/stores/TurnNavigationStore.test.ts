@@ -1,6 +1,3 @@
-/**
- * @jest-environment node
- */
 import Dispatcher from '@/stores/Dispatcher'
 import {
     LocationUpdate,
@@ -18,6 +15,7 @@ import Api, { ApiImpl } from '@/api/Api'
 import { setTranslation } from '@/translation/Translation'
 import { Coordinate } from '@/stores/QueryStore'
 import { Pixel } from 'ol/pixel'
+import SettingsStore from '@/stores/SettingsStore'
 
 let routeWithVia = toRoutingResult(require('../turnNavigation/response-hoyerswerda2.json'))
 let reroute1 = toRoutingResult(require('../turnNavigation/reroute1.json'))
@@ -316,7 +314,7 @@ describe('TurnNavigationStore', () => {
     })
 
     function createStore(api: Api, speech = new DummySpeech()) {
-        const store = new TurnNavigationStore(api, speech, new DummyCS(), 0, '', '')
+        const store = new TurnNavigationStore(api, speech, new DummyCS(), 0, '', new SettingsStore(), '')
         Dispatcher.register(store)
         return store
     }
@@ -388,6 +386,10 @@ describe('TurnNavigationStore', () => {
 })
 
 async function flushPromises() {
-    const flush = () => new Promise(setImmediate)
+    const flush = () => new Promise(setImmediatePolyfill)
     await flush()
+}
+
+function setImmediatePolyfill(callback: any) {
+    return setTimeout(callback, 0);
 }

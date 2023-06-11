@@ -12,10 +12,28 @@ export function milliSecondsToText(seconds: number) {
 }
 
 const distanceFormat = new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 1 })
+const distanceFormat2 = new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 2 })
+
+export function kmToMPHIfMiles(value: number, showDistanceInMiles: boolean, roundTo10 = false) {
+    return showDistanceInMiles
+        ? roundTo10
+            ? Math.round((value * 1.60934) / 10.0) * 10
+            : Math.round(value * 1.60934)
+        : value
+}
+
+export function meterToFt(value: number) {
+    return value / 0.3048
+}
+
+export function meterToMiles(value: number) {
+    return value / 1609.34
+}
 
 export function metersToText(meters: number, showDistanceInMiles: boolean, forceSmallUnits: boolean = false) {
     if (showDistanceInMiles) {
         if (meters < 160.934 || forceSmallUnits) return Math.floor(meters / 0.3048) + ' ft'
+        if (meters < 600) return distanceFormat2.format(meters / 1609.34) + ' mi'
         return distanceFormat.format(meters / 1609.34) + ' mi'
     } else {
         if (meters < 1000 || forceSmallUnits) return Math.floor(meters) + ' m'
