@@ -4,8 +4,7 @@
     margin-right: 1px;
     background-color: white;
 
-    font-size: smaller;
-    font-weight: bold;
+    font-size: larger;
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
     border-bottom-right-radius: 0.5rem;
 
@@ -28,6 +27,7 @@
 }
 
 .instructionText {
+    font-size: larger;
     overflow: hidden;
     align-self: flex-start;
     flex-grow: 1;

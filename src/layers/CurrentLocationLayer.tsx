@@ -43,10 +43,10 @@ export default function useCurrentLocationLayer(map: Map, turnNavigation: TurnNa
 
 // we need a filled version of navigation.svg
 const svgArrowData =
-    '<svg xmlns="http://www.w3.org/2000/svg" height="48" width="48">' +
-    '  <ellipse style="fill:rgba(255,255,255,0.6865);stroke:none;stroke-width:0.579884;stroke-opacity:1" cx="24.3" cy="24.3" rx="19.71" ry="19.71" />' +
-    '  <path style="fill:rgb(107,165,255);stroke:none;" d="M 24.127893,7.7265768 12.040694,35.300496 13.17387,36.433671 24.127893,31.447702 Z M 20.706461,28.785147 Z" />' +
-    '  <path style="fill:rgb(3,89,194);stroke:none;" d="m 24.125389,7.723414 12.087198,27.573919 -1.133174,1.133175 -10.954024,-4.985969 z m 3.421432,21.058569 z" />' +
+    '<svg xmlns="http://www.w3.org/2000/svg" height="60" width="60">' +
+    '  <ellipse style="fill:rgba(255,255,255,0.6865);stroke:none;stroke-width:0.579884;stroke-opacity:1" cx="30" cy="30.8" rx="29.9" ry="29.9"/>' +
+    '  <path style="fill:rgb(107,165,255);stroke:none;" d="m 30.125271,9.9534187 -15.937653,36.3577693 1.494157,1.49415 14.443496,-6.574279 z M 25.61392,37.720331 Z"/>' +
+    '  <path style="fill:rgb(3,89,194);stroke:none;" d="M 30.121972,9.9492547 46.059618,46.307018 44.565463,47.801171 30.121972,41.226889 Z m 4.511345,27.7669023 z"/>' +
     '</svg>'
 
 function addCurrentLocation(map: Map, feature: Feature) {
