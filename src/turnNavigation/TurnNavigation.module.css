@@ -1,5 +1,5 @@
 .turnSign {
-    padding: 15px 10px 10px 10px;
+    padding: 18px 12px 13px 12px;
     min-width: 70px;
     margin-right: 1px;
     background-color: white;
@@ -91,7 +91,7 @@
     z-index: 2;
     font-size: 20px;
     display: flex;
-    padding: 10px 3px 10px 12px /* left needs a bit more space -> rounded screens */;
+    padding: 14px 10px 16px 12px /* left needs a bit more space -> rounded screens */;
 }
 
 /* not all and (x) is the opposite of x */
