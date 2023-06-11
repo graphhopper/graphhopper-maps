@@ -17,7 +17,7 @@ const distanceFormat2 = new Intl.NumberFormat(navigator.language, { maximumFract
 export function kmToMPHIfMiles(value: number, showDistanceInMiles: boolean, roundTo10 = false) {
     return showDistanceInMiles
         ? roundTo10
-            ? Math.round((value / 1.60934) / 10.0) * 10
+            ? Math.round(value / 1.60934 / 10.0) * 10
             : Math.round(value / 1.60934)
         : Math.round(value)
 }

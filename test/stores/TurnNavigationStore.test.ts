@@ -391,5 +391,5 @@ async function flushPromises() {
 }
 
 function setImmediatePolyfill(callback: any) {
-    return setTimeout(callback, 0);
+    return setTimeout(callback, 0)
 }
