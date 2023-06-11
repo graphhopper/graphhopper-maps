@@ -20,6 +20,21 @@ if (fs.existsSync(localConfig)) {
 // get git info from command line
 const gitSHA = require('child_process').execSync('git rev-parse HEAD').toString().trim()
 
+// you can just require .json, saves the 'fs'-hassle
+let package = require('./package.json');
+
+function modify(buffer) {
+    // copy-webpack-plugin passes a buffer
+    var manifest = JSON.parse(buffer.toString());
+
+    // make any modifications you like, such as
+    manifest.version = package.version;
+
+    // pretty print to JSON with two spaces
+    manifest_JSON = JSON.stringify(manifest, null, 2);
+    return manifest_JSON;
+}
+
 module.exports = {
     entry: path.resolve(__dirname, 'src', 'index.tsx'),
     output: {
@@ -97,6 +112,20 @@ module.exports = {
                 },
             ],
         }),
+        new CopyPlugin({
+            patterns: [
+                {
+                    from: "./src/sidebar/header.svg",
+                    to: "header.svg",
+                },
+                {
+                    from: "./src/manifest.json",
+                    to: "manifest.json",
+                    // to update the version use transform: https://stackoverflow.com/a/54700817/194609
+                    transform(content, path) {
+                        return modify(content)
+                    }
+                }]}),
         new webpack.DefinePlugin({
             GIT_SHA: JSON.stringify(gitSHA),
         }),
