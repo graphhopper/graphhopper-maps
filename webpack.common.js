@@ -115,10 +115,6 @@ module.exports = {
         new CopyPlugin({
             patterns: [
                 {
-                    from: "./src/sidebar/header.svg",
-                    to: "header.svg",
-                },
-                {
                     from: "./src/manifest.json",
                     to: "manifest.json",
                     // to update the version use transform: https://stackoverflow.com/a/54700817/194609
