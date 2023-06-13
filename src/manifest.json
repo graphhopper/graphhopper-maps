@@ -1,21 +1,20 @@
 {
-  "short_name": "GraphHopper",
   "name": "GraphHopper Maps",
-  "icons": [
-    {
-      "src": "/logo-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    },
-    {
-      "src": "/logo-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    }
-  ],
+  "short_name": "GraphHopper",
   "start_url": "/maps/?source=pwa",
   "background_color": "white",
   "theme_color": "white",
   "display": "standalone",
-  "scope": "/maps"
+  "icons": [
+    {
+      "src": "/assets/android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "/assets/android-chrome-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ]
 }
