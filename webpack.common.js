@@ -102,7 +102,12 @@ module.exports = {
     },
     plugins: [
         new HTMLWebpackPlugin({ template: path.resolve(__dirname, 'src/index.html') }),
-        new FaviconsWebpackPlugin(path.resolve(__dirname, 'src/favicon.png')),
+        new FaviconsWebpackPlugin({
+            logo: './src/logo.svg',
+            favicons: {
+                icons: { appleStartup: false, yandex: false, coast: false }
+            }
+        }),
         // config.js is kept outside the bundle and simply copied to the dist folder
         new CopyPlugin({
             patterns: [
