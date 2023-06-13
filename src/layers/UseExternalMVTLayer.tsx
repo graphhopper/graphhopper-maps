@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import VectorTileSource from 'ol/source/VectorTile'
 import VectorTileLayer from 'ol/layer/VectorTile'
 import { MVT } from 'ol/format'
-import { Stroke, Style } from 'ol/style'
+import { Fill, Stroke, Style } from 'ol/style'
 import { toLonLat } from 'ol/proj'
 import { RoutingGraphHover } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
@@ -39,11 +39,11 @@ export default function useExternalMVTLayer(map: Map, externalMVTLayerEnabled: b
             source: selectionSource,
             zIndex: 0.7,
             style: feature => {
-                const style = config.externalMVTLayer.styles[feature.get('layer')]
+                const style = config.externalMVTLayer.styles[feature.get('layer')] as any
                 return new Style({
                     stroke: new Stroke({
-                        color: brighten(style.color, 20),
-                        width: style.width * 1.1,
+                        color: [252, 144, 175],
+                        width: style.width * 1.2,
                     }),
                 })
             },
@@ -86,8 +86,11 @@ function getStyle(feature: Feature): Style | undefined {
     if (style)
         return new Style({
             stroke: new Stroke({
-                color: style.color,
+                color: [...style.color as any, 1],
                 width: style.width,
+            }),
+            fill: new Fill({
+                color: [...style.color as any, 0.3],
             }),
         })
     // do not render this feature
