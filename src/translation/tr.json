@@ -94,6 +94,7 @@
 "reroute":"reroute",
 "start_navigation":"Navigation",
 "then":"then",
+"thenSign":"Then",
 "turn_navigation_settings_title":"Turn-by-turn navigation",
 "vector_tiles_for_navigation":"Use vector tiles",
 "warning":"WARNING: The turn-by-turn navigation feature is highly experimental. Use it at your own risk, pay attention to the road and do not touch the device while driving!"
@@ -194,6 +195,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -294,6 +296,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -394,6 +397,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"sonra",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -494,6 +498,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"след това",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":"Внимание: Приложението е експериментално! Използвайте на свой риск!"
@@ -594,6 +599,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -694,6 +700,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"després",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -794,6 +801,7 @@
 "reroute":"",
 "start_navigation":"Navigace",
 "then":"a poté",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"Použít vektorové dlaždice",
 "warning":"POZOR: Navigace je vysoce experimentální. Použití je na vlastní nebezpečí, soustřeďte se na řízení a věnujte pozornost dopravní situaci. Neovládejte přístroj za jízdy!"
@@ -894,6 +902,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"så",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -994,6 +1003,7 @@
 "reroute":"Neue Route",
 "start_navigation":"Navigation",
 "then":"dann",
+"thenSign":"Dann",
 "turn_navigation_settings_title":"Navigation",
 "vector_tiles_for_navigation":"Nutze Vector Tiles",
 "warning":"ACHTUNG: Die Navigation ist höchst experimentell. Verwenden Sie diese auf eigene Gefahr, achten Sie auf den Straßenverkehr und berühren Sie das Gerät nicht während der Fahrt!"
@@ -1094,6 +1104,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"τότε",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":"ΠΡΟΣΟΧΗ: Αυτή η εφαρμογή είναι πειραματική! Χρησιμοποιήστε την με δική σας ευθύνη!"
@@ -1194,6 +1205,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -1294,6 +1306,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"luego",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -1394,6 +1407,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -1494,6 +1508,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -1594,6 +1609,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"sen jälkeen",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":"VAROITUS: Tämä sovellus on erittäin kokeellinen! Käytä omalla vastuullasi!"
@@ -1694,6 +1710,7 @@
 "reroute":"",
 "start_navigation":"Naviguer",
 "then":"ensuite",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":"ATTENTION : Cette application est hautement expérimentale ! À utiliser à vos risques et périls !"
@@ -1794,6 +1811,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"ensuite",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -1894,6 +1912,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -1994,6 +2013,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -2094,6 +2114,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -2194,6 +2215,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -2209,11 +2231,11 @@
 "way_contains":"Az útvonalon előfordul %1$s",
 "tracks":"burkolatlan földút",
 "steps":"lépcső",
-"footways":"",
-"steep_sections":"",
-"private_sections":"",
-"trunk_roads_warn":"",
-"get_off_bike_for":"",
+"footways":"gyalogút",
+"steep_sections":"meredek szakasz",
+"private_sections":"magánút",
+"trunk_roads_warn":"Az útvonal potenciálisan veszélyes autóutat vagy forgalmasabbat is tartalmaz",
+"get_off_bike_for":"A kerékpárt tolni kell ennyit: %1$s",
 "start_label":"Indulás",
 "intermediate_label":"Köztes célpont",
 "end_label":"Célpont",
@@ -2227,16 +2249,16 @@
 "add_to_route":"Hely hozzáadása",
 "delete_from_route":"Eltávolítás az útvonalról",
 "open_custom_model_box":"Egyedi modelldoboz megnyitása",
-"draw_areas_enabled":"",
+"draw_areas_enabled":"Területek rajzolása és módosítása a térképen",
 "help_custom_model":"Súgó",
 "apply_custom_model":"Alkalmazás",
-"custom_model_enabled":"",
-"settings":"",
-"settings_close":"",
+"custom_model_enabled":"Egyedi modell bekapcsolva",
+"settings":"Beállítások",
+"settings_close":"Bezárás",
 "exclude_motorway_example":"Autópálya nélkül",
 "limit_speed_example":"Sebességkorlátozás",
-"cargo_bike_example":"",
-"prefer_bike_network":"",
+"cargo_bike_example":"Viszikli (teherkerékpár)",
+"prefer_bike_network":"Kerékpárutak előnyben részesítése",
 "exclude_area_example":"Terület elkerülése",
 "combined_example":"Kombinált példa",
 "examples_custom_model":"Példák",
@@ -2282,21 +2304,22 @@
 "distance_unit":"Távolság mértékegysége: %1$s",
 "waiting_for_gps":"",
 "accept_risks_after_warning":"Megértettem és elfogadom",
-"for_km":"",
-"for_mi":"",
-"full_screen_for_navigation":"",
-"in_km_singular":"",
-"in_km":"",
-"in_m":"",
-"in_mi_singular":"",
-"in_mi":"",
-"in_ft":"",
-"reroute":"",
-"start_navigation":"",
-"then":"",
-"turn_navigation_settings_title":"",
-"vector_tiles_for_navigation":"",
-"warning":"FIGYELEM! Ez az alkalmazás erősen kísérleti jellegű. Használat csak saját felelősségre!"
+"for_km":"%1$s kilométert",
+"for_mi":"%1$s mérföldet",
+"full_screen_for_navigation":"Teljes képernyő bekapcsolása",
+"in_km_singular":"1 kilométer múlva",
+"in_km":"%1$s kilométer múlva",
+"in_m":"%1$s méter múlva",
+"in_mi_singular":"1 mérföld múlva",
+"in_mi":"%1$s mérföld múlva",
+"in_ft":"%1$s láb múlva",
+"reroute":"újratervezés",
+"start_navigation":"Navigáció",
+"then":"majd",
+"thenSign":"",
+"turn_navigation_settings_title":"Részletes navigáció",
+"vector_tiles_for_navigation":"Vektoros csempék használata",
+"warning":"FIGYELEM! A részletes navigáció funkció erősen kísérleti jellegű. Csak saját felelősségre használja, figyeljen az útra és ne érintse meg a készüléket vezetés közben!"
 },
 "in_ID":{
 "total_ascend":"naik dengan jarak %1$s",
@@ -2394,6 +2417,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -2491,9 +2515,10 @@
 "in_mi_singular":"Tra 1 miglio",
 "in_mi":"Tra %1$s miglia",
 "in_ft":"Tra %1$s piedi",
-"reroute":"",
+"reroute":"Ricalcola",
 "start_navigation":"Naviga",
 "then":"poi",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":"ATTENZIONE: Questa applicazione è ancora sperimentale! Utilizzala a tuo rischio e pericolo!"
@@ -2594,6 +2619,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -2694,6 +2720,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -2794,6 +2821,7 @@
 "reroute":"",
 "start_navigation":"навигация",
 "then":"одан соң ",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":"Ескерту: бұрылыстан бұрылысқа навигация функциясы эксперименталды. Оны өз жауапкершілігіңізбен пайдаланыңыз, жолға назар аударыңыз және қозғалыс кезінде құрылғыға қол тигізбеңіз!"
@@ -2894,6 +2922,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"tada",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -2994,6 +3023,7 @@
 "reroute":"",
 "start_navigation":"Start navigasjon",
 "then":"deretter",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":"VARSEL: Denne appen er svært eksperimentell. Brukes på eget ansvar!"
@@ -3094,6 +3124,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -3194,6 +3225,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"dan",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -3294,6 +3326,7 @@
 "reroute":"",
 "start_navigation":"Nawiguj",
 "then":", potem",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":"OSTRZEŻENIE: Ta aplikacja jest wysoce eksperymentalna! Używaj na własne ryzyko!"
@@ -3394,6 +3427,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -3494,6 +3528,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -3594,6 +3629,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -3694,6 +3730,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"Затем",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -3794,6 +3831,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -3894,6 +3932,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -3994,6 +4033,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -4094,6 +4134,7 @@
 "reroute":"",
 "start_navigation":"Navigera",
 "then":"sedan",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":"VARNING: Sväng-för-sväng-navigeringen är mycket experimentell! Använd på egen risk!"
@@ -4194,6 +4235,7 @@
 "reroute":"",
 "start_navigation":"Başla",
 "then":"ardından",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -4294,6 +4336,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -4394,6 +4437,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"Gần đó",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -4494,6 +4538,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"然后",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":"警告：该应用程序处于早期实验阶段，使用时风险自负！"
@@ -4594,6 +4639,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
@@ -4694,6 +4740,7 @@
 "reroute":"",
 "start_navigation":"",
 "then":"",
+"thenSign":"",
 "turn_navigation_settings_title":"",
 "vector_tiles_for_navigation":"",
 "warning":""
