@@ -261,7 +261,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
             // the initialPath can contain more than 2 waypoints -> pick the next as destination for rerouting
             if (skipWaypoint) {
-                if (instrInfo.nextWaypointIndex + 1 < path.snapped_waypoints.coordinates.length) instrInfo.nextWaypointIndex++
+                if (instrInfo.nextWaypointIndex + 1 < path.snapped_waypoints.coordinates.length)
+                    instrInfo.nextWaypointIndex++
                 else skipWaypoint = false // no reroute if end is reached
             }
 
@@ -336,8 +337,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const lastAnnounceDistance = Math.max(30, 20 + factor * estimatedAvgSpeed)
             const firstAnnounceDistance = 1150 + factor * estimatedAvgSpeed
 
-            if (instrInfo.index != state.instruction.index)
-                announcementsToDo = instrInfo.distanceToTurn > 1000 ? 2 : 1
+            if (instrInfo.index != state.instruction.index) announcementsToDo = instrInfo.distanceToTurn > 1000 ? 2 : 1
 
             if (instrInfo.distanceToTurn <= lastAnnounceDistance && announcementsToDo > 0) {
                 announcementsToDo = 0

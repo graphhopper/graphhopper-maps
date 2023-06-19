@@ -41,7 +41,9 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                     {thenInstructionSign && (
                         <div className={styles.thenDistance}>
                             <div>{tr('thenSign')}</div>
-                            <div>{getTurnSign(thenInstructionSign, instruction.index, instruction.nextWaypointIndex)}</div>
+                            <div>
+                                {getTurnSign(thenInstructionSign, instruction.index, instruction.nextWaypointIndex)}
+                            </div>
                         </div>
                     )}
                 </div>
