@@ -14,16 +14,31 @@
     align-self: flex-start;
 }
 
-.turnSign div:first-child {
-    padding-bottom: 7px;
-    min-height: 50px;
+.turnSign .nextDistance {
 }
 
-.turnSign img {
+.turnSign .firstSign div:first-child {
+    min-height: 50px !important;
+}
+
+.turnSign div > img {
     height: 55px;
 }
 
-.turnSign .nextDistance {
+.turnSign .thenDistance img {
+    padding-left: 5px;
+    height: 20px;
+}
+
+.turnSign .thenDistance {
+    margin-top: 10px;
+    border-top: lightgray solid 1px;
+    padding-top: 10px;
+    font-size: smaller;
+
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
 }
 
 .instructionText {

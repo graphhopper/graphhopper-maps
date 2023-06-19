@@ -12,13 +12,14 @@ import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
 import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
 import SyncLocationIcon from '@/turnNavigation/location_searching.svg'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import { tr } from '@/translation/Translation'
 
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
     if (turnNavigation.activePath == null) new Error('activePath cannot be null if TurnNavigation is enabled')
     const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
     const instruction = turnNavigation.instruction
     const pd = turnNavigation.pathDetails
-
+    const thenInstructionSign = turnNavigation.thenInstructionSign
     let [showTime, setShowTime] = useState(true)
     let [showDebug, setShowDebug] = useState(false)
 
@@ -31,10 +32,18 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
         <>
             <div className={styles.firstRow}>
                 <div className={styles.turnSign}>
-                    <div>{getTurnSign(instruction.sign, instruction.index, instruction.nextWaypointIndex)}</div>
+                    <div className={styles.firstSign}>
+                        {getTurnSign(instruction.sign, instruction.index, instruction.nextWaypointIndex)}
+                    </div>
                     <div className={styles.nextDistance}>
                         {metersToText(instruction.distanceToTurn, showDistanceInMiles)}
                     </div>
+                    {thenInstructionSign && (
+                        <div className={styles.thenDistance}>
+                            <div>{tr('thenSign')}</div>
+                            <div>{getTurnSign(thenInstructionSign, instruction.index, instruction.nextWaypointIndex)}</div>
+                        </div>
+                    )}
                 </div>
                 <div
                     className={styles.instructionText}

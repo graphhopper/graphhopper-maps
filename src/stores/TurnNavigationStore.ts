@@ -55,6 +55,7 @@ export interface TurnNavigationStoreState {
     rerouteInProgress: boolean
     settings: TNSettingsState
     instruction: TNInstructionState
+    thenInstructionSign: number | null
     pathDetails: TNPathDetailsState
 }
 
@@ -131,6 +132,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 fullScreen: true,
             } as TNSettingsState,
             instruction: {} as TNInstructionState,
+            thenInstructionSign: null,
             pathDetails: {} as TNPathDetailsState,
         })
         this.cs = cs
@@ -231,12 +233,12 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
             const coordinate = action.coordinate
             let path = state.activePath
-            let instr = getCurrentInstruction(path.instructions, coordinate)
+            let instrInfo = getCurrentInstruction(path.instructions, coordinate)
 
             // skip waypoint if close to it and next is available (either activePath has via points or initialPath)
             let skipWaypoint = TurnNavigationStore.skipWaypoint(
                 state.instruction.distanceToWaypoint,
-                TurnNavigationStore.getWaypoint(path, instr.nextWaypointIndex),
+                TurnNavigationStore.getWaypoint(path, instrInfo.nextWaypointIndex),
                 state.coordinate,
                 action.coordinate
             )
@@ -248,10 +250,10 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             ) {
                 // switch back to original path and skip the current waypoint
                 path = state.initialPath
-                instr = getCurrentInstruction(path.instructions, coordinate)
+                instrInfo = getCurrentInstruction(path.instructions, coordinate)
                 skipWaypoint = TurnNavigationStore.skipWaypoint(
                     state.instruction.distanceToWaypoint,
-                    TurnNavigationStore.getWaypoint(path, instr.nextWaypointIndex),
+                    TurnNavigationStore.getWaypoint(path, instrInfo.nextWaypointIndex),
                     state.coordinate,
                     action.coordinate
                 )
@@ -259,16 +261,16 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
             // the initialPath can contain more than 2 waypoints -> pick the next as destination for rerouting
             if (skipWaypoint) {
-                if (instr.nextWaypointIndex + 1 < path.snapped_waypoints.coordinates.length) instr.nextWaypointIndex++
+                if (instrInfo.nextWaypointIndex + 1 < path.snapped_waypoints.coordinates.length) instrInfo.nextWaypointIndex++
                 else skipWaypoint = false // no reroute if end is reached
             }
 
             // reroute only if already in turn navigation mode otherwise UI is not ready
-            if (state.showUI && (skipWaypoint || this.shouldReroute(instr.distanceToRoute))) {
+            if (state.showUI && (skipWaypoint || this.shouldReroute(instrInfo.distanceToRoute))) {
                 let queriedAPI = false
                 if (state.activeProfile && !state.rerouteInProgress) {
                     const nextWaypoints = path.snapped_waypoints.coordinates
-                        .slice(instr.nextWaypointIndex)
+                        .slice(instrInfo.nextWaypointIndex)
                         .map(p => [p[0], p[1]] as [number, number])
                     if (nextWaypoints.length == 0)
                         throw Error('rerouting needs a destination but was empty ' + JSON.stringify(path))
@@ -311,7 +313,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 }
             }
 
-            if (instr.index < 0) {
+            if (instrInfo.index < 0) {
                 console.error(
                     'Instruction cannot be determined. Current location too far away? ' + JSON.stringify(coordinate)
                 )
@@ -325,9 +327,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 path.details.road_class,
             ])
 
-            const instructionState = state.instruction
-            const nextInstruction: Instruction = path.instructions[instr.index]
-            const text = nextInstruction.street_name
+            const instruction: Instruction = path.instructions[instrInfo.index]
+            const text = instruction.street_name
 
             // announce proportional earlier if faster
             const factor = estimatedAvgSpeed < 70 ? 2 : roadClass == 'trunk' || roadClass == 'motorway' ? 7 : 3
@@ -335,17 +336,15 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const lastAnnounceDistance = Math.max(30, 20 + factor * estimatedAvgSpeed)
             const firstAnnounceDistance = 1150 + factor * estimatedAvgSpeed
 
-            if (instr.index != instructionState.index) announcementsToDo = instr.distanceToTurn > 1000 ? 2 : 1
+            if (instrInfo.index != state.instruction.index)
+                announcementsToDo = instrInfo.distanceToTurn > 1000 ? 2 : 1
 
-            // const details = factor + ', avg-speed:' + estimatedAvgSpeed + ', announcements:' + announcementsToDo
-            // console.log('first:' + firstAnnounceDistance + ' last:' + lastAnnounceDistance + ', factor:' + details)
-
-            if (instr.distanceToTurn <= lastAnnounceDistance && announcementsToDo > 0) {
+            if (instrInfo.distanceToTurn <= lastAnnounceDistance && announcementsToDo > 0) {
                 announcementsToDo = 0
-                this.synthesize(nextInstruction.text)
+                this.synthesize(instruction.text)
             }
 
-            const dist = instr.distanceToTurn
+            const dist = instrInfo.distanceToTurn
             if (dist <= firstAnnounceDistance && announcementsToDo == 2) {
                 announcementsToDo = 1
                 if (dist > lastAnnounceDistance * 1.2 + 50) {
@@ -355,7 +354,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                             dist > 1800
                                 ? tr('in_mi', [meterToMiles(dist).toFixed(1)])
                                 : tr('in_ft', ['' + Math.round(meterToFt(dist) / 100) * 100])
-                        this.synthesize(inString + ' ' + nextInstruction.text)
+                        this.synthesize(inString + ' ' + instruction.text)
                     } else {
                         let inString =
                             dist > 1200
@@ -363,10 +362,15 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                                 : dist > 900
                                 ? tr('in_km_singular')
                                 : tr('in_m', ['' + Math.floor(dist / 100) * 100])
-                        this.synthesize(inString + ' ' + nextInstruction.text)
+                        this.synthesize(inString + ' ' + instruction.text)
                     }
                 }
             }
+
+            // if instruction after next instruction is too close show "then" instruction
+            let thenInstructionSign = null
+            if (instrInfo.index + 1 < path.instructions.length && instruction.distance < 200)
+                thenInstructionSign = path.instructions[instrInfo.index + 1].sign
 
             return {
                 ...state,
@@ -375,16 +379,17 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 speed: action.speed,
                 coordinate: coordinate,
                 instruction: {
-                    index: instr.index,
-                    distanceToTurn: instr.distanceToTurn,
-                    timeToEnd: instr.timeToEnd,
-                    distanceToEnd: instr.distanceToEnd,
-                    nextWaypointIndex: instr.nextWaypointIndex,
-                    distanceToWaypoint: instr.distanceToWaypoint,
-                    sign: path.instructions[instr.index].sign,
+                    index: instrInfo.index,
+                    distanceToTurn: instrInfo.distanceToTurn,
+                    timeToEnd: instrInfo.timeToEnd,
+                    distanceToEnd: instrInfo.distanceToEnd,
+                    nextWaypointIndex: instrInfo.nextWaypointIndex,
+                    distanceToWaypoint: instrInfo.distanceToWaypoint,
+                    sign: instruction.sign,
                     announcementsToDo,
                     text,
                 },
+                thenInstructionSign: thenInstructionSign,
                 pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
             }
         } else if (action instanceof TurnNavigationRerouting) {
@@ -453,7 +458,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private synthesize(text: string) {
-        // console.log('speak: ' + text)
+        console.log('speak: ' + text)
         if (this.state.settings.soundEnabled) this.speechSynthesizer.synthesize(text)
     }
 
