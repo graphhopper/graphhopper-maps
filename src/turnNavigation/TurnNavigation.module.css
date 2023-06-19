@@ -31,6 +31,7 @@
     overflow: hidden;
     align-self: flex-start;
     flex-grow: 1;
+    pointer-events: visible;
 
     background-color: rgba(255, 255, 255, 1);
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
@@ -164,7 +165,6 @@
 
 .debug {
     font-size: smaller;
-    float: right;
 }
 
 .fourthCol {
