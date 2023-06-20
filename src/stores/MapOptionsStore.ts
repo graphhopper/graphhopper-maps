@@ -61,9 +61,7 @@ const osmOrg: RasterStyle = {
     name: 'OpenStreetMap',
     type: 'raster',
     url: [
-        'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     ],
     attribution: osmAttribution,
     maxZoom: 19,
