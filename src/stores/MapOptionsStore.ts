@@ -15,7 +15,7 @@ const thunderforestApiKey = config.keys.thunderforest
 const kurvigerApiKey = config.keys.kurviger
 
 const osmAttribution =
-    '&copy; <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+    '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
 
 export interface MapOptionsStoreState {
     styleOptions: StyleOption[]
@@ -61,9 +61,7 @@ const osmOrg: RasterStyle = {
     name: 'OpenStreetMap',
     type: 'raster',
     url: [
-        'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     ],
     attribution: osmAttribution,
     maxZoom: 19,
