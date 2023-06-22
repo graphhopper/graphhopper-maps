@@ -149,11 +149,24 @@
     flex-grow: 1;
     display: flex;
     justify-content: center;
+
+    gap: 15px;
 }
 
 .currentSpeed {
-    padding-top: 1px;
-    padding-right: 10px;
+    padding-top: 7px;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.currentSpeed div:last-child {
+    font-size: smaller;
+}
+
+.maxSpeed {
+    padding-top: 4px;
 }
 
 .secondCol {

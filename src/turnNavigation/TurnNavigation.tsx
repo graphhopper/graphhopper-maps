@@ -97,21 +97,22 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                 <div className={styles.turnInfoRightSide}>
                     <div className={styles.firstCol}>
                         <div className={styles.currentSpeed}>
-                            {currentSpeed} {showDistanceInMiles ? 'mph' : 'km/h'}
+                            <div>{currentSpeed}</div>
+                            <div>{showDistanceInMiles ? 'mph' : 'km/h'}</div>
                         </div>
                         <div className={styles.maxSpeed}>
                             {pd.maxSpeed != null &&
-                            (ApiImpl.isMotorVehicle(turnNavigation.activeProfile) || pd.maxSpeed > 50) ? (
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 42" width="42px" height="42px">
+                            ApiImpl.isMotorVehicle(turnNavigation.activeProfile) ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="44px" height="44px">
                                     <circle
-                                        cx="21"
-                                        cy="21"
-                                        r="19"
+                                        cx="22"
+                                        cy="22"
+                                        r="20"
                                         stroke="rgba(255, 0, 0, 0.6)"
                                         strokeWidth="3px"
                                         fill="none"
                                     />
-                                    <text x="50%" y="26" textAnchor="middle" style={{ fontSize: '18px' }}>
+                                    <text x="50%" y="28" textAnchor="middle" style={{ fontSize: '18px' }}>
                                         {kmToMPHIfMiles(pd.maxSpeed, showDistanceInMiles, true)}
                                     </text>
                                 </svg>
