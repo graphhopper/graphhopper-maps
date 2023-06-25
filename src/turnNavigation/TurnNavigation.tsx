@@ -38,7 +38,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                     <div className={styles.nextDistance}>
                         {metersToText(instruction.distanceToTurn, showDistanceInMiles)}
                     </div>
-                    {thenInstructionSign && (
+                    {thenInstructionSign != null && (
                         <div className={styles.thenDistance}>
                             <div>{tr('thenSign')}</div>
                             <div>
