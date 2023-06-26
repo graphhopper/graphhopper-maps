@@ -1,11 +1,15 @@
 # GraphHopper Maps
 
-A user interface for the [GraphHopper routing engine](https://github.com/graphhopper/graphhopper) released under the Apache License 2.0.
+A route planner user interface for the [GraphHopper routing engine](https://github.com/graphhopper/graphhopper) released under the Apache License 2.0.
 
 [Try it out](https://graphhopper.com/maps/)!
 
 [![GraphHopper Maps route planner](https://www.graphhopper.com/wp-content/uploads/2023/03/gh-maps-202303.png)](https://graphhopper.com/maps/)
 
+## Turn-by-Turn navigation
+
+There is [an experimental `navi` branch](https://github.com/graphhopper/graphhopper-maps/tree/navi) that implements turn-by-turn navigation
+[directly in the browser](https://navi.graphhopper.org).
 
 ## Start development:
 
@@ -38,10 +42,7 @@ best to create a copy of this file called `config-local.js` which will be ignore
 
 ## Further Notes
 
-Every branch of this repository can be tested at https://graphhopper.com/maps-dev/<branch_name>/ 
-
-There is also [an experimental `navi` branch](https://github.com/graphhopper/graphhopper-maps/tree/navi) that implements
-turn-by-turn navigation [directly in the browser](https://navi.graphhopper.org).
+Every branch of this repository can be tested at https://graphhopper.com/maps-dev/<branch_name>/
 
 ## Powered By
 
