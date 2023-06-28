@@ -49,6 +49,7 @@ export default class MapActionReceiver implements ActionReceiver {
             // reset padding
             this.map.getView().padding = [0, 0, 0, 0]
             this.map.getView().animate({ rotation: 0, zoom: 14, duration: 600 })
+            this.map.getView().setConstrainResolution(true)
             this.map.un('pointerdrag', this.onMove)
             // this.map.getView().un('change:resolution', this.onMove)
         } else if (action instanceof TurnNavigationStart) {
@@ -62,6 +63,7 @@ export default class MapActionReceiver implements ActionReceiver {
             }
             if (this.zoomCtrl) arr.remove(this.zoomCtrl)
             if (this.attributionCtrl) arr.remove(this.attributionCtrl)
+            this.map.getView().setConstrainResolution(false)
             this.map.on('pointerdrag', this.onMove) // disable auto moving&zooming the map if *moving* the map
             // TODO this interferes with zooming from inside the application
             // this.map.getView().on('change:resolution', this.onMove) // disable auto moving&zooming the map if *zooming* the map
@@ -75,7 +77,7 @@ export default class MapActionReceiver implements ActionReceiver {
             const center = fromLonLat([action.coordinate.lng, action.coordinate.lat])
             if (action.syncView) {
                 const args: AnimationOptions = {
-                    zoom: action.zoom,
+                    zoom: action.speed < 8 ? (action.speed < 4 ? 18 : 17.5 ) : 17,
                     center: center,
                     easing: linear,
                     // Create a smooth animation that lasts at least 1000ms (as location updates come in every 1s).

@@ -28,15 +28,13 @@ export class LocationUpdate implements Action {
     readonly coordinate: Coordinate
     readonly speed: number // in meter/sec
     readonly heading: number
-    readonly zoom: number
     readonly syncView: boolean
 
-    constructor(coordinate: Coordinate, syncView: boolean, speed: number, heading: number, zoom: number) {
+    constructor(coordinate: Coordinate, syncView: boolean, speed: number, heading: number) {
         this.coordinate = coordinate
         this.speed = speed
         this.syncView = syncView
         this.heading = heading
-        this.zoom = zoom
     }
 }
 

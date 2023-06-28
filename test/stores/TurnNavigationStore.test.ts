@@ -121,7 +121,7 @@ describe('TurnNavigationStore', () => {
             const speech = new DummySpeech()
             const store = createStore(api, speech)
             Dispatcher.dispatch(new SetSelectedPath(reroute1.paths[0]))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.268908, lat: 51.434871 }, true, 10, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.268908, lat: 51.434871 }, true, 10, 120))
             expect(store.state.speed).toEqual(10)
             expect(store.state.activePath).toEqual(reroute1.paths[0])
             expect(store.state.instruction.index).toEqual(1)
@@ -129,12 +129,12 @@ describe('TurnNavigationStore', () => {
             Dispatcher.dispatch(new TurnNavigationSettingsUpdate({ soundEnabled: true } as TNSettingsState))
 
             // no rerouting without profile
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, true, 12, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, true, 12, 120))
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeFalsy()
 
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.267238, lat: 51.43475 }, true, 12, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.267238, lat: 51.43475 }, true, 12, 120))
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeTruthy()
             await flushPromises()
@@ -145,7 +145,7 @@ describe('TurnNavigationStore', () => {
             expect(store.state.instruction.index).toEqual(1)
 
             // avoid too frequent rerouting
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, true, 10, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, true, 10, 120))
             expect(store.state.speed).toEqual(10)
             expect(store.state.rerouteInProgress).toBeFalsy()
 
@@ -154,7 +154,7 @@ describe('TurnNavigationStore', () => {
                 [14.267240000000001, 51.43253000000001],
             ])
             Dispatcher.dispatch(new TurnNavigationReroutingTimeResetForTest()) // skip waiting 10 seconds
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, true, 12, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, true, 12, 120))
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeTruthy()
             await flushPromises()
@@ -169,13 +169,13 @@ describe('TurnNavigationStore', () => {
             const store = createStore(new LocalApi().setRerouteData(reroute1, rerouteWaypoints))
             Dispatcher.dispatch(new SetSelectedPath(routeWithVia.paths[0]))
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266959, lat: 51.435051 }, true, 10, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.266959, lat: 51.435051 }, true, 10, 120))
             expect(store.state.speed).toEqual(10)
             expect(store.state.instruction.index).toEqual(1)
             expect(store.state.activePath).toEqual(routeWithVia.paths[0])
 
             // close to via point it should force rerouting to avoid potential interferences with overlapping edges
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.269289, lat: 51.434764 }, true, 12, 70, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.269289, lat: 51.434764 }, true, 12, 70))
             expect(store.state.speed).toEqual(12)
 
             expect(store.state.rerouteInProgress).toBeTruthy()
@@ -194,15 +194,15 @@ describe('TurnNavigationStore', () => {
             const store = createStore(new LocalApi().setRerouteData(reroute1, rerouteWaypoints))
             Dispatcher.dispatch(new SetSelectedPath(routeWithSimpleVia.paths[0]))
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.2727, lat: 51.436269 }, true, 10, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.2727, lat: 51.436269 }, true, 10, 120))
             expect(store.state.activePath).toEqual(routeWithSimpleVia.paths[0])
 
             // close to middle waypoint but not within 50m
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.27109, lat: 51.435472 }, true, 12, 70, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.27109, lat: 51.435472 }, true, 12, 70))
             expect(store.state.speed).toEqual(12)
 
             // close to middle waypoint but again not within 50m but still rerouting as skipWaypoint was true
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.271099, lat: 51.435433 }, true, 14, 70, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.271099, lat: 51.435433 }, true, 14, 70))
             expect(store.state.speed).toEqual(14)
 
             expect(store.state.rerouteInProgress).toBeTruthy()
@@ -226,12 +226,12 @@ describe('TurnNavigationStore', () => {
             Dispatcher.dispatch(new SetSelectedPath(routeWithSimpleVia.paths[0]))
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
             Dispatcher.dispatch(new TurnNavigationSettingsUpdate({ soundEnabled: true } as TNSettingsState))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.2727, lat: 51.436269 }, true, 10, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.2727, lat: 51.436269 }, true, 10, 120))
             expect(store.state.activePath).toEqual(routeWithSimpleVia.paths[0])
             expect(speech.getTexts()).toEqual(['Turn right onto Franz-Liszt-Straße'])
 
             // force reroute
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.273946, lat: 51.436422 }, true, 12, 70, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.273946, lat: 51.436422 }, true, 12, 70))
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeTruthy()
             await flushPromises()
@@ -244,7 +244,7 @@ describe('TurnNavigationStore', () => {
                 [14.267240000000001, 51.43253000000001],
             ] as [number, number][]
             api.setRerouteData(reroute1, newWaypoints)
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.270589, lat: 51.435272 }, true, 16, 70, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.270589, lat: 51.435272 }, true, 16, 70))
             expect(store.state.speed).toEqual(16)
 
             expect(store.state.rerouteInProgress).toBeTruthy()
@@ -266,14 +266,14 @@ describe('TurnNavigationStore', () => {
             Dispatcher.dispatch(new SetCustomModel(customModelStr, false))
             Dispatcher.dispatch(new SetCustomModelEnabled(true))
             Dispatcher.dispatch(new SetSelectedPath(reroute1.paths[0]))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.268908, lat: 51.434871 }, true, 10, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.268908, lat: 51.434871 }, true, 10, 120))
             expect(store.state.customModelStr).toEqual(customModelStr)
             expect(store.state.speed).toEqual(10)
             expect(store.state.activePath).toEqual(reroute1.paths[0])
             expect(store.state.instruction.index).toEqual(1)
 
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.267238, lat: 51.43475 }, true, 12, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.267238, lat: 51.43475 }, true, 12, 120))
             expect(store.state.customModelStr).toEqual(customModelStr)
             expect(store.state.speed).toEqual(12)
             expect(store.state.rerouteInProgress).toBeTruthy()
@@ -292,14 +292,14 @@ describe('TurnNavigationStore', () => {
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
             Dispatcher.dispatch(new SetSelectedPath(announceBug.paths[0]))
             Dispatcher.dispatch(new TurnNavigationSettingsUpdate({ soundEnabled: true } as TNSettingsState))
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.191677, lat: 51.432878 }, true, 16, 70, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.191677, lat: 51.432878 }, true, 16, 70))
             expect(store.state.activePath).toEqual(announceBug.paths[0])
 
             api.setRerouteData(announceBugReroute, [
                 [14.190732, 51.431834],
                 [14.193150000000001, 51.43121000000001],
             ])
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.190732, lat: 51.431834 }, true, 10, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.190732, lat: 51.431834 }, true, 10, 120))
             expect(store.state.rerouteInProgress).toBeTruthy()
             await flushPromises()
             expect(store.state.rerouteInProgress).toBeFalsy()
@@ -307,7 +307,7 @@ describe('TurnNavigationStore', () => {
             expect(store.state.instruction.index).toEqual(1)
 
             // the first LocationUpdate was "used" to force the re-routing -> we need another LocationUpdate
-            Dispatcher.dispatch(new LocationUpdate({ lng: 14.190732, lat: 51.431834 }, true, 10, 120, 16))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 14.190732, lat: 51.431834 }, true, 10, 120))
 
             expect(speech.getTexts()).toEqual(['Links halten', 'reroute', 'Scharf links abbiegen'])
         })
