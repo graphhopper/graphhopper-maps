@@ -48,8 +48,8 @@ export default class MapActionReceiver implements ActionReceiver {
 
             // reset padding
             this.map.getView().padding = [0, 0, 0, 0]
-            this.map.getView().animate({ rotation: 0, zoom: 14, duration: 600 })
             this.map.getView().setConstrainResolution(true)
+            this.map.getView().animate({ rotation: 0, zoom: 16, duration: 600 })
             this.map.un('pointerdrag', this.onMove)
             // this.map.getView().un('change:resolution', this.onMove)
         } else if (action instanceof TurnNavigationStart) {
