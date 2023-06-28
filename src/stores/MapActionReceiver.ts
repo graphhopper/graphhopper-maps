@@ -77,7 +77,7 @@ export default class MapActionReceiver implements ActionReceiver {
             const center = fromLonLat([action.coordinate.lng, action.coordinate.lat])
             if (action.syncView) {
                 const args: AnimationOptions = {
-                    zoom: action.speed < 8 ? (action.speed < 4 ? 18 : 17.5 ) : 17,
+                    zoom: action.speed < 8 ? (action.speed < 4 ? 18 : 17.5) : 17,
                     center: center,
                     easing: linear,
                     // Create a smooth animation that lasts at least 1000ms (as location updates come in every 1s).

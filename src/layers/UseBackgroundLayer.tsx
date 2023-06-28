@@ -4,7 +4,7 @@ import { RasterStyle, StyleOption } from '@/stores/MapOptionsStore'
 import TileLayer from 'ol/layer/Tile'
 import { XYZ } from 'ol/source'
 import { apply } from 'ol-mapbox-style'
-import MapLibreLayer from "@/layers/MapLibreLayer";
+import MapLibreLayer from '@/layers/MapLibreLayer'
 
 export default function useBackgroundLayer(map: Map, styleOption: StyleOption) {
     useEffect(() => {
@@ -36,9 +36,9 @@ function addNewBackgroundLayers(map: Map, styleOption: StyleOption) {
         // todo: handle promise return value?
         // apply(map, styleOption.url)
 
-        const vectorLayer = new MapLibreLayer(styleOption.url as string);
+        const vectorLayer = new MapLibreLayer(styleOption.url as string)
         vectorLayer.set('background-maplibre-layer', true)
-        map.addLayer(vectorLayer);
+        map.addLayer(vectorLayer)
     } else {
         const rasterStyle = styleOption as RasterStyle
         const tileLayer = new TileLayer({

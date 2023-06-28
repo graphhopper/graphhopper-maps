@@ -101,8 +101,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                             <div>{showDistanceInMiles ? 'mph' : 'km/h'}</div>
                         </div>
                         <div className={styles.maxSpeed}>
-                            {pd.maxSpeed != null &&
-                            ApiImpl.isMotorVehicle(turnNavigation.activeProfile) ? (
+                            {pd.maxSpeed != null && ApiImpl.isMotorVehicle(turnNavigation.activeProfile) ? (
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="44px" height="44px">
                                     <circle
                                         cx="22"

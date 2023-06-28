@@ -613,9 +613,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
     private locationUpdate(pos: any) {
         let c = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        Dispatcher.dispatch(
-            new LocationUpdate(c, this.state.settings.syncView, pos.coords.speed, pos.coords.heading)
-        )
+        Dispatcher.dispatch(new LocationUpdate(c, this.state.settings.syncView, pos.coords.speed, pos.coords.heading))
     }
 
     private initReal() {
