@@ -4,6 +4,7 @@ import { RasterStyle, StyleOption } from '@/stores/MapOptionsStore'
 import TileLayer from 'ol/layer/Tile'
 import { XYZ } from 'ol/source'
 import { apply } from 'ol-mapbox-style'
+import MapLibreLayer from "@/layers/MapLibreLayer";
 
 export default function useBackgroundLayer(map: Map, styleOption: StyleOption) {
     useEffect(() => {
@@ -22,7 +23,7 @@ export function getCurrentBackgroundLayers(map: Map) {
         .getArray()
         .filter(l => {
             // vector layers added via olms#addLayers have the mapbox-source key
-            return l.get('mapbox-source') || l.get('background-raster-layer')
+            return l.get('mapbox-source') || l.get('background-maplibre-layer') || l.get('background-raster-layer')
         })
 }
 
@@ -33,7 +34,11 @@ function removeCurrentBackgroundLayers(map: Map) {
 function addNewBackgroundLayers(map: Map, styleOption: StyleOption) {
     if (styleOption.type === 'vector') {
         // todo: handle promise return value?
-        apply(map, styleOption.url)
+        // apply(map, styleOption.url)
+
+        const vectorLayer = new MapLibreLayer(styleOption.url as string);
+        vectorLayer.set('background-maplibre-layer', true)
+        map.addLayer(vectorLayer);
     } else {
         const rasterStyle = styleOption as RasterStyle
         const tileLayer = new TileLayer({
