@@ -78,9 +78,10 @@ export default class MapActionReceiver implements ActionReceiver {
                     zoom: action.zoom,
                     center: center,
                     easing: linear,
-                    // We could use 1000ms or more but map tiles won't update probably due to missing updateWhileAnimating.
-                    // For now, due to performance reasons, we set this to true only for the layer.
-                    duration: 800,
+                    // Create a smooth animation that lasts at least 1000ms (as location updates come in every 1s).
+                    // This was 800 as with normal vector tiles we had performance problems while rerouting.
+                    // The new route did not show up likely because FPS is in that case too low.
+                    duration: 1050,
                 }
 
                 if (!Number.isNaN(action.heading) && action.speed > 0) {
