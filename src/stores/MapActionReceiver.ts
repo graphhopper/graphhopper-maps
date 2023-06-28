@@ -77,7 +77,6 @@ export default class MapActionReceiver implements ActionReceiver {
             const center = fromLonLat([action.coordinate.lng, action.coordinate.lat])
             if (action.syncView) {
                 const args: AnimationOptions = {
-                    zoom: action.speed < 8 ? (action.speed < 4 ? 18 : 17.5) : 17,
                     center: center,
                     easing: linear,
                     // Create a smooth animation that lasts at least 1000ms (as location updates come in every 1s).
@@ -85,6 +84,16 @@ export default class MapActionReceiver implements ActionReceiver {
                     // The new route did not show up likely because FPS is in that case too low.
                     duration: 1050,
                 }
+
+                // Currently we have two zoom values 17 and 18 but to avoid zooming forth and back when the speed changes only slightly,
+                // we only change to the lower zoom when below 14.4km/h and change to the higher speed when above 28.8km/h.
+                // And because the animation could be cancelled the oldZoom could be a none-integer value.
+                const oldZoom = mapView.getZoom()
+                if (!oldZoom || oldZoom < 17 || oldZoom > 18) args.zoom = 18
+                else if (oldZoom <= 18 && action.speed < 4) args.zoom = 18
+                else if (oldZoom >= 17 && action.speed > 8) args.zoom = 17
+
+                console.log('zoom ' + args.zoom + ', old ' + oldZoom + ', speed:' + action.speed)
 
                 if (!Number.isNaN(action.heading) && action.speed > 0) {
                     // The heading is in degrees and shows direction into which device is going.
