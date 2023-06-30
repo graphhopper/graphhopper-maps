@@ -90,7 +90,7 @@ export default class MapActionReceiver implements ActionReceiver {
                 // And because the animation could be cancelled the oldZoom could be a none-integer value.
                 const oldZoom = mapView.getZoom()
                 if (!oldZoom || oldZoom < 17 || oldZoom > 18) args.zoom = 18
-                else if (oldZoom <= 18 && action.speed < 4) args.zoom = 18
+                else if (oldZoom <= 18 && action.speed < 6) args.zoom = 18
                 else if (oldZoom >= 17 && action.speed > 8) args.zoom = 17
 
                 console.log('zoom ' + args.zoom + ', old ' + oldZoom + ', speed:' + action.speed)
