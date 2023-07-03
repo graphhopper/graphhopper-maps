@@ -460,7 +460,8 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
     if (subRequests.length > 0 && hasPendingRequests(subRequests)) {
         // consider maxAlternativeRoutes only for subRequests that are not yet returned, i.e. state === SENT
         // otherwise it can happen that too fast alternatives reject the main request leading to stale placeholders
-        return Math.max(paths.length,
+        return Math.max(
+            paths.length,
             ...subRequests
                 .filter(request => request.state === RequestState.SENT)
                 .map(request => request.args.maxAlternativeRoutes)

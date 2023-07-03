@@ -60,9 +60,7 @@ const mapTilerSatellite: VectorStyle = {
 const osmOrg: RasterStyle = {
     name: 'OpenStreetMap',
     type: 'raster',
-    url: [
-        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    ],
+    url: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
     attribution: osmAttribution,
     maxZoom: 19,
 }
