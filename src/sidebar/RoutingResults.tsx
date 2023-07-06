@@ -55,11 +55,13 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
     const fordInfo = getInfoFor(path.points, path.details.road_environment, { ford: true })
     const tollInfo = getInfoFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
     const ferryInfo = getInfoFor(path.points, path.details.road_environment, { ferry: true })
-    const privateOrDeliveryInfo = getInfoFor(path.points, path.details.road_access, {
-        private: true,
-        customers: true,
-        delivery: true,
-    })
+    const privateOrDeliveryInfo = ApiImpl.isMotorVehicle(profile)
+        ? getInfoFor(path.points, path.details.road_access, {
+              private: true,
+              customers: true,
+              delivery: true,
+          })
+        : new RouteInfo()
     const badTrackInfo = !ApiImpl.isMotorVehicle(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.track_type, { grade2: true, grade3: true, grade4: true, grade5: true })
