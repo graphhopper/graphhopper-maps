@@ -20,7 +20,7 @@ if (fs.existsSync(localConfig)) {
 // get git info from command line
 const gitSHA = require('child_process').execSync('git rev-parse HEAD').toString().trim()
 
-let package = require('./package.json');
+let package = require('./package.json')
 
 module.exports = {
     entry: path.resolve(__dirname, 'src', 'index.tsx'),
@@ -92,8 +92,8 @@ module.exports = {
         new FaviconsWebpackPlugin({
             logo: './src/logo.svg',
             favicons: {
-                icons: { appleStartup: false, yandex: false, coast: false }
-            }
+                icons: { appleStartup: false, yandex: false, coast: false },
+            },
         }),
         // config.js is kept outside the bundle and simply copied to the dist folder
         new CopyPlugin({
@@ -107,15 +107,17 @@ module.exports = {
         new CopyPlugin({
             patterns: [
                 {
-                    from: "./src/manifest.json",
-                    to: "manifest.json",
+                    from: './src/manifest.json',
+                    to: 'manifest.json',
                     // see https://stackoverflow.com/a/54700817/194609
                     transform(content, path) {
-                        let manifest = JSON.parse(content.toString());
-                        manifest.version = package.version;
-                        return JSON.stringify(manifest, null, 2);
-                    }
-                }]}),
+                        let manifest = JSON.parse(content.toString())
+                        manifest.version = package.version
+                        return JSON.stringify(manifest, null, 2)
+                    },
+                },
+            ],
+        }),
         new webpack.DefinePlugin({
             GIT_SHA: JSON.stringify(gitSHA),
         }),

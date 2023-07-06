@@ -4,7 +4,6 @@
     display: none;
     cursor: default;
     user-select: none;
-    height: 155px;
 }
 
 .heightgraph-toggle {
@@ -38,16 +37,6 @@
 
 .border-top {
     fill: none;
-}
-
-#selectionText {
-    font-size: 14px;
-    transform: translate(-2px, 2px); /* TODO fix in original positioning ;) */
-}
-
-.legend-hover {
-    font-size: 14px;
-    cursor: pointer;
 }
 
 .legend-text {
@@ -153,4 +142,98 @@
 
 .lineSelection {
     cursor: move;
+}
+
+.heightgraph-show {
+    display: block !important;
+}
+
+#heightgraph-legend {
+    position: absolute;
+
+    cursor: pointer;
+    right: 15px;
+    bottom: 10px;
+    font-size: 14px;
+}
+
+#heightgraph-legend-text {
+    float: right;
+}
+
+#heightgraph-legend-icon {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+}
+
+#heightgraph-legend ul {
+    position: relative;
+    right: -7px;
+    min-width: 30px;
+    display: none;
+
+    margin: 0 5px 7px 5px;
+    padding: 0 15px 5px 5px; /* Add padding to the right to avoid that the scrollbar hides content */
+    list-style: none;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+#heightgraph-selector {
+    position: absolute;
+    bottom: 0;
+    width: 200px;
+}
+
+#arrow-icon-for-input {
+    font-size: 16px;
+
+    position: absolute;
+    right: 11px;
+    bottom: 9px;
+    pointer-events: none; /* let clicks through to input */
+}
+
+#heightgraph-selector input {
+    font-size: 14px;
+
+    width: 180px;
+    background-color: transparent;
+    cursor: pointer;
+
+    margin: 0 5px 5px 5px;
+    padding: 3px 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#heightgraph-selector ul {
+    font-size: 14px;
+    display: none;
+    top: -100%;
+
+    margin: 0 5px;
+    padding: 0 5px;
+    list-style: none;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+#heightgraph-selector ul li {
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+#heightgraph-selector ul li:hover {
+    background-color: #f5f5f5;
 }
