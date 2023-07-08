@@ -12,6 +12,8 @@
             content="route planner,shortest path,maps,openstreetmap,android,navigation,routenplaner,gis"
         />
         <script>
+            // Eruda makes it easy to debug and analyze perf on mobile devices https://eruda.liriliri.io/
+            // It will be only loaded when we specify it in the URL
             ;(function () {
                 const src = '//cdn.jsdelivr.net/npm/eruda'
                 if (!/eruda=true/.test(window.location) && localStorage.getItem('active-eruda') != 'true') return

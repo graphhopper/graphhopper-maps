@@ -38,6 +38,9 @@ console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/$
 
 const url = new URL(window.location.href)
 const locale = url.searchParams.get('locale')
+
+// If a fake parameter is specified the navigation starts in simulation mode.
+// fake=10 means that the simulation will have a speed of 10meter/sec along the calculated route
 const fakeParam = url.searchParams.get('fake')
 const fakeGPSDelta = fakeParam ? parseFloat(fakeParam) : NaN
 setTranslation(locale || navigator.language)

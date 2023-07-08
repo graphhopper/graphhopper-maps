@@ -212,6 +212,7 @@ export class ApiImpl implements Api {
         }
 
         if (args.heading) {
+            // for navigation we use heading => we have to disable CH
             request['ch.disable'] = true
             request.headings = [args.heading]
             request.heading_penalty = 120

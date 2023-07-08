@@ -1,3 +1,7 @@
+// We need this layer as OpenLayers own vector tiles background is much slower (not yet based on WebGL)
+// And for navigation we really want vector tiles e.g. rotating labels, smoother zoom etc
+// So we need this bridge to MapLibre but we had to add a postrender call.
+
 // BSD 3-Clause License
 //
 // Copyright (c) 2019-present, camptocamp SA

@@ -163,7 +163,7 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path, updateMoreFrequentl
         source: new VectorSource({ features: features }),
         style: feature => styles[(feature.getGeometry() as Geometry).getType()],
         opacity: 0.8,
-        // when navigating we need this for re-routing:
+        // when navigating we need this for re-routing (see also useCurrentLocationLayer where this is necessary)
         updateWhileAnimating: updateMoreFrequently,
         updateWhileInteracting: updateMoreFrequently,
     })

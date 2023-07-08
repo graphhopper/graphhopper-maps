@@ -19,7 +19,7 @@ export function createMap(): Map {
             zoom: 2,
         }),
         interactions: defaults({
-            pinchRotate: false, // ugly on mobile as we don't have a button to reset to 0 yet
+            pinchRotate: false, // do not allow changing rotation with touch as it is interferes on mobile when zooming and we don't have a button to reset to 0 yet
         }),
         controls: defaultControls({
             rotate: false, // for now also disable this extra button

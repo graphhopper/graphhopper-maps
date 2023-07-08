@@ -42,6 +42,7 @@ export default class MapActionReceiver implements ActionReceiver {
             // we estimate the map size to be equal to the window size. we don't know better at this point, because
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
+
         } else if (action instanceof TurnNavigationStop) {
             if (this.zoomCtrl !== null) this.map.getControls().insertAt(0, this.zoomCtrl)
             if (this.attributionCtrl !== null) this.map.getControls().insertAt(0, this.attributionCtrl)
@@ -52,6 +53,7 @@ export default class MapActionReceiver implements ActionReceiver {
             this.map.getView().animate({ rotation: 0, zoom: 16, duration: 600 })
             this.map.un('pointerdrag', this.onMove)
             // this.map.getView().un('change:resolution', this.onMove)
+
         } else if (action instanceof TurnNavigationStart) {
             const size = this.map.getSize() // [width, height]
             const arr = this.map.getControls()
@@ -67,7 +69,13 @@ export default class MapActionReceiver implements ActionReceiver {
             this.map.on('pointerdrag', this.onMove) // disable auto moving&zooming the map if *moving* the map
             // TODO this interferes with zooming from inside the application
             // this.map.getView().on('change:resolution', this.onMove) // disable auto moving&zooming the map if *zooming* the map
+
         } else if (action instanceof LocationUpdate) {
+
+            // This is the main event which triggers the actual movement of the map. So whenever the location updates
+            // we change the map location and rotation with an animation. Then the postrender event attached to the
+            // background layer will smoothly synchronize the current location arrow - see useCurrentLocationLayer.
+
             const mapView = this.map.getView()
             const size = this.map.getSize() // [width, height]
             // move center a bit down
@@ -112,6 +120,7 @@ export default class MapActionReceiver implements ActionReceiver {
 
                 mapView.animate(args)
             } else {
+                // here is the case when the map was moved indicating that the users wants no changes to the view i.e. we do no longer synchronize the view
                 // TODO why does this layer not yet exist in the constructor
                 const layer = this.map
                     .getLayers()
