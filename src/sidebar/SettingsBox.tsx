@@ -6,7 +6,7 @@ import PlainButton from '@/PlainButton'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
 import LinkIcon from '@/sidebar/link.svg'
-import {useContext, useState} from 'react'
+import { useContext, useState } from 'react'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { TNSettingsState } from '@/stores/TurnNavigationStore'
 
@@ -16,18 +16,21 @@ export default function SettingsBox({ turnNavSettings }: { turnNavSettings: TNSe
     const { forceVectorTiles, fullScreen } = turnNavSettings
     return (
         <div className={styles.parent}>
-            <div className={styles.copyLinkRow} onClick={() => {
+            <div
+                className={styles.copyLinkRow}
+                onClick={() => {
                     navigator.clipboard.writeText(window.location.href)
-                    if(navigator.share) navigator.share({ url: window.location.href })
+                    if (navigator.share) navigator.share({ url: window.location.href })
                     setShowCopiedInfo(true)
-                    setTimeout(function() {
+                    setTimeout(function () {
                         setShowCopiedInfo(false)
-                    }, 2500);
-                }}>
+                    }, 2500)
+                }}
+            >
                 <PlainButton>
-                    <LinkIcon/>
+                    <LinkIcon />
                 </PlainButton>
-                <div>{ showCopiedInfo ? tr('Copied!') : tr('Copy Link')}</div>
+                <div>{showCopiedInfo ? tr('Copied!') : tr('Copy Link')}</div>
             </div>
             <div className={styles.title}>{tr('settings')}</div>
             <div className={styles.settingsTable}>
@@ -59,11 +62,21 @@ export default function SettingsBox({ turnNavSettings }: { turnNavSettings: TNSe
                 <div style={{ color: fullScreen ? '#5b616a' : 'gray' }}>{tr('full_screen_for_navigation')}</div>
             </div>
             <div className={styles.infoLine}>
-                <a target='_blank' href="https://www.graphhopper.com/maps-route-planner/">Info</a>
-                <a target='_blank' href="https://github.com/graphhopper/graphhopper-maps/issues">Feedback</a>
-                <a target='_blank' href="https://www.graphhopper.com/imprint/">Imprint</a>
-                <a target='_blank' href="https://www.graphhopper.com/privacy/">Privacy</a>
-                <a target='_blank' href="https://www.graphhopper.com/terms/">Terms</a>
+                <a target="_blank" href="https://www.graphhopper.com/maps-route-planner/">
+                    Info
+                </a>
+                <a target="_blank" href="https://github.com/graphhopper/graphhopper-maps/issues">
+                    Feedback
+                </a>
+                <a target="_blank" href="https://www.graphhopper.com/imprint/">
+                    Imprint
+                </a>
+                <a target="_blank" href="https://www.graphhopper.com/privacy/">
+                    Privacy
+                </a>
+                <a target="_blank" href="https://www.graphhopper.com/terms/">
+                    Terms
+                </a>
             </div>
         </div>
     )
