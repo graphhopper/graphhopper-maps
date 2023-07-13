@@ -78,11 +78,13 @@ function RoutingResult({
     const fordInfo = getInfoFor(path.points, path.details.road_environment, { ford: true })
     const tollInfo = getInfoFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
     const ferryInfo = getInfoFor(path.points, path.details.road_environment, { ferry: true })
-    const privateOrDeliveryInfo = getInfoFor(path.points, path.details.road_access, {
-        private: true,
-        customers: true,
-        delivery: true,
-    })
+    const privateOrDeliveryInfo = ApiImpl.isMotorVehicle(profile)
+        ? getInfoFor(path.points, path.details.road_access, {
+              private: true,
+              customers: true,
+              delivery: true,
+          })
+        : new RouteInfo()
     const badTrackInfo = !ApiImpl.isMotorVehicle(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.track_type, { grade2: true, grade3: true, grade4: true, grade5: true })
@@ -537,8 +539,14 @@ function hasPendingRequests(subRequests: SubRequest[]) {
 
 function getLength(paths: Path[], subRequests: SubRequest[]) {
     if (subRequests.length > 0 && hasPendingRequests(subRequests)) {
-        // assuming that the last sub request is the one with most alternative routes
-        return Math.max(subRequests[subRequests.length - 1].args.maxAlternativeRoutes, paths.length)
+        // consider maxAlternativeRoutes only for subRequests that are not yet returned, i.e. state === SENT
+        // otherwise it can happen that too fast alternatives reject the main request leading to stale placeholders
+        return Math.max(
+            paths.length,
+            ...subRequests
+                .filter(request => request.state === RequestState.SENT)
+                .map(request => request.args.maxAlternativeRoutes)
+        )
     }
     return paths.length
 }
