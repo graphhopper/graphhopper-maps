@@ -229,8 +229,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 return state
             }
 
-            let announcementsToDo = state.instruction.announcementsToDo
-
             const coordinate = action.coordinate
             let path = state.activePath
             let instrInfo = getCurrentInstruction(path.instructions, coordinate)
@@ -337,7 +335,12 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const lastAnnounceDistance = Math.max(30, 20 + factor * estimatedAvgSpeed)
             const firstAnnounceDistance = 1150 + factor * estimatedAvgSpeed
 
-            if (instrInfo.index != state.instruction.index) announcementsToDo = instrInfo.distanceToTurn > 1000 ? 2 : 1
+            const sameInstruction =
+                instrInfo.index == state.instruction.index &&
+                instrInfo.nextWaypointIndex == state.instruction.nextWaypointIndex
+            let announcementsToDo = sameInstruction ? state.instruction.announcementsToDo : 2
+
+            // console.log("announcementsToDo:" + announcementsToDo + ", firstAnnounceDistance:" + firstAnnounceDistance + ", lastAnnounceDistance:" + lastAnnounceDistance)
 
             if (instrInfo.distanceToTurn <= lastAnnounceDistance && announcementsToDo > 0) {
                 announcementsToDo = 0
@@ -347,8 +350,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const dist = instrInfo.distanceToTurn
             if (dist <= firstAnnounceDistance && announcementsToDo == 2) {
                 announcementsToDo = 1
-                if (dist > lastAnnounceDistance * 1.2 + 50) {
-                    // do not interfere with last announcement
+                // do not interfere with last announcement
+                if (dist > lastAnnounceDistance * 1.2 + 100) {
                     if (this.settingsStore.state.showDistanceInMiles) {
                         let inString =
                             dist > 1800
