@@ -86,11 +86,11 @@ function getStyle(feature: Feature): Style | undefined {
     if (style)
         return new Style({
             stroke: new Stroke({
-                color: [...style.color as any, 1],
+                color: [...(style.color as any), 1],
                 width: style.width,
             }),
             fill: new Fill({
-                color: [...style.color as any, 0.3],
+                color: [...(style.color as any), 0.3],
             }),
         })
     // do not render this feature
