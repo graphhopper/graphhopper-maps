@@ -4,7 +4,7 @@ import { Coordinate } from '@/stores/QueryStore'
 
 export function milliSecondsToText(seconds: number) {
     const hours = Math.floor(seconds / 3600000)
-    const minutes = Math.floor((seconds % 3600000) / 60000)
+    const minutes = Math.round((seconds % 3600000) / 60000)
 
     const hourText = hours > 0 ? hours + ' h' : ''
     if (minutes == 0 && hourText.length > 0) return hourText
