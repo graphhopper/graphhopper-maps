@@ -1,10 +1,10 @@
 .turnSign {
-    padding: 18px 12px 13px 12px;
+    padding: 16px 9px 11px 9px;
     min-width: 70px;
     margin-right: 1px;
     background-color: white;
 
-    font-size: x-large;
+    font-size: larger;
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
     border-bottom-right-radius: 0.5rem;
 
@@ -105,9 +105,120 @@
 
 .turnInfo {
     z-index: 2;
-    font-size: 20px;
     display: flex;
     padding: 14px 10px 16px 12px /* left needs a bit more space -> rounded screens */;
+}
+
+.turnInfoRightSide {
+    display: flex;
+    align-items: baseline; /* text of different columns -> same line */
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.firstCol {
+    font-size: x-large;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+
+    gap: 10px;
+}
+
+.currentSpeed {
+    padding-top: 4px;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 3px; /* between unit */
+}
+
+.currentSpeed div:last-child {
+    font-size: smaller;
+}
+
+.maxSpeed {
+
+}
+
+.secondCol {
+    padding-left: 5px;
+    font-size: xx-large;
+    flex-grow: 3;
+    display: flex;
+    justify-content: center;
+}
+
+.secondColTime {
+    font-size: smaller;
+}
+
+.remainingDistance {
+    color: #000000;
+}
+
+.secondCol svg {
+    margin: 0 auto;
+}
+
+.thirdCol {
+    font-size: x-large;
+    padding-right: 5px;
+    padding-left: 5px;
+    flex-grow: 1;
+}
+
+.debug {
+    font-size: smaller;
+}
+
+.fourthCol {
+    height: 38px;
+    width: 27px;
+}
+
+.fourthCol svg {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+}
+
+.largeScreenColumn {
+    grid-row: 1 / span 1;
+    grid-column: 1 / span 1;
+
+    display: flex;
+    z-index: 2;
+}
+
+
+/* dynamic font sizes with vw or similar are not that nice to tune and to test */
+@media (max-width: 430px) {
+    .turnSign, .instructionText {
+        font-size: medium;
+    }
+
+    .currentSpeed {
+        padding-top: 6px;
+    }
+
+    .firstCol {
+        font-size: large;
+        gap: 5px;
+    }
+
+    .secondCol {
+        font-size: x-large;
+    }
+
+    .thirdCol {
+        font-size: large;
+    }
+
+    .maxSpeed {
+        margin-top: -3px;
+    }
 }
 
 /* not all and (x) is the opposite of x */
@@ -133,83 +244,4 @@
         box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
         border-top-right-radius: 0.5rem;
     }
-}
-
-.turnInfoRightSide {
-    font-size: larger;
-
-    display: flex;
-    align-items: baseline; /* text of different columns -> same line */
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-.firstCol {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-
-    gap: 15px;
-}
-
-.currentSpeed {
-    padding-top: 7px;
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 5px;
-}
-
-.currentSpeed div:last-child {
-    font-size: smaller;
-}
-
-.maxSpeed {
-    padding-top: 4px;
-}
-
-.secondCol {
-    font-size: larger;
-
-    flex-grow: 3;
-    display: flex;
-    justify-content: center;
-}
-
-.remainingDistance {
-    color: #000000;
-}
-
-.secondCol svg {
-    padding-left: 22px;
-    padding-right: 22px;
-}
-
-.thirdCol {
-    padding: 0 20px 0 20px;
-    flex-grow: 1;
-}
-
-.debug {
-    font-size: smaller;
-}
-
-.fourthCol {
-    height: 38px;
-    width: 27px;
-}
-
-.fourthCol svg {
-    width: 20px;
-    height: 20px;
-    padding: 0;
-}
-
-.largeScreenColumn {
-    grid-row: 1 / span 1;
-    grid-column: 1 / span 1;
-
-    display: flex;
-    z-index: 2;
 }
