@@ -2,13 +2,13 @@ import { GeocodingHit } from '@/api/graphhopper'
 
 import { Coordinate } from '@/stores/QueryStore'
 
-export function milliSecondsToText(seconds: number) {
-    const hours = Math.floor(seconds / 3600000)
-    const minutes = Math.floor((seconds % 3600000) / 60000)
+export function milliSecondsToText(ms: number) {
+    const hours = Math.floor(ms / 3600000)
+    const minutes = Math.round((ms % 3600000) / 60000)
 
     const hourText = hours > 0 ? hours + ' h' : ''
     if (minutes == 0 && hourText.length > 0) return hourText
-    return hourText + ' ' + minutes + ' min'
+    return (hourText ? hourText + ' ' : '') + minutes + ' min'
 }
 
 const distanceFormat = new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 1 })

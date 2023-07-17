@@ -1,7 +1,14 @@
-import { textToCoordinate, nominatimHitToItem, hitToItem } from '@/Converters'
-import { GeocodingHit } from '@/api/graphhopper'
+import { textToCoordinate, nominatimHitToItem, hitToItem, milliSecondsToText } from '@/Converters'
 
 describe('Converters', function () {
+    describe('milliSecondsToText', function () {
+        it('should convert ms to text', function () {
+            expect(milliSecondsToText(59 * 1000)).toEqual('1 min')
+
+            expect(milliSecondsToText(63 * 60 * 1000)).toEqual('1 h 3 min')
+        })
+    })
+
     describe('textToCoordinate', function () {
         it('should convert 2 digits separated by ","', function () {
             expect(textToCoordinate('1.2345, 2.6534')).toEqual({ lat: 1.2345, lng: 2.6534 })
