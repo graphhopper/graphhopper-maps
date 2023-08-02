@@ -34,7 +34,7 @@ describe('Converters', function () {
                     state: 'Saxony',
                     postcode: '02977',
                 } as any)
-            ).toEqual({ mainText: 'Hoyerswerda - Wojerecy', secondText: '02977, Germany' })
+            ).toEqual({ mainText: 'Hoyerswerda - Wojerecy', secondText: '02977, Saxony, Germany' })
         })
 
         it('default address', function () {
@@ -42,7 +42,7 @@ describe('Converters', function () {
                 hitToItem({
                     name: 'somestreet',
                     country: 'Germany',
-                    state: 'Saxony',
+                    state: 'Berlin',
                     city: 'Berlin',
                     street: 'somestreet',
                     housenumber: '6',
@@ -63,7 +63,7 @@ describe('Converters', function () {
                 } as any)
             ).toEqual({
                 mainText: 'Wasserturm Hoyerswerda Bahnhof',
-                secondText: 'Am Bahnhofsvorplatz, 02977 Hoyerswerda - Wojerecy, Germany',
+                secondText: 'Am Bahnhofsvorplatz, 02977 Hoyerswerda - Wojerecy, Saxony, Germany',
             })
         })
 
@@ -77,7 +77,7 @@ describe('Converters', function () {
                     county: 'Bautzen',
                     postcode: '02977',
                 } as any)
-            ).toEqual({ mainText: 'An der Schule', secondText: '02977 Hoyerswerda - Wojerecy, Germany' })
+            ).toEqual({ mainText: 'An der Schule', secondText: '02977 Hoyerswerda - Wojerecy, Saxony, Germany' })
         })
 
         it('default poi 3', function () {
@@ -89,7 +89,7 @@ describe('Converters', function () {
                     state: 'Saxony',
                     postcode: '02977',
                 } as any)
-            ).toEqual({ mainText: 'Am Wasserturm', secondText: '02977 Hoyerswerda - Wojerecy, Germany' })
+            ).toEqual({ mainText: 'Am Wasserturm', secondText: '02977 Hoyerswerda - Wojerecy, Saxony, Germany' })
         })
     })
 
@@ -104,7 +104,7 @@ describe('Converters', function () {
                     county: 'Bautzen',
                     postcode: '02977',
                 } as any)
-            ).toEqual({ mainText: '02977 Hoyerswerda - Wojerecy', secondText: 'Germany' })
+            ).toEqual({ mainText: '02977 Hoyerswerda - Wojerecy', secondText: 'Saxony, Germany' })
         })
 
         it('nominatim poi', function () {
@@ -121,7 +121,7 @@ describe('Converters', function () {
                 } as any)
             ).toEqual({
                 mainText: 'GraphHopper GmbH',
-                secondText: 'Kirchstraße 17, 02977 Hoyerswerda - Wojerecy, Germany',
+                secondText: 'Kirchstraße 17, 02977 Hoyerswerda - Wojerecy, Saxony, Germany',
             })
         })
 
@@ -136,7 +136,7 @@ describe('Converters', function () {
                     county: 'Bautzen',
                     postcode: '02977',
                 } as any)
-            ).toEqual({ mainText: 'An der Schule', secondText: '02977 Hoyerswerda - Wojerecy, Germany' })
+            ).toEqual({ mainText: 'An der Schule', secondText: '02977 Hoyerswerda - Wojerecy, Saxony, Germany' })
         })
 
         it('nominatim city 2', function () {
@@ -149,7 +149,7 @@ describe('Converters', function () {
                     county: 'Bautzen',
                     postcode: '02977',
                 } as any)
-            ).toEqual({ mainText: '02977 Hoyerswerda', secondText: 'Deutschland' })
+            ).toEqual({ mainText: '02977 Hoyerswerda', secondText: 'Saxony, Deutschland' })
         })
 
         it('nominatim city 3', function () {
@@ -161,7 +161,7 @@ describe('Converters', function () {
                     state: 'Schleswig-Holstein',
                     county: 'Rendsburg-Eckernförde',
                 } as any)
-            ).toEqual({ mainText: 'Wittensee', secondText: 'Groß Wittensee, Deutschland' })
+            ).toEqual({ mainText: 'Wittensee', secondText: 'Groß Wittensee, Schleswig-Holstein, Deutschland' })
         })
     })
 })

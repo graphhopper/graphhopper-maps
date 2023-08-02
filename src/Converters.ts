@@ -64,6 +64,7 @@ function toSecondText(hit: GeocodingHit, mainText: string) {
             ? hit.street + (hit.housenumber ? ' ' + hit.housenumber : '') + ', '
             : ''
     result += toCity(hit)
+    if (hit.state && !result.includes(hit.state)) result += (result ? ', ' : '') + hit.state
     if (hit.country) result += (result ? ', ' : '') + hit.country
     return result
 }
@@ -82,9 +83,10 @@ export function nominatimHitToItem(hit: GeocodingHit) {
     return {
         mainText: mainText,
         secondText:
-            (mainText.indexOf(street) >= 0 ? '' : street.length > 0 ? street + ', ' : '') +
-            (mainText.indexOf(hit.postcode) >= 0 ? '' : hit.postcode ? hit.postcode + ' ' : '') +
-            (mainText.indexOf(hit.city) >= 0 ? '' : hit.city ? hit.city + ', ' : '') +
+            (!mainText.includes(street) && street.length > 0 ? street + ', ' : '') +
+            (!mainText.includes(hit.postcode) && hit.postcode ? hit.postcode + ' ' : '') +
+            (!mainText.includes(hit.city) && hit.city ? hit.city + ', ' : '') +
+            (!mainText.includes(hit.state) && hit.state ? hit.state + ', ' : '') +
             hit.country,
     }
 }
