@@ -19,8 +19,11 @@ export default function SettingsBox({ turnNavSettings }: { turnNavSettings: TNSe
             <div
                 className={styles.copyLinkRow}
                 onClick={() => {
-                    navigator.clipboard.writeText(window.location.href)
-                    if (navigator.share) navigator.share({ url: window.location.href })
+                    let url = window.location.href
+                    if(window.location.href.startsWith("http://localhost"))
+                        url = "https://navi.graphhopper.org" + window.location.pathname + window.location.search
+                    navigator.clipboard.writeText(url)
+                    if (navigator.share) navigator.share({ url: url })
                     setShowCopiedInfo(true)
                     setTimeout(function () {
                         setShowCopiedInfo(false)
