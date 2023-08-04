@@ -91,6 +91,11 @@ export class ApiImpl implements Api {
         const langAndCountry = getTranslation().getLang().split('_')
         url.searchParams.append('locale', langAndCountry.length > 0 ? langAndCountry[0] : 'en')
 
+        // routing makes not much sense between areas and it is unclear if the center is on a road
+        url.searchParams.append('osm_tag', '!place:county')
+        url.searchParams.append('osm_tag', '!boundary')
+        url.searchParams.append('osm_tag', '!historic')
+
         const response = await fetch(url.toString(), {
             headers: { Accept: 'application/json' },
         })
