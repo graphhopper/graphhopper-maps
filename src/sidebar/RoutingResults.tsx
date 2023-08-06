@@ -508,14 +508,48 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
         xmlString += '</trkseg></trk>\n</gpx>'
     }
 
-    const tmpElement = document.createElement('a')
-    const file = new Blob([xmlString], { type: 'application/gpx+xml' })
-    tmpElement.href = URL.createObjectURL(file)
     const date = new Date()
-    tmpElement.download = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
+    const mimeType = 'application/gpx+xml'
+    const fileName = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
         date.getUTCDate()
     )}-${metersToTextForFile(path.distance, showDistanceInMiles)}.gpx`
-    tmpElement.click()
+    // window.Filesystem.writeFile({ data: xmlString, path: fileName })
+
+    if (!window.showSaveFilePicker) {
+        const tmpElement = document.createElement('a')
+        const file = new Blob([xmlString], { type: mimeType })
+        tmpElement.href = URL.createObjectURL(file)
+        tmpElement.download = fileName
+        tmpElement.click()
+        // URL.revokeObjectURL(tmpElement.href)
+
+    } else {
+        // window.showSaveFilePicker is only supported from Chrome (and createWritable is not supported from Safari)
+        // Also used for CapacitorJS where it is overwritten in src/app.js
+        window.showSaveFilePicker({
+                suggestedName: fileName,
+                types: [
+                    {
+                        description: 'GPX/XML Files',
+                        accept: { [mimeType]: ['.gpx'],},
+                    },
+                ],
+                fileContents: xmlString, /* not part of the Chrome API, but necessary for CapacitorJS */
+            })
+            .then((fileHandle: any) => {
+                return fileHandle.createWritable()
+            })
+            .then((writable: any) => {
+                const writer = writable.getWriter()
+                writer.write(xmlString)
+                writer.close()
+
+                console.log('file saved successfully.')
+            })
+            .catch((error: any) => {
+                console.error('Error saving file:', error)
+            })
+    }
 }
 
 function pad(value: number) {

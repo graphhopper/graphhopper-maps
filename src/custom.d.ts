@@ -4,6 +4,10 @@ declare module '*.png'
 declare module 'heightgraph/src/heightgraph'
 declare module 'custom-model-editor/src/index'
 
+interface Window {
+    showSaveFilePicker: ({ suggestedName: string, types: any, fileContents: xmlString }) => Promise<any>
+}
+
 declare module 'config' {
     const routingApi: string
     const geocodingApi: string
