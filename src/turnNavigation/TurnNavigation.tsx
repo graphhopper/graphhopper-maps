@@ -123,9 +123,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                         <div onClick={() => setShowTime(!showTime)}>
                             {showTime ? (
                                 <>
-                                    <div>
-                                        {arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}
-                                    </div>
+                                    <div>{arrivalDate.getHours() + ':' + (min > 9 ? min : '0' + min)}</div>
                                     <svg width="30" height="8">
                                         <circle cx="5" cy="4" r="3" />
                                         <circle cx="20" cy="4" r="3.5" stroke="black" fill="white" />

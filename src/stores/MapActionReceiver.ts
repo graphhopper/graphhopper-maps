@@ -75,7 +75,7 @@ export default class MapActionReceiver implements ActionReceiver {
             const mapView = this.map.getView()
             const size = this.map.getSize() // [width, height]
             // move anchor of rotation a bit down but if not too much if width is too small and current location would be under bottom panel
-            mapView.padding = [size ? size[1] * 2 / 3 : 50, 0, size && size[0] > 1200 ? 0 : 100, 0]
+            mapView.padding = [size ? (size[1] * 2) / 3 : 50, 0, size && size[0] > 1200 ? 0 : 100, 0]
             mapView.cancelAnimations() // if location updates are sent too fast animations might stack up
 
             const center = fromLonLat([action.coordinate.lng, action.coordinate.lat])

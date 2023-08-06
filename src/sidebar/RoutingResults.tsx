@@ -522,19 +522,19 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
         tmpElement.download = fileName
         tmpElement.click()
         // URL.revokeObjectURL(tmpElement.href)
-
     } else {
         // window.showSaveFilePicker is only supported from Chrome (and createWritable is not supported from Safari)
         // Also used for CapacitorJS where it is overwritten in src/app.js
-        window.showSaveFilePicker({
+        window
+            .showSaveFilePicker({
                 suggestedName: fileName,
                 types: [
                     {
                         description: 'GPX/XML Files',
-                        accept: { [mimeType]: ['.gpx'],},
+                        accept: { [mimeType]: ['.gpx'] },
                     },
                 ],
-                fileContents: xmlString, /* not part of the Chrome API, but necessary for CapacitorJS */
+                fileContents: xmlString /* not part of the Chrome API, but necessary for CapacitorJS */,
             })
             .then((fileHandle: any) => {
                 return fileHandle.createWritable()

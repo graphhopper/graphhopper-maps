@@ -139,7 +139,6 @@
 }
 
 .maxSpeed {
-
 }
 
 .secondCol {
@@ -192,10 +191,10 @@
     z-index: 2;
 }
 
-
 /* dynamic font sizes with vw or similar are not that nice to tune and to test */
 @media (max-width: 430px) {
-    .turnSign, .instructionText {
+    .turnSign,
+    .instructionText {
         font-size: medium;
     }
 
