@@ -515,7 +515,7 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
     )}-${metersToTextForFile(path.distance, showDistanceInMiles)}.gpx`
     // window.Filesystem.writeFile({ data: xmlString, path: fileName })
 
-    if (!window.showSaveFilePicker) {
+    if (!window.ghSaveFile) {
         const tmpElement = document.createElement('a')
         const file = new Blob([xmlString], { type: mimeType })
         tmpElement.href = URL.createObjectURL(file)
@@ -523,32 +523,12 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
         tmpElement.click()
         // URL.revokeObjectURL(tmpElement.href)
     } else {
-        // window.showSaveFilePicker is only supported from Chrome (and createWritable is not supported from Safari)
-        // Also used for CapacitorJS where it is overwritten in src/app.js
-        window
-            .showSaveFilePicker({
-                suggestedName: fileName,
-                types: [
-                    {
-                        description: 'GPX/XML Files',
-                        accept: { [mimeType]: ['.gpx'] },
-                    },
-                ],
-                fileContents: xmlString /* not part of the Chrome API, but necessary for CapacitorJS */,
-            })
-            .then((fileHandle: any) => {
-                return fileHandle.createWritable()
-            })
-            .then((writable: any) => {
-                const writer = writable.getWriter()
-                writer.write(xmlString)
-                writer.close()
-
-                console.log('file saved successfully.')
-            })
-            .catch((error: any) => {
-                console.error('Error saving file:', error)
-            })
+        // method used for CapacitorJS and assigned in src/app.js
+        window.ghSaveFile({
+            fileName: fileName,
+            mimeType: mimeType,
+            fileContents: xmlString,
+        })
     }
 }
 
