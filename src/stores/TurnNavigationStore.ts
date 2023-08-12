@@ -43,6 +43,7 @@ export interface TurnNavigationStoreState {
     started: boolean
     oldTiles: string
     coordinate: Coordinate
+    pillarPointOnRoute: Coordinate
     lastRerouteTime: number
     lastRerouteDistanceToRoute: number
     speed: number
@@ -114,6 +115,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             started: false,
             oldTiles: tiles,
             coordinate: { lat: 0, lng: 0 },
+            pillarPointOnRoute: { lat: 0, lng: 0 },
             speed: 0,
             initialPath: null,
             activePath: null,
@@ -319,12 +321,11 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 return state
             }
 
-            const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, coordinate, [
-                path.details.average_speed,
-                path.details.max_speed,
-                path.details.surface,
-                path.details.road_class,
-            ])
+            const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(
+                path,
+                instrInfo.pillarPointOnRoute,
+                [path.details.average_speed, path.details.max_speed, path.details.surface, path.details.road_class]
+            )
 
             const instruction: Instruction = path.instructions[instrInfo.index]
             const text = instruction.street_name
@@ -381,6 +382,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 heading: action.heading,
                 speed: action.speed,
                 coordinate: coordinate,
+                pillarPointOnRoute: instrInfo.pillarPointOnRoute,
                 instruction: {
                     index: instrInfo.index,
                     distanceToTurn: instrInfo.distanceToTurn,
@@ -392,7 +394,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     announcementsToDo,
                     text,
                 },
-                thenInstructionSign: thenInstructionSign,
+                thenInstructionSign,
                 pathDetails: { estimatedAvgSpeed: Math.round(estimatedAvgSpeed), maxSpeed, surface, roadClass },
             }
         } else if (action instanceof TurnNavigationRerouting) {
@@ -411,12 +413,11 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             }
 
             const text = path.instructions[instr.index].street_name
-            const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(path, state.coordinate, [
-                path.details.average_speed,
-                path.details.max_speed,
-                path.details.surface,
-                path.details.road_class,
-            ])
+            const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(
+                path,
+                state.pillarPointOnRoute,
+                [path.details.average_speed, path.details.max_speed, path.details.surface, path.details.road_class]
+            )
 
             return {
                 ...state,

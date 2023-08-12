@@ -1,27 +1,15 @@
 import { Instruction, Path } from '@/api/graphhopper'
 import { Coordinate } from '@/stores/QueryStore'
 
-export function getCurrentDetails(path: Path, location: Coordinate, details: [any, any, any][][]): any[] {
-    let smallestDist = Number.MAX_VALUE
+export function getCurrentDetails(path: Path, pillarPoint: Coordinate, details: [any, any, any][][]): any[] {
     const points = path.points.coordinates
     let foundIndex = -1
 
     for (let pIdx = 0; pIdx < points.length; pIdx++) {
         const p: number[] = points[pIdx]
-        let snapped = { lat: p[1], lng: p[0] }
-        let dist = calcDist(snapped, location)
-
-        if (pIdx + 1 < points.length) {
-            const next: number[] = points[pIdx + 1]
-            if (validEdgeDistance(location.lat, location.lng, p[1], p[0], next[1], next[0])) {
-                snapped = calcCrossingPointToEdge(location.lat, location.lng, p[1], p[0], next[1], next[0])
-                dist = Math.min(dist, calcDist(snapped, location))
-            }
-        }
-
-        if (dist < smallestDist) {
-            smallestDist = dist
+        if (pillarPoint.lat == p[1] && pillarPoint.lng == p[0]) {
             foundIndex = pIdx
+            break
         }
     }
     if (foundIndex < 0) return []
@@ -49,6 +37,7 @@ export function getCurrentInstruction(
     timeToTurn: number
     distanceToTurn: number
     distanceToRoute: number
+    pillarPointOnRoute: Coordinate
     timeToEnd: number
     distanceToEnd: number
     distanceToWaypoint: number
@@ -56,9 +45,11 @@ export function getCurrentInstruction(
 } {
     let instructionIndex = -1
     let distanceToRoute = Number.MAX_VALUE
-    let distanceToTurn = 10.0
+    // TODO do we need to calculate the more precise route distance or is the current straight-line distance sufficient?
+    let distanceToTurn = -1
     let nextWaypointIndex = 0
     let waypointIndex = 0
+    let pillarPointOnRoute = { lat: 0, lng: 0 }
 
     for (let instrIdx = 0; instrIdx < instructions.length; instrIdx++) {
         const sign = instructions[instrIdx].sign
@@ -85,6 +76,7 @@ export function getCurrentInstruction(
                 const last: number[] = points[points.length - 1]
                 distanceToTurn = Math.round(calcDist({ lat: last[1], lng: last[0] }, snapped))
                 nextWaypointIndex = waypointIndex + 1
+                pillarPointOnRoute = { lat: p[1], lng: p[0] }
             }
         }
     }
@@ -117,6 +109,7 @@ export function getCurrentInstruction(
         timeToTurn,
         distanceToTurn,
         distanceToRoute,
+        pillarPointOnRoute,
         timeToEnd,
         distanceToEnd,
         distanceToWaypoint,
