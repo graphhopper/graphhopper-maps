@@ -46,9 +46,16 @@ export default class MapActionReceiver implements ActionReceiver {
             if (this.zoomCtrl !== null) this.map.getControls().insertAt(0, this.zoomCtrl)
             if (this.attributionCtrl !== null) this.map.getControls().insertAt(0, this.attributionCtrl)
 
-            this.map.getView().animate({ rotation: 0, zoom: 16, duration: 600 })
-            // reset padding
+            // somehow the animate call is cancelled => use the setters instead
+            // this.map.getView().animate({ zoom: 16, rotation: 0, duration: 300 })
+            this.map.getView().setRotation(0)
+            this.map.getView().setZoom(16)
+            const center = this.map.getView().getCenter()
+
+            // reset padding requires moving the center again
             this.map.getView().padding = [0, 0, 0, 0]
+            this.map.getView().setCenter(center)
+
             this.map.getView().setConstrainResolution(true)
             this.map.un('pointerdrag', this.onMove)
             // this.map.getView().un('change:resolution', this.onMove)
