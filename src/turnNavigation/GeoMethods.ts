@@ -31,7 +31,8 @@ export function getCurrentDetails(path: Path, pillarPoint: Coordinate, details: 
 
 export function getCurrentInstruction(
     instructions: Instruction[],
-    location: Coordinate
+    location: Coordinate,
+    heading: undefined | number
 ): {
     index: number
     timeToTurn: number
@@ -43,13 +44,9 @@ export function getCurrentInstruction(
     distanceToWaypoint: number
     nextWaypointIndex: number
 } {
-    let instructionIndex = -1
-    let distanceToRoute = Number.MAX_VALUE
-    // TODO do we need to calculate the more precise route distance or is the current straight-line distance sufficient?
-    let distanceToTurn = -1
-    let nextWaypointIndex = 0
     let waypointIndex = 0
-    let pillarPointOnRoute = { lat: 0, lng: 0 }
+    const result = new InstructionResult()
+    const resultWithHeadingFilter = new InstructionResult()
 
     for (let instrIdx = 0; instrIdx < instructions.length; instrIdx++) {
         const sign = instructions[instrIdx].sign
@@ -59,41 +56,56 @@ export function getCurrentInstruction(
         for (let pIdx = 0; pIdx < points.length; pIdx++) {
             const p: number[] = points[pIdx]
             let snapped = { lat: p[1], lng: p[0] }
+            const last: number[] = points[points.length - 1]
             let dist = calcDist(snapped, location)
-            // calculate the snapped point, TODO use first point of next instruction for "next" if last point of current instruction
+            let headingMatches = false
+            // calculate the snapped point
+            // TODO use first point of next instruction for "next" if last point of current instruction
             if (pIdx + 1 < points.length) {
                 const next: number[] = points[pIdx + 1]
                 if (validEdgeDistance(location.lat, location.lng, p[1], p[0], next[1], next[0])) {
                     snapped = calcCrossingPointToEdge(location.lat, location.lng, p[1], p[0], next[1], next[0])
                     dist = Math.min(dist, calcDist(snapped, location))
                 }
+
+                if (heading) {
+                    // TODO reject point based on heading if a similar close point is available
+                    const tmpHeading = toDegrees(toNorthBased(calcOrientation(p[1], p[0], next[1], next[0])))
+                    headingMatches = Math.abs(heading - tmpHeading) < 40
+                }
             }
 
-            if (dist < distanceToRoute) {
-                distanceToRoute = dist
+            const set = (res: InstructionResult) => {
+                res.distanceToRoute = dist
                 // use next instruction or finish
-                instructionIndex = instrIdx + 1 < instructions.length ? instrIdx + 1 : instrIdx
-                const last: number[] = points[points.length - 1]
-                distanceToTurn = Math.round(calcDist({ lat: last[1], lng: last[0] }, snapped))
-                nextWaypointIndex = waypointIndex + 1
-                pillarPointOnRoute = { lat: p[1], lng: p[0] }
+                res.index = instrIdx + 1 < instructions.length ? instrIdx + 1 : instrIdx
+                res.distanceToTurn = Math.round(calcDist({ lat: last[1], lng: last[0] }, snapped))
+                res.nextWaypointIndex = waypointIndex + 1
+                res.pillarPointOnRoute = { lat: p[1], lng: p[0] }
             }
+
+            if (dist < result.distanceToRoute) set(result)
+            if (dist < resultWithHeadingFilter.distanceToRoute && headingMatches) set(resultWithHeadingFilter)
         }
     }
 
+    const finalResult =
+        resultWithHeadingFilter.index >= 0 && resultWithHeadingFilter.distanceToRoute < 20
+            ? resultWithHeadingFilter
+            : result
     let distanceToWaypoint = -1
     let timeToTurn = 0
     let timeToEnd = 0
-    let distanceToEnd = distanceToTurn
-    if (instructionIndex >= 0) {
-        if (instructionIndex > 0) {
+    let distanceToEnd = finalResult.distanceToTurn
+    if (finalResult.index >= 0) {
+        if (finalResult.index > 0) {
             // proportional estimate the time to the next instruction, TODO use time from path details instead
-            let prevInstr = instructions[instructionIndex - 1]
+            let prevInstr = instructions[finalResult.index - 1]
             timeToTurn = prevInstr.distance > 0 ? prevInstr.time * (distanceToEnd / prevInstr.distance) : 0
         }
         timeToEnd = timeToTurn
-        distanceToEnd = distanceToTurn
-        for (let instrIdx = instructionIndex; instrIdx < instructions.length; instrIdx++) {
+        distanceToEnd = finalResult.distanceToTurn
+        for (let instrIdx = finalResult.index; instrIdx < instructions.length; instrIdx++) {
             timeToEnd += instructions[instrIdx].time
             distanceToEnd += instructions[instrIdx].distance
 
@@ -105,16 +117,21 @@ export function getCurrentInstruction(
     }
 
     return {
-        index: instructionIndex,
+        ...finalResult,
         timeToTurn,
-        distanceToTurn,
-        distanceToRoute,
-        pillarPointOnRoute,
         timeToEnd,
         distanceToEnd,
         distanceToWaypoint,
-        nextWaypointIndex,
     }
+}
+
+class InstructionResult {
+    index = -1
+    distanceToRoute = Number.MAX_VALUE
+    // TODO do we need to calculate the more precise route distance or is the current straight-line distance sufficient?
+    distanceToTurn = -1
+    nextWaypointIndex = 0
+    pillarPointOnRoute = { lat: 0, lng: 0 }
 }
 
 /**

@@ -11,10 +11,14 @@ describe('calculate instruction', () => {
     // http://localhost:3000/?point=51.437233%2C14.246489&point=51.435514%2C14.239923&profile=car
     it('second instruction should not be "right turn"', () => {
         let path = ApiImpl.decodeResult(responseHoyerswerda1, true)[0]
-        const { index, distanceToTurn, timeToEnd, distanceToEnd } = getCurrentInstruction(path.instructions, {
-            lat: 51.435029,
-            lng: 14.243259,
-        })
+        const { index, distanceToTurn, timeToEnd, distanceToEnd } = getCurrentInstruction(
+            path.instructions,
+            {
+                lat: 51.435029,
+                lng: 14.243259,
+            },
+            undefined
+        )
 
         expect(distanceToTurn).toEqual(236)
         expect(distanceToEnd).toEqual(236)
@@ -25,10 +29,14 @@ describe('calculate instruction', () => {
 
     it('remaining time should be correct', () => {
         let path = ApiImpl.decodeResult(responseHoyerswerda1, true)[0]
-        const { timeToEnd, distanceToEnd } = getCurrentInstruction(path.instructions, {
-            lat: 51.439291,
-            lng: 14.245254,
-        })
+        const { timeToEnd, distanceToEnd } = getCurrentInstruction(
+            path.instructions,
+            {
+                lat: 51.439291,
+                lng: 14.245254,
+            },
+            undefined
+        )
 
         expect(Math.round(timeToEnd / 1000)).toEqual(101)
         expect(Math.round(distanceToEnd)).toEqual(578)
@@ -37,29 +45,58 @@ describe('calculate instruction', () => {
     it('nextWaypointIndex should be correct', () => {
         let path = ApiImpl.decodeResult(responseHoyerswerda2, true)[0]
         {
-            const { nextWaypointIndex } = getCurrentInstruction(path.instructions, {
-                lat: 51.434672,
-                lng: 14.267248,
-            })
+            const { nextWaypointIndex } = getCurrentInstruction(
+                path.instructions,
+                {
+                    lat: 51.434672,
+                    lng: 14.267248,
+                },
+                undefined
+            )
             expect(nextWaypointIndex).toEqual(1)
         }
 
         // points that could return both indices return the first
         // TODO include heading to differentiate!
         {
-            const { nextWaypointIndex } = getCurrentInstruction(path.instructions, {
-                lat: 51.434491,
-                lng: 14.268535,
-            })
+            const { nextWaypointIndex } = getCurrentInstruction(
+                path.instructions,
+                {
+                    lat: 51.434491,
+                    lng: 14.268535,
+                },
+                undefined
+            )
             expect(nextWaypointIndex).toEqual(1)
         }
 
         {
-            const { nextWaypointIndex } = getCurrentInstruction(path.instructions, {
-                lat: 51.433247,
-                lng: 14.267763,
-            })
+            const { nextWaypointIndex } = getCurrentInstruction(
+                path.instructions,
+                {
+                    lat: 51.433247,
+                    lng: 14.267763,
+                },
+                undefined
+            )
             expect(nextWaypointIndex).toEqual(2)
+        }
+    })
+
+    it('pick instruction depending on heading for same location', () => {
+        let path = ApiImpl.decodeResult(responseHoyerswerda2, true)[0]
+        const location = { lat: 51.434356, lng: 14.267697 }
+        {
+            const { index } = getCurrentInstruction(path.instructions, location, 170)
+            expect(path.instructions[index].text).toEqual('Turn left onto Franz-Liszt-Straße')
+        }
+        {
+            const { index } = getCurrentInstruction(path.instructions, location, 240)
+            expect(path.instructions[index].text).toEqual('Turn left onto Bautzener Allee')
+        }
+        {
+            const { index } = getCurrentInstruction(path.instructions, location, 80)
+            expect(path.instructions[index].text).toEqual('Waypoint 1')
         }
     })
 

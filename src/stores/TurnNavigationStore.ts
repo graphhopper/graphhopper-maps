@@ -233,7 +233,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
             const coordinate = action.coordinate
             let path = state.activePath
-            let instrInfo = getCurrentInstruction(path.instructions, coordinate)
+            let instrInfo = getCurrentInstruction(path.instructions, coordinate, action.heading)
 
             // skip waypoint if close to it and next is available (either activePath has via points or initialPath)
             let skipWaypoint = TurnNavigationStore.skipWaypoint(
@@ -250,7 +250,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             ) {
                 // switch back to original path and skip the current waypoint
                 path = state.initialPath
-                instrInfo = getCurrentInstruction(path.instructions, coordinate)
+                instrInfo = getCurrentInstruction(path.instructions, coordinate, action.heading)
                 skipWaypoint = TurnNavigationStore.skipWaypoint(
                     state.instruction.distanceToWaypoint,
                     TurnNavigationStore.getWaypoint(path, instrInfo.nextWaypointIndex),
@@ -401,7 +401,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const path = action.path
 
             // ensure that path and instruction are synced
-            const instr = getCurrentInstruction(path.instructions, state.coordinate)
+            const instr = getCurrentInstruction(path.instructions, state.coordinate, state.heading)
 
             // current location is still not close
             if (instr.index < 0) {

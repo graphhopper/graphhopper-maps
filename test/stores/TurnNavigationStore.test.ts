@@ -25,6 +25,8 @@ let reroute2 = toRoutingResult(require('../turnNavigation/reroute2.json'))
 let announceBug = toRoutingResult(require('../turnNavigation/announce-bug-original.json'))
 let announceBugReroute = toRoutingResult(require('../turnNavigation/announce-bug-reroute.json'))
 
+let loopBug = toRoutingResult(require('../turnNavigation/loop-bug.json'))
+
 function toRoutingResult(rawResult: RawResult): RoutingResult {
     return {
         ...rawResult,
@@ -310,6 +312,49 @@ describe('TurnNavigationStore', () => {
             Dispatcher.dispatch(new LocationUpdate({ lng: 14.190732, lat: 51.431834 }, true, 10, 120))
 
             expect(speech.getTexts()).toEqual(['Links halten', 'reroute', 'Scharf links abbiegen'])
+        })
+
+        it('do not announce too old instruction for loops', async () => {
+            const api = new LocalApi()
+            const speech = new DummySpeech()
+            const store = createStore(api, speech)
+            Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
+            Dispatcher.dispatch(new SetSelectedPath(loopBug.paths[0]))
+            Dispatcher.dispatch(new TurnNavigationSettingsUpdate({ soundEnabled: true } as TNSettingsState))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 11.97108, lat: 50.352875 }, true, 16, 135))
+            expect(store.state.activePath).toEqual(loopBug.paths[0])
+            Dispatcher.dispatch(new LocationUpdate({ lng: 11.972844, lat: 50.350855 }, true, 16, 180))
+
+            // GPS location is closer to incorrect (underlying) motorway than to bridge.
+            // Due to heading prefer the slightly more distant bridge
+            Dispatcher.dispatch(new LocationUpdate({ lng: 11.972071, lat: 50.351871 }, true, 16, 45))
+
+            expect(speech.getTexts()).toEqual([
+                'Keep right and take B 173 toward Hof-Zentrum, Feilitzsch, Trogen',
+                'Turn right onto B 173',
+                'Arrive at destination',
+            ])
+        })
+
+        it('do not announce future instruction for loops', async () => {
+            const api = new LocalApi()
+            const speech = new DummySpeech()
+            const store = createStore(api, speech)
+            Dispatcher.dispatch(new SetVehicleProfile({ name: 'car' }))
+            Dispatcher.dispatch(new SetSelectedPath(loopBug.paths[0]))
+            Dispatcher.dispatch(new TurnNavigationSettingsUpdate({ soundEnabled: true } as TNSettingsState))
+            Dispatcher.dispatch(new LocationUpdate({ lng: 11.97108, lat: 50.352875 }, true, 16, 135))
+            expect(store.state.activePath).toEqual(loopBug.paths[0])
+
+            // GPS location is closer to bridge than to correct motorway -> with heading still enforces motorway
+            Dispatcher.dispatch(new LocationUpdate({ lng: 11.97213, lat: 50.351902 }, true, 16, 135))
+            // trigger announcements to turn right
+            Dispatcher.dispatch(new LocationUpdate({ lng: 11.972865, lat: 50.350855 }, true, 16, 180))
+
+            expect(speech.getTexts()).toEqual([
+                'Keep right and take B 173 toward Hof-Zentrum, Feilitzsch, Trogen',
+                'Turn right onto B 173',
+            ])
         })
     })
 
