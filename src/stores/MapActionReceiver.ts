@@ -93,9 +93,12 @@ export default class MapActionReceiver implements ActionReceiver {
                 // we only change to the lower zoom when below 14.4km/h and change to the higher speed when above 28.8km/h.
                 // And because the animation could be cancelled the oldZoom could be a none-integer value.
                 const oldZoom = mapView.getZoom()
-                if (!oldZoom || oldZoom < 17 || oldZoom > 18) args.zoom = 18
-                else if (oldZoom <= 18 && action.speed < 6) args.zoom = 18
-                else if (oldZoom >= 17 && action.speed > 8) args.zoom = 17
+                if (!oldZoom || oldZoom < 16) args.zoom = 16
+                else if (oldZoom > 18) args.zoom = 18
+                // actively change zoom for certain speeds only (at certain speeds no change)
+                else if (action.speed < 6) args.zoom = 18
+                else if (action.speed > 8 && action.speed <= 20) args.zoom = 17
+                else if (action.speed > 23) args.zoom = 16
 
                 // console.log('zoom ' + args.zoom + ', old ' + oldZoom + ', speed:' + action.speed)
 
