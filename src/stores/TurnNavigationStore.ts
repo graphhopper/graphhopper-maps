@@ -275,7 +275,14 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                         .map(p => [p[0], p[1]] as [number, number])
                     if (nextWaypoints.length == 0)
                         throw Error('rerouting needs a destination but was empty ' + JSON.stringify(path))
-                    const customModel = TurnNavigationStore.getCustomModel(state)
+
+                    let customModel = TurnNavigationStore.getCustomModel(state)
+                    const dist = calcDist(coordinate, { lat: nextWaypoints[0][1], lng: nextWaypoints[0][0] })
+                    if (dist >= 500_000) {
+                        // throwing an error does not seem appropriated on the road
+                        this.synthesize('Warning: route longer than 500 kilometer. Ignored custom model.')
+                        customModel = undefined
+                    }
 
                     let args: RoutingArgs = {
                         points: [[coordinate.lng, coordinate.lat] as [number, number]].concat(nextWaypoints),
