@@ -113,7 +113,7 @@ module.exports = {
         }),
         new webpack.DefinePlugin({
             GIT_SHA: JSON.stringify(gitSHA),
-            SOURCE_VERSION: package.version
+            SOURCE_VERSION: JSON.stringify(package.version),
         }),
     ],
 

@@ -120,7 +120,7 @@ export class ApiImpl implements Api {
             body: JSON.stringify(completeRequest),
             headers: {
                 'User-Agent': `GraphHopperMaps/${SOURCE_VERSION}`,
-                'Accept': 'application/json',
+                Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
         })
