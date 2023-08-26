@@ -6,6 +6,7 @@ export function milliSecondsToText(ms: number) {
     const hours = Math.floor(ms / 3600000)
     const minutes = Math.round((ms % 3600000) / 60000)
 
+    if (minutes == 60) return hours + 1 + ' h'
     const hourText = hours > 0 ? hours + ' h' : ''
     if (minutes == 0 && hourText.length > 0) return hourText
     return (hourText ? hourText + ' ' : '') + minutes + ' min'
