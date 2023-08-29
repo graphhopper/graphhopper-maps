@@ -15,11 +15,9 @@ export interface RoutingRequest {
     readonly points: ReadonlyArray<[number, number]>
     profile: string
     locale: string
-    debug: boolean
     points_encoded: boolean
     instructions: boolean
     elevation: boolean
-    optimize: string
     'alternative_route.max_paths'?: number
     'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean
