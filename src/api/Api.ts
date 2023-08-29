@@ -119,7 +119,6 @@ export class ApiImpl implements Api {
             mode: 'cors',
             body: JSON.stringify(completeRequest),
             headers: {
-                'User-Agent': `GraphHopperMaps/${SOURCE_VERSION}`,
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
