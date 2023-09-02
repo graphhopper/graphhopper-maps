@@ -39,14 +39,17 @@
     }
 
     .fullscreen .inputContainer {
-        grid-gap: 0.5rem;
+        grid-template-columns: auto 1fr;
+    }
+
+    .fullscreen .smallList {
+        grid-column: 2 / 2;
     }
 
     .fullscreen .btnClose {
-        display: flex;
-        align-self: stretch;
-        justify-self: stretch;
-        align-items: center;
+        display: block;
+        margin: 0;
+        padding: 5px 15px 5px 5px;
     }
 }
 

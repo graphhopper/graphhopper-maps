@@ -8,6 +8,7 @@ import Autocomplete, {
     SelectCurrentLocationItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
 
+import ArrowBack from './arrow_back.svg'
 import styles from './AddressInput.module.css'
 import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
@@ -138,6 +139,15 @@ export default function AddressInput(props: AddressInputProps) {
                         : {},
                 ].join(' ')}
             >
+                <PlainButton
+                    className={styles.btnClose}
+                    onClick={() => {
+                        setHasFocus(false)
+                        hideSuggestions()
+                    }}
+                >
+                    <ArrowBack/>
+                </PlainButton>
                 <input
                     style={props.moveStartIndex == props.index ? { borderWidth: '2px', margin: '-1px' } : {}}
                     className={styles.input}
@@ -167,15 +177,6 @@ export default function AddressInput(props: AddressInputProps) {
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
                     )}
                 />
-                <PlainButton
-                    className={styles.btnClose}
-                    onClick={() => {
-                        hideSuggestions()
-                    }}
-                >
-                    {tr('back_to_map')}
-                </PlainButton>
-            </div>
 
             {autocompleteItems.length > 0 && (
                 <ResponsiveAutocomplete
@@ -202,6 +203,7 @@ export default function AddressInput(props: AddressInputProps) {
                     />
                 </ResponsiveAutocomplete>
             )}
+            </div>
         </div>
     )
 }
@@ -220,7 +222,9 @@ function ResponsiveAutocomplete({
     return (
         <>
             {isSmallScreen ? (
-                children
+                <div className={styles.smallList}>
+                    {children}
+                </div>
             ) : (
                 <PopUp inputElement={inputRef} keepClearAtBottom={index > 5 ? 270 : 0}>
                     {children}
