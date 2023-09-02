@@ -1,5 +1,4 @@
 import styles from './AddressInputAutocomplete.module.css'
-import { useState } from 'react'
 import CurrentLocationIcon from './current-location.svg'
 import { tr } from '@/translation/Translation'
 import { Bbox } from '@/api/graphhopper'
@@ -38,11 +37,16 @@ export interface AutocompleteProps {
     items: AutocompleteItem[]
     highlightedItem: AutocompleteItem
     onSelect: (hit: AutocompleteItem) => void
+    setPointerDown: (b: boolean) => void
 }
 
-export default function Autocomplete({ items, highlightedItem, onSelect }: AutocompleteProps) {
+export default function Autocomplete({ items, highlightedItem, onSelect, setPointerDown }: AutocompleteProps) {
     return (
-        <ul>
+        <ul
+            onPointerDown={() => setPointerDown(true)}
+            onPointerUp={() => setPointerDown(false)}
+            onPointerLeave={() => setPointerDown(false)}
+        >
             {items.map((item, i) => (
                 <li key={i} className={styles.autocompleteItem}>
                     {mapToComponent(item, highlightedItem === item, onSelect)}
@@ -129,28 +133,9 @@ function AutocompleteEntry({
     children: React.ReactNode
     onSelect: () => void
 }) {
-    const [isCancelled, setIsCancelled] = useState(false)
     const className = isHighlighted ? styles.selectableItem + ' ' + styles.highlightedItem : styles.selectableItem
     return (
-        <button
-            className={className}
-            // using click events for mouse interaction to select an entry.
-            onClick={() => onSelect()}
-            // On touch devices when listening for the click or pointerup event the next or last address input would
-            // be immediately selected after the 'onSelectHit' method was called. This can be prevented by listening
-            // for the touchend event separately.
-            onTouchEnd={e => {
-                e.preventDefault()
-                if (!isCancelled) onSelect()
-            }}
-            // listen for cancel events to prevent selections in case the result list is e.g. scrolled on touch devices
-            onPointerCancel={() => setIsCancelled(true)}
-            // prevent blur event for input textbox
-            onPointerDown={e => {
-                setIsCancelled(false)
-                e.preventDefault()
-            }}
-        >
+        <button className={className} onClick={() => onSelect()}>
             {children}
         </button>
     )
