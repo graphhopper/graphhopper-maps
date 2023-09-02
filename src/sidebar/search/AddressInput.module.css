@@ -1,5 +1,5 @@
-.container {
-    position: relative;
+.btnInputClear {
+    display: none;
 }
 
 .btnClose {
@@ -14,7 +14,6 @@
 
 .input {
     box-sizing: border-box;
-    width: 100%;
     padding: 0.25rem 0.5rem;
     font-size: 1.05rem;
     border: 1px solid #5b616a;
@@ -35,17 +34,40 @@
     }
 
     .fullscreen .inputContainer {
-        grid-template-columns: auto 1fr;
+        grid-template-columns: auto 1fr auto;
     }
 
     .fullscreen .smallList {
-        grid-column: 2 / 2;
+        grid-column: 2;
+        overflow-x: hidden;
     }
 
     .fullscreen .btnClose {
         display: block;
         margin: 0;
         padding: 5px 15px 5px 5px;
+    }
+
+    .fullscreen .btnInputClear {
+        /* duplicate code, see (clear) */
+        display: block;
+        background-color: white;
+        margin-left: -35px;
+        padding: 0 5px;
+        color: gray;
+        scale: 0.7;
+    }
+}
+
+@media not all and (max-width: 44rem) and (hover: hover) {
+    .inputContainer:hover .btnInputClear {
+        /* duplicate code, see (clear) */
+        display: block;
+        background-color: white;
+        margin-left: -35px;
+        padding: 0 5px;
+        color: gray;
+        scale: 0.7;
     }
 }
 
