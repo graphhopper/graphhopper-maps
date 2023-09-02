@@ -9,6 +9,7 @@ import Autocomplete, {
 } from '@/sidebar/search/AddressInputAutocomplete'
 
 import ArrowBack from './arrow_back.svg'
+import Cross from '@/sidebar/times-solid-thin.svg'
 import styles from './AddressInput.module.css'
 import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
@@ -142,7 +143,6 @@ export default function AddressInput(props: AddressInputProps) {
                 <PlainButton
                     className={styles.btnClose}
                     onClick={() => {
-                        setHasFocus(false)
                         hideSuggestions()
                     }}
                 >
@@ -161,10 +161,9 @@ export default function AddressInput(props: AddressInputProps) {
                         props.onChange(e.target.value)
                     }}
                     onKeyDown={onKeypress}
-                    onFocus={event => {
-                        props.clearSelectedInput()
+                    onFocus={() => {
                         setHasFocus(true)
-                        event.target.select()
+                        props.clearSelectedInput()
                     }}
                     onBlur={() => {
                         // leave the fullscreen only when clicking on the back button
@@ -177,6 +176,18 @@ export default function AddressInput(props: AddressInputProps) {
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
                     )}
                 />
+                {text.length > 0 && (
+                    <PlainButton
+                        className={styles.btnInputClear}
+                        onClick={() => {
+                            setText('')
+                            props.onChange('')
+                            searchInput.current!.focus()
+                        }}
+                    >
+                        <Cross />
+                    </PlainButton>
+                )}
 
             {autocompleteItems.length > 0 && (
                 <ResponsiveAutocomplete
