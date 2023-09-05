@@ -143,7 +143,6 @@ export default function AddressInput(props: AddressInputProps) {
                 <PlainButton
                     className={styles.btnClose}
                     onClick={() => {
-                        setHasFocus(false)
                         hideSuggestions()
                     }}
                 >

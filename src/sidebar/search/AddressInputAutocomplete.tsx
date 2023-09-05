@@ -137,7 +137,7 @@ function AutocompleteEntry({
             // using click events for mouse interaction to select an entry.
             onClick={() => onSelect()}
             // On touch devices when listening for the click or pointerup event the next or last address input would
-            // be immediately selected after the 'onSelectHit' method was called. This can be prevented by listening
+            // be immediately selected after the 'onSelect' method was called. This can be prevented by listening
             // for the touchend event separately.
             onTouchEnd={e => {
                 e.preventDefault()
@@ -145,7 +145,7 @@ function AutocompleteEntry({
             }}
             // listen for cancel events to prevent selections in case the result list is e.g. scrolled on touch devices
             onPointerCancel={() => setIsCancelled(true)}
-            // prevent blur event for input textbox
+            // prevent blur event for input (onBlur): we need this when the autocomplete of the larger screen is used on touch devices
             onPointerDown={e => {
                 setIsCancelled(false)
                 e.preventDefault()
