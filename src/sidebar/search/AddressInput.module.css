@@ -22,6 +22,10 @@
     -webkit-appearance: none;
 }
 
+.input:focus {
+    outline: none;
+}
+
 @media (max-width: 44rem) {
     .fullscreen {
         position: fixed;
