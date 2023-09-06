@@ -161,7 +161,7 @@ export default function AddressInput(props: AddressInputProps) {
             </div>
 
             {autocompleteItems.length > 0 && (
-                <ResponsiveAutocomplete inputRef={searchInput.current!}>
+                <ResponsiveAutocomplete inputRef={searchInput.current!} index={props.index}>
                     <Autocomplete
                         items={autocompleteItems}
                         highlightedItem={autocompleteItems[highlightedResult]}
@@ -185,14 +185,14 @@ export default function AddressInput(props: AddressInputProps) {
     )
 }
 
-function ResponsiveAutocomplete({ inputRef, children }: { inputRef: HTMLElement; children: ReactNode }): JSX.Element {
+function ResponsiveAutocomplete({ inputRef, children, index }: { inputRef: HTMLElement; children: ReactNode; index:number }): JSX.Element {
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <>
             {isSmallScreen ? (
                 children
             ) : (
-                <PopUp inputElement={inputRef} keepClearAtBottom={270}>
+                <PopUp inputElement={inputRef} keepClearAtBottom={index > 5 ? 270 : 0}>
                     {children}
                 </PopUp>
             )}
