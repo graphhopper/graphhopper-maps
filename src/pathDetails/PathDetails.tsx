@@ -9,6 +9,7 @@ import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
 import { calcDist } from '@/distUtils'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import {toFixed} from "ol/math";
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -112,8 +113,9 @@ function buildPathDetailsData(selectedPath: Path) {
         const from = coordinates[i]
         const to = coordinates[i + 1]
         const distance = calcDistLonLat(from, to)
-        const slope = (100.0 * (to[2] - from[2])) / distance
-        slopeFeatures.push(createFeature([from, to], slope))
+        const slope = distance == 0 ? 0 : (100.0 * (to[2] - from[2])) / distance
+        const slopeRounded = Math.round(slope / 3) * 3
+        slopeFeatures.push(createFeature([from, to], slopeRounded))
     }
     const slopeCollection = createFeatureCollection('Slope', slopeFeatures)
     result.data.push(slopeCollection)
@@ -128,7 +130,8 @@ function buildPathDetailsData(selectedPath: Path) {
             const from = featurePoints[0]
             const to = featurePoints[featurePoints.length - 1]
             const distance = calcDistLonLat(from, to)
-            const slope = (100.0 * (to[2] - from[2])) / distance
+            const slope = distance == 0 ? 0 : (100.0 * (to[2] - from[2])) / distance
+            const slopeRounded = Math.round(slope / 3) * 3
             // for the elevations in tower slope diagram we do linear interpolation between the tower nodes. note that
             // we cannot simply leave out the pillar nodes, because otherwise the total distance would change
             let tmpDistance = 0
@@ -142,7 +145,7 @@ function buildPathDetailsData(selectedPath: Path) {
                 featurePoints[j] = [featurePoints[j][0], featurePoints[j][1], ele]
                 if (j < featurePoints.length - 1) tmpDistance += calcDistLonLat(featurePoints[j], featurePoints[j + 1])
             }
-            towerSlopeFeatures.push(createFeature(featurePoints, slope))
+            towerSlopeFeatures.push(createFeature(featurePoints, slopeRounded))
         }
         const towerSlopeCollection = createFeatureCollection('Towerslope', towerSlopeFeatures)
         result.data.push(towerSlopeCollection)
@@ -213,8 +216,10 @@ function slope2color(slope: number): object {
     const factor = absSlope / 25
     const color = [0, 1, 2].map(i => colorMin[i] + factor * (colorMax[i] - colorMin[i]))
     return {
-        text: slope.toFixed(2),
-        color: 'rgb(' + color[0] + ', ' + color[1] + ', ' + color[2] + ')',
+        text: slope < 0
+            ? "↘ " + (-slope - 3).toFixed(0) + "-" + (-slope).toFixed(0) + "%"
+            : "↗ " + slope.toFixed(0) + "-" + (slope + 3).toFixed(0) + "%",
+        color: Number.isNaN(slope) ? 'red' : 'rgb(' + color[0] + ', ' + color[1] + ', ' + color[2] + ')',
     }
 }
 
