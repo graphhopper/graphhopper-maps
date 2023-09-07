@@ -1,3 +1,7 @@
+.autocompleteItem:not(:last-child) {
+    border-bottom: 1px lightgray solid;
+}
+
 .selectableItem {
     display: block;
     width: 100%;
