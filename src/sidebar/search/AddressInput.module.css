@@ -63,7 +63,7 @@
     }
 }
 
-@media not all and (max-width: 44rem) and (hover: hover) {
+@media not all and (max-width: 44rem) {
     .inputContainer:hover .btnInputClear {
         /* duplicate code, see (clear) */
         display: block;
