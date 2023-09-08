@@ -1,3 +1,13 @@
+.autocompleteItem:not(:last-child) {
+    border-bottom: 1px lightgray solid;
+}
+
+@media (max-width: 44rem) {
+    .autocompleteItem:first-child {
+        border-top: 1px lightgray solid;
+    }
+}
+
 .selectableItem {
     display: block;
     width: 100%;

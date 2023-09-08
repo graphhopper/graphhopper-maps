@@ -84,11 +84,18 @@ export default function AddressInput(props: AddressInputProps) {
     // on Enter select highlighted result or the 0th if nothing is highlighted
     const [highlightedResult, setHighlightedResult] = useState<number>(-1)
     useEffect(() => setHighlightedResult(-1), [autocompleteItems])
+
+    // for positioning of the autocomplete we need:
+    const searchInputContainer = useRef<HTMLInputElement>(null)
+
+    // to focus the input after clear button we need:
     const searchInput = useRef<HTMLInputElement>(null)
+
     const onKeypress = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
+            const inputElement = event.target as HTMLInputElement
             if (event.key === 'Escape') {
-                searchInput.current!.blur()
+                inputElement.blur()
                 // onBlur is deactivated for mobile so force:
                 setHasFocus(false)
                 hideSuggestions()
@@ -114,7 +121,7 @@ export default function AddressInput(props: AddressInputProps) {
                         const item = autocompleteItems[index]
                         if (item instanceof GeocodingItem) props.onAddressSelected(item.toText(), item.point, item.bbox)
                     }
-                    searchInput.current!.blur()
+                    inputElement.blur()
                     // onBlur is deactivated for mobile so force:
                     setHasFocus(false)
                     hideSuggestions()
@@ -130,6 +137,7 @@ export default function AddressInput(props: AddressInputProps) {
     return (
         <div className={containerClass}>
             <div
+                ref={searchInputContainer}
                 className={[
                     styles.inputContainer,
                     // show line (border) where input would be moved if dropped
@@ -147,7 +155,7 @@ export default function AddressInput(props: AddressInputProps) {
                         hideSuggestions()
                     }}
                 >
-                    <ArrowBack/>
+                    <ArrowBack />
                 </PlainButton>
                 <input
                     style={props.moveStartIndex == props.index ? { borderWidth: '2px', margin: '-1px' } : {}}
@@ -179,25 +187,25 @@ export default function AddressInput(props: AddressInputProps) {
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
                     )}
                 />
-                {text.length > 0 && (
-                    <PlainButton
-                        className={styles.btnInputClear}
-                        onMouseDown={() => setPointerDownOnSuggestion(true)}
-                        onMouseLeave={() => setPointerDownOnSuggestion(false)}
-                        onMouseUp={() => setPointerDownOnSuggestion(false)}
-                        onClick={() => {
-                            setText('')
-                            props.onChange('')
-                            searchInput.current!.focus()
-                        }}
-                    >
-                        <Cross />
-                    </PlainButton>
-                )}
+
+                <PlainButton
+                    style={text.length == 0 ? { display: 'none' } : {}}
+                    className={styles.btnInputClear}
+                    onMouseDown={() => setPointerDownOnSuggestion(true)}
+                    onMouseLeave={() => setPointerDownOnSuggestion(false)}
+                    onMouseUp={() => setPointerDownOnSuggestion(false)}
+                    onClick={() => {
+                        setText('')
+                        props.onChange('')
+                        searchInput.current!.focus()
+                    }}
+                >
+                    <Cross />
+                </PlainButton>
 
                 {autocompleteItems.length > 0 && (
                     <ResponsiveAutocomplete
-                        inputRef={searchInput.current!}
+                        inputRef={searchInputContainer.current!}
                         index={props.index}
                         isSmallScreen={isSmallScreen}
                     >
@@ -241,9 +249,7 @@ function ResponsiveAutocomplete({
     return (
         <>
             {isSmallScreen ? (
-                <div className={styles.smallList}>
-                    {children}
-                </div>
+                <div className={styles.smallList}>{children}</div>
             ) : (
                 <PopUp inputElement={inputRef} keepClearAtBottom={index > 5 ? 270 : 0}>
                     {children}
