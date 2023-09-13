@@ -1,5 +1,8 @@
-.container {
-    position: relative;
+.btnInputClear {
+    display: none;
+    padding: 0 5px;
+    color: gray;
+    scale: 0.7;
 }
 
 .btnClose {
@@ -8,22 +11,29 @@
 
 .inputContainer {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto;
     grid-gap: 0;
+
+    box-sizing: border-box;
+    border: 1px solid #5b616a;
+    border-radius: 0.2rem;
+    /* for the radius we need some padding otherwise the corners will be nearly hidden */
+    padding: 1px;
 }
 
 .input {
-    box-sizing: border-box;
-    width: 100%;
+    border: none;
     padding: 0.25rem 0.5rem;
     font-size: 1.05rem;
-    border: 1px solid #5b616a;
-    border-radius: 0.2rem;
-    -webkit-appearance: none;
 }
 
 .input:focus {
     outline: none;
+}
+
+.smallList {
+    grid-column: 2 / 3;
+    overflow-x: hidden;
 }
 
 @media (max-width: 44rem) {
@@ -39,14 +49,31 @@
     }
 
     .fullscreen .inputContainer {
-        grid-gap: 0.5rem;
+        grid-template-columns: auto 1fr auto;
     }
 
     .fullscreen .btnClose {
-        display: flex;
-        align-self: stretch;
-        justify-self: stretch;
-        align-items: center;
+        display: block;
+        margin: 0;
+        padding: 5px 15px 5px 5px;
+    }
+
+    .fullscreen .btnInputClear {
+        display: block;
+    }
+    /* when showing btnInputClear => remove the padding */
+    .fullscreen .input {
+        padding-right: 0;
+    }
+}
+
+@media not all and (max-width: 44rem) {
+    .inputContainer:hover .btnInputClear {
+        display: block;
+    }
+    /* when showing btnInputClear => remove the padding */
+    .inputContainer:hover .input {
+        padding-right: 0;
     }
 }
 
