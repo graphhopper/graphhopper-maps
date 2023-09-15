@@ -19,7 +19,7 @@ import { ScaleLine } from 'ol/control'
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
     private readonly routeStore: RouteStore
-    private currentScaleControl: ScaleLine
+    private readonly currentScaleControl: ScaleLine
     private readonly isSmallScreenQuery: () => boolean
 
     constructor(map: Map, routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
@@ -48,13 +48,7 @@ export default class MapActionReceiver implements ActionReceiver {
                 duration: 400,
             })
         } else if (action instanceof ToggleDistanceUnits) {
-            this.map.removeControl(this.currentScaleControl)
-            this.currentScaleControl = new ScaleLine({
-                className: mapstyles.customScale,
-                units: action.showDistanceInMiles ? 'imperial' : 'metric',
-                minWidth: 50,
-            })
-            this.map.addControl(this.currentScaleControl)
+            this.currentScaleControl.setUnits(action.showDistanceInMiles ? 'imperial' : 'metric')
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route
