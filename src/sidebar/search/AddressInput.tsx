@@ -24,7 +24,7 @@ export interface AddressInputProps {
     onCancel: () => void
     onAddressSelected: (queryText: string, coord: Coordinate | undefined, bbox: Bbox | undefined) => void
     onChange: (value: string) => void
-    clearSelectedInput: () => void
+    clearDragDrop: () => void
     moveStartIndex: number
     dropPreviewIndex: number
     index: number
@@ -172,7 +172,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onKeyDown={onKeypress}
                     onFocus={() => {
                         setHasFocus(true)
-                        props.clearSelectedInput()
+                        props.clearDragDrop()
                     }}
                     onBlur={() => {
                         // Suppress onBlur if there was a click on a suggested item.

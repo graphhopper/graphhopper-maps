@@ -183,7 +183,7 @@ const SearchBox = ({
                             )
                         )
                     }}
-                    clearSelectedInput={() => {
+                    clearDragDrop={() => {
                         onMoveStartSelect(-1, true)
                         onDropPreviewSelect(-1)
                     }}
