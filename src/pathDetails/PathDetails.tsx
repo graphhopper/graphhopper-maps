@@ -9,7 +9,7 @@ import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
 import { calcDist } from '@/distUtils'
 import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
-import {toFixed} from "ol/math";
+import { toFixed } from 'ol/math'
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -216,9 +216,10 @@ function slope2color(slope: number): object {
     const factor = absSlope / 25
     const color = [0, 1, 2].map(i => colorMin[i] + factor * (colorMax[i] - colorMin[i]))
     return {
-        text: slope < 0
-            ? "↘ " + (-slope - 3).toFixed(0) + "-" + (-slope).toFixed(0) + "%"
-            : "↗ " + slope.toFixed(0) + "-" + (slope + 3).toFixed(0) + "%",
+        text:
+            slope < 0
+                ? '↘ ' + (-slope - 3).toFixed(0) + '-' + (-slope).toFixed(0) + '%'
+                : '↗ ' + slope.toFixed(0) + '-' + (slope + 3).toFixed(0) + '%',
         color: Number.isNaN(slope) ? 'red' : 'rgb(' + color[0] + ', ' + color[1] + ', ' + color[2] + ')',
     }
 }
