@@ -19,7 +19,7 @@ export default class SettingsStore extends Store<Settings> {
         if (action instanceof ToggleDistanceUnits) {
             return {
                 ...state,
-                showDistanceInMiles: !state.showDistanceInMiles,
+                showDistanceInMiles: action.showDistanceInMiles,
             }
         } else if (action instanceof SetCustomModelEnabled) {
             if (!action.enabled && state.drawAreasEnabled)

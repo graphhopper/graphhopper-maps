@@ -7,6 +7,21 @@
     width: 100%;
 }
 
+.customScale {
+    position: absolute;
+    bottom: 18px;
+    padding: 2px;
+    background: var(--ol-partial-background-color);
+}
+
+.customScale-inner {
+    border: 1px solid gray;
+    border-top: none;
+    font-size: 10px;
+    text-align: center;
+    margin: 1px;
+}
+
 .customZoom {
     right: 17px;
     top: 115px;
@@ -17,6 +32,10 @@
         top: unset;
         bottom: 0.5em;
     }
+
+    .customScale {
+        display: none;
+    }
 }
 
 /* changing the position of the attribution is a bit complex as we have to repeat the other css */
@@ -24,7 +43,7 @@
     left: 0;
     bottom: 0;
     padding: 1px 5px;
-    background-color: rgba(255, 255, 255, 0.8);
+    background: var(--ol-partial-background-color);
     border-radius: 0 4px 0 0;
 }
 
