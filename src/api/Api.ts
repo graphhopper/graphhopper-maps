@@ -16,7 +16,8 @@ import {
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
-import {request} from "config";
+import { request } from 'config'
+import { lessThanOrEqualTo } from 'ol/format/filter'
 
 interface ApiProfile {
     name: string
@@ -112,18 +113,18 @@ export class ApiImpl implements Api {
         return this.geocodingApi !== ''
     }
 
-    async mapMatch(args: RoutingArgs) : Promise<RoutingResult> {
+    async mapMatch(args: RoutingArgs): Promise<RoutingResult> {
         const xml = args.points.map((p, i) => `<trkpt lat="${p[1]}" lon="${p[0]}"></trkpt>`).join('\n')
 
         const url = new URL(this.routingApi + 'match')
         url.searchParams.append('key', this.apiKey)
 
-        // TODO NOW make zoom-dependent?
-        url.searchParams.append('gps_accuracy', '200')
+        // TODO NOW make zoom-dependent? problem is the long response times for outdoor vehicles and larger gps_accuracy values
+        url.searchParams.append('gps_accuracy', ApiImpl.isMotorVehicle(args.profile) ? '200' : '50')
 
         url.searchParams.append('profile', args.profile)
-        url.searchParams.append('elevation', "true")
-        url.searchParams.append('instructions', "true")
+        url.searchParams.append('elevation', 'true')
+        url.searchParams.append('instructions', 'true')
         url.searchParams.append('locale', getTranslation().getLang())
 
         // url.searchParams.append('ch.disable', 'true')
@@ -134,13 +135,7 @@ export class ApiImpl implements Api {
         const response = await fetch(url.toString(), {
             method: 'POST',
             mode: 'cors',
-            body:
-                '<gpx>\n' +
-                ' <trk>\n' +
-                '  <trkseg>\n' + xml +
-                '  </trkseg>\n' +
-                ' </trk>\n' +
-                '</gpx>',
+            body: '<gpx>\n' + ' <trk>\n' + '  <trkseg>\n' + xml + '  </trkseg>\n' + ' </trk>\n' + '</gpx>',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/gpx+xml',
@@ -225,7 +220,7 @@ export class ApiImpl implements Api {
     routeWithDispatch(args: RoutingArgs, zoomOnSuccess: boolean) {
         const routeNumber = this.routeCounter++
 
-        if(true) {
+        if (true) {
             return this.mapMatch(args)
                 .then(result => {
                     if (routeNumber > this.lastRouteNumber) {
@@ -236,9 +231,7 @@ export class ApiImpl implements Api {
                         console.log('Ignore response of earlier started route ' + tmp)
                     }
                 })
-                .catch(error => {
-
-                })
+                .catch(error => {})
         } else {
             return this.route(args)
                 .then(result => {

@@ -1,21 +1,21 @@
-import {Feature, Map} from 'ol'
-import {Path} from '@/api/graphhopper'
-import {FeatureCollection} from 'geojson'
-import {useEffect} from 'react'
+import { Feature, Map } from 'ol'
+import { Path } from '@/api/graphhopper'
+import { FeatureCollection } from 'geojson'
+import { useEffect } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import {GeoJSON} from 'ol/format'
-import {Stroke, Style} from 'ol/style'
-import {fromLonLat} from 'ol/proj'
-import {Draw, Select} from 'ol/interaction'
-import {click, primaryAction} from 'ol/events/condition'
+import { GeoJSON } from 'ol/format'
+import { Stroke, Style } from 'ol/style'
+import { fromLonLat } from 'ol/proj'
+import { Draw, Select } from 'ol/interaction'
+import { click, primaryAction } from 'ol/events/condition'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetQueryPoints, SetSelectedPath} from '@/actions/Actions'
-import {SelectEvent} from 'ol/interaction/Select'
-import {QueryPoint, QueryPointType} from '@/stores/QueryStore'
+import { SetQueryPoints, SetSelectedPath } from '@/actions/Actions'
+import { SelectEvent } from 'ol/interaction/Select'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import LineString from 'ol/geom/LineString'
-import {calcDist} from "@/distUtils";
-import {Coordinate, distance} from "ol/coordinate";
+import { calcDist } from '@/distUtils'
+import { Coordinate, distance } from 'ol/coordinate'
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -56,8 +56,7 @@ function removeHandDrawQueryPointsLayers(map: Map) {
 }
 
 function addHandDrawQueryPointLayer(map: Map) {
-
-    const source = new VectorSource();
+    const source = new VectorSource()
 
     // TODO NOW cache style
 
@@ -80,14 +79,14 @@ function addHandDrawQueryPointLayer(map: Map) {
         //         color: '#ff4b33',
         //     }),
         // }),
-    });
+    })
 
     const vectorLayer = new VectorLayer({
         source: source,
         style: function (feature) {
             return [style]
         },
-    });
+    })
 
     map.addLayer(vectorLayer)
 
@@ -103,7 +102,7 @@ function addHandDrawQueryPointLayer(map: Map) {
         // freehand: false,
         source: source,
         type: 'LineString',
-    });
+    })
 
     draw.on('drawend', e => {
         if (!e.feature) return
@@ -116,14 +115,15 @@ function addHandDrawQueryPointLayer(map: Map) {
                 return {
                     lat: Math.round(c[1] * 1_000_000) / 1_000_000,
                     lng: Math.round(c[0] * 1_000_000) / 1_000_000,
-                }})
+                }
+            })
             let resultCoords = []
             let prevCoord = coords[0]
             let prevIdx = 0
             // not sure how to do this with coords.filter
-            for(let idx = 1; idx < coords.length; idx ++) {
+            for (let idx = 1; idx < coords.length; idx++) {
                 // TODO NOW must also be zoom-dependent, i.e. dependent on gps_accuracy
-                if(calcDist(prevCoord, coords[idx]) > 300) {
+                if (calcDist(prevCoord, coords[idx]) > 300) {
                     resultCoords.push(coords[idx])
                     prevCoord = coords[idx]
                     prevIdx = idx
@@ -131,7 +131,7 @@ function addHandDrawQueryPointLayer(map: Map) {
             }
 
             // API does not handle too many points
-            resultCoords = resultCoords.slice(0, 50);
+            resultCoords = resultCoords.slice(0, 50)
             const points = resultCoords.map((c, idx) => {
                 return {
                     coordinate: c,
@@ -144,14 +144,13 @@ function addHandDrawQueryPointLayer(map: Map) {
             })
             Dispatcher.dispatch(new SetQueryPoints(points))
         } else {
-            console.warn("not a LineString")
+            console.warn('not a LineString')
         }
         return false
     })
 
-    map.addInteraction(draw);
+    map.addInteraction(draw)
 }
-
 
 function addUnselectedPathsLayer(map: Map, paths: Path[]) {
     const style = new Style({
