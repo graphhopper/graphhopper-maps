@@ -1,11 +1,16 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { DrawAreas, SetCustomModelEnabled, ToggleDistanceUnits } from '@/actions/Actions'
+import {
+    DrawCustomModelAreas,
+    DrawHandfreeQueryPoints,
+    SetCustomModelEnabled,
+    ToggleDistanceUnits,
+} from '@/actions/Actions'
 
 export interface Settings {
     showDistanceInMiles: boolean
     drawAreasEnabled: boolean
-    handDrawQueryPointsEnabled: boolean
+    drawHandfreeQueryPointsEnabled: boolean
 }
 
 export default class SettingsStore extends Store<Settings> {
@@ -13,7 +18,7 @@ export default class SettingsStore extends Store<Settings> {
         super({
             showDistanceInMiles: false,
             drawAreasEnabled: false,
-            handDrawQueryPointsEnabled: true,
+            drawHandfreeQueryPointsEnabled: false,
         })
     }
 
@@ -29,7 +34,12 @@ export default class SettingsStore extends Store<Settings> {
                     ...state,
                     drawAreasEnabled: false,
                 }
-        } else if (action instanceof DrawAreas) {
+        } else if (action instanceof DrawHandfreeQueryPoints) {
+            return {
+                ...state,
+                drawHandfreeQueryPointsEnabled: action.enabled,
+            }
+        } else if (action instanceof DrawCustomModelAreas) {
             return {
                 ...state,
                 drawAreasEnabled: action.enabled,

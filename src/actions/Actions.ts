@@ -240,7 +240,15 @@ export class InstructionClicked implements Action {
 
 export class ToggleDistanceUnits implements Action {}
 
-export class DrawAreas implements Action {
+export class DrawCustomModelAreas implements Action {
+    readonly enabled: boolean
+
+    constructor(enabled: boolean) {
+        this.enabled = enabled
+    }
+}
+
+export class DrawHandfreeQueryPoints implements Action {
     readonly enabled: boolean
 
     constructor(enabled: boolean) {

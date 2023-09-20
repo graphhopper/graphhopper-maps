@@ -43,6 +43,9 @@ import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
+import DrawIcon from './map/gesture.svg'
+import Dispatcher from '@/stores/Dispatcher'
+import { DrawHandfreeQueryPoints, ToggleRoutingGraph } from '@/actions/Actions'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -105,7 +108,13 @@ export default function App() {
     useAreasLayer(map, settings.drawAreasEnabled, query.customModelStr, query.customModelEnabled)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
-    usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints)
+    usePathsLayer(
+        map,
+        route.routingResult.paths,
+        route.selectedPath,
+        query.queryPoints,
+        settings.drawHandfreeQueryPointsEnabled
+    )
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
@@ -123,6 +132,7 @@ export default function App() {
                         error={error}
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
+                        drawHandfreeQueryPoints={settings.drawHandfreeQueryPointsEnabled}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -133,6 +143,7 @@ export default function App() {
                         error={error}
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
+                        drawHandfreeQueryPoints={settings.drawHandfreeQueryPointsEnabled}
                     />
                 )}
             </div>
@@ -148,9 +159,19 @@ interface LayoutProps {
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
+    drawHandfreeQueryPoints: boolean
 }
 
-function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
+function LargeScreenLayout({
+    query,
+    route,
+    map,
+    error,
+    mapOptions,
+    encodedValues,
+    drawAreas,
+    drawHandfreeQueryPoints,
+}: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     return (
@@ -200,6 +221,13 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
             <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
             <div className={styles.onMapRightSide}>
                 <MapOptions {...mapOptions} />
+                <div
+                    style={drawHandfreeQueryPoints ? { backgroundColor: 'black' } : {}}
+                    className={styles.drawIcon}
+                    onClick={e => Dispatcher.dispatch(new DrawHandfreeQueryPoints(!drawHandfreeQueryPoints))}
+                >
+                    <DrawIcon />
+                </div>
                 <LocationButton queryPoints={query.queryPoints} />
             </div>
             <div className={styles.map}>
@@ -213,7 +241,16 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
+function SmallScreenLayout({
+    query,
+    route,
+    map,
+    error,
+    mapOptions,
+    encodedValues,
+    drawAreas,
+    drawHandfreeQueryPoints,
+}: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
@@ -231,6 +268,13 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.onMapRightSide}>
                     <MapOptions {...mapOptions} />
+                    <div
+                        style={drawHandfreeQueryPoints ? { backgroundColor: 'black' } : {}}
+                        className={styles.drawIcon}
+                        onClick={e => Dispatcher.dispatch(new DrawHandfreeQueryPoints(!drawHandfreeQueryPoints))}
+                    >
+                        <DrawIcon />
+                    </div>
                     <LocationButton queryPoints={query.queryPoints} />
                 </div>
             </div>

@@ -7,7 +7,7 @@ import VectorSource from 'ol/source/Vector'
 import { GeoJSON } from 'ol/format'
 import { Stroke, Style } from 'ol/style'
 import { fromLonLat } from 'ol/proj'
-import { Draw, Select } from 'ol/interaction'
+import { Draw, Modify, Select, Snap } from 'ol/interaction'
 import { click, primaryAction } from 'ol/events/condition'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetQueryPoints, SetSelectedPath } from '@/actions/Actions'
@@ -22,10 +22,18 @@ const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
 const handDrawQueryPointsLayerKey = 'handDrawQueryPointsLayer'
 
-export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Path, queryPoints: QueryPoint[]) {
+export default function usePathsLayer(
+    map: Map,
+    paths: Path[],
+    selectedPath: Path,
+    queryPoints: QueryPoint[],
+    drawFreehandQueryPoints: boolean
+) {
     useEffect(() => {
-        removeHandDrawQueryPointsLayers(map)
-        addHandDrawQueryPointLayer(map)
+        removeDrawHandfreeQueryPointsLayers(map)
+
+        if (drawFreehandQueryPoints) addDrawFreehandQueryPointsLayer(map)
+        else removeDrawHandfreeQueryPointsLayers(map)
 
         removeCurrentPathLayers(map)
         addUnselectedPathsLayer(
@@ -36,9 +44,9 @@ export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Pat
         addAccessNetworkLayer(map, selectedPath, queryPoints)
         return () => {
             removeCurrentPathLayers(map)
-            removeHandDrawQueryPointsLayers(map)
+            removeDrawHandfreeQueryPointsLayers(map)
         }
-    }, [map, paths, selectedPath])
+    }, [map, paths, selectedPath, drawFreehandQueryPoints])
 }
 
 function removeCurrentPathLayers(map: Map) {
@@ -48,14 +56,20 @@ function removeCurrentPathLayers(map: Map) {
         .forEach(l => map.removeLayer(l))
 }
 
-function removeHandDrawQueryPointsLayers(map: Map) {
+function removeDrawHandfreeQueryPointsLayers(map: Map) {
+    map.getInteractions()
+        .getArray()
+        .forEach(i => {
+            if ('gh:draw_handfree' == i.get('source') && i instanceof Draw) i.setActive(false)
+        })
+
     map.getLayers()
         .getArray()
         .filter(l => l.get(handDrawQueryPointsLayerKey))
         .forEach(l => map.removeLayer(l))
 }
 
-function addHandDrawQueryPointLayer(map: Map) {
+function addDrawFreehandQueryPointsLayer(map: Map) {
     const source = new VectorSource()
 
     // TODO NOW cache style
@@ -87,7 +101,7 @@ function addHandDrawQueryPointLayer(map: Map) {
             return [style]
         },
     })
-
+    vectorLayer.set(handDrawQueryPointsLayerKey, true)
     map.addLayer(vectorLayer)
 
     const draw = new Draw({
@@ -98,8 +112,7 @@ function addHandDrawQueryPointLayer(map: Map) {
         // we handle this later
         // maxPoints: 200,
 
-        /* TODO how to move the map? */
-        // freehand: false,
+        freehand: true,
         source: source,
         type: 'LineString',
     })
@@ -149,7 +162,7 @@ function addHandDrawQueryPointLayer(map: Map) {
         }
         return false
     })
-
+    draw.set('source', 'gh:draw_handfree')
     map.addInteraction(draw)
 }
 

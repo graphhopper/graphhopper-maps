@@ -229,7 +229,7 @@ export class ApiImpl implements Api {
         const routeNumber = this.routeCounter++
 
         this.mapMatch(args)
-        // this.route(args)
+            // this.route(args)
             .then(result => {
                 if (routeNumber > this.lastRouteNumber) {
                     this.lastRouteNumber = routeNumber
