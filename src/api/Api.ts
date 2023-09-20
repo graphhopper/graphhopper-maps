@@ -228,40 +228,27 @@ export class ApiImpl implements Api {
     routeWithDispatch(args: RoutingArgs, zoomOnSuccess: boolean) {
         const routeNumber = this.routeCounter++
 
-        if (true) {
-            return this.mapMatch(args)
-                .then(result => {
-                    if (routeNumber > this.lastRouteNumber) {
-                        this.lastRouteNumber = routeNumber
-                        Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
-                    } else {
-                        const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
-                        console.log('Ignore response of earlier started route ' + tmp)
-                    }
-                })
-                .catch(error => {})
-        } else {
-            return this.route(args)
-                .then(result => {
-                    if (routeNumber > this.lastRouteNumber) {
-                        this.lastRouteNumber = routeNumber
-                        Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
-                    } else {
-                        const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
-                        console.log('Ignore response of earlier started route ' + tmp)
-                    }
-                })
-                .catch(error => {
-                    if (routeNumber > this.lastRouteNumber) {
-                        console.warn('error when performing /route request ' + routeNumber + ': ', error)
-                        this.lastRouteNumber = routeNumber
-                        Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
-                    } else {
-                        const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
-                        console.log('Ignore error ' + error.message + ' of earlier started route ' + tmp)
-                    }
-                })
-        }
+        this.mapMatch(args)
+        // this.route(args)
+            .then(result => {
+                if (routeNumber > this.lastRouteNumber) {
+                    this.lastRouteNumber = routeNumber
+                    Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
+                } else {
+                    const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
+                    console.log('Ignore response of earlier started route ' + tmp)
+                }
+            })
+            .catch(error => {
+                if (routeNumber > this.lastRouteNumber) {
+                    console.warn('error when performing /route request ' + routeNumber + ': ', error)
+                    this.lastRouteNumber = routeNumber
+                    Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
+                } else {
+                    const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
+                    console.log('Ignore error ' + error.message + ' of earlier started route ' + tmp)
+                }
+            })
     }
 
     private getRoutingURLWithKey(endpoint: string) {

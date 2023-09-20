@@ -68,7 +68,7 @@ function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
         style = new Style({
             image: new Icon({
                 src: 'data:image/svg+xml;utf8,' + createSvg(props),
-                displacement: [0, MARKER_SIZE / 2],
+                displacement: [0, 10],
             }),
         })
         cachedStyles[key] = style
