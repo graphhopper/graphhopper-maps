@@ -119,7 +119,7 @@ export class ApiImpl implements Api {
         url.searchParams.append('key', this.apiKey)
 
         // TODO NOW make zoom-dependent?
-        url.searchParams.append('gps_accuracy', '30')
+        url.searchParams.append('gps_accuracy', '200')
 
         url.searchParams.append('profile', args.profile)
         url.searchParams.append('elevation', "true")

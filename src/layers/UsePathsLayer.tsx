@@ -1,23 +1,21 @@
-import { Feature, Map } from 'ol'
-import { Path } from '@/api/graphhopper'
-import { FeatureCollection } from 'geojson'
-import { useEffect } from 'react'
+import {Feature, Map} from 'ol'
+import {Path} from '@/api/graphhopper'
+import {FeatureCollection} from 'geojson'
+import {useEffect} from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { GeoJSON } from 'ol/format'
-import {Fill, Stroke, Style} from 'ol/style'
-import { fromLonLat } from 'ol/proj'
-import {Draw, Modify, Select} from 'ol/interaction'
-import {click, never, platformModifierKeyOnly, primaryAction} from 'ol/events/condition'
+import {GeoJSON} from 'ol/format'
+import {Stroke, Style} from 'ol/style'
+import {fromLonLat} from 'ol/proj'
+import {Draw, Select} from 'ol/interaction'
+import {click, primaryAction} from 'ol/events/condition'
 import Dispatcher from '@/stores/Dispatcher'
-import {SetCustomModel, SetQueryPoints, SetSelectedPath} from '@/actions/Actions'
-import { SelectEvent } from 'ol/interaction/Select'
+import { SetQueryPoints, SetSelectedPath} from '@/actions/Actions'
+import {SelectEvent} from 'ol/interaction/Select'
 import {QueryPoint, QueryPointType} from '@/stores/QueryStore'
-import {Coordinate, distance} from 'ol/coordinate'
 import LineString from 'ol/geom/LineString'
-import CircleStyle from "ol/style/Circle";
-import {FeatureLike} from "ol/Feature";
-import {Geometry} from "ol/geom";
+import {calcDist} from "@/distUtils";
+import {Coordinate, distance} from "ol/coordinate";
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -63,25 +61,25 @@ function addHandDrawQueryPointLayer(map: Map) {
 
     // TODO NOW cache style
 
-    // TODO NOW hide line when we draw route and markers
+    // hide line as we draw route and markers
     const style = new Style({
-        geometry: function (feature) {
-            const modifyGeometry = feature.get('modifyGeometry');
-            return modifyGeometry ? modifyGeometry.geometry : feature.getGeometry();
-        },
-        fill: new Fill({
-            color: 'rgba(255, 255, 255, 0.2)',
-        }),
-        stroke: new Stroke({
-            color: '#7fa6e0',
-            width: 3,
-        }),
-        image: new CircleStyle({
-            radius: 7,
-            fill: new Fill({
-                color: '#ff4b33',
-            }),
-        }),
+        // geometry: function (feature) {
+        //     const modifyGeometry = feature.get('modifyGeometry');
+        //     return modifyGeometry ? modifyGeometry.geometry : feature.getGeometry();
+        // },
+        // fill: new Fill({
+        //     color: 'rgba(255, 255, 255, 0.2)',
+        // }),
+        // stroke: new Stroke({
+        //     color: '#7fa6e0',
+        //     width: 3,
+        // }),
+        // image: new CircleStyle({
+        //     radius: 7,
+        //     fill: new Fill({
+        //         color: '#ff4b33',
+        //     }),
+        // }),
     });
 
     const vectorLayer = new VectorLayer({
@@ -94,9 +92,15 @@ function addHandDrawQueryPointLayer(map: Map) {
     map.addLayer(vectorLayer)
 
     const draw = new Draw({
-        condition: function (event) {
+        condition: event => {
             return primaryAction(event)
         },
+
+        // we handle this later
+        // maxPoints: 200,
+
+        /* TODO how to move the map? */
+        // freehand: false,
         source: source,
         type: 'LineString',
     });
@@ -108,13 +112,29 @@ function addHandDrawQueryPointLayer(map: Map) {
         const geometry = e.feature.getGeometry()?.clone().transform('EPSG:3857', 'EPSG:4326')
 
         if (geometry instanceof LineString) {
-            const coords = geometry.getCoordinates();
-            const points = coords.map((c : Coordinate, idx: number) => {
+            const coords = geometry.getCoordinates().map((c: Coordinate, idx: number) => {
                 return {
-                    coordinate: {
-                        lat: Math.round(c[1] * 1_000_000) / 1_000_000,
-                        lng: Math.round(c[0] * 1_000_000) / 1_000_000,
-                    },
+                    lat: Math.round(c[1] * 1_000_000) / 1_000_000,
+                    lng: Math.round(c[0] * 1_000_000) / 1_000_000,
+                }})
+            let resultCoords = []
+            let prevCoord = coords[0]
+            let prevIdx = 0
+            // not sure how to do this with coords.filter
+            for(let idx = 1; idx < coords.length; idx ++) {
+                // TODO NOW must also be zoom-dependent, i.e. dependent on gps_accuracy
+                if(calcDist(prevCoord, coords[idx]) > 300) {
+                    resultCoords.push(coords[idx])
+                    prevCoord = coords[idx]
+                    prevIdx = idx
+                }
+            }
+
+            // API does not handle too many points
+            resultCoords = resultCoords.slice(0, 200);
+            const points = resultCoords.map((c, idx) => {
+                return {
+                    coordinate: c,
                     isInitialized: true,
                     id: idx, // TODO NOW this is not correct
                     queryText: '' + idx,
