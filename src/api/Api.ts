@@ -16,8 +16,7 @@ import {
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
-import { request } from 'config'
-import { lessThanOrEqualTo } from 'ol/format/filter'
+import { calcDist } from '@/distUtils'
 
 interface ApiProfile {
     name: string
@@ -119,9 +118,17 @@ export class ApiImpl implements Api {
         const url = new URL(this.routingApi + 'match')
         url.searchParams.append('key', this.apiKey)
 
-        // TODO NOW avoid large distances and large gps_accuracy -> measure distances?
-        //   another problem is that response times for outdoor vehicles and larger gps_accuracy values are too slow
-        url.searchParams.append('gps_accuracy', ApiImpl.isMotorVehicle(args.profile) ? '160' : '50')
+        // avoid large distances and large gps_accuracy
+        let largeDistanceFactor = 1
+        if (args.points.length >= 2) {
+            const p0 = { lat: args.points[0][1], lng: args.points[0][0] }
+            const p1 = { lat: args.points[1][1], lng: args.points[1][0] }
+            if (calcDist(p0, p1) > 1_500) largeDistanceFactor = 2
+        }
+
+        // another problem is that response times for outdoor vehicles and larger gps_accuracy values are too slow
+        const gpsAccuracy = ApiImpl.isMotorVehicle(args.profile) ? 160 : 50
+        url.searchParams.append('gps_accuracy', '' + gpsAccuracy / largeDistanceFactor)
 
         url.searchParams.append('profile', args.profile)
         url.searchParams.append('elevation', 'true')
