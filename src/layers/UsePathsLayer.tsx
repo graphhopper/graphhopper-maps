@@ -131,7 +131,7 @@ function addHandDrawQueryPointLayer(map: Map) {
             }
 
             // API does not handle too many points
-            resultCoords = resultCoords.slice(0, 200);
+            resultCoords = resultCoords.slice(0, 50);
             const points = resultCoords.map((c, idx) => {
                 return {
                     coordinate: c,
