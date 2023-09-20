@@ -120,7 +120,7 @@ export class ApiImpl implements Api {
         url.searchParams.append('key', this.apiKey)
 
         // TODO NOW make zoom-dependent? problem is the long response times for outdoor vehicles and larger gps_accuracy values
-        url.searchParams.append('gps_accuracy', ApiImpl.isMotorVehicle(args.profile) ? '200' : '50')
+        url.searchParams.append('gps_accuracy', ApiImpl.isMotorVehicle(args.profile) ? '160' : '50')
 
         url.searchParams.append('profile', args.profile)
         url.searchParams.append('elevation', 'true')

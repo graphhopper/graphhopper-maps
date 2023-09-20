@@ -107,8 +107,7 @@ function addHandDrawQueryPointLayer(map: Map) {
     draw.on('drawend', e => {
         if (!e.feature) return
 
-        // clone! Because otherwise the object itself will be transformed and it disappears from the map
-        const geometry = e.feature.getGeometry()?.clone().transform('EPSG:3857', 'EPSG:4326')
+        const geometry = e.feature.getGeometry()?.transform('EPSG:3857', 'EPSG:4326')
 
         if (geometry instanceof LineString) {
             const coords = geometry.getCoordinates().map((c: Coordinate, idx: number) => {
