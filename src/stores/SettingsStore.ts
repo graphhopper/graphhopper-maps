@@ -5,6 +5,7 @@ import { DrawAreas, SetCustomModelEnabled, ToggleDistanceUnits } from '@/actions
 export interface Settings {
     showDistanceInMiles: boolean
     drawAreasEnabled: boolean
+    handDrawQueryPointsEnabled: boolean
 }
 
 export default class SettingsStore extends Store<Settings> {
@@ -12,6 +13,7 @@ export default class SettingsStore extends Store<Settings> {
         super({
             showDistanceInMiles: false,
             drawAreasEnabled: false,
+            handDrawQueryPointsEnabled: true,
         })
     }
 

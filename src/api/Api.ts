@@ -16,6 +16,7 @@ import {
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
+import {request} from "config";
 
 interface ApiProfile {
     name: string
@@ -111,6 +112,72 @@ export class ApiImpl implements Api {
         return this.geocodingApi !== ''
     }
 
+    async mapMatch(args: RoutingArgs) : Promise<RoutingResult> {
+        const xml = args.points.map((p, i) => `<trkpt lat="${p[1]}" lon="${p[0]}"></trkpt>`).join('\n')
+
+        const url = new URL(this.routingApi + 'match')
+        url.searchParams.append('key', this.apiKey)
+
+        // TODO NOW make zoom-dependent?
+        url.searchParams.append('gps_accuracy', '30')
+
+        url.searchParams.append('profile', args.profile)
+        url.searchParams.append('elevation', "true")
+        url.searchParams.append('instructions', "true")
+        url.searchParams.append('locale', getTranslation().getLang())
+
+        // url.searchParams.append('ch.disable', 'true')
+
+        let details = config.request?.details ? config.request.details : []
+        details.forEach(d => url.searchParams.append('details', d))
+
+        const response = await fetch(url.toString(), {
+            method: 'POST',
+            mode: 'cors',
+            body:
+                '<gpx>\n' +
+                ' <trk>\n' +
+                '  <trkseg>\n' + xml +
+                '  </trkseg>\n' +
+                ' </trk>\n' +
+                '</gpx>',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/gpx+xml',
+            },
+        })
+
+        if (response.ok) {
+            // parse from json
+            const rawResult = (await response.json()) as RawResult
+
+            // transform encoded points into decoded
+            return {
+                ...rawResult,
+                paths: ApiImpl.decodeResult(rawResult, true),
+            }
+        } else if (response.status === 500) {
+            // not always true, but most of the time :)
+            throw new Error(tr('route_timed_out'))
+        } else if (response.status === 400) {
+            const errorResult = (await response.json()) as ErrorResponse
+            let message = errorResult.message
+            if (errorResult.hints && errorResult.hints.length > 0) {
+                let messagesFromHints = ''
+                errorResult.hints.forEach(hint => {
+                    if (!hint.message.includes(message)) {
+                        messagesFromHints += (messagesFromHints ? ' and ' : '') + messagesFromHints
+                        messagesFromHints += hint.message
+                    }
+                })
+                if (messagesFromHints) message += (message ? ' and ' : '') + messagesFromHints
+            }
+            throw new Error(message)
+        } else {
+            throw new Error(tr('route_request_failed'))
+        }
+    }
+
     async route(args: RoutingArgs): Promise<RoutingResult> {
         const completeRequest = ApiImpl.createRequest(args)
 
@@ -157,26 +224,43 @@ export class ApiImpl implements Api {
 
     routeWithDispatch(args: RoutingArgs, zoomOnSuccess: boolean) {
         const routeNumber = this.routeCounter++
-        this.route(args)
-            .then(result => {
-                if (routeNumber > this.lastRouteNumber) {
-                    this.lastRouteNumber = routeNumber
-                    Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
-                } else {
-                    const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
-                    console.log('Ignore response of earlier started route ' + tmp)
-                }
-            })
-            .catch(error => {
-                if (routeNumber > this.lastRouteNumber) {
-                    console.warn('error when performing /route request ' + routeNumber + ': ', error)
-                    this.lastRouteNumber = routeNumber
-                    Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
-                } else {
-                    const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
-                    console.log('Ignore error ' + error.message + ' of earlier started route ' + tmp)
-                }
-            })
+
+        if(true) {
+            return this.mapMatch(args)
+                .then(result => {
+                    if (routeNumber > this.lastRouteNumber) {
+                        this.lastRouteNumber = routeNumber
+                        Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
+                    } else {
+                        const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
+                        console.log('Ignore response of earlier started route ' + tmp)
+                    }
+                })
+                .catch(error => {
+
+                })
+        } else {
+            return this.route(args)
+                .then(result => {
+                    if (routeNumber > this.lastRouteNumber) {
+                        this.lastRouteNumber = routeNumber
+                        Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
+                    } else {
+                        const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
+                        console.log('Ignore response of earlier started route ' + tmp)
+                    }
+                })
+                .catch(error => {
+                    if (routeNumber > this.lastRouteNumber) {
+                        console.warn('error when performing /route request ' + routeNumber + ': ', error)
+                        this.lastRouteNumber = routeNumber
+                        Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
+                    } else {
+                        const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
+                        console.log('Ignore error ' + error.message + ' of earlier started route ' + tmp)
+                    }
+                })
+        }
     }
 
     private getRoutingURLWithKey(endpoint: string) {

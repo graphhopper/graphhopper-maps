@@ -5,23 +5,30 @@ import { useEffect } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { GeoJSON } from 'ol/format'
-import { Stroke, Style } from 'ol/style'
+import {Fill, Stroke, Style} from 'ol/style'
 import { fromLonLat } from 'ol/proj'
-import { Select } from 'ol/interaction'
-import { click } from 'ol/events/condition'
+import {Draw, Modify, Select} from 'ol/interaction'
+import {click, never, platformModifierKeyOnly, primaryAction} from 'ol/events/condition'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetSelectedPath } from '@/actions/Actions'
+import {SetCustomModel, SetQueryPoints, SetSelectedPath} from '@/actions/Actions'
 import { SelectEvent } from 'ol/interaction/Select'
-import { QueryPoint } from '@/stores/QueryStore'
-import { distance } from 'ol/coordinate'
+import {QueryPoint, QueryPointType} from '@/stores/QueryStore'
+import {Coordinate, distance} from 'ol/coordinate'
 import LineString from 'ol/geom/LineString'
+import CircleStyle from "ol/style/Circle";
+import {FeatureLike} from "ol/Feature";
+import {Geometry} from "ol/geom";
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
+const handDrawQueryPointsLayerKey = 'handDrawQueryPointsLayer'
 
 export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Path, queryPoints: QueryPoint[]) {
     useEffect(() => {
+        removeHandDrawQueryPointsLayers(map)
+        addHandDrawQueryPointLayer(map)
+
         removeCurrentPathLayers(map)
         addUnselectedPathsLayer(
             map,
@@ -31,6 +38,7 @@ export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Pat
         addAccessNetworkLayer(map, selectedPath, queryPoints)
         return () => {
             removeCurrentPathLayers(map)
+            removeHandDrawQueryPointsLayers(map)
         }
     }, [map, paths, selectedPath])
 }
@@ -41,6 +49,89 @@ function removeCurrentPathLayers(map: Map) {
         .filter(l => l.get(pathsLayerKey) || l.get(selectedPathLayerKey) || l.get(accessNetworkLayerKey))
         .forEach(l => map.removeLayer(l))
 }
+
+function removeHandDrawQueryPointsLayers(map: Map) {
+    map.getLayers()
+        .getArray()
+        .filter(l => l.get(handDrawQueryPointsLayerKey))
+        .forEach(l => map.removeLayer(l))
+}
+
+function addHandDrawQueryPointLayer(map: Map) {
+
+    const source = new VectorSource();
+
+    // TODO NOW cache style
+
+    // TODO NOW hide line when we draw route and markers
+    const style = new Style({
+        geometry: function (feature) {
+            const modifyGeometry = feature.get('modifyGeometry');
+            return modifyGeometry ? modifyGeometry.geometry : feature.getGeometry();
+        },
+        fill: new Fill({
+            color: 'rgba(255, 255, 255, 0.2)',
+        }),
+        stroke: new Stroke({
+            color: '#7fa6e0',
+            width: 3,
+        }),
+        image: new CircleStyle({
+            radius: 7,
+            fill: new Fill({
+                color: '#ff4b33',
+            }),
+        }),
+    });
+
+    const vectorLayer = new VectorLayer({
+        source: source,
+        style: function (feature) {
+            return [style]
+        },
+    });
+
+    map.addLayer(vectorLayer)
+
+    const draw = new Draw({
+        condition: function (event) {
+            return primaryAction(event)
+        },
+        source: source,
+        type: 'LineString',
+    });
+
+    draw.on('drawend', e => {
+        if (!e.feature) return
+
+        // clone! Because otherwise the object itself will be transformed and it disappears from the map
+        const geometry = e.feature.getGeometry()?.clone().transform('EPSG:3857', 'EPSG:4326')
+
+        if (geometry instanceof LineString) {
+            const coords = geometry.getCoordinates();
+            const points = coords.map((c : Coordinate, idx: number) => {
+                return {
+                    coordinate: {
+                        lat: Math.round(c[1] * 1_000_000) / 1_000_000,
+                        lng: Math.round(c[0] * 1_000_000) / 1_000_000,
+                    },
+                    isInitialized: true,
+                    id: idx, // TODO NOW this is not correct
+                    queryText: '' + idx,
+                    color: '',
+                    type: QueryPointType.Via,
+                }
+            })
+            Dispatcher.dispatch(new SetQueryPoints(points))
+        } else {
+            console.warn("not a LineString")
+        }
+        return false
+    })
+
+    map.addInteraction(draw);
+}
+
 
 function addUnselectedPathsLayer(map: Map, paths: Path[]) {
     const style = new Style({
