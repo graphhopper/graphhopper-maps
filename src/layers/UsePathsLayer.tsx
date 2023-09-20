@@ -119,10 +119,13 @@ function addHandDrawQueryPointLayer(map: Map) {
             let resultCoords = []
             let prevCoord = coords[0]
             let prevIdx = 0
+            let zoom = map.getView().getZoom()
             // not sure how to do this with coords.filter
             for (let idx = 1; idx < coords.length; idx++) {
-                // TODO NOW must also be zoom-dependent, i.e. dependent on gps_accuracy
-                if (calcDist(prevCoord, coords[idx]) > 300) {
+
+                // TODO NOW find a better way!?
+                // Now skip certain locations depending on the distance (which is zoom-dependent)
+                if (calcDist(prevCoord, coords[idx]) > 6000 / (zoom ? zoom : 10)) {
                     resultCoords.push(coords[idx])
                     prevCoord = coords[idx]
                     prevIdx = idx

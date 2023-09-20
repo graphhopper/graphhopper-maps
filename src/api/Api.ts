@@ -119,7 +119,8 @@ export class ApiImpl implements Api {
         const url = new URL(this.routingApi + 'match')
         url.searchParams.append('key', this.apiKey)
 
-        // TODO NOW make zoom-dependent? problem is the long response times for outdoor vehicles and larger gps_accuracy values
+        // TODO NOW avoid large distances and large gps_accuracy -> measure distances?
+        //   another problem is that response times for outdoor vehicles and larger gps_accuracy values are too slow
         url.searchParams.append('gps_accuracy', ApiImpl.isMotorVehicle(args.profile) ? '160' : '50')
 
         url.searchParams.append('profile', args.profile)
