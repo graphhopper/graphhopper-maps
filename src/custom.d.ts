@@ -45,4 +45,3 @@ declare module 'react-responsive' {
 
 // defined by webpack
 declare const GIT_SHA: string
-declare const SOURCE_VERSION: string

@@ -108,10 +108,8 @@ describe('route', () => {
             points: args.points,
             profile: args.profile,
             elevation: true,
-            debug: false,
             instructions: true,
             locale: 'en_US',
-            optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
             details: [
@@ -152,10 +150,8 @@ describe('route', () => {
             points: args.points,
             profile: args.profile,
             elevation: true,
-            debug: false,
             instructions: true,
             locale: 'en_US',
-            optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
             details: [
@@ -205,10 +201,8 @@ describe('route', () => {
             points: args.points,
             profile: args.profile,
             elevation: true,
-            debug: false,
             instructions: true,
             locale: 'en_US',
-            optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
             details: [
@@ -314,10 +308,8 @@ describe('route', () => {
             points: args.points,
             profile: args.profile,
             elevation: true,
-            debug: false,
             instructions: true,
             locale: 'de_DE',
-            optimize: 'false',
             points_encoded: true,
             snap_preventions: ['ferry'],
             details: [

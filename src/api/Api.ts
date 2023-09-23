@@ -119,7 +119,6 @@ export class ApiImpl implements Api {
             mode: 'cors',
             body: JSON.stringify(completeRequest),
             headers: {
-                'User-Agent': `GraphHopperMaps/${SOURCE_VERSION}`,
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
@@ -202,10 +201,8 @@ export class ApiImpl implements Api {
             points: args.points,
             profile: args.profile,
             elevation: true,
-            debug: false,
             instructions: true,
             locale: getTranslation().getLang(),
-            optimize: 'false',
             points_encoded: true,
             snap_preventions: config.request?.snapPreventions ? config.request.snapPreventions : [],
             ...profileConfig,

@@ -97,16 +97,17 @@ function hasResult(route: RouteStoreState) {
 function SmallSearchView(props: { points: QueryPoint[]; onClick: () => void }) {
     const from = props.points[0]
     const to = props.points[props.points.length - 1]
+    const isSmallHeight = useMediaQuery({ query: '(max-height: 36rem)' })
 
     return (
         <div className={styles.btnOpenContainer} onClick={props.onClick}>
+            <div className={styles.mapView}>
+                {!isSmallHeight && <SmallQueryPoint text={from.queryText} color={from.color} position={from.type} />}
+                {!isSmallHeight && <IntermediatePoint points={props.points} />}
+                <SmallQueryPoint text={to.queryText} color={to.color} position={to.type} />
+            </div>
             <div className={styles.btnOpenInputs}>
                 <OpenInputsIcon />
-            </div>
-            <div className={styles.mapView}>
-                <SmallQueryPoint text={from.queryText} color={from.color} position={from.type} />
-                <IntermediatePoint points={props.points} />
-                <SmallQueryPoint text={to.queryText} color={to.color} position={to.type} />
             </div>
         </div>
     )
@@ -116,7 +117,7 @@ function SmallSearchView(props: { points: QueryPoint[]; onClick: () => void }) {
 function SmallQueryPoint({ text, color, position }: { text: string; color: string; position: QueryPointType }) {
     // @ts-ignore
     return (
-        <div className={styles.mapViewPoint}>
+        <div className={styles.mapViewRow}>
             <div className={styles.markerContainer}>
                 <MarkerComponent color={color} />
             </div>

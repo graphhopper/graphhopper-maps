@@ -6,6 +6,8 @@ describe('Converters', function () {
             expect(milliSecondsToText(59 * 1000)).toEqual('1 min')
 
             expect(milliSecondsToText(63 * 60 * 1000)).toEqual('1 h 3 min')
+
+            expect(milliSecondsToText(7198000)).toEqual('2 h')
         })
     })
 

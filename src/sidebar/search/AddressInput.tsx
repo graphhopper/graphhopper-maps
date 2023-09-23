@@ -1,15 +1,15 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Coordinate, getBBoxFromCoord, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Bbox, GeocodingHit } from '@/api/graphhopper'
-import { ErrorAction } from '@/actions/Actions'
 import Autocomplete, {
     AutocompleteItem,
     GeocodingItem,
     MoreResultsItem,
     SelectCurrentLocationItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
-import Dispatcher from '@/stores/Dispatcher'
 
+import ArrowBack from './arrow_back.svg'
+import Cross from '@/sidebar/times-solid-thin.svg'
 import styles from './AddressInput.module.css'
 import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
@@ -24,7 +24,7 @@ export interface AddressInputProps {
     onCancel: () => void
     onAddressSelected: (queryText: string, coord: Coordinate | undefined, bbox: Bbox | undefined) => void
     onChange: (value: string) => void
-    clearSelectedInput: () => void
+    clearDragDrop: () => void
     moveStartIndex: number
     dropPreviewIndex: number
     index: number
@@ -37,6 +37,8 @@ export default function AddressInput(props: AddressInputProps) {
 
     // keep track of focus and toggle fullscreen display on small screens
     const [hasFocus, setHasFocus] = useState(false)
+    const [pointerDownOnSuggestion, setPointerDownOnSuggestion] = useState(false)
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
     // container for geocoding results which gets set by the geocoder class and set to empty if the underlying query point gets changed from outside
     // also gets filled with an item to select the current location as input if input has focus and geocoding results are
@@ -73,15 +75,30 @@ export default function AddressInput(props: AddressInputProps) {
             setAutocompleteItems([new SelectCurrentLocationItem()])
     }, [autocompleteItems, hasFocus])
 
+    function hideSuggestions() {
+        geocoder.cancel()
+        setAutocompleteItems([])
+    }
+
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
     const [highlightedResult, setHighlightedResult] = useState<number>(-1)
     useEffect(() => setHighlightedResult(-1), [autocompleteItems])
+
+    // for positioning of the autocomplete we need:
+    const searchInputContainer = useRef<HTMLInputElement>(null)
+
+    // to focus the input after clear button we need:
     const searchInput = useRef<HTMLInputElement>(null)
+
     const onKeypress = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
+            const inputElement = event.target as HTMLInputElement
             if (event.key === 'Escape') {
-                searchInput.current!.blur()
+                inputElement.blur()
+                // onBlur is deactivated for mobile so force:
+                setHasFocus(false)
+                hideSuggestions()
                 return
             }
 
@@ -104,7 +121,10 @@ export default function AddressInput(props: AddressInputProps) {
                         const item = autocompleteItems[index]
                         if (item instanceof GeocodingItem) props.onAddressSelected(item.toText(), item.point, item.bbox)
                     }
-                    searchInput.current!.blur()
+                    inputElement.blur()
+                    // onBlur is deactivated for mobile so force:
+                    setHasFocus(false)
+                    hideSuggestions()
                     break
             }
         },
@@ -112,12 +132,12 @@ export default function AddressInput(props: AddressInputProps) {
     )
 
     const containerClass = hasFocus ? styles.container + ' ' + styles.fullscreen : styles.container
-
     const type = props.point.type
 
     return (
         <div className={containerClass}>
             <div
+                ref={searchInputContainer}
                 className={[
                     styles.inputContainer,
                     // show line (border) where input would be moved if dropped
@@ -128,11 +148,21 @@ export default function AddressInput(props: AddressInputProps) {
                         : {},
                 ].join(' ')}
             >
+                <PlainButton
+                    className={styles.btnClose}
+                    onClick={() => {
+                        setHasFocus(false)
+                        hideSuggestions()
+                    }}
+                >
+                    <ArrowBack />
+                </PlainButton>
                 <input
                     style={props.moveStartIndex == props.index ? { borderWidth: '2px', margin: '-1px' } : {}}
                     className={styles.input}
                     type="text"
                     ref={searchInput}
+                    autoComplete="off"
                     onChange={e => {
                         setText(e.target.value)
                         const coordinate = textToCoordinate(e.target.value)
@@ -140,59 +170,88 @@ export default function AddressInput(props: AddressInputProps) {
                         props.onChange(e.target.value)
                     }}
                     onKeyDown={onKeypress}
-                    onFocus={event => {
-                        props.clearSelectedInput()
+                    onFocus={() => {
                         setHasFocus(true)
-                        event.target.select()
+                        props.clearDragDrop()
                     }}
                     onBlur={() => {
-                        geocoder.cancel()
+                        // Suppress onBlur if there was a click on a suggested item.
+                        // Otherwise, the item would be removed before (hideSuggestions) its onclick handler can be called.
+                        if (isSmallScreen || pointerDownOnSuggestion) return
                         setHasFocus(false)
-                        setAutocompleteItems([])
+                        hideSuggestions()
+                        setPointerDownOnSuggestion(false)
                     }}
                     value={text}
                     placeholder={tr(
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
                     )}
                 />
-                <PlainButton className={styles.btnClose} onClick={() => setHasFocus(false)}>
-                    {tr('back_to_map')}
-                </PlainButton>
-            </div>
 
-            {autocompleteItems.length > 0 && (
-                <ResponsiveAutocomplete inputRef={searchInput.current!}>
-                    <Autocomplete
-                        items={autocompleteItems}
-                        highlightedItem={autocompleteItems[highlightedResult]}
-                        onSelect={item => {
-                            if (item instanceof GeocodingItem) {
-                                searchInput.current!.blur()
-                                props.onAddressSelected(item.toText(), item.point, item.bbox)
-                            } else if (item instanceof SelectCurrentLocationItem) {
-                                searchInput.current!.blur()
-                                onCurrentLocationSelected(props.onAddressSelected)
-                            } else if (item instanceof MoreResultsItem) {
-                                // do not blur
-                                const coordinate = textToCoordinate(item.search)
-                                if (!coordinate) geocoder.request(item.search, 'nominatim')
-                            }
-                        }}
-                    />
-                </ResponsiveAutocomplete>
-            )}
+                <PlainButton
+                    style={text.length == 0 ? { display: 'none' } : {}}
+                    className={styles.btnInputClear}
+                    onMouseDown={() => setPointerDownOnSuggestion(true)}
+                    onMouseLeave={() => setPointerDownOnSuggestion(false)}
+                    onMouseUp={() => setPointerDownOnSuggestion(false)}
+                    onClick={() => {
+                        setText('')
+                        props.onChange('')
+                        searchInput.current!.focus()
+                    }}
+                >
+                    <Cross />
+                </PlainButton>
+
+                {autocompleteItems.length > 0 && (
+                    <ResponsiveAutocomplete
+                        inputRef={searchInputContainer.current!}
+                        index={props.index}
+                        isSmallScreen={isSmallScreen}
+                    >
+                        <Autocomplete
+                            items={autocompleteItems}
+                            highlightedItem={autocompleteItems[highlightedResult]}
+                            setPointerDown={setPointerDownOnSuggestion}
+                            onSelect={item => {
+                                setHasFocus(false)
+                                if (item instanceof GeocodingItem) {
+                                    hideSuggestions()
+                                    props.onAddressSelected(item.toText(), item.point, item.bbox)
+                                } else if (item instanceof SelectCurrentLocationItem) {
+                                    hideSuggestions()
+                                    onCurrentLocationSelected(props.onAddressSelected)
+                                } else if (item instanceof MoreResultsItem) {
+                                    // do not hide autocomplete items
+                                    const coordinate = textToCoordinate(item.search)
+                                    if (!coordinate) geocoder.request(item.search, 'nominatim')
+                                }
+                            }}
+                        />
+                    </ResponsiveAutocomplete>
+                )}
+            </div>
         </div>
     )
 }
 
-function ResponsiveAutocomplete({ inputRef, children }: { inputRef: HTMLElement; children: ReactNode }): JSX.Element {
-    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+function ResponsiveAutocomplete({
+    inputRef,
+    children,
+    index,
+    isSmallScreen,
+}: {
+    inputRef: HTMLElement
+    children: ReactNode
+    isSmallScreen: boolean
+    index: number
+}): JSX.Element {
     return (
         <>
             {isSmallScreen ? (
-                children
+                <div className={styles.smallList}>{children}</div>
             ) : (
-                <PopUp inputElement={inputRef} keepClearAtBottom={270}>
+                <PopUp inputElement={inputRef} keepClearAtBottom={index > 5 ? 270 : 0}>
                     {children}
                 </PopUp>
             )}
@@ -276,6 +335,7 @@ class Timout {
             this.handle = window.setTimeout(resolve, this.delay)
         })
     }
+
     cancel() {
         clearTimeout(this.handle)
     }
