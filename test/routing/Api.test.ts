@@ -351,7 +351,7 @@ describe('route', () => {
 
 function getEmptyResult() {
     return {
-        info: { copyright: [], took: 0, data_import_date:"", data_source_date:"" },
+        info: { copyright: [], took: 0, road_data_timestamp:"" },
         paths: [],
     }
 }

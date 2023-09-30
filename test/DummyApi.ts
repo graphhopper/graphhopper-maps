@@ -24,8 +24,7 @@ export default class DummyApi implements Api {
         return Promise.resolve({
             info: { took: 0, 
                 copyright: [], 
-                data_import_date:"", 
-                data_source_date:""
+                road_data_timestamp:""
             },
             paths: [],
         })

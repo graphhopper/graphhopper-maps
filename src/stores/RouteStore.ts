@@ -76,8 +76,7 @@ export default class RouteStore extends Store<RouteStoreState> {
                 info: {
                     copyright: [],
                     took: 0,
-                    data_import_date:"",
-                    data_source_date:""
+                    road_data_timestamp:""
                 },
             },
             selectedPath: RouteStore.getEmptyPath(),

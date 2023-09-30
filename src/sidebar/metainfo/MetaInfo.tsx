@@ -6,8 +6,7 @@ export default function (props: { info: Info }) {
     return (
         <li className={styles.MetaInfoUpperList}>
             <ul className={styles.MetaInfoList}>
-                <li>{tr('data_import_date')}: {props.info.data_import_date}</li>
-                {props.info.data_source_date && <li>{tr('data_source_date')}: {props.info.data_source_date}</li>}
+                <li>{tr('road_data_timestamp')}: {props.info.road_data_timestamp}</li>
             </ul>
         </li>
     )

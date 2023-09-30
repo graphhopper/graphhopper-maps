@@ -37,8 +37,7 @@ export interface ErrorResponse {
 export interface Info
 { 
     copyright: string[]; 
-    data_import_date: string; 
-    data_source_date: string; 
+    road_data_timestamp: string; 
     took: number 
 }
 
@@ -50,8 +49,7 @@ export interface RoutingResult {
 export interface RawResult {
     readonly info: {
         copyright: string[];
-        data_import_date: string;
-        data_source_date: string;
+        road_data_timestamp: string;
         took: number }
     readonly paths: RawPath[]
 }
