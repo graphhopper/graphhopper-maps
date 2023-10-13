@@ -447,10 +447,11 @@ export default class QueryStore extends Store<QueryStoreState> {
                 customModel = JSON.parse(state.customModelStr)
             } catch {}
 
+        const maxAlternativeRoutes = Math.min(config.maxAlternativeRoutes ? config.maxAlternativeRoutes : 999, state.maxAlternativeRoutes)
         return {
             points: coordinates,
             profile: state.routingProfile.name,
-            maxAlternativeRoutes: state.maxAlternativeRoutes,
+            maxAlternativeRoutes: maxAlternativeRoutes,
             customModel: customModel,
         }
     }

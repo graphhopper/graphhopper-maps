@@ -31,6 +31,7 @@ declare module 'config' {
         }
         maxZoom?: number
     }
+    const maxAlternativeRoutes: number
     const profiles: object
 }
 
