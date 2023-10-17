@@ -16,6 +16,7 @@ import {
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
+import { Coordinate } from '@/stores/QueryStore'
 
 interface ApiProfile {
     name: string
@@ -29,6 +30,8 @@ export default interface Api {
     routeWithDispatch(args: RoutingArgs, zoom: boolean): void
 
     geocode(query: string, provider: string): Promise<GeocodingResult>
+
+    geocodePOIs(query: string, coordinate: Coordinate, radius: number): Promise<GeocodingResult>
 
     supportsGeocoding(): boolean
 }
@@ -76,6 +79,34 @@ export class ApiImpl implements Api {
             throw new Error(
                 'There has been an error. Server responded with ' + response.statusText + ' (' + response.status + ')'
             )
+        }
+    }
+
+    async geocodePOIs(query: string, coordinate: Coordinate, radius: number): Promise<GeocodingResult> {
+        if (!this.supportsGeocoding())
+            return {
+                hits: [],
+                took: 0,
+            }
+        const url = this.getGeocodingURLWithKey('geocode')
+
+        query.split(' ').map(q => url.searchParams.append('osm_tag', q))
+        url.searchParams.append('point', coordinate.lat + ',' + coordinate.lng)
+        url.searchParams.append('radius', '' + radius)
+        url.searchParams.append('reverse', 'true')
+        url.searchParams.append('limit', '50')
+
+        const langAndCountry = getTranslation().getLang().split('_')
+        url.searchParams.append('locale', langAndCountry.length > 0 ? langAndCountry[0] : 'en')
+
+        const response = await fetch(url.toString(), {
+            headers: { Accept: 'application/json' },
+        })
+
+        if (response.ok) {
+            return (await response.json()) as GeocodingResult
+        } else {
+            throw new Error('Geocoding went wrong ' + response.status)
         }
     }
 

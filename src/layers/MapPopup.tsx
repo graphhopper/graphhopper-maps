@@ -1,12 +1,12 @@
 import { Map, Overlay } from 'ol'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { fromLonLat } from 'ol/proj'
 import { Coordinate } from '@/stores/QueryStore'
 
 interface MapPopupProps {
     map: Map
     coordinate: Coordinate | null
-    children: JSX.Element
+    children: React.JSX.Element
 }
 
 export default function MapPopup({ map, coordinate, children }: MapPopupProps) {

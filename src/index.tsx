@@ -9,6 +9,7 @@ import {
     getMapFeatureStore,
     getMapOptionsStore,
     getPathDetailsStore,
+    getPOIsStore,
     getQueryStore,
     getRouteStore,
     getSettingsStore,
@@ -29,6 +30,7 @@ import { createMap, getMap, setMap } from '@/map/map'
 import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
 import { ErrorAction, InfoReceived } from '@/actions/Actions'
+import POIsStore from '@/stores/POIsStore'
 
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 
@@ -53,6 +55,7 @@ setStores({
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
+    poisStore: new POIsStore(getApi()),
 })
 
 setMap(createMap())
@@ -66,6 +69,7 @@ Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getMapFeatureStore())
+Dispatcher.register(getPOIsStore())
 
 // register map action receiver
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')

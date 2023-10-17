@@ -188,3 +188,70 @@
 .sidebarOpenButton:hover svg {
     fill: black;
 }
+
+.searchArea {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    background-color: transparent;
+    padding: 5px 10px 10px 10px;
+
+    pointer-events: all;
+}
+
+.searchAreaText {
+    cursor: pointer;
+    padding: 7px 10px;
+
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
+
+    display: flex;
+    gap: 6px;
+    flex-direction: row;
+}
+
+.searchAreaListWrapper {
+    position: relative;
+}
+
+.searchAreaList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.searchAreaList div {
+    padding: 4px 10px;
+    cursor: pointer;
+
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.1);
+}
+
+.searchAreaListClose {
+    position: absolute;
+
+    /* color: lightgray !important; */
+
+    top: 0px;
+    right: 5px;
+
+    height: 12px;
+    width: 12px;
+}
+
+.searchAreaUpdate {
+    position: absolute;
+
+    /* color: lightgray !important; */
+
+    top: 0px;
+    left: 5px;
+
+    height: 12px;
+    width: 12px;
+}

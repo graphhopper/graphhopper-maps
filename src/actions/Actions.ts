@@ -2,6 +2,7 @@ import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { POI } from '@/stores/POIsStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -245,5 +246,27 @@ export class DrawAreas implements Action {
 
     constructor(enabled: boolean) {
         this.enabled = enabled
+    }
+}
+
+export class SearchPOI implements Action {
+    readonly query: string
+    readonly coordinate: Coordinate
+    readonly radius: number
+    readonly icon: string
+
+    constructor(icon: string, query: string, coordinate: Coordinate, radius: number) {
+        this.icon = icon
+        this.query = query
+        this.coordinate = coordinate
+        this.radius = radius
+    }
+}
+
+export class SetPOI implements Action {
+    readonly pois: POI[]
+
+    constructor(pois: POI[]) {
+        this.pois = pois
     }
 }

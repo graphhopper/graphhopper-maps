@@ -7,6 +7,7 @@ import {
     getMapFeatureStore,
     getMapOptionsStore,
     getPathDetailsStore,
+    getPOIsStore,
     getQueryStore,
     getRouteStore,
     getSettingsStore,
@@ -39,10 +40,16 @@ import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import MapPopups from '@/map/MapPopups'
 import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
+import SearchSvg from '@/sidebar/search.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
+import Dispatcher from '@/stores/Dispatcher'
+import { SearchPOI } from '@/actions/Actions'
+import usePOIsLayer from '@/layers/UsePOIsLayer'
+import { toLonLat, transformExtent} from "ol/proj";
+import {calcDist} from "@/distUtils";
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -56,6 +63,7 @@ export default function App() {
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
     const [mapFeatures, setMapFeatures] = useState(getMapFeatureStore().state)
+    const [pois, setPOIs] = useState(getPOIsStore().state)
 
     const map = getMap()
 
@@ -68,6 +76,7 @@ export default function App() {
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
         const onMapFeaturesChanged = () => setMapFeatures(getMapFeatureStore().state)
+        const onPOIsChanged = () => setPOIs(getPOIsStore().state)
 
         getSettingsStore().register(onSettingsChanged)
         getQueryStore().register(onQueryChanged)
@@ -77,6 +86,7 @@ export default function App() {
         getMapOptionsStore().register(onMapOptionsChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
+        getPOIsStore().register(onPOIsChanged)
 
         onQueryChanged()
         onInfoChanged()
@@ -85,6 +95,7 @@ export default function App() {
         onMapOptionsChanged()
         onPathDetailsChanged()
         onMapFeaturesChanged()
+        onPOIsChanged()
 
         return () => {
             getSettingsStore().register(onSettingsChanged)
@@ -95,6 +106,7 @@ export default function App() {
             getMapOptionsStore().deregister(onMapOptionsChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
+            getPOIsStore().register(onPOIsChanged)
         }
     }, [])
 
@@ -108,6 +120,8 @@ export default function App() {
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints)
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
+    usePOIsLayer(map, pois)
+
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
@@ -153,6 +167,8 @@ interface LayoutProps {
 function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
+    const [showSearchAreaList, setShowSearchAreaList] = useState(false)
+
     return (
         <>
             {showSidebar ? (
@@ -188,6 +204,58 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         <div>
                             <PoweredBy />
                         </div>
+                    </div>
+                    <div className={styles.searchArea}>
+                        {!showSearchAreaList && (
+                            <div className={styles.searchAreaText} onClick={e => setShowSearchAreaList(true)}>
+                                <SearchSvg/><div>Search this area</div>
+                            </div>
+                        )}
+                        {showSearchAreaList && (
+                            <div className={styles.searchAreaListWrapper}>
+                                <PlainButton
+                                    onClick={e => {
+                                        setShowSearchAreaList(false)
+                                    }}
+                                    className={styles.searchAreaListClose}
+                                >
+                                    <Cross />
+                                </PlainButton>
+                                <div className={styles.searchAreaList}>
+                                    {[
+                                        { i: 'restaurant', q: 'amenity:restaurant', n: 'restaurant' },
+                                        { i: 'train', q: 'highway:bus_stop', n: 'haltestelle' },
+                                        { i: 'store', q: 'shop:supermarket', n: 'super market' },
+                                        { i: 'hotel', q: 'building:hotel', n: 'hotel' },
+                                        { i: 'luggage', q: 'tourism', n: 'tourism' },
+                                        { i: 'museum', q: 'building:museum', n: 'museum' },
+                                        { i: 'local_pharmacy', q: 'amenity:pharmacy', n: 'pharmacy' },
+                                        { i: 'local_hospital', q: 'amenity:hospital', n: 'hospital' },
+                                        { i: 'universal_currency_alt', q: 'amenity:bank', n: 'bank' },
+                                        { i: 'school', q: 'amenity:school building:school building:university', n: 'education' },
+                                        { i: 'sports_handball', q: 'leisure', n: 'leisure' },
+                                        { i: 'flight_takeoff', q: 'aeroway:aerodrome', n: 'airport' },
+                                        { i: 'local_parking', q: 'amenity:parking', n: 'parking' },
+                                    ].map(o => (
+                                        <div
+                                            key={o.i}
+                                            onClick={e => {
+                                                const center = map.getView().getCenter()
+                                                    ? toLonLat(map.getView().getCenter()!)
+                                                    : [13.4, 52.5]
+                                                const origExtent = map.getView().calculateExtent(map.getSize())
+                                                var extent = transformExtent(origExtent, 'EPSG:3857', 'EPSG:4326');
+                                                const radius = calcDist({lng: extent[0], lat: extent[1]}, {lng: extent[2], lat: extent[3]}) / 2 / 1000
+                                                const coordinate = { lng: center[0], lat: center[1] }
+                                                Dispatcher.dispatch(new SearchPOI(o.i, o.q, coordinate, radius))
+                                            }}
+                                        >
+                                            {o.n}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             ) : (
