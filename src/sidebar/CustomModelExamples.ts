@@ -34,6 +34,62 @@ export const customModelExamples: { [key: string]: CustomModel } = {
             { if: 'max_weight < 3 || max_height < 2.5', multiply_by: '0.0' },
         ],
     },
+    slower_in_paris: {
+        speed: [{ if: 'in_paris', multiply_by: '0.95'}],
+        areas: {
+            type: 'FeatureCollection',
+            features: [
+                {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [
+                            [
+                                [
+                                    2.141159,
+                                    48.967002
+                                ],
+                                [
+                                    2.23523,
+                                    49.026019
+                                ],
+                                [
+                                    2.324494,
+                                    49.000798
+                                ],
+                                [
+                                    2.539414,
+                                    48.961592
+                                ],
+                                [
+                                    2.596405,
+                                    48.782745
+                                ],
+                                [
+                                    2.35402,
+                                    48.706677
+                                ],
+                                [
+                                    2.154206,
+                                    48.761023
+                                ],
+                                [
+                                    2.090348,
+                                    48.894373
+                                ],
+                                [
+                                    2.141159,
+                                    48.967002
+                                ]
+                            ]
+                        ]
+                    },
+                    "properties": {},
+                    "id": "paris"
+                }
+            ]
+        }
+    }
 }
 
 export function customModel2prettyString(customModel: CustomModel) {

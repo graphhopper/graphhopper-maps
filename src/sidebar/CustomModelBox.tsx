@@ -137,6 +137,7 @@ export default function CustomModelBox({
                     <option value="cargo_bike">{tr('cargo_bike_example')}</option>
                     <option value="bike_network">{tr('prefer_bike_network')}</option>
                     <option value="combined">{tr('combined_example')}</option>
+                    <option value="slower_in_paris">{tr('slower_in_paris_example')}</option>
                 </select>
 
                 <a
