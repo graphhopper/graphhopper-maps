@@ -1007,7 +1007,7 @@
 "waiting_for_gps":"Warten auf das GPS Signal...",
 "elevation":"Höhe",
 "slope":"Gefälle",
-"towerslope":"Turmgefälle",
+"towerslope":"Kreuzungsgefälle",
 "country":"Land",
 "surface":"Oberfläche",
 "road_environment":"Straßenumgebung",
