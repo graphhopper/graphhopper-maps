@@ -25,11 +25,11 @@ export default function SettingsBox() {
                 </div>
             </div>
             <div className={styles.infoLine}>
-                <a href="https://www.graphhopper.com/maps-route-planner/">Info</a>
-                <a href="https://github.com/graphhopper/graphhopper-maps/issues">Feedback</a>
-                <a href="https://www.graphhopper.com/imprint/">Imprint</a>
-                <a href="https://www.graphhopper.com/privacy/">Privacy</a>
-                <a href="https://www.graphhopper.com/terms/">Terms</a>
+                <a href="https://www.graphhopper.com/maps-route-planner/">{tr('info')}</a>
+                <a href="https://github.com/graphhopper/graphhopper-maps/issues">{tr('feedback')}</a>
+                <a href="https://www.graphhopper.com/imprint/">{tr('imprint')}</a>
+                <a href="https://www.graphhopper.com/privacy/">{tr('privacy')}</a>
+                <a href="https://www.graphhopper.com/terms/">{tr('terms')}</a>
             </div>
         </div>
     )
