@@ -5,11 +5,12 @@ import VectorTileLayer from 'ol/layer/VectorTile'
 import { MVT } from 'ol/format'
 import { Fill, Stroke, Style } from 'ol/style'
 import { toLonLat } from 'ol/proj'
-import { RoutingGraphHover } from '@/actions/Actions'
+import { RoutingGraphHover, SetQueryPoints } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import * as config from 'config'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 
 export default function useExternalMVTLayer(map: Map, externalMVTLayerEnabled: boolean) {
     useEffect(() => {
@@ -66,15 +67,54 @@ export default function useExternalMVTLayer(map: Map, externalMVTLayerEnabled: b
             }
         }
 
+        const onClick = (e: MapBrowserEvent<UIEvent>) => {
+            const features = map.getFeaturesAtPixel(e.pixel, {
+                layerFilter: l => l == externalMVTLayer,
+                hitTolerance: 5,
+            })
+            if (features.length > 0) {
+                const properties = features[0].getProperties()
+                if (properties['gh_points']) {
+                    const queryPoints: QueryPoint[] = properties['gh_points']
+                        .split(';')
+                        .map((s: string, idx: number) => {
+                            return {
+                                coordinate: {
+                                    lat: Number.parseFloat(s.split(',')[0]),
+                                    lng: Number.parseFloat(s.split(',')[1]),
+                                },
+                                isInitialized: true,
+                                id: idx,
+                                queryText: '',
+                                color: '',
+                                type: QueryPointType.Via,
+                            }
+                        })
+                    const lonLat = toLonLat(e.coordinate)
+                    Dispatcher.dispatch(new RoutingGraphHover({ lat: lonLat[1], lng: lonLat[0] }, properties))
+                    Dispatcher.dispatch(new SetQueryPoints(queryPoints, false))
+                } else if (properties['id']) {
+                    const lonLat = toLonLat(e.coordinate)
+                    Dispatcher.dispatch(new RoutingGraphHover({ lat: lonLat[1], lng: lonLat[0] }, properties))
+                } else {
+                    Dispatcher.dispatch(new RoutingGraphHover(null, {}))
+                }
+            } else {
+                Dispatcher.dispatch(new RoutingGraphHover(null, {}))
+            }
+        }
+
         map.removeLayer(externalMVTLayer)
         map.removeLayer(selectionLayer)
         if (externalMVTLayerEnabled) {
             map.addLayer(externalMVTLayer)
             map.addLayer(selectionLayer)
-            map.on('pointermove', onHover)
+            // map.on('pointermove', onHover)
+            map.on('click', onClick)
         }
         return () => {
-            map.un('pointermove', onHover)
+            // map.un('pointermove', onHover)
+            map.un('click', onClick)
             map.removeLayer(externalMVTLayer)
             map.removeLayer(selectionLayer)
         }

@@ -119,6 +119,14 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                     {isSelected && (
                         <PlainButton
                             className={styles.exportButton}
+                            onClick={() => copyBenchmark(path, showDistanceInMiles)}
+                        >
+                            <div>CPY</div>
+                        </PlainButton>
+                    )}
+                    {isSelected && (
+                        <PlainButton
+                            className={styles.exportButton}
                             onClick={() => downloadGPX(path, showDistanceInMiles)}
                         >
                             <GPXDownload />
@@ -385,6 +393,15 @@ function getHighSlopeInfo(points: LineString, steepSlope: number) {
         }
     })
     return info
+}
+
+function copyBenchmark(path: Path, showDistanceInMiles: boolean) {
+    const coordinates = path['points']['coordinates']
+    const line = `${coordinates[0][1]};${coordinates[0][0]};${coordinates[coordinates.length - 1][1]};${
+        coordinates[coordinates.length - 1][0]
+    };-;${path['distance']}`
+    console.log(line)
+    navigator.clipboard.writeText(line)
 }
 
 function downloadGPX(path: Path, showDistanceInMiles: boolean) {

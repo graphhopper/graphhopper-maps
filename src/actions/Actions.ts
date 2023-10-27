@@ -49,9 +49,11 @@ export class AddPoint implements Action {
 
 export class SetQueryPoints implements Action {
     readonly queryPoints: QueryPoint[]
+    readonly route: boolean
 
-    constructor(queryPoints: QueryPoint[]) {
+    constructor(queryPoints: QueryPoint[], route: boolean) {
         this.queryPoints = queryPoints
+        this.route = route
     }
 }
 

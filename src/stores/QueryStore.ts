@@ -222,14 +222,20 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
             const nextId = state.nextQueryPointId + queryPoints.length
 
-            return this.routeIfReady(
-                {
-                    ...state,
-                    queryPoints: queryPoints,
-                    nextQueryPointId: nextId,
-                },
-                true
-            )
+            return action.route
+                ? this.routeIfReady(
+                      {
+                          ...state,
+                          queryPoints: queryPoints,
+                          nextQueryPointId: nextId,
+                      },
+                      false
+                  )
+                : {
+                      ...state,
+                      queryPoints: queryPoints,
+                      nextQueryPointId: nextId,
+                  }
         } else if (action instanceof RemovePoint) {
             const newPoints = state.queryPoints
                 .filter(point => point.id !== action.point.id)

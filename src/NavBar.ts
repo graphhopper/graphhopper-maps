@@ -153,7 +153,7 @@ export default class NavBar {
                 ? getBBoxFromCoord(initializedPoints[0].coordinate)
                 : NavBar.getBBoxFromUrlPoints(initializedPoints.map(p => p.coordinate))
         if (bbox) Dispatcher.dispatch(new SetBBox(bbox))
-        return Dispatcher.dispatch(new SetQueryPoints(points))
+        return Dispatcher.dispatch(new SetQueryPoints(points, true))
     }
 
     public updateUrlFromState() {

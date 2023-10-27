@@ -43,6 +43,16 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                     />
                 ))}
             </div>
+            <div>
+                <a
+                    href={`https://www.google.com/maps/dir/'${points[0].coordinate.lat},${points[0].coordinate.lng}'/'${
+                        points[points.length - 1].coordinate.lat
+                    },${points[points.length - 1].coordinate.lng}'`}
+                    target={'_blank'}
+                >
+                    Google
+                </a>
+            </div>
             <div className={styles.lastSearchLine}>
                 <PlainButton
                     style={
