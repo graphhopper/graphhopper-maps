@@ -75,6 +75,7 @@ export default class RouteStore extends Store<RouteStoreState> {
                 paths: [],
                 info: {
                     copyright: [],
+                    road_data_timestamp: '',
                     took: 0,
                 },
             },

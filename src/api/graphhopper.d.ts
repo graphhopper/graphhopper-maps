@@ -32,13 +32,19 @@ export interface ErrorResponse {
     hints: any[]
 }
 
+export interface RoutingResultInfo {
+    readonly copyright: string[]
+    readonly road_data_timestamp: string
+    readonly took: number
+}
+
 export interface RoutingResult {
-    readonly info: { copyright: string[]; took: number }
+    readonly info: RoutingResultInfo
     readonly paths: Path[]
 }
 
 export interface RawResult {
-    readonly info: { copyright: string[]; took: number }
+    readonly info: RoutingResultInfo
     readonly paths: RawPath[]
 }
 
