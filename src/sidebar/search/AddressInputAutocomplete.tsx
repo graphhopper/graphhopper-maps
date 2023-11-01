@@ -38,16 +38,11 @@ export interface AutocompleteProps {
     items: AutocompleteItem[]
     highlightedItem: AutocompleteItem
     onSelect: (hit: AutocompleteItem) => void
-    setMouseDown: (b: boolean) => void
 }
 
-export default function Autocomplete({ items, highlightedItem, onSelect, setMouseDown }: AutocompleteProps) {
+export default function Autocomplete({ items, highlightedItem, onSelect }: AutocompleteProps) {
     return (
-        <ul
-            onMouseDown={() => setMouseDown(true)}
-            onMouseUp={() => setMouseDown(false)}
-            onMouseLeave={() => setMouseDown(false)}
-        >
+        <ul>
             {items.map((item, i) => (
                 <li key={i} className={styles.autocompleteItem}>
                     {mapToComponent(item, highlightedItem === item, onSelect)}
@@ -136,7 +131,20 @@ function AutocompleteEntry({
 }) {
     const className = isHighlighted ? styles.selectableItem + ' ' + styles.highlightedItem : styles.selectableItem
     return (
-        <button className={className} onPointerUp={() => onSelect()}>
+        <button
+            className={className}
+            // using click events for mouse interaction and touch end to select an entry.
+            onClick={() => onSelect()}
+            onTouchEnd={e => {
+                e.preventDefault()
+                onSelect()
+            }}
+
+            // prevent blur event for our input (seems to be only required for mouse)
+            onMouseDown={e => {
+                e.preventDefault()
+            }}
+        >
             {children}
         </button>
     )
