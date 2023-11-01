@@ -38,11 +38,16 @@ export interface AutocompleteProps {
     items: AutocompleteItem[]
     highlightedItem: AutocompleteItem
     onSelect: (hit: AutocompleteItem) => void
+    setMouseDown: (b: boolean) => void
 }
 
-export default function Autocomplete({ items, highlightedItem, onSelect }: AutocompleteProps) {
+export default function Autocomplete({ items, highlightedItem, onSelect, setMouseDown }: AutocompleteProps) {
     return (
-        <ul>
+        <ul
+            onMouseDown={() => setMouseDown(true)}
+            onMouseUp={() => setMouseDown(false)}
+            onMouseLeave={() => setMouseDown(false)}
+        >
             {items.map((item, i) => (
                 <li key={i} className={styles.autocompleteItem}>
                     {mapToComponent(item, highlightedItem === item, onSelect)}
@@ -131,7 +136,7 @@ function AutocompleteEntry({
 }) {
     const className = isHighlighted ? styles.selectableItem + ' ' + styles.highlightedItem : styles.selectableItem
     return (
-        <button className={className} onPointerDown={() => onSelect()}>
+        <button className={className} onPointerUp={() => onSelect()}>
             {children}
         </button>
     )
