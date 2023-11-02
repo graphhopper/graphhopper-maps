@@ -16,7 +16,7 @@ export default function SettingsBox() {
             <div className={styles.settingsTable}>
                 <PlainButton
                     style={{ color: showDistanceInMiles ? '' : 'lightgray' }} // todonow: move to css?
-                    onClick={() => Dispatcher.dispatch(new ToggleDistanceUnits())}
+                    onClick={() => Dispatcher.dispatch(new ToggleDistanceUnits(!showDistanceInMiles))}
                 >
                     {showDistanceInMiles ? <OnIcon /> : <OffIcon />}
                 </PlainButton>

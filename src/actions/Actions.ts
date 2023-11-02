@@ -238,7 +238,13 @@ export class InstructionClicked implements Action {
     }
 }
 
-export class ToggleDistanceUnits implements Action {}
+export class ToggleDistanceUnits implements Action {
+    readonly showDistanceInMiles: boolean
+
+    constructor(showDistanceInMiles: boolean) {
+        this.showDistanceInMiles = showDistanceInMiles
+    }
+}
 
 export class DrawAreas implements Action {
     readonly enabled: boolean

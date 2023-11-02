@@ -1,26 +1,37 @@
 import { Action, ActionReceiver } from '@/stores/Dispatcher'
 import { Map } from 'ol'
 import { fromLonLat } from 'ol/proj'
+import mapstyles from '@/map/Map.module.css'
+
 import {
     InfoReceived,
     PathDetailsRangeSelected,
     RouteRequestSuccess,
     SetBBox,
     SetSelectedPath,
+    ToggleDistanceUnits,
     ZoomMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
+import { ScaleLine } from 'ol/control'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
     private readonly routeStore: RouteStore
+    private readonly currentScaleControl: ScaleLine
     private readonly isSmallScreenQuery: () => boolean
 
     constructor(map: Map, routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
         this.map = map
         this.routeStore = routeStore
         this.isSmallScreenQuery = isSmallScreenQuery
+        this.currentScaleControl = new ScaleLine({
+            className: mapstyles.customScale,
+            units: 'metric',
+            minWidth: 50,
+        })
+        this.map.addControl(this.currentScaleControl)
     }
 
     receive(action: Action) {
@@ -36,6 +47,8 @@ export default class MapActionReceiver implements ActionReceiver {
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
                 duration: 400,
             })
+        } else if (action instanceof ToggleDistanceUnits) {
+            this.currentScaleControl.setUnits(action.showDistanceInMiles ? 'imperial' : 'metric')
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route
