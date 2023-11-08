@@ -1,7 +1,7 @@
 import { Instruction, Path, RoutingResultInfo } from '@/api/graphhopper'
 import { Coordinate, CurrentRequest, getBBoxFromCoord, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
-import { ReactNode, useContext, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
 import { metersToShortText, metersToTextForFile, milliSecondsToText } from '@/Converters'
@@ -13,7 +13,6 @@ import { LineString, Position } from 'geojson'
 import { calcDist } from '@/distUtils'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
 import FordIcon from '@/sidebar/routeHints/water.svg'
 import FerryIcon from '@/sidebar/routeHints/directions_boat.svg'
@@ -27,6 +26,7 @@ import SteepIcon from '@/sidebar/routeHints/elevation.svg'
 import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
 import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
 import { Bbox } from '@/api/graphhopper'
+import { getSettingsStore } from '@/stores/Stores'
 
 export interface RoutingResultsProps {
     info: RoutingResultInfo
@@ -100,7 +100,7 @@ function RoutingResult({
         getOffBikeInfo.distance > 0 ||
         steepInfo.distance > 0
 
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const settings = getSettingsStore().state
 
     return (
         <div className={styles.resultRow}>
@@ -109,15 +109,15 @@ function RoutingResult({
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
                         <span className={styles.resultSecondaryText}>
-                            {metersToShortText(path.distance, showDistanceInMiles)}
+                            {metersToShortText(path.distance, settings.showDistanceInMiles)}
                         </span>
                         {isSelected && !ApiImpl.isMotorVehicle(profile) && (
                             <div className={styles.elevationHint}>
                                 <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
-                                    ↗{metersToShortText(path.ascend, showDistanceInMiles)}{' '}
+                                    ↗{metersToShortText(path.ascend, settings.showDistanceInMiles)}{' '}
                                 </span>
                                 <span title={tr('total_descend', [Math.round(path.descend) + 'm'])}>
-                                    ↘{metersToShortText(path.descend, showDistanceInMiles)}
+                                    ↘{metersToShortText(path.descend, settings.showDistanceInMiles)}
                                 </span>
                             </div>
                         )}
@@ -130,7 +130,7 @@ function RoutingResult({
                     {isSelected && (
                         <PlainButton
                             className={styles.exportButton}
-                            onClick={() => downloadGPX(path, showDistanceInMiles)}
+                            onClick={() => downloadGPX(path, settings.showDistanceInMiles)}
                         >
                             <GPXDownload />
                             <div>{tr('gpx_button')}</div>
@@ -156,7 +156,10 @@ function RoutingResult({
                             setType={t => setSelectedRH(t)}
                             type={'ford'}
                             child={<FordIcon />}
-                            value={fordInfo.distance > 0 && metersToShortText(fordInfo.distance, showDistanceInMiles)}
+                            value={
+                                fordInfo.distance > 0 &&
+                                metersToShortText(fordInfo.distance, settings.showDistanceInMiles)
+                            }
                             selected={selectedRH}
                             segments={fordInfo.segments}
                         />
@@ -176,7 +179,10 @@ function RoutingResult({
                             setType={t => setSelectedRH(t)}
                             type={'ferry'}
                             child={<FerryIcon />}
-                            value={ferryInfo.distance > 0 && metersToShortText(ferryInfo.distance, showDistanceInMiles)}
+                            value={
+                                ferryInfo.distance > 0 &&
+                                metersToShortText(ferryInfo.distance, settings.showDistanceInMiles)
+                            }
                             selected={selectedRH}
                             segments={ferryInfo.segments}
                         />
@@ -188,7 +194,7 @@ function RoutingResult({
                             child={<PrivateIcon />}
                             value={
                                 privateOrDeliveryInfo.distance > 0 &&
-                                metersToShortText(privateOrDeliveryInfo.distance, showDistanceInMiles)
+                                metersToShortText(privateOrDeliveryInfo.distance, settings.showDistanceInMiles)
                             }
                             selected={selectedRH}
                             segments={privateOrDeliveryInfo.segments}
@@ -198,8 +204,11 @@ function RoutingResult({
                             description={tr('way_contains_toll')}
                             setType={t => setSelectedRH(t)}
                             type={'toll'}
-                            child={showDistanceInMiles ? <DollarIcon /> : <EuroIcon />}
-                            value={tollInfo.distance > 0 && metersToShortText(tollInfo.distance, showDistanceInMiles)}
+                            child={settings.showDistanceInMiles ? <DollarIcon /> : <EuroIcon />}
+                            value={
+                                tollInfo.distance > 0 &&
+                                metersToShortText(tollInfo.distance, settings.showDistanceInMiles)
+                            }
                             selected={selectedRH}
                             segments={tollInfo.segments}
                         />
@@ -209,7 +218,10 @@ function RoutingResult({
                             setType={t => setSelectedRH(t)}
                             type={'steps'}
                             child={<StepsIcon />}
-                            value={stepsInfo.distance > 0 && metersToShortText(stepsInfo.distance, showDistanceInMiles)}
+                            value={
+                                stepsInfo.distance > 0 &&
+                                metersToShortText(stepsInfo.distance, settings.showDistanceInMiles)
+                            }
                             selected={selectedRH}
                             segments={stepsInfo.segments}
                         />
@@ -221,7 +233,7 @@ function RoutingResult({
                             child={<BadTrackIcon />}
                             value={
                                 badTrackInfo.distance > 0 &&
-                                metersToShortText(badTrackInfo.distance, showDistanceInMiles)
+                                metersToShortText(badTrackInfo.distance, settings.showDistanceInMiles)
                             }
                             selected={selectedRH}
                             segments={badTrackInfo.segments}
@@ -232,21 +244,24 @@ function RoutingResult({
                             setType={t => setSelectedRH(t)}
                             type={'trunk'}
                             child={<DangerousIcon />}
-                            value={trunkInfo.distance > 0 && metersToShortText(trunkInfo.distance, showDistanceInMiles)}
+                            value={
+                                trunkInfo.distance > 0 &&
+                                metersToShortText(trunkInfo.distance, settings.showDistanceInMiles)
+                            }
                             selected={selectedRH}
                             segments={trunkInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
                             description={tr('get_off_bike_for', [
-                                metersToShortText(getOffBikeInfo.distance, showDistanceInMiles),
+                                metersToShortText(getOffBikeInfo.distance, settings.showDistanceInMiles),
                             ])}
                             setType={t => setSelectedRH(t)}
                             type={'get_off_bike'}
                             child={<GetOffBikeIcon />}
                             value={
                                 getOffBikeInfo.distance > 0 &&
-                                metersToShortText(getOffBikeInfo.distance, showDistanceInMiles)
+                                metersToShortText(getOffBikeInfo.distance, settings.showDistanceInMiles)
                             }
                             selected={selectedRH}
                             segments={getOffBikeInfo.segments}
@@ -257,7 +272,10 @@ function RoutingResult({
                             setType={t => setSelectedRH(t)}
                             type={'steep_sections'}
                             child={<SteepIcon />}
-                            value={steepInfo.distance > 0 && metersToShortText(steepInfo.distance, showDistanceInMiles)}
+                            value={
+                                steepInfo.distance > 0 &&
+                                metersToShortText(steepInfo.distance, settings.showDistanceInMiles)
+                            }
                             selected={selectedRH}
                             segments={steepInfo.segments}
                         />

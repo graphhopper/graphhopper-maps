@@ -5,23 +5,23 @@ import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
-import { useContext } from 'react'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import { getSettingsStore } from '@/stores/Stores'
 
 export default function SettingsBox() {
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const settings = getSettingsStore().state
+
     return (
         <div className={styles.parent}>
             <div className={styles.title}>{tr('settings')}</div>
             <div className={styles.settingsTable}>
                 <PlainButton
-                    style={{ color: showDistanceInMiles ? '' : 'lightgray' }} // todonow: move to css?
+                    style={{ color: settings.showDistanceInMiles ? '' : 'lightgray' }} // todonow: move to css?
                     onClick={() => Dispatcher.dispatch(new ToggleDistanceUnits())}
                 >
-                    {showDistanceInMiles ? <OnIcon /> : <OffIcon />}
+                    {settings.showDistanceInMiles ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
-                <div style={{ color: showDistanceInMiles ? '#5b616a' : 'gray' }}>
-                    {tr('distance_unit', [tr(showDistanceInMiles ? 'mi' : 'km')])}
+                <div style={{ color: settings.showDistanceInMiles ? '#5b616a' : 'gray' }}>
+                    {tr('distance_unit', [tr(settings.showDistanceInMiles ? 'mi' : 'km')])}
                 </div>
             </div>
             <div className={styles.infoLine}>

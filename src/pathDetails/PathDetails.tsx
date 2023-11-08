@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import styles from '@/pathDetails/PathDetails.module.css'
 import { HeightGraph } from 'heightgraph/src/heightgraph'
 import '@/pathDetails/HeightGraph.css'
@@ -8,8 +8,8 @@ import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelecte
 import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
 import { calcDist } from '@/distUtils'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { tr } from '@/translation/Translation'
+import { getSettingsStore } from '@/stores/Stores'
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -53,11 +53,11 @@ export default function ({ selectedPath }: PathDetailsProps) {
         graph?.setData(pathDetailsData.data, pathDetailsData.mappings)
     }, [selectedPath, graph])
 
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const settings = getSettingsStore().state
     useEffect(() => {
-        graph?.setImperial(showDistanceInMiles)
+        graph?.setImperial(settings.showDistanceInMiles)
         graph?.redraw()
-    }, [graph, showDistanceInMiles])
+    }, [graph, settings.showDistanceInMiles])
 
     // render the container
     const isPathPresent = selectedPath.points.coordinates.length !== 0

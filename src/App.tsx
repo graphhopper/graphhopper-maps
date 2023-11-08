@@ -34,7 +34,6 @@ import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import MapPopups from '@/map/MapPopups'
 import Menu from '@/sidebar/menu.svg'
@@ -110,33 +109,31 @@ export default function App() {
     usePathDetailsLayer(map, pathDetails)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
-        <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
-            <div className={styles.appWrapper}>
-                <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
-                <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
-                {isSmallScreen ? (
-                    <SmallScreenLayout
-                        query={query}
-                        route={route}
-                        map={map}
-                        mapOptions={mapOptions}
-                        error={error}
-                        encodedValues={info.encoded_values}
-                        drawAreas={settings.drawAreasEnabled}
-                    />
-                ) : (
-                    <LargeScreenLayout
-                        query={query}
-                        route={route}
-                        map={map}
-                        mapOptions={mapOptions}
-                        error={error}
-                        encodedValues={info.encoded_values}
-                        drawAreas={settings.drawAreasEnabled}
-                    />
-                )}
-            </div>
-        </ShowDistanceInMilesContext.Provider>
+        <div className={styles.appWrapper}>
+            <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
+            <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
+            {isSmallScreen ? (
+                <SmallScreenLayout
+                    query={query}
+                    route={route}
+                    map={map}
+                    mapOptions={mapOptions}
+                    error={error}
+                    encodedValues={info.encoded_values}
+                    drawAreas={settings.drawAreasEnabled}
+                />
+            ) : (
+                <LargeScreenLayout
+                    query={query}
+                    route={route}
+                    map={map}
+                    mapOptions={mapOptions}
+                    error={error}
+                    encodedValues={info.encoded_values}
+                    drawAreas={settings.drawAreasEnabled}
+                />
+            )}
+        </div>
     )
 }
 
