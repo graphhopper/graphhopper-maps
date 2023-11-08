@@ -1,5 +1,5 @@
 import Api from '../src/api/Api'
-import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult } from '../src/api/graphhopper'
+import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult, RoutingResultInfo } from '../src/api/graphhopper'
 
 export default class DummyApi implements Api {
     geocode(query: string): Promise<GeocodingResult> {
@@ -21,7 +21,7 @@ export default class DummyApi implements Api {
 
     route(args: RoutingArgs): Promise<RoutingResult> {
         return Promise.resolve({
-            info: { took: 0, copyright: [] },
+            info: { took: 0, road_data_timestamp: '', copyright: [] } as RoutingResultInfo,
             paths: [],
         })
     }

@@ -1,4 +1,4 @@
-import { Instruction, Path } from '@/api/graphhopper'
+import { Instruction, Path, RoutingResultInfo } from '@/api/graphhopper'
 import { Coordinate, CurrentRequest, getBBoxFromCoord, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
@@ -29,6 +29,7 @@ import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
 import { Bbox } from '@/api/graphhopper'
 
 export interface RoutingResultsProps {
+    info: RoutingResultInfo
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
@@ -43,7 +44,17 @@ export default function RoutingResults(props: RoutingResultsProps) {
     return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
 }
 
-function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: boolean; profile: string }) {
+function RoutingResult({
+    info,
+    path,
+    isSelected,
+    profile,
+}: {
+    info: RoutingResultInfo
+    path: Path
+    isSelected: boolean
+    profile: string
+}) {
     const [isExpanded, setExpanded] = useState(false)
     const [selectedRH, setSelectedRH] = useState('')
     const [descriptionRH, setDescriptionRH] = useState('')
@@ -255,6 +266,11 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                 </div>
             )}
             {isExpanded && <Instructions instructions={path.instructions} />}
+            {isExpanded && (
+                <div className={styles.routingResultRoadData}>
+                    {tr('road_data_from')}: {info.road_data_timestamp}
+                </div>
+            )}
         </div>
     )
 }
@@ -474,19 +490,25 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 
 function createSingletonListContent(props: RoutingResultsProps) {
     if (props.paths.length > 0)
-        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} />
+        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} info={props.info} />
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlaceholder key={1} />
     return ''
 }
 
-function createListContent({ paths, currentRequest, selectedPath, profile }: RoutingResultsProps) {
+function createListContent({ info, paths, currentRequest, selectedPath, profile }: RoutingResultsProps) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
         if (i < paths.length)
             result.push(
-                <RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} profile={profile} />
+                <RoutingResult
+                    key={i}
+                    path={paths[i]}
+                    isSelected={paths[i] === selectedPath}
+                    profile={profile}
+                    info={info}
+                />
             )
         else result.push(<RoutingResultPlaceholder key={i} />)
     }
