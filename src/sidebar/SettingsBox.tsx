@@ -70,7 +70,7 @@ function SettingsToggle({ title, enabled, onClick }: { title: string; enabled: b
             >
                 {enabled ? <OnIcon /> : <OffIcon />}
             </PlainButton>
-            <div style={{ color: enabled ? '#5b616a' : 'gray' }}>{tr(title)}</div>
+            <div style={{ color: enabled ? '#5b616a' : 'gray' }}>{title}</div>
         </div>
     )
 }
