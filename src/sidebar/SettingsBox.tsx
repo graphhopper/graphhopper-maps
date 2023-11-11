@@ -58,7 +58,7 @@ function SettingsToggle({ title, enabled, onClick }: { title: string; enabled: b
     return (
         <div className={styles.settingsToggle}>
             <PlainButton
-                style={{ color: enabled ? '' : 'lightgray' }} // todonow: move to css?
+                style={{ color: enabled ? '' : 'lightgray' }}
                 onClick={onClick}
                 className={styles.toggleButton}
             >
