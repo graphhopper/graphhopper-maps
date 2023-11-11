@@ -27,26 +27,20 @@ export default function SettingsBox() {
             <div className={styles.settingsTable}>
                 <SettingsToggle
                     title={tr('settings_gpx_export_trk')}
-                    enabled={settings.gpx_export_trk}
-                    onClick={() =>
-                        Dispatcher.dispatch(new UpdateSettings({ gpx_export_trk: !settings.gpx_export_trk }))
-                    }
+                    enabled={settings.gpxExportTrk}
+                    onClick={() => Dispatcher.dispatch(new UpdateSettings({ gpxExportTrk: !settings.gpxExportTrk }))}
                 />
 
                 <SettingsToggle
                     title={tr('settings_gpx_export_rte')}
-                    enabled={settings.gpx_export_rte}
-                    onClick={() =>
-                        Dispatcher.dispatch(new UpdateSettings({ gpx_export_rte: !settings.gpx_export_rte }))
-                    }
+                    enabled={settings.gpxExportRte}
+                    onClick={() => Dispatcher.dispatch(new UpdateSettings({ gpxExportRte: !settings.gpxExportRte }))}
                 />
 
                 <SettingsToggle
                     title={tr('settings_gpx_export_wpt')}
-                    enabled={settings.gpx_export_wpt}
-                    onClick={() =>
-                        Dispatcher.dispatch(new UpdateSettings({ gpx_export_wpt: !settings.gpx_export_wpt }))
-                    }
+                    enabled={settings.gpxExportWpt}
+                    onClick={() => Dispatcher.dispatch(new UpdateSettings({ gpxExportWpt: !settings.gpxExportWpt }))}
                 />
             </div>
             <div className={styles.infoLine}>
