@@ -1,7 +1,7 @@
 import { Instruction, Path, RoutingResultInfo } from '@/api/graphhopper'
 import { Coordinate, CurrentRequest, getBBoxFromCoord, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
 import { metersToShortText, metersToTextForFile, milliSecondsToText } from '@/Converters'
@@ -26,7 +26,7 @@ import SteepIcon from '@/sidebar/routeHints/elevation.svg'
 import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
 import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
 import { Bbox } from '@/api/graphhopper'
-import { getSettingsStore } from '@/stores/Stores'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
 export interface RoutingResultsProps {
     info: RoutingResultInfo
@@ -100,7 +100,7 @@ function RoutingResult({
         getOffBikeInfo.distance > 0 ||
         steepInfo.distance > 0
 
-    const settings = getSettingsStore().state
+    const settings = useContext(SettingsContext)
 
     return (
         <div className={styles.resultRow}>

@@ -4,7 +4,7 @@ import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { metersToText } from '@/Converters'
 import MapPopup from '@/layers/MapPopup'
 import { Map } from 'ol'
-import { getSettingsStore } from '@/stores/Stores'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
 interface PathDetailPopupProps {
     map: Map
@@ -15,7 +15,7 @@ interface PathDetailPopupProps {
  * The popup shown along the selected route when we hover the path detail/elevation graph
  */
 export default function PathDetailPopup({ map, pathDetails }: PathDetailPopupProps) {
-    const settings = getSettingsStore().state
+    const settings = useContext(SettingsContext)
     return (
         // todo: use createMapMarker from heightgraph?
         // {createMapMarker(point.elevation, point.description, showDistanceInMiles)}

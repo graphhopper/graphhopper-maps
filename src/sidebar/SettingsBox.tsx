@@ -5,10 +5,11 @@ import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
-import { getSettingsStore } from '@/stores/Stores'
+import { useContext } from 'react'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
 export default function SettingsBox() {
-    const settings = getSettingsStore().state
+    const settings = useContext(SettingsContext)
 
     return (
         <div className={styles.parent}>

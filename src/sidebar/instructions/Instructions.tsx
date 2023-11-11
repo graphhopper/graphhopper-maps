@@ -22,7 +22,8 @@ import { MarkerComponent } from '@/map/Marker'
 import QueryStore, { QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { InstructionClicked } from '@/actions/Actions'
-import { getSettingsStore } from '@/stores/Stores'
+import { useContext } from 'react'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
 export default function (props: { instructions: Instruction[] }) {
     return (
@@ -35,7 +36,7 @@ export default function (props: { instructions: Instruction[] }) {
 }
 
 const Line = function ({ instruction, index }: { instruction: Instruction; index: number }) {
-    const settings = getSettingsStore().state
+    const settings = useContext(SettingsContext)
 
     return (
         <li

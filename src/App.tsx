@@ -42,6 +42,7 @@ import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
+import { SettingsContext } from './contexts/SettingsContext'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -109,31 +110,33 @@ export default function App() {
     usePathDetailsLayer(map, pathDetails)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
-        <div className={styles.appWrapper}>
-            <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
-            <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
-            {isSmallScreen ? (
-                <SmallScreenLayout
-                    query={query}
-                    route={route}
-                    map={map}
-                    mapOptions={mapOptions}
-                    error={error}
-                    encodedValues={info.encoded_values}
-                    drawAreas={settings.drawAreasEnabled}
-                />
-            ) : (
-                <LargeScreenLayout
-                    query={query}
-                    route={route}
-                    map={map}
-                    mapOptions={mapOptions}
-                    error={error}
-                    encodedValues={info.encoded_values}
-                    drawAreas={settings.drawAreasEnabled}
-                />
-            )}
-        </div>
+        <SettingsContext.Provider value={settings}>
+            <div className={styles.appWrapper}>
+                <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
+                <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
+                {isSmallScreen ? (
+                    <SmallScreenLayout
+                        query={query}
+                        route={route}
+                        map={map}
+                        mapOptions={mapOptions}
+                        error={error}
+                        encodedValues={info.encoded_values}
+                        drawAreas={settings.drawAreasEnabled}
+                    />
+                ) : (
+                    <LargeScreenLayout
+                        query={query}
+                        route={route}
+                        map={map}
+                        mapOptions={mapOptions}
+                        error={error}
+                        encodedValues={info.encoded_values}
+                        drawAreas={settings.drawAreasEnabled}
+                    />
+                )}
+            </div>
+        </SettingsContext.Provider>
     )
 }
 

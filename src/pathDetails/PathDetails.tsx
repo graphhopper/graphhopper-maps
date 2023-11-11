@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import styles from '@/pathDetails/PathDetails.module.css'
 import { HeightGraph } from 'heightgraph/src/heightgraph'
 import '@/pathDetails/HeightGraph.css'
@@ -9,7 +9,7 @@ import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
 import { calcDist } from '@/distUtils'
 import { tr } from '@/translation/Translation'
-import { getSettingsStore } from '@/stores/Stores'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -53,7 +53,7 @@ export default function ({ selectedPath }: PathDetailsProps) {
         graph?.setData(pathDetailsData.data, pathDetailsData.mappings)
     }, [selectedPath, graph])
 
-    const settings = getSettingsStore().state
+    const settings = useContext(SettingsContext)
     useEffect(() => {
         graph?.setImperial(settings.showDistanceInMiles)
         graph?.redraw()
