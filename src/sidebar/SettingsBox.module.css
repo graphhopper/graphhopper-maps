@@ -6,12 +6,11 @@
 }
 
 .settingsTable {
-    display: grid;
-    grid-template-columns: 50px auto;
-    grid-template-rows: 1.3rem;
-    align-content: flex-start;
-    align-items: center;
-    margin: 1rem 0.5rem 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 0rem;
+    margin: 0.2rem 0.5rem 1.5rem 0;
 }
 
 .settingsTable svg {
@@ -19,7 +18,18 @@
     margin-left: calc(-8px); /* scaling svg creates white space around it */
 }
 
-.settingsTable button {
+.settingsToggle {
+    display: grid;
+    grid-template-columns: 50px auto;
+    align-content: flex-start;
+    align-items: center;
+}
+
+.toggleButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
 }
 
 .infoLine {

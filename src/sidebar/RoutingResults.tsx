@@ -27,6 +27,7 @@ import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
 import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
 import { Bbox } from '@/api/graphhopper'
 import { SettingsContext } from '@/contexts/SettingsContext'
+import { Settings } from '@/stores/SettingsStore'
 
 export interface RoutingResultsProps {
     info: RoutingResultInfo
@@ -128,10 +129,7 @@ function RoutingResult({
                         )}
                     </div>
                     {isSelected && (
-                        <PlainButton
-                            className={styles.exportButton}
-                            onClick={() => downloadGPX(path, settings.showDistanceInMiles)}
-                        >
+                        <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path, settings)}>
                             <GPXDownload />
                             <div>{tr('gpx_button')}</div>
                         </PlainButton>
@@ -421,14 +419,14 @@ function getHighSlopeInfo(points: LineString, steepSlope: number) {
     return info
 }
 
-function downloadGPX(path: Path, showDistanceInMiles: boolean) {
+function downloadGPX(path: Path, settings: Settings) {
     let xmlString =
         '<?xml version="1.0" encoding="UTF-8" standalone="no" ?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="GraphHopper" version="1.1" xmlns:gh="https://graphhopper.com/public/schema/gpx/1.1">\n'
     xmlString += `<metadata><copyright author="OpenStreetMap contributors"/><link href="http://graphhopper.com"><text>GraphHopper GPX</text></link><time>${new Date().toISOString()}</time></metadata>\n`
 
-    const rte = false
-    const wpt = false
-    const trk = true
+    const rte = settings.gpx_export_rte
+    const wpt = settings.gpx_export_wpt
+    const trk = settings.gpx_export_trk
 
     if (wpt)
         xmlString += path.snapped_waypoints.coordinates.reduce((prevString: string, coord: Position) => {
@@ -469,7 +467,7 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
     const date = new Date()
     tmpElement.download = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
         date.getUTCDate()
-    )}-${metersToTextForFile(path.distance, showDistanceInMiles)}.gpx`
+    )}-${metersToTextForFile(path.distance, settings.showDistanceInMiles)}.gpx`
     tmpElement.click()
 }
 

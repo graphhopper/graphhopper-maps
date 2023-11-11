@@ -2,6 +2,7 @@ import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { Settings } from '@/stores/SettingsStore'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -238,12 +239,10 @@ export class InstructionClicked implements Action {
     }
 }
 
-export class ToggleDistanceUnits implements Action {}
+export class UpdateSettings implements Action {
+    readonly updatedSettings: Partial<Settings>
 
-export class DrawAreas implements Action {
-    readonly enabled: boolean
-
-    constructor(enabled: boolean) {
-        this.enabled = enabled
+    constructor(updatedSettings: Partial<Settings>) {
+        this.updatedSettings = updatedSettings
     }
 }

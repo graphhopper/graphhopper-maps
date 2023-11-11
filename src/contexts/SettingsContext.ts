@@ -1,7 +1,4 @@
-import { Settings } from '@/stores/SettingsStore'
+import { Settings, defaultSettings } from '@/stores/SettingsStore'
 import { createContext } from 'react'
 
-export const SettingsContext = createContext<Settings>({
-    drawAreasEnabled: false,
-    showDistanceInMiles: false,
-})
+export const SettingsContext = createContext<Settings>(defaultSettings)
