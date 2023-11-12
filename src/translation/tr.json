@@ -56,7 +56,7 @@
 "from_hint":"From",
 "gpx_export_button":"GPX Export",
 "gpx_button":"GPX",
-"settings_gpx_export":"GPX Export settings",
+"settings_gpx_export":"GPX export settings",
 "settings_gpx_export_trk":"With track data (trk)",
 "settings_gpx_export_rte":"With route data (rte)",
 "settings_gpx_export_wpt":"With waypoint data (wpt)",
