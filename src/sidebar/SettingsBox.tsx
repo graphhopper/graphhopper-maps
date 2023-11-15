@@ -76,20 +76,16 @@ export default function SettingsBox({ turnNavSettings }: { turnNavSettings: TNSe
             </div>
             <div className={styles.title}>{tr('turn_navigation_settings_title')}</div>
             <div className={styles.settingsTable}>
-                <PlainButton
-                    style={{ color: forceVectorTiles ? '' : 'lightgray' }}
+                <SettingsToggle
+                    title={tr('vector_tiles_for_navigation')}
+                    enabled={forceVectorTiles}
                     onClick={() => Dispatcher.dispatch(new ToggleVectorTilesForNavigation())}
-                >
-                    {forceVectorTiles ? <OnIcon /> : <OffIcon />}
-                </PlainButton>
-                <div style={{ color: forceVectorTiles ? '#5b616a' : 'gray' }}>{tr('vector_tiles_for_navigation')}</div>
-                <PlainButton
-                    style={{ color: fullScreen ? '' : 'lightgray' }}
+                />
+                <SettingsToggle
+                    title={tr('full_screen_for_navigation')}
+                    enabled={fullScreen}
                     onClick={() => Dispatcher.dispatch(new ToggleFullScreenForNavigation())}
-                >
-                    {fullScreen ? <OnIcon /> : <OffIcon />}
-                </PlainButton>
-                <div style={{ color: fullScreen ? '#5b616a' : 'gray' }}>{tr('full_screen_for_navigation')}</div>
+                />
             </div>
             <div className={styles.infoLine}>
                 <a target="_blank" href="https://www.graphhopper.com/maps-route-planner/">{tr('info')}</a>
