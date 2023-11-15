@@ -196,10 +196,7 @@ function RoutingResult({
                         </PlainButton>
                     )}
                     {isSelected && !showBackAndRisk && (
-                        <PlainButton
-                            className={styles.exportButton}
-                            onClick={() => downloadGPX(path, settings)}
-                        >
+                        <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path, settings)}>
                             <GPXDownload />
                             <div>{tr('gpx_button')}</div>
                         </PlainButton>
@@ -590,7 +587,14 @@ function createSingletonListContent(props: RoutingResultsProps) {
     return ''
 }
 
-function createListContent({ info, paths, currentRequest, selectedPath, profile, turnNavigation }: RoutingResultsProps) {
+function createListContent({
+    info,
+    paths,
+    currentRequest,
+    selectedPath,
+    profile,
+    turnNavigation,
+}: RoutingResultsProps) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 

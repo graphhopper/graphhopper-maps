@@ -88,11 +88,21 @@ export default function SettingsBox({ turnNavSettings }: { turnNavSettings: TNSe
                 />
             </div>
             <div className={styles.infoLine}>
-                <a target="_blank" href="https://www.graphhopper.com/maps-route-planner/">{tr('info')}</a>
-                <a target="_blank" href="https://github.com/graphhopper/graphhopper-maps/issues">{tr('feedback')}</a>
-                <a target="_blank" href="https://www.graphhopper.com/imprint/">{tr('imprint')}</a>
-                <a target="_blank" href="https://www.graphhopper.com/privacy/">{tr('privacy')}</a>
-                <a target="_blank" href="https://www.graphhopper.com/terms/">{tr('terms')}</a>
+                <a target="_blank" href="https://www.graphhopper.com/maps-route-planner/">
+                    {tr('info')}
+                </a>
+                <a target="_blank" href="https://github.com/graphhopper/graphhopper-maps/issues">
+                    {tr('feedback')}
+                </a>
+                <a target="_blank" href="https://www.graphhopper.com/imprint/">
+                    {tr('imprint')}
+                </a>
+                <a target="_blank" href="https://www.graphhopper.com/privacy/">
+                    {tr('privacy')}
+                </a>
+                <a target="_blank" href="https://www.graphhopper.com/terms/">
+                    {tr('terms')}
+                </a>
             </div>
         </div>
     )

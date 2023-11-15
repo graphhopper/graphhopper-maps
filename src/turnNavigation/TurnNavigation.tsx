@@ -12,7 +12,7 @@ import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
 import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
 import SyncLocationIcon from '@/turnNavigation/location_searching.svg'
 import { tr } from '@/translation/Translation'
-import {SettingsContext} from "@/contexts/SettingsContext";
+import { SettingsContext } from '@/contexts/SettingsContext'
 
 // This method creates the turn navigation view with live updates about speed, turns, distances and arrival time.
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
