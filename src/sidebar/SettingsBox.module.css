@@ -19,6 +19,7 @@
 }
 
 .settingsToggle {
+    cursor: pointer;
     display: grid;
     grid-template-columns: 50px auto;
     align-content: flex-start;
