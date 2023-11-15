@@ -13,7 +13,6 @@ import { LineString, Position } from 'geojson'
 import { calcDist } from '@/distUtils'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
 import FordIcon from '@/sidebar/routeHints/water.svg'
 import FerryIcon from '@/sidebar/routeHints/directions_boat.svg'
@@ -27,6 +26,8 @@ import SteepIcon from '@/sidebar/routeHints/elevation.svg'
 import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
 import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
 import { Bbox } from '@/api/graphhopper'
+import { SettingsContext } from '@/contexts/SettingsContext'
+import { Settings } from '@/stores/SettingsStore'
 
 export interface RoutingResultsProps {
     info: RoutingResultInfo
@@ -100,7 +101,8 @@ function RoutingResult({
         getOffBikeInfo.distance > 0 ||
         steepInfo.distance > 0
 
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const settings = useContext(SettingsContext)
+    const showDistanceInMiles = settings.showDistanceInMiles
 
     return (
         <div className={styles.resultRow}>
@@ -128,10 +130,7 @@ function RoutingResult({
                         )}
                     </div>
                     {isSelected && (
-                        <PlainButton
-                            className={styles.exportButton}
-                            onClick={() => downloadGPX(path, showDistanceInMiles)}
-                        >
+                        <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path, settings)}>
                             <GPXDownload />
                             <div>{tr('gpx_button')}</div>
                         </PlainButton>
@@ -403,14 +402,14 @@ function getHighSlopeInfo(points: LineString, steepSlope: number) {
     return info
 }
 
-function downloadGPX(path: Path, showDistanceInMiles: boolean) {
+function downloadGPX(path: Path, settings: Settings) {
     let xmlString =
         '<?xml version="1.0" encoding="UTF-8" standalone="no" ?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="GraphHopper" version="1.1" xmlns:gh="https://graphhopper.com/public/schema/gpx/1.1">\n'
     xmlString += `<metadata><copyright author="OpenStreetMap contributors"/><link href="http://graphhopper.com"><text>GraphHopper GPX</text></link><time>${new Date().toISOString()}</time></metadata>\n`
 
-    const rte = false
-    const wpt = false
-    const trk = true
+    const rte = settings.gpxExportRte
+    const wpt = settings.gpxExportWpt
+    const trk = settings.gpxExportTrk
 
     if (wpt)
         xmlString += path.snapped_waypoints.coordinates.reduce((prevString: string, coord: Position) => {
@@ -451,7 +450,7 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
     const date = new Date()
     tmpElement.download = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
         date.getUTCDate()
-    )}-${metersToTextForFile(path.distance, showDistanceInMiles)}.gpx`
+    )}-${metersToTextForFile(path.distance, settings.showDistanceInMiles)}.gpx`
     tmpElement.click()
 }
 

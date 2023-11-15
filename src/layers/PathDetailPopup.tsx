@@ -2,9 +2,9 @@ import { useContext } from 'react'
 import styles from '@/layers/DefaultMapPopup.module.css'
 import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { metersToText } from '@/Converters'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import MapPopup from '@/layers/MapPopup'
 import { Map } from 'ol'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
 interface PathDetailPopupProps {
     map: Map
@@ -15,7 +15,7 @@ interface PathDetailPopupProps {
  * The popup shown along the selected route when we hover the path detail/elevation graph
  */
 export default function PathDetailPopup({ map, pathDetails }: PathDetailPopupProps) {
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const settings = useContext(SettingsContext)
     return (
         // todo: use createMapMarker from heightgraph?
         // {createMapMarker(point.elevation, point.description, showDistanceInMiles)}
@@ -23,7 +23,11 @@ export default function PathDetailPopup({ map, pathDetails }: PathDetailPopupPro
             <div className={styles.popup}>
                 {pathDetails.pathDetailsPoint && (
                     <p>
-                        {metersToText(Math.round(pathDetails.pathDetailsPoint.elevation), showDistanceInMiles, true)}
+                        {metersToText(
+                            Math.round(pathDetails.pathDetailsPoint.elevation),
+                            settings.showDistanceInMiles,
+                            true
+                        )}
                         <br />
                         {pathDetails.pathDetailsPoint!.description}
                     </p>
