@@ -25,23 +25,31 @@ export default function SettingsBox() {
             </div>
             <div className={styles.title}>{tr('settings_gpx_export')}</div>
             <div className={styles.settingsTable}>
-                <SettingsToggle
-                    title={tr('settings_gpx_export_trk')}
-                    enabled={settings.gpxExportTrk}
-                    onClick={() => Dispatcher.dispatch(new UpdateSettings({ gpxExportTrk: !settings.gpxExportTrk }))}
-                />
+                <div className={styles.settingsCheckboxes}>
+                    <SettingsCheckbox
+                        title={tr('settings_gpx_export_trk')}
+                        enabled={settings.gpxExportTrk}
+                        onClick={() =>
+                            Dispatcher.dispatch(new UpdateSettings({ gpxExportTrk: !settings.gpxExportTrk }))
+                        }
+                    />
 
-                <SettingsToggle
-                    title={tr('settings_gpx_export_rte')}
-                    enabled={settings.gpxExportRte}
-                    onClick={() => Dispatcher.dispatch(new UpdateSettings({ gpxExportRte: !settings.gpxExportRte }))}
-                />
+                    <SettingsCheckbox
+                        title={tr('settings_gpx_export_rte')}
+                        enabled={settings.gpxExportRte}
+                        onClick={() =>
+                            Dispatcher.dispatch(new UpdateSettings({ gpxExportRte: !settings.gpxExportRte }))
+                        }
+                    />
 
-                <SettingsToggle
-                    title={tr('settings_gpx_export_wpt')}
-                    enabled={settings.gpxExportWpt}
-                    onClick={() => Dispatcher.dispatch(new UpdateSettings({ gpxExportWpt: !settings.gpxExportWpt }))}
-                />
+                    <SettingsCheckbox
+                        title={tr('settings_gpx_export_wpt')}
+                        enabled={settings.gpxExportWpt}
+                        onClick={() =>
+                            Dispatcher.dispatch(new UpdateSettings({ gpxExportWpt: !settings.gpxExportWpt }))
+                        }
+                    />
+                </div>
             </div>
             <div className={styles.infoLine}>
                 <a href="https://www.graphhopper.com/maps-route-planner/">{tr('info')}</a>
@@ -65,6 +73,15 @@ function SettingsToggle({ title, enabled, onClick }: { title: string; enabled: b
                 {enabled ? <OnIcon /> : <OffIcon />}
             </PlainButton>
             <div style={{ color: enabled ? '#5b616a' : 'gray' }}>{title}</div>
+        </div>
+    )
+}
+
+function SettingsCheckbox({ title, enabled, onClick }: { title: string; enabled: boolean; onClick: () => void }) {
+    return (
+        <div className={styles.settingsCheckbox}>
+            <input type="checkbox" checked={enabled} onClick={onClick}></input>
+            <label>{title}</label>
         </div>
     )
 }
