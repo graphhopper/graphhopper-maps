@@ -23,6 +23,7 @@ There is [an experimental `navi` branch](https://github.com/graphhopper/graphhop
  * Fork the repository and create a pull request. Contributions are welcome. Feel free to discuss your changes in our
    [forum](https://discuss.graphhopper.com/) or the GitHub [issues](https://github.com/graphhopper/graphhopper-maps/issues).
  * You can build the production bundle using `npm run build`.
+ * If you use the Directions API edit the config to show profile icons properly (see 'Advanced configuration' section below).
 
 ## Help with translations:
 

@@ -9,10 +9,10 @@ import Dispatcher from '@/stores/Dispatcher'
 import {
     ClearRoute,
     DismissLastError,
-    DrawAreas,
     ErrorAction,
     SetCustomModel,
     SetCustomModelEnabled,
+    UpdateSettings,
 } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
@@ -113,7 +113,7 @@ export default function CustomModelBox({
                         className={styles.drawAreas}
                         title={tr('draw_areas_enabled')}
                         style={{ color: drawAreas ? '' : 'lightgray' }}
-                        onClick={() => Dispatcher.dispatch(new DrawAreas(!drawAreas))}
+                        onClick={() => Dispatcher.dispatch(new UpdateSettings({ drawAreasEnabled: !drawAreas }))}
                     >
                         {drawAreas ? <DrawAreasIcon /> : <DrawAreasDisabledIcon />}
                     </PlainButton>

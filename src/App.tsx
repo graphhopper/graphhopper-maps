@@ -34,7 +34,6 @@ import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import MapPopups from '@/map/MapPopups'
 import Menu from '@/sidebar/menu.svg'
@@ -43,6 +42,7 @@ import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
+import { SettingsContext } from './contexts/SettingsContext'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -110,7 +110,7 @@ export default function App() {
     usePathDetailsLayer(map, pathDetails)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
-        <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
+        <SettingsContext.Provider value={settings}>
             <div className={styles.appWrapper}>
                 <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
@@ -136,7 +136,7 @@ export default function App() {
                     />
                 )}
             </div>
-        </ShowDistanceInMilesContext.Provider>
+        </SettingsContext.Provider>
     )
 }
 

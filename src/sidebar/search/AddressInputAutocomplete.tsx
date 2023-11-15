@@ -139,7 +139,6 @@ function AutocompleteEntry({
                 e.preventDefault()
                 onSelect()
             }}
-
             // prevent blur event for our input (seems to be only required for mouse)
             onMouseDown={e => {
                 e.preventDefault()
