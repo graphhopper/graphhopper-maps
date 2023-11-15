@@ -117,7 +117,7 @@
 "start_navigation":"Navigation",
 "then":"then",
 "thenSign":"Then",
-"turn_navigation_settings_title":"Turn-by-turn navigation",
+"turn_navigation_settings_title":"GPS navigation",
 "vector_tiles_for_navigation":"Use vector tiles",
 "warning":"WARNING: The turn-by-turn navigation feature is highly experimental. Use it at your own risk, pay attention to the road and do not touch the device while driving!"
 },
