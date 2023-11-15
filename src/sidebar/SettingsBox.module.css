@@ -38,6 +38,7 @@
     justify-content: space-between;
     width: 100%;
     flex-wrap: wrap;
+    height: 2rem;
 }
 
 .infoLine {
