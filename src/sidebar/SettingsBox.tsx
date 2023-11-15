@@ -5,7 +5,7 @@ import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { SettingsContext } from '@/contexts/SettingsContext'
 
 export default function SettingsBox() {
@@ -79,9 +79,9 @@ function SettingsToggle({ title, enabled, onClick }: { title: string; enabled: b
 
 function SettingsCheckbox({ title, enabled, onClick }: { title: string; enabled: boolean; onClick: () => void }) {
     return (
-        <div className={styles.settingsCheckbox}>
-            <input type="checkbox" checked={enabled} onClick={onClick}></input>
-            <label>{title}</label>
+        <div className={styles.settingsCheckbox} onClick={onClick}>
+            <input type="checkbox" checked={enabled}></input>
+            <label style={{ color: enabled ? '#5b616a' : 'gray' }}>{title}</label>
         </div>
     )
 }
