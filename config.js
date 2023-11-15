@@ -33,13 +33,19 @@ const config = {
         ],
         snapPreventions: ['ferry'],
     },
+
     // Use 'profiles' to define which profiles are visible and how. Useful if the /info endpoint contains too many or too "ugly" profile
     // names or in the wrong order. The key of each profile will be used as name and the given fields will overwrite the fields of the
-    // default routing request. e.g.
-    //
-    // profiles: { my_car: { profile: 'raw_car' } }
-    //
-    // will add a profile named 'my_car' for which we send a request with profile=raw_car, and you could add other parameters like custom_model.
+    // default routing request. The following example is tuned towards the GraphHopper Directions API. If you have an own server you might want to adapt it.
+
+    profiles: {
+        car:{}, small_truck:{}, truck:{}, scooter:{},
+        foot:{ details: ['foot_network'] }, hike:{ details: ['foot_network'] },
+        bike:{ details: ['get_off_bike', 'bike_network'] }, mtb:{ details: ['get_off_bike', 'bike_network'] }, racingbike:{ details: ['get_off_bike', 'bike_network'] },
+    }
+
+    // E.g. the 'bike' entry will add a "bike" profile for which we send a request with the specified 'details' parameter. You can even change the profile itself when you specify
+    // bike: { profile: 'raw_bike', ... }
 }
 
 // this is needed for jest (with our current setup at least)
