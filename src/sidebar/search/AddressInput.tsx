@@ -37,7 +37,6 @@ export default function AddressInput(props: AddressInputProps) {
 
     // keep track of focus and toggle fullscreen display on small screens
     const [hasFocus, setHasFocus] = useState(false)
-    const [pointerDownOnSuggestion, setPointerDownOnSuggestion] = useState(false)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
     // container for geocoding results which gets set by the geocoder class and set to empty if the underlying query point gets changed from outside
@@ -175,12 +174,10 @@ export default function AddressInput(props: AddressInputProps) {
                         props.clearDragDrop()
                     }}
                     onBlur={() => {
-                        // Suppress onBlur if there was a click on a suggested item.
-                        // Otherwise, the item would be removed before (hideSuggestions) its onclick handler can be called.
-                        if (isSmallScreen || pointerDownOnSuggestion) return
+                        // Suppress onBlur if we are on the small screen
+                        if (isSmallScreen) return
                         setHasFocus(false)
                         hideSuggestions()
-                        setPointerDownOnSuggestion(false)
                     }}
                     value={text}
                     placeholder={tr(
@@ -191,9 +188,6 @@ export default function AddressInput(props: AddressInputProps) {
                 <PlainButton
                     style={text.length == 0 ? { display: 'none' } : {}}
                     className={styles.btnInputClear}
-                    onMouseDown={() => setPointerDownOnSuggestion(true)}
-                    onMouseLeave={() => setPointerDownOnSuggestion(false)}
-                    onMouseUp={() => setPointerDownOnSuggestion(false)}
                     onClick={() => {
                         setText('')
                         props.onChange('')
@@ -212,7 +206,6 @@ export default function AddressInput(props: AddressInputProps) {
                         <Autocomplete
                             items={autocompleteItems}
                             highlightedItem={autocompleteItems[highlightedResult]}
-                            setPointerDown={setPointerDownOnSuggestion}
                             onSelect={item => {
                                 setHasFocus(false)
                                 if (item instanceof GeocodingItem) {

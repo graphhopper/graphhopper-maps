@@ -11,13 +11,14 @@ import { ApiImpl } from '@/api/Api'
 import VolumeUpIcon from '@/turnNavigation/volume_up.svg'
 import VolumeOffIcon from '@/turnNavigation/volume_off.svg'
 import SyncLocationIcon from '@/turnNavigation/location_searching.svg'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { tr } from '@/translation/Translation'
+import {SettingsContext} from "@/contexts/SettingsContext";
 
 // This method creates the turn navigation view with live updates about speed, turns, distances and arrival time.
 export default function ({ turnNavigation }: { turnNavigation: TurnNavigationStoreState }) {
     if (turnNavigation.activePath == null) new Error('activePath cannot be null if TurnNavigation is enabled')
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const settings = useContext(SettingsContext)
+    const showDistanceInMiles = settings.showDistanceInMiles
     const instruction = turnNavigation.instruction
     const pd = turnNavigation.pathDetails
     const thenInstructionSign = turnNavigation.thenInstructionSign

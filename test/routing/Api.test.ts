@@ -7,7 +7,7 @@ import { setTranslation } from '@/translation/Translation'
 
 import Dispatcher from '@/stores/Dispatcher'
 import { ApiImpl } from '@/api/Api'
-import { ApiInfo, ErrorResponse, RoutingArgs, RoutingRequest } from '@/api/graphhopper'
+import { ApiInfo, ErrorResponse, RoutingArgs, RoutingRequest, RoutingResultInfo } from '@/api/graphhopper'
 
 beforeAll(() => {
     // replace global 'fetch' method by fetchMock
@@ -341,7 +341,7 @@ describe('route', () => {
 
 function getEmptyResult() {
     return {
-        info: { copyright: [], took: 0 },
+        info: { copyright: [], road_data_timestamp: '', took: 0 } as RoutingResultInfo,
         paths: [],
     }
 }

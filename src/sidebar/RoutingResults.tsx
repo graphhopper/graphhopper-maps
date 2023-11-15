@@ -1,4 +1,4 @@
-import { Instruction, Path } from '@/api/graphhopper'
+import { Instruction, Path, RoutingResultInfo } from '@/api/graphhopper'
 import { Coordinate, CurrentRequest, getBBoxFromCoord, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import React, { ReactNode, useContext, useEffect, useState } from 'react'
@@ -22,7 +22,6 @@ import { LineString, Position } from 'geojson'
 import { calcDist } from '@/turnNavigation/GeoMethods'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
 import { TNSettingsState, TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import Cross from '@/sidebar/times-solid.svg'
@@ -39,8 +38,11 @@ import SteepIcon from '@/sidebar/routeHints/elevation.svg'
 import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
 import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
 import { Bbox } from '@/api/graphhopper'
+import { SettingsContext } from '@/contexts/SettingsContext'
+import { Settings } from '@/stores/SettingsStore'
 
 export interface RoutingResultsProps {
+    info: RoutingResultInfo
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
@@ -57,11 +59,13 @@ export default function RoutingResults(props: RoutingResultsProps) {
 }
 
 function RoutingResult({
+    info,
     path,
     isSelected,
     profile,
     turnNavigation,
 }: {
+    info: RoutingResultInfo
     path: Path
     isSelected: boolean
     profile: string
@@ -112,7 +116,8 @@ function RoutingResult({
         getOffBikeInfo.distance > 0 ||
         steepInfo.distance > 0
 
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const settings = useContext(SettingsContext)
+    const showDistanceInMiles = settings.showDistanceInMiles
     let [showBackAndRisk, setShowBackAndRisk] = useState(false)
 
     if (showBackAndRisk)
@@ -193,7 +198,7 @@ function RoutingResult({
                     {isSelected && !showBackAndRisk && (
                         <PlainButton
                             className={styles.exportButton}
-                            onClick={() => downloadGPX(path, showDistanceInMiles)}
+                            onClick={() => downloadGPX(path, settings)}
                         >
                             <GPXDownload />
                             <div>{tr('gpx_button')}</div>
@@ -329,6 +334,11 @@ function RoutingResult({
                 </div>
             )}
             {isExpanded && <Instructions instructions={path.instructions} />}
+            {isExpanded && (
+                <div className={styles.routingResultRoadData}>
+                    {tr('road_data_from')}: {info.road_data_timestamp}
+                </div>
+            )}
         </div>
     )
 }
@@ -466,14 +476,14 @@ function getHighSlopeInfo(points: LineString, steepSlope: number) {
     return info
 }
 
-function downloadGPX(path: Path, showDistanceInMiles: boolean) {
+function downloadGPX(path: Path, settings: Settings) {
     let xmlString =
         '<?xml version="1.0" encoding="UTF-8" standalone="no" ?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="GraphHopper" version="1.1" xmlns:gh="https://graphhopper.com/public/schema/gpx/1.1">\n'
     xmlString += `<metadata><copyright author="OpenStreetMap contributors"/><link href="http://graphhopper.com"><text>GraphHopper GPX</text></link><time>${new Date().toISOString()}</time></metadata>\n`
 
-    const rte = false
-    const wpt = false
-    const trk = true
+    const rte = settings.gpxExportRte
+    const wpt = settings.gpxExportWpt
+    const trk = settings.gpxExportTrk
 
     if (wpt)
         xmlString += path.snapped_waypoints.coordinates.reduce((prevString: string, coord: Position) => {
@@ -512,7 +522,7 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
     const mimeType = 'application/gpx+xml'
     const fileName = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
         date.getUTCDate()
-    )}-${metersToTextForFile(path.distance, showDistanceInMiles)}.gpx`
+    )}-${metersToTextForFile(path.distance, settings.showDistanceInMiles)}.gpx`
     // window.Filesystem.writeFile({ data: xmlString, path: fileName })
 
     if (!window.ghSaveFile) {
@@ -572,6 +582,7 @@ function createSingletonListContent(props: RoutingResultsProps) {
                 path={props.selectedPath}
                 isSelected={true}
                 profile={props.profile}
+                info={props.info}
                 turnNavigation={props.turnNavigation}
             />
         )
@@ -579,7 +590,7 @@ function createSingletonListContent(props: RoutingResultsProps) {
     return ''
 }
 
-function createListContent({ paths, currentRequest, selectedPath, profile, turnNavigation }: RoutingResultsProps) {
+function createListContent({ info, paths, currentRequest, selectedPath, profile, turnNavigation }: RoutingResultsProps) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
@@ -591,6 +602,7 @@ function createListContent({ paths, currentRequest, selectedPath, profile, turnN
                     path={paths[i]}
                     isSelected={paths[i] === selectedPath}
                     profile={profile}
+                    info={info}
                     turnNavigation={turnNavigation}
                 />
             )

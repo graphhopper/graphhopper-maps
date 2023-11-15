@@ -1,5 +1,4 @@
 import styles from '@/sidebar/instructions/Instructions.module.css'
-import { useContext } from 'react'
 
 import uTurn from './u_turn.png'
 import uTurnLeft from './u_turn_left.png'
@@ -21,9 +20,10 @@ import { metersToText } from '@/Converters'
 import { Instruction } from '@/api/graphhopper'
 import { MarkerComponent } from '@/map/Marker'
 import QueryStore, { QueryPointType } from '@/stores/QueryStore'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import Dispatcher from '@/stores/Dispatcher'
 import { InstructionClicked } from '@/actions/Actions'
+import { useContext } from 'react'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
 export default function (props: { instructions: Instruction[] }) {
     return (
@@ -36,7 +36,8 @@ export default function (props: { instructions: Instruction[] }) {
 }
 
 const Line = function ({ instruction, index }: { instruction: Instruction; index: number }) {
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const settings = useContext(SettingsContext)
+
     return (
         <li
             className={styles.instruction}
@@ -51,7 +52,7 @@ const Line = function ({ instruction, index }: { instruction: Instruction; index
         >
             {getTurnSign(instruction.sign, index, undefined)}
             <span className={styles.mainText}>{instruction.text}</span>
-            <span className={styles.distance}>{metersToText(instruction.distance, showDistanceInMiles)}</span>
+            <span className={styles.distance}>{metersToText(instruction.distance, settings.showDistanceInMiles)}</span>
         </li>
     )
 }

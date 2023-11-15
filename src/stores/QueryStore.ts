@@ -120,6 +120,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         if (action instanceof InvalidatePoint) {
             const points = QueryStore.replacePoint(state.queryPoints, {
                 ...action.point,
+                queryText: '',
                 isInitialized: false,
             })
             return {

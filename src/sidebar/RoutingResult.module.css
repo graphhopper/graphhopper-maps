@@ -206,3 +206,9 @@
     color: #383838;
     padding-top: 1px;
 }
+
+.routingResultRoadData {
+    color: gray;
+    font-size: small;
+    padding: 10px 5px 10px 3rem;
+}

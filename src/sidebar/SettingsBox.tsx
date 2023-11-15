@@ -1,4 +1,5 @@
-import { ToggleDistanceUnits, ToggleFullScreenForNavigation, ToggleVectorTilesForNavigation } from '@/actions/Actions'
+import { ToggleFullScreenForNavigation, ToggleVectorTilesForNavigation } from '@/actions/Actions'
+import { UpdateSettings } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
@@ -7,12 +8,12 @@ import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
 import LinkIcon from '@/sidebar/link.svg'
 import { useContext, useState } from 'react'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
+import { SettingsContext } from '@/contexts/SettingsContext'
 import { TNSettingsState } from '@/stores/TurnNavigationStore'
 
 export default function SettingsBox({ turnNavSettings }: { turnNavSettings: TNSettingsState }) {
     const [showCopiedInfo, setShowCopiedInfo] = useState(false)
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const settings = useContext(SettingsContext)
     const { forceVectorTiles, fullScreen } = turnNavSettings
     return (
         <div className={styles.parent}>
@@ -37,14 +38,40 @@ export default function SettingsBox({ turnNavSettings }: { turnNavSettings: TNSe
             </div>
             <div className={styles.title}>{tr('settings')}</div>
             <div className={styles.settingsTable}>
-                <PlainButton
-                    style={{ color: showDistanceInMiles ? '' : 'lightgray' }} // todonow: move to css?
-                    onClick={() => Dispatcher.dispatch(new ToggleDistanceUnits())}
-                >
-                    {showDistanceInMiles ? <OnIcon /> : <OffIcon />}
-                </PlainButton>
-                <div style={{ color: showDistanceInMiles ? '#5b616a' : 'gray' }}>
-                    {tr('distance_unit', [tr(showDistanceInMiles ? 'mi' : 'km')])}
+                <SettingsToggle
+                    title={tr('distance_unit', [tr(settings.showDistanceInMiles ? 'mi' : 'km')])}
+                    enabled={settings.showDistanceInMiles}
+                    onClick={() =>
+                        Dispatcher.dispatch(new UpdateSettings({ showDistanceInMiles: !settings.showDistanceInMiles }))
+                    }
+                />
+            </div>
+            <div className={styles.title}>{tr('settings_gpx_export')}</div>
+            <div className={styles.settingsTable}>
+                <div className={styles.settingsCheckboxes}>
+                    <SettingsCheckbox
+                        title={tr('settings_gpx_export_trk')}
+                        enabled={settings.gpxExportTrk}
+                        onClick={() =>
+                            Dispatcher.dispatch(new UpdateSettings({ gpxExportTrk: !settings.gpxExportTrk }))
+                        }
+                    />
+
+                    <SettingsCheckbox
+                        title={tr('settings_gpx_export_rte')}
+                        enabled={settings.gpxExportRte}
+                        onClick={() =>
+                            Dispatcher.dispatch(new UpdateSettings({ gpxExportRte: !settings.gpxExportRte }))
+                        }
+                    />
+
+                    <SettingsCheckbox
+                        title={tr('settings_gpx_export_wpt')}
+                        enabled={settings.gpxExportWpt}
+                        onClick={() =>
+                            Dispatcher.dispatch(new UpdateSettings({ gpxExportWpt: !settings.gpxExportWpt }))
+                        }
+                    />
                 </div>
             </div>
             <div className={styles.title}>{tr('turn_navigation_settings_title')}</div>
@@ -65,22 +92,36 @@ export default function SettingsBox({ turnNavSettings }: { turnNavSettings: TNSe
                 <div style={{ color: fullScreen ? '#5b616a' : 'gray' }}>{tr('full_screen_for_navigation')}</div>
             </div>
             <div className={styles.infoLine}>
-                <a target="_blank" href="https://www.graphhopper.com/maps-route-planner/">
-                    Info
-                </a>
-                <a target="_blank" href="https://github.com/graphhopper/graphhopper-maps/issues">
-                    Feedback
-                </a>
-                <a target="_blank" href="https://www.graphhopper.com/imprint/">
-                    Imprint
-                </a>
-                <a target="_blank" href="https://www.graphhopper.com/privacy/">
-                    Privacy
-                </a>
-                <a target="_blank" href="https://www.graphhopper.com/terms/">
-                    Terms
-                </a>
+                <a target="_blank" href="https://www.graphhopper.com/maps-route-planner/">{tr('info')}</a>
+                <a target="_blank" href="https://github.com/graphhopper/graphhopper-maps/issues">{tr('feedback')}</a>
+                <a target="_blank" href="https://www.graphhopper.com/imprint/">{tr('imprint')}</a>
+                <a target="_blank" href="https://www.graphhopper.com/privacy/">{tr('privacy')}</a>
+                <a target="_blank" href="https://www.graphhopper.com/terms/">{tr('terms')}</a>
             </div>
+        </div>
+    )
+}
+
+function SettingsToggle({ title, enabled, onClick }: { title: string; enabled: boolean; onClick: () => void }) {
+    return (
+        <div className={styles.settingsToggle}>
+            <PlainButton
+                style={{ color: enabled ? '' : 'lightgray' }}
+                onClick={onClick}
+                className={styles.toggleButton}
+            >
+                {enabled ? <OnIcon /> : <OffIcon />}
+            </PlainButton>
+            <div style={{ color: enabled ? '#5b616a' : 'gray' }}>{title}</div>
+        </div>
+    )
+}
+
+function SettingsCheckbox({ title, enabled, onClick }: { title: string; enabled: boolean; onClick: () => void }) {
+    return (
+        <div className={styles.settingsCheckbox}>
+            <input type="checkbox" checked={enabled} onClick={onClick}></input>
+            <label>{title}</label>
         </div>
     )
 }

@@ -36,7 +36,6 @@ import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import PlainButton from '@/PlainButton'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
@@ -47,6 +46,7 @@ import Cross from '@/sidebar/times-solid.svg'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
+import { SettingsContext } from './contexts/SettingsContext'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -121,7 +121,7 @@ export default function App() {
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
-        <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
+        <SettingsContext.Provider value={settings}>
             <div className={turnNavigation.showUI ? styles.appNaviWrapper : styles.appWrapper}>
                 <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
@@ -156,7 +156,7 @@ export default function App() {
                     />
                 )}
             </div>
-        </ShowDistanceInMilesContext.Provider>
+        </SettingsContext.Provider>
     )
 }
 
@@ -211,6 +211,7 @@ function LargeScreenLayout({
                         <Search points={query.queryPoints} turnNavigationSettings={turnNavigation.settings} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
+                            info={route.routingResult.info}
                             paths={route.routingResult.paths}
                             selectedPath={route.selectedPath}
                             currentRequest={query.currentRequest}
@@ -278,6 +279,7 @@ function SmallScreenLayout({
             </div>
             <div className={styles.smallScreenRoutingResult}>
                 <RoutingResults
+                    info={route.routingResult.info}
                     paths={route.routingResult.paths}
                     selectedPath={route.selectedPath}
                     currentRequest={query.currentRequest}
