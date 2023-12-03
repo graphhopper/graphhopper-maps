@@ -110,10 +110,9 @@ export default function SettingsBox({ turnNavSettings }: { turnNavSettings: TNSe
 
 function SettingsToggle({ title, enabled, onClick }: { title: string; enabled: boolean; onClick: () => void }) {
     return (
-        <div className={styles.settingsToggle}>
+        <div className={styles.settingsToggle} onClick={onClick}>
             <PlainButton
                 style={{ color: enabled ? '' : 'lightgray' }}
-                onClick={onClick}
                 className={styles.toggleButton}
             >
                 {enabled ? <OnIcon /> : <OffIcon />}
