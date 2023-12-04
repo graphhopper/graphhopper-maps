@@ -1,7 +1,7 @@
 .btnInputClear {
     display: none;
     padding: 0 5px;
-    color: gray;
+    color: grey;
     scale: 0.7;
 }
 
@@ -80,11 +80,11 @@
 .topBorder {
     padding-top: 3px;
     margin-top: -5px;
-    border-top: dashed gray 2px;
+    border-top: dashed grey 2px;
 }
 
 .bottomBorder {
     padding-bottom: 3px;
     margin-bottom: -5px;
-    border-bottom: dashed gray 2px;
+    border-bottom: dashed grey 2px;
 }
