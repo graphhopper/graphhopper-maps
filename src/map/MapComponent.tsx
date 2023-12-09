@@ -18,7 +18,7 @@ export default function ({ map }: MapComponentProps) {
     useEffect(() => {
         map.setTarget(mapElement.current!)
     }, [map])
-    return <div ref={mapElement} tabIndex={0} className={styles.mapContainer} />
+    return <div ref={mapElement} className={styles.mapContainer} />
 }
 
 export function onCurrentLocationSelected(
