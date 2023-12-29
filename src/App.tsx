@@ -228,10 +228,8 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
         sheetRef.current?.snapTo(100)
     }, [])
 
-    const placeholderHeight = 25
     return (
         <>
-            <div style={{height: placeholderHeight + 'px'}}></div>
             <BottomSheet ref={sheetRef}
                          open={isOpen}
                          blocking={false}
@@ -242,8 +240,8 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                  Dispatcher.dispatch(new MobileDragYOffsetEnd(sheetRef.current.height))
                              }
                          }}
-                         defaultSnap={({ minHeight }) => 200 }
-                         snapPoints={({ minHeight }) => [minHeight, 200, placeholderHeight]}>
+                         defaultSnap={() => 200 }
+                         snapPoints={({ minHeight }) => [minHeight, 200]}>
                 <div className={styles.smallScreenSidebar}>
                     <MobileSidebar
                         query={query}
