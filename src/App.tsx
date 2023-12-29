@@ -43,7 +43,10 @@ import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
 import { SettingsContext } from './contexts/SettingsContext'
-import Sheet, {SheetRef} from "react-modal-sheet";
+import {BottomSheet, BottomSheetRef} from "react-spring-bottom-sheet";
+import './react-spring-bottom-sheet-style.css'
+import Dispatcher from "@/stores/Dispatcher";
+import {MobileDragYOffsetEnd} from "@/actions/Actions";
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -216,47 +219,54 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
 }
 
 function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
-    const [isOpen, setIsOpen] = useState(true);
-    const ref = useRef<HTMLDivElement>(null);
+    const [isOpen, setIsOpen] = useState(true)
+    const sheetRef = useRef<BottomSheetRef>(null)
+
+    // Ensure it animates in when loaded
+    useEffect(() => {
+        // TODO NOW does not always work
+        sheetRef.current?.snapTo(100)
+    }, [])
+
+    const placeholderHeight = 25
     return (
         <>
-            {
-                // fake div because we cannot keep the Sheet open only a bit: https://github.com/Temzasse/react-modal-sheet/issues/120
-                // also we want it to close so that the underlying map gets all drag events
-            }
-            <div style={{height: '40px', width: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center'}} onClick={() => setIsOpen(true)}>
-                <span style={{width: '18px', height: '4px', borderRadius: '99px', backgroundColor: 'rgb(221, 221, 221)', transform: 'translateX(2px) rotate(0deg)'}}></span>
-                <span style={{width: '18px', height: '4px', borderRadius: '99px', backgroundColor: 'rgb(221, 221, 221)', transform: 'translateX(-2px) rotate(0deg)'}}></span>
-            </div>
-            <Sheet ref={ref} detent='content-height' isOpen={isOpen} onClose={() => setIsOpen(false)}>
-                <Sheet.Container>
-                    <Sheet.Header />
-                    <Sheet.Content disableDrag={true}>
-                        <div className={styles.smallScreenSidebar}>
-                            <MobileSidebar
-                                query={query}
-                                error={error}
-                                encodedValues={encodedValues}
-                                drawAreas={drawAreas}
-                            />
+            <div style={{height: placeholderHeight + 'px'}}></div>
+            <BottomSheet ref={sheetRef}
+                         open={isOpen}
+                         blocking={false}
+                         onDragEnd={() => {
+                             if(sheetRef?.current) {
+                                 console.log(sheetRef.current.height)
+                                 // TODO receive event to adjust padding for map
+                                 Dispatcher.dispatch(new MobileDragYOffsetEnd(sheetRef.current.height))
+                             }
+                         }}
+                         defaultSnap={({ minHeight }) => 200 }
+                         snapPoints={({ minHeight }) => [minHeight, 200, placeholderHeight]}>
+                <div className={styles.smallScreenSidebar}>
+                    <MobileSidebar
+                        query={query}
+                        error={error}
+                        encodedValues={encodedValues}
+                        drawAreas={drawAreas}
+                    />
 
-                            <div className={styles.smallScreenRoutingResult}>
-                                <RoutingResults
-                                    info={route.routingResult.info}
-                                    paths={route.routingResult.paths}
-                                    selectedPath={route.selectedPath}
-                                    currentRequest={query.currentRequest}
-                                    profile={query.routingProfile.name}
-                                />
-                            </div>
+                    <div className={styles.smallScreenRoutingResult}>
+                        <RoutingResults
+                            info={route.routingResult.info}
+                            paths={route.routingResult.paths}
+                            selectedPath={route.selectedPath}
+                            currentRequest={query.currentRequest}
+                            profile={query.routingProfile.name}
+                        />
+                    </div>
 
-                            <div className={styles.smallScreenPoweredBy}>
-                                <PoweredBy />
-                            </div>
-                        </div>
-                    </Sheet.Content>
-                </Sheet.Container>
-            </Sheet>
+                    <div className={styles.smallScreenPoweredBy}>
+                        <PoweredBy />
+                    </div>
+                </div>
+            </BottomSheet>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />
             </div>

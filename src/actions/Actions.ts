@@ -195,6 +195,14 @@ export class SetBBox implements Action {
     }
 }
 
+export class MobileDragYOffsetEnd implements Action {
+    readonly yOffset: number
+
+    constructor(yOffset: number) {
+        this.yOffset = yOffset
+    }
+}
+
 export class PathDetailsHover implements Action {
     readonly pathDetailsPoint: PathDetailsPoint | null
 
