@@ -63,13 +63,6 @@ function RoutingResult({
     const fordInfo = getInfoFor(path.points, path.details.road_environment, { ford: true })
     const tollInfo = getInfoFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
     const ferryInfo = getInfoFor(path.points, path.details.road_environment, { ferry: true })
-    const privateOrDeliveryInfo = ApiImpl.isMotorVehicle(profile)
-        ? getInfoFor(path.points, path.details.road_access, {
-              private: true,
-              customers: true,
-              delivery: true,
-          })
-        : new RouteInfo()
     const badTrackInfo = !ApiImpl.isMotorVehicle(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.track_type, { grade2: true, grade3: true, grade4: true, grade5: true })
@@ -89,7 +82,6 @@ function RoutingResult({
         fordInfo.distance > 0 ||
         tollInfo.distance > 0 ||
         ferryInfo.distance > 0 ||
-        privateOrDeliveryInfo.distance > 0 ||
         trunkInfo.distance > 0 ||
         badTrackInfo.distance > 0 ||
         stepsInfo.distance > 0 ||
@@ -174,19 +166,6 @@ function RoutingResult({
                             value={ferryInfo.distance > 0 && metersToShortText(ferryInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={ferryInfo.segments}
-                        />
-                        <RHButton
-                            setDescription={b => setDescriptionRH(b)}
-                            description={tr('way_contains', [tr('private_sections')])}
-                            setType={t => setSelectedRH(t)}
-                            type={'private'}
-                            child={<PrivateIcon />}
-                            value={
-                                privateOrDeliveryInfo.distance > 0 &&
-                                metersToShortText(privateOrDeliveryInfo.distance, showDistanceInMiles)
-                            }
-                            selected={selectedRH}
-                            segments={privateOrDeliveryInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
