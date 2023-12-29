@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
@@ -43,6 +43,7 @@ import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
 import { SettingsContext } from './contexts/SettingsContext'
+import Sheet, {SheetRef} from "react-modal-sheet";
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -215,17 +216,48 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
 }
 
 function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
+    const [isOpen, setOpen] = useState(true);
+
     return (
         <>
-            <div className={styles.smallScreenSidebar}>
-                <MobileSidebar
-                    query={query}
-                    route={route}
-                    error={error}
-                    encodedValues={encodedValues}
-                    drawAreas={drawAreas}
-                />
+            {
+                // fake div because we cannot keep the Sheet open only a bit: https://github.com/Temzasse/react-modal-sheet/issues/120
+                // also we want it to close so that the underlying map gets all drag events
+            }
+            <div style={{height: '40px', width: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center'}} onClick={() => setOpen(true)}>
+                <span style={{width: '18px', height: '4px', borderRadius: '99px', backgroundColor: 'rgb(221, 221, 221)', transform: 'translateX(2px) rotate(0deg)'}}></span>
+                <span style={{width: '18px', height: '4px', borderRadius: '99px', backgroundColor: 'rgb(221, 221, 221)', transform: 'translateX(-2px) rotate(0deg)'}}></span>
             </div>
+            <Sheet detent='content-height' isOpen={isOpen} onClose={() => setOpen(false)}>
+                <Sheet.Container>
+                    <Sheet.Header />
+                    <Sheet.Content disableDrag={true}>
+                        <div className={styles.smallScreenSidebar}>
+                            <MobileSidebar
+                                query={query}
+                                error={error}
+                                encodedValues={encodedValues}
+                                drawAreas={drawAreas}
+                            />
+
+                            <div className={styles.smallScreenRoutingResult}>
+                                <RoutingResults
+                                    info={route.routingResult.info}
+                                    paths={route.routingResult.paths}
+                                    selectedPath={route.selectedPath}
+                                    currentRequest={query.currentRequest}
+                                    profile={query.routingProfile.name}
+                                />
+                            </div>
+
+                            <div className={styles.smallScreenPoweredBy}>
+                                <PoweredBy />
+                            </div>
+                        </div>
+                    </Sheet.Content>
+                </Sheet.Container>
+                <Sheet.Backdrop onTap={() => setOpen(false)}/>
+            </Sheet>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />
             </div>
@@ -234,20 +266,6 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                     <MapOptions {...mapOptions} />
                     <LocationButton queryPoints={query.queryPoints} />
                 </div>
-            </div>
-
-            <div className={styles.smallScreenRoutingResult}>
-                <RoutingResults
-                    info={route.routingResult.info}
-                    paths={route.routingResult.paths}
-                    selectedPath={route.selectedPath}
-                    currentRequest={query.currentRequest}
-                    profile={query.routingProfile.name}
-                />
-            </div>
-
-            <div className={styles.smallScreenPoweredBy}>
-                <PoweredBy />
             </div>
         </>
     )
