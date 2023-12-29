@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useRef, useState} from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
@@ -216,19 +216,19 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
 }
 
 function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
-    const [isOpen, setOpen] = useState(true);
-
+    const [isOpen, setIsOpen] = useState(true);
+    const ref = useRef<HTMLDivElement>(null);
     return (
         <>
             {
                 // fake div because we cannot keep the Sheet open only a bit: https://github.com/Temzasse/react-modal-sheet/issues/120
                 // also we want it to close so that the underlying map gets all drag events
             }
-            <div style={{height: '40px', width: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center'}} onClick={() => setOpen(true)}>
+            <div style={{height: '40px', width: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center'}} onClick={() => setIsOpen(true)}>
                 <span style={{width: '18px', height: '4px', borderRadius: '99px', backgroundColor: 'rgb(221, 221, 221)', transform: 'translateX(2px) rotate(0deg)'}}></span>
                 <span style={{width: '18px', height: '4px', borderRadius: '99px', backgroundColor: 'rgb(221, 221, 221)', transform: 'translateX(-2px) rotate(0deg)'}}></span>
             </div>
-            <Sheet detent='content-height' isOpen={isOpen} onClose={() => setOpen(false)}>
+            <Sheet ref={ref} detent='content-height' isOpen={isOpen} onClose={() => setIsOpen(false)}>
                 <Sheet.Container>
                     <Sheet.Header />
                     <Sheet.Content disableDrag={true}>
@@ -256,7 +256,6 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         </div>
                     </Sheet.Content>
                 </Sheet.Container>
-                <Sheet.Backdrop onTap={() => setOpen(false)}/>
             </Sheet>
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />
