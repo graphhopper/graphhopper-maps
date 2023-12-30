@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
@@ -43,10 +43,10 @@ import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
 import { SettingsContext } from './contexts/SettingsContext'
-import {BottomSheet, BottomSheetRef} from "react-spring-bottom-sheet";
+import { BottomSheet, BottomSheetRef } from 'react-spring-bottom-sheet'
 import './react-spring-bottom-sheet-style.css'
-import Dispatcher from "@/stores/Dispatcher";
-import {MobileDragYOffsetEnd} from "@/actions/Actions";
+import Dispatcher from '@/stores/Dispatcher'
+import { MobileDragYOffsetEnd } from '@/actions/Actions'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -181,7 +181,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} onFocus={() => {}}/>
+                        <Search points={query.queryPoints} onFocus={() => {}} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
                             info={route.routingResult.info}
@@ -229,42 +229,46 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
     const includeRoute = route.routingResult.paths.length ? 100 : 0
 
     // TODO on iphone the soft keyboard moves the input sometimes too far into the top so that it gets invisible
-    const [myMaxHeight, setMyMaxHeight] = useState(window.innerHeight - 50);
-    const updateWindowHeight = () => setMyMaxHeight(window.innerHeight - 50)
-    useEffect(() => {
-        window.addEventListener('resize', updateWindowHeight)
-        return () => window.removeEventListener('resize', updateWindowHeight)
-    }, []);
+    //   window.innerHeight - 50
 
     const placeholderHeight = 30
     return (
         <>
-            <div style={{height: placeholderHeight + 'px'}}></div>
-            <BottomSheet ref={sheetRef}
-                         skipInitialTransition={true}
-                         open={true}
-                         blocking={false}
-                         onClick={() => {
-                             // also support the click event if at the very bottom
-                             if(sheetRef.current && sheetRef.current.height < 200)
-                                sheetRef.current.snapTo(200)
-                         }}
-                         onDragEnd={() => {
-                             if(sheetRef.current) {
-                                 console.log(sheetRef.current.height)
-                                 // TODO receive event to adjust padding for map -> or does it cause too much visual change or distraction?
-                                 // Dispatcher.dispatch(new MobileDragYOffsetEnd(sheetRef.current.height))
-                             }
-                         }}
-                         defaultSnap={({ minHeight }) => minHeight }
-                         snapPoints={({ minHeight }) => [minHeight, placeholderHeight, 200 + includeRoute, window.innerHeight - 50] }>
+            <div style={{ height: placeholderHeight + 'px' }}></div>
+            <BottomSheet
+                ref={sheetRef}
+                skipInitialTransition={true}
+                open={true}
+                blocking={false}
+                onClick={() => {
+                    if (!sheetRef.current) return
+                    if (sheetRef.current.height < 200 + includeRoute) sheetRef.current.snapTo(200 + includeRoute)
+                    else if (sheetRef.current.height < window.innerHeight - 50)
+                        sheetRef.current.snapTo(window.innerHeight - 50)
+                    else sheetRef.current.snapTo(200 + includeRoute)
+                }}
+                onDragEnd={() => {
+                    if (sheetRef.current) {
+                        console.log(sheetRef.current.height)
+                        // TODO receive event to adjust padding for map -> or does it cause too much visual change or distraction?
+                        // Dispatcher.dispatch(new MobileDragYOffsetEnd(sheetRef.current.height))
+                    }
+                }}
+                defaultSnap={({ minHeight }) => minHeight}
+                snapPoints={({ minHeight }) => [
+                    minHeight,
+                    placeholderHeight,
+                    200 + includeRoute,
+                    window.innerHeight - 50,
+                ]}
+            >
                 <div className={styles.smallScreenSidebar}>
                     <MobileSidebar
                         query={query}
                         error={error}
                         encodedValues={encodedValues}
                         drawAreas={drawAreas}
-                        onFocus={(b) => sheetRef.current?.snapTo(b ? (window.innerHeight - 50) : 200 + includeRoute)}
+                        onFocus={b => sheetRef.current?.snapTo(b ? window.innerHeight - 50 : 200 + includeRoute)}
                     />
 
                     <div className={styles.smallScreenRoutingResult}>

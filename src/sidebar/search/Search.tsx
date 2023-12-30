@@ -13,7 +13,7 @@ import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
 
-export default function Search({ points, onFocus }: { points: QueryPoint[], onFocus: (b: boolean) => void }) {
+export default function Search({ points, onFocus }: { points: QueryPoint[]; onFocus: (b: boolean) => void }) {
     const [showSettings, setShowSettings] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
