@@ -28,6 +28,7 @@ export interface AddressInputProps {
     moveStartIndex: number
     dropPreviewIndex: number
     index: number
+    onFocus: (b: boolean) => void
 }
 
 export default function AddressInput(props: AddressInputProps) {
@@ -36,7 +37,11 @@ export default function AddressInput(props: AddressInputProps) {
     useEffect(() => setText(props.point.queryText), [props.point.queryText])
 
     // keep track of focus and toggle fullscreen display on small screens
-    const [hasFocus, setHasFocus] = useState(false)
+    const [hasFocus, setHasFocusReact] = useState(false)
+    const setHasFocus = (b: boolean) => {
+        setHasFocusReact(b)
+        props.onFocus(b)
+    }
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
     // container for geocoding results which gets set by the geocoder class and set to empty if the underlying query point gets changed from outside

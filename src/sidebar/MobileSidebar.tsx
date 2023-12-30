@@ -14,9 +14,10 @@ type MobileSidebarProps = {
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
+    onFocus: (b: boolean) => void
 }
 
-export default function ({query, error, encodedValues, drawAreas}: MobileSidebarProps) {
+export default function ({query, error, encodedValues, drawAreas, onFocus}: MobileSidebarProps) {
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
 
     // query results get only the selected path as result list. If we like having just one path on the small layout we can change
@@ -41,7 +42,7 @@ export default function ({query, error, encodedValues, drawAreas}: MobileSidebar
                             drawAreas={drawAreas}
                         />
                     )}
-                    <Search points={query.queryPoints}/>
+                    <Search points={query.queryPoints} onFocus={onFocus}/>
                 </div>
                 {!error.isDismissed && <ErrorMessage error={error}/>}
             </div>

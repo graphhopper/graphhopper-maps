@@ -181,7 +181,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} />
+                        <Search points={query.queryPoints} onFocus={() => {}}/>
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
                             info={route.routingResult.info}
@@ -219,35 +219,52 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
 }
 
 function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
-    const [isOpen, setIsOpen] = useState(true)
     const sheetRef = useRef<BottomSheetRef>(null)
 
-    // Ensure it animates in when loaded
-    useEffect(() => {
-        // TODO NOW does not always work
-        sheetRef.current?.snapTo(100)
-    }, [])
+    // TODO in general it is a bit ugly that autocomplete has to move the input to the top (away from where the input was touched/clicked)
+    //    but on iOS it behaves exactly like this
+    // TODO move osm credits and +/- somewhere else
+    // TODO dynamically add and remove snapResult if focus for input
+    // TODO how to measure height of RoutingResult!?
+    const includeRoute = route.routingResult.paths.length ? 100 : 0
 
+    // TODO on iphone the soft keyboard moves the input sometimes too far into the top so that it gets invisible
+    const [myMaxHeight, setMyMaxHeight] = useState(window.innerHeight - 50);
+    const updateWindowHeight = () => setMyMaxHeight(window.innerHeight - 50)
+    useEffect(() => {
+        window.addEventListener('resize', updateWindowHeight)
+        return () => window.removeEventListener('resize', updateWindowHeight)
+    }, []);
+
+    const placeholderHeight = 30
     return (
         <>
+            <div style={{height: placeholderHeight + 'px'}}></div>
             <BottomSheet ref={sheetRef}
-                         open={isOpen}
+                         skipInitialTransition={true}
+                         open={true}
                          blocking={false}
+                         onClick={() => {
+                             // also support the click event if at the very bottom
+                             if(sheetRef.current && sheetRef.current.height < 200)
+                                sheetRef.current.snapTo(200)
+                         }}
                          onDragEnd={() => {
-                             if(sheetRef?.current) {
+                             if(sheetRef.current) {
                                  console.log(sheetRef.current.height)
-                                 // TODO receive event to adjust padding for map
-                                 Dispatcher.dispatch(new MobileDragYOffsetEnd(sheetRef.current.height))
+                                 // TODO receive event to adjust padding for map -> or does it cause too much visual change or distraction?
+                                 // Dispatcher.dispatch(new MobileDragYOffsetEnd(sheetRef.current.height))
                              }
                          }}
-                         defaultSnap={() => 200 }
-                         snapPoints={({ minHeight }) => [minHeight, 200]}>
+                         defaultSnap={({ minHeight }) => minHeight }
+                         snapPoints={({ minHeight }) => [minHeight, placeholderHeight, 200 + includeRoute, window.innerHeight - 50] }>
                 <div className={styles.smallScreenSidebar}>
                     <MobileSidebar
                         query={query}
                         error={error}
                         encodedValues={encodedValues}
                         drawAreas={drawAreas}
+                        onFocus={(b) => sheetRef.current?.snapTo(b ? (window.innerHeight - 50) : 200 + includeRoute)}
                     />
 
                     <div className={styles.smallScreenRoutingResult}>

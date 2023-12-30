@@ -13,7 +13,7 @@ import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
 
-export default function Search({ points }: { points: QueryPoint[] }) {
+export default function Search({ points, onFocus }: { points: QueryPoint[], onFocus: (b: boolean) => void }) {
     const [showSettings, setShowSettings] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
@@ -28,6 +28,7 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                         index={index}
                         points={points}
                         deletable={points.length > 2}
+                        onFocus={onFocus}
                         onChange={() => {
                             Dispatcher.dispatch(new ClearRoute())
                             Dispatcher.dispatch(new InvalidatePoint(point))
@@ -75,6 +76,7 @@ const SearchBox = ({
     onMoveStartSelect,
     dropPreviewIndex,
     onDropPreviewSelect,
+    onFocus,
 }: {
     index: number
     points: QueryPoint[]
@@ -85,6 +87,7 @@ const SearchBox = ({
     onMoveStartSelect: (index: number, showTargetIcon: boolean) => void
     dropPreviewIndex: number
     onDropPreviewSelect: (index: number) => void
+    onFocus: (b: boolean) => void
 }) => {
     const point = points[index]
 
@@ -162,6 +165,7 @@ const SearchBox = ({
 
             <div className={styles.searchBoxInput}>
                 <AddressInput
+                    onFocus={onFocus}
                     moveStartIndex={moveStartIndex}
                     dropPreviewIndex={dropPreviewIndex}
                     index={index}
