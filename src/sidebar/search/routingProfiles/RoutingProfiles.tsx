@@ -33,27 +33,47 @@ export default function ({
     toggleCustomModelBox: () => void
     customModelBoxEnabled: boolean
 }) {
-    const [profileShowIndex, setProfileShowIndex] = useState(1)
+    const [profileScroll, setProfileScroll] = useState(0)
+    const [profileWidth, setProfileWidth] = useState(0)
+
+    function handleResize() {
+        const profilesCarouselItems = document.getElementById('profiles_carousel_items')
+        if (!profilesCarouselItems) return
+        if (profilesCarouselItems.scrollWidth > profilesCarouselItems.clientWidth) {
+            for (const chevron of document.getElementsByClassName(styles.chevron)) {
+                chevron.classList.add(styles.enabled)
+            }
+            profilesCarouselItems.classList.remove(styles.profiles_center)
+        } else {
+            for (const chevron of document.getElementsByClassName(styles.chevron)) {
+                chevron.classList.remove(styles.enabled)
+            }
+            profilesCarouselItems.classList.add(styles.profiles_center)
+        }
+        setProfileWidth(profilesCarouselItems.scrollWidth - profilesCarouselItems.clientWidth)
+    }
 
     useEffect(() => {
-        console.log('profileShowIndex', profileShowIndex)
-    }, [profileShowIndex])
+        handleResize()
+        // If the window is resized, we need to check if the chevrons should be enabled
+        // and if the profiles should be centered
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [routingProfiles])
 
     function move(amount: number) {
-        const index = profileShowIndex + amount
         const profilesCarouselItems = document.getElementById('profiles_carousel_items')
         if (!profilesCarouselItems) return
         profilesCarouselItems.scrollBy({
-            left: profilesCarouselItems.clientWidth * index - profilesCarouselItems.clientWidth * profileShowIndex,
+            left: profilesCarouselItems.clientWidth * amount,
             behavior: 'smooth',
         })
-        setProfileShowIndex(index)
     }
 
-    function maxIndex() {
+    function onScroll() {
         const profilesCarouselItems = document.getElementById('profiles_carousel_items')
-        if (!profilesCarouselItems) return 1
-        return Math.round(profilesCarouselItems.scrollWidth / profilesCarouselItems.clientWidth)
+        if (!profilesCarouselItems) return
+        setProfileScroll(profilesCarouselItems.scrollLeft)
     }
 
     return (
@@ -68,13 +88,13 @@ export default function ({
             <div className={styles.carousel}>
                 <PlainButton
                     className={styles.chevron}
-                    title="go left"
+                    title={tr('go_left')}
                     onClick={() => move(-1)}
-                    disabled={profileShowIndex === 1}
+                    disabled={profileScroll === 0}
                 >
                     <Chevron />
                 </PlainButton>
-                <ul className={styles.profiles} id="profiles_carousel_items">
+                <ul className={styles.profiles} id="profiles_carousel_items" onScroll={onScroll}>
                     {routingProfiles.map(profile => {
                         const className =
                             profile.name === selectedProfile.name
@@ -98,9 +118,9 @@ export default function ({
                 </ul>
                 <PlainButton
                     className={styles.chevron + ' ' + styles.flip}
-                    title="go right"
+                    title={tr('go_right')}
                     onClick={() => move(1)}
-                    disabled={profileShowIndex === maxIndex()}
+                    disabled={profileScroll === profileWidth}
                 >
                     <Chevron />
                 </PlainButton>
