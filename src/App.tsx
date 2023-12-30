@@ -221,17 +221,18 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
 function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
     const sheetRef = useRef<BottomSheetRef>(null)
 
+    // TODO a click onto the map should ensure that bottomSheet is at initialHeight or smaller
     // TODO in general it is a bit ugly that autocomplete has to move the input to the top (away from where the input was touched/clicked)
     //    but on iOS it behaves exactly like this
     // TODO move osm credits and +/- somewhere else
     // TODO dynamically add and remove snapResult if focus for input
     // TODO how to measure height of RoutingResult!?
-    const includeRoute = route.routingResult.paths.length ? 100 : 0
+    const initialHeight = 250
 
     // TODO on iphone the soft keyboard moves the input sometimes too far into the top so that it gets invisible
     //   window.innerHeight - 50
 
-    const placeholderHeight = 30
+    const placeholderHeight = 25
     return (
         <>
             <div style={{ height: placeholderHeight + 'px' }}></div>
@@ -242,10 +243,12 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                 blocking={false}
                 onClick={() => {
                     if (!sheetRef.current) return
-                    if (sheetRef.current.height < 200 + includeRoute) sheetRef.current.snapTo(200 + includeRoute)
+                    if (sheetRef.current.height < initialHeight)
+                        sheetRef.current.snapTo(initialHeight)
                     else if (sheetRef.current.height < window.innerHeight - 50)
                         sheetRef.current.snapTo(window.innerHeight - 50)
-                    else sheetRef.current.snapTo(200 + includeRoute)
+                        // TODO how to snap to minHeight?
+                    else sheetRef.current.snapTo(sheetRef.current.height)
                 }}
                 onDragEnd={() => {
                     if (sheetRef.current) {
@@ -254,11 +257,11 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         // Dispatcher.dispatch(new MobileDragYOffsetEnd(sheetRef.current.height))
                     }
                 }}
-                defaultSnap={({ minHeight }) => minHeight}
+                defaultSnap={({ lastSnap, snapPoints }) => lastSnap ?? snapPoints[0] }
                 snapPoints={({ minHeight }) => [
                     minHeight,
                     placeholderHeight,
-                    200 + includeRoute,
+                    initialHeight,
                     window.innerHeight - 50,
                 ]}
             >
@@ -268,7 +271,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         error={error}
                         encodedValues={encodedValues}
                         drawAreas={drawAreas}
-                        onFocus={b => sheetRef.current?.snapTo(b ? window.innerHeight - 50 : 200 + includeRoute)}
+                        onFocus={b => sheetRef.current?.snapTo(b ? window.innerHeight - 50 : initialHeight)}
                     />
 
                     <div className={styles.smallScreenRoutingResult}>
