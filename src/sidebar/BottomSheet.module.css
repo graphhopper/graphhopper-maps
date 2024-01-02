@@ -1,0 +1,14 @@
+.bottomSheetDrag {
+    cursor: grabbing !important;
+    transition: none !important;
+}
+
+.bottomSheet {
+    position: fixed;
+    z-index: 2;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+}

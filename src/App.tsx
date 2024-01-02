@@ -43,6 +43,7 @@ import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
 import { SettingsContext } from './contexts/SettingsContext'
+import BottomSheet from "@/sidebar/BottomSheet";
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -217,15 +218,32 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
 function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
     return (
         <>
-            <div className={styles.smallScreenSidebar}>
-                <MobileSidebar
-                    query={query}
-                    route={route}
-                    error={error}
-                    encodedValues={encodedValues}
-                    drawAreas={drawAreas}
-                />
-            </div>
+            <BottomSheet>
+                <div className={styles.smallScreenSidebar}>
+                    <MobileSidebar
+                        query={query}
+                        route={route}
+                        error={error}
+                        encodedValues={encodedValues}
+                        drawAreas={drawAreas}
+                    />
+                </div>
+
+                <div className={styles.smallScreenRoutingResult}>
+                    <RoutingResults
+                        info={route.routingResult.info}
+                        paths={route.routingResult.paths}
+                        selectedPath={route.selectedPath}
+                        currentRequest={query.currentRequest}
+                        profile={query.routingProfile.name}
+                    />
+                </div>
+
+                <div className={styles.smallScreenPoweredBy}>
+                    <PoweredBy />
+                </div>
+            </BottomSheet>
+
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />
             </div>
@@ -236,19 +254,6 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                 </div>
             </div>
 
-            <div className={styles.smallScreenRoutingResult}>
-                <RoutingResults
-                    info={route.routingResult.info}
-                    paths={route.routingResult.paths}
-                    selectedPath={route.selectedPath}
-                    currentRequest={query.currentRequest}
-                    profile={query.routingProfile.name}
-                />
-            </div>
-
-            <div className={styles.smallScreenPoweredBy}>
-                <PoweredBy />
-            </div>
         </>
     )
 }

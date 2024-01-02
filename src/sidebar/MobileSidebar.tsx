@@ -22,83 +22,32 @@ type MobileSidebarProps = {
 
 export default function ({ query, route, error, encodedValues, drawAreas }: MobileSidebarProps) {
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
-    // the following three elements control, whether the small search view is displayed
-    const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
-    const [isSmallSearchView, setIsSmallSearchView] = useState(isShortScreen && hasResult(route))
-
-    // the following ref, callback and effect minimize the search view if there is any interaction outside the search panel
-    const searchContainerRef = useRef<HTMLDivElement>(null)
-    const handleWindowClick = useCallback(
-        (event: Event) => {
-            const clickInside = event.target instanceof Node && searchContainerRef.current?.contains(event.target)
-            if (!clickInside && isShortScreen && hasResult(route)) setIsSmallSearchView(true)
-        },
-        [isShortScreen, route]
-    )
-    useEffect(() => {
-        window.addEventListener('mousedown', handleWindowClick)
-        window.addEventListener('touchstart', handleWindowClick)
-        return () => {
-            window.removeEventListener('mousedown', handleWindowClick)
-            window.removeEventListener('touchstart', handleWindowClick)
-        }
-    })
 
     // query results get only the selected path as result list. If we like having just one path on the small layout we can change
     // the store so that it will only fetch a single route on mobile
     return (
         <div className={styles.sidebar}>
-            <div className={styles.background} ref={searchContainerRef}>
-                {isSmallSearchView ? (
-                    <SmallSearchView points={query.queryPoints} onClick={() => setIsSmallSearchView(false)} />
-                ) : (
-                    <div className={styles.btnCloseContainer}>
-                        <div className={styles.btnCloseInputs} onClick={() => setIsSmallSearchView(true)}>
-                            <CloseInputsIcon />
-                        </div>
-                        <RoutingProfiles
-                            routingProfiles={query.profiles}
-                            selectedProfile={query.routingProfile}
-                            showCustomModelBox={showCustomModelBox}
-                            toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}
-                            customModelBoxEnabled={query.customModelEnabled}
+            <div className={styles.background}>
+                <div className={styles.btnCloseContainer}>
+                    <RoutingProfiles
+                        routingProfiles={query.profiles}
+                        selectedProfile={query.routingProfile}
+                        showCustomModelBox={showCustomModelBox}
+                        toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}
+                        customModelBoxEnabled={query.customModelEnabled}
+                    />
+                    {showCustomModelBox && (
+                        <CustomModelBox
+                            customModelEnabled={query.customModelEnabled}
+                            encodedValues={encodedValues}
+                            customModelStr={query.customModelStr}
+                            queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
+                            drawAreas={drawAreas}
                         />
-                        {showCustomModelBox && (
-                            <CustomModelBox
-                                customModelEnabled={query.customModelEnabled}
-                                encodedValues={encodedValues}
-                                customModelStr={query.customModelStr}
-                                queryOngoing={query.currentRequest.subRequests[0]?.state === RequestState.SENT}
-                                drawAreas={drawAreas}
-                            />
-                        )}
-                        <Search points={query.queryPoints} />
-                    </div>
-                )}
+                    )}
+                    <Search points={query.queryPoints} />
+                </div>
                 {!error.isDismissed && <ErrorMessage error={error} />}
-            </div>
-        </div>
-    )
-}
-
-function hasResult(route: RouteStoreState) {
-    return route.routingResult.paths.length > 0
-}
-
-function SmallSearchView(props: { points: QueryPoint[]; onClick: () => void }) {
-    const from = props.points[0]
-    const to = props.points[props.points.length - 1]
-    const isSmallHeight = useMediaQuery({ query: '(max-height: 36rem)' })
-
-    return (
-        <div className={styles.btnOpenContainer} onClick={props.onClick}>
-            <div className={styles.mapView}>
-                {!isSmallHeight && <SmallQueryPoint text={from.queryText} color={from.color} position={from.type} />}
-                {!isSmallHeight && <IntermediatePoint points={props.points} />}
-                <SmallQueryPoint text={to.queryText} color={to.color} position={to.type} />
-            </div>
-            <div className={styles.btnOpenInputs}>
-                <OpenInputsIcon />
             </div>
         </div>
     )
