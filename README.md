@@ -27,7 +27,7 @@ There is [an experimental `navi` branch](https://github.com/graphhopper/graphhop
 
 ## Help with translations:
 
-GraphHopper Maps is translated into many languages and you can help improve GraphHopper by adding or improving your language! See [this spreadsheet](https://docs.google.com/spreadsheets/d/e/2PACX-1vTjOxfOBVw9VvEroPw30w77XA-JCCbraf4GeL9URMgK0kjfS-YT5R8TT6PACF8O7o6fhPKMsWKFf9M-/pubhtml)
+GraphHopper Maps is translated into many languages and you can help improve GraphHopper by adding or improving your language! See [this spreadsheet](https://docs.google.com/spreadsheets/d/18z00Rbt6QvLIkayEV9P89vW9oU0QbTVsjRk9nz1CeFY/edit#gid=0)
 to create a new or improve an existing language. Let us know if you changed something or submit a pull request with your changes after the following steps:
 
  * Edit the spreadsheet
