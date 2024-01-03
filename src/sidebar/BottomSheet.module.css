@@ -1,6 +1,18 @@
 .bottomSheetDrag {
     cursor: grabbing !important;
     transition: none !important;
+
+    height: 40px;
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bottomSheet {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
 
 .bottomSheet {
