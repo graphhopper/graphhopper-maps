@@ -13,6 +13,35 @@ export const customModelExamples: { [key: string]: CustomModel } = {
     exclude_motorway: {
         priority: [{ if: 'road_class == MOTORWAY', multiply_by: '0.0' }],
     },
+    exclude_disneyland: {
+        priority: [
+            { if: "road_environment==FERRY", multiply_by: "0.9" },
+            { if: "in_area1", multiply_by: "0" },
+        ],
+        areas: {
+            type: "FeatureCollection",
+            features: [{
+                id: "area1",
+                properties: {},
+                type: "Feature",
+                geometry: {
+                    type: "Polygon",
+                    coordinates: [[[2.74773,48.876539],[2.751936,48.794903],[2.850813,48.819775],[2.808754,48.887642],[2.74773,48.876539]]]
+                },
+            }]
+        }
+    },
+    electric_car: {
+        distance_influence: 100,
+        priority: [
+            { if:      "average_slope >= 10", "multiply_by": "0.7"},
+            { else_if: "average_slope >=  7", "multiply_by": "0.8"},
+            { else_if: "average_slope >=  4", "multiply_by": "0.9"},
+        ],
+        speed: [
+            { if: "true", "limit_to": "110" },
+        ]
+    },
     limit_speed: {
         speed: [
             { if: 'true', limit_to: '100' },
