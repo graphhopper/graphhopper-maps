@@ -88,7 +88,7 @@ export default function ({
             <div className={styles.carousel}>
                 <PlainButton
                     className={styles.chevron}
-                    title={tr('go_left')}
+                    title={tr('back')}
                     onClick={() => move(-1)}
                     disabled={profileScroll === 0}
                 >
@@ -118,7 +118,7 @@ export default function ({
                 </ul>
                 <PlainButton
                     className={styles.chevron + ' ' + styles.flip}
-                    title={tr('go_right')}
+                    title={tr('next')}
                     onClick={() => move(1)}
                     disabled={profileScroll === profileWidth}
                 >
