@@ -64,8 +64,13 @@ export default function ({
     function move(amount: number) {
         const profilesCarouselItems = document.getElementById('profiles_carousel_items')
         if (!profilesCarouselItems) return
+
+        const scrollAmount = profilesCarouselItems.clientWidth * amount
+        const limit = amount > 0 ? profileWidth - profileScroll : -profileScroll
+        const scrollValue = amount > 0 ? Math.min(scrollAmount, limit) : Math.max(scrollAmount, limit)
+
         profilesCarouselItems.scrollBy({
-            left: profilesCarouselItems.clientWidth * amount,
+            left: scrollValue,
             behavior: 'smooth',
         })
     }
@@ -90,7 +95,7 @@ export default function ({
                     className={styles.chevron}
                     title={tr('back')}
                     onClick={() => move(-1)}
-                    disabled={profileScroll === 0}
+                    disabled={profileScroll <= 0}
                 >
                     <Chevron />
                 </PlainButton>
@@ -120,7 +125,7 @@ export default function ({
                     className={styles.chevron + ' ' + styles.flip}
                     title={tr('next')}
                     onClick={() => move(1)}
-                    disabled={profileScroll === profileWidth}
+                    disabled={profileScroll >= profileWidth}
                 >
                     <Chevron />
                 </PlainButton>
