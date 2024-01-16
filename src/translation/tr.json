@@ -102,7 +102,9 @@
 "max_speed":"Max. speed",
 "average_speed":"Avg. speed",
 "track_type":"Track type",
-"toll":"Toll"
+"toll":"Toll",
+"next":"Next",
+"back":"Back"
 },
 "ar":{
 "total_ascend":"%1$s اجمالى صعود",
@@ -208,7 +210,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ast":{
 "total_ascend":"%1$s d'ascensu total",
@@ -314,7 +318,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "az":{
 "total_ascend":"%1$s yüksəliş",
@@ -420,7 +426,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "bg":{
 "total_ascend":"%1$s общо изкачване",
@@ -526,7 +534,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "bn_BN":{
 "total_ascend":"",
@@ -632,7 +642,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ca":{
 "total_ascend":"%1$s de pujada total",
@@ -738,7 +750,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "cs_CZ":{
 "total_ascend":"celkové stoupání %1$s",
@@ -844,7 +858,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "da_DK":{
 "total_ascend":"%1$s samlet stigning",
@@ -950,7 +966,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "de_DE":{
 "total_ascend":"%1$s Gesamtaufstieg",
@@ -1056,7 +1074,9 @@
 "max_speed":"Max. Geschwindigkeit",
 "average_speed":"Durchsch. Geschwindigkeit",
 "track_type":"Straßenbefestigung",
-"toll":"Maut"
+"toll":"Maut",
+"next":"Weiter",
+"back":"Zurück"
 },
 "el":{
 "total_ascend":"%1$s συνολική ανάβαση",
@@ -1162,7 +1182,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "eo":{
 "total_ascend":"%1$s supreniro tute",
@@ -1268,7 +1290,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "es":{
 "total_ascend":"Ascender %1$s en total",
@@ -1374,7 +1398,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "fa":{
 "total_ascend":"مجموع صعود %1$s",
@@ -1480,7 +1506,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "fil":{
 "total_ascend":"",
@@ -1586,7 +1614,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "fi":{
 "total_ascend":"nousu yhteensä %1$s",
@@ -1692,7 +1722,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "fr_FR":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1798,7 +1830,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "fr_CH":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1904,7 +1938,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "gl":{
 "total_ascend":"",
@@ -2010,7 +2046,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "he":{
 "total_ascend":"עלייה כוללת של %1$s",
@@ -2116,7 +2154,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "hr_HR":{
 "total_ascend":"%1$s ukupni uspon",
@@ -2222,7 +2262,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "hsb":{
 "total_ascend":"",
@@ -2328,7 +2370,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "hu_HU":{
 "total_ascend":"Összes szintemelkedés: %1$s",
@@ -2434,7 +2478,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "in_ID":{
 "total_ascend":"naik dengan jarak %1$s",
@@ -2540,7 +2586,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "it":{
 "total_ascend":"%1$s di dislivello positivo",
@@ -2646,7 +2694,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ja":{
 "total_ascend":"",
@@ -2752,7 +2802,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ko":{
 "total_ascend":"오르막길 총 %1$s",
@@ -2858,7 +2910,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "kz":{
 "total_ascend":"%1$s көтерілу",
@@ -2964,7 +3018,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "lt_LT":{
 "total_ascend":"",
@@ -3070,7 +3126,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "nb_NO":{
 "total_ascend":"%1$s totale høydemeter",
@@ -3176,7 +3234,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ne":{
 "total_ascend":"",
@@ -3282,7 +3342,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "nl":{
 "total_ascend":"%1$s totale klim",
@@ -3388,7 +3450,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "pl_PL":{
 "total_ascend":"%1$s w górę",
@@ -3494,7 +3558,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "pt_BR":{
 "total_ascend":"subida de %1$s",
@@ -3600,7 +3666,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "pt_PT":{
 "total_ascend":"subida de %1$s",
@@ -3706,7 +3774,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ro":{
 "total_ascend":"urcare %1$s",
@@ -3812,7 +3882,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ru":{
 "total_ascend":"подъём на %1$s",
@@ -3918,7 +3990,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "sk":{
 "total_ascend":"%1$s celkové stúpanie",
@@ -4024,7 +4098,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "sl_SI":{
 "total_ascend":"Skupni vzpon: %1$s",
@@ -4130,7 +4206,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "sr_RS":{
 "total_ascend":"%1$s ukupni uspon",
@@ -4236,7 +4314,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "sv_SE":{
 "total_ascend":"%1$s stigning",
@@ -4342,7 +4422,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "tr":{
 "total_ascend":"%1$s toplam tırmanış",
@@ -4448,7 +4530,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "uk":{
 "total_ascend":"%1$s загалом підйому",
@@ -4554,7 +4638,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "uz":{
 "total_ascend":"%1$s ga ko'tarilish",
@@ -4660,7 +4746,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "vi_VN":{
 "total_ascend":"Đi tiếp %1$s nữa",
@@ -4766,7 +4854,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "zh_CN":{
 "total_ascend":"总上升 %1$s",
@@ -4872,7 +4962,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "zh_HK":{
 "total_ascend":"總共上昇 %1$s",
@@ -4978,7 +5070,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "zh_TW":{
 "total_ascend":"總共上昇 %1$s",
@@ -5084,5 +5178,7 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 }}
