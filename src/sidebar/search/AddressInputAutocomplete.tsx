@@ -136,12 +136,8 @@ function AutocompleteEntry({
             // using click events for mouse interaction and touch end to select an entry.
             onClick={() => onSelect()}
             onTouchEnd={e => {
-                e.preventDefault()
+                e.preventDefault() // do not forward click to underlying component
                 onSelect()
-            }}
-            // prevent blur event for our input (seems to be only required for mouse)
-            onMouseDown={e => {
-                e.preventDefault()
             }}
         >
             {children}
