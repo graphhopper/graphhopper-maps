@@ -115,7 +115,6 @@ describe('route', () => {
             details: [
                 'road_class',
                 'road_environment',
-                'road_access',
                 'surface',
                 'max_speed',
                 'average_speed',
@@ -157,7 +156,6 @@ describe('route', () => {
             details: [
                 'road_class',
                 'road_environment',
-                'road_access',
                 'surface',
                 'max_speed',
                 'average_speed',
@@ -208,7 +206,6 @@ describe('route', () => {
             details: [
                 'road_class',
                 'road_environment',
-                'road_access',
                 'surface',
                 'max_speed',
                 'average_speed',
@@ -315,7 +312,6 @@ describe('route', () => {
             details: [
                 'road_class',
                 'road_environment',
-                'road_access',
                 'surface',
                 'max_speed',
                 'average_speed',

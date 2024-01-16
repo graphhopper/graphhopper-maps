@@ -130,7 +130,8 @@ export default function AddressInput(props: AddressInputProps) {
         [autocompleteItems, highlightedResult]
     )
 
-    const containerClass = hasFocus ? styles.container + ' ' + styles.fullscreen : styles.container
+    // the "fullscreen" css is only defined for smallscreen
+    const containerClass = hasFocus ? styles.fullscreen : ''
     const type = props.point.type
 
     return (
@@ -174,10 +175,7 @@ export default function AddressInput(props: AddressInputProps) {
                         props.clearDragDrop()
                     }}
                     onBlur={() => {
-                        // Suppress onBlur if we are on the small screen
-                        if (isSmallScreen) return
-                        setHasFocus(false)
-                        hideSuggestions()
+
                     }}
                     value={text}
                     placeholder={tr(
@@ -219,6 +217,7 @@ export default function AddressInput(props: AddressInputProps) {
                                     const coordinate = textToCoordinate(item.search)
                                     if (!coordinate) geocoder.request(item.search, 'nominatim')
                                 }
+                                searchInput.current!.blur()
                             }}
                         />
                     </ResponsiveAutocomplete>
