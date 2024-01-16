@@ -61,13 +61,13 @@ export default function ({
         return () => window.removeEventListener('resize', handleResize)
     }, [routingProfiles])
 
-    function move(amount: number) {
+    function move(forward: boolean = true) {
         const profilesCarouselItems = document.getElementById('profiles_carousel_items')
         if (!profilesCarouselItems) return
 
-        const scrollAmount = profilesCarouselItems.clientWidth * amount
-        const limit = amount > 0 ? profileWidth - profileScroll : -profileScroll
-        const scrollValue = amount > 0 ? Math.min(scrollAmount, limit) : Math.max(scrollAmount, limit)
+        const scrollAmount = profilesCarouselItems.clientWidth * (forward ? 1 : -1)
+        const limit = forward ? profileWidth - profileScroll : -profileScroll
+        const scrollValue = forward ? Math.min(scrollAmount, limit) : Math.max(scrollAmount, limit)
 
         profilesCarouselItems.scrollBy({
             left: scrollValue,
@@ -94,7 +94,7 @@ export default function ({
                 <PlainButton
                     className={styles.chevron}
                     title={tr('back')}
-                    onClick={() => move(-1)}
+                    onClick={() => move(false)}
                     disabled={profileScroll <= 0}
                 >
                     <Chevron />
@@ -124,7 +124,7 @@ export default function ({
                 <PlainButton
                     className={styles.chevron + ' ' + styles.flip}
                     title={tr('next')}
-                    onClick={() => move(1)}
+                    onClick={() => move()}
                     disabled={profileScroll >= profileWidth}
                 >
                     <Chevron />
