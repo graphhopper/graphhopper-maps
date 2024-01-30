@@ -34,6 +34,9 @@
 "settings":"Settings",
 "settings_close":"Close",
 "exclude_motorway_example":"Exclude Motorway",
+"exclude_disneyland_paris_example":"Exclude Disneyland Paris",
+"simple_eletric_car_example":"Simple Eletric Car",
+"avoid_tunnel_bridges_example":"Avoid Bridges & Tunnels",
 "limit_speed_example":"Limit Speed",
 "cargo_bike_example":"Cargo Bike",
 "prefer_bike_network":"Prefer Cycle Routes",
@@ -99,10 +102,12 @@
 "road_environment":"Road environment",
 "road_access":"Road access",
 "road_class":"Road class",
-"max_speed":"Max speed",
-"average_speed":"Average speed",
+"max_speed":"Max. speed",
+"average_speed":"Avg. speed",
 "track_type":"Track type",
-"toll":"Toll"
+"toll":"Toll",
+"next":"Next",
+"back":"Back"
 },
 "ar":{
 "total_ascend":"%1$s اجمالى صعود",
@@ -140,6 +145,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -147,7 +155,7 @@
 "combined_example":"",
 "examples_custom_model":"",
 "marker":"رمز او علامة",
-"gh_offline_info":" واجهة برمجة التطبيقات (API) بلا اتصال؟",
+"gh_offline_info":"واجهة برمجة التطبيقات (API) بلا اتصال؟",
 "refresh_button":"اعادة تنشيط",
 "server_status":"الحالة",
 "zoom_in":"تكبير",
@@ -208,7 +216,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ast":{
 "total_ascend":"%1$s d'ascensu total",
@@ -246,6 +256,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -314,7 +327,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "az":{
 "total_ascend":"%1$s yüksəliş",
@@ -352,6 +367,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -420,7 +438,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "bg":{
 "total_ascend":"%1$s общо изкачване",
@@ -458,6 +478,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -526,7 +549,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "bn_BN":{
 "total_ascend":"",
@@ -564,6 +589,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -632,7 +660,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ca":{
 "total_ascend":"%1$s de pujada total",
@@ -670,6 +700,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -738,7 +771,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "cs_CZ":{
 "total_ascend":"celkové stoupání %1$s",
@@ -755,7 +790,7 @@
 "steep_sections":"příkré úseky",
 "private_sections":"soukromé úseky",
 "trunk_roads_warn":"",
-"get_off_bike_for":"Je třeba sesednout z kola a %1$s jej tlačit",
+"get_off_bike_for":"Je třeba sesednout z kola a %1$s jej tlačit",
 "start_label":"Start",
 "intermediate_label":"Zastávka",
 "end_label":"Cíl",
@@ -768,7 +803,7 @@
 "route":"Trasa",
 "add_to_route":"Přidat místo",
 "delete_from_route":"Odstranit z trasy",
-"open_custom_model_box":"Otevřít rámeček s vlastním modelem",
+"open_custom_model_box":"Otevřít rámeček s vlastním modelem",
 "draw_areas_enabled":"Kreslit a měnit oblasti na mapě",
 "help_custom_model":"Nápověda",
 "apply_custom_model":"Použít",
@@ -776,6 +811,9 @@
 "settings":"Nastavení",
 "settings_close":"Zavřít",
 "exclude_motorway_example":"Vynechat dálnice",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"Rychlostní omezení",
 "cargo_bike_example":"Nákladní kolo",
 "prefer_bike_network":"",
@@ -844,7 +882,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "da_DK":{
 "total_ascend":"%1$s samlet stigning",
@@ -882,6 +922,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"Eksludér motorvej",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"Max hastighed",
 "cargo_bike_example":"Ladcykel",
 "prefer_bike_network":"",
@@ -901,7 +944,7 @@
 "searching_location":"",
 "searching_location_failed":"",
 "via_hint":"Via",
-"from_hint":"Fra ",
+"from_hint":"Fra",
 "gpx_export_button":"Eksportér GPX-fil",
 "gpx_button":"GPX",
 "settings_gpx_export":"",
@@ -950,7 +993,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "de_DE":{
 "total_ascend":"%1$s Gesamtaufstieg",
@@ -988,6 +1033,9 @@
 "settings":"Optionen",
 "settings_close":"Schließen",
 "exclude_motorway_example":"Autobahn vermeiden",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"Brücken u. Tunnel vermeiden",
 "limit_speed_example":"Max. Geschwindigkeit",
 "cargo_bike_example":"Lastenfahrrad",
 "prefer_bike_network":"Radnetz bevorzugen",
@@ -1047,16 +1095,18 @@
 "waiting_for_gps":"Warten auf das GPS Signal...",
 "elevation":"Höhe",
 "slope":"Gefälle",
-"towerslope":"Kreuzungsgefälle",
+"towerslope":"Towerslope",
 "country":"Land",
 "surface":"Oberfläche",
 "road_environment":"Straßenumgebung",
 "road_access":"Straßenzugang",
 "road_class":"Straßentyp",
-"max_speed":"Maximale Geschwindigkeit",
-"average_speed":"Durchschnittliche Geschwindigkeit",
+"max_speed":"Max. Geschwindigkeit",
+"average_speed":"Durchsch. Geschwindigkeit",
 "track_type":"Straßenbefestigung",
-"toll":"Maut"
+"toll":"Maut",
+"next":"Weiter",
+"back":"Zurück"
 },
 "el":{
 "total_ascend":"%1$s συνολική ανάβαση",
@@ -1094,6 +1144,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -1162,7 +1215,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "eo":{
 "total_ascend":"%1$s supreniro tute",
@@ -1200,6 +1255,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -1268,7 +1326,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "es":{
 "total_ascend":"Ascender %1$s en total",
@@ -1306,6 +1366,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -1335,7 +1398,7 @@
 "hide_button":"",
 "details_button":"",
 "to_hint":"Hasta",
-"route_info":"%1$s tardará %2$s ",
+"route_info":"%1$s tardará %2$s",
 "search_button":"Buscar",
 "more_button":"más",
 "pt_route_info":"llega a las %1$s con %2$s transferencias (%3$s)",
@@ -1374,17 +1437,19 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "fa":{
 "total_ascend":"مجموع صعود %1$s",
 "total_descend":"مجموع نزول %1$s",
 "way_contains_ford":"در طول مسیر گُدار وجود دارد",
-"way_contains_ferry":"این مسیر دارای کشتی است ",
+"way_contains_ferry":"این مسیر دارای کشتی است",
 "way_contains_private":"مسیردارای گذرگاه های  شخصی (مالکیت خصوصی)",
 "way_contains_toll":"این مسیر دارای عوارض است",
 "way_crosses_border":"این مسیر از مرز یک کشور عبور میکند",
-"way_contains":"این مسیر دارای %1$s   است ",
+"way_contains":"این مسیر دارای %1$s   است",
 "tracks":"هشدار: این مسیر دارای جاده های خاکی و غیر آسفالت است",
 "steps":"پله",
 "footways":"",
@@ -1412,6 +1477,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -1480,7 +1548,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "fil":{
 "total_ascend":"",
@@ -1518,6 +1588,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -1537,7 +1610,7 @@
 "searching_location":"",
 "searching_location_failed":"",
 "via_hint":"",
-"from_hint":"mula sa ",
+"from_hint":"mula sa",
 "gpx_export_button":"GPX Export",
 "gpx_button":"",
 "settings_gpx_export":"",
@@ -1586,7 +1659,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "fi":{
 "total_ascend":"nousu yhteensä %1$s",
@@ -1624,6 +1699,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -1692,7 +1770,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "fr_FR":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1730,6 +1810,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"Eviter les Autoroutes",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"Vitesse Limite",
 "cargo_bike_example":"Vélo cargo",
 "prefer_bike_network":"",
@@ -1759,7 +1842,7 @@
 "hide_button":"Cacher",
 "details_button":"Détails",
 "to_hint":"À",
-"route_info":"%1$s durera %2$s ",
+"route_info":"%1$s durera %2$s",
 "search_button":"Rechercher",
 "more_button":"plus",
 "pt_route_info":"arrivée à %1$s avec %2$s changements (%3$s)",
@@ -1798,7 +1881,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "fr_CH":{
 "total_ascend":"%1$s de dénivelé positif",
@@ -1836,6 +1921,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -1865,7 +1953,7 @@
 "hide_button":"",
 "details_button":"",
 "to_hint":"À",
-"route_info":"%1$s durera %2$s ",
+"route_info":"%1$s durera %2$s",
 "search_button":"Rechercher",
 "more_button":"plus",
 "pt_route_info":"arrivée à %1$s avec %2$s changements (%3$s)",
@@ -1904,7 +1992,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "gl":{
 "total_ascend":"",
@@ -1942,6 +2032,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -2010,7 +2103,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "he":{
 "total_ascend":"עלייה כוללת של %1$s",
@@ -2048,6 +2143,9 @@
 "settings":"הגדרות",
 "settings_close":"סגירה",
 "exclude_motorway_example":"ללא כבישים מהירים",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"הגבלת מהירות",
 "cargo_bike_example":"אופני משא",
 "prefer_bike_network":"העדפת מסלולי אופניים",
@@ -2116,7 +2214,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "hr_HR":{
 "total_ascend":"%1$s ukupni uspon",
@@ -2154,6 +2254,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -2222,7 +2325,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "hsb":{
 "total_ascend":"",
@@ -2260,6 +2365,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -2328,7 +2436,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "hu_HU":{
 "total_ascend":"Összes szintemelkedés: %1$s",
@@ -2366,6 +2476,9 @@
 "settings":"Beállítások",
 "settings_close":"Bezárás",
 "exclude_motorway_example":"Autópálya nélkül",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"Sebességkorlátozás",
 "cargo_bike_example":"Viszikli (teherkerékpár)",
 "prefer_bike_network":"Kerékpárutak előnyben részesítése",
@@ -2434,7 +2547,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "in_ID":{
 "total_ascend":"naik dengan jarak %1$s",
@@ -2472,6 +2587,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -2540,7 +2658,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "it":{
 "total_ascend":"%1$s di dislivello positivo",
@@ -2578,6 +2698,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"Escludi autostrada",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"Limita velocità",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -2646,7 +2769,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ja":{
 "total_ascend":"",
@@ -2684,6 +2809,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -2752,7 +2880,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ko":{
 "total_ascend":"오르막길 총 %1$s",
@@ -2790,6 +2920,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -2858,13 +2991,15 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "kz":{
 "total_ascend":"%1$s көтерілу",
 "total_descend":"%1$s төмен түсу",
 "way_contains_ford":"Жолда өткел бар",
-"way_contains_ferry":" паромға отырыңыз",
+"way_contains_ferry":"паромға отырыңыз",
 "way_contains_private":"жекеменшік жол",
 "way_contains_toll":"жол ақылы",
 "way_crosses_border":"жол ел шекарасын кесіп жатыр",
@@ -2896,6 +3031,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"Автомогистральді  алып тастау",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"шектеулі жылдамдық",
 "cargo_bike_example":"жүк велосипеді",
 "prefer_bike_network":"",
@@ -2964,7 +3102,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "lt_LT":{
 "total_ascend":"",
@@ -3002,6 +3142,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -3070,7 +3213,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "nb_NO":{
 "total_ascend":"%1$s totale høydemeter",
@@ -3108,6 +3253,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"Unngå motorvei",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"Begrens hastighet",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -3176,7 +3324,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ne":{
 "total_ascend":"",
@@ -3214,6 +3364,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -3233,7 +3386,7 @@
 "searching_location":"",
 "searching_location_failed":"",
 "via_hint":"बाट",
-"from_hint":"सुरु ",
+"from_hint":"सुरु",
 "gpx_export_button":"GPX मा परिबर्तन गर्नुहोस",
 "gpx_button":"",
 "settings_gpx_export":"",
@@ -3244,7 +3397,7 @@
 "details_button":"",
 "to_hint":"अन्त्य",
 "route_info":"%1$s को लागि %2$s लाग्नेछ",
-"search_button":"खोज ",
+"search_button":"खोज",
 "more_button":"अझै",
 "pt_route_info":"",
 "pt_route_info_walking":"",
@@ -3256,7 +3409,7 @@
 "imprint":"",
 "privacy":"",
 "terms":"",
-"bike":"बाईक ",
+"bike":"बाईक",
 "racingbike":"छिटो गतिका बाईक",
 "mtb":"माउन्टेन बाईक",
 "car":"गाडी",
@@ -3266,7 +3419,7 @@
 "bus":"",
 "truck":"",
 "staticlink":"ईस्ट्यातिक लिंक",
-"motorcycle":"मोटरसाइकल ",
+"motorcycle":"मोटरसाइकल",
 "scooter":"",
 "back_to_map":"",
 "distance_unit":"",
@@ -3282,7 +3435,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "nl":{
 "total_ascend":"%1$s totale klim",
@@ -3320,6 +3475,9 @@
 "settings":"Instellingen",
 "settings_close":"Sluit",
 "exclude_motorway_example":"Vermijd snelweg",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"Max snelheid",
 "cargo_bike_example":"Bestel fiets",
 "prefer_bike_network":"Prefereer fiets routes",
@@ -3388,7 +3546,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "pl_PL":{
 "total_ascend":"%1$s w górę",
@@ -3426,6 +3586,9 @@
 "settings":"Ustawienia",
 "settings_close":"Zamknij",
 "exclude_motorway_example":"Pomijaj autostrady",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"Ogranicz prędkość",
 "cargo_bike_example":"Rower towarowy",
 "prefer_bike_network":"Preferuj ścieżki rowerowe",
@@ -3494,7 +3657,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "pt_BR":{
 "total_ascend":"subida de %1$s",
@@ -3532,6 +3697,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -3600,7 +3768,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "pt_PT":{
 "total_ascend":"subida de %1$s",
@@ -3638,6 +3808,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -3706,7 +3879,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ro":{
 "total_ascend":"urcare %1$s",
@@ -3744,6 +3919,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -3812,7 +3990,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "ru":{
 "total_ascend":"подъём на %1$s",
@@ -3836,8 +4016,8 @@
 "set_start":"Установить начало здесь",
 "set_intermediate":"Установить промежуточной точкой",
 "set_end":"Установить конец здесь",
-"center_map":"Сдвинуть карту сюда ",
-"show_coords":"Показать координаты ",
+"center_map":"Сдвинуть карту сюда",
+"show_coords":"Показать координаты",
 "query_osm":"",
 "route":"Маршрут",
 "add_to_route":"",
@@ -3850,6 +4030,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -3860,7 +4043,7 @@
 "gh_offline_info":"GraphHopper API недоступен?",
 "refresh_button":"Обновить страницу",
 "server_status":"Статус сервера",
-"zoom_in":"Приблизить ",
+"zoom_in":"Приблизить",
 "zoom_out":"Отдалить",
 "drag_to_reorder":"Переместите путевую точку",
 "route_timed_out":"",
@@ -3882,8 +4065,8 @@
 "route_info":"%1$s займет %2$s",
 "search_button":"Поиск",
 "more_button":"еще",
-"pt_route_info":"Прибытие в %1$s с %2$s пересадками (%3$s)",
-"pt_route_info_walking":"Прибытие в %1$s пешком (%2$s) ",
+"pt_route_info":"Прибытие в %1$s с %2$s пересадками (%3$s)",
+"pt_route_info_walking":"Прибытие в %1$s пешком (%2$s)",
 "locations_not_found":"Построить маршрут невозможно. Не определено местоположение.",
 "search_with_nominatim":"",
 "powered_by":"",
@@ -3918,7 +4101,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "sk":{
 "total_ascend":"%1$s celkové stúpanie",
@@ -3956,6 +4141,9 @@
 "settings":"Nastavenia",
 "settings_close":"Zavrieť",
 "exclude_motorway_example":"Vynechať diaľnice",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"Limit rýchlosti",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -4024,7 +4212,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "sl_SI":{
 "total_ascend":"Skupni vzpon: %1$s",
@@ -4062,6 +4252,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -4081,7 +4274,7 @@
 "searching_location":"",
 "searching_location_failed":"",
 "via_hint":"Preko",
-"from_hint":"Od ",
+"from_hint":"Od",
 "gpx_export_button":"Izvozi GPX",
 "gpx_button":"",
 "settings_gpx_export":"",
@@ -4130,7 +4323,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "sr_RS":{
 "total_ascend":"%1$s ukupni uspon",
@@ -4168,6 +4363,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -4236,7 +4434,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "sv_SE":{
 "total_ascend":"%1$s stigning",
@@ -4274,6 +4474,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -4342,14 +4545,16 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "tr":{
 "total_ascend":"%1$s toplam tırmanış",
 "total_descend":"%1$s toplam alçalış",
 "way_contains_ford":"Dikkat, yolda bir sığ yer var",
 "way_contains_ferry":"feribota binin",
-"way_contains_private":"özel yol ",
+"way_contains_private":"özel yol",
 "way_contains_toll":"Ücretli yol",
 "way_crosses_border":"Rota ülke sınırından geçmektedir",
 "way_contains":"Rota %1$s içermektedir",
@@ -4380,6 +4585,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"Hız limiti",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -4391,7 +4599,7 @@
 "refresh_button":"Sayfayı yinele",
 "server_status":"Durum",
 "zoom_in":"Yakınlaştır",
-"zoom_out":"Uzaklaştır ",
+"zoom_out":"Uzaklaştır",
 "drag_to_reorder":"Yeniden sıralamak için sürükle bırak",
 "route_timed_out":"Rota planlaması zaman aşımına uğradı",
 "route_request_failed":"Rota oluşturulamadı",
@@ -4448,7 +4656,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "uk":{
 "total_ascend":"%1$s загалом підйому",
@@ -4486,6 +4696,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -4518,8 +4731,8 @@
 "route_info":"%1$s займе %2$s",
 "search_button":"Пошук",
 "more_button":"ще",
-"pt_route_info":"Прибуття до %1$s з %2$s пересадками (%3$s)",
-"pt_route_info_walking":"Прибуття до %1$s пішки (%2$s) ",
+"pt_route_info":"Прибуття до %1$s з %2$s пересадками (%3$s)",
+"pt_route_info_walking":"Прибуття до %1$s пішки (%2$s)",
 "locations_not_found":"Побудова маршруту неможлива. Місцезнаходження не визначено.",
 "search_with_nominatim":"",
 "powered_by":"",
@@ -4554,15 +4767,17 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "vi_VN":{
-"total_ascend":"%1$s ga ko'tarilish ",
-"total_descend":"%1$s ga tushish ",
+"total_ascend":"%1$s ga ko'tarilish",
+"total_descend":"%1$s ga tushish",
 "way_contains_ford":"Yo'lda ford bor",
-"way_contains_ferry":"paromga o'tiring ",
-"way_contains_private":"xususiy yo'l ",
-"way_contains_toll":"pullik yo'l ",
+"way_contains_ferry":"paromga o'tiring",
+"way_contains_private":"xususiy yo'l",
+"way_contains_toll":"pullik yo'l",
 "way_crosses_border":"",
 "way_contains":"",
 "tracks":"",
@@ -4578,8 +4793,8 @@
 "set_start":"Boshlash nuqtasi deb belgilash",
 "set_intermediate":"Oraliq nuqtasi deb belgilash",
 "set_end":"Yakunlash nuqtasi deb belgilash",
-"center_map":"Xaritani shu yerga siljitish ",
-"show_coords":"Kordinatalarni ko'rsatish ",
+"center_map":"Xaritani shu yerga siljitish",
+"show_coords":"Kordinatalarni ko'rsatish",
 "query_osm":"",
 "route":"Marshrut",
 "add_to_route":"",
@@ -4592,6 +4807,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -4601,7 +4819,7 @@
 "marker":"Belgi",
 "gh_offline_info":"GraphHopper API mavjud emasmi?",
 "refresh_button":"Sahifani yangilash",
-"server_status":"Server holati ",
+"server_status":"Server holati",
 "zoom_in":"Yaqinlashtirish",
 "zoom_out":"Uzoqlashtirish",
 "drag_to_reorder":"Yoʻnalish nuqtasini koʻchirish",
@@ -4627,14 +4845,14 @@
 "pt_route_info":"",
 "pt_route_info_walking":"%1$s ga piyoda yetib kelish (%2$s)",
 "locations_not_found":"Marshrut qurish imkonsiz. Joylashuvingiz aniqlanmadi",
-"search_with_nominatim":"Nominatim orqali qidirish ",
+"search_with_nominatim":"Nominatim orqali qidirish",
 "powered_by":"",
 "info":"",
 "feedback":"",
 "imprint":"",
 "privacy":"",
 "terms":"",
-"bike":"Velosiped ",
+"bike":"Velosiped",
 "racingbike":"Poyga velosipedi",
 "mtb":"Tog' velosipedi",
 "car":"Avtoulov",
@@ -4660,11 +4878,13 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "zh_CN":{
 "total_ascend":"Đi tiếp %1$s nữa",
-"total_descend":"Tổng số hạ %1$s ",
+"total_descend":"Tổng số hạ %1$s",
 "way_contains_ford":"Chú ý, có khúc sông cạn trên đường",
 "way_contains_ferry":"",
 "way_contains_private":"",
@@ -4698,6 +4918,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -4766,7 +4989,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "zh_HK":{
 "total_ascend":"总上升 %1$s",
@@ -4804,6 +5029,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"排除高速公路",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"限速",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -4872,7 +5100,9 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 },
 "zh_TW":{
 "total_ascend":"總共上昇 %1$s",
@@ -4910,6 +5140,9 @@
 "settings":"",
 "settings_close":"",
 "exclude_motorway_example":"",
+"exclude_disneyland_paris_example":"",
+"simple_eletric_car_example":"",
+"avoid_tunnel_bridges_example":"",
 "limit_speed_example":"",
 "cargo_bike_example":"",
 "prefer_bike_network":"",
@@ -4978,5 +5211,7 @@
 "max_speed":"",
 "average_speed":"",
 "track_type":"",
-"toll":""
+"toll":"",
+"next":"",
+"back":""
 }}
