@@ -13,7 +13,7 @@ export const customModelExamples: { [key: string]: CustomModel } = {
     exclude_motorway: {
         priority: [{ if: 'road_class == MOTORWAY', multiply_by: '0.0' }],
     },
-    avoid_tunnel_bridges: {
+    avoid_tunnels_bridges: {
         priority: [{ if: 'road_environment == TUNNEL || road_environment == BRIDGE', multiply_by: '0.1' }],
     },
     exclude_disneyland_paris: {
