@@ -44,7 +44,7 @@ export const customModelExamples: { [key: string]: CustomModel } = {
             ],
         },
     },
-    electric_car: {
+    simple_electric_car: {
         distance_influence: 100,
         priority: [
             { if: 'average_slope >= 10', multiply_by: '0.7' },
