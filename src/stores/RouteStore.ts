@@ -1,8 +1,8 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { ClearPoints, ClearRoute, RemovePoint, RouteRequestSuccess, SetPoint, SetSelectedPath } from '@/actions/Actions'
-import QueryStore, { RequestState } from '@/stores/QueryStore'
-import { Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
+import QueryStore from '@/stores/QueryStore'
+import { Path, RoutingResult } from '@/api/graphhopper'
 
 export interface RouteStoreState {
     routingResult: RoutingResult
@@ -36,7 +36,6 @@ export default class RouteStore extends Store<RouteStoreState> {
                 track_type: [],
                 country: [],
                 get_off_bike: [],
-                road_access: [],
             },
             distance: 0,
             points_order: [],
