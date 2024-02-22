@@ -191,6 +191,16 @@
     z-index: 2;
 }
 
+.lanes {
+    display: flex;
+    list-style-type: none;
+    padding: 0 0 8px 0;
+}
+
+.lanes li {
+    margin-right: 10px;
+}
+
 /* dynamic font sizes with vw or similar are not that nice to tune and to test */
 @media (max-width: 430px) {
     .turnSign,

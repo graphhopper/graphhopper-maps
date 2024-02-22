@@ -16,26 +16,26 @@ import uTurnRight from './u_turn_right.png'
 import ptStartTrip from './pt_start_trip.png'
 import ptTransferTo from './pt_transfer_to.png'
 import ptEndTrip from './pt_end_trip.png'
-import { metersToText } from '@/Converters'
-import { Instruction } from '@/api/graphhopper'
-import { MarkerComponent } from '@/map/Marker'
-import QueryStore, { QueryPointType } from '@/stores/QueryStore'
+import {metersToText} from '@/Converters'
+import {Instruction} from '@/api/graphhopper'
+import {MarkerComponent} from '@/map/Marker'
+import QueryStore, {QueryPointType} from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { InstructionClicked } from '@/actions/Actions'
-import { useContext } from 'react'
-import { SettingsContext } from '@/contexts/SettingsContext'
+import {InstructionClicked} from '@/actions/Actions'
+import {useContext} from 'react'
+import {SettingsContext} from '@/contexts/SettingsContext'
 
 export default function (props: { instructions: Instruction[] }) {
     return (
         <ul className={styles.instructionsList}>
             {props.instructions.map((instruction, i) => (
-                <Line key={i} instruction={instruction} index={i} />
+                <Line key={i} instruction={instruction} index={i}/>
             ))}
         </ul>
     )
 }
 
-const Line = function ({ instruction, index }: { instruction: Instruction; index: number }) {
+const Line = function ({instruction, index}: { instruction: Instruction; index: number }) {
     const settings = useContext(SettingsContext)
 
     return (
@@ -44,7 +44,7 @@ const Line = function ({ instruction, index }: { instruction: Instruction; index
             onClick={() =>
                 Dispatcher.dispatch(
                     new InstructionClicked(
-                        { lng: instruction.points[0][0], lat: instruction.points[0][1] },
+                        {lng: instruction.points[0][0], lat: instruction.points[0][1]},
                         instruction.text
                     )
                 )
@@ -71,11 +71,17 @@ export function getTurnSign(sign: number, index: number, waypointIndex?: number)
 
         return (
             <div className={styles.sign}>
-                <MarkerComponent color={markerColor} number={waypointIndex} />
+                <MarkerComponent color={markerColor} number={waypointIndex}/>
             </div>
         )
     }
-    return <img className={styles.sign} src={getSignName(sign)} alt={'turn instruction'} />
+    return <img className={styles.sign} src={getSignName(sign)} alt={'turn instruction'}/>
+}
+
+export function getSignFromDirection(direction: string): number {
+    if (direction.includes("left")) return -2
+    if (direction.includes("right")) return 2
+    return 0
 }
 
 export function getSignName(sign: number) {

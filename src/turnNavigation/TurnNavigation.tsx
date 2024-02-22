@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { kmToMPHIfMiles, metersToText, milliSecondsToText } from '@/Converters'
-import { getTurnSign } from '@/sidebar/instructions/Instructions'
+import {getSignFromDirection, getSignName, getTurnSign} from '@/sidebar/instructions/Instructions'
 import styles from '@/turnNavigation/TurnNavigation.module.css'
 import EndNavigation from '@/sidebar/times-solid.svg'
 import { TNSettingsState, TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
@@ -34,6 +34,17 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
         <>
             <div className={styles.firstRow}>
                 <div className={styles.turnSign}>
+                    <small className={styles.lanes}>{
+                        instruction.lanes.map((lane, index) => (
+                            // if(lane.active) laneInfo += "*"
+                            <li key={index}>
+                                {lane.direction.split(';').map(direction => (
+                                    <img style={{height: '20px', filter: lane.active ? 'invert(26%) sepia(90%) saturate(7455%) hue-rotate(357deg) brightness(99%) contrast(116%)' : ''}}
+                                         src={getSignName(getSignFromDirection(direction))} alt={'turn instruction'} />
+                                ))}
+                            </li>
+                        ))
+                    }</small>
                     <div className={styles.firstSign}>
                         {getTurnSign(instruction.sign, instruction.index, instruction.nextWaypointIndex)}
                     </div>
