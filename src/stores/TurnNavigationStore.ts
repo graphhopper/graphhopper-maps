@@ -61,8 +61,8 @@ export interface TurnNavigationStoreState {
 }
 
 export interface Lane {
-    direction: string;
-    active: boolean;
+    directions: string[];
+    valid: boolean;
 }
 
 

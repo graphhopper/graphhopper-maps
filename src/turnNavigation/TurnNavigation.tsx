@@ -38,8 +38,8 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                         instruction.lanes.map((lane, index) => (
                             // if(lane.active) laneInfo += "*"
                             <li key={index}>
-                                {lane.direction.split(';').map(direction => (
-                                    <img style={{height: '20px', filter: lane.active ? 'invert(26%) sepia(90%) saturate(7455%) hue-rotate(357deg) brightness(99%) contrast(116%)' : ''}}
+                                {lane.directions.map(direction => (
+                                    <img style={{height: '20px', filter: lane.valid ? 'invert(26%) sepia(90%) saturate(7455%) hue-rotate(357deg) brightness(99%) contrast(116%)' : ''}}
                                          src={getSignName(getSignFromDirection(direction))} alt={'turn instruction'} />
                                 ))}
                             </li>
