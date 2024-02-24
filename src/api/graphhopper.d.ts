@@ -1,6 +1,6 @@
 import { LineString } from 'geojson'
 import { CustomModel } from '@/stores/QueryStore'
-import {HashMap, Lane} from "@/stores/TurnNavigationStore";
+import {HashMap, InstructionDetails, Lane} from "@/stores/TurnNavigationStore";
 
 // minLon, minLat, maxLon, maxLat
 export type Bbox = [number, number, number, number]
@@ -90,7 +90,7 @@ export interface BasePath {
 export interface Instruction {
     readonly distance: number
     readonly interval: [number, number]
-    readonly lanes: Lane[]
+    readonly details: InstructionDetails[]
     readonly points: number[][]
     readonly sign: number
     readonly text: string

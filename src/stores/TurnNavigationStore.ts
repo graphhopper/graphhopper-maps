@@ -61,10 +61,14 @@ export interface TurnNavigationStoreState {
 }
 
 export interface Lane {
-    directions: string[];
-    valid: boolean;
+    directions: string[]
+    valid: boolean
 }
 
+export interface InstructionDetails {
+    before_turn: number
+    lanes: Lane[]
+}
 
 export interface TNInstructionState {
     index: number
@@ -74,7 +78,7 @@ export interface TNInstructionState {
     distanceToEnd: number
     nextWaypointIndex: number
     distanceToWaypoint: number
-    lanes: Lane[]
+    details: InstructionDetails[]
     sign: number
     text: string
 }
@@ -404,7 +408,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     distanceToEnd: instrInfo.distanceToEnd,
                     nextWaypointIndex: instrInfo.nextWaypointIndex,
                     distanceToWaypoint: instrInfo.distanceToWaypoint,
-                    lanes: instruction.lanes,
+                    details: instruction.details,
                     sign: instruction.sign,
                     announcementsToDo,
                     text,
@@ -447,7 +451,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     distanceToEnd: instr.distanceToEnd,
                     nextWaypointIndex: instr.nextWaypointIndex,
                     distanceToWaypoint: instr.distanceToWaypoint,
-                    lanes: path.instructions[instr.index].lanes,
+                    details: path.instructions[instr.index].details,
                     sign: path.instructions[instr.index].sign,
                     announcementsToDo: instr.distanceToTurn > 1000 ? 2 : 1,
                     text,

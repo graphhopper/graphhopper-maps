@@ -29,17 +29,21 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
     const currentSpeed = kmToMPHIfMiles(turnNavigation.speed * 3.6, showDistanceInMiles)
     arrivalDate.setMilliseconds(arrivalDate.getSeconds() + instruction.timeToEnd)
     const min = arrivalDate.getMinutes()
+    // why does findLast not work
+    const detail = instruction.details.slice().reverse().find(d => instruction.distanceToTurn < d.before_turn + 20)
+    console.log(instruction.distanceToTurn + " " + JSON.stringify(instruction.details))
+    const lanes = detail ? detail.lanes : []
 
     return (
         <>
             <div className={styles.firstRow}>
                 <div className={styles.turnSign}>
                     <small className={styles.lanes}>{
-                        instruction.lanes.map((lane, index) => (
+                        lanes.map((lane, index) => (
                             // if(lane.active) laneInfo += "*"
                             <li key={index}>
                                 {lane.directions.map(direction => (
-                                    <img style={{height: '20px', filter: lane.valid ? 'invert(26%) sepia(90%) saturate(7455%) hue-rotate(357deg) brightness(99%) contrast(116%)' : ''}}
+                                    <img style={{height: '20px', filter: lane.valid ? 'brightness(0.5)' : 'brightness(2.5)'}}
                                          src={getSignName(getSignFromDirection(direction))} alt={'turn instruction'} />
                                 ))}
                             </li>
