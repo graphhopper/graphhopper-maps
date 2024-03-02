@@ -40,7 +40,6 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                 <div className={styles.turnSign}>
                     <small className={styles.lanes}>{
                         lanes.map((lane, index) => (
-                            // if(lane.active) laneInfo += "*"
                             <li key={index}>
                                 {lane.directions.map(direction => (
                                     <img style={{height: '20px', filter: lane.valid ? 'brightness(0.5)' : 'brightness(2.5)'}}

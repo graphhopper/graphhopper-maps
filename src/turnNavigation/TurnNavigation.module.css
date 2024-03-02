@@ -198,7 +198,18 @@
 }
 
 .lanes li {
+    position: relative;
     margin-right: 10px;
+}
+
+.lanes li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    transform: translateX(5px);
+    width: 1px;
+    height: 7px;
+    background-color: darkgray;
 }
 
 /* dynamic font sizes with vw or similar are not that nice to tune and to test */
