@@ -43,7 +43,7 @@ export default function ({ turnNavigation }: { turnNavigation: TurnNavigationSto
                             <li key={index}>
                                 {lane.directions.map(direction => (
                                     <img style={{height: '20px', filter: lane.valid ? 'brightness(0.5)' : 'brightness(2.5)'}}
-                                         src={getSignName(getSignFromDirection(direction))} alt={'turn instruction'} />
+                                         src={getSignFromDirection(direction)} alt={'turn instruction'} />
                                 ))}
                             </li>
                         ))

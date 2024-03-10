@@ -7,6 +7,7 @@ import sharpLeft from './sharp_left.png'
 import left from './left.png'
 import slightLeft from './slight_left.png'
 import continueImg from './continue.png'
+import noneLaneImg from './none_lane.png'
 import slightRight from './slight_right.png'
 import right from './right.png'
 import sharpRight from './sharp_right.png'
@@ -78,10 +79,11 @@ export function getTurnSign(sign: number, index: number, waypointIndex?: number)
     return <img className={styles.sign} src={getSignName(sign)} alt={'turn instruction'}/>
 }
 
-export function getSignFromDirection(direction: string): number {
-    if (direction.includes("left")) return -2
-    if (direction.includes("right")) return 2
-    return 0
+export function getSignFromDirection(direction: string) {
+    if (direction.includes("left")) return left
+    if (direction.includes("right")) return right
+    if (direction.includes("none")) return noneLaneImg
+    return continueImg
 }
 
 export function getSignName(sign: number) {
