@@ -15,6 +15,7 @@ import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
 import { ApiImpl } from '@/api/Api'
 import FordIcon from '@/sidebar/routeHints/water.svg'
+import CondAccessIcon from '@/sidebar/routeHints/remove_road.svg'
 import FerryIcon from '@/sidebar/routeHints/directions_boat.svg'
 import PrivateIcon from '@/sidebar/routeHints/privacy_tip.svg'
 import StepsIcon from '@/sidebar/routeHints/floor.svg'
@@ -64,28 +65,46 @@ function RoutingResult({
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
-    const fordInfo = getInfoFor(path.points, path.details.road_environment, { ford: true })
-    const tollInfo = getInfoFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
-    const ferryInfo = getInfoFor(path.points, path.details.road_environment, { ferry: true })
+    const fordInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ford')
+    const tollInfo = getInfoFor(
+        path.points,
+        path.details.toll,
+        s => s === 'all' || (s === 'hgv' && ApiImpl.isTruck(profile))
+    )
+    const ferryInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ferry')
+    const accessCondInfo = getInfoFor(path.points, path.details.access_conditional, s => s != null && s.length > 0)
+    const privateOrDeliveryInfo = ApiImpl.isMotorVehicle(profile)
+        ? getInfoFor(
+              path.points,
+              path.details.road_access,
+              s => s === 'private' || s === 'customers' || s === 'delivery'
+          )
+        : new RouteInfo()
     const badTrackInfo = !ApiImpl.isMotorVehicle(profile)
         ? new RouteInfo()
-        : getInfoFor(path.points, path.details.track_type, { grade2: true, grade3: true, grade4: true, grade5: true })
+        : getInfoFor(
+              path.points,
+              path.details.track_type,
+              s => s === 'grade2' || s === 'grade3' || s === 'grade4' || s === 'grade5'
+          )
     const trunkInfo = ApiImpl.isMotorVehicle(profile)
         ? new RouteInfo()
-        : getInfoFor(path.points, path.details.road_class, { motorway: true, trunk: true })
+        : getInfoFor(path.points, path.details.road_class, s => s === 'motorway' || s === 'trunk')
     const stepsInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
-        : getInfoFor(path.points, path.details.road_class, { steps: true })
+        : getInfoFor(path.points, path.details.road_class, s => s === 'steps')
     const steepInfo = ApiImpl.isMotorVehicle(profile) ? new RouteInfo() : getHighSlopeInfo(path.points, 15)
     const getOffBikeInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
-        : getInfoFor(path.points, path.details.get_off_bike, { true: true })
+        : getInfoFor(path.points, path.details.get_off_bike, s => s)
     const countriesInfo = crossesBorderInfo(path.points, path.details.country)
 
     const showHints =
         fordInfo.distance > 0 ||
         tollInfo.distance > 0 ||
         ferryInfo.distance > 0 ||
+        accessCondInfo.distance > 0 ||
+        privateOrDeliveryInfo.distance > 0 ||
         trunkInfo.distance > 0 ||
         badTrackInfo.distance > 0 ||
         stepsInfo.distance > 0 ||
@@ -170,6 +189,32 @@ function RoutingResult({
                             value={ferryInfo.distance > 0 && metersToShortText(ferryInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={ferryInfo.segments}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains_restrictions')}
+                            setType={t => setSelectedRH(t)}
+                            type={'access_conditional'}
+                            child={<CondAccessIcon />}
+                            value={
+                                accessCondInfo.distance > 0 &&
+                                metersToShortText(accessCondInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={accessCondInfo.segments}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains', [tr('private_sections')])}
+                            setType={t => setSelectedRH(t)}
+                            type={'private'}
+                            child={<PrivateIcon />}
+                            value={
+                                privateOrDeliveryInfo.distance > 0 &&
+                                metersToShortText(privateOrDeliveryInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={privateOrDeliveryInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -332,12 +377,12 @@ function toBBox(segment: Coordinate[]): Bbox {
     return bbox as Bbox
 }
 
-function getInfoFor(points: LineString, details: [number, number, any][], values: { [Identifier: string]: boolean }) {
+function getInfoFor(points: LineString, details: [number, number, any][], fnc: { (s: any): boolean }) {
     if (!details) return new RouteInfo()
     let info = new RouteInfo()
     const coords = points.coordinates
     for (const i in details) {
-        if (values[details[i][2]]) {
+        if (fnc(details[i][2])) {
             const from = details[i][0],
                 to = details[i][1]
             const segCoords: Coordinate[] = []
