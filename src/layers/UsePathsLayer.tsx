@@ -53,13 +53,19 @@ function addUnselectedPathsLayer(map: Map, paths: Path[]) {
     })
     const layer = new VectorLayer({
         source: new VectorSource({
-            features: new GeoJSON().readFeatures(createUnselectedPaths(paths)),
+            features: paths.map((path: Path, index) => {
+                const f = new Feature({
+                    index: index,
+                })
+                if (path.points?.coordinates) f.setGeometry(new LineString(path.points.coordinates.map(c => fromLonLat(c))))
+                return f
+            }),
         }),
         style: () => style,
         opacity: 0.8,
+        zIndex: 1,
     })
     layer.set(pathsLayerKey, true)
-    layer.setZIndex(1)
     map.addLayer(layer)
 
     // select an alternative path if clicked
@@ -141,50 +147,14 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
     })
     const layer = new VectorLayer({
         source: new VectorSource({
-            features: new GeoJSON().readFeatures(createSelectedPath(selectedPath)),
+            features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))]
         }),
         style: () => style,
         opacity: 0.8,
+        zIndex: 2,
     })
     layer.set(selectedPathLayerKey, true)
-    layer.setZIndex(2)
     map.addLayer(layer)
-}
-
-function createUnselectedPaths(paths: Path[]) {
-    const featureCollection: FeatureCollection = {
-        type: 'FeatureCollection',
-        features: paths.map((path, index) => {
-            return {
-                type: 'Feature',
-                properties: {
-                    index,
-                },
-                geometry: {
-                    ...path.points,
-                    coordinates: path.points.coordinates.map(c => fromLonLat(c)),
-                },
-            }
-        }),
-    }
-    return featureCollection
-}
-
-function createSelectedPath(path: Path) {
-    const featureCollection: FeatureCollection = {
-        type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    ...path.points,
-                    coordinates: path.points.coordinates.map(c => fromLonLat(c)),
-                },
-            },
-        ],
-    }
-    return featureCollection
 }
 
 function removeSelectPathInteractions(map: Map) {
