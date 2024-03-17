@@ -387,7 +387,9 @@ function getInfoFor(points: LineString, details: [number, number, any][], fnc: {
                 to = details[i][1]
             const segCoords: Coordinate[] = []
             for (let i = from; i < to; i++) {
-                info.distance += calcDistPos(coords[i], coords[i + 1])
+                const dist = calcDistPos(coords[i], coords[i + 1])
+                info.distance += dist
+                if(dist == 0) info.distance += 0.01 // some obstacles have no length when mapped as a node like fords
                 segCoords.push(toCoordinate(coords[i]))
             }
             segCoords.push(toCoordinate(coords[to]))
