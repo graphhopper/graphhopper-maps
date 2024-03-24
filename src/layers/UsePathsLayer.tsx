@@ -57,7 +57,8 @@ function addUnselectedPathsLayer(map: Map, paths: Path[]) {
                 const f = new Feature({
                     index: index,
                 })
-                if (path.points?.coordinates) f.setGeometry(new LineString(path.points.coordinates.map(c => fromLonLat(c))))
+                if (path.points?.coordinates)
+                    f.setGeometry(new LineString(path.points.coordinates.map(c => fromLonLat(c))))
                 return f
             }),
         }),
@@ -147,7 +148,7 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
     })
     const layer = new VectorLayer({
         source: new VectorSource({
-            features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))]
+            features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
         }),
         style: () => style,
         opacity: 0.8,

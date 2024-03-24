@@ -288,7 +288,7 @@ function RoutingResult({
                     {descriptionRH && <div>{descriptionRH}</div>}
                 </div>
             )}
-            {isExpanded && <Instructions instructions={path.instructions} />}
+            {isExpanded && <Instructions instructions={path.instructions} us={showDistanceInMiles} />}
             {isExpanded && (
                 <div className={styles.routingResultRoadData}>
                     {tr('road_data_from')}: {info.road_data_timestamp}
@@ -389,7 +389,7 @@ function getInfoFor(points: LineString, details: [number, number, any][], fnc: {
             for (let i = from; i < to; i++) {
                 const dist = calcDistPos(coords[i], coords[i + 1])
                 info.distance += dist
-                if(dist == 0) info.distance += 0.01 // some obstacles have no length when mapped as a node like fords
+                if (dist == 0) info.distance += 0.01 // some obstacles have no length when mapped as a node like fords
                 segCoords.push(toCoordinate(coords[i]))
             }
             segCoords.push(toCoordinate(coords[to]))

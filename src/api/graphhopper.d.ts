@@ -89,6 +89,7 @@ export interface Instruction {
     readonly points: number[][]
     readonly sign: number
     readonly text: string
+    readonly motorway_junction: string
     readonly time: number
 }
 
