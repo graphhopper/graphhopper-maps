@@ -335,7 +335,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             )
 
             const instruction: Instruction = path.instructions[instrInfo.index]
-            const text = instruction.street_name
+            const text = instruction.street_name ? instruction.street_name : instruction.motorway_junction
 
             // announce proportional earlier if faster
             const factor = estimatedAvgSpeed < 70 ? 2 : roadClass == 'trunk' || roadClass == 'motorway' ? 7 : 3
