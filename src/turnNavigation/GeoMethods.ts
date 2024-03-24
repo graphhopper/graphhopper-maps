@@ -17,6 +17,10 @@ export function getCurrentDetails(path: Path, pillarPoint: Coordinate, details: 
     let result = []
     for (let i = 0; i < details.length; i++) {
         let detailOnPath = details[i]
+        if (!detailOnPath) {
+            console.log("cannot find path detail " + i)
+            continue
+        }
         for (let d = 0; d < detailOnPath.length; d++) {
             let [from, to, val] = detailOnPath[d]
             if ((foundIndex >= from && foundIndex < to) || (foundIndex == to && d + 1 == detailOnPath.length)) {
