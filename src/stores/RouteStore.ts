@@ -33,6 +33,8 @@ export default class RouteStore extends Store<RouteStoreState> {
                 toll: [],
                 road_environment: [],
                 road_class: [],
+                road_access: [],
+                access_conditional: [],
                 track_type: [],
                 country: [],
                 get_off_bike: [],
