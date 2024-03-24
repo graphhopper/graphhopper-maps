@@ -12,27 +12,38 @@ import { click } from 'ol/events/condition'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
 import { SelectEvent } from 'ol/interaction/Select'
+import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
+import { RouteStoreState } from '@/stores/RouteStore'
+import { Geometry, LineString } from 'ol/geom'
 import { QueryPoint } from '@/stores/QueryStore'
 import { distance } from 'ol/coordinate'
-import LineString from 'ol/geom/LineString'
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
 
-export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Path, queryPoints: QueryPoint[]) {
+export default function usePathsLayer(
+    map: Map,
+    route: RouteStoreState,
+    queryPoints: QueryPoint[],
+    turnNavigation: TurnNavigationStoreState
+) {
     useEffect(() => {
         removeCurrentPathLayers(map)
-        addUnselectedPathsLayer(
-            map,
-            paths.filter(p => p != selectedPath)
-        )
-        addSelectedPathsLayer(map, selectedPath)
-        addAccessNetworkLayer(map, selectedPath, queryPoints)
+        if (turnNavigation.showUI && turnNavigation.activePath) {
+            addSelectedPathsLayer(map, turnNavigation.activePath, true)
+        } else {
+            addUnselectedPathsLayer(
+                map,
+                route.routingResult.paths.filter(p => p != route.selectedPath)
+            )
+            addSelectedPathsLayer(map, route.selectedPath, false)
+            addAccessNetworkLayer(map, route.selectedPath, queryPoints)
+        }
         return () => {
             removeCurrentPathLayers(map)
         }
-    }, [map, paths, selectedPath])
+    }, [map, route.routingResult.paths, route.selectedPath, turnNavigation.showUI, turnNavigation.activePath])
 }
 
 function removeCurrentPathLayers(map: Map) {
@@ -137,23 +148,36 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
     map.addLayer(layer)
 }
 
-function addSelectedPathsLayer(map: Map, selectedPath: Path) {
-    const style = new Style({
-        stroke: new Stroke({
-            color: '#275DAD',
-            width: 6,
-            lineCap: 'round',
-            lineJoin: 'round',
+function addSelectedPathsLayer(map: Map, selectedPath: Path, updateMoreFrequently: boolean) {
+    const styles = {
+        LineString: new Style({
+            stroke: new Stroke({
+                color: '#275DAD',
+                width: 6,
+                lineCap: 'round',
+                lineJoin: 'round',
+            }),
         }),
-    })
+    } as { [key: string]: Style }
+    const features = [
+        new Feature({
+            properties: { type: 'LineString' },
+            geometry: new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))),
+        }),
+    ] as Feature[]
+
     const layer = new VectorLayer({
         source: new VectorSource({
             features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
         }),
-        style: () => style,
+        style: feature => styles[(feature.getGeometry() as Geometry).getType()],
+        // when navigating we need this for re-routing (see also useCurrentLocationLayer where this is necessary)
+        updateWhileAnimating: updateMoreFrequently,
+        updateWhileInteracting: updateMoreFrequently,
         opacity: 0.8,
         zIndex: 2,
     })
+
     layer.set(selectedPathLayerKey, true)
     map.addLayer(layer)
 }
