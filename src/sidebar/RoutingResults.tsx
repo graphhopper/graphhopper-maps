@@ -177,6 +177,7 @@ function RoutingResult({
                             value={fordInfo.distance > 0 && metersToShortText(fordInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={fordInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -184,9 +185,10 @@ function RoutingResult({
                             setType={t => setSelectedRH(t)}
                             type={'country'}
                             child={<BorderCrossingIcon />}
-                            value={countriesInfo.values.length > 1 && countriesInfo.values.join(' - ')}
+                            value={countriesInfo.values.length > 1 && countriesInfo.values[0]}
                             selected={selectedRH}
                             segments={countriesInfo.segments}
+                            values={countriesInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -197,6 +199,7 @@ function RoutingResult({
                             value={ferryInfo.distance > 0 && metersToShortText(ferryInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={ferryInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -210,6 +213,7 @@ function RoutingResult({
                             }
                             selected={selectedRH}
                             segments={accessCondInfo.segments}
+                            values={accessCondInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -223,6 +227,7 @@ function RoutingResult({
                             }
                             selected={selectedRH}
                             segments={footAccessCondInfo.segments}
+                            values={footAccessCondInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -236,6 +241,7 @@ function RoutingResult({
                             }
                             selected={selectedRH}
                             segments={bikeAccessCondInfo.segments}
+                            values={bikeAccessCondInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -249,6 +255,7 @@ function RoutingResult({
                             }
                             selected={selectedRH}
                             segments={privateOrDeliveryInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -259,6 +266,7 @@ function RoutingResult({
                             value={tollInfo.distance > 0 && metersToShortText(tollInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={tollInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -269,6 +277,7 @@ function RoutingResult({
                             value={stepsInfo.distance > 0 && metersToShortText(stepsInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={stepsInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -282,6 +291,7 @@ function RoutingResult({
                             }
                             selected={selectedRH}
                             segments={badTrackInfo.segments}
+                            values={badTrackInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -292,6 +302,7 @@ function RoutingResult({
                             value={trunkInfo.distance > 0 && metersToShortText(trunkInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={trunkInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -307,6 +318,7 @@ function RoutingResult({
                             }
                             selected={selectedRH}
                             segments={getOffBikeInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -317,6 +329,7 @@ function RoutingResult({
                             value={steepInfo.distance > 0 && metersToShortText(steepInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={steepInfo.segments}
+                            values={steepInfo.values}
                         />
                     </div>
                     {descriptionRH && <div>{descriptionRH}</div>}
@@ -341,6 +354,7 @@ function RHButton(p: {
     value: string | false
     selected: string
     segments: Coordinate[][]
+    values: string[]
 }) {
     let [index, setIndex] = useState(0)
     if (p.value === false) return null
@@ -349,7 +363,14 @@ function RHButton(p: {
             className={p.selected == p.type ? styles.selectedRouteHintButton : styles.routeHintButton}
             onClick={() => {
                 p.setType(p.type)
-                p.setDescription(p.description + (p.type == 'get_off_bike' ? '' : ': ' + p.value))
+                let tmpDescription
+                if (p.type == 'get_off_bike') tmpDescription = p.description
+                else if (p.type == 'country') tmpDescription = p.description + ': ' + p.values[index]
+                else if (p.values && p.values[index])
+                    tmpDescription = p.description + ': ' + p.value + ' ' + p.values[index]
+                else tmpDescription = p.description + ': ' + p.value
+
+                p.setDescription(tmpDescription)
                 Dispatcher.dispatch(new PathDetailsElevationSelected(p.segments))
                 if (p.segments.length > index) Dispatcher.dispatch(new SetBBox(toBBox(p.segments[index])))
                 setIndex((index + 1) % p.segments.length)
@@ -357,7 +378,7 @@ function RHButton(p: {
             title={p.description}
         >
             {p.child}
-            {<span>{p.type == 'country' ? p.value.split(' ')[0] : p.value}</span>}
+            {<span>{p.value}</span>}
         </PlainButton>
     )
 }
@@ -365,12 +386,11 @@ function RHButton(p: {
 function crossesBorderInfo(points: LineString, countryPathDetail: [number, number, string][]) {
     if (!countryPathDetail || countryPathDetail.length == 0) return new RouteInfo()
     const info = new RouteInfo()
-    info.values = [countryPathDetail[0][2]]
     let prev = countryPathDetail[0][2]
     const coords = points.coordinates
     for (const i in countryPathDetail) {
         if (countryPathDetail[i][2] != prev) {
-            info.values.push(countryPathDetail[i][2])
+            info.values.push(prev + ' - ' + countryPathDetail[i][2])
             info.segments.push([
                 toCoordinate(coords[countryPathDetail[i][0] - 1]),
                 toCoordinate(coords[countryPathDetail[i][0]]),
@@ -427,6 +447,7 @@ function getInfoFor(points: LineString, details: [number, number, any][], fnc: {
                 segCoords.push(toCoordinate(coords[i]))
             }
             segCoords.push(toCoordinate(coords[to]))
+            info.values.push(details[i][2])
             info.segments.push(segCoords)
         }
     }
