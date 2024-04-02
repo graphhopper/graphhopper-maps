@@ -351,6 +351,10 @@ export class ApiImpl implements Api {
         return array
     }
 
+    public static isFootLike(profile: string) {
+        return profile.includes('hike') || profile.includes('foot')
+    }
+
     public static isBikeLike(profile: string) {
         return profile.includes('mtb') || profile.includes('bike')
     }

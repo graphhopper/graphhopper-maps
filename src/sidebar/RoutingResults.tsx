@@ -73,6 +73,12 @@ function RoutingResult({
     )
     const ferryInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ferry')
     const accessCondInfo = getInfoFor(path.points, path.details.access_conditional, s => s != null && s.length > 0)
+    const footAccessCondInfo = !ApiImpl.isFootLike(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.foot_conditional, s => s != null && s.length > 0)
+    const bikeAccessCondInfo = !ApiImpl.isBikeLike(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.bike_conditional, s => s != null && s.length > 0)
     const privateOrDeliveryInfo = ApiImpl.isMotorVehicle(profile)
         ? getInfoFor(
               path.points,
@@ -104,6 +110,8 @@ function RoutingResult({
         tollInfo.distance > 0 ||
         ferryInfo.distance > 0 ||
         accessCondInfo.distance > 0 ||
+        footAccessCondInfo.distance > 0 ||
+        bikeAccessCondInfo.distance > 0 ||
         privateOrDeliveryInfo.distance > 0 ||
         trunkInfo.distance > 0 ||
         badTrackInfo.distance > 0 ||
@@ -202,6 +210,32 @@ function RoutingResult({
                             }
                             selected={selectedRH}
                             segments={accessCondInfo.segments}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains_restrictions')}
+                            setType={t => setSelectedRH(t)}
+                            type={'foot_access_conditional'}
+                            child={<CondAccessIcon />}
+                            value={
+                                footAccessCondInfo.distance > 0 &&
+                                metersToShortText(footAccessCondInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={footAccessCondInfo.segments}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains_restrictions')}
+                            setType={t => setSelectedRH(t)}
+                            type={'bike_access_conditional'}
+                            child={<CondAccessIcon />}
+                            value={
+                                bikeAccessCondInfo.distance > 0 &&
+                                metersToShortText(bikeAccessCondInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={bikeAccessCondInfo.segments}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
