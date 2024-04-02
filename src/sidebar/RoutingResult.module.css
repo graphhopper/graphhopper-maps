@@ -152,7 +152,7 @@
 .routeHints .icons {
     display: flex;
     flex-direction: row;
-    column-gap: 1rem;
+    column-gap: 8px;
     padding-bottom: 0.5rem;
 }
 
@@ -166,6 +166,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-width: 50px;
+    padding: 2px 4px;
+    border: 1px solid transparent; /* make border visible on hover or for selected */
+    transition: border-color 0.5s ease;
+}
+
+.routeHintButton:hover {
+    border-color: #bebebe;
 }
 
 .routeHintButton:hover,
@@ -184,6 +192,7 @@
 .selectedRouteHintButton span {
     color: #383838;
     padding-top: 1px;
+    border-color: #d5d4d4;
 }
 
 .routingResultRoadData {
