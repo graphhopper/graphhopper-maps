@@ -103,7 +103,7 @@ function RoutingResult({
     const getOffBikeInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.get_off_bike, s => s)
-    const countriesInfo = crossesBorderInfo(path.points, path.details.country)
+    const borderInfo = crossesBorderInfo(path.points, path.details.country)
 
     const showHints =
         fordInfo.distance > 0 ||
@@ -116,7 +116,7 @@ function RoutingResult({
         trunkInfo.distance > 0 ||
         badTrackInfo.distance > 0 ||
         stepsInfo.distance > 0 ||
-        countriesInfo.values.length > 1 ||
+        borderInfo.values.length > 0 ||
         getOffBikeInfo.distance > 0 ||
         steepInfo.distance > 0
 
@@ -183,12 +183,12 @@ function RoutingResult({
                             setDescription={b => setDescriptionRH(b)}
                             description={tr('way_crosses_border')}
                             setType={t => setSelectedRH(t)}
-                            type={'country'}
+                            type={'border'}
                             child={<BorderCrossingIcon />}
-                            value={countriesInfo.values.length > 1 && countriesInfo.values[0]}
+                            value={borderInfo.values.length > 0 && borderInfo.values[0]}
                             selected={selectedRH}
-                            segments={countriesInfo.segments}
-                            values={countriesInfo.values}
+                            segments={borderInfo.segments}
+                            values={borderInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -365,7 +365,7 @@ function RHButton(p: {
                 p.setType(p.type)
                 let tmpDescription
                 if (p.type == 'get_off_bike') tmpDescription = p.description
-                else if (p.type == 'country') tmpDescription = p.description + ': ' + p.values[index]
+                else if (p.type == 'border') tmpDescription = p.description + ': ' + p.values[index]
                 else if (p.values && p.values[index])
                     tmpDescription = p.description + ': ' + p.value + ' ' + p.values[index]
                 else tmpDescription = p.description + ': ' + p.value
