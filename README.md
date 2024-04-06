@@ -34,7 +34,7 @@ to create a new or improve an existing language. Let us know if you changed some
  * Run `python3 update-translations.py`
  * Review your changes via e.g. http://localhost:3000/?locale=en and with `git diff`. Make sure that is the only one with `git status`.
  
-Please note that the translations the server-side turn instructions are located in [a different repository](https://github.com/graphhopper/graphhopper/blob/master/docs/core/translations.md).
+Please note that the translations for the server-side turn instructions are located in [a different repository](https://github.com/graphhopper/graphhopper/blob/master/docs/core/translations.md).
 
 ## Advanced configuration
 

@@ -214,7 +214,12 @@ export class ApiImpl implements Api {
             request['ch.disable'] = true
         }
 
-        if (args.points.length <= 2 && args.maxAlternativeRoutes > 1 && !(request as any)['curbsides'] && !args.profile.startsWith("cp_")) {
+        if (
+            args.points.length <= 2 &&
+            args.maxAlternativeRoutes > 1 &&
+            !(request as any)['curbsides'] &&
+            !args.profile.startsWith('cp_')
+        ) {
             return {
                 ...request,
                 'alternative_route.max_paths': args.maxAlternativeRoutes,
@@ -344,6 +349,10 @@ export class ApiImpl implements Api {
             } else array.push([lng * 1e-5, lat * 1e-5])
         }
         return array
+    }
+
+    public static isFootLike(profile: string) {
+        return profile.includes('hike') || profile.includes('foot')
     }
 
     public static isBikeLike(profile: string) {
