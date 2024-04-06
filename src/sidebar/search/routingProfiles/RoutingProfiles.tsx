@@ -115,7 +115,7 @@ export default function ({
                                     {customModelBoxEnabled && profile.name === selectedProfile.name && (
                                         <CustomModelBoxSVG className={styles.asIndicator} />
                                     )}
-                                    {getIcon(profile)}
+                                    {getIcon(profile, routingProfiles)}
                                 </PlainButton>
                             </li>
                         )
@@ -134,31 +134,35 @@ export default function ({
     )
 }
 
-function getIcon(profile: RoutingProfile) {
-    switch (profile.name) {
-        case 'car':
-            return <CarIcon />
-        case 'small_truck':
-            return <SmallTruckIcon />
-        case 'truck':
-            return <TruckIcon />
-        case 'scooter':
-            return <ScooterIcon />
-        case 'foot':
-            return <FootIcon />
-        case 'hike':
-            return <HikeIcon />
-        case 'bike':
-            return <BicycleIcon />
-        case 'mtb':
-            return <MtbBicycleIcon />
-        case 'racingbike':
-            return <RacingbikeIcon />
-        case 'motorcycle':
-            return <MotorcycleIcon />
-        case 'wheelchair':
-            return <WheelchairIcon />
-        default:
-            return <QuestionMarkIcon />
+// type any is needed to read the icon property, which is not part of the RoutingProfile type,
+// but was injected in QueryStore.ts
+function getIcon(profile: any, profiles: any[]) {
+    // ALL AVAILABLE ICONS
+    // every svg gets mapped to a key, so icons can be easily added
+    // in the config file: use a key like "car", "small_truck", ...
+    const icons = {
+        car: CarIcon,
+        small_truck: SmallTruckIcon,
+        truck: TruckIcon,
+        scooter: ScooterIcon,
+        foot: FootIcon,
+        hike: HikeIcon,
+        bike: BicycleIcon,
+        mtb: MtbBicycleIcon, // Mountainbike
+        racingbike: RacingbikeIcon,
+        motorcycle: MotorcycleIcon,
+        wheelchair: WheelchairIcon,
+        question_mark: QuestionMarkIcon,
     }
+
+    // this gets the index of the profile in the list of profiles without an icon, used to display the fallback number icon
+    const index = profiles.filter((p) => p.icon == undefined && !Object.keys(icons).includes(p.name)).findIndex((p) => p.name === profile.name) + 1
+    const i = profile.icon !== undefined ? profile.icon : profile.name
+
+    // if the icon is not in the list of icons, the fallback number icon is displayed, otherwise the svg from the icons map gets rendered
+    return Object.keys(icons).includes(i) ? React.createElement(Object.entries(icons).find(([key]) => key === i)![1]) : <NumberIcon number={index} />
+}
+
+function NumberIcon({ number }: { number: number }) {
+    return <span>{number}</span>
 }

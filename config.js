@@ -46,6 +46,10 @@ const config = {
     //
     // E.g. the 'bike' entry will add a "bike" profile for which we send a request with the specified 'details' parameter. You can even change the profile itself when you specify
     // bike: { profile: 'raw_bike', ... }
+    //
+    // You can also change or set an icon for a profile. For this, add an 'icon' field with the name of the icon you want to use.
+    // E.g. bike: { icon: 'bike' }
+    // A map of all available icons can be found at the bottom of the src/sidebar/search/routingProfiles/RoutingProfiles.tsx file
 }
 
 // this is needed for jest (with our current setup at least)

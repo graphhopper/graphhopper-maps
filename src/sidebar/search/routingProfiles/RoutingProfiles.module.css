@@ -20,6 +20,7 @@
     flex-direction: row;
     justify-content: start;
     overflow: scroll;
+    gap: 0.1rem;
 
     /* Hide scrollbar for IE, Edge and Firefox */
     -ms-overflow-style: none;
@@ -67,9 +68,20 @@
 
 .profileBtn {
     border-radius: 50%;
-    margin: 0.1em;
     padding: 0.3em;
-    transform: scale(1.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.profileBtn span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.5em;
+    aspect-ratio: 1 / 1;
 }
 
 .asIndicator {

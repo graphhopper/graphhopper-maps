@@ -248,8 +248,9 @@ export default class QueryStore extends Store<QueryStoreState> {
             if (action.result.profiles.length <= 0) return state
 
             // if there are profiles defined in the config file use them, otherwise use the profiles from /info
+            // if there is an "icon" defined in the config, it will get injected into the profile, and later on read using "any" casting
             const profiles: RoutingProfile[] = config.profiles
-                ? Object.keys(config.profiles).map(profile => ({ name: profile }))
+                ? Object.entries(config.profiles).map(([name, { icon }]) => ({ name, icon }))
                 : action.result.profiles
 
             // if a routing profile was in the url keep it, otherwise select the first entry as default profile
