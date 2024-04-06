@@ -156,11 +156,18 @@ function getIcon(profile: any, profiles: any[]) {
     }
 
     // this gets the index of the profile in the list of profiles without an icon, used to display the fallback number icon
-    const index = profiles.filter((p) => p.icon == undefined && !Object.keys(icons).includes(p.name)).findIndex((p) => p.name === profile.name) + 1
+    const index =
+        profiles
+            .filter(p => p.icon == undefined && !Object.keys(icons).includes(p.name))
+            .findIndex(p => p.name === profile.name) + 1
     const i = profile.icon !== undefined ? profile.icon : profile.name
 
     // if the icon is not in the list of icons, the fallback number icon is displayed, otherwise the svg from the icons map gets rendered
-    return Object.keys(icons).includes(i) ? React.createElement(Object.entries(icons).find(([key]) => key === i)![1]) : <NumberIcon number={index} />
+    return Object.keys(icons).includes(i) ? (
+        React.createElement(Object.entries(icons).find(([key]) => key === i)![1])
+    ) : (
+        <NumberIcon number={index} />
+    )
 }
 
 function NumberIcon({ number }: { number: number }) {
