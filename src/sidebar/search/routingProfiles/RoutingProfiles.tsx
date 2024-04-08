@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { ReactElement, useEffect, useState } from 'react'
 import styles from './RoutingProfiles.module.css'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetVehicleProfile } from '@/actions/Actions'
@@ -19,6 +19,24 @@ import QuestionMarkIcon from './question_mark.svg'
 import Chevron from './chevron.svg'
 import { tr } from '@/translation/Translation'
 import CustomModelBoxSVG from '@/sidebar/open_custom_model.svg'
+
+// ALL AVAILABLE ICONS
+// every svg gets mapped to a key, so icons can be easily added
+// in the config file: use a key like "car", "small_truck", ...
+const icons = {
+    car: CarIcon,
+    small_truck: SmallTruckIcon,
+    truck: TruckIcon,
+    scooter: ScooterIcon,
+    foot: FootIcon,
+    hike: HikeIcon,
+    bike: BicycleIcon,
+    mtb: MtbBicycleIcon, // Mountainbike
+    racingbike: RacingbikeIcon,
+    motorcycle: MotorcycleIcon,
+    wheelchair: WheelchairIcon,
+    question_mark: QuestionMarkIcon,
+}
 
 export default function ({
     routingProfiles,
@@ -81,6 +99,20 @@ export default function ({
         setProfileScroll(profilesCarouselItems.scrollLeft)
     }
 
+    // this maps the profile names to the icons, so the correct icon can be displayed
+    // this is used to count the profiles of a specific icon, so the fallback number icon can be displayed with a base icon
+    // see #376 for more details
+    let profileMap: Record<string, Array<any>> = {};
+    routingProfiles.forEach((p) => {
+        // find the key in the icons object, which matches the profile name with the following rules
+        // 1. the profile name is equal to the key
+        // 2. the profile name starts with the key and is followed by an underscore
+        const key = Object.keys(icons).find(k => p.name === k || p.name.startsWith(k + "_")) || "";
+
+        // if the key is found, the profile name gets added to the array of the key, otherwise it gets added to an empty string
+        profileMap[key] = [...(profileMap[key] || []), p];
+    });
+
     return (
         <div className={styles.profilesParent}>
             <PlainButton
@@ -115,7 +147,7 @@ export default function ({
                                     {customModelBoxEnabled && profile.name === selectedProfile.name && (
                                         <CustomModelBoxSVG className={styles.asIndicator} />
                                     )}
-                                    {getIcon(profile, routingProfiles)}
+                                    {getIcon(profile, profileMap)}
                                 </PlainButton>
                             </li>
                         )
@@ -136,38 +168,42 @@ export default function ({
 
 // type any is needed to read the icon property, which is not part of the RoutingProfile type,
 // but was injected in QueryStore.ts
-function getIcon(profile: any, profiles: any[]) {
-    // ALL AVAILABLE ICONS
-    // every svg gets mapped to a key, so icons can be easily added
-    // in the config file: use a key like "car", "small_truck", ...
-    const icons = {
-        car: CarIcon,
-        small_truck: SmallTruckIcon,
-        truck: TruckIcon,
-        scooter: ScooterIcon,
-        foot: FootIcon,
-        hike: HikeIcon,
-        bike: BicycleIcon,
-        mtb: MtbBicycleIcon, // Mountainbike
-        racingbike: RacingbikeIcon,
-        motorcycle: MotorcycleIcon,
-        wheelchair: WheelchairIcon,
-        question_mark: QuestionMarkIcon,
+function getIcon(profile: any, profiles: Record<string, Array<any>>) {
+    if(profile.icon) {
+        return Object.keys(icons).includes(profile.icon) ? React.createElement(Object.entries(icons).find(([key]) => key === profile.icon)![1]) : React.createElement(icons.question_mark);
     }
 
-    // this gets the index of the profile in the list of profiles without an icon, used to display the fallback number icon
-    const index =
-        profiles
-            .filter(p => p.icon == undefined && !Object.keys(icons).includes(p.name))
-            .findIndex(p => p.name === profile.name) + 1
-    const i = profile.icon !== undefined ? profile.icon : profile.name
+    // if the profile name is in the profileMap, the icon of the profile gets displayed
+    // otherwise the fallback number icon gets displayed with the base icon
+    if(profiles[profile.name]) {
+        return React.createElement(Object.entries(icons).find(([key]) => key === profile.name)![1]);
+    }
 
-    // if the icon is not in the list of icons, the fallback number icon is displayed, otherwise the svg from the icons map gets rendered
-    return Object.keys(icons).includes(i) ? (
-        React.createElement(Object.entries(icons).find(([key]) => key === i)![1])
-    ) : (
-        <NumberIcon number={index} />
+    // go through every key in the profiles map and check if the profile name is in the array under that key
+    // if the key is not "", return a IconWithBatchNumber with the base icon of the key and a number (index of the profile in the array)
+    // if the key is "", return a NumberIcon with the index of the profile in the array
+    for(const [key, value] of Object.entries(profiles)) {
+        if(value.some((p) => p.name === profile.name)) {
+            const icon = Object.keys(icons).includes(key) ? Object.entries(icons).find(([k]) => k === key)![1] : icons.question_mark;
+            const index = key === "" ? value.findIndex((p) => p.name == profile.name) + 1 : value.findIndex((p) => p.name == profile.name);
+            return key === "" ? <NumberIcon number={index} /> : <IconWithBatchNumber baseIcon={icon} number={index} />;
+        }
+    }
+
+    // this is the very last fallback, should never be reached
+    return React.createElement(icons.question_mark);
+}
+
+function IconWithBatchNumber({baseIcon, number}: {baseIcon: any, number: number}) {
+    return (
+        <div className={styles.iconContainer}>
+            {React.createElement(baseIcon)}
+            <div className={styles.batchNumber}>
+                <NumberIcon number={number} />
+            </div>
+        </div>
     )
+
 }
 
 function NumberIcon({ number }: { number: number }) {

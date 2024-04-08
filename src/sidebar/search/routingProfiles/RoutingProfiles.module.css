@@ -82,6 +82,19 @@
     align-items: center;
     width: 1.5em;
     aspect-ratio: 1 / 1;
+    font-weight: bold;
+}
+
+.iconContainer {
+    position: relative;
+}
+
+.batchNumber {
+    position: absolute;
+    top: -7.1px;
+    right: -5px;
+    font-size: 0.75em;
+    font-weight: bold;
 }
 
 .asIndicator {
