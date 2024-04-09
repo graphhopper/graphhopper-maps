@@ -95,6 +95,8 @@
     right: -5px;
     font-size: 0.75em;
     font-weight: bold;
+    -webkit-text-stroke: 2px #fff;
+    paint-order: stroke fill;
 }
 
 .asIndicator {

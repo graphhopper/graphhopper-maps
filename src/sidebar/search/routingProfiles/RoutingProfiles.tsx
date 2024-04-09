@@ -168,11 +168,7 @@ export default function ({
 
 // type any is needed to read the icon property, which is not part of the RoutingProfile type,
 // but was injected in QueryStore.ts
-function getIcon(profile: any, profiles: Record<string, Array<any>>) {
-    if(profile.icon) {
-        return Object.keys(icons).includes(profile.icon) ? React.createElement(Object.entries(icons).find(([key]) => key === profile.icon)![1]) : React.createElement(icons.question_mark);
-    }
-
+function getIcon(profile: RoutingProfile, profiles: Record<string, Array<any>>) {
     // if the profile name is in the profileMap, the icon of the profile gets displayed
     // otherwise the fallback number icon gets displayed with the base icon
     if(profiles[profile.name]) {
