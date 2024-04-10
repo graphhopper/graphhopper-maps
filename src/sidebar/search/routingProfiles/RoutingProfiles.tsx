@@ -71,15 +71,13 @@ export default function ({
     }
 
     // Create a hash to count custom profiles to later enhance the base icon with a number.
-    // Here the hash looks like { "car_": [], "truck_": [] }
     let customProfiles: Record<string, Array<string>> = {}
-    Object.entries(icons).forEach(([key, value]) => (customProfiles[key + '_'] = []))
 
     // Now add the profiles to each key e.g. 'car_avoid_ferry' to the 'car_' key.
-    // Create a special key '' for profile names with an unknown icon.
+    // Create a special key '_' for profile names with an unknown icon.
     routingProfiles.forEach(p => {
-        const key = Object.keys(customProfiles).find(k => p.name.startsWith(k)) || ''
-        if (!icons[p.name]) customProfiles[key] = [...(customProfiles[key] || []), p.name]
+        const key = Object.keys(icons).find(k => p.name.startsWith(k + '_')) || ''
+        if (!icons[p.name]) customProfiles[key + '_'] = [...(customProfiles[key + '_'] || []), p.name]
     })
 
     return (
@@ -145,7 +143,7 @@ function getIcon(profileName: string, customProfiles: Record<string, Array<strin
         if (index >= 1) {
             let icon = icons[key.slice(0, -1)] // slice to remove underscore from key
             if (!icon) icon = icons.question_mark
-            return key === '' ? <NumberIcon number={index} /> : <IconWithBatchNumber baseIcon={icon} number={index} />
+            return key === '_' ? <NumberIcon number={index} /> : <IconWithBatchNumber baseIcon={icon} number={index} />
         }
     }
 
