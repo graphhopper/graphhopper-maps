@@ -72,13 +72,13 @@ export default function ({
 
     // this maps the profile names to the icons, so the correct icon can be displayed
     // this is used to count the profiles of a specific icon, so the fallback number icon can be displayed with a base icon
+    // keys are copied from the icons object
     // see #376 for more details
-    let profileMap: Record<string, Array<any>> = {}
+    let profileMap: Record<string, Array<any>> = Object.keys(icons).reduce((acc, key) => ({ ...acc, [key]: [] }), {})
+
     routingProfiles.forEach(p => {
-        // find the key in the icons object, which matches the profile name with the following rules
-        // 1. the profile name is equal to the key
-        // 2. the profile name starts with the key and is followed by an underscore
-        const key = Object.keys(icons).find(k => p.name === k || p.name.startsWith(k + '_')) || ''
+        // find the key in the icons object, which the profile name starts with the key and is followed by an underscore
+        const key = Object.keys(icons).find(k => p.name.startsWith(k + '_')) || ''
 
         // if the key is found, the profile name gets added to the array of the key, otherwise it gets added to an empty string
         profileMap[key] = [...(profileMap[key] || []), p]
@@ -154,10 +154,7 @@ function getIcon(profile: RoutingProfile, profiles: Record<string, Array<any>>) 
             const icon = Object.keys(icons).includes(key)
                 ? Object.entries(icons).find(([k]) => k === key)![1]
                 : icons.question_mark
-            const index =
-                key === ''
-                    ? value.findIndex(p => p.name == profile.name) + 1
-                    : value.findIndex(p => p.name == profile.name)
+            const index = value.findIndex(p => p.name == profile.name) + 1
             return key === '' ? <NumberIcon number={index} /> : <IconWithBatchNumber baseIcon={icon} number={index} />
         }
     }
