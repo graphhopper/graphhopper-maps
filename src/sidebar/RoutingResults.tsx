@@ -76,9 +76,17 @@ function RoutingResult({
     const footAccessCondInfo = !ApiImpl.isFootLike(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.foot_conditional, s => s != null && s.length > 0)
+    const hikeRatingInfo = !ApiImpl.isFootLike(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.hike_rating, s => s > 0)
+
     const bikeAccessCondInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.bike_conditional, s => s != null && s.length > 0)
+    const mtbRatingInfo = !ApiImpl.isBikeLike(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.mtb_rating, s => s > 1)
+
     const privateOrDeliveryInfo = ApiImpl.isMotorVehicle(profile)
         ? getInfoFor(
               path.points,
@@ -118,6 +126,8 @@ function RoutingResult({
         stepsInfo.distance > 0 ||
         borderInfo.values.length > 0 ||
         getOffBikeInfo.distance > 0 ||
+        mtbRatingInfo.distance > 0 ||
+        hikeRatingInfo.distance > 0 ||
         steepInfo.distance > 0
 
     const settings = useContext(SettingsContext)
@@ -270,6 +280,34 @@ function RoutingResult({
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains', [tr('challenging_sections')])}
+                            setType={t => setSelectedRH(t)}
+                            type={'mtb_rating'}
+                            child={<DangerousIcon />}
+                            value={
+                                mtbRatingInfo.distance > 0 &&
+                                metersToShortText(mtbRatingInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={mtbRatingInfo.segments}
+                            values={mtbRatingInfo.values}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains', [tr('challenging_sections')])}
+                            setType={t => setSelectedRH(t)}
+                            type={'hike_rating'}
+                            child={<DangerousIcon />}
+                            value={
+                                hikeRatingInfo.distance > 0 &&
+                                metersToShortText(hikeRatingInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={hikeRatingInfo.segments}
+                            values={hikeRatingInfo.values}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
                             description={tr('way_contains', [tr('steps')])}
                             setType={t => setSelectedRH(t)}
                             type={'steps'}
@@ -366,9 +404,11 @@ function RHButton(p: {
                 let tmpDescription
                 if (p.type == 'get_off_bike') tmpDescription = p.description
                 else if (p.type == 'border') tmpDescription = p.description + ': ' + p.values[index]
-                else if (p.values && p.values[index])
-                    tmpDescription = p.description + ': ' + p.value + ' ' + p.values[index]
-                else tmpDescription = p.description + ': ' + p.value
+                else if (p.values && p.values[index]) {
+                    if (p.type.includes('rating'))
+                        tmpDescription = p.description + ': ' + p.value + ' (' + p.type + ':' + p.values[index] + ')'
+                    else tmpDescription = p.description + ': ' + p.value + ' ' + p.values[index]
+                } else tmpDescription = p.description + ': ' + p.value
 
                 p.setDescription(tmpDescription)
                 Dispatcher.dispatch(new PathDetailsElevationSelected(p.segments))

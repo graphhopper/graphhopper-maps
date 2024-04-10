@@ -106,6 +106,8 @@ interface Details {
     readonly track_type: [number, number, string][]
     readonly country: [number, number, string][]
     readonly get_off_bike: [number, number, boolean][]
+    readonly mtb_rating: [number, number, boolean][]
+    readonly hike_rating: [number, number, boolean][]
 }
 
 export interface GeocodingResult {
