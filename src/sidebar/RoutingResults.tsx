@@ -81,7 +81,7 @@ function RoutingResult({
         : getInfoFor(path.points, path.details.foot_conditional, s => s != null && s.length > 0)
     const hikeRatingInfo = !ApiImpl.isFootLike(profile)
         ? new RouteInfo()
-        : getInfoFor(path.points, path.details.hike_rating, s => s > 0)
+        : getInfoFor(path.points, path.details.hike_rating, s => s > 1)
 
     const bikeAccessCondInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
