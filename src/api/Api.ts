@@ -276,24 +276,22 @@ export class ApiImpl implements Api {
 
     private static decodePoints(path: RawPath, is3D: boolean) {
         if (path.points_encoded) {
-            const multiplier = path.points_encoded_multiplier || 1e5;
+            const multiplier = path.points_encoded_multiplier || 1e5
             return {
                 type: 'LineString',
                 coordinates: ApiImpl.decodePath(path.points as string, is3D, multiplier),
             }
-        }
-        else return path.points as LineString
+        } else return path.points as LineString
     }
 
     private static decodeWaypoints(path: RawPath, is3D: boolean) {
         if (path.points_encoded) {
-            const multiplier = path.points_encoded_multiplier || 1e5;
+            const multiplier = path.points_encoded_multiplier || 1e5
             return {
                 type: 'LineString',
                 coordinates: ApiImpl.decodePath(path.snapped_waypoints as string, is3D, multiplier),
             }
-        }
-        else return path.snapped_waypoints as LineString
+        } else return path.snapped_waypoints as LineString
     }
 
     private static setPointsOnInstructions(path: Path) {
