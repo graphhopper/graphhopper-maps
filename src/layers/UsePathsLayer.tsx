@@ -146,7 +146,7 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
     })
     const style = new Style({
         stroke: new Stroke({
-            color: 'rgba(39, 93, 173, 0.8)',
+            color: 'rgba(39, 93, 173, 1)',
             width: 5,
         }),
     })
