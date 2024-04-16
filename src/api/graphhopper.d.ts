@@ -16,6 +16,7 @@ export interface RoutingRequest {
     profile: string
     locale: string
     points_encoded: boolean
+    points_encoded_multiplier: number
     instructions: boolean
     elevation: boolean
     'alternative_route.max_paths'?: number
@@ -76,6 +77,7 @@ export interface BasePath {
     readonly ascend: number
     readonly descend: number
     readonly points_encoded: boolean
+    readonly points_encoded_multiplier: number
     readonly bbox?: Bbox
     readonly instructions: Instruction[]
     readonly details: Details
