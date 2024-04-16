@@ -151,14 +151,14 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
         }),
     })
     const lineString = new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c)))
-const borderFeature = new Feature(lineString)
-const layer = new VectorLayer({
-    source: new VectorSource({
-        features: [borderFeature, new Feature(lineString)],
-    }),
-    style: f => f == borderFeature ? borderStyle : style,
-    zIndex: 2,
-})
+    const borderFeature = new Feature(lineString)
+    const layer = new VectorLayer({
+        source: new VectorSource({
+            features: [borderFeature, new Feature(lineString)],
+        }),
+        style: f => (f == borderFeature ? borderStyle : style),
+        zIndex: 2,
+    })
     layer.set(selectedPathLayerKey, true)
     map.addLayer(layer)
 }
