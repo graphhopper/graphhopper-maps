@@ -138,23 +138,25 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
 }
 
 function addSelectedPathsLayer(map: Map, selectedPath: Path) {
-    const borderStyle = new Style({
-        stroke: new Stroke({
-            color: 'rgba(255,255,255,0.8)',
-            width: 7,
+    const styleArray = [
+        new Style({
+            stroke: new Stroke({
+                color: 'rgba(255,255,255,0.8)',
+                width: 7,
+            }),
         }),
-    })
-    const style = new Style({
-        stroke: new Stroke({
-            color: 'rgba(19,66,134,0.8)',
-            width: 5,
+        new Style({
+            stroke: new Stroke({
+                color: 'rgba(19,66,134,0.8)',
+                width: 5,
+            }),
         }),
-    })
+    ]
     const layer = new VectorLayer({
         source: new VectorSource({
             features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
         }),
-        style: [borderStyle, style],
+        style: styleArray,
         zIndex: 2,
     })
     layer.set(selectedPathLayerKey, true)
