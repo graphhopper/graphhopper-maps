@@ -140,13 +140,13 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
 function addSelectedPathsLayer(map: Map, selectedPath: Path) {
     const borderStyle = new Style({
         stroke: new Stroke({
-            color: 'white',
+            color: 'rgba(255,255,255,0.8)',
             width: 7,
         }),
     })
     const style = new Style({
         stroke: new Stroke({
-            color: 'rgba(39, 93, 173, 1)',
+            color: 'rgba(19,66,134,0.8)',
             width: 5,
         }),
     })
