@@ -141,13 +141,13 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
     const styleArray = [
         new Style({
             stroke: new Stroke({
-                color: 'rgba(255,255,255,0.8)',
+                color: 'rgba(255,255,255,1)',
                 width: 7,
             }),
         }),
         new Style({
             stroke: new Stroke({
-                color: 'rgba(19,66,134,0.8)',
+                color: 'rgba(19,66,134,1)',
                 width: 5,
             }),
         }),
@@ -157,6 +157,7 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
             features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
         }),
         style: styleArray,
+        opacity: 0.8,
         zIndex: 2,
     })
     layer.set(selectedPathLayerKey, true)
