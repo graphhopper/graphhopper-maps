@@ -43,14 +43,20 @@ function removeCurrentPathLayers(map: Map) {
 }
 
 function addUnselectedPathsLayer(map: Map, paths: Path[]) {
-    const style = new Style({
-        stroke: new Stroke({
-            color: '#5B616A',
-            width: 5,
-            lineCap: 'round',
-            lineJoin: 'round',
+    const styleArray = [
+        new Style({
+            stroke: new Stroke({
+                color: 'rgba(39,93,173,1)',
+                width: 6,
+            }),
         }),
-    })
+        new Style({
+            stroke: new Stroke({
+                color: 'rgba(201,217,241,0.8)',
+                width: 4,
+            }),
+        }),
+    ]
     const layer = new VectorLayer({
         source: new VectorSource({
             features: paths.map((path: Path, index) => {
@@ -62,8 +68,8 @@ function addUnselectedPathsLayer(map: Map, paths: Path[]) {
                 return f
             }),
         }),
-        style: () => style,
-        opacity: 0.8,
+        style: styleArray,
+        opacity: 0.7,
         zIndex: 1,
     })
     layer.set(pathsLayerKey, true)
@@ -142,13 +148,13 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
         new Style({
             stroke: new Stroke({
                 color: 'rgba(255,255,255,1)',
-                width: 7,
+                width: 9,
             }),
         }),
         new Style({
             stroke: new Stroke({
-                color: 'rgba(39,93,173,1)',
-                width: 5,
+                color: 'rgb(49,104,187)',
+                width: 7,
             }),
         }),
     ]
