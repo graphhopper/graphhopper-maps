@@ -70,18 +70,14 @@ export default function ({
         setProfileScroll(profilesCarouselItems.scrollLeft)
     }
 
-    // this maps the profile names to the icons, so the correct icon can be displayed
-    // this is used to count the profiles of a specific icon, so the fallback number icon can be displayed with a base icon
-    // keys are copied from the icons object
-    // see #376 for more details
-    let profileMap: Record<string, Array<any>> = Object.keys(icons).reduce((acc, key) => ({ ...acc, [key]: [] }), {})
+    // Create a hash to count custom profiles to later enhance the base icon with a number.
+    let customProfiles: Record<string, Array<string>> = {}
 
+    // Now add the profiles to each key e.g. 'car_avoid_ferry' to the 'car_' key.
+    // Create a special key '_' for profile names with an unknown icon.
     routingProfiles.forEach(p => {
-        // find the key in the icons object, which the profile name starts with the key and is followed by an underscore
         const key = Object.keys(icons).find(k => p.name.startsWith(k + '_')) || ''
-
-        // if the key is found, the profile name gets added to the array of the key, otherwise it gets added to an empty string
-        profileMap[key] = [...(profileMap[key] || []), p]
+        if (!icons[p.name]) customProfiles[key + '_'] = [...(customProfiles[key + '_'] || []), p.name]
     })
 
     return (
@@ -118,7 +114,7 @@ export default function ({
                                     {customModelBoxEnabled && profile.name === selectedProfile.name && (
                                         <CustomModelBoxSVG className={styles.asIndicator} />
                                     )}
-                                    {getIcon(profile, profileMap)}
+                                    {getIcon(profile.name, customProfiles)}
                                 </PlainButton>
                             </li>
                         )
@@ -137,25 +133,17 @@ export default function ({
     )
 }
 
-// type any is needed to read the icon property, which is not part of the RoutingProfile type,
-// but was injected in QueryStore.ts
-function getIcon(profile: RoutingProfile, profiles: Record<string, Array<any>>) {
-    // if the profile name is a key of the profiles map, the icon of the profile gets displayed
-    // otherwise every standard profile like car, bike, ... would have a number in the top right corner
-    if (profiles[profile.name]) {
-        return React.createElement(Object.entries(icons).find(([key]) => key === profile.name)![1])
-    }
+function getIcon(profileName: string, customProfiles: Record<string, Array<string>>) {
+    let icon = icons[profileName]
+    if (icon) return React.createElement(icon)
 
-    // go through every key in the profiles map and check if the profile name is in the array under that key
-    // if the key is not "", return a IconWithBatchNumber with the base icon of the key and a number (index of the profile in the array)
-    // if the key is "", return a NumberIcon with the index of the profile in the array
-    for (const [key, value] of Object.entries(profiles)) {
-        if (value.some(p => p.name === profile.name)) {
-            const icon = Object.keys(icons).includes(key)
-                ? Object.entries(icons).find(([k]) => k === key)![1]
-                : icons.question_mark
-            const index = value.findIndex(p => p.name == profile.name) + 1
-            return key === '' ? <NumberIcon number={index} /> : <IconWithBatchNumber baseIcon={icon} number={index} />
+    // go through every key in customProfiles and check if the profile is in the array under that key
+    for (const [key, value] of Object.entries(customProfiles)) {
+        const index = value.findIndex(p => p == profileName) + 1
+        if (index >= 1) {
+            let icon = icons[key.slice(0, -1)] // slice to remove underscore from key
+            if (!icon) icon = icons.question_mark
+            return key === '_' ? <NumberIcon number={index} /> : <IconWithBatchNumber baseIcon={icon} number={index} />
         }
     }
 

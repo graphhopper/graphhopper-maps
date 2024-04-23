@@ -13,7 +13,7 @@ import QuestionMarkIcon from './question_mark.svg'
 
 // ALL AVAILABLE ICONS
 // every svg gets mapped to a key, so icons can be easily added
-export const icons = {
+export const icons: Record<string, any> = {
     car: CarIcon,
     small_truck: SmallTruckIcon,
     truck: TruckIcon,
