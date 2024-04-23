@@ -76,8 +76,8 @@ export default function ({
     // Now add the profiles to each key e.g. 'car_avoid_ferry' to the 'car_' key.
     // Create a special key '_' for profile names with an unknown icon.
     routingProfiles.forEach(p => {
-        const key = Object.keys(icons).find(k => p.name.startsWith(k + '_')) || ''
-        if (!icons[p.name]) customProfiles[key + '_'] = [...(customProfiles[key + '_'] || []), p.name]
+        const key = (Object.keys(icons).find(k => p.name.startsWith(k + '_')) || "") + "_"
+        if (!icons[p.name]) customProfiles[key] = [...(customProfiles[key] || []), p.name]
     })
 
     return (
