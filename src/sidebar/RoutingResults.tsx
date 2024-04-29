@@ -80,6 +80,11 @@ function RoutingResult({
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
+
+    const settings = useContext(SettingsContext)
+    const showDistanceInMiles = settings.showDistanceInMiles
+    let [showBackAndRisk, setShowBackAndRisk] = useState(false)
+
     const fordInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ford')
     const tollInfo = getInfoFor(
         path.points,
@@ -93,7 +98,7 @@ function RoutingResult({
         : getInfoFor(path.points, path.details.foot_conditional, s => s != null && s.length > 0)
     const hikeRatingInfo = !ApiImpl.isFootLike(profile)
         ? new RouteInfo()
-        : getInfoFor(path.points, path.details.hike_rating, s => s > 0)
+        : getInfoFor(path.points, path.details.hike_rating, s => s > 1)
 
     const bikeAccessCondInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
@@ -122,7 +127,9 @@ function RoutingResult({
     const stepsInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.road_class, s => s === 'steps')
-    const steepInfo = ApiImpl.isMotorVehicle(profile) ? new RouteInfo() : getHighSlopeInfo(path.points, 15)
+    const steepInfo = ApiImpl.isMotorVehicle(profile)
+        ? new RouteInfo()
+        : getHighSlopeInfo(path.points, 15, showDistanceInMiles)
     const getOffBikeInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.get_off_bike, s => s)
@@ -144,10 +151,6 @@ function RoutingResult({
         mtbRatingInfo.distance > 0 ||
         hikeRatingInfo.distance > 0 ||
         steepInfo.distance > 0
-
-    const settings = useContext(SettingsContext)
-    const showDistanceInMiles = settings.showDistanceInMiles
-    let [showBackAndRisk, setShowBackAndRisk] = useState(false)
 
     if (showBackAndRisk)
         return (
@@ -478,6 +481,7 @@ function RHButton(p: {
                 else if (p.values && p.values[index]) {
                     if (p.type.includes('rating'))
                         tmpDescription = p.description + ': ' + p.value + ' (' + p.type + ':' + p.values[index] + ')'
+                    else if (p.type.includes('steep')) tmpDescription = p.description + ': ' + p.values[index]
                     else tmpDescription = p.description + ': ' + p.value + ' ' + p.values[index]
                 } else tmpDescription = p.description + ': ' + p.value
 
@@ -570,26 +574,31 @@ function calcDistPos(from: Position, to: Position): number {
 }
 
 // sums up the lengths of the road segments with a slope bigger than steepSlope
-function getHighSlopeInfo(points: LineString, steepSlope: number) {
+function getHighSlopeInfo(points: LineString, steepSlope: number, showDistanceInMiles: boolean) {
     if (points.coordinates.length == 0) return new RouteInfo()
     if (points.coordinates[0].length != 3) return new RouteInfo()
     const info = new RouteInfo()
     let distForSlope = 0
+    let segmentPoints: Coordinate[] = []
     let prevElePoint = points.coordinates[0]
     let prevDistPoint = points.coordinates[0]
     points.coordinates.forEach(currPoint => {
         distForSlope += calcDistPos(currPoint, prevDistPoint)
-        prevDistPoint = currPoint
         // we assume that elevation data is not that precise and we can improve when using a minimum distance:
         if (distForSlope > 100) {
             const slope = (100.0 * Math.abs(prevElePoint[2] - currPoint[2])) / distForSlope
             if (slope > steepSlope) {
+                const distanceTxt = metersToShortText(Math.round(distForSlope), showDistanceInMiles)
+                info.values.push(distanceTxt + ' (' + Math.round(slope) + '%)')
                 info.distance += distForSlope
-                info.segments.push([toCoordinate(prevElePoint), toCoordinate(currPoint)])
+                info.segments.push(segmentPoints)
             }
             prevElePoint = currPoint
             distForSlope = 0
+            segmentPoints = []
         }
+        prevDistPoint = currPoint
+        segmentPoints.push(toCoordinate(currPoint))
     })
     return info
 }

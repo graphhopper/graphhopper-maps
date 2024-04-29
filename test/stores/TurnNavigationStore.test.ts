@@ -118,7 +118,7 @@ describe('TurnNavigationStore', () => {
             const api = new LocalApi()
             api.setRerouteData(reroute1, [
                 [14.267238, 51.43475],
-                [14.267240000000001, 51.43253000000001],
+                [14.26724, 51.43253],
             ])
             const speech = new DummySpeech()
             const store = createStore(api, speech)
@@ -153,7 +153,7 @@ describe('TurnNavigationStore', () => {
 
             api.setRerouteData(reroute1, [
                 [14.266328, 51.434653],
-                [14.267240000000001, 51.43253000000001],
+                [14.26724, 51.43253],
             ])
             Dispatcher.dispatch(new TurnNavigationReroutingTimeResetForTest()) // skip waiting 10 seconds
             Dispatcher.dispatch(new LocationUpdate({ lng: 14.266328, lat: 51.434653 }, true, 12, 120))
@@ -166,7 +166,7 @@ describe('TurnNavigationStore', () => {
         it('should reroute with via point', async () => {
             const rerouteWaypoints = [
                 [14.269289, 51.434764],
-                [14.26725, 51.43253000000001],
+                [14.26725, 51.43253],
             ] as [number, number][]
             const store = createStore(new LocalApi().setRerouteData(reroute1, rerouteWaypoints))
             Dispatcher.dispatch(new SetSelectedPath(routeWithVia.paths[0]))
@@ -191,7 +191,7 @@ describe('TurnNavigationStore', () => {
         it('should reroute with via point passing by', async () => {
             const rerouteWaypoints = [
                 [14.271099, 51.435433],
-                [14.267240000000001, 51.43253000000001],
+                [14.26724, 51.43253],
             ] as [number, number][]
             const store = createStore(new LocalApi().setRerouteData(reroute1, rerouteWaypoints))
             Dispatcher.dispatch(new SetSelectedPath(routeWithSimpleVia.paths[0]))
@@ -218,8 +218,8 @@ describe('TurnNavigationStore', () => {
         it('reroute and fetch next destination from initialPath', async () => {
             const rerouteWaypoints = [
                 [14.273946, 51.436422],
-                [14.27026, 51.435140000000004],
-                [14.267240000000001, 51.43253000000001],
+                [14.27026, 51.43514],
+                [14.26724, 51.43253],
             ] as [number, number][]
             const api = new LocalApi()
             api.setRerouteData(reroute2, rerouteWaypoints)
@@ -243,7 +243,7 @@ describe('TurnNavigationStore', () => {
             // reroute from initialPath
             const newWaypoints = [
                 [14.270589, 51.435272],
-                [14.267240000000001, 51.43253000000001],
+                [14.26724, 51.43253],
             ] as [number, number][]
             api.setRerouteData(reroute1, newWaypoints)
             Dispatcher.dispatch(new LocationUpdate({ lng: 14.270589, lat: 51.435272 }, true, 16, 70))
@@ -262,7 +262,7 @@ describe('TurnNavigationStore', () => {
             const api = new LocalApi()
             api.setRerouteData(reroute1, [
                 [14.267238, 51.43475],
-                [14.267240000000001, 51.43253000000001],
+                [14.26724, 51.43253],
             ])
             const store = createStore(api)
             Dispatcher.dispatch(new SetCustomModel(customModelStr, false))
@@ -299,7 +299,7 @@ describe('TurnNavigationStore', () => {
 
             api.setRerouteData(announceBugReroute, [
                 [14.190732, 51.431834],
-                [14.193150000000001, 51.43121000000001],
+                [14.19315, 51.43121],
             ])
             Dispatcher.dispatch(new LocationUpdate({ lng: 14.190732, lat: 51.431834 }, true, 10, 120))
             expect(store.state.rerouteInProgress).toBeTruthy()

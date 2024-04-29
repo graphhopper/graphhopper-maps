@@ -54,14 +54,20 @@ function removeCurrentPathLayers(map: Map) {
 }
 
 function addUnselectedPathsLayer(map: Map, paths: Path[]) {
-    const style = new Style({
-        stroke: new Stroke({
-            color: '#5B616A',
-            width: 5,
-            lineCap: 'round',
-            lineJoin: 'round',
+    const styleArray = [
+        new Style({
+            stroke: new Stroke({
+                color: 'rgba(39,93,173,1)',
+                width: 6,
+            }),
         }),
-    })
+        new Style({
+            stroke: new Stroke({
+                color: 'rgba(201,217,241,0.8)',
+                width: 4,
+            }),
+        }),
+    ]
     const layer = new VectorLayer({
         source: new VectorSource({
             features: paths.map((path: Path, index) => {
@@ -73,8 +79,8 @@ function addUnselectedPathsLayer(map: Map, paths: Path[]) {
                 return f
             }),
         }),
-        style: () => style,
-        opacity: 0.8,
+        style: styleArray,
+        opacity: 0.7,
         zIndex: 1,
     })
     layer.set(pathsLayerKey, true)
@@ -149,29 +155,26 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
 }
 
 function addSelectedPathsLayer(map: Map, selectedPath: Path, updateMoreFrequently: boolean) {
-    const styles = {
-        LineString: new Style({
+    const styleArray = [
+        new Style({
             stroke: new Stroke({
-                color: '#275DAD',
-                width: 6,
-                lineCap: 'round',
-                lineJoin: 'round',
+                color: 'rgba(255,255,255,1)',
+                width: 9,
             }),
         }),
-    } as { [key: string]: Style }
-    const features = [
-        new Feature({
-            properties: { type: 'LineString' },
-            geometry: new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))),
+        new Style({
+            stroke: new Stroke({
+                color: 'rgb(49,104,187)',
+                width: 7,
+            }),
         }),
-    ] as Feature[]
+    ]
 
     const layer = new VectorLayer({
         source: new VectorSource({
             features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
         }),
-        style: feature => styles[(feature.getGeometry() as Geometry).getType()],
-        // when navigating we need this for re-routing (see also useCurrentLocationLayer where this is necessary)
+        style: styleArray,
         updateWhileAnimating: updateMoreFrequently,
         updateWhileInteracting: updateMoreFrequently,
         opacity: 0.8,
