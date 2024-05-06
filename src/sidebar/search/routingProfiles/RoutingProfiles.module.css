@@ -20,6 +20,7 @@
     flex-direction: row;
     justify-content: start;
     overflow: scroll;
+    gap: 0.1rem;
 
     /* Hide scrollbar for IE, Edge and Firefox */
     -ms-overflow-style: none;
@@ -67,9 +68,35 @@
 
 .profileBtn {
     border-radius: 50%;
-    margin: 0.1em;
     padding: 0.3em;
-    transform: scale(1.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.profileBtn span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.5em;
+    aspect-ratio: 1 / 1;
+    font-weight: bold;
+}
+
+.iconContainer {
+    position: relative;
+}
+
+.batchNumber {
+    position: absolute;
+    top: -7.1px;
+    right: -5px;
+    font-size: 0.75em;
+    font-weight: bold;
+    -webkit-text-stroke: 2px #fff;
+    paint-order: stroke fill;
 }
 
 .asIndicator {
