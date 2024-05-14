@@ -344,7 +344,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 if (
                     state.queryPoints.length === 2 &&
                     state.maxAlternativeRoutes > 1 &&
-                    (ApiImpl.isMotorVehicle(state.routingProfile.name) && maxDistance < 8_000_000 || maxDistance < 500_000)
+                    (ApiImpl.isMotorVehicle(state.routingProfile.name) && maxDistance < 7_000_000 || maxDistance < 500_000)
                 )
                     requests.push(QueryStore.buildRouteRequest(state))
             }
