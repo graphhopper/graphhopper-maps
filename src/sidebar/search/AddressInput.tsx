@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
-import { Coordinate, getBBoxFromCoord, QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import QueryStore, { Coordinate, getBBoxFromCoord, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Bbox, GeocodingHit } from '@/api/graphhopper'
 import Autocomplete, {
     AutocompleteItem,
@@ -13,11 +13,12 @@ import Cross from '@/sidebar/times-solid-thin.svg'
 import styles from './AddressInput.module.css'
 import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
-import { hitToItem, nominatimHitToItem, textToCoordinate } from '@/Converters'
+import { coordinateToText, hitToItem, nominatimHitToItem, textToCoordinate } from '@/Converters'
 import { useMediaQuery } from 'react-responsive'
 import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
+import { getQueryStore } from '@/stores/Stores'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -287,7 +288,15 @@ class Geocoder {
 
         await this.timeout.wait()
         try {
-            const result = await this.api.geocode(query, provider)
+            const queryPoints = getQueryStore().state.queryPoints
+            const autocompleteIndex = queryPoints.findIndex(point => !point.isInitialized)
+            const prevPoint = queryPoints[autocompleteIndex - 1]
+            const options: Record<string, string> = {}
+            if (prevPoint) {
+                console.log(prevPoint)
+                options.point = coordinateToText(prevPoint.coordinate)
+            }
+            const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
             if (currentId === this.requestId) this.onSuccess(query, provider, hits)
         } catch (reason) {

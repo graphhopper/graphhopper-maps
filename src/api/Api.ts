@@ -28,7 +28,7 @@ export default interface Api {
 
     routeWithDispatch(args: RoutingArgs, zoom: boolean): void
 
-    geocode(query: string, provider: string): Promise<GeocodingResult>
+    geocode(query: string, provider: string, additionalOptions?: Record<string, string>): Promise<GeocodingResult>
 
     supportsGeocoding(): boolean
 }
@@ -79,7 +79,7 @@ export class ApiImpl implements Api {
         }
     }
 
-    async geocode(query: string, provider: string): Promise<GeocodingResult> {
+    async geocode(query: string, provider: string, additionalOptions?: Record<string, string>): Promise<GeocodingResult> {
         if (!this.supportsGeocoding())
             return {
                 hits: [],
@@ -95,6 +95,12 @@ export class ApiImpl implements Api {
         url.searchParams.append('osm_tag', '!place:county')
         url.searchParams.append('osm_tag', '!boundary')
         url.searchParams.append('osm_tag', '!historic')
+
+        if (additionalOptions) {
+            for (const key in additionalOptions) {
+                url.searchParams.append(key, additionalOptions[key])
+            }
+        }
 
         const response = await fetch(url.toString(), {
             headers: { Accept: 'application/json' },
