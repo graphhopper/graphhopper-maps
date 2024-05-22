@@ -292,10 +292,7 @@ class Geocoder {
             const autocompleteIndex = queryPoints.findIndex(point => !point.isInitialized)
             const prevPoint = queryPoints[autocompleteIndex - 1]
             const options: Record<string, string> = {}
-            if (prevPoint) {
-                console.log(prevPoint)
-                options.point = coordinateToText(prevPoint.coordinate)
-            }
+            if (prevPoint) options.point = coordinateToText(prevPoint.coordinate)
             const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
             if (currentId === this.requestId) this.onSuccess(query, provider, hits)

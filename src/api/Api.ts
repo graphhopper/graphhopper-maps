@@ -79,7 +79,11 @@ export class ApiImpl implements Api {
         }
     }
 
-    async geocode(query: string, provider: string, additionalOptions?: Record<string, string>): Promise<GeocodingResult> {
+    async geocode(
+        query: string,
+        provider: string,
+        additionalOptions?: Record<string, string>
+    ): Promise<GeocodingResult> {
         if (!this.supportsGeocoding())
             return {
                 hits: [],
