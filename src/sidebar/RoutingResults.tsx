@@ -413,7 +413,8 @@ function RHButton(p: {
                     else if (p.type == 'border') tmpDescription = p.description + ': ' + p.values[index]
                     else if (p.values && p.values[index]) {
                         if (p.type.includes('rating'))
-                            tmpDescription = p.description + ': ' + p.value + ' (' + p.type + ':' + p.values[index] + ')'
+                            tmpDescription =
+                                p.description + ': ' + p.value + ' (' + p.type + ':' + p.values[index] + ')'
                         else if (p.type.includes('steep')) tmpDescription = p.description + ': ' + p.values[index]
                         else tmpDescription = p.description + ': ' + p.value + ' ' + p.values[index]
                     } else tmpDescription = p.description + ': ' + p.value
