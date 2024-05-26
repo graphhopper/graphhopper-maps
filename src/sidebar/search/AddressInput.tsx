@@ -21,7 +21,8 @@ import { onCurrentLocationSelected } from '@/map/MapComponent'
 import { getQueryStore } from '@/stores/Stores'
 
 export interface AddressInputProps {
-    point: QueryPoint
+    point: QueryPoint,
+    points: QueryPoint[],
     onCancel: () => void
     onAddressSelected: (queryText: string, coord: Coordinate | undefined, bbox: Bbox | undefined) => void
     onChange: (value: string) => void
@@ -167,7 +168,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onChange={e => {
                         setText(e.target.value)
                         const coordinate = textToCoordinate(e.target.value)
-                        if (!coordinate) geocoder.request(e.target.value, 'default')
+                        if (!coordinate) geocoder.request(e.target.value, 'default', props.points)
                         props.onChange(e.target.value)
                     }}
                     onKeyDown={onKeypress}
@@ -214,7 +215,7 @@ export default function AddressInput(props: AddressInputProps) {
                                 } else if (item instanceof MoreResultsItem) {
                                     // do not hide autocomplete items
                                     const coordinate = textToCoordinate(item.search)
-                                    if (!coordinate) geocoder.request(item.search, 'nominatim')
+                                    if (!coordinate) geocoder.request(item.search, 'nominatim', props.points)
                                 }
                                 searchInput.current!.blur()
                             }}
@@ -272,8 +273,8 @@ class Geocoder {
         this.onSuccess = onSuccess
     }
 
-    request(query: string, provider: string) {
-        this.requestAsync(query, provider).then(() => {})
+    request(query: string, provider: string, queryPoints: QueryPoint[]) {
+        this.requestAsync(query, provider, queryPoints).then(() => {})
     }
 
     cancel() {
@@ -281,14 +282,13 @@ class Geocoder {
         this.getNextId()
     }
 
-    async requestAsync(query: string, provider: string) {
+    async requestAsync(query: string, provider: string, queryPoints: QueryPoint[]) {
         const currentId = this.getNextId()
         this.timeout.cancel()
         if (!query || query.length < 2) return
 
         await this.timeout.wait()
         try {
-            const queryPoints = getQueryStore().state.queryPoints
             const autocompleteIndex = queryPoints.findIndex(point => !point.isInitialized)
             const prevPoint = queryPoints[autocompleteIndex - 1]
             const options: Record<string, string> = {}
