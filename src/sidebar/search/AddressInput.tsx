@@ -18,7 +18,6 @@ import { useMediaQuery } from 'react-responsive'
 import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
-import { getQueryStore } from '@/stores/Stores'
 
 export interface AddressInputProps {
     point: QueryPoint,
