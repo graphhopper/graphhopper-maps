@@ -135,6 +135,11 @@ export default function AddressInput(props: AddressInputProps) {
     const containerClass = hasFocus ? styles.fullscreen : ''
     const type = props.point.type
 
+    // get the bias point for the geocoder
+    // (the query point above the current one)
+    const autocompleteIndex = props.points.findIndex(point => !point.isInitialized)
+    const biasPoint = props.points[autocompleteIndex - 1]
+
     return (
         <div className={containerClass}>
             <div
@@ -167,7 +172,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onChange={e => {
                         setText(e.target.value)
                         const coordinate = textToCoordinate(e.target.value)
-                        if (!coordinate) geocoder.request(e.target.value, 'default', props.points)
+                        if (!coordinate) geocoder.request(e.target.value, biasPoint, 'default')
                         props.onChange(e.target.value)
                     }}
                     onKeyDown={onKeypress}
@@ -214,7 +219,7 @@ export default function AddressInput(props: AddressInputProps) {
                                 } else if (item instanceof MoreResultsItem) {
                                     // do not hide autocomplete items
                                     const coordinate = textToCoordinate(item.search)
-                                    if (!coordinate) geocoder.request(item.search, 'nominatim', props.points)
+                                    if (!coordinate) geocoder.request(item.search, biasPoint,'nominatim')
                                 }
                                 searchInput.current!.blur()
                             }}
@@ -272,8 +277,8 @@ class Geocoder {
         this.onSuccess = onSuccess
     }
 
-    request(query: string, provider: string, queryPoints: QueryPoint[]) {
-        this.requestAsync(query, provider, queryPoints).then(() => {})
+    request(query: string, biasPoint: QueryPoint, provider: string) {
+        this.requestAsync(query, biasPoint, provider).then(() => {})
     }
 
     cancel() {
@@ -281,17 +286,14 @@ class Geocoder {
         this.getNextId()
     }
 
-    async requestAsync(query: string, provider: string, queryPoints: QueryPoint[]) {
+    async requestAsync(query: string, biasPoint: QueryPoint, provider: string) {
         const currentId = this.getNextId()
         this.timeout.cancel()
         if (!query || query.length < 2) return
 
         await this.timeout.wait()
         try {
-            const autocompleteIndex = queryPoints.findIndex(point => !point.isInitialized)
-            const prevPoint = queryPoints[autocompleteIndex - 1]
-            const options: Record<string, string> = {}
-            if (prevPoint) options.point = coordinateToText(prevPoint.coordinate)
+            const options: Record<string, string> = biasPoint ? {point: coordinateToText(biasPoint.coordinate)} : {}
             const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
             if (currentId === this.requestId) this.onSuccess(query, provider, hits)
