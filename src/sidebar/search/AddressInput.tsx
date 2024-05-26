@@ -20,8 +20,8 @@ import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
 
 export interface AddressInputProps {
-    point: QueryPoint,
-    points: QueryPoint[],
+    point: QueryPoint
+    points: QueryPoint[]
     onCancel: () => void
     onAddressSelected: (queryText: string, coord: Coordinate | undefined, bbox: Bbox | undefined) => void
     onChange: (value: string) => void
@@ -219,7 +219,7 @@ export default function AddressInput(props: AddressInputProps) {
                                 } else if (item instanceof MoreResultsItem) {
                                     // do not hide autocomplete items
                                     const coordinate = textToCoordinate(item.search)
-                                    if (!coordinate) geocoder.request(item.search, biasPoint,'nominatim')
+                                    if (!coordinate) geocoder.request(item.search, biasPoint, 'nominatim')
                                 }
                                 searchInput.current!.blur()
                             }}
@@ -293,7 +293,7 @@ class Geocoder {
 
         await this.timeout.wait()
         try {
-            const options: Record<string, string> = biasPoint ? {point: coordinateToText(biasPoint.coordinate)} : {}
+            const options: Record<string, string> = biasPoint ? { point: coordinateToText(biasPoint.coordinate) } : {}
             const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
             if (currentId === this.requestId) this.onSuccess(query, provider, hits)
