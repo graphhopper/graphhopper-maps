@@ -10,6 +10,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import * as config from 'config'
+import RenderFeature from 'ol/render/Feature'
 
 export default function useExternalMVTLayer(map: Map, externalMVTLayerEnabled: boolean) {
     useEffect(() => {
@@ -19,7 +20,7 @@ export default function useExternalMVTLayer(map: Map, externalMVTLayerEnabled: b
                 attributions: '',
                 format: new MVT({
                     // without this we won't be able to simply add the features to the selectionSource below, see: https://gis.stackexchange.com/a/407634
-                    featureClass: Feature,
+                    featureClass: RenderFeature,
                 }),
                 url: config.externalMVTLayer ? config.externalMVTLayer.url : '',
                 maxZoom: config.externalMVTLayer ? config.externalMVTLayer.maxZoom : 14,
