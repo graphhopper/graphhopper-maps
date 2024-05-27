@@ -166,6 +166,7 @@ const SearchBox = ({
                     dropPreviewIndex={dropPreviewIndex}
                     index={index}
                     point={point}
+                    points={points}
                     onCancel={() => console.log('cancel')}
                     onAddressSelected={(queryText, coordinate) => {
                         const initCount = points.filter(p => p.isInitialized).length
