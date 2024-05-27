@@ -293,7 +293,7 @@ class Geocoder {
 
         await this.timeout.wait()
         try {
-            const options: Record<string, string> = bias ? { point: coordinateToText(bias) } : {}
+            const options: Record<string, string> = bias ? { point: coordinateToText(bias), location_bias_scale: "0.6" } : {}
             const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
             if (currentId === this.requestId) this.onSuccess(query, provider, hits)
