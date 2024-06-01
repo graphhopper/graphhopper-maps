@@ -12,7 +12,7 @@ import QueryStore, {
     QueryStoreState,
 } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
-import { getApi } from '@/api/Api'
+import { ApiImpl, getApi } from '@/api/Api'
 import config from 'config'
 
 export default class NavBar {
@@ -159,7 +159,7 @@ export default class NavBar {
         const bbox =
             initializedPoints.length == 1
                 ? getBBoxFromCoord(initializedPoints[0].coordinate)
-                : NavBar.getBBoxFromUrlPoints(initializedPoints.map(p => p.coordinate))
+                : ApiImpl.getBBoxPoints(initializedPoints.map(p => p.coordinate))
         if (bbox) Dispatcher.dispatch(new SetBBox(bbox))
         return Dispatcher.dispatch(new SetQueryPoints(points))
     }
@@ -177,19 +177,5 @@ export default class NavBar {
             this.mapStore.state,
             first
         ).toString()
-    }
-
-    private static getBBoxFromUrlPoints(urlPoints: Coordinate[]): Bbox | null {
-        const bbox: Bbox = urlPoints.reduce(
-            (res: Bbox, c) => [
-                Math.min(res[0], c.lng),
-                Math.min(res[1], c.lat),
-                Math.max(res[2], c.lng),
-                Math.max(res[3], c.lat),
-            ],
-            [180, 90, -180, -90] as Bbox
-        )
-        // return null if the bbox is not valid, e.g. if no url points were given at all
-        return bbox[0] < bbox[2] && bbox[1] < bbox[3] ? bbox : null
     }
 }

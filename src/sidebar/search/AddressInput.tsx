@@ -5,6 +5,7 @@ import Autocomplete, {
     AutocompleteItem,
     GeocodingItem,
     MoreResultsItem,
+    POIQueryItem,
     SelectCurrentLocationItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
 
@@ -19,7 +20,7 @@ import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetPOI } from '@/actions/Actions'
+import { SetBBox, SetPOI } from '@/actions/Actions'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -50,13 +51,19 @@ export default function AddressInput(props: AddressInputProps) {
     const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>([])
     const [geocoder] = useState(
         new Geocoder(getApi(), (query, provider, hits) => {
-            const items: AutocompleteItem[] = hits.map(hit => {
+            const items: AutocompleteItem[] = []
+            const parseResult = AddressParseResult.parse(query, true)
+            if (parseResult.hasPOIs()) items.push(new POIQueryItem(parseResult))
+
+            hits.forEach(hit => {
                 const obj = provider === 'nominatim' ? nominatimHitToItem(hit) : hitToItem(hit)
-                return new GeocodingItem(
-                    obj.mainText,
-                    obj.secondText,
-                    hit.point,
-                    hit.extent ? hit.extent : getBBoxFromCoord(hit.point)
+                items.push(
+                    new GeocodingItem(
+                        obj.mainText,
+                        obj.secondText,
+                        hit.point,
+                        hit.extent ? hit.extent : getBBoxFromCoord(hit.point)
+                    )
                 )
             })
 
@@ -84,9 +91,13 @@ export default function AddressInput(props: AddressInputProps) {
                 }
             })
 
-            // TODO NOW: if zoom is too far away: auto zoom to the results?
-
-            Dispatcher.dispatch(new SetPOI(pois))
+            const bbox = ApiImpl.getBBoxPoints(pois.map(p => p.coordinate))
+            if (bbox) {
+                Dispatcher.dispatch(new SetBBox(bbox))
+                Dispatcher.dispatch(new SetPOI(pois))
+            } else {
+                console.warn('invalid bbox for points ' + JSON.stringify(pois) + " result was: " + JSON.stringify(parseResult))
+            }
         })
     )
 
@@ -196,13 +207,7 @@ export default function AddressInput(props: AddressInputProps) {
                         const query = e.target.value
                         setText(query)
                         const coordinate = textToCoordinate(query)
-                        if (!coordinate) {
-                            // TODO NOW instead of querying for every key stroke include an auto suggest item with one from the POI keywords and only if click on this trigger poiSearch.request!!
-                            const parseResult = ApiImpl.parseAddress(query)
-                            if (parseResult.tags.length > 0)
-                                poiSearch.request(parseResult, props.mapCenter, props.mapRadius)
-                            else geocoder.request(query, biasCoord, 'default')
-                        }
+                        if (!coordinate) geocoder.request(query, biasCoord, 'default')
                         props.onChange(query)
                     }}
                     onKeyDown={onKeypress}
@@ -250,6 +255,12 @@ export default function AddressInput(props: AddressInputProps) {
                                     // do not hide autocomplete items
                                     const coordinate = textToCoordinate(item.search)
                                     if (!coordinate) geocoder.request(item.search, biasCoord, 'nominatim')
+                                } else if (item instanceof POIQueryItem) {
+                                    hideSuggestions()
+                                    if (item.result.hasPOIs()) {
+                                        console.log(item.result.location)
+                                        poiSearch.request(item.result, props.mapCenter, Math.min(props.mapRadius, 100))
+                                    }
                                 }
                                 searchInput.current!.blur()
                             }}
@@ -397,9 +408,9 @@ class ReverseGeocoder {
             } else if (hits.length > 0) {
                 // TODO NOW should we include parseResult.location here again if searchCoordinate is from forward geocode request?
                 //  parseResult.location
+                console.log("radius "+radius)
                 const result = await this.api.reverseGeocode('', searchCoordinate, radius, parseResult.tags)
                 hits = Geocoder.filterDuplicates(result.hits)
-                console.log(JSON.stringify(hits[0]))
             }
 
             if (currentId === this.requestId) this.onSuccess(hits, parseResult)

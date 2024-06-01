@@ -3,6 +3,7 @@ import CurrentLocationIcon from './current-location.svg'
 import { tr } from '@/translation/Translation'
 import { Bbox } from '@/api/graphhopper'
 import { useState } from 'react'
+import { AddressParseResult } from '@/api/Api'
 
 export interface AutocompleteItem {}
 
@@ -34,6 +35,14 @@ export class MoreResultsItem implements AutocompleteItem {
     }
 }
 
+export class POIQueryItem implements AutocompleteItem {
+    result: AddressParseResult
+
+    constructor(result: AddressParseResult) {
+        this.result = result
+    }
+}
+
 export interface AutocompleteProps {
     items: AutocompleteItem[]
     highlightedItem: AutocompleteItem
@@ -59,6 +68,8 @@ function mapToComponent(item: AutocompleteItem, isHighlighted: boolean, onSelect
         return <SelectCurrentLocation item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else if (item instanceof MoreResultsItem)
         return <MoreResultsEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
+    else if (item instanceof POIQueryItem)
+        return <POIQueryEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else throw Error('Unsupported item type: ' + typeof item)
 }
 
@@ -75,6 +86,26 @@ export function MoreResultsEntry({
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
             <div className={styles.moreResultsEntry}>
                 <span className={styles.moreResultsText}>{tr('search_with_nominatim')}</span>
+            </div>
+        </AutocompleteEntry>
+    )
+}
+
+export function POIQueryEntry({
+    item,
+    isHighlighted,
+    onSelect,
+}: {
+    item: POIQueryItem
+    isHighlighted: boolean
+    onSelect: (item: POIQueryItem) => void
+}) {
+    // TODO NOW translate!
+    return (
+        <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
+            <div className={styles.poiEntry}>
+                <span className={styles.poiEntryPrimaryText}>{item.result.poi}</span>
+                <span className={styles.poiEntrySecondaryText}>{item.result.location ? 'in ' + item.result.location : 'nearby'}</span>
             </div>
         </AutocompleteEntry>
     )

@@ -69,7 +69,12 @@ class DummyApi implements Api {
         throw Error('not implemented')
     }
 
-    reverseGeocode(query: string | undefined, point: Coordinate, radius: number, tags?: string[]): Promise<GeocodingResult> {
+    reverseGeocode(
+        query: string | undefined,
+        point: Coordinate,
+        radius: number,
+        tags?: string[]
+    ): Promise<GeocodingResult> {
         throw Error('not implemented')
     }
 

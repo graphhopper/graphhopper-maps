@@ -31,7 +31,12 @@ export default interface Api {
 
     geocode(query: string, provider: string, additionalOptions?: Record<string, string>): Promise<GeocodingResult>
 
-    reverseGeocode(query: string | undefined, point: Coordinate, radius: number, tags?: string[]): Promise<GeocodingResult>
+    reverseGeocode(
+        query: string | undefined,
+        point: Coordinate,
+        radius: number,
+        tags?: string[]
+    ): Promise<GeocodingResult>
 
     supportsGeocoding(): boolean
 }
@@ -120,7 +125,12 @@ export class ApiImpl implements Api {
         }
     }
 
-    async reverseGeocode(query: string | undefined, point: Coordinate, radius: number, tags?: string[]): Promise<GeocodingResult> {
+    async reverseGeocode(
+        query: string | undefined,
+        point: Coordinate,
+        radius: number,
+        tags?: string[]
+    ): Promise<GeocodingResult> {
         if (!this.supportsGeocoding())
             return {
                 hits: [],
@@ -418,41 +428,83 @@ export class ApiImpl implements Api {
         return profile.includes('truck')
     }
 
-    static parseAddress(query: string): AddressParseResult {
-        query = query.toLowerCase()
-
-        const values = [
-            { k: ['restaurant', 'restaurants'], t: ['amenity:restaurant'], i: 'restaurant' },
-            { k: ['airport', 'airports'], t: ['aeroway:aerodrome'], i: 'flight_takeoff' },
-            { k: ['public transit'], t: ['highway:bus_stop'], i: 'train' },
-            { k: ['super market'], t: ['shop:supermarket'], i: 'store' },
-            { k: ['hotel', 'hotels'], t: ['building:hotel'], i: 'hotel' },
-            { k: ['tourism'], t: ['tourism'], i: 'luggage' },
-            { k: ['museum'], t: ['building:museum'], i: 'museum' },
-            { k: ['pharmacy'], t: ['amenity:pharmacy'], i: 'local_pharmacy' },
-            { k: ['hospital'], t: ['amenity:hospital'], i: 'local_hospital' },
-            { k: ['bank'], t: ['amenity:bank'], i: 'universal_currency_alt' },
-            { k: ['education'], t: ['amenity:school', 'building:school', 'building:university'], i: 'school' },
-            { k: ['leisure'], t: ['leisure'], i: 'sports_handball' },
-            { k: ['parking'], t: ['amenity:parking'], i: 'local_parking' },
-        ]
-        for (const val of values) {
-            if (val.k.some(keyword => query.includes(keyword)))
-                return { location: this.cleanQuery(query, val.k), tags: val.t, icon: val.i }
-        }
-
-        return { location: '', tags: [], icon: '' }
-    }
-
-    private static cleanQuery(query: string, inKeywords: string[]) {
-        const keywords = ['in', 'around']
-        const locationWords = query.split(' ').filter(word => !keywords.includes(word) && !inKeywords.includes(word))
-        return locationWords.join(' ')
+    public static getBBoxPoints(points: Coordinate[]): Bbox | null {
+        const bbox: Bbox = points.reduce(
+            (res: Bbox, c) => [
+                Math.min(res[0], c.lng),
+                Math.min(res[1], c.lat),
+                Math.max(res[2], c.lng),
+                Math.max(res[3], c.lat),
+            ],
+            [180, 90, -180, -90] as Bbox
+        )
+        // return null if the bbox is not valid, e.g. if no url points were given at all
+        return bbox[0] < bbox[2] && bbox[1] < bbox[3] ? bbox : null
     }
 }
 
-export interface AddressParseResult {
+export class AddressParseResult {
     location: string
     tags: string[]
     icon: string
+    poi: string
+
+    constructor(location: string, tags: string[], icon: string, poi: string) {
+        this.location = location
+        this.tags = tags
+        this.icon = icon
+        this.poi = poi
+    }
+
+    hasPOIs(): boolean {
+        return this.tags.length > 0
+    }
+
+    public static parse(query: string, incomplete: boolean): AddressParseResult {
+        query = query.toLowerCase()
+
+        const values = [
+            { k: ['restaurants', 'restaurant'], t: ['amenity:restaurant'], i: 'restaurant' },
+            { k: ['airports', 'airport'], t: ['aeroway:aerodrome'], i: 'flight_takeoff' },
+            { k: ['bus stops'], t: ['highway:bus_stop'], i: 'train' },
+            { k: ['railway stations', 'railway station'], t: ['railway:station'], i: 'train' },
+            { k: ['super markets', 'super market'], t: ['shop:supermarket', 'building:supermarket'], i: 'store' },
+            { k: ['hotels', 'hotel'], t: ['amenity:hotel', 'building:hotel'], i: 'hotel' },
+            { k: ['tourism'], t: ['tourism'], i: 'luggage' },
+            { k: ['museums', 'museum'], t: ['tourism:museum', 'building:museum'], i: 'museum' },
+            { k: ['pharmacies', 'pharmacy'], t: ['amenity:pharmacy'], i: 'local_pharmacy' },
+            { k: ['hospitals', 'hospital'], t: ['amenity:hospital', 'building:hospital'], i: 'local_hospital' },
+            { k: ['banks', 'bank'], t: ['amenity:bank'], i: 'universal_currency_alt' },
+            { k: ['education'], t: ['amenity:school', 'building:school', 'building:university'], i: 'school' },
+            { k: ['schools', 'school'], t: ['amenity:school', 'building:school'], i: 'school' },
+            { k: ['leisure'], t: ['leisure'], i: 'sports_handball' },
+            { k: ['parks', 'park'], t: ['leisure:park'], i: 'sports_handball' },
+            { k: ['playgrounds', 'playground'], t: ['leisure:playground'], i: 'sports_handball' },
+            { k: ['parking'], t: ['amenity:parking'], i: 'local_parking' },
+        ]
+        const smallWords = ['in', 'around', 'nearby']
+        const queryTokens: string[] = query.split(' ').filter(token => !smallWords.includes(token))
+        const cleanQuery = queryTokens.join(' ')
+        const bigrams: string[] = []
+        for (let i = 0; i < queryTokens.length - 1; i++) {
+            bigrams.push(queryTokens[i] + ' ' + queryTokens[i + 1])
+        }
+
+        for (const val of values) {
+            // two word phrases like 'public transit' must be checked before single word phrases
+            for(const keyword of val.k) {
+                const i = bigrams.indexOf(keyword)
+                if (i >= 0)
+                    return new AddressParseResult(cleanQuery.replace(bigrams[i], '').trim(), val.t, val.i, val.k[0])
+            }
+
+            for(const keyword of val.k) {
+                const i = queryTokens.indexOf(keyword)
+                if(i >= 0)
+                    return new AddressParseResult(cleanQuery.replace(queryTokens[i], '').trim(), val.t, val.i, val.k[0])
+            }
+        }
+
+        return new AddressParseResult('', [], '', '')
+    }
 }

@@ -10,7 +10,12 @@ export default class DummyApi implements Api {
         })
     }
 
-    reverseGeocode(query: string | undefined, point: Coordinate, radius: number, tags?: string[]): Promise<GeocodingResult> {
+    reverseGeocode(
+        query: string | undefined,
+        point: Coordinate,
+        radius: number,
+        tags?: string[]
+    ): Promise<GeocodingResult> {
         return Promise.resolve({
             took: 0,
             hits: [],

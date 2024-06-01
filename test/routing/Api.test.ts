@@ -6,7 +6,7 @@ import { RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
 import { setTranslation } from '@/translation/Translation'
 
 import Dispatcher from '@/stores/Dispatcher'
-import { ApiImpl } from '@/api/Api'
+import {AddressParseResult, ApiImpl} from '@/api/Api'
 import { ApiInfo, ErrorResponse, RoutingArgs, RoutingRequest, RoutingResultInfo } from '@/api/graphhopper'
 
 beforeAll(() => {
@@ -344,22 +344,34 @@ describe('route', () => {
 })
 
 describe('reverse geocoder', () => {
-    it('should parse correctly', async () => {
-        let res = ApiImpl.parseAddress('dresden restaurant')
+    it('should parse fully', async () => {
+        let res = AddressParseResult.parse('dresden restaurant', false)
         expect(res.location).toEqual('dresden')
         expect(res.icon).toEqual('restaurant')
 
-        res = ApiImpl.parseAddress('restaurant')
+        res = AddressParseResult.parse('restaurant', false)
         expect(res.location).toEqual('')
         expect(res.icon).toEqual('restaurant')
 
-        res = ApiImpl.parseAddress('restaurant in dresden')
+        res = AddressParseResult.parse('restaurant in dresden', false)
         expect(res.location).toEqual('dresden')
         expect(res.icon).toEqual('restaurant')
 
-        res = ApiImpl.parseAddress('airports around some thing else')
+        res = AddressParseResult.parse('airports around some thing else', false)
         expect(res.location).toEqual('some thing else')
         expect(res.icon).toEqual('flight_takeoff')
+
+        res = AddressParseResult.parse('dresden super market', false)
+        expect(res.location).toEqual('dresden')
+        expect(res.poi).toEqual('super markets')
+
+        res = AddressParseResult.parse('dresden park', false)
+        expect(res.location).toEqual('dresden')
+        expect(res.poi).toEqual('parks')
+
+        res = AddressParseResult.parse('dresden parking', false)
+        expect(res.location).toEqual('dresden')
+        expect(res.poi).toEqual('parking')
     })
 })
 
