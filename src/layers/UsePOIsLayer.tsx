@@ -75,9 +75,10 @@ function addPOISelection(map: Map) {
         if (selectedFeatures.length > 0) {
             const feature = selectedFeatures[0]
             const props = feature.get('gh:marker_props')
+            // how to change just the scale?
             feature.setStyle(new Style({
                 image: new Icon({
-                    color: 'rgba(100%, 0, 0, 30%)',
+                    scale: [1.4, 1.4],
                     src: 'data:image/svg+xml;utf8,' + svgStrings[props.icon],
                     displacement: [0, 18],
                 }),
