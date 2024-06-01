@@ -1,4 +1,4 @@
-import { Instruction, Path } from '@/api/graphhopper'
+import { Instruction, Path, RoutingResultInfo } from '@/api/graphhopper'
 import { Coordinate, CurrentRequest, getBBoxFromCoord, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
@@ -13,9 +13,9 @@ import { LineString, Position } from 'geojson'
 import { calcDist } from '@/distUtils'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import { ApiImpl } from '@/api/Api'
 import FordIcon from '@/sidebar/routeHints/water.svg'
+import CondAccessIcon from '@/sidebar/routeHints/remove_road.svg'
 import FerryIcon from '@/sidebar/routeHints/directions_boat.svg'
 import PrivateIcon from '@/sidebar/routeHints/privacy_tip.svg'
 import StepsIcon from '@/sidebar/routeHints/floor.svg'
@@ -27,8 +27,11 @@ import SteepIcon from '@/sidebar/routeHints/elevation.svg'
 import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
 import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
 import { Bbox } from '@/api/graphhopper'
+import { SettingsContext } from '@/contexts/SettingsContext'
+import { Settings } from '@/stores/SettingsStore'
 
 export interface RoutingResultsProps {
+    info: RoutingResultInfo
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
@@ -43,7 +46,17 @@ export default function RoutingResults(props: RoutingResultsProps) {
     return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
 }
 
-function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: boolean; profile: string }) {
+function RoutingResult({
+    info,
+    path,
+    isSelected,
+    profile,
+}: {
+    info: RoutingResultInfo
+    path: Path
+    isSelected: boolean
+    profile: string
+}) {
     const [isExpanded, setExpanded] = useState(false)
     const [selectedRH, setSelectedRH] = useState('')
     const [descriptionRH, setDescriptionRH] = useState('')
@@ -52,44 +65,75 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
         : styles.resultSummary
 
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
-    const fordInfo = getInfoFor(path.points, path.details.road_environment, { ford: true })
-    const tollInfo = getInfoFor(path.points, path.details.toll, { all: true, hgv: ApiImpl.isTruck(profile) })
-    const ferryInfo = getInfoFor(path.points, path.details.road_environment, { ferry: true })
+    const settings = useContext(SettingsContext)
+    const showDistanceInMiles = settings.showDistanceInMiles
+
+    const fordInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ford')
+    const tollInfo = getInfoFor(
+        path.points,
+        path.details.toll,
+        s => s === 'all' || (s === 'hgv' && ApiImpl.isTruck(profile))
+    )
+    const ferryInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ferry')
+    const accessCondInfo = getInfoFor(path.points, path.details.access_conditional, s => s != null && s.length > 0)
+    const footAccessCondInfo = !ApiImpl.isFootLike(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.foot_conditional, s => s != null && s.length > 0)
+    const hikeRatingInfo = !ApiImpl.isFootLike(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.hike_rating, s => s > 1)
+
+    const bikeAccessCondInfo = !ApiImpl.isBikeLike(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.bike_conditional, s => s != null && s.length > 0)
+    const mtbRatingInfo = !ApiImpl.isBikeLike(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.mtb_rating, s => s > 1)
+
     const privateOrDeliveryInfo = ApiImpl.isMotorVehicle(profile)
-        ? getInfoFor(path.points, path.details.road_access, {
-              private: true,
-              customers: true,
-              delivery: true,
-          })
+        ? getInfoFor(
+              path.points,
+              path.details.road_access,
+              s => s === 'private' || s === 'customers' || s === 'delivery'
+          )
         : new RouteInfo()
     const badTrackInfo = !ApiImpl.isMotorVehicle(profile)
         ? new RouteInfo()
-        : getInfoFor(path.points, path.details.track_type, { grade2: true, grade3: true, grade4: true, grade5: true })
+        : getInfoFor(
+              path.points,
+              path.details.track_type,
+              s => s === 'grade2' || s === 'grade3' || s === 'grade4' || s === 'grade5'
+          )
     const trunkInfo = ApiImpl.isMotorVehicle(profile)
         ? new RouteInfo()
-        : getInfoFor(path.points, path.details.road_class, { motorway: true, trunk: true })
+        : getInfoFor(path.points, path.details.road_class, s => s === 'motorway' || s === 'trunk')
     const stepsInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
-        : getInfoFor(path.points, path.details.road_class, { steps: true })
-    const steepInfo = ApiImpl.isMotorVehicle(profile) ? new RouteInfo() : getHighSlopeInfo(path.points, 15)
+        : getInfoFor(path.points, path.details.road_class, s => s === 'steps')
+    const steepInfo = ApiImpl.isMotorVehicle(profile)
+        ? new RouteInfo()
+        : getHighSlopeInfo(path.points, 15, showDistanceInMiles)
     const getOffBikeInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
-        : getInfoFor(path.points, path.details.get_off_bike, { true: true })
-    const countriesInfo = crossesBorderInfo(path.points, path.details.country)
+        : getInfoFor(path.points, path.details.get_off_bike, s => s)
+    const borderInfo = crossesBorderInfo(path.points, path.details.country)
 
     const showHints =
         fordInfo.distance > 0 ||
         tollInfo.distance > 0 ||
         ferryInfo.distance > 0 ||
+        accessCondInfo.distance > 0 ||
+        footAccessCondInfo.distance > 0 ||
+        bikeAccessCondInfo.distance > 0 ||
         privateOrDeliveryInfo.distance > 0 ||
         trunkInfo.distance > 0 ||
         badTrackInfo.distance > 0 ||
         stepsInfo.distance > 0 ||
-        countriesInfo.values.length > 1 ||
+        borderInfo.values.length > 0 ||
         getOffBikeInfo.distance > 0 ||
+        mtbRatingInfo.distance > 0 ||
+        hikeRatingInfo.distance > 0 ||
         steepInfo.distance > 0
-
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
 
     return (
         <div className={styles.resultRow}>
@@ -117,10 +161,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                         )}
                     </div>
                     {isSelected && (
-                        <PlainButton
-                            className={styles.exportButton}
-                            onClick={() => downloadGPX(path, showDistanceInMiles)}
-                        >
+                        <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path, settings)}>
                             <GPXDownload />
                             <div>{tr('gpx_button')}</div>
                         </PlainButton>
@@ -148,16 +189,18 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             value={fordInfo.distance > 0 && metersToShortText(fordInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={fordInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
                             description={tr('way_crosses_border')}
                             setType={t => setSelectedRH(t)}
-                            type={'country'}
+                            type={'border'}
                             child={<BorderCrossingIcon />}
-                            value={countriesInfo.values.length > 1 && countriesInfo.values.join(' - ')}
+                            value={borderInfo.values.length > 0 && borderInfo.values[0]}
                             selected={selectedRH}
-                            segments={countriesInfo.segments}
+                            segments={borderInfo.segments}
+                            values={borderInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -168,6 +211,49 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             value={ferryInfo.distance > 0 && metersToShortText(ferryInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={ferryInfo.segments}
+                            values={[]}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains_restrictions')}
+                            setType={t => setSelectedRH(t)}
+                            type={'access_conditional'}
+                            child={<CondAccessIcon />}
+                            value={
+                                accessCondInfo.distance > 0 &&
+                                metersToShortText(accessCondInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={accessCondInfo.segments}
+                            values={accessCondInfo.values}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains_restrictions')}
+                            setType={t => setSelectedRH(t)}
+                            type={'foot_access_conditional'}
+                            child={<CondAccessIcon />}
+                            value={
+                                footAccessCondInfo.distance > 0 &&
+                                metersToShortText(footAccessCondInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={footAccessCondInfo.segments}
+                            values={footAccessCondInfo.values}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains_restrictions')}
+                            setType={t => setSelectedRH(t)}
+                            type={'bike_access_conditional'}
+                            child={<CondAccessIcon />}
+                            value={
+                                bikeAccessCondInfo.distance > 0 &&
+                                metersToShortText(bikeAccessCondInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={bikeAccessCondInfo.segments}
+                            values={bikeAccessCondInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -181,6 +267,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             }
                             selected={selectedRH}
                             segments={privateOrDeliveryInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -191,6 +278,35 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             value={tollInfo.distance > 0 && metersToShortText(tollInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={tollInfo.segments}
+                            values={[]}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains', [tr('challenging_sections')])}
+                            setType={t => setSelectedRH(t)}
+                            type={'mtb_rating'}
+                            child={<DangerousIcon />}
+                            value={
+                                mtbRatingInfo.distance > 0 &&
+                                metersToShortText(mtbRatingInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={mtbRatingInfo.segments}
+                            values={mtbRatingInfo.values}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains', [tr('challenging_sections')])}
+                            setType={t => setSelectedRH(t)}
+                            type={'hike_rating'}
+                            child={<DangerousIcon />}
+                            value={
+                                hikeRatingInfo.distance > 0 &&
+                                metersToShortText(hikeRatingInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={hikeRatingInfo.segments}
+                            values={hikeRatingInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -201,6 +317,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             value={stepsInfo.distance > 0 && metersToShortText(stepsInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={stepsInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -214,6 +331,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             }
                             selected={selectedRH}
                             segments={badTrackInfo.segments}
+                            values={badTrackInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -224,6 +342,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             value={trunkInfo.distance > 0 && metersToShortText(trunkInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={trunkInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -239,6 +358,7 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             }
                             selected={selectedRH}
                             segments={getOffBikeInfo.segments}
+                            values={[]}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -249,12 +369,18 @@ function RoutingResult({ path, isSelected, profile }: { path: Path; isSelected: 
                             value={steepInfo.distance > 0 && metersToShortText(steepInfo.distance, showDistanceInMiles)}
                             selected={selectedRH}
                             segments={steepInfo.segments}
+                            values={steepInfo.values}
                         />
                     </div>
                     {descriptionRH && <div>{descriptionRH}</div>}
                 </div>
             )}
-            {isExpanded && <Instructions instructions={path.instructions} />}
+            {isExpanded && <Instructions instructions={path.instructions} us={showDistanceInMiles} />}
+            {isExpanded && (
+                <div className={styles.routingResultRoadData}>
+                    {tr('road_data_from')}: {info.road_data_timestamp}
+                </div>
+            )}
         </div>
     )
 }
@@ -268,6 +394,7 @@ function RHButton(p: {
     value: string | false
     selected: string
     segments: Coordinate[][]
+    values: string[]
 }) {
     let [index, setIndex] = useState(0)
     if (p.value === false) return null
@@ -276,15 +403,33 @@ function RHButton(p: {
             className={p.selected == p.type ? styles.selectedRouteHintButton : styles.routeHintButton}
             onClick={() => {
                 p.setType(p.type)
-                p.setDescription(p.description + (p.type == 'get_off_bike' ? '' : ': ' + p.value))
-                Dispatcher.dispatch(new PathDetailsElevationSelected(p.segments))
-                if (p.segments.length > index) Dispatcher.dispatch(new SetBBox(toBBox(p.segments[index])))
-                setIndex((index + 1) % p.segments.length)
+
+                if (index < 0) {
+                    Dispatcher.dispatch(new PathDetailsElevationSelected([]))
+                    p.setDescription('')
+                } else {
+                    let tmpDescription
+                    if (p.type == 'get_off_bike') tmpDescription = p.description
+                    else if (p.type == 'border') tmpDescription = p.description + ': ' + p.values[index]
+                    else if (p.values && p.values[index]) {
+                        if (p.type.includes('rating'))
+                            tmpDescription =
+                                p.description + ': ' + p.value + ' (' + p.type + ':' + p.values[index] + ')'
+                        else if (p.type.includes('steep')) tmpDescription = p.description + ': ' + p.values[index]
+                        else tmpDescription = p.description + ': ' + p.value + ' ' + p.values[index]
+                    } else tmpDescription = p.description + ': ' + p.value
+
+                    p.setDescription(tmpDescription)
+                    Dispatcher.dispatch(new PathDetailsElevationSelected(p.segments))
+                    if (p.segments.length > index) Dispatcher.dispatch(new SetBBox(toBBox(p.segments[index])))
+                }
+
+                setIndex(index + 1 >= p.segments.length ? -1 : index + 1)
             }}
             title={p.description}
         >
             {p.child}
-            {<span>{p.type == 'country' ? p.value.split(' ')[0] : p.value}</span>}
+            {<span>{p.value}</span>}
         </PlainButton>
     )
 }
@@ -292,12 +437,11 @@ function RHButton(p: {
 function crossesBorderInfo(points: LineString, countryPathDetail: [number, number, string][]) {
     if (!countryPathDetail || countryPathDetail.length == 0) return new RouteInfo()
     const info = new RouteInfo()
-    info.values = [countryPathDetail[0][2]]
     let prev = countryPathDetail[0][2]
     const coords = points.coordinates
     for (const i in countryPathDetail) {
         if (countryPathDetail[i][2] != prev) {
-            info.values.push(countryPathDetail[i][2])
+            info.values.push(prev + ' - ' + countryPathDetail[i][2])
             info.segments.push([
                 toCoordinate(coords[countryPathDetail[i][0] - 1]),
                 toCoordinate(coords[countryPathDetail[i][0]]),
@@ -338,20 +482,23 @@ function toBBox(segment: Coordinate[]): Bbox {
     return bbox as Bbox
 }
 
-function getInfoFor(points: LineString, details: [number, number, any][], values: { [Identifier: string]: boolean }) {
+function getInfoFor(points: LineString, details: [number, number, any][], fnc: { (s: any): boolean }) {
     if (!details) return new RouteInfo()
     let info = new RouteInfo()
     const coords = points.coordinates
     for (const i in details) {
-        if (values[details[i][2]]) {
+        if (fnc(details[i][2])) {
             const from = details[i][0],
                 to = details[i][1]
             const segCoords: Coordinate[] = []
             for (let i = from; i < to; i++) {
-                info.distance += calcDistPos(coords[i], coords[i + 1])
+                const dist = calcDistPos(coords[i], coords[i + 1])
+                info.distance += dist
+                if (dist == 0) info.distance += 0.01 // some obstacles have no length when mapped as a node like fords
                 segCoords.push(toCoordinate(coords[i]))
             }
             segCoords.push(toCoordinate(coords[to]))
+            info.values.push(details[i][2])
             info.segments.push(segCoords)
         }
     }
@@ -363,38 +510,43 @@ function calcDistPos(from: Position, to: Position): number {
 }
 
 // sums up the lengths of the road segments with a slope bigger than steepSlope
-function getHighSlopeInfo(points: LineString, steepSlope: number) {
+function getHighSlopeInfo(points: LineString, steepSlope: number, showDistanceInMiles: boolean) {
     if (points.coordinates.length == 0) return new RouteInfo()
     if (points.coordinates[0].length != 3) return new RouteInfo()
     const info = new RouteInfo()
     let distForSlope = 0
+    let segmentPoints: Coordinate[] = []
     let prevElePoint = points.coordinates[0]
     let prevDistPoint = points.coordinates[0]
     points.coordinates.forEach(currPoint => {
         distForSlope += calcDistPos(currPoint, prevDistPoint)
-        prevDistPoint = currPoint
         // we assume that elevation data is not that precise and we can improve when using a minimum distance:
         if (distForSlope > 100) {
             const slope = (100.0 * Math.abs(prevElePoint[2] - currPoint[2])) / distForSlope
             if (slope > steepSlope) {
+                const distanceTxt = metersToShortText(Math.round(distForSlope), showDistanceInMiles)
+                info.values.push(distanceTxt + ' (' + Math.round(slope) + '%)')
                 info.distance += distForSlope
-                info.segments.push([toCoordinate(prevElePoint), toCoordinate(currPoint)])
+                info.segments.push(segmentPoints)
             }
             prevElePoint = currPoint
             distForSlope = 0
+            segmentPoints = []
         }
+        prevDistPoint = currPoint
+        segmentPoints.push(toCoordinate(currPoint))
     })
     return info
 }
 
-function downloadGPX(path: Path, showDistanceInMiles: boolean) {
+function downloadGPX(path: Path, settings: Settings) {
     let xmlString =
         '<?xml version="1.0" encoding="UTF-8" standalone="no" ?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="GraphHopper" version="1.1" xmlns:gh="https://graphhopper.com/public/schema/gpx/1.1">\n'
     xmlString += `<metadata><copyright author="OpenStreetMap contributors"/><link href="http://graphhopper.com"><text>GraphHopper GPX</text></link><time>${new Date().toISOString()}</time></metadata>\n`
 
-    const rte = false
-    const wpt = false
-    const trk = true
+    const rte = settings.gpxExportRte
+    const wpt = settings.gpxExportWpt
+    const trk = settings.gpxExportTrk
 
     if (wpt)
         xmlString += path.snapped_waypoints.coordinates.reduce((prevString: string, coord: Position) => {
@@ -435,7 +587,7 @@ function downloadGPX(path: Path, showDistanceInMiles: boolean) {
     const date = new Date()
     tmpElement.download = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
         date.getUTCDate()
-    )}-${metersToTextForFile(path.distance, showDistanceInMiles)}.gpx`
+    )}-${metersToTextForFile(path.distance, settings.showDistanceInMiles)}.gpx`
     tmpElement.click()
 }
 
@@ -474,19 +626,25 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 
 function createSingletonListContent(props: RoutingResultsProps) {
     if (props.paths.length > 0)
-        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} />
+        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} info={props.info} />
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlaceholder key={1} />
     return ''
 }
 
-function createListContent({ paths, currentRequest, selectedPath, profile }: RoutingResultsProps) {
+function createListContent({ info, paths, currentRequest, selectedPath, profile }: RoutingResultsProps) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
         if (i < paths.length)
             result.push(
-                <RoutingResult key={i} path={paths[i]} isSelected={paths[i] === selectedPath} profile={profile} />
+                <RoutingResult
+                    key={i}
+                    path={paths[i]}
+                    isSelected={paths[i] === selectedPath}
+                    profile={profile}
+                    info={info}
+                />
             )
         else result.push(<RoutingResultPlaceholder key={i} />)
     }

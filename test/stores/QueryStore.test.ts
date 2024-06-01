@@ -1,13 +1,13 @@
 import Api from '@/api/Api'
-import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 import QueryStore, {
     Coordinate,
     QueryPoint,
     QueryPointType,
     QueryStoreState,
     RequestState,
-    SubRequest
+    SubRequest,
 } from '@/stores/QueryStore'
+import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult, RoutingResultInfo } from '@/api/graphhopper'
 import {
     AddPoint,
     ClearPoints,
@@ -358,7 +358,10 @@ describe('QueryStore', () => {
 
             const newState = store.reduce(
                 state,
-                new RouteRequestSuccess(routingArgs, true, { paths: [], info: { took: 1, copyright: [] } })
+                new RouteRequestSuccess(routingArgs, true, {
+                    info: { took: 1, road_data_timestamp: '', copyright: [] } as RoutingResultInfo,
+                    paths: [],
+                })
             )
 
             expect(newState.currentRequest.subRequests[0].state).toEqual(RequestState.SUCCESS)

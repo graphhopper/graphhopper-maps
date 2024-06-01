@@ -29,7 +29,7 @@ export default class DummyApi implements Api {
 
     route(args: RoutingArgs): Promise<RoutingResult> {
         return Promise.resolve({
-            info: { took: 0, copyright: [] },
+            info: { took: 0, copyright: [], road_data_timestamp: '' },
             paths: [],
         })
     }

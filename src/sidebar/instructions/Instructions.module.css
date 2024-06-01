@@ -26,6 +26,16 @@
     margin-top: 1rem;
 }
 
+.motorwayJunction {
+    font-weight: bold;
+    font-size: smaller;
+    color: white;
+    width: fit-content;
+    margin: 3px 0;
+    padding: 5px;
+    border-radius: 3px;
+}
+
 .distance {
     grid-column: 2 / span 1;
     font-size: small;

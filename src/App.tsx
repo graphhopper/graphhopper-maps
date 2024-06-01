@@ -35,16 +35,16 @@ import CustomModelBox from '@/sidebar/CustomModelBox'
 import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import MapPopups from '@/map/MapPopups'
 import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
-import SearchSvg from '@/sidebar/search.svg'
 import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
+import { SettingsContext } from '@/contexts/SettingsContext'
+import SearchSvg from '@/sidebar/search.svg'
 import Dispatcher from '@/stores/Dispatcher'
 import { SearchPOI } from '@/actions/Actions'
 import usePOIsLayer from '@/layers/UsePOIsLayer'
@@ -106,7 +106,7 @@ export default function App() {
             getMapOptionsStore().deregister(onMapOptionsChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
-            getPOIsStore().register(onPOIsChanged)
+            getPOIsStore().deregister(onPOIsChanged)
         }
     }, [])
 
@@ -124,7 +124,7 @@ export default function App() {
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
-        <ShowDistanceInMilesContext.Provider value={settings.showDistanceInMiles}>
+        <SettingsContext.Provider value={settings}>
             <div className={styles.appWrapper}>
                 <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
@@ -150,7 +150,7 @@ export default function App() {
                     />
                 )}
             </div>
-        </ShowDistanceInMilesContext.Provider>
+        </SettingsContext.Provider>
     )
 }
 
@@ -175,7 +175,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                 <div className={styles.sidebar}>
                     <div className={styles.sidebarContent} id={SIDEBAR_CONTENT_ID}>
                         <PlainButton onClick={() => setShowSidebar(false)} className={styles.sidebarCloseButton}>
-                            <Cross />
+                            <Cross/>
                         </PlainButton>
                         <RoutingProfiles
                             routingProfiles={query.profiles}
@@ -193,22 +193,24 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} />
-                        <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
+                        <Search points={query.queryPoints}/>
+                        <div>{!error.isDismissed && <ErrorMessage error={error}/>}</div>
                         <RoutingResults
+                            info={route.routingResult.info}
                             paths={route.routingResult.paths}
                             selectedPath={route.selectedPath}
                             currentRequest={query.currentRequest}
                             profile={query.routingProfile.name}
                         />
                         <div>
-                            <PoweredBy />
+                            <PoweredBy/>
                         </div>
                     </div>
                     <div className={styles.searchArea}>
                         {!showSearchAreaList && (
                             <div className={styles.searchAreaText} onClick={e => setShowSearchAreaList(true)}>
-                                <SearchSvg/><div>Search this area</div>
+                                <SearchSvg/>
+                                <div>Search this area</div>
                             </div>
                         )}
                         {showSearchAreaList && (
@@ -219,23 +221,27 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                     }}
                                     className={styles.searchAreaListClose}
                                 >
-                                    <Cross />
+                                    <Cross/>
                                 </PlainButton>
                                 <div className={styles.searchAreaList}>
                                     {[
-                                        { i: 'restaurant', q: 'amenity:restaurant', n: 'restaurant' },
-                                        { i: 'train', q: 'highway:bus_stop', n: 'haltestelle' },
-                                        { i: 'store', q: 'shop:supermarket', n: 'super market' },
-                                        { i: 'hotel', q: 'building:hotel', n: 'hotel' },
-                                        { i: 'luggage', q: 'tourism', n: 'tourism' },
-                                        { i: 'museum', q: 'building:museum', n: 'museum' },
-                                        { i: 'local_pharmacy', q: 'amenity:pharmacy', n: 'pharmacy' },
-                                        { i: 'local_hospital', q: 'amenity:hospital', n: 'hospital' },
-                                        { i: 'universal_currency_alt', q: 'amenity:bank', n: 'bank' },
-                                        { i: 'school', q: 'amenity:school building:school building:university', n: 'education' },
-                                        { i: 'sports_handball', q: 'leisure', n: 'leisure' },
-                                        { i: 'flight_takeoff', q: 'aeroway:aerodrome', n: 'airport' },
-                                        { i: 'local_parking', q: 'amenity:parking', n: 'parking' },
+                                        {i: 'restaurant', q: 'amenity:restaurant', n: 'restaurant'},
+                                        {i: 'train', q: 'highway:bus_stop', n: 'haltestelle'},
+                                        {i: 'store', q: 'shop:supermarket', n: 'super market'},
+                                        {i: 'hotel', q: 'building:hotel', n: 'hotel'},
+                                        {i: 'luggage', q: 'tourism', n: 'tourism'},
+                                        {i: 'museum', q: 'building:museum', n: 'museum'},
+                                        {i: 'local_pharmacy', q: 'amenity:pharmacy', n: 'pharmacy'},
+                                        {i: 'local_hospital', q: 'amenity:hospital', n: 'hospital'},
+                                        {i: 'universal_currency_alt', q: 'amenity:bank', n: 'bank'},
+                                        {
+                                            i: 'school',
+                                            q: 'amenity:school building:school building:university',
+                                            n: 'education'
+                                        },
+                                        {i: 'sports_handball', q: 'leisure', n: 'leisure'},
+                                        {i: 'flight_takeoff', q: 'aeroway:aerodrome', n: 'airport'},
+                                        {i: 'local_parking', q: 'amenity:parking', n: 'parking'},
                                     ].map(o => (
                                         <div
                                             key={o.i}
@@ -245,8 +251,11 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                                     : [13.4, 52.5]
                                                 const origExtent = map.getView().calculateExtent(map.getSize())
                                                 var extent = transformExtent(origExtent, 'EPSG:3857', 'EPSG:4326');
-                                                const radius = calcDist({lng: extent[0], lat: extent[1]}, {lng: extent[2], lat: extent[3]}) / 2 / 1000
-                                                const coordinate = { lng: center[0], lat: center[1] }
+                                                const radius = calcDist({
+                                                    lng: extent[0],
+                                                    lat: extent[1]
+                                                }, {lng: extent[2], lat: extent[3]}) / 2 / 1000
+                                                const coordinate = {lng: center[0], lat: center[1]}
                                                 Dispatcher.dispatch(new SearchPOI(o.i, o.q, coordinate, radius))
                                             }}
                                         >
@@ -261,27 +270,27 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
             ) : (
                 <div className={styles.sidebarWhenClosed} onClick={() => setShowSidebar(true)}>
                     <PlainButton className={styles.sidebarOpenButton}>
-                        <Menu />
+                        <Menu/>
                     </PlainButton>
                 </div>
             )}
-            <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
+            <div className={styles.popupContainer} id={POPUP_CONTAINER_ID}/>
             <div className={styles.onMapRightSide}>
                 <MapOptions {...mapOptions} />
-                <LocationButton queryPoints={query.queryPoints} />
+                <LocationButton queryPoints={query.queryPoints}/>
             </div>
             <div className={styles.map}>
-                <MapComponent map={map} />
+                <MapComponent map={map}/>
             </div>
 
             <div className={styles.pathDetails}>
-                <PathDetails selectedPath={route.selectedPath} />
+                <PathDetails selectedPath={route.selectedPath}/>
             </div>
         </>
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
+function SmallScreenLayout({query, route, map, error, mapOptions, encodedValues, drawAreas}: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
@@ -294,17 +303,18 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                 />
             </div>
             <div className={styles.smallScreenMap}>
-                <MapComponent map={map} />
+                <MapComponent map={map}/>
             </div>
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.onMapRightSide}>
                     <MapOptions {...mapOptions} />
-                    <LocationButton queryPoints={query.queryPoints} />
+                    <LocationButton queryPoints={query.queryPoints}/>
                 </div>
             </div>
 
             <div className={styles.smallScreenRoutingResult}>
                 <RoutingResults
+                    info={route.routingResult.info}
                     paths={route.routingResult.paths}
                     selectedPath={route.selectedPath}
                     currentRequest={query.currentRequest}
@@ -313,7 +323,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
             </div>
 
             <div className={styles.smallScreenPoweredBy}>
-                <PoweredBy />
+                <PoweredBy/>
             </div>
         </>
     )

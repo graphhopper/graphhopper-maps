@@ -43,23 +43,36 @@ function removeCurrentPathLayers(map: Map) {
 }
 
 function addUnselectedPathsLayer(map: Map, paths: Path[]) {
-    const style = new Style({
-        stroke: new Stroke({
-            color: '#5B616A',
-            width: 5,
-            lineCap: 'round',
-            lineJoin: 'round',
+    const styleArray = [
+        new Style({
+            stroke: new Stroke({
+                color: 'rgba(39,93,173,1)',
+                width: 6,
+            }),
         }),
-    })
+        new Style({
+            stroke: new Stroke({
+                color: 'rgba(201,217,241,0.8)',
+                width: 4,
+            }),
+        }),
+    ]
     const layer = new VectorLayer({
         source: new VectorSource({
-            features: new GeoJSON().readFeatures(createUnselectedPaths(paths)),
+            features: paths.map((path: Path, index) => {
+                const f = new Feature({
+                    index: index,
+                })
+                if (path.points?.coordinates)
+                    f.setGeometry(new LineString(path.points.coordinates.map(c => fromLonLat(c))))
+                return f
+            }),
         }),
-        style: () => style,
-        opacity: 0.8,
+        style: styleArray,
+        opacity: 0.7,
+        zIndex: 1,
     })
     layer.set(pathsLayerKey, true)
-    layer.setZIndex(1)
     map.addLayer(layer)
 
     // select an alternative path if clicked
@@ -131,60 +144,30 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
 }
 
 function addSelectedPathsLayer(map: Map, selectedPath: Path) {
-    const style = new Style({
-        stroke: new Stroke({
-            color: '#275DAD',
-            width: 6,
-            lineCap: 'round',
-            lineJoin: 'round',
+    const styleArray = [
+        new Style({
+            stroke: new Stroke({
+                color: 'rgba(255,255,255,1)',
+                width: 9,
+            }),
         }),
-    })
+        new Style({
+            stroke: new Stroke({
+                color: 'rgb(49,104,187)',
+                width: 7,
+            }),
+        }),
+    ]
     const layer = new VectorLayer({
         source: new VectorSource({
-            features: new GeoJSON().readFeatures(createSelectedPath(selectedPath)),
+            features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
         }),
-        style: () => style,
+        style: styleArray,
         opacity: 0.8,
+        zIndex: 2,
     })
     layer.set(selectedPathLayerKey, true)
-    layer.setZIndex(2)
     map.addLayer(layer)
-}
-
-function createUnselectedPaths(paths: Path[]) {
-    const featureCollection: FeatureCollection = {
-        type: 'FeatureCollection',
-        features: paths.map((path, index) => {
-            return {
-                type: 'Feature',
-                properties: {
-                    index,
-                },
-                geometry: {
-                    ...path.points,
-                    coordinates: path.points.coordinates.map(c => fromLonLat(c)),
-                },
-            }
-        }),
-    }
-    return featureCollection
-}
-
-function createSelectedPath(path: Path) {
-    const featureCollection: FeatureCollection = {
-        type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    ...path.points,
-                    coordinates: path.points.coordinates.map(c => fromLonLat(c)),
-                },
-            },
-        ],
-    }
-    return featureCollection
 }
 
 function removeSelectPathInteractions(map: Map) {

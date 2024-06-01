@@ -6,7 +6,14 @@ import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearRoute, DismissLastError, DrawAreas, SetCustomModel, SetCustomModelEnabled } from '@/actions/Actions'
+import {
+    ClearRoute,
+    DismissLastError,
+    ErrorAction,
+    SetCustomModel,
+    SetCustomModelEnabled,
+    UpdateSettings,
+} from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
@@ -76,6 +83,11 @@ export default function CustomModelBox({
             if (event.ctrlKey && event.key === 'Enter') {
                 // Using this keyboard shortcut we can skip the custom model validation and directly request a routing
                 // query.
+                try {
+                    JSON.parse(editor.value)
+                } catch (e) {
+                    Dispatcher.dispatch(new ErrorAction('Custom Model ' + (e as SyntaxError).toString()))
+                }
                 Dispatcher.dispatch(new SetCustomModel(editor.value, true))
             }
         },
@@ -101,7 +113,7 @@ export default function CustomModelBox({
                         className={styles.drawAreas}
                         title={tr('draw_areas_enabled')}
                         style={{ color: drawAreas ? '' : 'lightgray' }}
-                        onClick={() => Dispatcher.dispatch(new DrawAreas(!drawAreas))}
+                        onClick={() => Dispatcher.dispatch(new UpdateSettings({ drawAreasEnabled: !drawAreas }))}
                     >
                         {drawAreas ? <DrawAreasIcon /> : <DrawAreasDisabledIcon />}
                     </PlainButton>
@@ -121,6 +133,9 @@ export default function CustomModelBox({
                 >
                     <option value="default_example">{tr('examples_custom_model')}</option>
                     <option value="exclude_motorway">{tr('exclude_motorway_example')}</option>
+                    <option value="exclude_disneyland_paris">{tr('exclude_disneyland_paris_example')}</option>
+                    <option value="avoid_tunnels_bridges">{tr('avoid_tunnels_bridges_example')}</option>
+                    <option value="simple_electric_car">{tr('simple_electric_car_example')}</option>
                     <option value="limit_speed">{tr('limit_speed_example')}</option>
                     <option value="cargo_bike">{tr('cargo_bike_example')}</option>
                     <option value="bike_network">{tr('prefer_bike_network')}</option>

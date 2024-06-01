@@ -1,5 +1,5 @@
 import RouteStore from '@/stores/RouteStore'
-import QueryStore, {Coordinate, QueryPoint, QueryPointType} from '@/stores/QueryStore'
+import QueryStore, { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Api from '@/api/Api'
 import { ApiInfo, GeocodingResult, Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 import Dispatcher, { Action } from '@/stores/Dispatcher'

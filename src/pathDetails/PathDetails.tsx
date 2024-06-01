@@ -8,8 +8,8 @@ import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelecte
 import QueryStore, { Coordinate, QueryPointType } from '@/stores/QueryStore'
 import { Position } from 'geojson'
 import { calcDist } from '@/distUtils'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
-import { toFixed } from 'ol/math'
+import { tr } from '@/translation/Translation'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
 interface PathDetailsProps {
     selectedPath: Path
@@ -53,11 +53,11 @@ export default function ({ selectedPath }: PathDetailsProps) {
         graph?.setData(pathDetailsData.data, pathDetailsData.mappings)
     }, [selectedPath, graph])
 
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+    const settings = useContext(SettingsContext)
     useEffect(() => {
-        graph?.setImperial(showDistanceInMiles)
+        graph?.setImperial(settings.showDistanceInMiles)
         graph?.redraw()
-    }, [graph, showDistanceInMiles])
+    }, [graph, settings.showDistanceInMiles])
 
     // render the container
     const isPathPresent = selectedPath.points.coordinates.length !== 0
@@ -101,10 +101,10 @@ function buildPathDetailsData(selectedPath: Path) {
     }
 
     // elevation
-    const elevation = createFeatureCollection('Elevation', [createFeature(coordinates, 'elevation')])
+    const elevation = createFeatureCollection(tr('elevation'), [createFeature(coordinates, 'elevation')])
     result.data.push(elevation)
-    result.mappings['Elevation'] = function () {
-        return { text: 'Elevation', color: QueryStore.getMarkerColor(QueryPointType.From) }
+    result.mappings[tr('elevation')] = function () {
+        return { text: tr('elevation'), color: QueryStore.getMarkerColor(QueryPointType.From) }
     }
 
     // slope
@@ -117,9 +117,9 @@ function buildPathDetailsData(selectedPath: Path) {
         const slopeRounded = Math.round(slope / 3) * 3
         slopeFeatures.push(createFeature([from, to], slopeRounded))
     }
-    const slopeCollection = createFeatureCollection('Slope', slopeFeatures)
+    const slopeCollection = createFeatureCollection(tr('slope'), slopeFeatures)
     result.data.push(slopeCollection)
-    result.mappings['Slope'] = slope2color
+    result.mappings[tr('slope')] = slope2color
 
     // tower slope: slope between tower nodes: use edge_id detail to find tower nodes
     if ((selectedPath.details as any)['edge_id']) {
@@ -147,9 +147,9 @@ function buildPathDetailsData(selectedPath: Path) {
             }
             towerSlopeFeatures.push(createFeature(featurePoints, slopeRounded))
         }
-        const towerSlopeCollection = createFeatureCollection('Towerslope', towerSlopeFeatures)
+        const towerSlopeCollection = createFeatureCollection(tr('towerslope'), towerSlopeFeatures)
         result.data.push(towerSlopeCollection)
-        result.mappings['Towerslope'] = slope2color
+        result.mappings[tr('towerslope')] = slope2color
     }
 
     // path details
@@ -157,8 +157,8 @@ function buildPathDetailsData(selectedPath: Path) {
         const features = details.map(([from, to, value = 'Undefined']: [number, number, string | number]) =>
             createFeature(coordinates.slice(from, to + 1), value)
         )
-        result.data.push(createFeatureCollection(detailName, features))
-        result.mappings[detailName] = createColorMapping(details)
+        result.data.push(createFeatureCollection(tr(detailName), features))
+        result.mappings[tr(detailName)] = createColorMapping(details)
     })
     return result
 }

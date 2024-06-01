@@ -1,11 +1,11 @@
-import {Feature, Map} from 'ol'
-import {useEffect} from 'react'
-import {Point} from 'ol/geom'
-import {fromLonLat} from 'ol/proj'
+import { Feature, Map } from 'ol'
+import { useEffect } from 'react'
+import { Point } from 'ol/geom'
+import { fromLonLat } from 'ol/proj'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import {Icon, Style} from 'ol/style'
-import {POI, POIsStoreState} from '@/stores/POIsStore'
+import { Icon, Style } from 'ol/style'
+import { POI, POIsStoreState } from '@/stores/POIsStore'
 
 import flight_takeoff_svg from '/src/pois/img/flight_takeoff.svg'
 import hotel_svg from '/src/pois/img/hotel.svg'
@@ -20,24 +20,24 @@ import sports_handball_svg from '/src/pois/img/sports_handball.svg'
 import store_svg from '/src/pois/img/store.svg'
 import train_svg from '/src/pois/img/train.svg'
 import universal_currency_alt_svg from '/src/pois/img/universal_currency_alt.svg'
-import {createPOIMarker} from "@/layers/createMarkerSVG";
+import { createPOIMarker } from '@/layers/createMarkerSVG'
 
 const svgStrings: { [id: string]: string } = {}
 
 const svgObjects: { [id: string]: any } = {
-    'flight_takeoff': flight_takeoff_svg(),
-    'hotel': hotel_svg(),
-    'local_hospital': local_hospital_svg(),
-    'local_parking': local_parking_svg(),
-    'local_pharmacy': local_pharmacy_svg(),
-    'luggage': luggage_svg(),
-    'museum': museum_svg(),
-    'restaurant': restaurant_svg(),
-    'school': school_svg(),
-    'sports_handball': sports_handball_svg(),
-    'store': store_svg(),
-    'train': train_svg(),
-    'universal_currency_alt': universal_currency_alt_svg(),
+    flight_takeoff: flight_takeoff_svg(),
+    hotel: hotel_svg(),
+    local_hospital: local_hospital_svg(),
+    local_parking: local_parking_svg(),
+    local_pharmacy: local_pharmacy_svg(),
+    luggage: luggage_svg(),
+    museum: museum_svg(),
+    restaurant: restaurant_svg(),
+    school: school_svg(),
+    sports_handball: sports_handball_svg(),
+    store: store_svg(),
+    train: train_svg(),
+    universal_currency_alt: universal_currency_alt_svg(),
 }
 // -300 -1260 1560 1560
 // <path d="m -46.278793,-739.50038 c -0.119546,-249.77515 165.728493,-515.03832 526.428923,-516.08842 392.86041,-1.1438 528.51077,269.46826 528.84707,519.24315 0.3488,259.06981 -254.78805,473.49828 -382.7069,701.499743 C 519.97666,154.64661 509.30678,296.87227 479.27479,296.44795 444.1137,295.95116 422.98296,153.89016 311.80839,-41.049369 182.8093,-267.24338 -46.156365,-483.7031 -46.278793,-739.50038 Z" style="stroke-width:2.3555" />
@@ -69,7 +69,7 @@ function addPOIsLayer(map: Map, pois: POI[]) {
         const feature = new Feature({
             geometry: new Point(fromLonLat([poi.coordinate.lng, poi.coordinate.lat])),
         })
-        feature.set('gh:marker_props', {icon: poi.icon, poi: poi})
+        feature.set('gh:marker_props', { icon: poi.icon, poi: poi })
         return feature
     })
     const poisLayer = new VectorLayer({
@@ -94,7 +94,7 @@ function addPOIsLayer(map: Map, pois: POI[]) {
     })
     map.addLayer(poisLayer)
     map.on('click', e => {
-        poisLayer.getFeatures(e.pixel).then((features) => {
+        poisLayer.getFeatures(e.pixel).then(features => {
             if (features.length > 0) {
                 const props = features[0].getProperties().get('gh:marker_props')
                 props.poi.selected = true

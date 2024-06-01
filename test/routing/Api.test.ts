@@ -7,7 +7,7 @@ import { setTranslation } from '@/translation/Translation'
 
 import Dispatcher from '@/stores/Dispatcher'
 import { ApiImpl } from '@/api/Api'
-import { ApiInfo, ErrorResponse, RoutingArgs, RoutingRequest } from '@/api/graphhopper'
+import { ApiInfo, ErrorResponse, RoutingArgs, RoutingRequest, RoutingResultInfo } from '@/api/graphhopper'
 
 beforeAll(() => {
     // replace global 'fetch' method by fetchMock
@@ -111,6 +111,7 @@ describe('route', () => {
             instructions: true,
             locale: 'en_US',
             points_encoded: true,
+            points_encoded_multiplier: 1e6,
             snap_preventions: ['ferry'],
             details: [
                 'road_class',
@@ -153,6 +154,7 @@ describe('route', () => {
             instructions: true,
             locale: 'en_US',
             points_encoded: true,
+            points_encoded_multiplier: 1e6,
             snap_preventions: ['ferry'],
             details: [
                 'road_class',
@@ -204,6 +206,7 @@ describe('route', () => {
             instructions: true,
             locale: 'en_US',
             points_encoded: true,
+            points_encoded_multiplier: 1e6,
             snap_preventions: ['ferry'],
             details: [
                 'road_class',
@@ -311,6 +314,7 @@ describe('route', () => {
             instructions: true,
             locale: 'de_DE',
             points_encoded: true,
+            points_encoded_multiplier: 1e6,
             snap_preventions: ['ferry'],
             details: [
                 'road_class',
@@ -341,7 +345,7 @@ describe('route', () => {
 
 function getEmptyResult() {
     return {
-        info: { copyright: [], took: 0 },
+        info: { copyright: [], road_data_timestamp: '', took: 0 } as RoutingResultInfo,
         paths: [],
     }
 }

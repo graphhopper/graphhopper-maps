@@ -13,7 +13,7 @@ import Cross from '@/sidebar/times-solid-thin.svg'
 import styles from './AddressInput.module.css'
 import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
-import { hitToItem, nominatimHitToItem, textToCoordinate } from '@/Converters'
+import { coordinateToText, hitToItem, nominatimHitToItem, textToCoordinate } from '@/Converters'
 import { useMediaQuery } from 'react-responsive'
 import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
@@ -21,6 +21,7 @@ import { onCurrentLocationSelected } from '@/map/MapComponent'
 
 export interface AddressInputProps {
     point: QueryPoint
+    points: QueryPoint[]
     onCancel: () => void
     onAddressSelected: (queryText: string, coord: Coordinate | undefined, bbox: Bbox | undefined) => void
     onChange: (value: string) => void
@@ -37,7 +38,6 @@ export default function AddressInput(props: AddressInputProps) {
 
     // keep track of focus and toggle fullscreen display on small screens
     const [hasFocus, setHasFocus] = useState(false)
-    const [pointerDownOnSuggestion, setPointerDownOnSuggestion] = useState(false)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
     // container for geocoding results which gets set by the geocoder class and set to empty if the underlying query point gets changed from outside
@@ -131,8 +131,14 @@ export default function AddressInput(props: AddressInputProps) {
         [autocompleteItems, highlightedResult]
     )
 
-    const containerClass = hasFocus ? styles.container + ' ' + styles.fullscreen : styles.container
+    // the "fullscreen" css is only defined for smallscreen
+    const containerClass = hasFocus ? styles.fullscreen : ''
     const type = props.point.type
+
+    // get the bias point for the geocoder
+    // (the query point above the current one)
+    const autocompleteIndex = props.points.findIndex(point => !point.isInitialized)
+    const biasCoord = props.points[autocompleteIndex - 1]?.coordinate
 
     return (
         <div className={containerClass}>
@@ -166,7 +172,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onChange={e => {
                         setText(e.target.value)
                         const coordinate = textToCoordinate(e.target.value)
-                        if (!coordinate) geocoder.request(e.target.value, 'default')
+                        if (!coordinate) geocoder.request(e.target.value, biasCoord, 'default')
                         props.onChange(e.target.value)
                     }}
                     onKeyDown={onKeypress}
@@ -174,14 +180,7 @@ export default function AddressInput(props: AddressInputProps) {
                         setHasFocus(true)
                         props.clearDragDrop()
                     }}
-                    onBlur={() => {
-                        // Suppress onBlur if there was a click on a suggested item.
-                        // Otherwise, the item would be removed before (hideSuggestions) its onclick handler can be called.
-                        if (isSmallScreen || pointerDownOnSuggestion) return
-                        setHasFocus(false)
-                        hideSuggestions()
-                        setPointerDownOnSuggestion(false)
-                    }}
+                    onBlur={() => {}}
                     value={text}
                     placeholder={tr(
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
@@ -191,9 +190,6 @@ export default function AddressInput(props: AddressInputProps) {
                 <PlainButton
                     style={text.length == 0 ? { display: 'none' } : {}}
                     className={styles.btnInputClear}
-                    onMouseDown={() => setPointerDownOnSuggestion(true)}
-                    onMouseLeave={() => setPointerDownOnSuggestion(false)}
-                    onMouseUp={() => setPointerDownOnSuggestion(false)}
                     onClick={() => {
                         setText('')
                         props.onChange('')
@@ -212,7 +208,6 @@ export default function AddressInput(props: AddressInputProps) {
                         <Autocomplete
                             items={autocompleteItems}
                             highlightedItem={autocompleteItems[highlightedResult]}
-                            setPointerDown={setPointerDownOnSuggestion}
                             onSelect={item => {
                                 setHasFocus(false)
                                 if (item instanceof GeocodingItem) {
@@ -224,8 +219,9 @@ export default function AddressInput(props: AddressInputProps) {
                                 } else if (item instanceof MoreResultsItem) {
                                     // do not hide autocomplete items
                                     const coordinate = textToCoordinate(item.search)
-                                    if (!coordinate) geocoder.request(item.search, 'nominatim')
+                                    if (!coordinate) geocoder.request(item.search, biasCoord, 'nominatim')
                                 }
+                                searchInput.current!.blur()
                             }}
                         />
                     </ResponsiveAutocomplete>
@@ -281,8 +277,8 @@ class Geocoder {
         this.onSuccess = onSuccess
     }
 
-    request(query: string, provider: string) {
-        this.requestAsync(query, provider).then(() => {})
+    request(query: string, bias: Coordinate | undefined, provider: string) {
+        this.requestAsync(query, bias, provider).then(() => {})
     }
 
     cancel() {
@@ -290,14 +286,17 @@ class Geocoder {
         this.getNextId()
     }
 
-    async requestAsync(query: string, provider: string) {
+    async requestAsync(query: string, bias: Coordinate | undefined, provider: string) {
         const currentId = this.getNextId()
         this.timeout.cancel()
         if (!query || query.length < 2) return
 
         await this.timeout.wait()
         try {
-            const result = await this.api.geocode(query, provider)
+            const options: Record<string, string> = bias
+                ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '9' }
+                : {}
+            const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
             if (currentId === this.requestId) this.onSuccess(query, provider, hits)
         } catch (reason) {

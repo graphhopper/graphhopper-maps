@@ -23,16 +23,18 @@ There is [an experimental `navi` branch](https://github.com/graphhopper/graphhop
  * Fork the repository and create a pull request. Contributions are welcome. Feel free to discuss your changes in our
    [forum](https://discuss.graphhopper.com/) or the GitHub [issues](https://github.com/graphhopper/graphhopper-maps/issues).
  * You can build the production bundle using `npm run build`.
+ * If you use the Directions API edit the config to show profile icons properly (see 'Advanced configuration' section below).
 
 ## Help with translations:
 
-GraphHopper Maps is translated into many languages and you can help improve GraphHopper by adding or improving your language! See [this spreadsheet](https://docs.google.com/spreadsheets/d/10HKSFmxGVEIO92loVQetVmjXT0qpf3EA2jxuQSSYTdU/edit?pli=1#gid=0) to create a new or improve an existing language. Let us know if you changed something or submit a pull request with your changes after the following steps:
+GraphHopper Maps is translated into many languages and you can help improve GraphHopper by adding or improving your language! See [this spreadsheet](https://docs.google.com/spreadsheets/d/18z00Rbt6QvLIkayEV9P89vW9oU0QbTVsjRk9nz1CeFY/edit#gid=0)
+to create a new or improve an existing language. Let us know if you changed something or submit a pull request with your changes after the following steps:
 
  * Edit the spreadsheet
  * Run `python3 update-translations.py`
  * Review your changes via e.g. http://localhost:3000/?locale=en and with `git diff`. Make sure that is the only one with `git status`.
  
-Please note that the translations the server-side turn instructions are located in [a different repository](https://github.com/graphhopper/graphhopper/blob/master/docs/core/translations.md).
+Please note that the translations for the server-side turn instructions are located in [a different repository](https://github.com/graphhopper/graphhopper/blob/master/docs/core/translations.md).
 
 ## Advanced configuration
 

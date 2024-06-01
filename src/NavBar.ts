@@ -13,6 +13,7 @@ import QueryStore, {
 } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
 import { getApi } from '@/api/Api'
+import config from 'config'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
@@ -27,12 +28,17 @@ export default class NavBar {
 
     async startSyncingUrlWithAppState() {
         // our first history entry shall be the one that we end up with when the app loads for the first time
-        window.history.replaceState(null, '', this.createUrlFromState())
+        window.history.replaceState(null, '', this.createUrlFromState(true))
         this.queryStore.register(() => this.updateUrlFromState())
         this.mapStore.register(() => this.updateUrlFromState())
     }
 
-    private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState) {
+    private static createUrl(
+        baseUrl: string,
+        queryStoreState: QueryStoreState,
+        mapState: MapOptionsStoreState,
+        first: boolean
+    ) {
         const result = new URL(baseUrl)
         if (queryStoreState.queryPoints.filter(point => point.isInitialized).length > 0) {
             queryStoreState.queryPoints
@@ -40,8 +46,10 @@ export default class NavBar {
                 .forEach(pointAsString => result.searchParams.append('point', pointAsString))
         }
 
-        result.searchParams.append('profile', queryStoreState.routingProfile.name)
-        result.searchParams.append('layer', mapState.selectedStyle.name)
+        if (!first || queryStoreState.routingProfile.name != Object.keys(config.profiles ?? {})[0])
+            result.searchParams.append('profile', queryStoreState.routingProfile.name)
+        if (!first || mapState.selectedStyle.name != config.defaultTiles)
+            result.searchParams.append('layer', mapState.selectedStyle.name)
         if (queryStoreState.customModelEnabled)
             result.searchParams.append('custom_model', queryStoreState.customModelStr.replace(/\s+/g, ''))
 
@@ -158,15 +166,16 @@ export default class NavBar {
 
     public updateUrlFromState() {
         if (this.ignoreStateUpdates) return
-        const newHref = this.createUrlFromState()
+        const newHref = this.createUrlFromState(false)
         if (newHref !== window.location.href) window.history.pushState(null, '', newHref)
     }
 
-    private createUrlFromState() {
+    private createUrlFromState(first: boolean) {
         return NavBar.createUrl(
             window.location.origin + window.location.pathname,
             this.queryStore.state,
-            this.mapStore.state
+            this.mapStore.state,
+            first
         ).toString()
     }
 

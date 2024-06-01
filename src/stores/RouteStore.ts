@@ -1,8 +1,8 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { ClearPoints, ClearRoute, RemovePoint, RouteRequestSuccess, SetPoint, SetSelectedPath } from '@/actions/Actions'
-import QueryStore, { RequestState } from '@/stores/QueryStore'
-import { Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
+import QueryStore from '@/stores/QueryStore'
+import { Path, RoutingResult } from '@/api/graphhopper'
 
 export interface RouteStoreState {
     routingResult: RoutingResult
@@ -19,6 +19,7 @@ export default class RouteStore extends Store<RouteStoreState> {
                 type: 'LineString',
             },
             points_encoded: false,
+            points_encoded_multiplier: 1e5,
             snapped_waypoints: {
                 type: 'LineString',
                 coordinates: [],
@@ -31,10 +32,15 @@ export default class RouteStore extends Store<RouteStoreState> {
                 toll: [],
                 road_environment: [],
                 road_class: [],
+                road_access: [],
+                access_conditional: [],
+                foot_conditional: [],
+                bike_conditional: [],
                 track_type: [],
                 country: [],
                 get_off_bike: [],
-                road_access: [],
+                mtb_rating: [],
+                hike_rating: [],
             },
             distance: 0,
             points_order: [],
@@ -75,6 +81,7 @@ export default class RouteStore extends Store<RouteStoreState> {
                 paths: [],
                 info: {
                     copyright: [],
+                    road_data_timestamp: '',
                     took: 0,
                 },
             },

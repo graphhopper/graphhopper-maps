@@ -16,6 +16,7 @@ export interface RoutingRequest {
     profile: string
     locale: string
     points_encoded: boolean
+    points_encoded_multiplier: number
     instructions: boolean
     elevation: boolean
     'alternative_route.max_paths'?: number
@@ -32,13 +33,19 @@ export interface ErrorResponse {
     hints: any[]
 }
 
+export interface RoutingResultInfo {
+    readonly copyright: string[]
+    readonly road_data_timestamp: string
+    readonly took: number
+}
+
 export interface RoutingResult {
-    readonly info: { copyright: string[]; took: number }
+    readonly info: RoutingResultInfo
     readonly paths: Path[]
 }
 
 export interface RawResult {
-    readonly info: { copyright: string[]; took: number }
+    readonly info: RoutingResultInfo
     readonly paths: RawPath[]
 }
 
@@ -70,6 +77,7 @@ export interface BasePath {
     readonly ascend: number
     readonly descend: number
     readonly points_encoded: boolean
+    readonly points_encoded_multiplier: number
     readonly bbox?: Bbox
     readonly instructions: Instruction[]
     readonly details: Details
@@ -83,6 +91,7 @@ export interface Instruction {
     readonly points: number[][]
     readonly sign: number
     readonly text: string
+    readonly motorway_junction: string
     readonly time: number
 }
 
@@ -91,11 +100,16 @@ interface Details {
     readonly toll: [number, number, string][]
     readonly max_speed: [number, number, number][]
     readonly road_class: [number, number, string][]
-    readonly road_access: [number, number, string][]
     readonly road_environment: [number, number, string][]
+    readonly road_access: [number, number, string][]
+    readonly access_conditional: [number, number, string][]
+    readonly foot_conditional: [number, number, string][]
+    readonly bike_conditional: [number, number, string][]
     readonly track_type: [number, number, string][]
     readonly country: [number, number, string][]
     readonly get_off_bike: [number, number, boolean][]
+    readonly mtb_rating: [number, number, boolean][]
+    readonly hike_rating: [number, number, boolean][]
 }
 
 export interface GeocodingResult {

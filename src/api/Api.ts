@@ -29,7 +29,7 @@ export default interface Api {
 
     routeWithDispatch(args: RoutingArgs, zoom: boolean): void
 
-    geocode(query: string, provider: string): Promise<GeocodingResult>
+    geocode(query: string, provider: string, additionalOptions?: Record<string, string>): Promise<GeocodingResult>
 
     geocodePOIs(query: string, coordinate: Coordinate, radius: number): Promise<GeocodingResult>
 
@@ -110,7 +110,11 @@ export class ApiImpl implements Api {
         }
     }
 
-    async geocode(query: string, provider: string): Promise<GeocodingResult> {
+    async geocode(
+        query: string,
+        provider: string,
+        additionalOptions?: Record<string, string>
+    ): Promise<GeocodingResult> {
         if (!this.supportsGeocoding())
             return {
                 hits: [],
@@ -126,6 +130,12 @@ export class ApiImpl implements Api {
         url.searchParams.append('osm_tag', '!place:county')
         url.searchParams.append('osm_tag', '!boundary')
         url.searchParams.append('osm_tag', '!historic')
+
+        if (additionalOptions) {
+            for (const key in additionalOptions) {
+                url.searchParams.append(key, additionalOptions[key])
+            }
+        }
 
         const response = await fetch(url.toString(), {
             headers: { Accept: 'application/json' },
@@ -235,6 +245,7 @@ export class ApiImpl implements Api {
             instructions: true,
             locale: getTranslation().getLang(),
             points_encoded: true,
+            points_encoded_multiplier: 1e6,
             snap_preventions: config.request?.snapPreventions ? config.request.snapPreventions : [],
             ...profileConfig,
             details: details,
@@ -245,7 +256,12 @@ export class ApiImpl implements Api {
             request['ch.disable'] = true
         }
 
-        if (args.points.length <= 2 && args.maxAlternativeRoutes > 1 && !(request as any)['curbsides']) {
+        if (
+            args.points.length <= 2 &&
+            args.maxAlternativeRoutes > 1 &&
+            !(request as any)['curbsides'] &&
+            !args.profile.startsWith('cp_')
+        ) {
             return {
                 ...request,
                 'alternative_route.max_paths': args.maxAlternativeRoutes,
@@ -300,21 +316,23 @@ export class ApiImpl implements Api {
     }
 
     private static decodePoints(path: RawPath, is3D: boolean) {
-        if (path.points_encoded)
+        if (path.points_encoded) {
+            const multiplier = path.points_encoded_multiplier || 1e5
             return {
                 type: 'LineString',
-                coordinates: ApiImpl.decodePath(path.points as string, is3D),
+                coordinates: ApiImpl.decodePath(path.points as string, is3D, multiplier),
             }
-        else return path.points as LineString
+        } else return path.points as LineString
     }
 
     private static decodeWaypoints(path: RawPath, is3D: boolean) {
-        if (path.points_encoded)
+        if (path.points_encoded) {
+            const multiplier = path.points_encoded_multiplier || 1e5
             return {
                 type: 'LineString',
-                coordinates: ApiImpl.decodePath(path.snapped_waypoints as string, is3D),
+                coordinates: ApiImpl.decodePath(path.snapped_waypoints as string, is3D, multiplier),
             }
-        else return path.snapped_waypoints as LineString
+        } else return path.snapped_waypoints as LineString
     }
 
     private static setPointsOnInstructions(path: Path) {
@@ -330,7 +348,7 @@ export class ApiImpl implements Api {
         }
     }
 
-    private static decodePath(encoded: string, is3D: boolean): number[][] {
+    private static decodePath(encoded: string, is3D: boolean, multiplier: number): number[][] {
         const len = encoded.length
         let index = 0
         const array: number[][] = []
@@ -371,10 +389,14 @@ export class ApiImpl implements Api {
                 } while (b >= 0x20)
                 const deltaEle = result & 1 ? ~(result >> 1) : result >> 1
                 ele += deltaEle
-                array.push([lng * 1e-5, lat * 1e-5, ele / 100])
-            } else array.push([lng * 1e-5, lat * 1e-5])
+                array.push([lng / multiplier, lat / multiplier, ele / 100])
+            } else array.push([lng / multiplier, lat / multiplier])
         }
         return array
+    }
+
+    public static isFootLike(profile: string) {
+        return profile.includes('hike') || profile.includes('foot')
     }
 
     public static isBikeLike(profile: string) {

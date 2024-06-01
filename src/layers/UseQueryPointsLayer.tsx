@@ -3,7 +3,7 @@ import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { useEffect } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { Point } from 'ol/geom'
+import { Geometry, Point } from 'ol/geom'
 import { fromLonLat, toLonLat } from 'ol/proj'
 import { Modify } from 'ol/interaction'
 import Dispatcher from '@/stores/Dispatcher'
@@ -35,7 +35,7 @@ function removeQueryPoints(map: Map) {
 }
 
 function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
-    const features = queryPoints
+    const features: Feature<Geometry>[] = queryPoints
         .map((point, i) => {
             return { index: i, point: point }
         })
@@ -85,10 +85,12 @@ function removeDragInteractions(map: Map) {
         .forEach(i => map.removeInteraction(i))
 }
 
-function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<any>) {
+function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<Feature<Geometry>>) {
+    let tmp = queryPointsLayer.getSource()
+    if (tmp == null) throw new Error('source must not be null') // typescript requires this
     const modify = new Modify({
         hitDetection: queryPointsLayer,
-        source: queryPointsLayer.getSource(),
+        source: tmp,
         style: [],
     })
     modify.on('modifystart', e => {

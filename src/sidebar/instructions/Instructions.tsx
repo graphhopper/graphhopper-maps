@@ -1,5 +1,4 @@
 import styles from '@/sidebar/instructions/Instructions.module.css'
-import { useContext } from 'react'
 
 import uTurn from './u_turn.png'
 import uTurnLeft from './u_turn_left.png'
@@ -21,22 +20,23 @@ import { metersToText } from '@/Converters'
 import { Instruction } from '@/api/graphhopper'
 import { MarkerComponent } from '@/map/Marker'
 import QueryStore, { QueryPointType } from '@/stores/QueryStore'
-import { ShowDistanceInMilesContext } from '@/ShowDistanceInMilesContext'
 import Dispatcher from '@/stores/Dispatcher'
 import { InstructionClicked } from '@/actions/Actions'
+import { useContext } from 'react'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
-export default function (props: { instructions: Instruction[] }) {
+export default function (props: { instructions: Instruction[]; us: boolean }) {
     return (
         <ul className={styles.instructionsList}>
             {props.instructions.map((instruction, i) => (
-                <Line key={i} instruction={instruction} index={i} />
+                <Line key={i} instruction={instruction} index={i} us={props.us} />
             ))}
         </ul>
     )
 }
 
-const Line = function ({ instruction, index }: { instruction: Instruction; index: number }) {
-    const showDistanceInMiles = useContext(ShowDistanceInMilesContext)
+const Line = function ({ instruction, index, us }: { instruction: Instruction; index: number; us: boolean }) {
+    const settings = useContext(SettingsContext)
     return (
         <li
             className={styles.instruction}
@@ -51,7 +51,12 @@ const Line = function ({ instruction, index }: { instruction: Instruction; index
         >
             {getTurnSign(instruction.sign, index)}
             <span className={styles.mainText}>{instruction.text}</span>
-            <span className={styles.distance}>{metersToText(instruction.distance, showDistanceInMiles)}</span>
+            {instruction.motorway_junction && (
+                <span style={{ background: us ? '#00674c' : '#003399' }} className={styles.motorwayJunction}>
+                    {instruction.motorway_junction}
+                </span>
+            )}
+            <span className={styles.distance}>{metersToText(instruction.distance, settings.showDistanceInMiles)}</span>
         </li>
     )
 }
