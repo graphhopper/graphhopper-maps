@@ -8,7 +8,6 @@ export interface POI {
     name: string
     icon: string
     coordinate: Coordinate
-    selected: boolean
 }
 
 export interface POIsStoreState {

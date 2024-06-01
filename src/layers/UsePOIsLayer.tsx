@@ -21,6 +21,7 @@ import store_svg from '/src/pois/img/store.svg'
 import train_svg from '/src/pois/img/train.svg'
 import universal_currency_alt_svg from '/src/pois/img/universal_currency_alt.svg'
 import { createPOIMarker } from '@/layers/createMarkerSVG'
+import {Select} from "ol/interaction";
 
 const svgStrings: { [id: string]: string } = {}
 
@@ -50,10 +51,11 @@ for (const k in svgObjects) {
 export default function usePOIsLayer(map: Map, poisState: POIsStoreState) {
     useEffect(() => {
         removePOIs(map)
-        console.log('poi count: ' + poisState.pois.length)
         addPOIsLayer(map, poisState.pois)
+        const select = addPOISelection(map)
         return () => {
             removePOIs(map)
+            map.removeInteraction(select)
         }
     }, [map, poisState.pois])
 }
@@ -63,6 +65,26 @@ function removePOIs(map: Map) {
         .getArray()
         .filter(l => l.get('gh:pois'))
         .forEach(l => map.removeLayer(l))
+}
+
+function addPOISelection(map: Map) {
+    const select = new Select();
+    map.addInteraction(select);
+    select.on('select', event => {
+        const selectedFeatures = event.selected;
+        if (selectedFeatures.length > 0) {
+            const feature = selectedFeatures[0]
+            const props = feature.get('gh:marker_props')
+            feature.setStyle(new Style({
+                image: new Icon({
+                    color: 'rgba(100%, 0, 0, 30%)',
+                    src: 'data:image/svg+xml;utf8,' + svgStrings[props.icon],
+                    displacement: [0, 18],
+                }),
+            }))
+        }
+    })
+    return select
 }
 
 function addPOIsLayer(map: Map, pois: POI[]) {
@@ -94,13 +116,5 @@ function addPOIsLayer(map: Map, pois: POI[]) {
         return style
     })
     map.addLayer(poisLayer)
-    map.on('click', e => {
-        poisLayer.getFeatures(e.pixel).then(features => {
-            if (features.length > 0) {
-                const props = features[0].getProperties().get('gh:marker_props')
-                props.poi.selected = true
-            }
-        })
-    })
     return poisLayer
 }

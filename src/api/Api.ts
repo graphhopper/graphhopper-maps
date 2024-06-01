@@ -469,7 +469,7 @@ export class AddressParseResult {
             { k: ['bus stops'], t: ['highway:bus_stop'], i: 'train' },
             { k: ['railway stations', 'railway station'], t: ['railway:station'], i: 'train' },
             { k: ['super markets', 'super market'], t: ['shop:supermarket', 'building:supermarket'], i: 'store' },
-            { k: ['hotels', 'hotel'], t: ['amenity:hotel', 'building:hotel'], i: 'hotel' },
+            { k: ['hotels', 'hotel'], t: ['amenity:hotel', 'building:hotel', 'tourism:hotel'], i: 'hotel' },
             { k: ['tourism'], t: ['tourism'], i: 'luggage' },
             { k: ['museums', 'museum'], t: ['tourism:museum', 'building:museum'], i: 'museum' },
             { k: ['pharmacies', 'pharmacy'], t: ['amenity:pharmacy'], i: 'local_pharmacy' },
