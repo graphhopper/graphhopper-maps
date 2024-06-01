@@ -7,21 +7,14 @@ import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
 import PlainButton from '@/PlainButton'
+import { Map } from 'ol'
 
 import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
 
-export default function Search({
-    points,
-    mapCenter,
-    mapRadius,
-}: {
-    points: QueryPoint[]
-    mapCenter: Coordinate
-    mapRadius: number
-}) {
+export default function Search({ points, map }: { points: QueryPoint[]; map: Map }) {
     const [showSettings, setShowSettings] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
@@ -48,8 +41,7 @@ export default function Search({
                         }}
                         dropPreviewIndex={dropPreviewIndex}
                         onDropPreviewSelect={onDropPreviewSelect}
-                        mapCenter={mapCenter}
-                        mapRadius={mapRadius}
+                        map={map}
                     />
                 ))}
             </div>
@@ -85,8 +77,7 @@ const SearchBox = ({
     onMoveStartSelect,
     dropPreviewIndex,
     onDropPreviewSelect,
-    mapCenter,
-    mapRadius,
+    map,
 }: {
     index: number
     points: QueryPoint[]
@@ -97,8 +88,7 @@ const SearchBox = ({
     onMoveStartSelect: (index: number, showTargetIcon: boolean) => void
     dropPreviewIndex: number
     onDropPreviewSelect: (index: number) => void
-    mapCenter: Coordinate
-    mapRadius: number
+    map: Map
 }) => {
     const point = points[index]
 
@@ -176,8 +166,7 @@ const SearchBox = ({
 
             <div className={styles.searchBoxInput}>
                 <AddressInput
-                    mapCenter={mapCenter}
-                    mapRadius={mapRadius}
+                    map={map}
                     moveStartIndex={moveStartIndex}
                     dropPreviewIndex={dropPreviewIndex}
                     index={index}

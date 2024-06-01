@@ -21,6 +21,9 @@ import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetBBox, SetPOI } from '@/actions/Actions'
+import { toLonLat, transformExtent } from 'ol/proj'
+import { calcDist } from '@/distUtils'
+import { Map } from 'ol'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -32,8 +35,7 @@ export interface AddressInputProps {
     moveStartIndex: number
     dropPreviewIndex: number
     index: number
-    mapCenter: Coordinate
-    mapRadius: number
+    map: Map
 }
 
 export default function AddressInput(props: AddressInputProps) {
@@ -96,7 +98,9 @@ export default function AddressInput(props: AddressInputProps) {
                 Dispatcher.dispatch(new SetBBox(bbox))
                 Dispatcher.dispatch(new SetPOI(pois))
             } else {
-                console.warn('invalid bbox for points ' + JSON.stringify(pois) + " result was: " + JSON.stringify(parseResult))
+                console.warn(
+                    'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult)
+                )
             }
         })
     )
@@ -258,8 +262,22 @@ export default function AddressInput(props: AddressInputProps) {
                                 } else if (item instanceof POIQueryItem) {
                                     hideSuggestions()
                                     if (item.result.hasPOIs()) {
-                                        console.log(item.result.location)
-                                        poiSearch.request(item.result, props.mapCenter, Math.min(props.mapRadius, 100))
+                                        const center = props.map.getView().getCenter()
+                                            ? toLonLat(props.map.getView().getCenter()!)
+                                            : [13.4, 52.5]
+                                        const mapCenter = { lng: center[0], lat: center[1] }
+
+                                        const origExtent = props.map.getView().calculateExtent(props.map.getSize())
+                                        var extent = transformExtent(origExtent, 'EPSG:3857', 'EPSG:4326')
+                                        const mapRadius =
+                                            calcDist(
+                                                { lng: extent[0], lat: extent[1] },
+                                                { lng: extent[2], lat: extent[3] }
+                                            ) /
+                                            2 /
+                                            1000
+
+                                        poiSearch.request(item.result, mapCenter, Math.min(mapRadius, 100))
                                     }
                                 }
                                 searchInput.current!.blur()
@@ -388,31 +406,21 @@ class ReverseGeocoder {
         await this.timeout.wait()
         try {
             let hits: GeocodingHit[] = []
-            let searchCoordinate: Coordinate | undefined = undefined
+            let result
+
             if (parseResult.location) {
                 let options: Record<string, string> = {
                     point: coordinateToText(point),
                     location_bias_scale: '0.5',
                     zoom: '9',
                 }
-                let result = await this.api.geocode(parseResult.location, 'default', options)
+                result = await this.api.geocode(parseResult.location, 'default', options)
                 hits = result.hits
-                if (result.hits.length > 0) searchCoordinate = result.hits[0].point
-                else if (point) searchCoordinate = point
+                if (hits.length > 0) result = await this.api.reverseGeocode('', hits[0].point, radius, parseResult.tags)
             } else if (point) {
-                searchCoordinate = point
+                result = await this.api.reverseGeocode('', point, radius, parseResult.tags)
             }
-
-            if (!searchCoordinate) {
-                hits = []
-            } else if (hits.length > 0) {
-                // TODO NOW should we include parseResult.location here again if searchCoordinate is from forward geocode request?
-                //  parseResult.location
-                console.log("radius "+radius)
-                const result = await this.api.reverseGeocode('', searchCoordinate, radius, parseResult.tags)
-                hits = Geocoder.filterDuplicates(result.hits)
-            }
-
+            if (result) hits = Geocoder.filterDuplicates(result.hits)
             if (currentId === this.requestId) this.onSuccess(hits, parseResult)
         } catch (reason) {
             throw Error('Could not get geocoding results because: ' + reason)

@@ -11,6 +11,7 @@ import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import CustomModelBox from '@/sidebar/CustomModelBox'
+import { Map } from 'ol'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -18,11 +19,10 @@ type MobileSidebarProps = {
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
-    mapCenter: Coordinate
-    mapRadius: number
+    map: Map
 }
 
-export default function ({ query, route, error, encodedValues, drawAreas, mapCenter, mapRadius }: MobileSidebarProps) {
+export default function ({ query, route, error, encodedValues, drawAreas, map }: MobileSidebarProps) {
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
@@ -74,7 +74,7 @@ export default function ({ query, route, error, encodedValues, drawAreas, mapCen
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} mapCenter={mapCenter} mapRadius={mapRadius} />
+                        <Search points={query.queryPoints} map={map} />
                     </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}

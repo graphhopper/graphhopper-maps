@@ -105,7 +105,9 @@ export function POIQueryEntry({
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
             <div className={styles.poiEntry}>
                 <span className={styles.poiEntryPrimaryText}>{item.result.poi}</span>
-                <span className={styles.poiEntrySecondaryText}>{item.result.location ? 'in ' + item.result.location : 'nearby'}</span>
+                <span className={styles.poiEntrySecondaryText}>
+                    {item.result.location ? 'in ' + item.result.location : 'nearby'}
+                </span>
             </div>
         </AutocompleteEntry>
     )

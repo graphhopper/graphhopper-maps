@@ -492,15 +492,15 @@ export class AddressParseResult {
 
         for (const val of values) {
             // two word phrases like 'public transit' must be checked before single word phrases
-            for(const keyword of val.k) {
+            for (const keyword of val.k) {
                 const i = bigrams.indexOf(keyword)
                 if (i >= 0)
                     return new AddressParseResult(cleanQuery.replace(bigrams[i], '').trim(), val.t, val.i, val.k[0])
             }
 
-            for(const keyword of val.k) {
+            for (const keyword of val.k) {
                 const i = queryTokens.indexOf(keyword)
-                if(i >= 0)
+                if (i >= 0)
                     return new AddressParseResult(cleanQuery.replace(queryTokens[i], '').trim(), val.t, val.i, val.k[0])
             }
         }

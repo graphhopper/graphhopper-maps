@@ -6,7 +6,7 @@ import { RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
 import { setTranslation } from '@/translation/Translation'
 
 import Dispatcher from '@/stores/Dispatcher'
-import {AddressParseResult, ApiImpl} from '@/api/Api'
+import { AddressParseResult, ApiImpl } from '@/api/Api'
 import { ApiInfo, ErrorResponse, RoutingArgs, RoutingRequest, RoutingResultInfo } from '@/api/graphhopper'
 
 beforeAll(() => {

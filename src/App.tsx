@@ -18,7 +18,7 @@ import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
 import RoutingResults from '@/sidebar/RoutingResults'
 import PoweredBy from '@/sidebar/PoweredBy'
-import { Coordinate, QueryStoreState, RequestState } from '@/stores/QueryStore'
+import { QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
@@ -45,8 +45,6 @@ import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import usePOIsLayer from '@/layers/UsePOIsLayer'
-import { calcDist } from '@/distUtils'
-import { toLonLat, transformExtent } from 'ol/proj'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -119,13 +117,6 @@ export default function App() {
     usePathDetailsLayer(map, pathDetails)
     usePOIsLayer(map, pois)
 
-    const center = map.getView().getCenter() ? toLonLat(map.getView().getCenter()!) : [13.4, 52.5]
-    const mapCenter = { lng: center[0], lat: center[1] }
-
-    const origExtent = map.getView().calculateExtent(map.getSize())
-    var extent = transformExtent(origExtent, 'EPSG:3857', 'EPSG:4326')
-    const mapRadius = calcDist({ lng: extent[0], lat: extent[1] }, { lng: extent[2], lat: extent[3] }) / 2 / 1000
-
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <SettingsContext.Provider value={settings}>
@@ -137,8 +128,6 @@ export default function App() {
                         query={query}
                         route={route}
                         map={map}
-                        mapCenter={mapCenter}
-                        mapRadius={mapRadius}
                         mapOptions={mapOptions}
                         error={error}
                         encodedValues={info.encoded_values}
@@ -149,8 +138,6 @@ export default function App() {
                         query={query}
                         route={route}
                         map={map}
-                        mapCenter={mapCenter}
-                        mapRadius={mapRadius}
                         mapOptions={mapOptions}
                         error={error}
                         encodedValues={info.encoded_values}
@@ -170,21 +157,9 @@ interface LayoutProps {
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
-    mapCenter: Coordinate
-    mapRadius: number
 }
 
-function LargeScreenLayout({
-    query,
-    route,
-    map,
-    error,
-    mapOptions,
-    encodedValues,
-    drawAreas,
-    mapCenter,
-    mapRadius,
-}: LayoutProps) {
+function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     return (
@@ -211,7 +186,7 @@ function LargeScreenLayout({
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} mapCenter={mapCenter} mapRadius={mapRadius} />
+                        <Search points={query.queryPoints} map={map} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
                             info={route.routingResult.info}
@@ -248,17 +223,7 @@ function LargeScreenLayout({
     )
 }
 
-function SmallScreenLayout({
-    query,
-    route,
-    map,
-    error,
-    mapOptions,
-    encodedValues,
-    drawAreas,
-    mapCenter,
-    mapRadius,
-}: LayoutProps) {
+function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas }: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
@@ -268,8 +233,7 @@ function SmallScreenLayout({
                     error={error}
                     encodedValues={encodedValues}
                     drawAreas={drawAreas}
-                    mapCenter={mapCenter}
-                    mapRadius={mapRadius}
+                    map={map}
                 />
             </div>
             <div className={styles.smallScreenMap}>
