@@ -1,5 +1,5 @@
 import RouteStore from '@/stores/RouteStore'
-import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import QueryStore, { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Api from '@/api/Api'
 import { ApiInfo, GeocodingResult, Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
@@ -66,6 +66,10 @@ function createEmptyQueryPoint(): QueryPoint {
 
 class DummyApi implements Api {
     geocode(query: string): Promise<GeocodingResult> {
+        throw Error('not implemented')
+    }
+
+    reverseGeocode(query: string | undefined, point: Coordinate, radius: number, tags?: string[]): Promise<GeocodingResult> {
         throw Error('not implemented')
     }
 

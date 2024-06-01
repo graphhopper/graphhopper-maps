@@ -16,6 +16,7 @@ import {
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
+import { Coordinate } from '@/stores/QueryStore'
 
 interface ApiProfile {
     name: string
@@ -29,6 +30,8 @@ export default interface Api {
     routeWithDispatch(args: RoutingArgs, zoom: boolean): void
 
     geocode(query: string, provider: string, additionalOptions?: Record<string, string>): Promise<GeocodingResult>
+
+    reverseGeocode(query: string | undefined, point: Coordinate, radius: number, tags?: string[]): Promise<GeocodingResult>
 
     supportsGeocoding(): boolean
 }
@@ -103,6 +106,41 @@ export class ApiImpl implements Api {
         if (additionalOptions) {
             for (const key in additionalOptions) {
                 url.searchParams.append(key, additionalOptions[key])
+            }
+        }
+
+        const response = await fetch(url.toString(), {
+            headers: { Accept: 'application/json' },
+        })
+
+        if (response.ok) {
+            return (await response.json()) as GeocodingResult
+        } else {
+            throw new Error('Geocoding went wrong ' + response.status)
+        }
+    }
+
+    async reverseGeocode(query: string | undefined, point: Coordinate, radius: number, tags?: string[]): Promise<GeocodingResult> {
+        if (!this.supportsGeocoding())
+            return {
+                hits: [],
+                took: 0,
+            }
+        const url = this.getGeocodingURLWithKey('geocode')
+
+        url.searchParams.append('point', point.lat + ',' + point.lng)
+        url.searchParams.append('radius', '' + radius)
+        url.searchParams.append('reverse', 'true')
+        url.searchParams.append('limit', '50')
+
+        if (query) url.searchParams.append('q', query)
+
+        const langAndCountry = getTranslation().getLang().split('_')
+        url.searchParams.append('locale', langAndCountry.length > 0 ? langAndCountry[0] : 'en')
+
+        if (tags) {
+            for (const value of tags) {
+                url.searchParams.append('osm_tag', value)
             }
         }
 
@@ -379,4 +417,42 @@ export class ApiImpl implements Api {
     public static isTruck(profile: string) {
         return profile.includes('truck')
     }
+
+    static parseAddress(query: string): AddressParseResult {
+        query = query.toLowerCase()
+
+        const values = [
+            { k: ['restaurant', 'restaurants'], t: ['amenity:restaurant'], i: 'restaurant' },
+            { k: ['airport', 'airports'], t: ['aeroway:aerodrome'], i: 'flight_takeoff' },
+            { k: ['public transit'], t: ['highway:bus_stop'], i: 'train' },
+            { k: ['super market'], t: ['shop:supermarket'], i: 'store' },
+            { k: ['hotel', 'hotels'], t: ['building:hotel'], i: 'hotel' },
+            { k: ['tourism'], t: ['tourism'], i: 'luggage' },
+            { k: ['museum'], t: ['building:museum'], i: 'museum' },
+            { k: ['pharmacy'], t: ['amenity:pharmacy'], i: 'local_pharmacy' },
+            { k: ['hospital'], t: ['amenity:hospital'], i: 'local_hospital' },
+            { k: ['bank'], t: ['amenity:bank'], i: 'universal_currency_alt' },
+            { k: ['education'], t: ['amenity:school', 'building:school', 'building:university'], i: 'school' },
+            { k: ['leisure'], t: ['leisure'], i: 'sports_handball' },
+            { k: ['parking'], t: ['amenity:parking'], i: 'local_parking' },
+        ]
+        for (const val of values) {
+            if (val.k.some(keyword => query.includes(keyword)))
+                return { location: this.cleanQuery(query, val.k), tags: val.t, icon: val.i }
+        }
+
+        return { location: '', tags: [], icon: '' }
+    }
+
+    private static cleanQuery(query: string, inKeywords: string[]) {
+        const keywords = ['in', 'around']
+        const locationWords = query.split(' ').filter(word => !keywords.includes(word) && !inKeywords.includes(word))
+        return locationWords.join(' ')
+    }
+}
+
+export interface AddressParseResult {
+    location: string
+    tags: string[]
+    icon: string
 }

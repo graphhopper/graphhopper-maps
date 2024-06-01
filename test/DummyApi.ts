@@ -1,8 +1,16 @@
 import Api from '../src/api/Api'
 import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult, RoutingResultInfo } from '../src/api/graphhopper'
+import { Coordinate } from '@/stores/QueryStore'
 
 export default class DummyApi implements Api {
     geocode(query: string): Promise<GeocodingResult> {
+        return Promise.resolve({
+            took: 0,
+            hits: [],
+        })
+    }
+
+    reverseGeocode(query: string | undefined, point: Coordinate, radius: number, tags?: string[]): Promise<GeocodingResult> {
         return Promise.resolve({
             took: 0,
             hits: [],

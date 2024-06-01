@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { getBBoxFromCoord, QueryPoint } from '@/stores/QueryStore'
+import { Coordinate, getBBoxFromCoord, QueryPoint } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetBBox, SetPoint } from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
@@ -13,7 +13,15 @@ import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
 
-export default function Search({ points }: { points: QueryPoint[] }) {
+export default function Search({
+    points,
+    mapCenter,
+    mapRadius,
+}: {
+    points: QueryPoint[]
+    mapCenter: Coordinate
+    mapRadius: number
+}) {
     const [showSettings, setShowSettings] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
@@ -40,6 +48,8 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                         }}
                         dropPreviewIndex={dropPreviewIndex}
                         onDropPreviewSelect={onDropPreviewSelect}
+                        mapCenter={mapCenter}
+                        mapRadius={mapRadius}
                     />
                 ))}
             </div>
@@ -75,6 +85,8 @@ const SearchBox = ({
     onMoveStartSelect,
     dropPreviewIndex,
     onDropPreviewSelect,
+    mapCenter,
+    mapRadius,
 }: {
     index: number
     points: QueryPoint[]
@@ -85,6 +97,8 @@ const SearchBox = ({
     onMoveStartSelect: (index: number, showTargetIcon: boolean) => void
     dropPreviewIndex: number
     onDropPreviewSelect: (index: number) => void
+    mapCenter: Coordinate
+    mapRadius: number
 }) => {
     const point = points[index]
 
@@ -162,6 +176,8 @@ const SearchBox = ({
 
             <div className={styles.searchBoxInput}>
                 <AddressInput
+                    mapCenter={mapCenter}
+                    mapRadius={mapRadius}
                     moveStartIndex={moveStartIndex}
                     dropPreviewIndex={dropPreviewIndex}
                     index={index}

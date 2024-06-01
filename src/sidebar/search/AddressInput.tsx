@@ -11,13 +11,15 @@ import Autocomplete, {
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import styles from './AddressInput.module.css'
-import Api, { getApi } from '@/api/Api'
+import Api, { AddressParseResult, ApiImpl, getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import { coordinateToText, hitToItem, nominatimHitToItem, textToCoordinate } from '@/Converters'
 import { useMediaQuery } from 'react-responsive'
 import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
+import Dispatcher from '@/stores/Dispatcher'
+import { SetPOI } from '@/actions/Actions'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -29,6 +31,8 @@ export interface AddressInputProps {
     moveStartIndex: number
     dropPreviewIndex: number
     index: number
+    mapCenter: Coordinate
+    mapRadius: number
 }
 
 export default function AddressInput(props: AddressInputProps) {
@@ -67,6 +71,25 @@ export default function AddressInput(props: AddressInputProps) {
             }
         })
     )
+
+    const [poiSearch] = useState(
+        new ReverseGeocoder(getApi(), (hits, parseResult) => {
+            const pois = hits.map(hit => {
+                const res = hitToItem(hit)
+                return {
+                    name: res.mainText,
+                    icon: parseResult.icon,
+                    coordinate: hit.point,
+                    selected: false,
+                }
+            })
+
+            // TODO NOW: if zoom is too far away: auto zoom to the results?
+
+            Dispatcher.dispatch(new SetPOI(pois))
+        })
+    )
+
     // if item is selected we need to clear the autocompletion list
     useEffect(() => setAutocompleteItems([]), [props.point])
     // if no items but input is selected show current location item
@@ -170,10 +193,17 @@ export default function AddressInput(props: AddressInputProps) {
                     ref={searchInput}
                     autoComplete="off"
                     onChange={e => {
-                        setText(e.target.value)
-                        const coordinate = textToCoordinate(e.target.value)
-                        if (!coordinate) geocoder.request(e.target.value, biasCoord, 'default')
-                        props.onChange(e.target.value)
+                        const query = e.target.value
+                        setText(query)
+                        const coordinate = textToCoordinate(query)
+                        if (!coordinate) {
+                            // TODO NOW instead of querying for every key stroke include an auto suggest item with one from the POI keywords and only if click on this trigger poiSearch.request!!
+                            const parseResult = ApiImpl.parseAddress(query)
+                            if (parseResult.tags.length > 0)
+                                poiSearch.request(parseResult, props.mapCenter, props.mapRadius)
+                            else geocoder.request(query, biasCoord, 'default')
+                        }
+                        props.onChange(query)
                     }}
                     onKeyDown={onKeypress}
                     onFocus={() => {
@@ -293,7 +323,9 @@ class Geocoder {
 
         await this.timeout.wait()
         try {
-            const options: Record<string, string> = bias ? { point: coordinateToText(bias), location_bias_scale: "0.5", zoom: "9" } : {}
+            const options: Record<string, string> = bias
+                ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '9' }
+                : {}
             const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
             if (currentId === this.requestId) this.onSuccess(query, provider, hits)
@@ -307,7 +339,7 @@ class Geocoder {
         return this.requestId
     }
 
-    private static filterDuplicates(hits: GeocodingHit[]) {
+    static filterDuplicates(hits: GeocodingHit[]) {
         const set: Set<string> = new Set()
         return hits.filter(hit => {
             if (!set.has(hit.osm_id)) {
@@ -316,6 +348,69 @@ class Geocoder {
             }
             return false
         })
+    }
+}
+
+class ReverseGeocoder {
+    private requestId = 0
+    private readonly timeout = new Timout(200)
+    private readonly api: Api
+    private readonly onSuccess: (hits: GeocodingHit[], parseResult: AddressParseResult) => void
+
+    constructor(api: Api, onSuccess: (hits: GeocodingHit[], parseResult: AddressParseResult) => void) {
+        this.api = api
+        this.onSuccess = onSuccess
+    }
+
+    cancel() {
+        // invalidates last request if there is one
+        this.getNextId()
+    }
+
+    request(query: AddressParseResult, point: Coordinate, radius: number) {
+        this.requestAsync(query, point, radius).then(() => {})
+    }
+
+    async requestAsync(parseResult: AddressParseResult, point: Coordinate, radius: number) {
+        const currentId = this.getNextId()
+        this.timeout.cancel()
+        await this.timeout.wait()
+        try {
+            let hits: GeocodingHit[] = []
+            let searchCoordinate: Coordinate | undefined = undefined
+            if (parseResult.location) {
+                let options: Record<string, string> = {
+                    point: coordinateToText(point),
+                    location_bias_scale: '0.5',
+                    zoom: '9',
+                }
+                let result = await this.api.geocode(parseResult.location, 'default', options)
+                hits = result.hits
+                if (result.hits.length > 0) searchCoordinate = result.hits[0].point
+                else if (point) searchCoordinate = point
+            } else if (point) {
+                searchCoordinate = point
+            }
+
+            if (!searchCoordinate) {
+                hits = []
+            } else if (hits.length > 0) {
+                // TODO NOW should we include parseResult.location here again if searchCoordinate is from forward geocode request?
+                //  parseResult.location
+                const result = await this.api.reverseGeocode('', searchCoordinate, radius, parseResult.tags)
+                hits = Geocoder.filterDuplicates(result.hits)
+                console.log(JSON.stringify(hits[0]))
+            }
+
+            if (currentId === this.requestId) this.onSuccess(hits, parseResult)
+        } catch (reason) {
+            throw Error('Could not get geocoding results because: ' + reason)
+        }
+    }
+
+    private getNextId() {
+        this.requestId++
+        return this.requestId
     }
 }
 

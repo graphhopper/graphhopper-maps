@@ -1,6 +1,13 @@
 import Api from '@/api/Api'
 import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult, RoutingResultInfo } from '@/api/graphhopper'
-import QueryStore, { QueryPoint, QueryPointType, QueryStoreState, RequestState, SubRequest } from '@/stores/QueryStore'
+import QueryStore, {
+    Coordinate,
+    QueryPoint,
+    QueryPointType,
+    QueryStoreState,
+    RequestState,
+    SubRequest,
+} from '@/stores/QueryStore'
 import {
     AddPoint,
     ClearPoints,
@@ -21,6 +28,10 @@ class ApiMock implements Api {
     }
 
     geocode(query: string): Promise<GeocodingResult> {
+        throw Error('not implemented')
+    }
+
+    reverseGeocode(query: string | undefined, point: Coordinate, radius: number, tags?: string[]): Promise<GeocodingResult> {
         throw Error('not implemented')
     }
 

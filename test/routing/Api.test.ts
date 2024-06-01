@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 import fetchMock from 'jest-fetch-mock'
-import { ErrorAction, InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
+import { RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
 import { setTranslation } from '@/translation/Translation'
 
 import Dispatcher from '@/stores/Dispatcher'
@@ -340,6 +340,26 @@ describe('route', () => {
 
         expect(mockedDispatcher).toHaveBeenCalledTimes(1)
         expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestSuccess(args, true, getEmptyResult()))
+    })
+})
+
+describe('reverse geocoder', () => {
+    it('should parse correctly', async () => {
+        let res = ApiImpl.parseAddress('dresden restaurant')
+        expect(res.location).toEqual('dresden')
+        expect(res.icon).toEqual('restaurant')
+
+        res = ApiImpl.parseAddress('restaurant')
+        expect(res.location).toEqual('')
+        expect(res.icon).toEqual('restaurant')
+
+        res = ApiImpl.parseAddress('restaurant in dresden')
+        expect(res.location).toEqual('dresden')
+        expect(res.icon).toEqual('restaurant')
+
+        res = ApiImpl.parseAddress('airports around some thing else')
+        expect(res.location).toEqual('some thing else')
+        expect(res.icon).toEqual('flight_takeoff')
     })
 })
 
