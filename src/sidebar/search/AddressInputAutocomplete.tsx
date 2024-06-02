@@ -2,8 +2,7 @@ import styles from './AddressInputAutocomplete.module.css'
 import CurrentLocationIcon from './current-location.svg'
 import { tr } from '@/translation/Translation'
 import { Bbox } from '@/api/graphhopper'
-import { useState } from 'react'
-import { AddressParseResult } from '@/api/Api'
+import { AddressParseResult } from '@/pois/AddressParseResult'
 
 export interface AutocompleteItem {}
 

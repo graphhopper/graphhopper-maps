@@ -18,7 +18,6 @@ import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
 import { Coordinate } from '@/stores/QueryStore'
-import { hitToItem } from '@/Converters'
 
 interface ApiProfile {
     name: string
@@ -449,76 +448,5 @@ export class ApiImpl implements Api {
 
         // return null if the bbox is not valid, e.g. if no url points were given at all
         return bbox[0] < bbox[2] && bbox[1] < bbox[3] ? bbox : null
-    }
-}
-
-export class AddressParseResult {
-    location: string
-    tags: string[]
-    icon: string
-    poi: string
-
-    constructor(location: string, tags: string[], icon: string, poi: string) {
-        this.location = location
-        this.tags = tags
-        this.icon = icon
-        this.poi = poi
-    }
-
-    hasPOIs(): boolean {
-        return this.tags.length > 0
-    }
-
-    text(prefix: string) {
-        return prefix + ' ' + (this.location ? tr('in') + ' ' + this.location : tr('nearby'))
-    }
-
-    public static parse(query: string, incomplete: boolean): AddressParseResult {
-        query = query.toLowerCase()
-
-        const values = [
-            { k: ['airports', 'airport'], t: ['aeroway:aerodrome'], i: 'flight_takeoff' },
-            { k: ['banks', 'bank'], t: ['amenity:bank'], i: 'universal_currency_alt' },
-            { k: ['bus stops'], t: ['highway:bus_stop'], i: 'train' },
-            { k: ['education'], t: ['amenity:school', 'building:school', 'building:university'], i: 'school' },
-            { k: ['hospitals', 'hospital'], t: ['amenity:hospital', 'building:hospital'], i: 'local_hospital' },
-            { k: ['hotels', 'hotel'], t: ['amenity:hotel', 'building:hotel', 'tourism:hotel'], i: 'hotel' },
-            { k: ['leisure'], t: ['leisure'], i: 'sports_handball' },
-            { k: ['museums', 'museum'], t: ['tourism:museum', 'building:museum'], i: 'museum' },
-            { k: ['parking'], t: ['amenity:parking'], i: 'local_parking' },
-            { k: ['parks', 'park'], t: ['leisure:park'], i: 'sports_handball' },
-            { k: ['pharmacies', 'pharmacy'], t: ['amenity:pharmacy'], i: 'local_pharmacy' },
-            { k: ['playgrounds', 'playground'], t: ['leisure:playground'], i: 'sports_handball' },
-            { k: ['public transit'], t: ['railway:station', 'highway:bus_stop'], i: 'train' },
-            { k: ['railway stations', 'railway station'], t: ['railway:station'], i: 'train' },
-            { k: ['restaurants', 'restaurant'], t: ['amenity:restaurant'], i: 'restaurant' },
-            { k: ['schools', 'school'], t: ['amenity:school', 'building:school'], i: 'school' },
-            { k: ['super markets', 'super market'], t: ['shop:supermarket', 'building:supermarket'], i: 'store' },
-            { k: ['tourism'], t: ['tourism'], i: 'luggage' },
-        ]
-        const smallWords = ['in', 'around', 'nearby']
-        const queryTokens: string[] = query.split(' ').filter(token => !smallWords.includes(token))
-        const cleanQuery = queryTokens.join(' ')
-        const bigrams: string[] = []
-        for (let i = 0; i < queryTokens.length - 1; i++) {
-            bigrams.push(queryTokens[i] + ' ' + queryTokens[i + 1])
-        }
-
-        for (const val of values) {
-            // two word phrases like 'public transit' must be checked before single word phrases
-            for (const keyword of val.k) {
-                const i = bigrams.indexOf(keyword)
-                if (i >= 0)
-                    return new AddressParseResult(cleanQuery.replace(bigrams[i], '').trim(), val.t, val.i, val.k[0])
-            }
-
-            for (const keyword of val.k) {
-                const i = queryTokens.indexOf(keyword)
-                if (i >= 0)
-                    return new AddressParseResult(cleanQuery.replace(queryTokens[i], '').trim(), val.t, val.i, val.k[0])
-            }
-        }
-
-        return new AddressParseResult('', [], '', '')
     }
 }

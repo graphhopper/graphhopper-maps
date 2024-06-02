@@ -1,7 +1,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 
-import { setTranslation } from '@/translation/Translation'
+import { getTranslation, setTranslation } from '@/translation/Translation'
 import App from '@/App'
 import {
     getApiInfoStore,
@@ -31,12 +31,17 @@ import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
 import { ErrorAction, InfoReceived } from '@/actions/Actions'
 import POIsStore from '@/stores/POIsStore'
+import { setDistanceFormat } from '@/Converters'
+import { AddressParseResult } from '@/pois/AddressParseResult'
 
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 
 const url = new URL(window.location.href)
 const locale = url.searchParams.get('locale')
 setTranslation(locale || navigator.language)
+
+setDistanceFormat(new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 1 }))
+AddressParseResult.setPOITriggerPhrases(getTranslation())
 
 // use graphhopper api key from url or try using one from the config
 const apiKey = url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper

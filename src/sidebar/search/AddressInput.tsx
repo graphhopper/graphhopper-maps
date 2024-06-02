@@ -12,18 +12,17 @@ import Autocomplete, {
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import styles from './AddressInput.module.css'
-import Api, { AddressParseResult, ApiImpl, getApi } from '@/api/Api'
+import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import { coordinateToText, hitToItem, nominatimHitToItem, textToCoordinate } from '@/Converters'
 import { useMediaQuery } from 'react-responsive'
 import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
-import Dispatcher from '@/stores/Dispatcher'
-import { SetBBox, SetPOIs } from '@/actions/Actions'
 import { toLonLat, transformExtent } from 'ol/proj'
 import { calcDist } from '@/distUtils'
 import { Map } from 'ol'
+import { AddressParseResult } from '@/pois/AddressParseResult'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -81,7 +80,7 @@ export default function AddressInput(props: AddressInputProps) {
         })
     )
 
-    const [poiSearch] = useState(new ReverseGeocoder(getApi(), props.point, ReverseGeocoder.handleGeocodingResponse))
+    const [poiSearch] = useState(new ReverseGeocoder(getApi(), props.point, AddressParseResult.handleGeocodingResponse))
 
     // if item is selected we need to clear the autocompletion list
     useEffect(() => setAutocompleteItems([]), [props.point])
@@ -413,36 +412,6 @@ export class ReverseGeocoder {
     private getNextId() {
         this.requestId++
         return this.requestId
-    }
-
-    public static handleGeocodingResponse(
-        hits: GeocodingHit[],
-        parseResult: AddressParseResult,
-        queryPoint: QueryPoint
-    ) {
-        if (hits.length == 0) return
-        const pois = ReverseGeocoder.map(hits, parseResult)
-        const bbox = ApiImpl.getBBoxPoints(pois.map(p => p.coordinate))
-        if (bbox) {
-            if (parseResult.location) Dispatcher.dispatch(new SetBBox(bbox))
-            Dispatcher.dispatch(new SetPOIs(pois, queryPoint))
-        } else {
-            console.warn(
-                'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult)
-            )
-        }
-    }
-
-    private static map(hits: GeocodingHit[], parseResult: AddressParseResult) {
-        return hits.map(hit => {
-            const res = hitToItem(hit)
-            return {
-                name: res.mainText,
-                icon: parseResult.icon,
-                coordinate: hit.point,
-                address: res.secondText,
-            }
-        })
     }
 }
 
