@@ -4,7 +4,6 @@ import {
     ApiInfo,
     Bbox,
     ErrorResponse,
-    GeocodingHit,
     GeocodingResult,
     Path,
     RawPath,

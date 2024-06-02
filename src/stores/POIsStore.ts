@@ -5,6 +5,8 @@ import { SelectPOI, SetPOIs } from '@/actions/Actions'
 
 export interface POI {
     name: string
+    osm_id: string
+    osm_type: string
     icon: string
     coordinate: Coordinate
     address: string

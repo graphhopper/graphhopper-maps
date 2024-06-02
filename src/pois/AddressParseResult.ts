@@ -84,6 +84,8 @@ export class AddressParseResult {
                 icon: parseResult.icon,
                 coordinate: hit.point,
                 address: res.secondText,
+                osm_id: hit.osm_id,
+                osm_type: hit.osm_type,
             }
         })
     }

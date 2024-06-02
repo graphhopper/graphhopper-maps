@@ -10,10 +10,9 @@
     position: relative;
     top: -40px;
     left: 20px;
-    max-width: 400px;
+    max-width: 300px;
 
     background-color: white;
-    font-size: small;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
     box-sizing: border-box;
     padding: 5px 10px 5px 10px;
@@ -25,13 +24,40 @@
     padding-bottom: 5px;
 }
 
+.poiPopupButton {
+    display: flex;
+    flex-direction: row;
+    gap: 7px;
+    padding-top: 5px;
+}
+
 .poiPopupButton svg {
     margin-top: 3px;
 }
 
-.poiPopupButton {
-    padding-top: 5px;
-    display: flex;
-    flex-direction: row;
-    gap: 7px;
+.poiPopup a {
+    color: gray;
+    font-size: larger;
+    text-decoration: none;
+}
+
+.poiPopup a:hover {
+    color: black;
+    text-decoration: underline;
+}
+
+.poiPopupTable {
+    font-size: small;
+    padding: 6px 0;
+}
+
+.poiPopupTable a {
+    font-size: small;
+}
+
+.poiPopupTable th,
+.poiPopupTable td {
+    border-bottom: 1px solid #ccc;
+    padding: 3px;
+    text-align: left;
 }
