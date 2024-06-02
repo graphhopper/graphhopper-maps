@@ -424,7 +424,7 @@ export class ReverseGeocoder {
         const pois = ReverseGeocoder.map(hits, parseResult)
         const bbox = ApiImpl.getBBoxPoints(pois.map(p => p.coordinate))
         if (bbox) {
-            Dispatcher.dispatch(new SetBBox(bbox))
+            if (parseResult.location) Dispatcher.dispatch(new SetBBox(bbox))
             Dispatcher.dispatch(new SetPOIs(pois, queryPoint))
         } else {
             console.warn(

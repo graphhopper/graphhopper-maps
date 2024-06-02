@@ -440,6 +440,13 @@ export class ApiImpl implements Api {
             ],
             [180, 90, -180, -90] as Bbox
         )
+        if (points.length == 1) {
+            bbox[0] = bbox[0] - 0.001
+            bbox[1] = bbox[1] - 0.001
+            bbox[2] = bbox[2] + 0.001
+            bbox[3] = bbox[3] + 0.001
+        }
+
         // return null if the bbox is not valid, e.g. if no url points were given at all
         return bbox[0] < bbox[2] && bbox[1] < bbox[3] ? bbox : null
     }
@@ -470,23 +477,24 @@ export class AddressParseResult {
         query = query.toLowerCase()
 
         const values = [
-            { k: ['restaurants', 'restaurant'], t: ['amenity:restaurant'], i: 'restaurant' },
             { k: ['airports', 'airport'], t: ['aeroway:aerodrome'], i: 'flight_takeoff' },
-            { k: ['bus stops'], t: ['highway:bus_stop'], i: 'train' },
-            { k: ['railway stations', 'railway station'], t: ['railway:station'], i: 'train' },
-            { k: ['super markets', 'super market'], t: ['shop:supermarket', 'building:supermarket'], i: 'store' },
-            { k: ['hotels', 'hotel'], t: ['amenity:hotel', 'building:hotel', 'tourism:hotel'], i: 'hotel' },
-            { k: ['tourism'], t: ['tourism'], i: 'luggage' },
-            { k: ['museums', 'museum'], t: ['tourism:museum', 'building:museum'], i: 'museum' },
-            { k: ['pharmacies', 'pharmacy'], t: ['amenity:pharmacy'], i: 'local_pharmacy' },
-            { k: ['hospitals', 'hospital'], t: ['amenity:hospital', 'building:hospital'], i: 'local_hospital' },
             { k: ['banks', 'bank'], t: ['amenity:bank'], i: 'universal_currency_alt' },
+            { k: ['bus stops'], t: ['highway:bus_stop'], i: 'train' },
             { k: ['education'], t: ['amenity:school', 'building:school', 'building:university'], i: 'school' },
-            { k: ['schools', 'school'], t: ['amenity:school', 'building:school'], i: 'school' },
+            { k: ['hospitals', 'hospital'], t: ['amenity:hospital', 'building:hospital'], i: 'local_hospital' },
+            { k: ['hotels', 'hotel'], t: ['amenity:hotel', 'building:hotel', 'tourism:hotel'], i: 'hotel' },
             { k: ['leisure'], t: ['leisure'], i: 'sports_handball' },
-            { k: ['parks', 'park'], t: ['leisure:park'], i: 'sports_handball' },
-            { k: ['playgrounds', 'playground'], t: ['leisure:playground'], i: 'sports_handball' },
+            { k: ['museums', 'museum'], t: ['tourism:museum', 'building:museum'], i: 'museum' },
             { k: ['parking'], t: ['amenity:parking'], i: 'local_parking' },
+            { k: ['parks', 'park'], t: ['leisure:park'], i: 'sports_handball' },
+            { k: ['pharmacies', 'pharmacy'], t: ['amenity:pharmacy'], i: 'local_pharmacy' },
+            { k: ['playgrounds', 'playground'], t: ['leisure:playground'], i: 'sports_handball' },
+            { k: ['public transit'], t: ['railway:station', 'highway:bus_stop'], i: 'train' },
+            { k: ['railway stations', 'railway station'], t: ['railway:station'], i: 'train' },
+            { k: ['restaurants', 'restaurant'], t: ['amenity:restaurant'], i: 'restaurant' },
+            { k: ['schools', 'school'], t: ['amenity:school', 'building:school'], i: 'school' },
+            { k: ['super markets', 'super market'], t: ['shop:supermarket', 'building:supermarket'], i: 'store' },
+            { k: ['tourism'], t: ['tourism'], i: 'luggage' },
         ]
         const smallWords = ['in', 'around', 'nearby']
         const queryTokens: string[] = query.split(' ').filter(token => !smallWords.includes(token))
