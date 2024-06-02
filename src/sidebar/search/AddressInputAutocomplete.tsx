@@ -100,13 +100,13 @@ export function POIQueryEntry({
     isHighlighted: boolean
     onSelect: (item: POIQueryItem) => void
 }) {
-    // TODO NOW translate!
+    const poi = item.result.poi? item.result.poi : ''
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
             <div className={styles.poiEntry}>
-                <span className={styles.poiEntryPrimaryText}>{item.result.poi}</span>
-                <span className={styles.poiEntrySecondaryText}>
-                    {item.result.location ? 'in ' + item.result.location : 'nearby'}
+                <span className={styles.poiEntryPrimaryText}>{poi.charAt(0).toUpperCase() + poi.slice(1)}</span>
+                <span>
+                    {item.result.location ? tr('in') + ' ' + item.result.location : tr('nearby')}
                 </span>
             </div>
         </AutocompleteEntry>

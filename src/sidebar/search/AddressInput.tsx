@@ -158,6 +158,7 @@ export default function AddressInput(props: AddressInputProps) {
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
                         if (item instanceof GeocodingItem) props.onAddressSelected(item.toText(), item.point, item.bbox)
+                        else if (item instanceof POIQueryItem) handlePoiSearch(poiSearch, item.result, props.map)
                     }
                     inputElement.blur()
                     // onBlur is deactivated for mobile so force:
@@ -261,24 +262,7 @@ export default function AddressInput(props: AddressInputProps) {
                                     if (!coordinate) geocoder.request(item.search, biasCoord, 'nominatim')
                                 } else if (item instanceof POIQueryItem) {
                                     hideSuggestions()
-                                    if (item.result.hasPOIs()) {
-                                        const center = props.map.getView().getCenter()
-                                            ? toLonLat(props.map.getView().getCenter()!)
-                                            : [13.4, 52.5]
-                                        const mapCenter = { lng: center[0], lat: center[1] }
-
-                                        const origExtent = props.map.getView().calculateExtent(props.map.getSize())
-                                        var extent = transformExtent(origExtent, 'EPSG:3857', 'EPSG:4326')
-                                        const mapRadius =
-                                            calcDist(
-                                                { lng: extent[0], lat: extent[1] },
-                                                { lng: extent[2], lat: extent[3] }
-                                            ) /
-                                            2 /
-                                            1000
-
-                                        poiSearch.request(item.result, mapCenter, Math.min(mapRadius, 100))
-                                    }
+                                    handlePoiSearch(poiSearch, item.result, props.map)
                                 }
                                 searchInput.current!.blur()
                             }}
@@ -288,6 +272,17 @@ export default function AddressInput(props: AddressInputProps) {
             </div>
         </div>
     )
+}
+
+function handlePoiSearch(poiSearch: ReverseGeocoder, result: AddressParseResult, map: Map) {
+    if (!result.hasPOIs()) return
+
+    const center = map.getView().getCenter() ? toLonLat(map.getView().getCenter()!) : [13.4, 52.5]
+    const mapCenter = { lng: center[0], lat: center[1] }
+    const origExtent = map.getView().calculateExtent(map.getSize())
+    const extent = transformExtent(origExtent, 'EPSG:3857', 'EPSG:4326')
+    const mapDiagonal = calcDist({ lng: extent[0], lat: extent[1] },{ lng: extent[2], lat: extent[3] })
+    poiSearch.request(result, mapCenter, Math.min(mapDiagonal / 2 / 1000, 100))
 }
 
 function ResponsiveAutocomplete({

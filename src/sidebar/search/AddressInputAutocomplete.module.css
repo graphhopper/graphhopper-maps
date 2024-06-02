@@ -55,7 +55,7 @@
     padding: 0.5em 0;
     display: flex;
     flex-direction: row;
-    gap: 0.5rem;
+    gap: 0.4rem;
     text-align: start;
     margin: 0.4rem 0.5rem;
 }
