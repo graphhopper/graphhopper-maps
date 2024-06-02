@@ -121,7 +121,7 @@ export default function App() {
     return (
         <SettingsContext.Provider value={settings}>
             <div className={styles.appWrapper}>
-                <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
+                <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} poiState={pois} />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
                 {isSmallScreen ? (
                     <SmallScreenLayout

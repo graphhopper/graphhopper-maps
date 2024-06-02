@@ -20,7 +20,7 @@ import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetBBox, SetPOI } from '@/actions/Actions'
+import { SetBBox, SetPOIs } from '@/actions/Actions'
 import { toLonLat, transformExtent } from 'ol/proj'
 import { calcDist } from '@/distUtils'
 import { Map } from 'ol'
@@ -81,29 +81,7 @@ export default function AddressInput(props: AddressInputProps) {
         })
     )
 
-    const [poiSearch] = useState(
-        new ReverseGeocoder(getApi(), (hits, parseResult) => {
-            const pois = hits.map(hit => {
-                const res = hitToItem(hit)
-                return {
-                    name: res.mainText,
-                    icon: parseResult.icon,
-                    coordinate: hit.point,
-                    selected: false,
-                }
-            })
-
-            const bbox = ApiImpl.getBBoxPoints(pois.map(p => p.coordinate))
-            if (bbox) {
-                Dispatcher.dispatch(new SetBBox(bbox))
-                Dispatcher.dispatch(new SetPOI(pois))
-            } else {
-                console.warn(
-                    'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult)
-                )
-            }
-        })
-    )
+    const [poiSearch] = useState(new ReverseGeocoder(getApi(), props.point, ReverseGeocoder.handleGeocodingResponse))
 
     // if item is selected we need to clear the autocompletion list
     useEffect(() => setAutocompleteItems([]), [props.point])
@@ -158,7 +136,10 @@ export default function AddressInput(props: AddressInputProps) {
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
                         if (item instanceof GeocodingItem) props.onAddressSelected(item.toText(), item.point, item.bbox)
-                        else if (item instanceof POIQueryItem) handlePoiSearch(poiSearch, item.result, props.map)
+                        else if (item instanceof POIQueryItem) {
+                            handlePoiSearch(poiSearch, item.result, props.map)
+                            props.onAddressSelected(item.result.text(item.result.poi), undefined, undefined)
+                        }
                     }
                     inputElement.blur()
                     // onBlur is deactivated for mobile so force:
@@ -263,6 +244,7 @@ export default function AddressInput(props: AddressInputProps) {
                                 } else if (item instanceof POIQueryItem) {
                                     hideSuggestions()
                                     handlePoiSearch(poiSearch, item.result, props.map)
+                                    setText(item.result.text(item.result.poi))
                                 }
                                 searchInput.current!.blur()
                             }}
@@ -281,7 +263,7 @@ function handlePoiSearch(poiSearch: ReverseGeocoder, result: AddressParseResult,
     const mapCenter = { lng: center[0], lat: center[1] }
     const origExtent = map.getView().calculateExtent(map.getSize())
     const extent = transformExtent(origExtent, 'EPSG:3857', 'EPSG:4326')
-    const mapDiagonal = calcDist({ lng: extent[0], lat: extent[1] },{ lng: extent[2], lat: extent[3] })
+    const mapDiagonal = calcDist({ lng: extent[0], lat: extent[1] }, { lng: extent[2], lat: extent[3] })
     poiSearch.request(result, mapCenter, Math.min(mapDiagonal / 2 / 1000, 100))
 }
 
@@ -375,15 +357,21 @@ class Geocoder {
     }
 }
 
-class ReverseGeocoder {
+export class ReverseGeocoder {
     private requestId = 0
     private readonly timeout = new Timout(200)
     private readonly api: Api
-    private readonly onSuccess: (hits: GeocodingHit[], parseResult: AddressParseResult) => void
+    private readonly onSuccess: (hits: GeocodingHit[], parseResult: AddressParseResult, queryPoint: QueryPoint) => void
+    private readonly queryPoint: QueryPoint
 
-    constructor(api: Api, onSuccess: (hits: GeocodingHit[], parseResult: AddressParseResult) => void) {
+    constructor(
+        api: Api,
+        queryPoint: QueryPoint,
+        onSuccess: (hits: GeocodingHit[], parseResult: AddressParseResult, queryPoint: QueryPoint) => void
+    ) {
         this.api = api
         this.onSuccess = onSuccess
+        this.queryPoint = queryPoint
     }
 
     cancel() {
@@ -416,7 +404,7 @@ class ReverseGeocoder {
                 result = await this.api.reverseGeocode('', point, radius, parseResult.tags)
             }
             if (result) hits = Geocoder.filterDuplicates(result.hits)
-            if (currentId === this.requestId) this.onSuccess(hits, parseResult)
+            if (currentId === this.requestId) this.onSuccess(hits, parseResult, this.queryPoint)
         } catch (reason) {
             throw Error('Could not get geocoding results because: ' + reason)
         }
@@ -425,6 +413,36 @@ class ReverseGeocoder {
     private getNextId() {
         this.requestId++
         return this.requestId
+    }
+
+    public static handleGeocodingResponse(
+        hits: GeocodingHit[],
+        parseResult: AddressParseResult,
+        queryPoint: QueryPoint
+    ) {
+        if (hits.length == 0) return
+        const pois = ReverseGeocoder.map(hits, parseResult)
+        const bbox = ApiImpl.getBBoxPoints(pois.map(p => p.coordinate))
+        if (bbox) {
+            Dispatcher.dispatch(new SetBBox(bbox))
+            Dispatcher.dispatch(new SetPOIs(pois, queryPoint))
+        } else {
+            console.warn(
+                'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult)
+            )
+        }
+    }
+
+    private static map(hits: GeocodingHit[], parseResult: AddressParseResult) {
+        return hits.map(hit => {
+            const res = hitToItem(hit)
+            return {
+                name: res.mainText,
+                icon: parseResult.icon,
+                coordinate: hit.point,
+                address: res.secondText,
+            }
+        })
     }
 }
 

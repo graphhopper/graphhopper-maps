@@ -5,14 +5,17 @@ import InstructionPopup from '@/layers/InstructionPopup'
 import React from 'react'
 import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { MapFeatureStoreState } from '@/stores/MapFeatureStore'
+import { POI, POIsStoreState } from '@/stores/POIsStore'
+import POIStatePopup from '@/layers/POIPopup'
 
 interface MapPopupProps {
     map: Map
     pathDetails: PathDetailsStoreState
     mapFeatures: MapFeatureStoreState
+    poiState: POIsStoreState
 }
 
-export default function MapPopups({ map, pathDetails, mapFeatures }: MapPopupProps) {
+export default function MapPopups({ map, pathDetails, mapFeatures, poiState }: MapPopupProps) {
     return (
         <>
             <PathDetailPopup map={map} pathDetails={pathDetails} />
@@ -26,6 +29,7 @@ export default function MapPopups({ map, pathDetails, mapFeatures }: MapPopupPro
                 instructionText={mapFeatures.instructionText}
                 coordinate={mapFeatures.instructionCoordinate}
             />
+            <POIStatePopup map={map} poiState={poiState} />
         </>
     )
 }

@@ -4,6 +4,7 @@ import {
     ApiInfo,
     Bbox,
     ErrorResponse,
+    GeocodingHit,
     GeocodingResult,
     Path,
     RawPath,
@@ -17,6 +18,7 @@ import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
 import { Coordinate } from '@/stores/QueryStore'
+import { hitToItem } from '@/Converters'
 
 interface ApiProfile {
     name: string
@@ -458,6 +460,10 @@ export class AddressParseResult {
 
     hasPOIs(): boolean {
         return this.tags.length > 0
+    }
+
+    text(prefix: string) {
+        return prefix + ' ' + (this.location ? tr('in') + ' ' + this.location : tr('nearby'))
     }
 
     public static parse(query: string, incomplete: boolean): AddressParseResult {

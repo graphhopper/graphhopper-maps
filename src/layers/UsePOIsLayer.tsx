@@ -21,7 +21,9 @@ import store_svg from '/src/pois/img/store.svg'
 import train_svg from '/src/pois/img/train.svg'
 import universal_currency_alt_svg from '/src/pois/img/universal_currency_alt.svg'
 import { createPOIMarker } from '@/layers/createMarkerSVG'
-import {Select} from "ol/interaction";
+import { Select } from 'ol/interaction'
+import Dispatcher from '@/stores/Dispatcher'
+import { SelectPOI } from '@/actions/Actions'
 
 const svgStrings: { [id: string]: string } = {}
 
@@ -68,22 +70,25 @@ function removePOIs(map: Map) {
 }
 
 function addPOISelection(map: Map) {
-    const select = new Select();
-    map.addInteraction(select);
+    const select = new Select()
+    map.addInteraction(select)
     select.on('select', event => {
-        const selectedFeatures = event.selected;
+        const selectedFeatures = event.selected
         if (selectedFeatures.length > 0) {
             const feature = selectedFeatures[0]
             const props = feature.get('gh:marker_props')
-            feature.setStyle(new Style({
-                zIndex: 2,
-                image: new Icon({
-                    scale: [1.4, 1.4],
-                    src: 'data:image/svg+xml;utf8,' + svgStrings[props.icon],
-                    displacement: [0, 18],
-                }),
-            }))
-        }
+            feature.setStyle(
+                new Style({
+                    zIndex: 2,
+                    image: new Icon({
+                        scale: [1.4, 1.4],
+                        src: 'data:image/svg+xml;utf8,' + svgStrings[props.icon],
+                        displacement: [0, 18],
+                    }),
+                })
+            )
+            Dispatcher.dispatch(new SelectPOI(props.poi))
+        } else Dispatcher.dispatch(new SelectPOI(null))
     })
     return select
 }

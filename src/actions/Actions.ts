@@ -248,24 +248,20 @@ export class UpdateSettings implements Action {
     }
 }
 
-export class SearchPOI implements Action {
-    readonly query: string
-    readonly coordinate: Coordinate
-    readonly radius: number
-    readonly icon: string
+export class SelectPOI implements Action {
+    readonly selected: POI | null
 
-    constructor(icon: string, query: string, coordinate: Coordinate, radius: number) {
-        this.icon = icon
-        this.query = query
-        this.coordinate = coordinate
-        this.radius = radius
+    constructor(selected: POI | null) {
+        this.selected = selected
     }
 }
 
-export class SetPOI implements Action {
+export class SetPOIs implements Action {
     readonly pois: POI[]
+    readonly oldQueryPoint: QueryPoint | null
 
-    constructor(pois: POI[]) {
+    constructor(pois: POI[], oldQueryPoint: QueryPoint | null) {
         this.pois = pois
+        this.oldQueryPoint = oldQueryPoint
     }
 }

@@ -55,7 +55,7 @@ setStores({
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
-    poisStore: new POIsStore(getApi()),
+    poisStore: new POIsStore(),
 })
 
 setMap(createMap())

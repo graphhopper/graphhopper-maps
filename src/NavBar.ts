@@ -1,7 +1,7 @@
 import { coordinateToText } from '@/Converters'
 import { Bbox } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, SelectMapLayer, SetBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
+import { ClearPoints, SelectMapLayer, SetBBox, SetPOIs, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, {
@@ -12,8 +12,9 @@ import QueryStore, {
     QueryStoreState,
 } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
-import { ApiImpl, getApi } from '@/api/Api'
+import { AddressParseResult, ApiImpl, getApi } from '@/api/Api'
 import config from 'config'
+import { ReverseGeocoder } from '@/sidebar/search/AddressInput'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
@@ -124,6 +125,19 @@ export default class NavBar {
         if (parsedPoints.some(p => !p.isInitialized && p.queryText.length > 0)) {
             const promises = parsedPoints.map(p => {
                 if (p.isInitialized) return Promise.resolve(p)
+                const result = AddressParseResult.parse(p.queryText, false)
+                if (result.hasPOIs() && result.location) {
+                    // two stage POI search: 1. use extracted location to get coordinates 2. do reverse geocoding with this coordinates
+                    getApi()
+                        .geocode(result.location, 'nominatim')
+                        .then(res => {
+                            if (res.hits.length != 0)
+                                getApi()
+                                    .reverseGeocode('', res.hits[0].point, 100, result.tags)
+                                    .then(res => ReverseGeocoder.handleGeocodingResponse(res.hits, result, p))
+                        })
+                    return Promise.resolve(p)
+                }
                 return (
                     getApi()
                         .geocode(p.queryText, 'nominatim')
