@@ -18,22 +18,18 @@ interface TagHash {
     [key: string]: string
 }
 
-async function fetchInfo(url: string): Promise<TagHash> {
+async function fetchInfo(type: string, ids: string[]): Promise<TagHash> {
     try {
-        const response = await fetch(url)
-        if (!response.ok) return { status: response.statusText }
-        const xmlText = await response.text()
-        const parser = new DOMParser()
-        const xmlDoc = parser.parseFromString(xmlText, 'application/xml')
-        const tags = xmlDoc.querySelectorAll('tag')
-        const hash: Record<string, string> = {}
-        tags.forEach(tag => {
-            const key = tag.getAttribute('k')
-            const value = tag.getAttribute('v')
-            if (key && value) hash[key] = value
+        const data = `[out:json][timeout:15];
+            (${type}(id:${ids.join(',')}););
+            out body;`
+        const result = await fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            body: 'data=' + encodeURIComponent(data),
         })
-
-        return hash
+        const json = await result.json()
+        if (json.elements.length > 0) return json.elements[0].tags
+        else return { status: 'empty' }
     } catch (error) {
         return { status: '' + error }
     }
@@ -89,7 +85,7 @@ export default function POIStatePopup({ map, poiState }: POIStatePopupProps) {
     const selectedPOI = poiState.selected
     const oldQueryPoint = poiState.oldQueryPoint
     const t = selectedPOI?.osm_type
-    const path = (t === 'W' ? 'way' : t === 'N' ? 'node' : 'relation') + '/' + selectedPOI?.osm_id
+    const type = t === 'W' ? 'way' : t === 'N' ? 'node' : 'relation'
     const [kv, setKV] = useState<TagHash>({})
 
     useEffect(() => {
@@ -106,7 +102,7 @@ export default function POIStatePopup({ map, poiState }: POIStatePopupProps) {
                 {Object.keys(kv).length == 0 && (
                     <PlainButton
                         onClick={e => {
-                            fetchInfo('https://www.openstreetmap.org/api/0.6/' + path).then(tagHash => setKV(tagHash))
+                            if (selectedPOI) fetchInfo(type, [selectedPOI.osm_id]).then(tagHash => setKV(tagHash))
                         }}
                     >
                         {tr('Fetch more info')}
@@ -114,7 +110,7 @@ export default function POIStatePopup({ map, poiState }: POIStatePopupProps) {
                 )}
                 <KVTable kv={kv} />
                 <div className={styles.osmLink}>
-                    <a  href={'https://www.openstreetmap.org/' + path} target="_blank">
+                    <a href={'https://www.openstreetmap.org/' + type + '/' + selectedPOI?.osm_id} target="_blank">
                         OpenStreetMap.org
                     </a>
                 </div>
