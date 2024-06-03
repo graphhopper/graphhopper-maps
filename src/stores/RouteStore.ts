@@ -49,11 +49,8 @@ export default class RouteStore extends Store<RouteStoreState> {
         }
     }
 
-    private readonly queryStore: QueryStore
-
-    constructor(queryStore: QueryStore) {
+    constructor() {
         super(RouteStore.getInitialState())
-        this.queryStore = queryStore
     }
 
     reduce(state: RouteStoreState, action: Action): RouteStoreState {
