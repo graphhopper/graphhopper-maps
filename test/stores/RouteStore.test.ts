@@ -4,6 +4,7 @@ import Api from '@/api/Api'
 import { ApiInfo, GeocodingResult, Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import { ClearPoints, ClearRoute, RemovePoint, SetPoint, SetSelectedPath } from '@/actions/Actions'
+import { KV } from '@/pois/AddressParseResult'
 
 describe('RouteStore', () => {
     afterEach(() => {
@@ -73,7 +74,7 @@ class DummyApi implements Api {
         query: string | undefined,
         point: Coordinate,
         radius: number,
-        tags?: string[]
+        tags?: KV[]
     ): Promise<GeocodingResult> {
         throw Error('not implemented')
     }

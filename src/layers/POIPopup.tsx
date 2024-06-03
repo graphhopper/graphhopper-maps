@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styles from '@/layers/MapFeaturePopup.module.css'
 import MapPopup from '@/layers/MapPopup'
 import { Map } from 'ol'
-import { POIsStoreState } from '@/stores/POIsStore'
+import { POI, POIsStoreState } from '@/stores/POIsStore'
 import { tr } from '@/translation/Translation'
 import Dispatcher from '@/stores/Dispatcher'
 import { SelectPOI, SetPoint, SetPOIs } from '@/actions/Actions'
@@ -35,12 +35,12 @@ async function fetchInfo(type: string, ids: string[]): Promise<TagHash> {
     }
 }
 
-function KVTable(props: { kv: TagHash }) {
+function KVTable(props: { kv: TagHash; poi: POI | null }) {
     return (
         <table className={styles.poiPopupTable}>
             <tbody>
                 {Object.entries(props.kv).map(([key, value]) => {
-                    const url = value.startsWith('https://')
+                    const url = value.startsWith('https://') || value.startsWith('http://')
                     const tel = key.toLowerCase().includes('phone')
                     const email = key.toLowerCase().includes('email')
                     const valueArr = value.split(':').map(v => v.trim())
@@ -48,7 +48,13 @@ function KVTable(props: { kv: TagHash }) {
                     const wikiUrl = wiki
                         ? 'https://' + valueArr[0] + '.wikipedia.org/wiki/' + encodeURIComponent(valueArr[1])
                         : ''
+                    // tags like amenity:restaurant should not be shown if it is a restaurant (determined by poi.tags)
+                    const poiInfoRepeated = props.poi ? props.poi.tags.some(kv => kv.k == key && kv.v === value) : false
                     return (
+                        !poiInfoRepeated &&
+                        key !== 'source' &&
+                        key !== 'image' &&
+                        !key.includes('fax') &&
                         !key.startsWith('addr') &&
                         !key.startsWith('name') &&
                         !key.startsWith('building') && (
@@ -89,6 +95,7 @@ export default function POIStatePopup({ map, poiState }: POIStatePopupProps) {
     const [kv, setKV] = useState<TagHash>({})
 
     useEffect(() => {
+        if (selectedPOI) fetchInfo(type, [selectedPOI.osm_id]).then(tagHash => setKV(tagHash))
         return () => {
             setKV({})
         }
@@ -99,16 +106,8 @@ export default function POIStatePopup({ map, poiState }: POIStatePopupProps) {
             <div className={styles.poiPopup}>
                 <div>{selectedPOI?.name}</div>
                 <div>{selectedPOI?.address}</div>
-                {Object.keys(kv).length == 0 && (
-                    <PlainButton
-                        onClick={e => {
-                            if (selectedPOI) fetchInfo(type, [selectedPOI.osm_id]).then(tagHash => setKV(tagHash))
-                        }}
-                    >
-                        {tr('Fetch more info')}
-                    </PlainButton>
-                )}
-                <KVTable kv={kv} />
+                {Object.keys(kv).length == 0 && <PlainButton>{tr('Fetching more info...')}</PlainButton>}
+                <KVTable kv={kv} poi={selectedPOI} />
                 <div className={styles.osmLink}>
                     <a href={'https://www.openstreetmap.org/' + type + '/' + selectedPOI?.osm_id} target="_blank">
                         OpenStreetMap.org

@@ -1,6 +1,7 @@
 import Api from '../src/api/Api'
 import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult, RoutingResultInfo } from '../src/api/graphhopper'
 import { Coordinate } from '@/stores/QueryStore'
+import { KV } from '@/pois/AddressParseResult'
 
 export default class DummyApi implements Api {
     geocode(query: string): Promise<GeocodingResult> {
@@ -14,7 +15,7 @@ export default class DummyApi implements Api {
         query: string | undefined,
         point: Coordinate,
         radius: number,
-        tags?: string[]
+        tags?: KV[]
     ): Promise<GeocodingResult> {
         return Promise.resolve({
             took: 0,

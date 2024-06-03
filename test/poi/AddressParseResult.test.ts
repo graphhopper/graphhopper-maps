@@ -36,5 +36,9 @@ describe('reverse geocoder', () => {
         res = AddressParseResult.parse('dresden parking', false)
         expect(res.location).toEqual('dresden')
         expect(res.poi).toEqual('parking')
+
+        res = AddressParseResult.parse('restaurants in this area', false)
+        expect(res.location).toEqual('')
+        expect(res.poi).toEqual('restaurants')
     })
 })

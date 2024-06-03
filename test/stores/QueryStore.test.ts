@@ -19,6 +19,7 @@ import {
     SetPoint,
     SetVehicleProfile,
 } from '@/actions/Actions'
+import { KV } from '@/pois/AddressParseResult'
 
 class ApiMock implements Api {
     private readonly callback: { (args: RoutingArgs): void }
@@ -35,7 +36,7 @@ class ApiMock implements Api {
         query: string | undefined,
         point: Coordinate,
         radius: number,
-        tags?: string[]
+        tags?: KV[]
     ): Promise<GeocodingResult> {
         throw Error('not implemented')
     }

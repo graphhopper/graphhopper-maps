@@ -10,7 +10,7 @@
     position: relative;
     top: -40px;
     left: 20px;
-    max-width: 250px;
+    max-width: 300px;
 
     background-color: white;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
@@ -66,5 +66,5 @@
 
     /* strange, why do we need the following? */
     word-break: break-all;
-    min-width: 100px;
+    min-width: 120px;
 }

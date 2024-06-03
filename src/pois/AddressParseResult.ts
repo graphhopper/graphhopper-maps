@@ -8,12 +8,13 @@ import { tr, Translation } from '@/translation/Translation'
 
 export class AddressParseResult {
     location: string
-    tags: string[]
+    tags: KV[]
     icon: string
     poi: string
-    static VALUES: PoiTriggerPhrases[]
+    static TRIGGER_VALUES: PoiTriggerPhrases[]
+    static REMOVE_VALUES: string[]
 
-    constructor(location: string, tags: string[], icon: string, poi: string) {
+    constructor(location: string, tags: KV[], icon: string, poi: string) {
         this.location = location
         this.tags = tags
         this.icon = icon
@@ -32,7 +33,7 @@ export class AddressParseResult {
     static parse(query: string, incomplete: boolean): AddressParseResult {
         query = query.toLowerCase()
 
-        const smallWords = ['in', 'around', 'nearby']
+        const smallWords = AddressParseResult.REMOVE_VALUES // e.g. 'restaurants in this area' or 'restaurants in berlin'
         const queryTokens: string[] = query.split(' ').filter(token => !smallWords.includes(token))
         const cleanQuery = queryTokens.join(' ')
         const bigrams: string[] = []
@@ -40,7 +41,7 @@ export class AddressParseResult {
             bigrams.push(queryTokens[i] + ' ' + queryTokens[i + 1])
         }
 
-        for (const val of AddressParseResult.VALUES) {
+        for (const val of AddressParseResult.TRIGGER_VALUES) {
             // two word phrases like 'public transit' must be checked before single word phrases
             for (const keyword of val.k) {
                 const i = bigrams.indexOf(keyword)
@@ -81,6 +82,7 @@ export class AddressParseResult {
             const res = hitToItem(hit)
             return {
                 name: res.mainText,
+                tags: parseResult.tags,
                 icon: parseResult.icon,
                 coordinate: hit.point,
                 address: res.secondText,
@@ -96,32 +98,42 @@ export class AddressParseResult {
 
     // because of the static method we need to inject the Translation object as otherwise jest has a problem
     static setPOITriggerPhrases(translation: Translation) {
-        const t = (s: string) =>
-            translation
-                .get(s)
-                .split(',')
-                .map(s => s.trim().toLowerCase())
-        AddressParseResult.VALUES = [
-            { k: t('poi_airports'), t: ['aeroway:aerodrome'], i: 'flight_takeoff' },
-            { k: t('poi_banks'), t: ['amenity:bank'], i: 'universal_currency_alt' },
-            { k: t('poi_bus_stops'), t: ['highway:bus_stop'], i: 'train' },
-            { k: t('poi_education'), t: ['amenity:school', 'building:school', 'building:university'], i: 'school' },
-            { k: t('poi_hospitals'), t: ['amenity:hospital', 'building:hospital'], i: 'local_hospital' },
-            { k: t('poi_hotels'), t: ['amenity:hotel', 'building:hotel', 'tourism:hotel'], i: 'hotel' },
-            { k: t('poi_leisure'), t: ['leisure'], i: 'sports_handball' },
-            { k: t('poi_museums'), t: ['tourism:museum', 'building:museum'], i: 'museum' },
-            { k: t('poi_parking'), t: ['amenity:parking'], i: 'local_parking' },
-            { k: t('poi_parks'), t: ['leisure:park'], i: 'sports_handball' },
-            { k: t('poi_pharmacies'), t: ['amenity:pharmacy'], i: 'local_pharmacy' },
-            { k: t('poi_playgrounds'), t: ['leisure:playground'], i: 'sports_handball' },
-            { k: t('poi_public_transit'), t: ['railway:station', 'highway:bus_stop'], i: 'train' },
-            { k: t('poi_railway_station'), t: ['railway:station'], i: 'train' },
-            { k: t('poi_restaurants'), t: ['amenity:restaurant'], i: 'restaurant' },
-            { k: t('poi_schools'), t: ['amenity:school', 'building:school'], i: 'school' },
-            { k: t('poi_super_markets'), t: ['shop:supermarket', 'building:supermarket'], i: 'store' },
-            { k: t('poi_tourism'), t: ['tourism'], i: 'luggage' },
-        ]
+        const t = (s: string) => translation
+            .get(s)
+            .split(',')
+            .map(s => s.trim().toLowerCase())
+        AddressParseResult.REMOVE_VALUES = t('poi_removal_words')
+        AddressParseResult.TRIGGER_VALUES = [
+            { k: 'poi_airports', t: ['aeroway:aerodrome'], i: 'flight_takeoff' },
+            { k: 'poi_banks', t: ['amenity:bank'], i: 'universal_currency_alt' },
+            { k: 'poi_bus_stops', t: ['highway:bus_stop'], i: 'train' },
+            { k: 'poi_education', t: ['amenity:school', 'building:school', 'building:university'], i: 'school' },
+            { k: 'poi_hospitals', t: ['amenity:hospital', 'building:hospital'], i: 'local_hospital' },
+            { k: 'poi_hotels', t: ['amenity:hotel', 'building:hotel', 'tourism:hotel'], i: 'hotel' },
+            { k: 'poi_leisure', t: ['leisure'], i: 'sports_handball' },
+            { k: 'poi_museums', t: ['tourism:museum', 'building:museum'], i: 'museum' },
+            { k: 'poi_parking', t: ['amenity:parking'], i: 'local_parking' },
+            { k: 'poi_parks', t: ['leisure:park'], i: 'sports_handball' },
+            { k: 'poi_pharmacies', t: ['amenity:pharmacy'], i: 'local_pharmacy' },
+            { k: 'poi_playgrounds', t: ['leisure:playground'], i: 'sports_handball' },
+            { k: 'poi_public_transit', t: ['railway:station', 'highway:bus_stop'], i: 'train' },
+            { k: 'poi_railway_station', t: ['railway:station'], i: 'train' },
+            { k: 'poi_restaurants', t: ['amenity:restaurant'], i: 'restaurant' },
+            { k: 'poi_schools', t: ['amenity:school', 'building:school'], i: 'school' },
+            { k: 'poi_super_markets', t: ['shop:supermarket', 'building:supermarket'], i: 'store' },
+            { k: 'poi_tourism', t: ['tourism'], i: 'luggage' },
+        ].map(v => {
+            const tags = v.t.map(val => {
+                return { k: val.split(':')[0], v: val.split(':')[1] }
+            })
+            return {
+                ...v,
+                k: t(v.k),
+                t: tags,
+            }
+        })
     }
 }
 
-export type PoiTriggerPhrases = { k: string[]; t: string[]; i: string }
+export type KV = { k: string; v: string }
+export type PoiTriggerPhrases = { k: string[]; t: KV[]; i: string }

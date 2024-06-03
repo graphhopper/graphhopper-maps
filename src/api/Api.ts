@@ -17,6 +17,7 @@ import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
 import { Coordinate } from '@/stores/QueryStore'
+import { KV } from '@/pois/AddressParseResult'
 
 interface ApiProfile {
     name: string
@@ -31,12 +32,7 @@ export default interface Api {
 
     geocode(query: string, provider: string, additionalOptions?: Record<string, string>): Promise<GeocodingResult>
 
-    reverseGeocode(
-        query: string | undefined,
-        point: Coordinate,
-        radius: number,
-        tags?: string[]
-    ): Promise<GeocodingResult>
+    reverseGeocode(query: string | undefined, point: Coordinate, radius: number, tags?: KV[]): Promise<GeocodingResult>
 
     supportsGeocoding(): boolean
 }
@@ -129,7 +125,7 @@ export class ApiImpl implements Api {
         query: string | undefined,
         point: Coordinate,
         radius: number,
-        tags?: string[]
+        tags?: KV[]
     ): Promise<GeocodingResult> {
         if (!this.supportsGeocoding())
             return {
@@ -149,8 +145,8 @@ export class ApiImpl implements Api {
         url.searchParams.append('locale', langAndCountry.length > 0 ? langAndCountry[0] : 'en')
 
         if (tags) {
-            for (const value of tags) {
-                url.searchParams.append('osm_tag', value)
+            for (const tag of tags) {
+                url.searchParams.append('osm_tag', tag.k + ':' + tag.v)
             }
         }
 
