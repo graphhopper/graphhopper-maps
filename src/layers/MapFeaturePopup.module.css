@@ -10,7 +10,7 @@
     position: relative;
     top: -40px;
     left: 20px;
-    max-width: 300px;
+    max-width: 250px;
 
     background-color: white;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
@@ -37,7 +37,6 @@
 
 .poiPopup a {
     color: gray;
-    font-size: larger;
     text-decoration: none;
 }
 
@@ -51,13 +50,21 @@
     padding: 6px 0;
 }
 
-.poiPopupTable a {
+.osmLink {
+    padding-bottom: 7px;
+}
+
+.osmLink a {
     font-size: small;
 }
 
 .poiPopupTable th,
 .poiPopupTable td {
     border-bottom: 1px solid #ccc;
-    padding: 3px;
+    padding: 3px 1px 3px 0;
     text-align: left;
+
+    /* strange, why do we need the following? */
+    word-break: break-all;
+    min-width: 100px;
 }

@@ -22,16 +22,11 @@ async function fetchInfo(url: string): Promise<TagHash> {
     try {
         const response = await fetch(url)
         if (!response.ok) return { status: response.statusText }
-
-        // Parse the XML text
         const xmlText = await response.text()
-
-        // Convert the XML text to an XMLDocument
         const parser = new DOMParser()
         const xmlDoc = parser.parseFromString(xmlText, 'application/xml')
         const tags = xmlDoc.querySelectorAll('tag')
         const hash: Record<string, string> = {}
-
         tags.forEach(tag => {
             const key = tag.getAttribute('k')
             const value = tag.getAttribute('v')
@@ -42,6 +37,49 @@ async function fetchInfo(url: string): Promise<TagHash> {
     } catch (error) {
         return { status: '' + error }
     }
+}
+
+function KVTable(props: { kv: TagHash }) {
+    return (
+        <table className={styles.poiPopupTable}>
+            <tbody>
+                {Object.entries(props.kv).map(([key, value]) => {
+                    const url = value.startsWith('https://')
+                    const tel = key.toLowerCase().includes('phone')
+                    const email = key.toLowerCase().includes('email')
+                    const valueArr = value.split(':').map(v => v.trim())
+                    const wiki = key.toLowerCase().includes('wikipedia') && valueArr.length == 2
+                    const wikiUrl = wiki
+                        ? 'https://' + valueArr[0] + '.wikipedia.org/wiki/' + encodeURIComponent(valueArr[1])
+                        : ''
+                    return (
+                        !key.startsWith('addr') &&
+                        !key.startsWith('name') &&
+                        !key.startsWith('building') && (
+                            <tr key={key}>
+                                <td>{key}</td>
+                                <td>
+                                    {url && (
+                                        <a href={value} target="_blank">
+                                            {value}
+                                        </a>
+                                    )}
+                                    {tel && <a href={'tel:' + value}>{value}</a>}
+                                    {email && <a href={'mailto:' + value}>{value}</a>}
+                                    {wiki && (
+                                        <a href={wikiUrl} target="_blank">
+                                            {value}
+                                        </a>
+                                    )}
+                                    {!url && !tel && !email && !wiki && value}
+                                </td>
+                            </tr>
+                        )
+                    )
+                })}
+            </tbody>
+        </table>
+    )
 }
 
 /**
@@ -65,34 +103,21 @@ export default function POIStatePopup({ map, poiState }: POIStatePopupProps) {
             <div className={styles.poiPopup}>
                 <div>{selectedPOI?.name}</div>
                 <div>{selectedPOI?.address}</div>
-                <PlainButton
-                    onClick={e => {
-                        fetchInfo('https://www.openstreetmap.org/api/0.6/' + path).then(tagHash => setKV(tagHash))
-                    }}
-                >
-                    {Object.keys(kv).length == 0 && tr('More information')}
-                    <table className={styles.poiPopupTable}>
-                        <tbody>
-                            {Object.entries(kv).map(
-                                ([key, value]) =>
-                                    !key.startsWith('addr') && (
-                                        <tr key={key}>
-                                            <td>{key}</td>
-                                            <td>
-                                                {value.startsWith('https://') ? (
-                                                    <a href={value} target="_blank">
-                                                        {value}
-                                                    </a>
-                                                ) : (
-                                                    value
-                                                )}
-                                            </td>
-                                        </tr>
-                                    )
-                            )}
-                        </tbody>
-                    </table>
-                </PlainButton>
+                {Object.keys(kv).length == 0 && (
+                    <PlainButton
+                        onClick={e => {
+                            fetchInfo('https://www.openstreetmap.org/api/0.6/' + path).then(tagHash => setKV(tagHash))
+                        }}
+                    >
+                        {tr('Fetch more info')}
+                    </PlainButton>
+                )}
+                <KVTable kv={kv} />
+                <div className={styles.osmLink}>
+                    <a  href={'https://www.openstreetmap.org/' + path} target="_blank">
+                        OpenStreetMap.org
+                    </a>
+                </div>
                 <div className={styles.poiPopupButton}>
                     {oldQueryPoint && <MarkerComponent color={oldQueryPoint.color} size={18} />}
                     <PlainButton
