@@ -98,10 +98,11 @@ export class AddressParseResult {
 
     // because of the static method we need to inject the Translation object as otherwise jest has a problem
     static setPOITriggerPhrases(translation: Translation) {
-        const t = (s: string) => translation
-            .get(s)
-            .split(',')
-            .map(s => s.trim().toLowerCase())
+        const t = (s: string) =>
+            translation
+                .get(s)
+                .split(',')
+                .map(s => s.trim().toLowerCase())
         AddressParseResult.REMOVE_VALUES = t('poi_removal_words')
         AddressParseResult.TRIGGER_VALUES = [
             { k: 'poi_airports', t: ['aeroway:aerodrome'], i: 'flight_takeoff' },

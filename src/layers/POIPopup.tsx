@@ -106,34 +106,33 @@ export default function POIStatePopup({ map, poiState }: POIStatePopupProps) {
             <div className={styles.poiPopup}>
                 <div>{selectedPOI?.name}</div>
                 <div>{selectedPOI?.address}</div>
+                <div
+                    className={styles.poiPopupButton}
+                    onClick={() => {
+                        if (selectedPOI && oldQueryPoint) {
+                            // TODO NOW how to use the POI as either start or destination?
+                            //  Might be too unintuitive if it relies on with which input we searched the POIs
+                            const queryPoint = {
+                                ...oldQueryPoint,
+                                queryText: selectedPOI?.name,
+                                coordinate: selectedPOI?.coordinate,
+                                isInitialized: true,
+                            }
+                            Dispatcher.dispatch(new SetPoint(queryPoint, false))
+                            Dispatcher.dispatch(new SelectPOI(null))
+                            Dispatcher.dispatch(new SetPOIs([], null))
+                        }
+                    }}
+                >
+                    {oldQueryPoint && <MarkerComponent color={oldQueryPoint.color} size={18} />}
+                    <PlainButton>{tr('Use in route')}</PlainButton>
+                </div>
                 {Object.keys(kv).length == 0 && <PlainButton>{tr('Fetching more info...')}</PlainButton>}
                 <KVTable kv={kv} poi={selectedPOI} />
                 <div className={styles.osmLink}>
                     <a href={'https://www.openstreetmap.org/' + type + '/' + selectedPOI?.osm_id} target="_blank">
                         OpenStreetMap.org
                     </a>
-                </div>
-                <div className={styles.poiPopupButton}>
-                    {oldQueryPoint && <MarkerComponent color={oldQueryPoint.color} size={18} />}
-                    <PlainButton
-                        onClick={() => {
-                            if (selectedPOI && oldQueryPoint) {
-                                // TODO NOW how to use the POI as either start or destination?
-                                //  Might be too unintuitive if it relies on with which input we searched the POIs
-                                const queryPoint = {
-                                    ...oldQueryPoint,
-                                    queryText: selectedPOI?.name,
-                                    coordinate: selectedPOI?.coordinate,
-                                    isInitialized: true,
-                                }
-                                Dispatcher.dispatch(new SetPoint(queryPoint, false))
-                                Dispatcher.dispatch(new SelectPOI(null))
-                                Dispatcher.dispatch(new SetPOIs([], null))
-                            }
-                        }}
-                    >
-                        {tr('Use in route')}
-                    </PlainButton>
                 </div>
             </div>
         </MapPopup>
