@@ -12,7 +12,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           registry-url: https://registry.npmjs.org/
-          node-version: lts/gallium
+          node-version: v20.14.0
 
       - name: Test and Build
         run: |
