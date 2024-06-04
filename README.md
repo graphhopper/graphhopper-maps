@@ -54,3 +54,4 @@ This project uses
  * the [codemirror](https://codemirror.net/) code editor for the custom model editor.
  * many icons from Google's [open source font library](https://fonts.google.com/icons).
  * many more open source projects - see the package.json
+

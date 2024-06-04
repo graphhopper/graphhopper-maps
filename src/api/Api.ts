@@ -146,7 +146,7 @@ export class ApiImpl implements Api {
 
         if (tags) {
             for (const tag of tags) {
-                url.searchParams.append('osm_tag', tag.k + ':' + tag.v)
+                url.searchParams.append('osm_tag', tag.k + (tag.v ? ':' + tag.v : ''))
             }
         }
 

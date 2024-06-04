@@ -19,7 +19,13 @@ import school_svg from '/src/pois/img/school.svg'
 import sports_handball_svg from '/src/pois/img/sports_handball.svg'
 import store_svg from '/src/pois/img/store.svg'
 import train_svg from '/src/pois/img/train.svg'
+import home_and_garden from '/src/pois/img/home_and_garden.svg'
 import universal_currency_alt_svg from '/src/pois/img/universal_currency_alt.svg'
+import local_atm from '/src/pois/img/local_atm.svg'
+import local_gas_station from '/src/pois/img/local_gas_station.svg'
+import local_post_office from '/src/pois/img/local_post_office.svg'
+import police from '/src/pois/img/police.svg'
+import charger from '/src/pois/img/charger.svg'
 import { createPOIMarker } from '@/layers/createMarkerSVG'
 import { Select } from 'ol/interaction'
 import Dispatcher from '@/stores/Dispatcher'
@@ -41,7 +47,14 @@ const svgObjects: { [id: string]: any } = {
     store: store_svg(),
     train: train_svg(),
     universal_currency_alt: universal_currency_alt_svg(),
+    home_and_garden: home_and_garden(),
+    local_atm: local_atm(),
+    local_gas_station: local_gas_station(),
+    local_post_office: local_post_office(),
+    police: police(),
+    charger: charger(),
 }
+
 // -300 -1260 1560 1560
 // <path d="m -46.278793,-739.50038 c -0.119546,-249.77515 165.728493,-515.03832 526.428923,-516.08842 392.86041,-1.1438 528.51077,269.46826 528.84707,519.24315 0.3488,259.06981 -254.78805,473.49828 -382.7069,701.499743 C 519.97666,154.64661 509.30678,296.87227 479.27479,296.44795 444.1137,295.95116 422.98296,153.89016 311.80839,-41.049369 182.8093,-267.24338 -46.156365,-483.7031 -46.278793,-739.50038 Z" style="stroke-width:2.3555" />
 for (const k in svgObjects) {

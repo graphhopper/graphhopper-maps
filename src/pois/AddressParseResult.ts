@@ -106,9 +106,11 @@ export class AddressParseResult {
         AddressParseResult.REMOVE_VALUES = t('poi_removal_words')
         AddressParseResult.TRIGGER_VALUES = [
             { k: 'poi_airports', t: ['aeroway:aerodrome'], i: 'flight_takeoff' },
+            { k: 'poi_atm', t: ['amenity:atm', 'amenity:bank'], i: 'local_atm' },
             { k: 'poi_banks', t: ['amenity:bank'], i: 'universal_currency_alt' },
             { k: 'poi_bus_stops', t: ['highway:bus_stop'], i: 'train' },
             { k: 'poi_education', t: ['amenity:school', 'building:school', 'building:university'], i: 'school' },
+            { k: 'poi_gas_station', t: ['amenity:fuel'], i: 'local_gas_station' },
             { k: 'poi_hospitals', t: ['amenity:hospital', 'building:hospital'], i: 'local_hospital' },
             { k: 'poi_hotels', t: ['amenity:hotel', 'building:hotel', 'tourism:hotel'], i: 'hotel' },
             { k: 'poi_leisure', t: ['leisure'], i: 'sports_handball' },
@@ -117,12 +119,24 @@ export class AddressParseResult {
             { k: 'poi_parks', t: ['leisure:park'], i: 'sports_handball' },
             { k: 'poi_pharmacies', t: ['amenity:pharmacy'], i: 'local_pharmacy' },
             { k: 'poi_playgrounds', t: ['leisure:playground'], i: 'sports_handball' },
-            { k: 'poi_public_transit', t: ['railway:station', 'highway:bus_stop'], i: 'train' },
-            { k: 'poi_railway_station', t: ['railway:station'], i: 'train' },
+            { k: 'poi_police', t: ['amenity:police '], i: 'police' },
+            // important to have this before "post"
+            {
+                k: 'poi_post_box',
+                t: ['amenity:post_box', 'amenity:post_office', 'amenity:post_depot'],
+                i: 'local_post_office',
+            },
+            { k: 'poi_post', t: ['amenity:post_office', 'amenity:post_depot'], i: 'local_post_office' },
+            { k: 'poi_public_transit', t: ['public_transport:station', 'highway:bus_stop'], i: 'train' },
+            { k: 'poi_railway_station', t: ['public_transport:station'], i: 'train' },
             { k: 'poi_restaurants', t: ['amenity:restaurant'], i: 'restaurant' },
             { k: 'poi_schools', t: ['amenity:school', 'building:school'], i: 'school' },
+            { k: 'poi_shopping', t: ['shop'], i: 'store' },
             { k: 'poi_super_markets', t: ['shop:supermarket', 'building:supermarket'], i: 'store' },
+            { k: 'poi_toilets', t: ['amenity:toilets'], i: 'home_and_garden' },
             { k: 'poi_tourism', t: ['tourism'], i: 'luggage' },
+            { k: 'poi_water', t: ['amenity:drinking_water '], i: 'water_drop' },
+            { k: 'poi_charging_station', t: ['amenity:charging_station'], i: 'charger' },
         ].map(v => {
             const tags = v.t.map(val => {
                 return { k: val.split(':')[0], v: val.split(':')[1] }
