@@ -127,8 +127,9 @@ export class AddressParseResult {
                 i: 'local_post_office',
             },
             { k: 'poi_post', t: ['amenity:post_office', 'amenity:post_depot'], i: 'local_post_office' },
-            { k: 'poi_public_transit', t: ['public_transport:station', 'highway:bus_stop'], i: 'train' },
-            { k: 'poi_railway_station', t: ['public_transport:station'], i: 'train' },
+            // TODO NOW public_transport:station does not seem to be supported from photon?
+            { k: 'poi_public_transit', t: ['railway:station', 'highway:bus_stop'], i: 'train' },
+            { k: 'poi_railway_station', t: ['railway:station'], i: 'train' },
             { k: 'poi_restaurants', t: ['amenity:restaurant'], i: 'restaurant' },
             { k: 'poi_schools', t: ['amenity:school', 'building:school'], i: 'school' },
             { k: 'poi_shopping', t: ['shop'], i: 'store' },
