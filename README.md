@@ -14,7 +14,7 @@ There is [an experimental `navi` branch](https://github.com/graphhopper/graphhop
 ## Start development:
 
  * Clone this repository.
- * Make sure node and npm are installed. We recommend using the gallium LTS (node v16.17.0 & npm v8.15.0).
+ * Make sure node and npm are installed. We recommend using the gallium LTS (node v20.14.0 and npm 10.7.0).
  * npm install
  * npm run serve
  * Open your browser at http://0.0.0.0:3000/.
