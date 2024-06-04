@@ -54,6 +54,7 @@ function KVTable(props: { kv: TagHash; poi: POI | null }) {
                         !poiInfoRepeated &&
                         key !== 'source' &&
                         key !== 'image' &&
+                        key !== 'check_data' &&
                         !key.includes('fax') &&
                         !key.startsWith('addr') &&
                         !key.startsWith('name') &&
