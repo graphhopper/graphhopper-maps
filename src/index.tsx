@@ -49,7 +49,7 @@ setApi(config.routingApi, config.geocodingApi, apiKey || '')
 
 const initialCustomModelStr = url.searchParams.get('custom_model')
 const queryStore = new QueryStore(getApi(), initialCustomModelStr)
-const routeStore = new RouteStore(queryStore)
+const routeStore = new RouteStore()
 
 setStores({
     settingsStore: new SettingsStore(),

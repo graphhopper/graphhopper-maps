@@ -76,7 +76,7 @@ function SettingsToggle({ title, enabled, onClick }: { title: string; enabled: b
 function SettingsCheckbox({ title, enabled, onClick }: { title: string; enabled: boolean; onClick: () => void }) {
     return (
         <div className={styles.settingsCheckbox} onClick={onClick}>
-            <input type="checkbox" checked={enabled}></input>
+            <input type="checkbox" checked={enabled} onChange={ignore => {}}></input>
             <label style={{ color: enabled ? '#5b616a' : 'gray' }}>{title}</label>
         </div>
     )
