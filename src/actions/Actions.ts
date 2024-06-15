@@ -258,10 +258,10 @@ export class SelectPOI implements Action {
 
 export class SetPOIs implements Action {
     readonly pois: POI[]
-    readonly oldQueryPoint: QueryPoint | null
+    readonly sourceQueryPoint: QueryPoint | null
 
-    constructor(pois: POI[], oldQueryPoint: QueryPoint | null) {
+    constructor(pois: POI[], sourceQueryPoint: QueryPoint | null) {
         this.pois = pois
-        this.oldQueryPoint = oldQueryPoint
+        this.sourceQueryPoint = sourceQueryPoint
     }
 }

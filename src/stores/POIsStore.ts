@@ -29,7 +29,7 @@ export default class POIsStore extends Store<POIsStoreState> {
         if (action instanceof SetPOIs) {
             return {
                 pois: action.pois,
-                oldQueryPoint: action.oldQueryPoint,
+                oldQueryPoint: action.sourceQueryPoint,
                 selected: null,
             }
         } else if (action instanceof SelectPOI) {
