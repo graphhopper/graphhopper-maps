@@ -226,11 +226,9 @@ export class MapIsLoaded implements Action {}
 
 export class ZoomMapToPoint implements Action {
     readonly coordinate: Coordinate
-    readonly zoom: number
 
-    constructor(coordinate: Coordinate, zoom: number) {
+    constructor(coordinate: Coordinate) {
         this.coordinate = coordinate
-        this.zoom = zoom
     }
 }
 
