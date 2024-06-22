@@ -112,7 +112,7 @@ export function ContextMenuContent({
                 className={styles.entry}
                 onClick={() => {
                     onSelect()
-                    Dispatcher.dispatch(new ZoomMapToPoint(coordinate, 8))
+                    Dispatcher.dispatch(new ZoomMapToPoint(coordinate))
                 }}
             >
                 {tr('center_map')}
