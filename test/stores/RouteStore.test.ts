@@ -48,7 +48,7 @@ describe('RouteStore', () => {
 })
 
 function createStore() {
-    const store = new RouteStore(new QueryStore(new DummyApi()))
+    const store = new RouteStore()
     Dispatcher.register(store)
     return store
 }

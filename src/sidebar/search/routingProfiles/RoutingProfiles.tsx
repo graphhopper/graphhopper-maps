@@ -4,21 +4,10 @@ import Dispatcher from '@/stores/Dispatcher'
 import { SetVehicleProfile } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import PlainButton from '@/PlainButton'
-import BicycleIcon from './bike.svg'
-import CarIcon from './car.svg'
-import FootIcon from './foot.svg'
-import HikeIcon from './hike.svg'
-import MotorcycleIcon from './motorcycle.svg'
-import MtbBicycleIcon from './mtb-bicycle.svg'
-import RacingbikeIcon from './racingbike.svg'
-import ScooterIcon from './scooter.svg'
-import SmallTruckIcon from './small_truck.svg'
-import TruckIcon from './truck.svg'
-import WheelchairIcon from './wheelchair.svg'
-import QuestionMarkIcon from './question_mark.svg'
 import Chevron from './chevron.svg'
 import { tr } from '@/translation/Translation'
 import CustomModelBoxSVG from '@/sidebar/open_custom_model.svg'
+import { icons } from '@/sidebar/search/routingProfiles/profileIcons'
 
 export default function ({
     routingProfiles,
@@ -81,6 +70,16 @@ export default function ({
         setProfileScroll(profilesCarouselItems.scrollLeft)
     }
 
+    // Create a hash to count custom profiles to later enhance the base icon with a number.
+    let customProfiles: Record<string, Array<string>> = {}
+
+    // Now add the profiles to each key e.g. 'car_avoid_ferry' to the 'car_' key.
+    // Create a special key '_' for profile names with an unknown icon.
+    routingProfiles.forEach(p => {
+        const key = (Object.keys(icons).find(k => p.name.startsWith(k + '_')) || '') + '_'
+        if (!icons[p.name]) customProfiles[key] = [...(customProfiles[key] || []), p.name]
+    })
+
     return (
         <div className={styles.profilesParent}>
             <PlainButton
@@ -115,7 +114,7 @@ export default function ({
                                     {customModelBoxEnabled && profile.name === selectedProfile.name && (
                                         <CustomModelBoxSVG className={styles.asIndicator} />
                                     )}
-                                    {getIcon(profile)}
+                                    {getIcon(profile.name, customProfiles)}
                                 </PlainButton>
                             </li>
                         )
@@ -134,31 +133,35 @@ export default function ({
     )
 }
 
-function getIcon(profile: RoutingProfile) {
-    switch (profile.name) {
-        case 'car':
-            return <CarIcon />
-        case 'small_truck':
-            return <SmallTruckIcon />
-        case 'truck':
-            return <TruckIcon />
-        case 'scooter':
-            return <ScooterIcon />
-        case 'foot':
-            return <FootIcon />
-        case 'hike':
-            return <HikeIcon />
-        case 'bike':
-            return <BicycleIcon />
-        case 'mtb':
-            return <MtbBicycleIcon />
-        case 'racingbike':
-            return <RacingbikeIcon />
-        case 'motorcycle':
-            return <MotorcycleIcon />
-        case 'wheelchair':
-            return <WheelchairIcon />
-        default:
-            return <QuestionMarkIcon />
+function getIcon(profileName: string, customProfiles: Record<string, Array<string>>) {
+    let icon = icons[profileName]
+    if (icon) return React.createElement(icon)
+
+    // go through every key in customProfiles and check if the profile is in the array under that key
+    for (const [key, value] of Object.entries(customProfiles)) {
+        const index = value.findIndex(p => p == profileName) + 1
+        if (index >= 1) {
+            let icon = icons[key.slice(0, -1)] // slice to remove underscore from key
+            if (!icon) icon = icons.question_mark
+            return key === '_' ? <NumberIcon number={index} /> : <IconWithBatchNumber baseIcon={icon} number={index} />
+        }
     }
+
+    // this is the very last fallback, should never be reached
+    return React.createElement(icons.question_mark)
+}
+
+function IconWithBatchNumber({ baseIcon, number }: { baseIcon: any; number: number }) {
+    return (
+        <div className={styles.iconContainer}>
+            {React.createElement(baseIcon)}
+            <div className={styles.batchNumber}>
+                <NumberIcon number={number} />
+            </div>
+        </div>
+    )
+}
+
+function NumberIcon({ number }: { number: number }) {
+    return <span>{number}</span>
 }

@@ -173,6 +173,7 @@
 .routeHints .icons {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     column-gap: 8px;
     padding-bottom: 0.5rem;
 }

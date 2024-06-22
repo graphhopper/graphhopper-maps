@@ -475,20 +475,28 @@ function RHButton(p: {
             className={p.selected == p.type ? styles.selectedRouteHintButton : styles.routeHintButton}
             onClick={() => {
                 p.setType(p.type)
-                let tmpDescription
-                if (p.type == 'get_off_bike') tmpDescription = p.description
-                else if (p.type == 'border') tmpDescription = p.description + ': ' + p.values[index]
-                else if (p.values && p.values[index]) {
-                    if (p.type.includes('rating'))
-                        tmpDescription = p.description + ': ' + p.value + ' (' + p.type + ':' + p.values[index] + ')'
-                    else if (p.type.includes('steep')) tmpDescription = p.description + ': ' + p.values[index]
-                    else tmpDescription = p.description + ': ' + p.value + ' ' + p.values[index]
-                } else tmpDescription = p.description + ': ' + p.value
 
-                p.setDescription(tmpDescription)
-                Dispatcher.dispatch(new PathDetailsElevationSelected(p.segments))
-                if (p.segments.length > index) Dispatcher.dispatch(new SetBBox(toBBox(p.segments[index])))
-                setIndex((index + 1) % p.segments.length)
+                if (index < 0) {
+                    Dispatcher.dispatch(new PathDetailsElevationSelected([]))
+                    p.setDescription('')
+                } else {
+                    let tmpDescription
+                    if (p.type == 'get_off_bike') tmpDescription = p.description
+                    else if (p.type == 'border') tmpDescription = p.description + ': ' + p.values[index]
+                    else if (p.values && p.values[index]) {
+                        if (p.type.includes('rating'))
+                            tmpDescription =
+                                p.description + ': ' + p.value + ' (' + p.type + ':' + p.values[index] + ')'
+                        else if (p.type.includes('steep')) tmpDescription = p.description + ': ' + p.values[index]
+                        else tmpDescription = p.description + ': ' + p.value + ' ' + p.values[index]
+                    } else tmpDescription = p.description + ': ' + p.value
+
+                    p.setDescription(tmpDescription)
+                    Dispatcher.dispatch(new PathDetailsElevationSelected(p.segments))
+                    if (p.segments.length > index) Dispatcher.dispatch(new SetBBox(toBBox(p.segments[index])))
+                }
+
+                setIndex(index + 1 >= p.segments.length ? -1 : index + 1)
             }}
             title={p.description}
         >

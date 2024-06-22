@@ -52,7 +52,7 @@ setApi(config.routingApi, config.geocodingApi, apiKey || '')
 const initialCustomModelStr = url.searchParams.get('custom_model')
 const queryStore = new QueryStore(getApi(), initialCustomModelStr)
 const settingsStore = new SettingsStore()
-const routeStore = new RouteStore(queryStore)
+const routeStore = new RouteStore()
 const speechSynthesizer = new SpeechSynthesizerImpl(navigator.language)
 
 class CoordSysImpl implements MapCoordinateSystem {
