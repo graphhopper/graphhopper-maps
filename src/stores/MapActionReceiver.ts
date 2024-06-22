@@ -133,7 +133,7 @@ export default class MapActionReceiver implements ActionReceiver {
                     .getArray()
                     .find(layer => layer.get('gh:current_location'))
                 if (layer && (layer as VectorLayer<any>).getSource()) {
-                    const currentPoint = (layer as VectorLayer<any>).getSource().getFeatures()[0].getGeometry()
+                    const currentPoint = (layer as VectorLayer<any>).getSource()?.getFeatures()[0].getGeometry()
                     if (currentPoint) currentPoint.setCoordinates(center)
                 }
             }
