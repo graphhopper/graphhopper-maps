@@ -18,7 +18,7 @@ export default function MapFeaturePopup({ map, properties, coordinate }: MapFeat
         <MapPopup map={map} coordinate={coordinate}>
             <div className={styles.popup}>
                 <ul>
-                    {Object.entries(properties).map(([k, v], index) => {
+                    {Object.entries(properties).sort().map(([k, v], index) => {
                         return <li key={index}>{`${k}=${v}`}</li>
                     })}
                 </ul>
