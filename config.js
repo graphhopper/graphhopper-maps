@@ -32,6 +32,7 @@ const config = {
             'country',
         ],
         snapPreventions: ['ferry'],
+        maxAlternativeRoutes: 3
     },
 
     // Use 'profiles' to define which profiles are visible and how. Useful if the /info endpoint contains too many or too "ugly" profile

@@ -18,6 +18,7 @@ declare module 'config' {
     const request: {
         details: string[]
         snapPreventions: string[]
+        maxAlternativeRoutes: number
     }
     const routingGraphLayerAllowed: boolean
     const externalMVTLayer: {

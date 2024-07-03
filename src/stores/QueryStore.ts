@@ -107,7 +107,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             currentRequest: {
                 subRequests: [],
             },
-            maxAlternativeRoutes: 3,
+            maxAlternativeRoutes: config.request.maxAlternativeRoutes ? config.request.maxAlternativeRoutes : 3,
             routingProfile: {
                 name: '',
             },
