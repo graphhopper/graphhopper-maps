@@ -20,6 +20,16 @@ export function ContextMenuContent({
     route: RouteStoreState
     onSelect: () => void
 }) {
+
+    const dispatchAddPoint = function (coordinate: Coordinate) {
+        if(queryPoints.length == 2 && !queryPoints[1].isInitialized) {
+            dispatchSetPoint(queryPoints[1], coordinate)
+        } else {
+            onSelect()
+            Dispatcher.dispatch(new AddPoint(queryPoints.length, coordinate, true))
+        }
+    }
+
     const dispatchSetPoint = function (point: QueryPoint, coordinate: Coordinate) {
         onSelect()
         Dispatcher.dispatch(
@@ -100,7 +110,7 @@ export function ContextMenuContent({
             <button
                 style={{ paddingBottom: '10px' }}
                 className={styles.entry}
-                onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
+                onClick={() => dispatchAddPoint(coordinate)}
             >
                 <div>
                     <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.To)} />
