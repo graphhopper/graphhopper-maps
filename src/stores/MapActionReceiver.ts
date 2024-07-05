@@ -32,7 +32,7 @@ export default class MapActionReceiver implements ActionReceiver {
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
         } else if (action instanceof ZoomMapToPoint) {
             let zoom = this.map.getView().getZoom()
-            if(zoom == undefined || zoom < 8) zoom = 8
+            if (zoom == undefined || zoom < 8) zoom = 8
             this.map.getView().animate({
                 zoom: zoom,
                 center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
