@@ -133,7 +133,7 @@ const SearchBox = ({
                     }}
                 >
                     <MarkerComponent
-                        number={index > 0 && index + 1 < points.length ? index : undefined}
+                        number={index > 0 && index + 1 < points.length ? '' + index : undefined}
                         cursor="ns-resize"
                         color={moveStartIndex >= 0 ? 'gray' : point.color}
                     />

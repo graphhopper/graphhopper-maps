@@ -20,14 +20,9 @@ export function ContextMenuContent({
     route: RouteStoreState
     onSelect: () => void
 }) {
-
     const dispatchAddPoint = function (coordinate: Coordinate) {
-        if(queryPoints.length == 2 && !queryPoints[1].isInitialized) {
-            dispatchSetPoint(queryPoints[1], coordinate)
-        } else {
-            onSelect()
-            Dispatcher.dispatch(new AddPoint(queryPoints.length, coordinate, true))
-        }
+        onSelect()
+        Dispatcher.dispatch(new AddPoint(queryPoints.length, coordinate, true))
     }
 
     const dispatchSetPoint = function (point: QueryPoint, coordinate: Coordinate) {
@@ -108,15 +103,30 @@ export function ContextMenuContent({
                 <span>{tr('set_intermediate')}</span>
             </button>
             <button
-                style={{ paddingBottom: '10px' }}
                 className={styles.entry}
-                onClick={() => dispatchAddPoint(coordinate)}
+                onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
             >
                 <div>
                     <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.To)} />
                 </div>
                 <span>{tr('set_end')}</span>
             </button>
+            {queryPoints.length >= 2 && queryPoints[1].isInitialized && (
+                <button
+                    style={{ paddingBottom: '10px' }}
+                    className={styles.entry}
+                    onClick={() => dispatchAddPoint(coordinate)}
+                >
+                    <div>
+                        <MarkerComponent
+                            size={16}
+                            color={QueryStore.getMarkerColor(QueryPointType.To)}
+                            number={'\uFF0B'}
+                        />
+                    </div>
+                    <span>{tr('add_to_route')}</span>
+                </button>
+            )}
             <button
                 style={{ borderTop: '1px solid lightgray', paddingTop: '10px' }}
                 className={styles.entry}
