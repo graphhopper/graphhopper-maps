@@ -150,6 +150,14 @@ export function ContextMenuContent({
             >
                 {tr('query_osm')}
             </button>
+            <button
+                className={styles.entry}
+                onClick={() => {
+                    if (queryPoints.length > 0) Dispatcher.dispatch(new SetPoint(queryPoints[0], true))
+                }}
+            >
+                <span>{tr('zoom_to_route')}</span>
+            </button>
         </div>
     )
 }
