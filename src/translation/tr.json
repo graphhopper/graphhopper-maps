@@ -20,7 +20,7 @@
 "intermediate_label":"Intermediate",
 "end_label":"End",
 "set_start":"From here",
-"set_intermediate":"Via point",
+"set_intermediate":"Via location",
 "set_end":"To here",
 "center_map":"Center map",
 "show_coords":"Show coordinates",
