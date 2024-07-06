@@ -41,11 +41,13 @@ export class AddPoint implements Action {
     readonly atIndex: number
     readonly coordinate: Coordinate
     readonly isInitialized: boolean
+    readonly zoom: boolean
 
-    constructor(atIndex: number, coordinate: Coordinate, isInitialized: boolean) {
+    constructor(atIndex: number, coordinate: Coordinate, isInitialized: boolean, zoom: boolean) {
         this.atIndex = atIndex
         this.coordinate = coordinate
         this.isInitialized = isInitialized
+        this.zoom = zoom
     }
 }
 
@@ -180,11 +182,9 @@ export class MapIsLoaded implements Action {}
 
 export class ZoomMapToPoint implements Action {
     readonly coordinate: Coordinate
-    readonly zoom: number
 
-    constructor(coordinate: Coordinate, zoom: number) {
+    constructor(coordinate: Coordinate) {
         this.coordinate = coordinate
-        this.zoom = zoom
     }
 }
 

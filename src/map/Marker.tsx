@@ -11,7 +11,7 @@ const markerStyle = {
 
 interface MarkerProps {
     color: string
-    number?: number | undefined
+    number?: string | undefined
     size?: number
     cursor?: string | undefined
 }

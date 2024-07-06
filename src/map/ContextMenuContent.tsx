@@ -20,6 +20,11 @@ export function ContextMenuContent({
     route: RouteStoreState
     onSelect: () => void
 }) {
+    const dispatchAddPoint = function (coordinate: Coordinate) {
+        onSelect()
+        Dispatcher.dispatch(new AddPoint(queryPoints.length, coordinate, true, false))
+    }
+
     const dispatchSetPoint = function (point: QueryPoint, coordinate: Coordinate) {
         onSelect()
         Dispatcher.dispatch(
@@ -30,7 +35,7 @@ export function ContextMenuContent({
                     queryText: coordinateToText(coordinate),
                     isInitialized: true,
                 },
-                true
+                false
             )
         )
     }
@@ -57,7 +62,7 @@ export function ContextMenuContent({
             // to be closest to the clicked location, because for every route the n-th snapped_waypoint corresponds to
             // the n-th query point
             const index = findNextWayPoint(routes, coordinate).nextWayPoint
-            Dispatcher.dispatch(new AddPoint(index, coordinate, true))
+            Dispatcher.dispatch(new AddPoint(index, coordinate, true, false))
         }
     }
 
@@ -78,6 +83,7 @@ export function ContextMenuContent({
         evt.stopPropagation = () => {}
         e.target.dispatchEvent(evt)
     }
+    const showAddLocation = queryPoints.length >= 2 && queryPoints[1].isInitialized
 
     return (
         <div className={styles.wrapper} onMouseUp={convertToClick}>
@@ -98,7 +104,7 @@ export function ContextMenuContent({
                 <span>{tr('set_intermediate')}</span>
             </button>
             <button
-                style={{ paddingBottom: '10px' }}
+                style={showAddLocation ? {} : { paddingBottom: '10px' }}
                 className={styles.entry}
                 onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
             >
@@ -107,12 +113,36 @@ export function ContextMenuContent({
                 </div>
                 <span>{tr('set_end')}</span>
             </button>
+            {showAddLocation && (
+                <button
+                    style={{ paddingBottom: '10px' }}
+                    className={styles.entry}
+                    onClick={() => dispatchAddPoint(coordinate)}
+                >
+                    <div>
+                        <MarkerComponent
+                            size={16}
+                            color={QueryStore.getMarkerColor(QueryPointType.To)}
+                            number={'\uFF0B'}
+                        />
+                    </div>
+                    <span>{tr('add_to_route')}</span>
+                </button>
+            )}
             <button
                 style={{ borderTop: '1px solid lightgray', paddingTop: '10px' }}
                 className={styles.entry}
                 onClick={() => {
+                    if (queryPoints.length > 0) Dispatcher.dispatch(new SetPoint(queryPoints[0], true))
+                }}
+            >
+                <span>{tr('zoom_to_route')}</span>
+            </button>
+            <button
+                className={styles.entry}
+                onClick={() => {
                     onSelect()
-                    Dispatcher.dispatch(new ZoomMapToPoint(coordinate, 8))
+                    Dispatcher.dispatch(new ZoomMapToPoint(coordinate))
                 }}
             >
                 {tr('center_map')}
