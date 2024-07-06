@@ -193,7 +193,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 queryPoints: newPoints,
             }
 
-            return this.routeIfReady(newState, true)
+            return this.routeIfReady(newState, action.zoom)
         } else if (action instanceof SetQueryPoints) {
             // make sure that some things are set correctly, regardless of what was passed in here.
             const queryPoints = action.queryPoints.map((point, i) => {

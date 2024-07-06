@@ -57,7 +57,7 @@ export default function Search({
                             ? { paddingTop: '2rem' }
                             : {}
                     }
-                    onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
+                    onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false, true))}
                     className={styles.addSearchBox}
                 >
                     <AddIcon />
@@ -140,7 +140,7 @@ const SearchBox = ({
                     }}
                 >
                     <MarkerComponent
-                        number={index > 0 && index + 1 < points.length ? index : undefined}
+                        number={index > 0 && index + 1 < points.length ? '' + index : undefined}
                         cursor="ns-resize"
                         color={moveStartIndex >= 0 ? 'gray' : point.color}
                     />

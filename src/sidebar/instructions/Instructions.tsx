@@ -75,7 +75,7 @@ export function getTurnSign(sign: number, index: number, waypointIndex?: number)
 
         return (
             <div className={styles.sign}>
-                <MarkerComponent color={markerColor} number={waypointIndex} />
+                <MarkerComponent color={markerColor} number={'' + waypointIndex} />
             </div>
         )
     }
