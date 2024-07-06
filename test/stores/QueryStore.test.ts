@@ -12,6 +12,7 @@ import {
     SetPoint,
     SetVehicleProfile,
 } from '@/actions/Actions'
+import { tr } from '@/translation/Translation'
 
 class ApiMock implements Api {
     private readonly callback: { (args: RoutingArgs): void }
@@ -168,7 +169,7 @@ describe('QueryStore', () => {
             const newPointId = store.state.nextQueryPointId
             const atIndex = 1
 
-            const newState = store.reduce(store.state, new AddPoint(atIndex, { lat: 1, lng: 1 }, false))
+            const newState = store.reduce(store.state, new AddPoint(atIndex, { lat: 1, lng: 1 }, false, true))
 
             expect(newState.queryPoints.findIndex(p => p.id === newPointId)).toEqual(atIndex)
             expect(newState.queryPoints.every((p, i) => isCorrectType(p, i, newState.queryPoints.length))).toBeTruthy()
@@ -190,7 +191,7 @@ describe('QueryStore', () => {
                 routingProfile: { name: 'car' },
             }
 
-            const newState = store.reduce(state, new AddPoint(atIndex, { lat: 1, lng: 1 }, true))
+            const newState = store.reduce(state, new AddPoint(atIndex, { lat: 1, lng: 1 }, true, true))
             expect(newState.queryPoints.findIndex(p => p.id === newPointId)).toEqual(atIndex)
             expect(newState.queryPoints[atIndex].queryText).toEqual('1,1') // if initialized flag is set the coordinates are set as query text
             expect(counter).toEqual(1)

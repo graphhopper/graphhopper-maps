@@ -50,7 +50,7 @@ export default function Search({ points }: { points: QueryPoint[] }) {
                             ? { paddingTop: '2rem' }
                             : {}
                     }
-                    onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false))}
+                    onClick={() => Dispatcher.dispatch(new AddPoint(points.length, { lat: 0, lng: 0 }, false, true))}
                     className={styles.addSearchBox}
                 >
                     <AddIcon />
