@@ -31,7 +31,7 @@ GraphHopper Maps is translated into many languages and you can help improve Grap
 to create a new or improve an existing language. Let us know if you changed something or submit a pull request with your changes after the following steps:
 
  * Edit the spreadsheet
- * Run `python3 update-translations.py`
+ * Run `python update-translations.py`
  * Review your changes via e.g. http://localhost:3000/?locale=en and with `git diff`. Make sure that is the only one with `git status`.
  
 Please note that the translations for the server-side turn instructions are located in [a different repository](https://github.com/graphhopper/graphhopper/blob/master/docs/core/translations.md).
