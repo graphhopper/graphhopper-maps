@@ -83,6 +83,7 @@ export function ContextMenuContent({
         evt.stopPropagation = () => {}
         e.target.dispatchEvent(evt)
     }
+    const showAddLocation = queryPoints.length >= 2 && queryPoints[1].isInitialized
 
     return (
         <div className={styles.wrapper} onMouseUp={convertToClick}>
@@ -103,6 +104,7 @@ export function ContextMenuContent({
                 <span>{tr('set_intermediate')}</span>
             </button>
             <button
+                style={showAddLocation ? {} : { paddingBottom: '10px' }}
                 className={styles.entry}
                 onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
             >
@@ -111,7 +113,7 @@ export function ContextMenuContent({
                 </div>
                 <span>{tr('set_end')}</span>
             </button>
-            {queryPoints.length >= 2 && queryPoints[1].isInitialized && (
+            {showAddLocation && (
                 <button
                     style={{ paddingBottom: '10px' }}
                     className={styles.entry}
@@ -129,6 +131,14 @@ export function ContextMenuContent({
             )}
             <button
                 style={{ borderTop: '1px solid lightgray', paddingTop: '10px' }}
+                className={styles.entry}
+                onClick={() => {
+                    if (queryPoints.length > 0) Dispatcher.dispatch(new SetPoint(queryPoints[0], true))
+                }}
+            >
+                <span>{tr('zoom_to_route')}</span>
+            </button>
+            <button
                 className={styles.entry}
                 onClick={() => {
                     onSelect()
@@ -149,14 +159,6 @@ export function ContextMenuContent({
                 }}
             >
                 {tr('query_osm')}
-            </button>
-            <button
-                className={styles.entry}
-                onClick={() => {
-                    if (queryPoints.length > 0) Dispatcher.dispatch(new SetPoint(queryPoints[0], true))
-                }}
-            >
-                <span>{tr('zoom_to_route')}</span>
             </button>
         </div>
     )
