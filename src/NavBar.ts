@@ -118,7 +118,7 @@ export default class NavBar {
                         .then(res => {
                             if (res.hits.length != 0)
                                 getApi()
-                                    .reverseGeocode(res.hits[0].extent, result.queries)
+                                    .reverseGeocode(result.query, res.hits[0].extent)
                                     .then(res => AddressParseResult.handleGeocodingResponse(res, result, p))
                         })
                     return Promise.resolve(p)

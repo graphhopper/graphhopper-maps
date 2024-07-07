@@ -78,7 +78,7 @@ class DummyApi implements Api {
         throw Error('not implemented')
     }
 
-    reverseGeocode(bbox: Bbox, queries: POIQuery[]): Promise<ReverseGeocodingHit[]> {
+    reverseGeocode(query: POIQuery, bbox: Bbox): Promise<ReverseGeocodingHit[]> {
         throw Error('not implemented')
     }
 

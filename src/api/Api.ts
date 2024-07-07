@@ -18,7 +18,7 @@ import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
 import { Coordinate } from '@/stores/QueryStore'
-import { POIQuery } from '@/pois/AddressParseResult'
+import { POIPhrase, POIQuery } from '@/pois/AddressParseResult'
 
 interface ApiProfile {
     name: string
@@ -33,7 +33,7 @@ export default interface Api {
 
     geocode(query: string, provider: string, additionalOptions?: Record<string, string>): Promise<GeocodingResult>
 
-    reverseGeocode(bbox: Bbox, queries: POIQuery[]): Promise<ReverseGeocodingHit[]>
+    reverseGeocode(query: POIQuery, bbox: Bbox): Promise<ReverseGeocodingHit[]>
 
     supportsGeocoding(): boolean
 }
@@ -122,9 +122,9 @@ export class ApiImpl implements Api {
         }
     }
 
-    async reverseGeocode(bbox: Bbox, queries: POIQuery[]): Promise<ReverseGeocodingHit[]> {
+    async reverseGeocode(query: POIQuery, bbox: Bbox): Promise<ReverseGeocodingHit[]> {
         if (!this.supportsGeocoding()) return []
-        // why is main overpass api so much faster for certain queries like "restaurants berlin"
+        // why is main overpass api so much faster?
         // const url = 'https://overpass.kumi.systems/api/interpreter'
         const url = 'https://overpass-api.de/api/interpreter'
 
@@ -136,23 +136,27 @@ export class ApiImpl implements Api {
 
         // Reduce the bbox to improve overpass response time for larger cities or areas.
         // This might lead to empty responses for POI queries with a small result set.
-        if(maxLat-minLat > 0.3) {
+        if (maxLat - minLat > 0.3) {
             const centerLat = (maxLat + minLat) / 2
             maxLat = centerLat + 0.15
             minLat = centerLat - 0.15
         }
-        if(maxLon - minLon > 0.3) {
+        if (maxLon - minLon > 0.3) {
             const centerLon = (maxLon + minLon) / 2
             maxLon = centerLon + 0.15
             minLon = centerLon - 0.15
         }
 
         let queryString = ''
-        for (const tag of queries) {
+        function getContent(p: POIPhrase) {}
+        for (const tag of query.include) {
+            let notStr = ''
+            for (const n of query.not) {
+                notStr += n.v ? `["${n.k}"!="${n.v}"]` : `["${n.k}"!~".*"]`
+            }
             const value = tag.v ? `="${tag.v}"` : ''
-            // nw means it searches for nodes and ways
-            const types = tag.k.includes('aeroway') ? 'nwr' : 'nw' // including relations in general is much slower
-            queryString += `${types}["${tag.k}"${value}];\n`
+            // nwr means it searches for nodes, ways and relations
+            queryString += `nwr["${tag.k}"${value}]${notStr};\n`
         }
 
         try {

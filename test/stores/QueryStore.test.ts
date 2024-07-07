@@ -8,14 +8,7 @@ import {
     RoutingResult,
     RoutingResultInfo,
 } from '@/api/graphhopper'
-import QueryStore, {
-    Coordinate,
-    QueryPoint,
-    QueryPointType,
-    QueryStoreState,
-    RequestState,
-    SubRequest,
-} from '@/stores/QueryStore'
+import QueryStore, { QueryPoint, QueryPointType, QueryStoreState, RequestState, SubRequest } from '@/stores/QueryStore'
 import {
     AddPoint,
     ClearPoints,
@@ -40,7 +33,7 @@ class ApiMock implements Api {
         throw Error('not implemented')
     }
 
-    reverseGeocode(bbox: Bbox, queries: POIQuery[]): Promise<ReverseGeocodingHit[]> {
+    reverseGeocode(query: POIQuery, bbox: Bbox): Promise<ReverseGeocodingHit[]> {
         throw Error('not implemented')
     }
 

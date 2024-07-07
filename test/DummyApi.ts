@@ -18,7 +18,7 @@ export default class DummyApi implements Api {
         })
     }
 
-    reverseGeocode(bbox: Bbox, queries: POIQuery[]): Promise<ReverseGeocodingHit[]> {
+    reverseGeocode(query: POIQuery, bbox: Bbox): Promise<ReverseGeocodingHit[]> {
         return Promise.resolve([])
     }
 

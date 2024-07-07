@@ -397,11 +397,13 @@ export class ReverseGeocoder {
                 }
                 const fwdSearch = await this.api.geocode(parseResult.location, 'default', options)
                 if (fwdSearch.hits.length > 0) {
-                    const bbox = fwdSearch.hits[0].extent ? fwdSearch.hits[0].extent : getBBoxFromCoord(fwdSearch.hits[0].point, 0.01)
-                    if(bbox) hits = await this.api.reverseGeocode(bbox, parseResult.queries)
+                    const bbox = fwdSearch.hits[0].extent
+                        ? fwdSearch.hits[0].extent
+                        : getBBoxFromCoord(fwdSearch.hits[0].point, 0.01)
+                    if (bbox) hits = await this.api.reverseGeocode(parseResult.query, bbox)
                 }
             } else {
-                hits = await this.api.reverseGeocode(bbox, parseResult.queries)
+                hits = await this.api.reverseGeocode(parseResult.query, bbox)
             }
             if (currentId === this.requestId) this.onSuccess(hits, parseResult, this.queryPoint)
         } catch (reason) {

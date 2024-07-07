@@ -7,7 +7,7 @@ import { TagHash } from '@/api/graphhopper'
 
 export interface POI {
     name: string
-    queries: POIQuery[]
+    query: POIQuery
     tags: TagHash
     osm_id: string
     osm_type: string

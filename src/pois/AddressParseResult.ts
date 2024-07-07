@@ -9,21 +9,21 @@ import { POI } from '@/stores/POIsStore'
 
 export class AddressParseResult {
     location: string
-    queries: POIQuery[]
+    query: POIQuery
     icon: string
     poi: string
     static TRIGGER_VALUES: PoiTriggerPhrases[]
     static REMOVE_VALUES: string[]
 
-    constructor(location: string, queries: POIQuery[], icon: string, poi: string) {
+    constructor(location: string, query: POIQuery, icon: string, poi: string) {
         this.location = location
-        this.queries = queries
+        this.query = query
         this.icon = icon
         this.poi = poi
     }
 
     hasPOIs(): boolean {
-        return this.queries.length > 0
+        return this.query.include.length > 0
     }
 
     text(prefix: string) {
@@ -47,17 +47,27 @@ export class AddressParseResult {
             for (const keyword of val.k) {
                 const i = bigrams.indexOf(keyword)
                 if (i >= 0)
-                    return new AddressParseResult(cleanQuery.replace(bigrams[i], '').trim(), val.q, val.i, val.k[0])
+                    return new AddressParseResult(
+                        cleanQuery.replace(bigrams[i], '').trim(),
+                        { include: val.q, not: val.not },
+                        val.i,
+                        val.k[0]
+                    )
             }
 
             for (const keyword of val.k) {
                 const i = queryTokens.indexOf(keyword)
                 if (i >= 0)
-                    return new AddressParseResult(cleanQuery.replace(queryTokens[i], '').trim(), val.q, val.i, val.k[0])
+                    return new AddressParseResult(
+                        cleanQuery.replace(queryTokens[i], '').trim(),
+                        { include: val.q, not: val.not },
+                        val.i,
+                        val.k[0]
+                    )
             }
         }
 
-        return new AddressParseResult('', [], '', '')
+        return new AddressParseResult('', { include: [], not: [] }, '', '')
     }
 
     public static handleGeocodingResponse(
@@ -82,7 +92,7 @@ export class AddressParseResult {
                     name: res.mainText,
                     osm_id: '' + hit.id,
                     osm_type: hit.type,
-                    queries: parseResult.queries,
+                    query: parseResult.query,
                     tags: hit.tags,
                     icon: parseResult.icon,
                     coordinate: hit.point,
@@ -109,7 +119,7 @@ export class AddressParseResult {
                 .map(s => s.trim().toLowerCase())
         AddressParseResult.REMOVE_VALUES = t('poi_removal_words')
         AddressParseResult.TRIGGER_VALUES = [
-            { k: 'poi_airports', t: ['aeroway:aerodrome'], i: 'flight_takeoff' }, // TODO exclude landuse = military AND military = airfield
+            { k: 'poi_airports', t: ['aeroway:aerodrome'], i: 'flight_takeoff', not: ['military', 'landuse:military'] },
             { k: 'poi_atm', t: ['amenity:atm', 'amenity:bank'], i: 'local_atm' },
             { k: 'poi_banks', t: ['amenity:bank'], i: 'universal_currency_alt' },
             { k: 'poi_bus_stops', t: ['highway:bus_stop'], i: 'train' },
@@ -131,7 +141,11 @@ export class AddressParseResult {
                 i: 'local_post_office',
             },
             { k: 'poi_post', t: ['amenity:post_office', 'amenity:post_depot'], i: 'local_post_office' },
-            { k: 'poi_public_transit', t: ['public_transport:station', 'railway:station', 'highway:bus_stop'], i: 'train' },
+            {
+                k: 'poi_public_transit',
+                t: ['public_transport:station', 'railway:station', 'highway:bus_stop'],
+                i: 'train',
+            },
             { k: 'poi_railway_station', t: ['railway:station', 'railway:halt'], i: 'train' },
             { k: 'poi_restaurants', t: ['amenity:restaurant'], i: 'restaurant' },
             { k: 'poi_schools', t: ['amenity:school', 'building:school'], i: 'school' },
@@ -145,14 +159,21 @@ export class AddressParseResult {
             const tags = v.t.map(val => {
                 return { k: val.split(':')[0], v: val.split(':')[1] }
             })
+            const notTags = !v.not
+                ? []
+                : v.not.map(val => {
+                      return { k: val.split(':')[0], v: val.split(':')[1] }
+                  })
             return {
                 k: t(v.k),
                 q: tags,
                 i: v.i,
+                not: notTags,
             }
         })
     }
 }
 
-export type POIQuery = { k: string; v: string }
-export type PoiTriggerPhrases = { k: string[]; q: POIQuery[]; i: string }
+export type POIQuery = { include: POIPhrase[]; not: POIPhrase[] }
+export type POIPhrase = { k: string; v: string }
+export type PoiTriggerPhrases = { k: string[]; q: POIPhrase[]; i: string; not: POIPhrase[] }
