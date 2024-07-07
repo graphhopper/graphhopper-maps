@@ -109,7 +109,7 @@ export class AddressParseResult {
                 .map(s => s.trim().toLowerCase())
         AddressParseResult.REMOVE_VALUES = t('poi_removal_words')
         AddressParseResult.TRIGGER_VALUES = [
-            { k: 'poi_airports', t: ['aeroway:aerodrome'], i: 'flight_takeoff' },
+            { k: 'poi_airports', t: ['aeroway:aerodrome'], i: 'flight_takeoff' }, // TODO exclude landuse = military AND military = airfield
             { k: 'poi_atm', t: ['amenity:atm', 'amenity:bank'], i: 'local_atm' },
             { k: 'poi_banks', t: ['amenity:bank'], i: 'universal_currency_alt' },
             { k: 'poi_bus_stops', t: ['highway:bus_stop'], i: 'train' },
@@ -131,9 +131,8 @@ export class AddressParseResult {
                 i: 'local_post_office',
             },
             { k: 'poi_post', t: ['amenity:post_office', 'amenity:post_depot'], i: 'local_post_office' },
-            // TODO NOW public_transport:station does not seem to be supported from photon?
-            { k: 'poi_public_transit', t: ['railway:station', 'highway:bus_stop'], i: 'train' },
-            { k: 'poi_railway_station', t: ['railway:station'], i: 'train' },
+            { k: 'poi_public_transit', t: ['public_transport:station', 'railway:station', 'highway:bus_stop'], i: 'train' },
+            { k: 'poi_railway_station', t: ['railway:station', 'railway:halt'], i: 'train' },
             { k: 'poi_restaurants', t: ['amenity:restaurant'], i: 'restaurant' },
             { k: 'poi_schools', t: ['amenity:school', 'building:school'], i: 'school' },
             { k: 'poi_shopping', t: ['shop'], i: 'store' },

@@ -129,31 +129,34 @@ export class ApiImpl implements Api {
         const url = 'https://overpass-api.de/api/interpreter'
 
         // bbox of overpass is minLat, minLon, maxLat, maxLon
-        let minLat = bbox[1], minLon = bbox[0], maxLat = bbox[3], maxLon = bbox[2]
+        let minLat = bbox[1],
+            minLon = bbox[0],
+            maxLat = bbox[3],
+            maxLon = bbox[2]
 
-        // reduce bbox to improve overpass response time
-        if(maxLat-minLat > 0.2) {
+        // Reduce the bbox to improve overpass response time for larger cities or areas.
+        // This might lead to empty responses for POI queries with a small result set.
+        if(maxLat-minLat > 0.3) {
             const centerLat = (maxLat + minLat) / 2
-            maxLat = centerLat + 0.1
-            minLat = centerLat - 0.1
+            maxLat = centerLat + 0.15
+            minLat = centerLat - 0.15
         }
-        if(maxLon - minLon > 0.2) {
+        if(maxLon - minLon > 0.3) {
             const centerLon = (maxLon + minLon) / 2
-            maxLon = centerLon + 0.1
-            minLon = centerLon - 0.1
+            maxLon = centerLon + 0.15
+            minLon = centerLon - 0.15
         }
 
-        // nw means it searches for nodes and ways
-        let query = ''
+        let queryString = ''
         for (const tag of queries) {
             const value = tag.v ? `="${tag.v}"` : ''
-            query += `nw["${tag.k}"${value}];`
+            // nw means it searches for nodes and ways
+            const types = tag.k.includes('aeroway') ? 'nwr' : 'nw' // including relations in general is much slower
+            queryString += `${types}["${tag.k}"${value}];\n`
         }
 
         try {
-            // (._;>;); => means it fetches the coordinates for ways. From this we create an index and calculate the center point
-            // Although this is ugly I did not find a faster way e.g. out geom or out center are all slower
-            const data = `[out:json][timeout:15][bbox:${minLat}, ${minLon}, ${maxLat}, ${maxLon}];${query}(._;>;);out 50;`
+            const data = `[out:json][timeout:15][bbox:${minLat}, ${minLon}, ${maxLat}, ${maxLon}];\n(${queryString});\nout center 100;`
             console.log(data)
             const result = await fetch(url, {
                 method: 'POST',
@@ -161,30 +164,15 @@ export class ApiImpl implements Api {
             })
             const json = await result.json()
             if (json.elements) {
-                const elements = json.elements as any[]
-                const index: { [key: number]: any } = {}
-                elements.forEach(e => (index[e.id] = e))
-                const res = elements
+                const res = (json.elements as any[])
                     .map(e => {
-                        if (e.nodes) {
-                            const coords = e.nodes.
-                                map((n: number) => (index[n] ? { lat: index[n].lat, lng: index[n].lon } : {})).
-                                filter((c: Coordinate) => c.lat)
-                            console.log(coords)
-                            // minLon, minLat, maxLon, maxLat
-                            const bbox = ApiImpl.getBBoxPoints(coords)
-                            return bbox
-                                ? ({
-                                      ...e,
-                                      point: { lat: (bbox[1] + bbox[3]) / 2, lng: (bbox[0] + bbox[2]) / 2 },
-                                  } as ReverseGeocodingHit)
-                                : e
+                        if (e.center) {
+                            return { ...e, point: { lat: e.center.lat, lng: e.center.lon } } as ReverseGeocodingHit
                         } else {
                             return { ...e, point: { lat: e.lat, lng: e.lon } } as ReverseGeocodingHit
                         }
                     })
                     .filter(p => !!p.tags && p.point)
-                console.log(res)
                 return res
             } else return []
         } catch (error) {

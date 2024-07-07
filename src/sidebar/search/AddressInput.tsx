@@ -258,12 +258,8 @@ export default function AddressInput(props: AddressInputProps) {
 function handlePoiSearch(poiSearch: ReverseGeocoder, result: AddressParseResult, map: Map) {
     if (!result.hasPOIs()) return
 
-    const center = map.getView().getCenter() ? toLonLat(map.getView().getCenter()!) : [13.4, 52.5]
-    // const mapCenter = { lng: center[0], lat: center[1] }
     const origExtent = map.getView().calculateExtent(map.getSize())
     const extent = transformExtent(origExtent, 'EPSG:3857', 'EPSG:4326')
-    // const mapDiagonal = calcDist({ lng: extent[0], lat: extent[1] }, { lng: extent[2], lat: extent[3] })
-    // Math.min(mapDiagonal / 2 / 1000, 100)
     poiSearch.request(result, extent as Bbox)
 }
 
@@ -392,7 +388,7 @@ export class ReverseGeocoder {
         this.timeout.cancel()
         await this.timeout.wait()
         try {
-            let hits: ReverseGeocodingHit[]
+            let hits: ReverseGeocodingHit[] = []
             if (parseResult.location) {
                 let options: Record<string, string> = {
                     point: coordinateToText({ lat: (bbox[1] + bbox[3]) / 2, lng: (bbox[0] + bbox[2]) / 2 }),
@@ -400,9 +396,10 @@ export class ReverseGeocoder {
                     zoom: '9',
                 }
                 const fwdSearch = await this.api.geocode(parseResult.location, 'default', options)
-                if (fwdSearch.hits.length > 0)
-                    hits = await this.api.reverseGeocode(fwdSearch.hits[0].extent, parseResult.queries)
-                else hits = []
+                if (fwdSearch.hits.length > 0) {
+                    const bbox = fwdSearch.hits[0].extent ? fwdSearch.hits[0].extent : getBBoxFromCoord(fwdSearch.hits[0].point, 0.01)
+                    if(bbox) hits = await this.api.reverseGeocode(bbox, parseResult.queries)
+                }
             } else {
                 hits = await this.api.reverseGeocode(bbox, parseResult.queries)
             }
