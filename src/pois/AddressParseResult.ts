@@ -36,6 +36,9 @@ export class AddressParseResult {
 
         const smallWords = AddressParseResult.REMOVE_VALUES // e.g. 'restaurants in this area' or 'restaurants in berlin'
         const queryTokens: string[] = query.split(' ').filter(token => !smallWords.includes(token))
+        const res = AddressParseResult.getGeneric(queryTokens)
+        if (res.hasPOIs()) return res
+
         const cleanQuery = queryTokens.join(' ')
         const bigrams: string[] = []
         for (let i = 0; i < queryTokens.length - 1; i++) {
@@ -68,6 +71,27 @@ export class AddressParseResult {
         }
 
         return new AddressParseResult('', { include: [], not: [] }, '', '')
+    }
+
+    public static getGeneric(tokens: string[]) {
+        let locations = []
+
+        let poiQuery = new POIQuery([], [])
+        for (const token of tokens) {
+            const index = token.indexOf(':')
+            if (token.startsWith('!')) {
+                if (index < 0) {
+                    poiQuery.not.push(new POIPhrase(token.substring(1), ''))
+                } else {
+                    poiQuery.not.push(new POIPhrase(token.substring(1, index), token.substring(index + 1)))
+                }
+            } else if (index < 0) {
+                locations.push(token)
+            } else {
+                poiQuery.include.push(new POIPhrase(token.substring(0, index), token.substring(index + 1)))
+            }
+        }
+        return new AddressParseResult(locations.join(' '), poiQuery, 'store', poiQuery.toString())
     }
 
     public static handleGeocodingResponse(
@@ -157,23 +181,53 @@ export class AddressParseResult {
             { k: 'poi_charging_station', t: ['amenity:charging_station'], i: 'charger' },
         ].map(v => {
             const tags = v.t.map(val => {
-                return { k: val.split(':')[0], v: val.split(':')[1] }
+                return new POIPhrase(val.split(':')[0], val.split(':')[1])
             })
             const notTags = !v.not
                 ? []
                 : v.not.map(val => {
-                      return { k: val.split(':')[0], v: val.split(':')[1] }
+                      return new POIPhrase(val.split(':')[0], val.split(':')[1])
                   })
             return {
                 k: t(v.k),
                 q: tags,
                 i: v.i,
                 not: notTags,
-            }
+            } as PoiTriggerPhrases
         })
     }
 }
 
-export type POIQuery = { include: POIPhrase[]; not: POIPhrase[] }
-export type POIPhrase = { k: string; v: string }
+export class POIQuery {
+    public include: POIPhrase[]
+    public not: POIPhrase[]
+
+    constructor(include: POIPhrase[], not: POIPhrase[]) {
+        this.include = include
+        this.not = not
+    }
+
+    toString(): string {
+        return (
+            this.include.map(p => p.toString()).join(' ') +
+            ' ' +
+            this.not.map(p => '!' + p.toString()).join(' ')
+        ).trim()
+    }
+}
+
+export class POIPhrase {
+    public k: string
+    public v: string
+
+    constructor(k: string, v: string) {
+        this.k = k
+        this.v = v
+    }
+
+    toString(): string {
+        return this.k + ':' + this.v
+    }
+}
+
 export type PoiTriggerPhrases = { k: string[]; q: POIPhrase[]; i: string; not: POIPhrase[] }

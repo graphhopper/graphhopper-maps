@@ -1,4 +1,4 @@
-import { AddressParseResult } from '@/pois/AddressParseResult'
+import { AddressParseResult, POIPhrase } from '@/pois/AddressParseResult'
 import fetchMock from 'jest-fetch-mock'
 import { getTranslation, setTranslation } from '@/translation/Translation'
 
@@ -40,5 +40,15 @@ describe('reverse geocoder', () => {
         res = AddressParseResult.parse('restaurants in this area', false)
         expect(res.location).toEqual('')
         expect(res.poi).toEqual('restaurants')
+    })
+
+    it('should parse generic', async () => {
+        let res = AddressParseResult.parse('dresden amenity:bar', false)
+        expect(res.location).toEqual('dresden')
+        expect(res.query.toString()).toEqual('amenity:bar')
+
+        res = AddressParseResult.parse('dresden !amenity:bar military:', false)
+        expect(res.location).toEqual('dresden')
+        expect(res.query.toString()).toEqual('military: !amenity:bar') // include comes first in toString
     })
 })

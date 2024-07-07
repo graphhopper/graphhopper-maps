@@ -148,7 +148,6 @@ export class ApiImpl implements Api {
         }
 
         let queryString = ''
-        function getContent(p: POIPhrase) {}
         for (const tag of query.include) {
             let notStr = ''
             for (const n of query.not) {
