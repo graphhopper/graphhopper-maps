@@ -8,6 +8,7 @@ import {
     Path,
     RawPath,
     RawResult,
+    ReverseGeocodingHit,
     RoutingArgs,
     RoutingProfile,
     RoutingRequest,
@@ -17,7 +18,7 @@ import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
 import { Coordinate } from '@/stores/QueryStore'
-import { KV } from '@/pois/AddressParseResult'
+import { POIQuery } from '@/pois/AddressParseResult'
 
 interface ApiProfile {
     name: string
@@ -32,7 +33,7 @@ export default interface Api {
 
     geocode(query: string, provider: string, additionalOptions?: Record<string, string>): Promise<GeocodingResult>
 
-    reverseGeocode(query: string | undefined, point: Coordinate, radius: number, tags?: KV[]): Promise<GeocodingResult>
+    reverseGeocode(bbox: Bbox, queries: POIQuery[]): Promise<ReverseGeocodingHit[]>
 
     supportsGeocoding(): boolean
 }
@@ -121,43 +122,74 @@ export class ApiImpl implements Api {
         }
     }
 
-    async reverseGeocode(
-        query: string | undefined,
-        point: Coordinate,
-        radius: number,
-        tags?: KV[]
-    ): Promise<GeocodingResult> {
-        if (!this.supportsGeocoding())
-            return {
-                hits: [],
-                took: 0,
-            }
-        const url = this.getGeocodingURLWithKey('geocode')
+    async reverseGeocode(bbox: Bbox, queries: POIQuery[]): Promise<ReverseGeocodingHit[]> {
+        if (!this.supportsGeocoding()) return []
+        // why is main overpass api so much faster for certain queries like "restaurants berlin"
+        // const url = 'https://overpass.kumi.systems/api/interpreter'
+        const url = 'https://overpass-api.de/api/interpreter'
 
-        url.searchParams.append('point', point.lat + ',' + point.lng)
-        url.searchParams.append('radius', '' + radius)
-        url.searchParams.append('reverse', 'true')
-        url.searchParams.append('limit', '50')
+        // bbox of overpass is minLat, minLon, maxLat, maxLon
+        let minLat = bbox[1], minLon = bbox[0], maxLat = bbox[3], maxLon = bbox[2]
 
-        if (query) url.searchParams.append('q', query)
-
-        const langAndCountry = getTranslation().getLang().split('_')
-        url.searchParams.append('locale', langAndCountry.length > 0 ? langAndCountry[0] : 'en')
-
-        if (tags) {
-            for (const tag of tags) {
-                url.searchParams.append('osm_tag', tag.k + (tag.v ? ':' + tag.v : ''))
-            }
+        // reduce bbox to improve overpass response time
+        if(maxLat-minLat > 0.2) {
+            const centerLat = (maxLat + minLat) / 2
+            maxLat = centerLat + 0.1
+            minLat = centerLat - 0.1
+        }
+        if(maxLon - minLon > 0.2) {
+            const centerLon = (maxLon + minLon) / 2
+            maxLon = centerLon + 0.1
+            minLon = centerLon - 0.1
         }
 
-        const response = await fetch(url.toString(), {
-            headers: { Accept: 'application/json' },
-        })
+        // nw means it searches for nodes and ways
+        let query = ''
+        for (const tag of queries) {
+            const value = tag.v ? `="${tag.v}"` : ''
+            query += `nw["${tag.k}"${value}];`
+        }
 
-        if (response.ok) {
-            return (await response.json()) as GeocodingResult
-        } else {
-            throw new Error('Geocoding went wrong ' + response.status)
+        try {
+            // (._;>;); => means it fetches the coordinates for ways. From this we create an index and calculate the center point
+            // Although this is ugly I did not find a faster way e.g. out geom or out center are all slower
+            const data = `[out:json][timeout:15][bbox:${minLat}, ${minLon}, ${maxLat}, ${maxLon}];${query}(._;>;);out 50;`
+            console.log(data)
+            const result = await fetch(url, {
+                method: 'POST',
+                body: 'data=' + encodeURIComponent(data),
+            })
+            const json = await result.json()
+            if (json.elements) {
+                const elements = json.elements as any[]
+                const index: { [key: number]: any } = {}
+                elements.forEach(e => (index[e.id] = e))
+                const res = elements
+                    .map(e => {
+                        if (e.nodes) {
+                            const coords = e.nodes.
+                                map((n: number) => (index[n] ? { lat: index[n].lat, lng: index[n].lon } : {})).
+                                filter((c: Coordinate) => c.lat)
+                            console.log(coords)
+                            // minLon, minLat, maxLon, maxLat
+                            const bbox = ApiImpl.getBBoxPoints(coords)
+                            return bbox
+                                ? ({
+                                      ...e,
+                                      point: { lat: (bbox[1] + bbox[3]) / 2, lng: (bbox[0] + bbox[2]) / 2 },
+                                  } as ReverseGeocodingHit)
+                                : e
+                        } else {
+                            return { ...e, point: { lat: e.lat, lng: e.lon } } as ReverseGeocodingHit
+                        }
+                    })
+                    .filter(p => !!p.tags && p.point)
+                console.log(res)
+                return res
+            } else return []
+        } catch (error) {
+            console.warn('error occured ' + error)
+            return []
         }
     }
 

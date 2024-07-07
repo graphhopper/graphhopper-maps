@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import styles from '@/layers/MapFeaturePopup.module.css'
 import MapPopup from '@/layers/MapPopup'
 import { Map } from 'ol'
@@ -14,32 +14,11 @@ interface POIStatePopupProps {
     poiState: POIsStoreState
 }
 
-interface TagHash {
-    [key: string]: string
-}
-
-async function fetchInfo(type: string, ids: string[]): Promise<TagHash> {
-    try {
-        const data = `[out:json][timeout:15];
-            (${type}(id:${ids.join(',')}););
-            out body;`
-        const result = await fetch('https://overpass-api.de/api/interpreter', {
-            method: 'POST',
-            body: 'data=' + encodeURIComponent(data),
-        })
-        const json = await result.json()
-        if (json.elements.length > 0) return json.elements[0].tags
-        else return { status: 'empty' }
-    } catch (error) {
-        return { status: '' + error }
-    }
-}
-
-function KVTable(props: { kv: TagHash; poi: POI | null }) {
+function POITable(props: { poi: POI }) {
     return (
         <table className={styles.poiPopupTable}>
             <tbody>
-                {Object.entries(props.kv).map(([key, value]) => {
+                {Object.entries(props.poi.tags).map(([key, value]) => {
                     const url = value.startsWith('https://') || value.startsWith('http://')
                     const tel = key.toLowerCase().includes('phone')
                     const email = key.toLowerCase().includes('email')
@@ -49,7 +28,9 @@ function KVTable(props: { kv: TagHash; poi: POI | null }) {
                         ? 'https://' + valueArr[0] + '.wikipedia.org/wiki/' + encodeURIComponent(valueArr[1])
                         : ''
                     // tags like amenity:restaurant should not be shown if it is a restaurant (determined by poi.tags)
-                    const poiInfoRepeated = props.poi ? props.poi.tags.some(kv => kv.k == key && kv.v === value) : false
+                    const poiInfoRepeated = props.poi.queries
+                        ? props.poi.queries.some(q => q.k == key && q.v === value)
+                        : false
                     return (
                         !poiInfoRepeated &&
                         key !== 'source' &&
@@ -91,16 +72,7 @@ function KVTable(props: { kv: TagHash; poi: POI | null }) {
 export default function POIStatePopup({ map, poiState }: POIStatePopupProps) {
     const selectedPOI = poiState.selected
     const oldQueryPoint = poiState.oldQueryPoint
-    const t = selectedPOI?.osm_type
-    const type = t === 'W' ? 'way' : t === 'N' ? 'node' : 'relation'
-    const [kv, setKV] = useState<TagHash>({})
-
-    useEffect(() => {
-        if (selectedPOI) fetchInfo(type, [selectedPOI.osm_id]).then(tagHash => setKV(tagHash))
-        return () => {
-            setKV({})
-        }
-    }, [poiState.selected])
+    const type = selectedPOI?.osm_type
 
     return (
         <MapPopup map={map} coordinate={selectedPOI ? selectedPOI.coordinate : null}>
@@ -111,8 +83,6 @@ export default function POIStatePopup({ map, poiState }: POIStatePopupProps) {
                     className={styles.poiPopupButton}
                     onClick={() => {
                         if (selectedPOI && oldQueryPoint) {
-                            // TODO NOW how to use the POI as either start or destination?
-                            //  Might be too unintuitive if it relies on with which input we searched the POIs
                             const queryPoint = {
                                 ...oldQueryPoint,
                                 queryText: selectedPOI?.name,
@@ -128,8 +98,7 @@ export default function POIStatePopup({ map, poiState }: POIStatePopupProps) {
                     {oldQueryPoint && <MarkerComponent color={oldQueryPoint.color} size={18} />}
                     <PlainButton>{tr('Use in route')}</PlainButton>
                 </div>
-                {Object.keys(kv).length == 0 && <PlainButton>{tr('Fetching more info...')}</PlainButton>}
-                <KVTable kv={kv} poi={selectedPOI} />
+                {selectedPOI && <POITable poi={selectedPOI} />}
                 <div className={styles.osmLink}>
                     <a href={'https://www.openstreetmap.org/' + type + '/' + selectedPOI?.osm_id} target="_blank">
                         OpenStreetMap.org

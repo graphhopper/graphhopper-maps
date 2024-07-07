@@ -1,7 +1,14 @@
 import Api from '../src/api/Api'
-import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult, RoutingResultInfo } from '../src/api/graphhopper'
-import { Coordinate } from '@/stores/QueryStore'
-import { KV } from '@/pois/AddressParseResult'
+import {
+    ApiInfo,
+    GeocodingResult,
+    ReverseGeocodingHit,
+    RoutingArgs,
+    RoutingResult,
+    RoutingResultInfo,
+    Bbox,
+} from '../src/api/graphhopper'
+import { POIQuery } from '@/pois/AddressParseResult'
 
 export default class DummyApi implements Api {
     geocode(query: string): Promise<GeocodingResult> {
@@ -11,16 +18,8 @@ export default class DummyApi implements Api {
         })
     }
 
-    reverseGeocode(
-        query: string | undefined,
-        point: Coordinate,
-        radius: number,
-        tags?: KV[]
-    ): Promise<GeocodingResult> {
-        return Promise.resolve({
-            took: 0,
-            hits: [],
-        })
+    reverseGeocode(bbox: Bbox, queries: POIQuery[]): Promise<ReverseGeocodingHit[]> {
+        return Promise.resolve([])
     }
 
     info(): Promise<ApiInfo> {

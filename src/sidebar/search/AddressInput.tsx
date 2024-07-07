@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Coordinate, getBBoxFromCoord, QueryPoint, QueryPointType } from '@/stores/QueryStore'
-import { Bbox, GeocodingHit } from '@/api/graphhopper'
+import { Bbox, GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
 import Autocomplete, {
     AutocompleteItem,
     GeocodingItem,
@@ -12,7 +12,7 @@ import Autocomplete, {
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import styles from './AddressInput.module.css'
-import Api, { getApi } from '@/api/Api'
+import Api, { ApiImpl, getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import { coordinateToText, hitToItem, nominatimHitToItem, textToCoordinate } from '@/Converters'
 import { useMediaQuery } from 'react-responsive'
@@ -259,11 +259,12 @@ function handlePoiSearch(poiSearch: ReverseGeocoder, result: AddressParseResult,
     if (!result.hasPOIs()) return
 
     const center = map.getView().getCenter() ? toLonLat(map.getView().getCenter()!) : [13.4, 52.5]
-    const mapCenter = { lng: center[0], lat: center[1] }
+    // const mapCenter = { lng: center[0], lat: center[1] }
     const origExtent = map.getView().calculateExtent(map.getSize())
     const extent = transformExtent(origExtent, 'EPSG:3857', 'EPSG:4326')
-    const mapDiagonal = calcDist({ lng: extent[0], lat: extent[1] }, { lng: extent[2], lat: extent[3] })
-    poiSearch.request(result, mapCenter, Math.min(mapDiagonal / 2 / 1000, 100))
+    // const mapDiagonal = calcDist({ lng: extent[0], lat: extent[1] }, { lng: extent[2], lat: extent[3] })
+    // Math.min(mapDiagonal / 2 / 1000, 100)
+    poiSearch.request(result, extent as Bbox)
 }
 
 function ResponsiveAutocomplete({
@@ -360,13 +361,17 @@ export class ReverseGeocoder {
     private requestId = 0
     private readonly timeout = new Timout(200)
     private readonly api: Api
-    private readonly onSuccess: (hits: GeocodingHit[], parseResult: AddressParseResult, queryPoint: QueryPoint) => void
+    private readonly onSuccess: (
+        hits: ReverseGeocodingHit[],
+        parseResult: AddressParseResult,
+        queryPoint: QueryPoint
+    ) => void
     private readonly queryPoint: QueryPoint
 
     constructor(
         api: Api,
         queryPoint: QueryPoint,
-        onSuccess: (hits: GeocodingHit[], parseResult: AddressParseResult, queryPoint: QueryPoint) => void
+        onSuccess: (hits: ReverseGeocodingHit[], parseResult: AddressParseResult, queryPoint: QueryPoint) => void
     ) {
         this.api = api
         this.onSuccess = onSuccess
@@ -378,31 +383,29 @@ export class ReverseGeocoder {
         this.getNextId()
     }
 
-    request(query: AddressParseResult, point: Coordinate, radius: number) {
-        this.requestAsync(query, point, radius).then(() => {})
+    request(query: AddressParseResult, bbox: Bbox) {
+        this.requestAsync(query, bbox).then(() => {})
     }
 
-    async requestAsync(parseResult: AddressParseResult, point: Coordinate, radius: number) {
+    async requestAsync(parseResult: AddressParseResult, bbox: Bbox) {
         const currentId = this.getNextId()
         this.timeout.cancel()
         await this.timeout.wait()
         try {
-            let hits: GeocodingHit[] = []
-            let result
-
+            let hits: ReverseGeocodingHit[]
             if (parseResult.location) {
                 let options: Record<string, string> = {
-                    point: coordinateToText(point),
+                    point: coordinateToText({ lat: (bbox[1] + bbox[3]) / 2, lng: (bbox[0] + bbox[2]) / 2 }),
                     location_bias_scale: '0.5',
                     zoom: '9',
                 }
-                result = await this.api.geocode(parseResult.location, 'default', options)
-                hits = result.hits
-                if (hits.length > 0) result = await this.api.reverseGeocode('', hits[0].point, radius, parseResult.tags)
-            } else if (point) {
-                result = await this.api.reverseGeocode('', point, radius, parseResult.tags)
+                const fwdSearch = await this.api.geocode(parseResult.location, 'default', options)
+                if (fwdSearch.hits.length > 0)
+                    hits = await this.api.reverseGeocode(fwdSearch.hits[0].extent, parseResult.queries)
+                else hits = []
+            } else {
+                hits = await this.api.reverseGeocode(bbox, parseResult.queries)
             }
-            if (result) hits = Geocoder.filterDuplicates(result.hits)
             if (currentId === this.requestId) this.onSuccess(hits, parseResult, this.queryPoint)
         } catch (reason) {
             throw Error('Could not get geocoding results because: ' + reason)

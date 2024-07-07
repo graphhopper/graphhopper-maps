@@ -2,27 +2,28 @@ import { ApiImpl } from '@/api/Api'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetBBox, SetPOIs } from '@/actions/Actions'
 import { hitToItem } from '@/Converters'
-import { GeocodingHit } from '@/api/graphhopper'
+import { GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
 import { QueryPoint } from '@/stores/QueryStore'
 import { tr, Translation } from '@/translation/Translation'
+import { POI } from '@/stores/POIsStore'
 
 export class AddressParseResult {
     location: string
-    tags: KV[]
+    queries: POIQuery[]
     icon: string
     poi: string
     static TRIGGER_VALUES: PoiTriggerPhrases[]
     static REMOVE_VALUES: string[]
 
-    constructor(location: string, tags: KV[], icon: string, poi: string) {
+    constructor(location: string, queries: POIQuery[], icon: string, poi: string) {
         this.location = location
-        this.tags = tags
+        this.queries = queries
         this.icon = icon
         this.poi = poi
     }
 
     hasPOIs(): boolean {
-        return this.tags.length > 0
+        return this.queries.length > 0
     }
 
     text(prefix: string) {
@@ -46,13 +47,13 @@ export class AddressParseResult {
             for (const keyword of val.k) {
                 const i = bigrams.indexOf(keyword)
                 if (i >= 0)
-                    return new AddressParseResult(cleanQuery.replace(bigrams[i], '').trim(), val.t, val.i, val.k[0])
+                    return new AddressParseResult(cleanQuery.replace(bigrams[i], '').trim(), val.q, val.i, val.k[0])
             }
 
             for (const keyword of val.k) {
                 const i = queryTokens.indexOf(keyword)
                 if (i >= 0)
-                    return new AddressParseResult(cleanQuery.replace(queryTokens[i], '').trim(), val.t, val.i, val.k[0])
+                    return new AddressParseResult(cleanQuery.replace(queryTokens[i], '').trim(), val.q, val.i, val.k[0])
             }
         }
 
@@ -60,12 +61,34 @@ export class AddressParseResult {
     }
 
     public static handleGeocodingResponse(
-        hits: GeocodingHit[],
+        hits: ReverseGeocodingHit[],
         parseResult: AddressParseResult,
         queryPoint: QueryPoint
     ) {
         if (hits.length == 0) return
-        const pois = AddressParseResult.map(hits, parseResult)
+        const pois = hits
+            .filter(hit => !!hit.point)
+            .map(hit => {
+                const res = hitToItem({
+                    name: hit.tags.name ? hit.tags.name : '',
+                    country: hit.tags['addr:country'],
+                    city: hit.tags['addr:city'],
+                    state: hit.tags['addr:state'],
+                    street: hit.tags['addr:street'],
+                    housenumber: hit.tags['addr:housenumer'],
+                    postcode: hit.tags['addr:postcode'],
+                } as GeocodingHit)
+                return {
+                    name: res.mainText,
+                    osm_id: '' + hit.id,
+                    osm_type: hit.type,
+                    queries: parseResult.queries,
+                    tags: hit.tags,
+                    icon: parseResult.icon,
+                    coordinate: hit.point,
+                    address: res.secondText,
+                } as POI
+            })
         const bbox = ApiImpl.getBBoxPoints(pois.map(p => p.coordinate))
         if (bbox) {
             if (parseResult.location) Dispatcher.dispatch(new SetBBox(bbox))
@@ -75,25 +98,6 @@ export class AddressParseResult {
                 'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult)
             )
         }
-    }
-
-    static map(hits: GeocodingHit[], parseResult: AddressParseResult) {
-        return hits.map(hit => {
-            const res = hitToItem(hit)
-            return {
-                name: res.mainText,
-                tags: parseResult.tags,
-                icon: parseResult.icon,
-                coordinate: hit.point,
-                address: res.secondText,
-                osm_id: hit.osm_id,
-                osm_type: hit.osm_type,
-            }
-        })
-    }
-
-    static s(s: string) {
-        return
     }
 
     // because of the static method we need to inject the Translation object as otherwise jest has a problem
@@ -143,13 +147,13 @@ export class AddressParseResult {
                 return { k: val.split(':')[0], v: val.split(':')[1] }
             })
             return {
-                ...v,
                 k: t(v.k),
-                t: tags,
+                q: tags,
+                i: v.i,
             }
         })
     }
 }
 
-export type KV = { k: string; v: string }
-export type PoiTriggerPhrases = { k: string[]; t: KV[]; i: string }
+export type POIQuery = { k: string; v: string }
+export type PoiTriggerPhrases = { k: string[]; q: POIQuery[]; i: string }
