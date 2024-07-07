@@ -27,7 +27,7 @@ export class AddressParseResult {
     }
 
     text(prefix: string) {
-        return prefix + ' ' + (this.location ? tr('in') + ' ' + this.location : tr('nearby'))
+        return this.location ? tr('poi_in', [prefix, this.location]) : tr('poi_nearby', [prefix])
     }
 
     /* it is a bit ugly that we have to inject the translated values here, but jest goes crazy otherwise */
