@@ -133,7 +133,7 @@ export class AddressParseResult {
             { k: 'poi_parks', t: ['leisure:park'], i: 'sports_handball' },
             { k: 'poi_pharmacies', t: ['amenity:pharmacy'], i: 'local_pharmacy' },
             { k: 'poi_playgrounds', t: ['leisure:playground'], i: 'sports_handball' },
-            { k: 'poi_police', t: ['amenity:police '], i: 'police' },
+            { k: 'poi_police', t: ['amenity:police'], i: 'police' },
             // important to have this before "post"
             {
                 k: 'poi_post_box',
@@ -153,7 +153,7 @@ export class AddressParseResult {
             { k: 'poi_super_markets', t: ['shop:supermarket', 'building:supermarket'], i: 'store' },
             { k: 'poi_toilets', t: ['amenity:toilets'], i: 'home_and_garden' },
             { k: 'poi_tourism', t: ['tourism'], i: 'luggage' },
-            { k: 'poi_water', t: ['amenity:drinking_water '], i: 'water_drop' },
+            { k: 'poi_water', t: ['amenity:drinking_water'], i: 'water_drop' },
             { k: 'poi_charging_station', t: ['amenity:charging_station'], i: 'charger' },
         ].map(v => {
             const tags = v.t.map(val => {

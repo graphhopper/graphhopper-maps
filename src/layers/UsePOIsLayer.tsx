@@ -26,6 +26,7 @@ import local_gas_station from '/src/pois/img/local_gas_station.svg'
 import local_post_office from '/src/pois/img/local_post_office.svg'
 import police from '/src/pois/img/police.svg'
 import charger from '/src/pois/img/charger.svg'
+import water_drop from '../pois/img/water_drop.svg'
 import { createPOIMarker } from '@/layers/createMarkerSVG'
 import { Select } from 'ol/interaction'
 import Dispatcher from '@/stores/Dispatcher'
@@ -53,6 +54,7 @@ const svgObjects: { [id: string]: any } = {
     local_post_office: local_post_office(),
     police: police(),
     charger: charger(),
+    water_drop: water_drop(),
 }
 
 // -300 -1260 1560 1560
