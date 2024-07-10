@@ -111,15 +111,25 @@ export default function AddressInput(props: AddressInputProps) {
                     break
                 case 'Enter':
                 case 'Tab':
-                    // try to parse input as coordinate. Otherwise use autocomplete results
+                    // try to parse input as coordinate. Otherwise query nominatim
                     const coordinate = textToCoordinate(text)
                     if (coordinate) {
                         props.onAddressSelected(text, coordinate, getBBoxFromCoord(coordinate))
                     } else if (autocompleteItems.length > 0) {
                         // by default use the first result, otherwise the highlighted one
-                        const index = highlightedResult >= 0 ? highlightedResult : 0
-                        const item = autocompleteItems[index]
-                        if (item instanceof GeocodingItem) props.onAddressSelected(item.toText(), item.point, item.bbox)
+                        getApi().geocode(text, 'nominatim').then(result => {
+                            if (result && result.hits.length > 0) {
+                                const hit: GeocodingHit = result.hits[0]
+                                const res = nominatimHitToItem(hit)
+                                const bbox = hit.extent ? hit.extent : getBBoxFromCoord(hit.point)
+                                props.onAddressSelected(res.mainText + ', ' + res.secondText, hit.point, bbox)
+                            } else {
+                                const index = highlightedResult >= 0 ? highlightedResult : 0
+                                const item = autocompleteItems[index]
+                                if (item instanceof GeocodingItem)
+                                    props.onAddressSelected(item.toText(), item.point, item.bbox)
+                            }
+                        })
                     }
                     inputElement.blur()
                     // onBlur is deactivated for mobile so force:
