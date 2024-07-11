@@ -28,7 +28,7 @@ export interface AddressInputProps {
     point: QueryPoint
     points: QueryPoint[]
     onCancel: () => void
-    onAddressSelected: (queryText: string, coord: Coordinate | undefined, bbox: Bbox | undefined) => void
+    onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
     onChange: (value: string) => void
     clearDragDrop: () => void
     moveStartIndex: number
@@ -126,18 +126,27 @@ export default function AddressInput(props: AddressInputProps) {
                     break
                 case 'Enter':
                 case 'Tab':
-                    // try to parse input as coordinate. Otherwise use autocomplete results
+                    // try to parse input as coordinate. Otherwise query nominatim
                     const coordinate = textToCoordinate(text)
                     if (coordinate) {
-                        props.onAddressSelected(text, coordinate, getBBoxFromCoord(coordinate))
+                        props.onAddressSelected(text, coordinate)
                     } else if (autocompleteItems.length > 0) {
                         // by default use the first result, otherwise the highlighted one
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
-                        if (item instanceof GeocodingItem) props.onAddressSelected(item.toText(), item.point, item.bbox)
-                        else if (item instanceof POIQueryItem) {
+                        if (item instanceof POIQueryItem) {
                             handlePoiSearch(poiSearch, item.result, props.map)
-                            props.onAddressSelected(item.result.text(item.result.poi), undefined, undefined)
+                            props.onAddressSelected(item.result.text(item.result.poi), undefined)
+                        } else if (item instanceof GeocodingItem) {
+                            getApi().geocode(text, 'nominatim').then(result => {
+                                if (result && result.hits.length > 0) {
+                                    const hit: GeocodingHit = result.hits[0]
+                                    const res = nominatimHitToItem(hit)
+                                    props.onAddressSelected(res.mainText + ', ' + res.secondText, hit.point)
+                                } else {
+                                    props.onAddressSelected(item.toText(), item.point)
+                                }
+                            })
                         }
                     }
                     inputElement.blur()
@@ -232,7 +241,7 @@ export default function AddressInput(props: AddressInputProps) {
                                 setHasFocus(false)
                                 if (item instanceof GeocodingItem) {
                                     hideSuggestions()
-                                    props.onAddressSelected(item.toText(), item.point, item.bbox)
+                                    props.onAddressSelected(item.toText(), item.point)
                                 } else if (item instanceof SelectCurrentLocationItem) {
                                     hideSuggestions()
                                     onCurrentLocationSelected(props.onAddressSelected)
