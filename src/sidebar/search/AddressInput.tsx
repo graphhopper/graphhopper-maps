@@ -59,12 +59,12 @@ export default function AddressInput(props: AddressInputProps) {
 
             hits.forEach(hit => {
                 const obj = hitToItem(hit)
-                return new GeocodingItem(
+                items.push(new GeocodingItem(
                     obj.mainText,
                     obj.secondText,
                     hit.point,
                     hit.extent ? hit.extent : getBBoxFromCoord(hit.point)
-                )
+                ))
             })
 
             // TODO autocompleteItems is empty here because query point changed from outside somehow
