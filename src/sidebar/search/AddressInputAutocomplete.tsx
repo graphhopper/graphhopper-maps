@@ -26,14 +26,6 @@ export class GeocodingItem implements AutocompleteItem {
 
 export class SelectCurrentLocationItem implements AutocompleteItem {}
 
-export class MoreResultsItem implements AutocompleteItem {
-    search: string
-
-    constructor(search: string) {
-        this.search = search
-    }
-}
-
 export interface AutocompleteProps {
     items: AutocompleteItem[]
     highlightedItem: AutocompleteItem
@@ -57,27 +49,7 @@ function mapToComponent(item: AutocompleteItem, isHighlighted: boolean, onSelect
         return <GeocodingEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else if (item instanceof SelectCurrentLocationItem)
         return <SelectCurrentLocation item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
-    else if (item instanceof MoreResultsItem)
-        return <MoreResultsEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else throw Error('Unsupported item type: ' + typeof item)
-}
-
-export function MoreResultsEntry({
-    item,
-    isHighlighted,
-    onSelect,
-}: {
-    item: MoreResultsItem
-    isHighlighted: boolean
-    onSelect: (item: MoreResultsItem) => void
-}) {
-    return (
-        <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
-            <div className={styles.moreResultsEntry}>
-                <span className={styles.moreResultsText}>{tr('search_with_nominatim')}</span>
-            </div>
-        </AutocompleteEntry>
-    )
 }
 
 export function SelectCurrentLocation({

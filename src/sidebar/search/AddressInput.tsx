@@ -4,7 +4,6 @@ import { Bbox, GeocodingHit } from '@/api/graphhopper'
 import Autocomplete, {
     AutocompleteItem,
     GeocodingItem,
-    MoreResultsItem,
     SelectCurrentLocationItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
 
@@ -18,8 +17,8 @@ import { useMediaQuery } from 'react-responsive'
 import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
-import {toLonLat} from "ol/proj";
-import {getMap} from "@/map/map";
+import { toLonLat } from 'ol/proj'
+import { getMap } from '@/map/map'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -49,7 +48,7 @@ export default function AddressInput(props: AddressInputProps) {
     const [geocoder] = useState(
         new Geocoder(getApi(), (query, provider, hits) => {
             const items: AutocompleteItem[] = hits.map(hit => {
-                const obj = provider === 'nominatim' ? nominatimHitToItem(hit) : hitToItem(hit)
+                const obj = hitToItem(hit)
                 return new GeocodingItem(
                     obj.mainText,
                     obj.secondText,
@@ -58,15 +57,11 @@ export default function AddressInput(props: AddressInputProps) {
                 )
             })
 
-            if (provider !== 'nominatim' && getApi().supportsGeocoding()) {
-                items.push(new MoreResultsItem(query))
-                setAutocompleteItems(items)
-            } else {
-                // TODO autocompleteItems is empty here because query point changed from outside somehow
-                // const res = autocompleteItems.length > 1 ? autocompleteItems.slice(0, autocompleteItems.length - 2) : autocompleteItems
-                // res.concat(items)
-                setAutocompleteItems(items)
-            }
+            // TODO autocompleteItems is empty here because query point changed from outside somehow
+            // const res = autocompleteItems.length > 1 ? autocompleteItems.slice(0, autocompleteItems.length - 2) : autocompleteItems
+            // res.concat(items)
+
+            setAutocompleteItems(items)
         })
     )
     // if item is selected we need to clear the autocompletion list
@@ -120,17 +115,19 @@ export default function AddressInput(props: AddressInputProps) {
                     } else if (autocompleteItems.length > 0) {
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
-                        if(highlightedResult < 0) {
+                        if (highlightedResult < 0) {
                             // by default use the first result, otherwise the highlighted one
-                            getApi().geocode(text, 'nominatim').then(result => {
-                                if (result && result.hits.length > 0) {
-                                    const hit: GeocodingHit = result.hits[0]
-                                    const res = nominatimHitToItem(hit)
-                                    props.onAddressSelected(res.mainText + ', ' + res.secondText, hit.point)
-                                } else if (item instanceof GeocodingItem) {
-                                    props.onAddressSelected(item.toText(), item.point)
-                                }
-                            })
+                            getApi()
+                                .geocode(text, 'nominatim')
+                                .then(result => {
+                                    if (result && result.hits.length > 0) {
+                                        const hit: GeocodingHit = result.hits[0]
+                                        const res = nominatimHitToItem(hit)
+                                        props.onAddressSelected(res.mainText + ', ' + res.secondText, hit.point)
+                                    } else if (item instanceof GeocodingItem) {
+                                        props.onAddressSelected(item.toText(), item.point)
+                                    }
+                                })
                         } else if (item instanceof GeocodingItem) {
                             props.onAddressSelected(item.toText(), item.point)
                         }
@@ -231,10 +228,6 @@ export default function AddressInput(props: AddressInputProps) {
                                 } else if (item instanceof SelectCurrentLocationItem) {
                                     hideSuggestions()
                                     onCurrentLocationSelected(props.onAddressSelected)
-                                } else if (item instanceof MoreResultsItem) {
-                                    // do not hide autocomplete items
-                                    const coordinate = textToCoordinate(item.search)
-                                    if (!coordinate) geocoder.request(item.search, biasCoord, 'nominatim')
                                 }
                                 searchInput.current!.blur()
                             }}
