@@ -18,6 +18,8 @@ import { useMediaQuery } from 'react-responsive'
 import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
+import {toLonLat} from "ol/proj";
+import {getMap} from "@/map/map";
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -147,7 +149,8 @@ export default function AddressInput(props: AddressInputProps) {
     // get the bias point for the geocoder
     // (the query point above the current one)
     const autocompleteIndex = props.points.findIndex(point => !point.isInitialized)
-    const biasCoord = props.points[autocompleteIndex - 1]?.coordinate
+    const lonlat = toLonLat(getMap().getView().getCenter()!)
+    const biasCoord = { lng: lonlat[0], lat: lonlat[1] }
 
     return (
         <div className={containerClass}>
