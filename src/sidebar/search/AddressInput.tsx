@@ -4,7 +4,6 @@ import { Bbox, GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
 import Autocomplete, {
     AutocompleteItem,
     GeocodingItem,
-    MoreResultsItem,
     POIQueryItem,
     SelectCurrentLocationItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
@@ -23,6 +22,7 @@ import { toLonLat, transformExtent } from 'ol/proj'
 import { calcDist } from '@/distUtils'
 import { Map } from 'ol'
 import { AddressParseResult } from '@/pois/AddressParseResult'
+import { getMap } from '@/map/map'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -38,6 +38,7 @@ export interface AddressInputProps {
 }
 
 export default function AddressInput(props: AddressInputProps) {
+    const [origText, setOrigText] = useState(props.point.queryText)
     // controlled component pattern with initial value set from props
     const [text, setText] = useState(props.point.queryText)
     useEffect(() => setText(props.point.queryText), [props.point.queryText])
@@ -57,26 +58,21 @@ export default function AddressInput(props: AddressInputProps) {
             if (parseResult.hasPOIs()) items.push(new POIQueryItem(parseResult))
 
             hits.forEach(hit => {
-                const obj = provider === 'nominatim' ? nominatimHitToItem(hit) : hitToItem(hit)
-                items.push(
-                    new GeocodingItem(
-                        obj.mainText,
-                        obj.secondText,
-                        hit.point,
-                        hit.extent ? hit.extent : getBBoxFromCoord(hit.point)
-                    )
+                const obj = hitToItem(hit)
+                return new GeocodingItem(
+                    obj.mainText,
+                    obj.secondText,
+                    hit.point,
+                    hit.extent ? hit.extent : getBBoxFromCoord(hit.point)
                 )
             })
 
-            if (provider !== 'nominatim' && getApi().supportsGeocoding()) {
-                items.push(new MoreResultsItem(query))
-                setAutocompleteItems(items)
-            } else {
-                // TODO autocompleteItems is empty here because query point changed from outside somehow
-                // const res = autocompleteItems.length > 1 ? autocompleteItems.slice(0, autocompleteItems.length - 2) : autocompleteItems
-                // res.concat(items)
-                setAutocompleteItems(items)
-            }
+            // TODO autocompleteItems is empty here because query point changed from outside somehow
+            // const res = autocompleteItems.length > 1 ? autocompleteItems.slice(0, autocompleteItems.length - 2) : autocompleteItems
+            // res.concat(items)
+
+            setOrigText(query)
+            setAutocompleteItems(items)
         })
     )
 
@@ -113,16 +109,30 @@ export default function AddressInput(props: AddressInputProps) {
                 inputElement.blur()
                 // onBlur is deactivated for mobile so force:
                 setHasFocus(false)
+                setText(origText)
                 hideSuggestions()
                 return
             }
 
             switch (event.key) {
                 case 'ArrowUp':
-                    setHighlightedResult(i => calculateHighlightedIndex(autocompleteItems.length, i, -1))
-                    break
                 case 'ArrowDown':
-                    setHighlightedResult(i => calculateHighlightedIndex(autocompleteItems.length, i, 1))
+                    setHighlightedResult(i => {
+                        if (i < 0) setText(origText)
+                        const delta = event.key === 'ArrowUp' ? -1 : 1
+                        const nextIndex = calculateHighlightedIndex(autocompleteItems.length, i, delta)
+                        if (autocompleteItems.length > 0) {
+                            if (nextIndex < 0) {
+                                setText(origText)
+                            } else if (nextIndex >= 0) {
+                                const item = autocompleteItems[nextIndex]
+                                if (item instanceof GeocodingItem) setText(item.toText())
+                                else setText(origText)
+                            }
+                        }
+                        return nextIndex
+                    })
+
                     break
                 case 'Enter':
                 case 'Tab':
@@ -131,22 +141,26 @@ export default function AddressInput(props: AddressInputProps) {
                     if (coordinate) {
                         props.onAddressSelected(text, coordinate)
                     } else if (autocompleteItems.length > 0) {
-                        // by default use the first result, otherwise the highlighted one
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
                         if (item instanceof POIQueryItem) {
                             handlePoiSearch(poiSearch, item.result, props.map)
                             props.onAddressSelected(item.result.text(item.result.poi), undefined)
+                        } else if (highlightedResult < 0) {
+                            // by default use the first result, otherwise the highlighted one
+                            getApi()
+                                .geocode(text, 'nominatim')
+                                .then(result => {
+                                    if (result && result.hits.length > 0) {
+                                        const hit: GeocodingHit = result.hits[0]
+                                        const res = nominatimHitToItem(hit)
+                                        props.onAddressSelected(res.mainText + ', ' + res.secondText, hit.point)
+                                    } else if (item instanceof GeocodingItem) {
+                                        props.onAddressSelected(item.toText(), item.point)
+                                    }
+                                })
                         } else if (item instanceof GeocodingItem) {
-                            getApi().geocode(text, 'nominatim').then(result => {
-                                if (result && result.hits.length > 0) {
-                                    const hit: GeocodingHit = result.hits[0]
-                                    const res = nominatimHitToItem(hit)
-                                    props.onAddressSelected(res.mainText + ', ' + res.secondText, hit.point)
-                                } else {
-                                    props.onAddressSelected(item.toText(), item.point)
-                                }
-                            })
+                            props.onAddressSelected(item.toText(), item.point)
                         }
                     }
                     inputElement.blur()
@@ -166,7 +180,8 @@ export default function AddressInput(props: AddressInputProps) {
     // get the bias point for the geocoder
     // (the query point above the current one)
     const autocompleteIndex = props.points.findIndex(point => !point.isInitialized)
-    const biasCoord = props.points[autocompleteIndex - 1]?.coordinate
+    const lonlat = toLonLat(getMap().getView().getCenter()!)
+    const biasCoord = { lng: lonlat[0], lat: lonlat[1] }
 
     return (
         <div className={containerClass}>
@@ -245,10 +260,6 @@ export default function AddressInput(props: AddressInputProps) {
                                 } else if (item instanceof SelectCurrentLocationItem) {
                                     hideSuggestions()
                                     onCurrentLocationSelected(props.onAddressSelected)
-                                } else if (item instanceof MoreResultsItem) {
-                                    // do not hide autocomplete items
-                                    const coordinate = textToCoordinate(item.search)
-                                    if (!coordinate) geocoder.request(item.search, biasCoord, 'nominatim')
                                 } else if (item instanceof POIQueryItem) {
                                     hideSuggestions()
                                     handlePoiSearch(poiSearch, item.result, props.map)
@@ -298,8 +309,8 @@ function ResponsiveAutocomplete({
 
 function calculateHighlightedIndex(length: number, currentIndex: number, incrementBy: number) {
     const nextIndex = currentIndex + incrementBy
-    if (nextIndex >= length) return 0
-    if (nextIndex < 0) return length - 1
+    if (nextIndex >= length) return -1
+    if (nextIndex < -1) return length - 1
     return nextIndex
 }
 

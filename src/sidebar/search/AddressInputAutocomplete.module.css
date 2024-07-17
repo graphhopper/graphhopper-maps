@@ -47,10 +47,6 @@
     width: 100%;
 }
 
-.moreResultsEntry {
-    padding: 0.5em 0;
-}
-
 .poiEntry {
     padding: 0.5em 0;
     display: flex;
@@ -75,7 +71,6 @@
     font-weight: bold;
 }
 
-.moreResultsText,
 .secondaryText {
     text-overflow: ellipsis;
     white-space: nowrap;
