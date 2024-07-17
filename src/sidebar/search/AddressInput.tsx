@@ -114,7 +114,7 @@ export default function AddressInput(props: AddressInputProps) {
                                 setText(origText)
                             } else if (nextIndex >= 0) {
                                 const item = autocompleteItems[nextIndex]
-                                if (item instanceof GeocodingItem) setText(item.toText())
+                                if (item instanceof GeocodingItem) setText(item.mainText)
                                 else setText(origText)
                             }
                         }
