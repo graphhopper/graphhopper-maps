@@ -7,6 +7,7 @@ import QueryStore, { getBBoxFromCoord, QueryPoint, QueryPointType, QueryStoreSta
 import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
 import { ApiImpl, getApi } from '@/api/Api'
 import { AddressParseResult } from '@/pois/AddressParseResult'
+import { getQueryStore } from '@/stores/Stores'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
@@ -113,15 +114,21 @@ export default class NavBar {
                 const result = AddressParseResult.parse(p.queryText, false)
                 if (result.hasPOIs() && result.location) {
                     // two stage POI search: 1. use extracted location to get coordinates 2. do reverse geocoding with this coordinates
-                    getApi()
+                    return getApi()
                         .geocode(result.location, 'nominatim')
                         .then(res => {
-                            if (res.hits.length != 0)
-                                getApi()
-                                    .reverseGeocode(result.query, res.hits[0].extent)
-                                    .then(res => AddressParseResult.handleGeocodingResponse(res, result, p))
+                            if (res.hits.length == 0) Promise.resolve(p)
+                            const qp = {
+                                ...p,
+                                id: getQueryStore().state.nextQueryPointId, // TODO hacky
+                                color: QueryStore.getMarkerColor(QueryPointType.From),
+                                type: QueryPointType.From,
+                            }
+                            getApi()
+                                .reverseGeocode(result.query, res.hits[0].extent)
+                                .then(res => AddressParseResult.handleGeocodingResponse(res, result, qp))
+                            return qp
                         })
-                    return Promise.resolve(p)
                 }
                 return (
                     getApi()
@@ -136,7 +143,7 @@ export default class NavBar {
                             }
                         })
                         // if the geocoding request fails we just keep the point as it is, just as if no results were found
-                        .catch(() => Promise.resolve(p))
+                        .catch(() => p)
                 )
             })
             const points = await Promise.all(promises)
