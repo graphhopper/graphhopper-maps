@@ -33,6 +33,7 @@ export interface AddressInputProps {
 }
 
 export default function AddressInput(props: AddressInputProps) {
+    const [origText, setOrigText] = useState(props.point.queryText)
     // controlled component pattern with initial value set from props
     const [text, setText] = useState(props.point.queryText)
     useEffect(() => setText(props.point.queryText), [props.point.queryText])
@@ -61,6 +62,7 @@ export default function AddressInput(props: AddressInputProps) {
             // const res = autocompleteItems.length > 1 ? autocompleteItems.slice(0, autocompleteItems.length - 2) : autocompleteItems
             // res.concat(items)
 
+            setOrigText(query)
             setAutocompleteItems(items)
         })
     )
@@ -95,16 +97,30 @@ export default function AddressInput(props: AddressInputProps) {
                 inputElement.blur()
                 // onBlur is deactivated for mobile so force:
                 setHasFocus(false)
+                setText(origText)
                 hideSuggestions()
                 return
             }
 
             switch (event.key) {
                 case 'ArrowUp':
-                    setHighlightedResult(i => calculateHighlightedIndex(autocompleteItems.length, i, -1))
-                    break
                 case 'ArrowDown':
-                    setHighlightedResult(i => calculateHighlightedIndex(autocompleteItems.length, i, 1))
+                    setHighlightedResult(i => {
+                        if (i < 0) setText(origText)
+                        const delta = event.key === 'ArrowUp' ? -1 : 1
+                        const nextIndex = calculateHighlightedIndex(autocompleteItems.length, i, delta)
+                        if (autocompleteItems.length > 0) {
+                            if (nextIndex < 0) {
+                                setText(origText)
+                            } else if (nextIndex >= 0) {
+                                const item = autocompleteItems[nextIndex]
+                                if (item instanceof GeocodingItem) setText(item.toText())
+                                else setText(origText)
+                            }
+                        }
+                        return nextIndex
+                    })
+
                     break
                 case 'Enter':
                 case 'Tab':
