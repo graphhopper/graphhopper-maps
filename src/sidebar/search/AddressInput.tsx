@@ -200,7 +200,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onChange={e => {
                         setText(e.target.value)
                         const coordinate = textToCoordinate(e.target.value)
-                        if (!coordinate) geocoder.request(e.target.value, biasCoord, 'default')
+                        if (!coordinate) geocoder.request(e.target.value, biasCoord, getMap().getView().getZoom())
                         props.onChange(e.target.value)
                     }}
                     onKeyDown={onKeypress}
@@ -301,8 +301,8 @@ class Geocoder {
         this.onSuccess = onSuccess
     }
 
-    request(query: string, bias: Coordinate | undefined, provider: string) {
-        this.requestAsync(query, bias, provider).then(() => {})
+    request(query: string, bias: Coordinate | undefined, zoom = 11) {
+        this.requestAsync(query, bias, zoom).then(() => {})
     }
 
     cancel() {
@@ -310,7 +310,8 @@ class Geocoder {
         this.getNextId()
     }
 
-    async requestAsync(query: string, bias: Coordinate | undefined, provider: string) {
+    async requestAsync(query: string, bias: Coordinate | undefined, zoom: number) {
+        const provider = 'default'
         const currentId = this.getNextId()
         this.timeout.cancel()
         if (!query || query.length < 2) return
@@ -318,7 +319,7 @@ class Geocoder {
         await this.timeout.wait()
         try {
             const options: Record<string, string> = bias
-                ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '11' }
+                ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '' + (zoom + 1) }
                 : {}
             const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
