@@ -121,6 +121,7 @@ export default function AddressInput(props: AddressInputProps) {
                         return nextIndex
                     })
 
+                    event.preventDefault() // stop propagating event to input to avoid that cursor is moved to start when ArrowUp
                     break
                 case 'Enter':
                 case 'Tab':
