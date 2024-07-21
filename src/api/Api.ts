@@ -152,7 +152,8 @@ export class ApiImpl implements Api {
             // nwr means it searches for nodes, ways and relations
             queryString += 'nwr'
             for (const p of q.phrases) {
-                queryString += `["${p.k}"${p.sign}"${p.v}"]`
+                if(p.sign == '=' && p.v == '*') queryString += `["${p.k}"]`
+                else queryString += `["${p.k}"${p.sign}"${p.v}"]`
             }
             queryString += `;\n`
         }
