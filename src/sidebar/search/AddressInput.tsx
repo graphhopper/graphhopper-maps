@@ -128,13 +128,14 @@ export default function AddressInput(props: AddressInputProps) {
                                 setText(origText)
                             } else if (nextIndex >= 0) {
                                 const item = autocompleteItems[nextIndex]
-                                if (item instanceof GeocodingItem) setText(item.toText())
+                                if (item instanceof GeocodingItem) setText(item.mainText)
                                 else setText(origText)
                             }
                         }
                         return nextIndex
                     })
 
+                    event.preventDefault() // stop propagating event to input to avoid that cursor is moved to start when ArrowUp
                     break
                 case 'Enter':
                 case 'Tab':
@@ -218,7 +219,7 @@ export default function AddressInput(props: AddressInputProps) {
                         const query = e.target.value
                         setText(query)
                         const coordinate = textToCoordinate(query)
-                        if (!coordinate) geocoder.request(query, biasCoord, 'default')
+                        if (!coordinate) geocoder.request(e.target.value, biasCoord, getMap().getView().getZoom())
                         props.onChange(query)
                     }}
                     onKeyDown={onKeypress}
@@ -331,8 +332,8 @@ class Geocoder {
         this.onSuccess = onSuccess
     }
 
-    request(query: string, bias: Coordinate | undefined, provider: string) {
-        this.requestAsync(query, bias, provider).then(() => {})
+    request(query: string, bias: Coordinate | undefined, zoom = 11) {
+        this.requestAsync(query, bias, zoom).then(() => {})
     }
 
     cancel() {
@@ -340,7 +341,8 @@ class Geocoder {
         this.getNextId()
     }
 
-    async requestAsync(query: string, bias: Coordinate | undefined, provider: string) {
+    async requestAsync(query: string, bias: Coordinate | undefined, zoom: number) {
+        const provider = 'default'
         const currentId = this.getNextId()
         this.timeout.cancel()
         if (!query || query.length < 2) return
@@ -348,7 +350,7 @@ class Geocoder {
         await this.timeout.wait()
         try {
             const options: Record<string, string> = bias
-                ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '9' }
+                ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '' + (zoom + 1) }
                 : {}
             const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
