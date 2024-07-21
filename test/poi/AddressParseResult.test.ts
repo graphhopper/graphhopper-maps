@@ -43,12 +43,20 @@ describe('reverse geocoder', () => {
     })
 
     it('should parse generic', async () => {
-        let res = AddressParseResult.parse('dresden amenity:bar', false)
+        let res = AddressParseResult.parse('dresden amenity=bar', false)
         expect(res.location).toEqual('dresden')
-        expect(res.query.toString()).toEqual('amenity:bar')
+        expect(res.query.toString()).toEqual('amenity=bar')
 
-        res = AddressParseResult.parse('dresden !amenity:bar military:', false)
+        res = AddressParseResult.parse('dresden amenity=bar military!~.*', false)
         expect(res.location).toEqual('dresden')
-        expect(res.query.toString()).toEqual('military: !amenity:bar') // include comes first in toString
+        expect(res.query.toString()).toEqual('amenity=bar and military!~.*')
+
+        res = AddressParseResult.parse('amenity=restaurant and wheelchair=yes in dresden', false)
+        expect(res.location).toEqual('dresden')
+        expect(res.query.toString()).toEqual('amenity=restaurant and wheelchair=yes')
+
+        // no "select query", only 'not' queries => leads currently to no match
+        res = AddressParseResult.parse('dresden amenity!=bar military!~.*', false)
+        expect(res.hasPOIs()).toEqual(false)
     })
 })

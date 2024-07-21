@@ -1,5 +1,5 @@
 import RouteStore from '@/stores/RouteStore'
-import QueryStore, { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Api from '@/api/Api'
 import {
     ApiInfo,
@@ -12,7 +12,7 @@ import {
 } from '@/api/graphhopper'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import { ClearPoints, ClearRoute, RemovePoint, SetPoint, SetSelectedPath } from '@/actions/Actions'
-import { POIQuery } from '@/pois/AddressParseResult'
+import { POIAndQuery, POIQuery } from '@/pois/AddressParseResult'
 
 describe('RouteStore', () => {
     afterEach(() => {

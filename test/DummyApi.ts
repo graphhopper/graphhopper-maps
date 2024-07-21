@@ -8,7 +8,7 @@ import {
     RoutingResultInfo,
     Bbox,
 } from '../src/api/graphhopper'
-import { POIQuery } from '@/pois/AddressParseResult'
+import { POIAndQuery, POIQuery } from '@/pois/AddressParseResult'
 
 export default class DummyApi implements Api {
     geocode(query: string): Promise<GeocodingResult> {

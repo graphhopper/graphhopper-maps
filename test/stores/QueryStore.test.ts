@@ -20,7 +20,7 @@ import {
     SetPoint,
     SetVehicleProfile,
 } from '@/actions/Actions'
-import { POIQuery } from '@/pois/AddressParseResult'
+import { POIAndQuery, POIQuery } from '@/pois/AddressParseResult'
 
 class ApiMock implements Api {
     private readonly callback: { (args: RoutingArgs): void }

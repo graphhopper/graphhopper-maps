@@ -18,7 +18,7 @@ import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
 import { Coordinate } from '@/stores/QueryStore'
-import { POIPhrase, POIQuery } from '@/pois/AddressParseResult'
+import { POIPhrase, POIAndQuery, POIQuery } from '@/pois/AddressParseResult'
 
 interface ApiProfile {
     name: string
@@ -148,14 +148,13 @@ export class ApiImpl implements Api {
         }
 
         let queryString = ''
-        for (const tag of query.include) {
-            let notStr = ''
-            for (const n of query.not) {
-                notStr += n.v ? `["${n.k}"!="${n.v}"]` : `["${n.k}"!~".*"]`
-            }
-            const value = tag.v ? `="${tag.v}"` : ''
+        for (const q of query.queries) {
             // nwr means it searches for nodes, ways and relations
-            queryString += `nwr["${tag.k}"${value}]${notStr};\n`
+            queryString += 'nwr'
+            for (const p of q.phrases) {
+                queryString += `["${p.k}"${p.sign}"${p.v}"]`
+            }
+            queryString += `;\n`
         }
 
         try {

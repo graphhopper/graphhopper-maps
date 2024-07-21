@@ -28,8 +28,8 @@ function POITable(props: { poi: POI }) {
                         ? 'https://' + valueArr[0] + '.wikipedia.org/wiki/' + encodeURIComponent(valueArr[1])
                         : ''
                     // tags like amenity:restaurant should not be shown if it is a restaurant (determined by poi.tags)
-                    const poiInfoRepeated = props.poi.query.include
-                        ? props.poi.query.include.some(q => q.k == key && q.v === value)
+                    const poiInfoRepeated = props.poi.query.queries
+                        ? props.poi.query.queries.some(q => q.phrases.some(q => q.k == key && q.v === value))
                         : false
                     return (
                         !poiInfoRepeated &&

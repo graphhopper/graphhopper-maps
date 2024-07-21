@@ -23,7 +23,7 @@ export class AddressParseResult {
     }
 
     hasPOIs(): boolean {
-        return this.query.include.length > 0
+        return this.query.queries.length > 0
     }
 
     text(prefix: string) {
@@ -50,47 +50,51 @@ export class AddressParseResult {
             for (const keyword of val.k) {
                 const i = bigrams.indexOf(keyword)
                 if (i >= 0)
-                    return new AddressParseResult(
-                        cleanQuery.replace(bigrams[i], '').trim(),
-                        { include: val.q, not: val.not },
-                        val.i,
-                        val.k[0]
-                    )
+                    return new AddressParseResult(cleanQuery.replace(bigrams[i], '').trim(), val.q, val.i, val.k[0])
             }
 
             for (const keyword of val.k) {
                 const i = queryTokens.indexOf(keyword)
                 if (i >= 0)
-                    return new AddressParseResult(
-                        cleanQuery.replace(queryTokens[i], '').trim(),
-                        { include: val.q, not: val.not },
-                        val.i,
-                        val.k[0]
-                    )
+                    return new AddressParseResult(cleanQuery.replace(queryTokens[i], '').trim(), val.q, val.i, val.k[0])
             }
         }
 
-        return new AddressParseResult('', { include: [], not: [] }, '', '')
+        return new AddressParseResult('', new POIQuery([]), '', '')
     }
 
     public static getGeneric(tokens: string[]) {
-        let locations = []
-
-        let poiQuery = new POIQuery([], [])
+        const locations = []
+        const orPhrases = []
+        const notPhrases = []
+        const singleAndQuery = new POIQuery([new POIAndQuery([])])
+        const singleAnd = tokens.includes('and')
         for (const token of tokens) {
-            const index = token.indexOf(':')
-            if (token.startsWith('!')) {
-                if (index < 0) {
-                    poiQuery.not.push(new POIPhrase(token.substring(1), ''))
-                } else {
-                    poiQuery.not.push(new POIPhrase(token.substring(1, index), token.substring(index + 1)))
-                }
-            } else if (index < 0) {
-                locations.push(token)
+            const indexNot = token.indexOf('!')
+            const index = token.indexOf('=')
+            if (indexNot >= 0) {
+                const sign = token.includes('~') ? '!~' : '!='
+                const p = new POIPhrase(token.substring(0, indexNot), sign, token.substring(indexNot + 2))
+                singleAndQuery.queries[0].phrases.push(p)
+                notPhrases.push(p)
+            } else if (index >= 0) {
+                const p = new POIPhrase(token.substring(0, index), '=', token.substring(index + 1))
+                singleAndQuery.queries[0].phrases.push(p)
+                orPhrases.push(p)
+            } else if (token == 'and') {
             } else {
-                poiQuery.include.push(new POIPhrase(token.substring(0, index), token.substring(index + 1)))
+                locations.push(token)
             }
         }
+
+        if (singleAnd)
+            return new AddressParseResult(locations.join(' '), singleAndQuery, 'store', singleAndQuery.toString())
+
+        const queries = []
+        for (const p of orPhrases) {
+            queries.push(new POIAndQuery([p, ...notPhrases]))
+        }
+        const poiQuery = new POIQuery(queries)
         return new AddressParseResult(locations.join(' '), poiQuery, 'store', poiQuery.toString())
     }
 
@@ -99,7 +103,10 @@ export class AddressParseResult {
         parseResult: AddressParseResult,
         queryPoint: QueryPoint
     ) {
-        if (hits.length == 0) return
+        if (hits.length == 0) {
+            Dispatcher.dispatch(new SetPOIs([], null))
+            return
+        }
         const pois = hits
             .filter(hit => !!hit.point)
             .map(hit => {
@@ -143,91 +150,105 @@ export class AddressParseResult {
                 .map(s => s.trim().toLowerCase())
         AddressParseResult.REMOVE_VALUES = t('poi_removal_words')
         AddressParseResult.TRIGGER_VALUES = [
-            { k: 'poi_airports', t: ['aeroway:aerodrome'], i: 'flight_takeoff', not: ['military', 'landuse:military'] },
-            { k: 'poi_atm', t: ['amenity:atm', 'amenity:bank'], i: 'local_atm' },
-            { k: 'poi_banks', t: ['amenity:bank'], i: 'universal_currency_alt' },
-            { k: 'poi_bus_stops', t: ['highway:bus_stop'], i: 'train' },
-            { k: 'poi_education', t: ['amenity:school', 'building:school', 'building:university'], i: 'school' },
-            { k: 'poi_gas_station', t: ['amenity:fuel'], i: 'local_gas_station' },
-            { k: 'poi_hospitals', t: ['amenity:hospital', 'building:hospital'], i: 'local_hospital' },
-            { k: 'poi_hotels', t: ['amenity:hotel', 'building:hotel', 'tourism:hotel'], i: 'hotel' },
-            { k: 'poi_leisure', t: ['leisure'], i: 'sports_handball' },
-            { k: 'poi_museums', t: ['tourism:museum', 'building:museum'], i: 'museum' },
-            { k: 'poi_parking', t: ['amenity:parking'], i: 'local_parking' },
-            { k: 'poi_parks', t: ['leisure:park'], i: 'sports_handball' },
-            { k: 'poi_pharmacies', t: ['amenity:pharmacy'], i: 'local_pharmacy' },
-            { k: 'poi_playgrounds', t: ['leisure:playground'], i: 'sports_handball' },
-            { k: 'poi_police', t: ['amenity:police'], i: 'police' },
+            { k: 'poi_airports', q: ['aeroway=aerodrome and landuse!=military and military!~.*'], i: 'flight_takeoff' },
+            { k: 'poi_atm', q: ['amenity=atm', 'amenity=bank'], i: 'local_atm' },
+            { k: 'poi_banks', q: ['amenity=bank'], i: 'universal_currency_alt' },
+            { k: 'poi_bus_stops', q: ['highway=bus_stop'], i: 'train' },
+            { k: 'poi_education', q: ['amenity=school', 'building=school', 'building=university'], i: 'school' },
+            { k: 'poi_gas_station', q: ['amenity=fuel'], i: 'local_gas_station' },
+            { k: 'poi_hospitals', q: ['amenity=hospital', 'building=hospital'], i: 'local_hospital' },
+            { k: 'poi_hotels', q: ['amenity=hotel', 'building=hotel', 'tourism=hotel'], i: 'hotel' },
+            { k: 'poi_leisure', q: ['leisure=*'], i: 'sports_handball' },
+            { k: 'poi_museums', q: ['tourism=museum', 'building=museum'], i: 'museum' },
+            { k: 'poi_parking', q: ['amenity=parking'], i: 'local_parking' },
+            { k: 'poi_parks', q: ['leisure=park'], i: 'sports_handball' },
+            { k: 'poi_pharmacies', q: ['amenity=pharmacy'], i: 'local_pharmacy' },
+            { k: 'poi_playgrounds', q: ['leisure=playground'], i: 'sports_handball' },
+            { k: 'poi_police', q: ['amenity=police'], i: 'police' },
             // important to have this before "post"
             {
                 k: 'poi_post_box',
-                t: ['amenity:post_box', 'amenity:post_office', 'amenity:post_depot'],
+                q: ['amenity=post_box', 'amenity=post_office', 'amenity=post_depot'],
                 i: 'local_post_office',
             },
-            { k: 'poi_post', t: ['amenity:post_office', 'amenity:post_depot'], i: 'local_post_office' },
+            { k: 'poi_post', q: ['amenity=post_office', 'amenity=post_depot'], i: 'local_post_office' },
             {
                 k: 'poi_public_transit',
-                t: ['public_transport:station', 'railway:station', 'highway:bus_stop'],
+                q: ['public_transport=station', 'railway=station', 'highway=bus_stop'],
                 i: 'train',
             },
-            { k: 'poi_railway_station', t: ['railway:station', 'railway:halt'], i: 'train' },
-            { k: 'poi_restaurants', t: ['amenity:restaurant'], i: 'restaurant' },
-            { k: 'poi_schools', t: ['amenity:school', 'building:school'], i: 'school' },
-            { k: 'poi_shopping', t: ['shop'], i: 'store' },
-            { k: 'poi_super_markets', t: ['shop:supermarket', 'building:supermarket'], i: 'store' },
-            { k: 'poi_toilets', t: ['amenity:toilets'], i: 'home_and_garden' },
-            { k: 'poi_tourism', t: ['tourism'], i: 'luggage' },
-            { k: 'poi_water', t: ['amenity:drinking_water'], i: 'water_drop' },
-            { k: 'poi_charging_station', t: ['amenity:charging_station'], i: 'charger' },
+            { k: 'poi_railway_station', q: ['railway=station', 'railway=halt'], i: 'train' },
+            { k: 'poi_restaurants', q: ['amenity=restaurant'], i: 'restaurant' },
+            { k: 'poi_schools', q: ['amenity=school', 'building=school'], i: 'school' },
+            { k: 'poi_shopping', q: ['shop=*'], i: 'store' },
+            { k: 'poi_super_markets', q: ['shop=supermarket', 'building=supermarket'], i: 'store' },
+            { k: 'poi_toilets', q: ['amenity=toilets'], i: 'home_and_garden' },
+            { k: 'poi_tourism', q: ['tourism=*'], i: 'luggage' },
+            { k: 'poi_water', q: ['amenity=drinking_water'], i: 'water_drop' },
+            { k: 'poi_charging_station', q: ['amenity=charging_station'], i: 'charger' },
         ].map(v => {
-            const tags = v.t.map(val => {
-                return new POIPhrase(val.split(':')[0], val.split(':')[1])
+            const queries = v.q.map(val => {
+                return new POIAndQuery(
+                    val.split(' and ').map(v => {
+                        let kv = v.split('!=')
+                        if (kv.length > 1) return new POIPhrase(kv[0], '!=', kv[1])
+                        kv = v.split('!~')
+                        if (kv.length > 1) return new POIPhrase(kv[0], '!~', kv[1])
+                        kv = v.split('=')
+                        return new POIPhrase(kv[0], '=', kv[1])
+                    })
+                )
             })
-            const notTags = !v.not
-                ? []
-                : v.not.map(val => {
-                      return new POIPhrase(val.split(':')[0], val.split(':')[1])
-                  })
             return {
                 k: t(v.k),
-                q: tags,
+                q: new POIQuery(queries),
                 i: v.i,
-                not: notTags,
             } as PoiTriggerPhrases
         })
     }
 }
 
 export class POIQuery {
-    public include: POIPhrase[]
-    public not: POIPhrase[]
+    public queries: POIAndQuery[]
 
-    constructor(include: POIPhrase[], not: POIPhrase[]) {
-        this.include = include
-        this.not = not
+    constructor(queries: POIAndQuery[]) {
+        this.queries = queries
     }
 
     toString(): string {
-        return (
-            this.include.map(p => p.toString()).join(' ') +
-            ' ' +
-            this.not.map(p => '!' + p.toString()).join(' ')
-        ).trim()
+        return this.queries.join(' ')
+    }
+}
+
+export class POIAndQuery {
+    public phrases: POIPhrase[]
+
+    constructor(phrases: POIPhrase[]) {
+        this.phrases = phrases
+    }
+
+    toString(): string {
+        return this.phrases
+            .map(p => p.toString())
+            .join(' and ')
+            .trim()
     }
 }
 
 export class POIPhrase {
     public k: string
+    public sign: string
     public v: string
 
-    constructor(k: string, v: string) {
+    constructor(k: string, sign: string, v: string) {
         this.k = k
+        this.sign = sign
         this.v = v
     }
 
     toString(): string {
-        return this.k + ':' + this.v
+        return this.k + this.sign + this.v
     }
 }
 
-export type PoiTriggerPhrases = { k: string[]; q: POIPhrase[]; i: string; not: POIPhrase[] }
+export type PoiTriggerPhrases = { k: string[]; q: POIQuery; i: string }
