@@ -111,6 +111,9 @@ function AutocompleteEntry({
                 e.preventDefault() // do not forward click to underlying component
                 onSelect()
             }}
+            onMouseDown={e => {
+                e.preventDefault() // prevent blur event for our input, see #398
+            }}
         >
             {children}
         </button>
