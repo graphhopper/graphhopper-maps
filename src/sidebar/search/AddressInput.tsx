@@ -209,10 +209,7 @@ export default function AddressInput(props: AddressInputProps) {
                         setHasFocus(true)
                         props.clearDragDrop()
                     }}
-                    onBlur={() => {
-                        // see #398
-                        if (!isSmallScreen) hideSuggestions()
-                    }}
+                    onBlur={() => {}}
                     value={text}
                     placeholder={tr(
                         type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
