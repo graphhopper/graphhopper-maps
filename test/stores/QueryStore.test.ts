@@ -1,5 +1,13 @@
 import Api from '@/api/Api'
-import { ApiInfo, GeocodingResult, RoutingArgs, RoutingResult, RoutingResultInfo } from '@/api/graphhopper'
+import {
+    ApiInfo,
+    Bbox,
+    GeocodingResult,
+    ReverseGeocodingHit,
+    RoutingArgs,
+    RoutingResult,
+    RoutingResultInfo,
+} from '@/api/graphhopper'
 import QueryStore, { QueryPoint, QueryPointType, QueryStoreState, RequestState, SubRequest } from '@/stores/QueryStore'
 import {
     AddPoint,
@@ -12,7 +20,7 @@ import {
     SetPoint,
     SetVehicleProfile,
 } from '@/actions/Actions'
-import { tr } from '@/translation/Translation'
+import { POIAndQuery, POIQuery } from '@/pois/AddressParseResult'
 
 class ApiMock implements Api {
     private readonly callback: { (args: RoutingArgs): void }
@@ -22,6 +30,10 @@ class ApiMock implements Api {
     }
 
     geocode(query: string): Promise<GeocodingResult> {
+        throw Error('not implemented')
+    }
+
+    reverseGeocode(query: POIQuery, bbox: Bbox): Promise<ReverseGeocodingHit[]> {
         throw Error('not implemented')
     }
 

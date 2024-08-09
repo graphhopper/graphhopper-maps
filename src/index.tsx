@@ -1,7 +1,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 
-import { setTranslation } from '@/translation/Translation'
+import { getTranslation, setTranslation } from '@/translation/Translation'
 import App from '@/App'
 import {
     getApiInfoStore,
@@ -9,6 +9,7 @@ import {
     getMapFeatureStore,
     getMapOptionsStore,
     getPathDetailsStore,
+    getPOIsStore,
     getQueryStore,
     getRouteStore,
     getSettingsStore,
@@ -29,12 +30,18 @@ import { createMap, getMap, setMap } from '@/map/map'
 import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
 import { ErrorAction, InfoReceived } from '@/actions/Actions'
+import POIsStore from '@/stores/POIsStore'
+import { setDistanceFormat } from '@/Converters'
+import { AddressParseResult } from '@/pois/AddressParseResult'
 
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 
 const url = new URL(window.location.href)
 const locale = url.searchParams.get('locale')
 setTranslation(locale || navigator.language)
+
+setDistanceFormat(new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 1 }))
+AddressParseResult.setPOITriggerPhrases(getTranslation())
 
 // use graphhopper api key from url or try using one from the config
 const apiKey = url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
@@ -53,6 +60,7 @@ setStores({
     mapOptionsStore: new MapOptionsStore(),
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
+    poisStore: new POIsStore(),
 })
 
 setMap(createMap())
@@ -66,6 +74,7 @@ Dispatcher.register(getErrorStore())
 Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getMapFeatureStore())
+Dispatcher.register(getPOIsStore())
 
 // register map action receiver
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')

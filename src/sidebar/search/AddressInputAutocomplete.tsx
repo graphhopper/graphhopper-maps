@@ -2,7 +2,7 @@ import styles from './AddressInputAutocomplete.module.css'
 import CurrentLocationIcon from './current-location.svg'
 import { tr } from '@/translation/Translation'
 import { Bbox } from '@/api/graphhopper'
-import { useState } from 'react'
+import { AddressParseResult } from '@/pois/AddressParseResult'
 
 export interface AutocompleteItem {}
 
@@ -25,6 +25,14 @@ export class GeocodingItem implements AutocompleteItem {
 }
 
 export class SelectCurrentLocationItem implements AutocompleteItem {}
+
+export class POIQueryItem implements AutocompleteItem {
+    result: AddressParseResult
+
+    constructor(result: AddressParseResult) {
+        this.result = result
+    }
+}
 
 export interface AutocompleteProps {
     items: AutocompleteItem[]
@@ -49,7 +57,29 @@ function mapToComponent(item: AutocompleteItem, isHighlighted: boolean, onSelect
         return <GeocodingEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else if (item instanceof SelectCurrentLocationItem)
         return <SelectCurrentLocation item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
+    else if (item instanceof POIQueryItem)
+        return <POIQueryEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else throw Error('Unsupported item type: ' + typeof item)
+}
+
+export function POIQueryEntry({
+    item,
+    isHighlighted,
+    onSelect,
+}: {
+    item: POIQueryItem
+    isHighlighted: boolean
+    onSelect: (item: POIQueryItem) => void
+}) {
+    const poi = item.result.poi ? item.result.poi : ''
+    return (
+        <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
+            <div className={styles.poiEntry}>
+                <span className={styles.poiEntryPrimaryText}>{poi.charAt(0).toUpperCase() + poi.slice(1)}</span>
+                <span>{item.result.text('')}</span>
+            </div>
+        </AutocompleteEntry>
+    )
 }
 
 export function SelectCurrentLocation({
