@@ -31,6 +31,8 @@ import { createPOIMarker } from '@/layers/createMarkerSVG'
 import { Select } from 'ol/interaction'
 import Dispatcher from '@/stores/Dispatcher'
 import { SelectPOI } from '@/actions/Actions'
+import { ObjectEvent } from 'ol/Object'
+import { getMap } from '@/map/map'
 
 const svgStrings: { [id: string]: string } = {}
 
@@ -68,11 +70,11 @@ for (const k in svgObjects) {
 export default function usePOIsLayer(map: Map, poisState: POIsStoreState) {
     useEffect(() => {
         removePOIs(map)
-        addPOIsLayer(map, poisState.pois)
-        const select = addPOISelection(map)
+        let select: Select | null = null
+        if (addPOIsLayer(map, poisState.pois)) select = addPOISelection(map)
         return () => {
             removePOIs(map)
-            map.removeInteraction(select)
+            if (select) map.removeInteraction(select)
         }
     }, [map, poisState.pois])
 }
@@ -109,6 +111,8 @@ function addPOISelection(map: Map) {
 }
 
 function addPOIsLayer(map: Map, pois: POI[]) {
+    if (pois.length == 0) return false
+
     const features = pois.map((poi, i) => {
         const feature = new Feature({
             geometry: new Point(fromLonLat([poi.coordinate.lng, poi.coordinate.lat])),
@@ -137,5 +141,5 @@ function addPOIsLayer(map: Map, pois: POI[]) {
         return style
     })
     map.addLayer(poisLayer)
-    return poisLayer
+    return true
 }
