@@ -170,7 +170,8 @@ const SearchBox = ({
                     onCancel={() => console.log('cancel')}
                     onAddressSelected={(queryText, coordinate) => {
                         const initCount = points.filter(p => p.isInitialized).length
-                        if (coordinate && initCount == 0) Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coordinate)))
+                        if (coordinate && initCount != points.length)
+                            Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coordinate)))
 
                         Dispatcher.dispatch(
                             new SetPoint(
