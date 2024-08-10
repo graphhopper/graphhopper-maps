@@ -47,9 +47,10 @@ export default function AddressInput(props: AddressInputProps) {
     const [hasFocus, setHasFocus] = useState(false)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
 
-    // container for geocoding results which gets set by the geocoder class and set to empty if the underlying query point gets changed from outside
-    // also gets filled with an item to select the current location as input if input has focus and geocoding results are
-    // empty
+    // container for geocoding results which gets set by the geocoder class and set to empty if the underlying query
+    // point gets changed from outside also gets filled with an item to select the current location as input if input
+    // has focus and geocoding results are empty
+    const [origAutocompleteItems, setOrigAutocompleteItems] = useState<AutocompleteItem[]>([])
     const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>([])
     const [geocoder] = useState(
         new Geocoder(getApi(), (query, provider, hits) => {
@@ -69,10 +70,6 @@ export default function AddressInput(props: AddressInputProps) {
                 )
             })
 
-            // TODO autocompleteItems is empty here because query point changed from outside somehow
-            // const res = autocompleteItems.length > 1 ? autocompleteItems.slice(0, autocompleteItems.length - 2) : autocompleteItems
-            // res.concat(items)
-
             setOrigText(query)
             setAutocompleteItems(items)
         })
@@ -90,6 +87,7 @@ export default function AddressInput(props: AddressInputProps) {
 
     function hideSuggestions() {
         geocoder.cancel()
+        setOrigAutocompleteItems(autocompleteItems)
         setAutocompleteItems([])
     }
 
@@ -181,7 +179,6 @@ export default function AddressInput(props: AddressInputProps) {
     const type = props.point.type
 
     // get the bias point for the geocoder
-    // (the query point above the current one)
     const lonlat = toLonLat(getMap().getView().getCenter()!)
     const biasCoord = { lng: lonlat[0], lat: lonlat[1] }
 
@@ -225,6 +222,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onFocus={() => {
                         setHasFocus(true)
                         props.clearDragDrop()
+                        if (origAutocompleteItems.length > 0) setAutocompleteItems(origAutocompleteItems)
                     }}
                     onBlur={() => {
                         if (!isSmallScreen) hideSuggestions() // see #398
