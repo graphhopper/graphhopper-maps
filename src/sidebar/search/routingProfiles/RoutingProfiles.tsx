@@ -11,12 +11,14 @@ import { icons } from '@/sidebar/search/routingProfiles/profileIcons'
 
 export default function ({
     routingProfiles,
+    profileGroupMapping,
     selectedProfile,
     showCustomModelBox,
     toggleCustomModelBox,
     customModelBoxEnabled,
 }: {
     routingProfiles: RoutingProfile[]
+    profileGroupMapping: Record<string, string>
     selectedProfile: RoutingProfile
     showCustomModelBox: boolean
     toggleCustomModelBox: () => void
@@ -100,10 +102,12 @@ export default function ({
                 </PlainButton>
                 <ul className={styles.profiles} id="profiles_carousel_items" onScroll={onScroll}>
                     {routingProfiles.map(profile => {
-                        const className =
-                            profile.name === selectedProfile.name
-                                ? styles.selectedProfile + ' ' + styles.profileBtn
-                                : styles.profileBtn
+                        const isProfileSelected =
+                            profile.name === selectedProfile.name ||
+                            profile.name === profileGroupMapping[selectedProfile.name]
+                        const className = isProfileSelected
+                            ? styles.selectedProfile + ' ' + styles.profileBtn
+                            : styles.profileBtn
                         return (
                             <li key={profile.name}>
                                 <PlainButton

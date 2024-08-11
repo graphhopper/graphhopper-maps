@@ -58,6 +58,7 @@ export default function ({ query, route, error, encodedValues, drawAreas }: Mobi
                         </div>
                         <RoutingProfiles
                             routingProfiles={query.profiles}
+                            profileGroupMapping={query.profileGroupMapping}
                             selectedProfile={query.routingProfile}
                             showCustomModelBox={showCustomModelBox}
                             toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}
@@ -72,7 +73,7 @@ export default function ({ query, route, error, encodedValues, drawAreas }: Mobi
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} />
+                        <Search points={query.queryPoints} profile={query.routingProfile} />
                     </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}

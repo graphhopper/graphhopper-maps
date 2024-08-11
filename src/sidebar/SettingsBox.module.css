@@ -26,6 +26,27 @@
     align-items: center;
 }
 
+.carProfileOptionsHeader {
+    font-weight: bold;
+}
+
+.carProfileOptions div {
+    padding: 4px 14px;
+}
+
+.carProfileOptions label,
+input {
+    cursor: pointer;
+}
+
+.carProfileOptions label {
+    margin-left: 10px;
+}
+
+.carProfileOptions {
+    padding: 12px 5px;
+}
+
 .toggleButton {
     display: flex;
     align-items: center;

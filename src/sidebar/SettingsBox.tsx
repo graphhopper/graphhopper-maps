@@ -1,4 +1,4 @@
-import { UpdateSettings } from '@/actions/Actions'
+import { SetVehicleProfile, UpdateSettings } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
@@ -7,14 +7,39 @@ import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
 import { useContext, useState } from 'react'
 import { SettingsContext } from '@/contexts/SettingsContext'
+import { RoutingProfile } from '@/api/graphhopper'
 
-export default function SettingsBox() {
+export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
     const settings = useContext(SettingsContext)
+    function setProfile(n: string) {
+        Dispatcher.dispatch(new SetVehicleProfile({ name: profile.name === n ? 'car' : n }))
+    }
 
     return (
         <div className={styles.parent}>
             <div className={styles.title}>{tr('settings')}</div>
             <div className={styles.settingsTable}>
+                {/* TODO make generic so that it could be used to collapse e.g. hike & foot */}
+                {profile.name.startsWith('car') && (
+                    <div className={styles.carProfileOptions}>
+                        <span className={styles.carProfileOptionsHeader}>{tr('Avoid')}</span>
+                        <div>
+                            {/*prettier-ignore*/}
+                            <input checked={profile.name === 'car_avoid_motorway'} type="radio" id="motorway" name="car" value="motorway" onClick={e => setProfile('car_avoid_motorway')} />
+                            <label htmlFor="motorway">{tr('motorway')}</label>
+                        </div>
+                        <div>
+                            {/*prettier-ignore*/}
+                            <input checked={profile.name === 'car_avoid_ferry'} type="radio" id="ferry" name="car" value="ferry" onClick={e => setProfile('car_avoid_ferry')} />
+                            <label htmlFor="ferry">{tr('ferry')}</label>
+                        </div>
+                        <div>
+                            {/*prettier-ignore*/}
+                            <input checked={profile.name === 'car_avoid_toll'} type="radio" id="toll" name="car" value="toll" onClick={e => setProfile('car_avoid_toll')} />
+                            <label htmlFor="toll">{tr('toll and ferry')}</label>
+                        </div>
+                    </div>
+                )}
                 <SettingsToggle
                     title={tr('distance_unit', [tr(settings.showDistanceInMiles ? 'mi' : 'km')])}
                     enabled={settings.showDistanceInMiles}

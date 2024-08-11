@@ -46,6 +46,13 @@ const config = {
     //
     // E.g. the 'bike' entry will add a "bike" profile for which we send a request with the specified 'details' parameter. You can even change the profile itself when you specify
     // bike: { profile: 'raw_bike', ... }
+
+    // Certain profiles should not appear in the list as it would be too many. Instead they're listed in the settings but still a 'main' profile needs to be shown.
+    // profile_group_mapping: {
+    //   car_avoid_motorway: 'car',
+    //   car_avoid_ferry: 'car',
+    //   car_avoid_toll: 'car',
+    // }
 }
 
 // this is needed for jest (with our current setup at least)

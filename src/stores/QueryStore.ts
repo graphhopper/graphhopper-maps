@@ -20,7 +20,7 @@ import {
 } from '@/actions/Actions'
 import { Bbox, RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist } from '@/distUtils'
-import config from 'config'
+import config, { profile_group_mapping } from 'config'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 
 export interface Coordinate {
@@ -34,6 +34,8 @@ export function getBBoxFromCoord(c: Coordinate, offset: number = 0.005): Bbox {
 
 export interface QueryStoreState {
     readonly profiles: RoutingProfile[]
+    readonly profileGroupMapping: Record<string, string>
+    readonly lastProfiles: Record<string, string>
     readonly queryPoints: QueryPoint[]
     readonly nextQueryPointId: number
     readonly currentRequest: CurrentRequest
@@ -99,6 +101,8 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         return {
             profiles: [],
+            profileGroupMapping: {},
+            lastProfiles: {},
             queryPoints: [
                 QueryStore.getEmptyPoint(0, QueryPointType.From),
                 QueryStore.getEmptyPoint(1, QueryPointType.To),
@@ -258,16 +262,30 @@ export default class QueryStore extends Store<QueryStoreState> {
                 {
                     ...state,
                     profiles,
+                    profileGroupMapping: config.profile_group_mapping,
                     routingProfile: profile,
                 },
                 true
             )
         } else if (action instanceof SetVehicleProfile) {
-            const newState: QueryStoreState = {
-                ...state,
-                routingProfile: action.profile,
+            const mainProfile = profile_group_mapping[action.profile.name]
+            const prevProfile = this.state.lastProfiles[action.profile.name]
+            let name = action.profile.name,
+                key = action.profile.name,
+                value = ''
+            if (prevProfile && !profile_group_mapping[this.state.routingProfile.name]) {
+                name = prevProfile
+                value = prevProfile
+            } else if (mainProfile) {
+                key = mainProfile
+                value = action.profile.name
             }
 
+            const newState: QueryStoreState = {
+                ...state,
+                routingProfile: { name: name },
+                lastProfiles: { ...state.lastProfiles, [key]: value },
+            }
             return this.routeIfReady(newState, true)
         } else if (action instanceof SetCustomModel) {
             const newState = {

@@ -163,6 +163,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         </PlainButton>
                         <RoutingProfiles
                             routingProfiles={query.profiles}
+                            profileGroupMapping={query.profileGroupMapping}
                             selectedProfile={query.routingProfile}
                             showCustomModelBox={showCustomModelBox}
                             toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}
@@ -177,7 +178,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} />
+                        <Search points={query.queryPoints} profile={query.routingProfile} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
                             info={route.routingResult.info}
