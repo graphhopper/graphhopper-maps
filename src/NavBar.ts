@@ -117,7 +117,7 @@ export default class NavBar {
                     return getApi()
                         .geocode(result.location, 'nominatim')
                         .then(res => {
-                            if (res.hits.length == 0) Promise.resolve(p)
+                            if (res.hits.length == 0) return p
                             getApi()
                                 .reverseGeocode(result.query, res.hits[0].extent)
                                 .then(res => AddressParseResult.handleGeocodingResponse(res, result))
