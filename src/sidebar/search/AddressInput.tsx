@@ -1,23 +1,27 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Coordinate, getBBoxFromCoord, QueryPoint, QueryPointType } from '@/stores/QueryStore'
-import { Bbox, GeocodingHit } from '@/api/graphhopper'
+import { Bbox, GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
 import Autocomplete, {
     AutocompleteItem,
     GeocodingItem,
+    POIQueryItem,
     SelectCurrentLocationItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
 
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import styles from './AddressInput.module.css'
-import Api, { getApi } from '@/api/Api'
+import Api, { ApiImpl, getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import { coordinateToText, hitToItem, nominatimHitToItem, textToCoordinate } from '@/Converters'
 import { useMediaQuery } from 'react-responsive'
 import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
-import { toLonLat } from 'ol/proj'
+import { toLonLat, transformExtent } from 'ol/proj'
+import { calcDist } from '@/distUtils'
+import { Map } from 'ol'
+import { AddressParseResult } from '@/pois/AddressParseResult'
 import { getMap } from '@/map/map'
 
 export interface AddressInputProps {
@@ -30,6 +34,7 @@ export interface AddressInputProps {
     moveStartIndex: number
     dropPreviewIndex: number
     index: number
+    map: Map
 }
 
 export default function AddressInput(props: AddressInputProps) {
@@ -49,13 +54,19 @@ export default function AddressInput(props: AddressInputProps) {
     const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>([])
     const [geocoder] = useState(
         new Geocoder(getApi(), (query, provider, hits) => {
-            const items: AutocompleteItem[] = hits.map(hit => {
+            const items: AutocompleteItem[] = []
+            const parseResult = AddressParseResult.parse(query, true)
+            if (parseResult.hasPOIs()) items.push(new POIQueryItem(parseResult))
+
+            hits.forEach(hit => {
                 const obj = hitToItem(hit)
-                return new GeocodingItem(
-                    obj.mainText,
-                    obj.secondText,
-                    hit.point,
-                    hit.extent ? hit.extent : getBBoxFromCoord(hit.point)
+                items.push(
+                    new GeocodingItem(
+                        obj.mainText,
+                        obj.secondText,
+                        hit.point,
+                        hit.extent ? hit.extent : getBBoxFromCoord(hit.point)
+                    )
                 )
             })
 
@@ -63,6 +74,9 @@ export default function AddressInput(props: AddressInputProps) {
             setAutocompleteItems(items)
         })
     )
+
+    const [poiSearch] = useState(new ReverseGeocoder(getApi(), props.point, AddressParseResult.handleGeocodingResponse))
+
     // if item is selected we need to clear the autocompletion list
     useEffect(() => setAutocompleteItems([]), [props.point])
     // if no items but input is selected show current location item
@@ -130,7 +144,10 @@ export default function AddressInput(props: AddressInputProps) {
                     } else if (autocompleteItems.length > 0) {
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
-                        if (highlightedResult < 0) {
+                        if (item instanceof POIQueryItem) {
+                            handlePoiSearch(poiSearch, item.result, props.map)
+                            props.onAddressSelected(item.result.text(item.result.poi), undefined)
+                        } else if (highlightedResult < 0) {
                             // by default use the first result, otherwise the highlighted one
                             getApi()
                                 .geocode(text, 'nominatim')
@@ -195,10 +212,11 @@ export default function AddressInput(props: AddressInputProps) {
                     ref={searchInput}
                     autoComplete="off"
                     onChange={e => {
-                        setText(e.target.value)
-                        const coordinate = textToCoordinate(e.target.value)
+                        const query = e.target.value
+                        setText(query)
+                        const coordinate = textToCoordinate(query)
                         if (!coordinate) geocoder.request(e.target.value, biasCoord, getMap().getView().getZoom())
-                        props.onChange(e.target.value)
+                        props.onChange(query)
                     }}
                     onKeyDown={onKeypress}
                     onFocus={() => {
@@ -244,6 +262,10 @@ export default function AddressInput(props: AddressInputProps) {
                                 } else if (item instanceof SelectCurrentLocationItem) {
                                     hideSuggestions()
                                     onCurrentLocationSelected(props.onAddressSelected)
+                                } else if (item instanceof POIQueryItem) {
+                                    hideSuggestions()
+                                    handlePoiSearch(poiSearch, item.result, props.map)
+                                    setText(item.result.text(item.result.poi))
                                 }
                                 searchInput.current!.blur()
                             }}
@@ -253,6 +275,14 @@ export default function AddressInput(props: AddressInputProps) {
             </div>
         </div>
     )
+}
+
+function handlePoiSearch(poiSearch: ReverseGeocoder, result: AddressParseResult, map: Map) {
+    if (!result.hasPOIs()) return
+
+    const origExtent = map.getView().calculateExtent(map.getSize())
+    const extent = transformExtent(origExtent, 'EPSG:3857', 'EPSG:4326')
+    poiSearch.request(result, extent as Bbox)
 }
 
 function ResponsiveAutocomplete({
@@ -334,7 +364,7 @@ class Geocoder {
         return this.requestId
     }
 
-    private static filterDuplicates(hits: GeocodingHit[]) {
+    static filterDuplicates(hits: GeocodingHit[]) {
         const set: Set<string> = new Set()
         return hits.filter(hit => {
             if (!set.has(hit.osm_id)) {
@@ -343,6 +373,70 @@ class Geocoder {
             }
             return false
         })
+    }
+}
+
+export class ReverseGeocoder {
+    private requestId = 0
+    private readonly timeout = new Timout(200)
+    private readonly api: Api
+    private readonly onSuccess: (
+        hits: ReverseGeocodingHit[],
+        parseResult: AddressParseResult,
+        queryPoint: QueryPoint
+    ) => void
+    private readonly queryPoint: QueryPoint
+
+    constructor(
+        api: Api,
+        queryPoint: QueryPoint,
+        onSuccess: (hits: ReverseGeocodingHit[], parseResult: AddressParseResult, queryPoint: QueryPoint) => void
+    ) {
+        this.api = api
+        this.onSuccess = onSuccess
+        this.queryPoint = queryPoint
+    }
+
+    cancel() {
+        // invalidates last request if there is one
+        this.getNextId()
+    }
+
+    request(query: AddressParseResult, bbox: Bbox) {
+        this.requestAsync(query, bbox).then(() => {})
+    }
+
+    async requestAsync(parseResult: AddressParseResult, bbox: Bbox) {
+        const currentId = this.getNextId()
+        this.timeout.cancel()
+        await this.timeout.wait()
+        try {
+            let hits: ReverseGeocodingHit[] = []
+            if (parseResult.location) {
+                let options: Record<string, string> = {
+                    point: coordinateToText({ lat: (bbox[1] + bbox[3]) / 2, lng: (bbox[0] + bbox[2]) / 2 }),
+                    location_bias_scale: '0.5',
+                    zoom: '9',
+                }
+                const fwdSearch = await this.api.geocode(parseResult.location, 'default', options)
+                if (fwdSearch.hits.length > 0) {
+                    const bbox = fwdSearch.hits[0].extent
+                        ? fwdSearch.hits[0].extent
+                        : getBBoxFromCoord(fwdSearch.hits[0].point, 0.01)
+                    if (bbox) hits = await this.api.reverseGeocode(parseResult.query, bbox)
+                }
+            } else {
+                hits = await this.api.reverseGeocode(parseResult.query, bbox)
+            }
+            if (currentId === this.requestId) this.onSuccess(hits, parseResult, this.queryPoint)
+        } catch (reason) {
+            throw Error('Could not get geocoding results because: ' + reason)
+        }
+    }
+
+    private getNextId() {
+        this.requestId++
+        return this.requestId
     }
 }
 

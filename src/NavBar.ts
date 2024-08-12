@@ -1,18 +1,13 @@
 import { coordinateToText } from '@/Converters'
-import { Bbox } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, SelectMapLayer, SetBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
-import QueryStore, {
-    Coordinate,
-    getBBoxFromCoord,
-    QueryPoint,
-    QueryPointType,
-    QueryStoreState,
-} from '@/stores/QueryStore'
+import QueryStore, { getBBoxFromCoord, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
-import { getApi } from '@/api/Api'
+import { ApiImpl, getApi } from '@/api/Api'
+import { AddressParseResult } from '@/pois/AddressParseResult'
+import { getQueryStore } from '@/stores/Stores'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
@@ -116,6 +111,19 @@ export default class NavBar {
         if (parsedPoints.some(p => !p.isInitialized && p.queryText.length > 0)) {
             const promises = parsedPoints.map(p => {
                 if (p.isInitialized) return Promise.resolve(p)
+                const result = AddressParseResult.parse(p.queryText, false)
+                if (result.hasPOIs() && result.location) {
+                    // two stage POI search: 1. use extracted location to get coordinates 2. do reverse geocoding with this coordinates
+                    return getApi()
+                        .geocode(result.location, 'nominatim')
+                        .then(res => {
+                            if (res.hits.length == 0) return p
+                            getApi()
+                                .reverseGeocode(result.query, res.hits[0].extent)
+                                .then(res => AddressParseResult.handleGeocodingResponse(res, result))
+                            return p
+                        })
+                }
                 return (
                     getApi()
                         .geocode(p.queryText, 'nominatim')
@@ -129,7 +137,7 @@ export default class NavBar {
                             }
                         })
                         // if the geocoding request fails we just keep the point as it is, just as if no results were found
-                        .catch(() => Promise.resolve(p))
+                        .catch(() => p)
                 )
             })
             const points = await Promise.all(promises)
@@ -151,7 +159,7 @@ export default class NavBar {
         const bbox =
             initializedPoints.length == 1
                 ? getBBoxFromCoord(initializedPoints[0].coordinate)
-                : NavBar.getBBoxFromUrlPoints(initializedPoints.map(p => p.coordinate))
+                : ApiImpl.getBBoxPoints(initializedPoints.map(p => p.coordinate))
         if (bbox) Dispatcher.dispatch(new SetBBox(bbox))
         return Dispatcher.dispatch(new SetQueryPoints(points))
     }
@@ -168,19 +176,5 @@ export default class NavBar {
             this.queryStore.state,
             this.mapStore.state
         ).toString()
-    }
-
-    private static getBBoxFromUrlPoints(urlPoints: Coordinate[]): Bbox | null {
-        const bbox: Bbox = urlPoints.reduce(
-            (res: Bbox, c) => [
-                Math.min(res[0], c.lng),
-                Math.min(res[1], c.lat),
-                Math.max(res[2], c.lng),
-                Math.max(res[3], c.lat),
-            ],
-            [180, 90, -180, -90] as Bbox
-        )
-        // return null if the bbox is not valid, e.g. if no url points were given at all
-        return bbox[0] < bbox[2] && bbox[1] < bbox[3] ? bbox : null
     }
 }

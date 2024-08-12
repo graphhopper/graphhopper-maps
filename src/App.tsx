@@ -7,6 +7,7 @@ import {
     getMapFeatureStore,
     getMapOptionsStore,
     getPathDetailsStore,
+    getPOIsStore,
     getQueryStore,
     getRouteStore,
     getSettingsStore,
@@ -42,7 +43,8 @@ import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
-import { SettingsContext } from './contexts/SettingsContext'
+import { SettingsContext } from '@/contexts/SettingsContext'
+import usePOIsLayer from '@/layers/UsePOIsLayer'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -56,6 +58,7 @@ export default function App() {
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
     const [mapFeatures, setMapFeatures] = useState(getMapFeatureStore().state)
+    const [pois, setPOIs] = useState(getPOIsStore().state)
 
     const map = getMap()
 
@@ -68,6 +71,7 @@ export default function App() {
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
         const onMapFeaturesChanged = () => setMapFeatures(getMapFeatureStore().state)
+        const onPOIsChanged = () => setPOIs(getPOIsStore().state)
 
         getSettingsStore().register(onSettingsChanged)
         getQueryStore().register(onQueryChanged)
@@ -77,6 +81,7 @@ export default function App() {
         getMapOptionsStore().register(onMapOptionsChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
+        getPOIsStore().register(onPOIsChanged)
 
         onQueryChanged()
         onInfoChanged()
@@ -85,6 +90,7 @@ export default function App() {
         onMapOptionsChanged()
         onPathDetailsChanged()
         onMapFeaturesChanged()
+        onPOIsChanged()
 
         return () => {
             getSettingsStore().register(onSettingsChanged)
@@ -95,6 +101,7 @@ export default function App() {
             getMapOptionsStore().deregister(onMapOptionsChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
+            getPOIsStore().deregister(onPOIsChanged)
         }
     }, [])
 
@@ -108,11 +115,19 @@ export default function App() {
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints)
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
+    usePOIsLayer(map, pois)
+
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <SettingsContext.Provider value={settings}>
             <div className={styles.appWrapper}>
-                <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
+                <MapPopups
+                    map={map}
+                    pathDetails={pathDetails}
+                    mapFeatures={mapFeatures}
+                    poiState={pois}
+                    query={query}
+                />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
                 {isSmallScreen ? (
                     <SmallScreenLayout
@@ -177,7 +192,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} />
+                        <Search points={query.queryPoints} map={map} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
                             info={route.routingResult.info}
@@ -224,6 +239,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                     error={error}
                     encodedValues={encodedValues}
                     drawAreas={drawAreas}
+                    map={map}
                 />
             </div>
             <div className={styles.smallScreenMap}>

@@ -7,7 +7,7 @@ import { coordinateToText } from '@/Converters'
 
 // import the window and mock it with jest
 import { window } from '@/Window'
-import MapOptionsStore, { StyleOption } from '@/stores/MapOptionsStore'
+import MapOptionsStore from '@/stores/MapOptionsStore'
 import * as config from 'config'
 import { RoutingProfile } from '@/api/graphhopper'
 
