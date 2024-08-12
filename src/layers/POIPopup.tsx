@@ -92,11 +92,11 @@ export default function POIStatePopup({ map, poiState, points }: POIStatePopupPr
                 <div>{selectedPOI?.address}</div>
                 <div className={styles.poiPopupButton} onClick={() => fire(0)}>
                     <MarkerComponent color={QueryStore.getMarkerColor(QueryPointType.From)} size={18} />
-                    <PlainButton>{tr('As start')}</PlainButton>
+                    <PlainButton>{tr('as_start')}</PlainButton>
                 </div>
                 <div className={styles.poiPopupButton} onClick={() => fire(points.length - 1)}>
                     <MarkerComponent color={QueryStore.getMarkerColor(QueryPointType.To)} size={18} />
-                    <PlainButton>{tr('As destination')}</PlainButton>
+                    <PlainButton>{tr('as_destination')}</PlainButton>
                 </div>
                 {selectedPOI && <POITable poi={selectedPOI} />}
                 <div className={styles.osmLink}>
