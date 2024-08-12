@@ -27,19 +27,15 @@ function POITable(props: { poi: POI }) {
                     const wikiUrl = wiki
                         ? 'https://' + valueArr[0] + '.wikipedia.org/wiki/' + encodeURIComponent(valueArr[1])
                         : ''
-                    // tags like amenity:restaurant should not be shown if it is a restaurant (determined by poi.tags)
+                    // tags like amenity:restaurant should not be shown if it is a restaurant
                     const poiInfoRepeated = props.poi.query.queries
                         ? props.poi.query.queries.some(q => q.phrases.some(q => q.k == key && q.v === value))
                         : false
+                    // prettier-ignore
+                    const showRow = !poiInfoRepeated && key !== 'source' && key !== 'image' && key !== 'check_data'
+                        && !key.includes('fax') && !key.startsWith('addr') && !key.startsWith('name') && !key.startsWith('building')
                     return (
-                        !poiInfoRepeated &&
-                        key !== 'source' &&
-                        key !== 'image' &&
-                        key !== 'check_data' &&
-                        !key.includes('fax') &&
-                        !key.startsWith('addr') &&
-                        !key.startsWith('name') &&
-                        !key.startsWith('building') && (
+                        showRow && (
                             <tr key={key}>
                                 <td>{key}</td>
                                 <td>
