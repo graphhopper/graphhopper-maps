@@ -7,15 +7,17 @@ import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { MapFeatureStoreState } from '@/stores/MapFeatureStore'
 import { POI, POIsStoreState } from '@/stores/POIsStore'
 import POIStatePopup from '@/layers/POIPopup'
+import {QueryStoreState} from "@/stores/QueryStore";
 
 interface MapPopupProps {
     map: Map
     pathDetails: PathDetailsStoreState
     mapFeatures: MapFeatureStoreState
     poiState: POIsStoreState
+    query: QueryStoreState
 }
 
-export default function MapPopups({ map, pathDetails, mapFeatures, poiState }: MapPopupProps) {
+export default function MapPopups({ map, pathDetails, mapFeatures, poiState, query }: MapPopupProps) {
     return (
         <>
             <PathDetailPopup map={map} pathDetails={pathDetails} />
@@ -29,7 +31,7 @@ export default function MapPopups({ map, pathDetails, mapFeatures, poiState }: M
                 instructionText={mapFeatures.instructionText}
                 coordinate={mapFeatures.instructionCoordinate}
             />
-            <POIStatePopup map={map} poiState={poiState} />
+            <POIStatePopup map={map} poiState={poiState} points={query.queryPoints} />
         </>
     )
 }

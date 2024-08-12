@@ -118,16 +118,10 @@ export default class NavBar {
                         .geocode(result.location, 'nominatim')
                         .then(res => {
                             if (res.hits.length == 0) Promise.resolve(p)
-                            const qp = {
-                                ...p,
-                                id: getQueryStore().state.nextQueryPointId, // TODO hacky
-                                color: QueryStore.getMarkerColor(QueryPointType.From),
-                                type: QueryPointType.From,
-                            }
                             getApi()
                                 .reverseGeocode(result.query, res.hits[0].extent)
-                                .then(res => AddressParseResult.handleGeocodingResponse(res, result, qp))
-                            return qp
+                                .then(res => AddressParseResult.handleGeocodingResponse(res, result))
+                            return p
                         })
                 }
                 return (

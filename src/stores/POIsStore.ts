@@ -19,19 +19,17 @@ export interface POI {
 export interface POIsStoreState {
     pois: POI[]
     selected: POI | null
-    oldQueryPoint: QueryPoint | null
 }
 
 export default class POIsStore extends Store<POIsStoreState> {
     constructor() {
-        super({ pois: [], selected: null, oldQueryPoint: null })
+        super({ pois: [], selected: null })
     }
 
     reduce(state: POIsStoreState, action: Action): POIsStoreState {
         if (action instanceof SetPOIs) {
             return {
                 pois: action.pois,
-                oldQueryPoint: action.sourceQueryPoint,
                 selected: null,
             }
         } else if (action instanceof SelectPOI) {

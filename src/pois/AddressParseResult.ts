@@ -100,11 +100,10 @@ export class AddressParseResult {
 
     public static handleGeocodingResponse(
         hits: ReverseGeocodingHit[],
-        parseResult: AddressParseResult,
-        queryPoint: QueryPoint
+        parseResult: AddressParseResult
     ) {
         if (hits.length == 0) {
-            Dispatcher.dispatch(new SetPOIs([], null))
+            Dispatcher.dispatch(new SetPOIs([]))
             return
         }
         const pois = hits
@@ -133,7 +132,7 @@ export class AddressParseResult {
         const bbox = ApiImpl.getBBoxPoints(pois.map(p => p.coordinate))
         if (bbox) {
             if (parseResult.location) Dispatcher.dispatch(new SetBBox(bbox))
-            Dispatcher.dispatch(new SetPOIs(pois, queryPoint))
+            Dispatcher.dispatch(new SetPOIs(pois))
         } else {
             console.warn(
                 'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult)
