@@ -98,10 +98,7 @@ export class AddressParseResult {
         return new AddressParseResult(locations.join(' '), poiQuery, 'store', poiQuery.toString())
     }
 
-    public static handleGeocodingResponse(
-        hits: ReverseGeocodingHit[],
-        parseResult: AddressParseResult
-    ) {
+    public static handleGeocodingResponse(hits: ReverseGeocodingHit[], parseResult: AddressParseResult) {
         if (hits.length == 0) {
             Dispatcher.dispatch(new SetPOIs([]))
             return

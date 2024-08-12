@@ -7,7 +7,7 @@ import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { MapFeatureStoreState } from '@/stores/MapFeatureStore'
 import { POI, POIsStoreState } from '@/stores/POIsStore'
 import POIStatePopup from '@/layers/POIPopup'
-import {QueryStoreState} from "@/stores/QueryStore";
+import { QueryStoreState } from '@/stores/QueryStore'
 
 interface MapPopupProps {
     map: Map

@@ -1,14 +1,14 @@
 import React from 'react'
 import styles from '@/layers/MapFeaturePopup.module.css'
 import MapPopup from '@/layers/MapPopup'
-import {POI, POIsStoreState} from '@/stores/POIsStore'
-import {tr} from '@/translation/Translation'
+import { POI, POIsStoreState } from '@/stores/POIsStore'
+import { tr } from '@/translation/Translation'
 import Dispatcher from '@/stores/Dispatcher'
-import {SelectPOI, SetPoint, SetPOIs} from '@/actions/Actions'
+import { SelectPOI, SetPoint, SetPOIs } from '@/actions/Actions'
 import PlainButton from '@/PlainButton'
-import {MarkerComponent} from '@/map/Marker'
-import QueryStore, {QueryPoint, QueryPointType} from "@/stores/QueryStore";
-import {Map} from "ol";
+import { MarkerComponent } from '@/map/Marker'
+import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { Map } from 'ol'
 
 function POITable(props: { poi: POI }) {
     return (
@@ -91,14 +91,14 @@ export default function POIStatePopup({ map, poiState, points }: POIStatePopupPr
                 <div>{selectedPOI?.name}</div>
                 <div>{selectedPOI?.address}</div>
                 <div className={styles.poiPopupButton} onClick={() => fire(0)}>
-                    <MarkerComponent color={QueryStore.getMarkerColor(QueryPointType.From)} size={18}/>
+                    <MarkerComponent color={QueryStore.getMarkerColor(QueryPointType.From)} size={18} />
                     <PlainButton>{tr('As start')}</PlainButton>
                 </div>
                 <div className={styles.poiPopupButton} onClick={() => fire(points.length - 1)}>
-                    <MarkerComponent color={QueryStore.getMarkerColor(QueryPointType.To)} size={18}/>
+                    <MarkerComponent color={QueryStore.getMarkerColor(QueryPointType.To)} size={18} />
                     <PlainButton>{tr('As destination')}</PlainButton>
                 </div>
-                {selectedPOI && <POITable poi={selectedPOI}/>}
+                {selectedPOI && <POITable poi={selectedPOI} />}
                 <div className={styles.osmLink}>
                     <a href={'https://www.openstreetmap.org/' + type + '/' + selectedPOI?.osm_id} target="_blank">
                         OpenStreetMap.org
