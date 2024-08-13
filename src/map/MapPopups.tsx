@@ -5,7 +5,7 @@ import InstructionPopup from '@/layers/InstructionPopup'
 import React from 'react'
 import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
 import { MapFeatureStoreState } from '@/stores/MapFeatureStore'
-import { POI, POIsStoreState } from '@/stores/POIsStore'
+import { POIsStoreState } from '@/stores/POIsStore'
 import POIStatePopup from '@/layers/POIPopup'
 import { QueryStoreState } from '@/stores/QueryStore'
 
