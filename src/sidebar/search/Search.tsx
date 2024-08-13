@@ -7,6 +7,7 @@ import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
 import PlainButton from '@/PlainButton'
+import { Map } from 'ol'
 
 import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
@@ -16,9 +17,11 @@ import { TNSettingsState } from '@/stores/TurnNavigationStore'
 
 export default function Search({
     points,
+    map,
     turnNavigationSettings,
 }: {
     points: QueryPoint[]
+    map: Map
     turnNavigationSettings: TNSettingsState
 }) {
     const [showSettings, setShowSettings] = useState(false)
@@ -47,6 +50,7 @@ export default function Search({
                         }}
                         dropPreviewIndex={dropPreviewIndex}
                         onDropPreviewSelect={onDropPreviewSelect}
+                        map={map}
                     />
                 ))}
             </div>
@@ -82,6 +86,7 @@ const SearchBox = ({
     onMoveStartSelect,
     dropPreviewIndex,
     onDropPreviewSelect,
+    map,
 }: {
     index: number
     points: QueryPoint[]
@@ -92,6 +97,7 @@ const SearchBox = ({
     onMoveStartSelect: (index: number, showTargetIcon: boolean) => void
     dropPreviewIndex: number
     onDropPreviewSelect: (index: number) => void
+    map: Map
 }) => {
     const point = points[index]
 
@@ -169,6 +175,7 @@ const SearchBox = ({
 
             <div className={styles.searchBoxInput}>
                 <AddressInput
+                    map={map}
                     moveStartIndex={moveStartIndex}
                     dropPreviewIndex={dropPreviewIndex}
                     index={index}
@@ -177,7 +184,8 @@ const SearchBox = ({
                     onCancel={() => console.log('cancel')}
                     onAddressSelected={(queryText, coordinate) => {
                         const initCount = points.filter(p => p.isInitialized).length
-                        if (coordinate && initCount == 0) Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coordinate)))
+                        if (coordinate && initCount != points.length)
+                            Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coordinate)))
 
                         Dispatcher.dispatch(
                             new SetPoint(

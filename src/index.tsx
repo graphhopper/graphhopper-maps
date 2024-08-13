@@ -6,12 +6,13 @@ import { createMap, getMap, setMap } from '@/map/map'
 import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
 import { SpeechSynthesizerImpl } from '@/SpeechSynthesizer'
-import { setTranslation } from '@/translation/Translation'
+import {getTranslation, setTranslation} from '@/translation/Translation'
 import { getApi, setApi } from '@/api/Api'
 import QueryStore from '@/stores/QueryStore'
 import RouteStore from '@/stores/RouteStore'
 import ApiInfoStore from '@/stores/ApiInfoStore'
 import ErrorStore from '@/stores/ErrorStore'
+import App from '@/App'
 import {
     getApiInfoStore,
     getErrorStore,
@@ -19,6 +20,7 @@ import {
     getMapFeatureStore,
     getMapOptionsStore,
     getPathDetailsStore,
+    getPOIsStore,
     getQueryStore,
     getRouteStore,
     getSettingsStore,
@@ -29,10 +31,12 @@ import TurnNavigationStore, { MapCoordinateSystem } from '@/stores/TurnNavigatio
 import PathDetailsStore from '@/stores/PathDetailsStore'
 import Dispatcher from '@/stores/Dispatcher'
 import NavBar from '@/NavBar'
-import App from '@/App'
-import { ErrorAction, InfoReceived, LocationUpdateSync } from '@/actions/Actions'
-import { toLonLat } from 'ol/proj'
-import { Pixel } from 'ol/pixel'
+import POIsStore from '@/stores/POIsStore'
+import { initDistanceFormat } from '@/Converters'
+import { AddressParseResult } from '@/pois/AddressParseResult'
+import {Pixel} from "ol/pixel";
+import {toLonLat} from "ol/proj";
+import {ErrorAction, InfoReceived, LocationUpdateSync} from "@/actions/Actions";
 
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 
@@ -44,6 +48,9 @@ const locale = url.searchParams.get('locale')
 const fakeParam = url.searchParams.get('fake')
 const fakeGPSDelta = fakeParam ? parseFloat(fakeParam) : NaN
 setTranslation(locale || navigator.language)
+
+initDistanceFormat(locale || navigator.language)
+AddressParseResult.setPOITriggerPhrases(getTranslation())
 
 // use graphhopper api key from url or try using one from the config
 const apiKey = url.searchParams.has('key') ? url.searchParams.get('key') : config.keys.graphhopper
@@ -79,6 +86,7 @@ setStores({
     turnNavigationStore: turnNavigationStore,
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
+    poisStore: new POIsStore(),
 })
 
 setMap(createMap())
@@ -93,6 +101,7 @@ Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getTurnNavigationStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getMapFeatureStore())
+Dispatcher.register(getPOIsStore())
 
 // register map action receiver
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')

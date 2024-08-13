@@ -4,7 +4,11 @@ A route planner user interface for the [GraphHopper routing engine](https://gith
 
 [Try it out](https://graphhopper.com/maps/)!
 
+We have developed an intuite and simple user interface to find routes:
+
 [![GraphHopper Maps route planner](https://www.graphhopper.com/wp-content/uploads/2023/03/gh-maps-202303.png)](https://graphhopper.com/maps/)
+
+With autocomplete, alternative routes, information along the route and POI search and everything available in all major browsers including mobile browsers. Read more details about it [here](https://www.graphhopper.com/maps-route-planner/).
 
 ## Turn-by-Turn navigation
 
@@ -31,7 +35,7 @@ GraphHopper Maps is translated into many languages and you can help improve Grap
 to create a new or improve an existing language. Let us know if you changed something or submit a pull request with your changes after the following steps:
 
  * Edit the spreadsheet
- * Run `python3 update-translations.py`
+ * Run `python update-translations.py`
  * Review your changes via e.g. http://localhost:3000/?locale=en and with `git diff`. Make sure that is the only one with `git status`.
  
 Please note that the translations for the server-side turn instructions are located in [a different repository](https://github.com/graphhopper/graphhopper/blob/master/docs/core/translations.md).
@@ -54,3 +58,4 @@ This project uses
  * the [codemirror](https://codemirror.net/) code editor for the custom model editor.
  * many icons from Google's [open source font library](https://fonts.google.com/icons).
  * many more open source projects - see the package.json
+

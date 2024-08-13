@@ -7,6 +7,7 @@ import TurnNavigationStore from '@/stores/TurnNavigationStore'
 import PathDetailsStore from '@/stores/PathDetailsStore'
 import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
+import POIsStore from '@/stores/POIsStore'
 
 let settingsStore: SettingsStore
 let queryStore: QueryStore
@@ -17,6 +18,7 @@ let mapOptionsStore: MapOptionsStore
 let turnNavigationStore: TurnNavigationStore
 let pathDetailsStore: PathDetailsStore
 let mapFeatureStore: MapFeatureStore
+let poisStore: POIsStore
 
 interface StoresInput {
     settingsStore: SettingsStore
@@ -28,6 +30,7 @@ interface StoresInput {
     turnNavigationStore: TurnNavigationStore
     pathDetailsStore: PathDetailsStore
     mapFeatureStore: MapFeatureStore
+    poisStore: POIsStore
 }
 
 export const setStores = function (stores: StoresInput) {
@@ -40,6 +43,7 @@ export const setStores = function (stores: StoresInput) {
     turnNavigationStore = stores.turnNavigationStore
     pathDetailsStore = stores.pathDetailsStore
     mapFeatureStore = stores.mapFeatureStore
+    poisStore = stores.poisStore
 }
 
 export const getSettingsStore = () => settingsStore
@@ -51,3 +55,4 @@ export const getMapOptionsStore = () => mapOptionsStore
 export const getTurnNavigationStore = () => turnNavigationStore
 export const getPathDetailsStore = () => pathDetailsStore
 export const getMapFeatureStore = () => mapFeatureStore
+export const getPOIsStore = () => poisStore

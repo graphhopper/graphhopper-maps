@@ -8,6 +8,7 @@ import {
     Path,
     RawPath,
     RawResult,
+    ReverseGeocodingHit,
     RoutingArgs,
     RoutingProfile,
     RoutingRequest,
@@ -16,6 +17,8 @@ import {
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
+import { Coordinate } from '@/stores/QueryStore'
+import { POIPhrase, POIAndQuery, POIQuery } from '@/pois/AddressParseResult'
 
 interface ApiProfile {
     name: string
@@ -29,6 +32,8 @@ export default interface Api {
     routeWithDispatch(args: RoutingArgs, zoom: boolean): void
 
     geocode(query: string, provider: string, additionalOptions?: Record<string, string>): Promise<GeocodingResult>
+
+    reverseGeocode(query: POIQuery, bbox: Bbox): Promise<ReverseGeocodingHit[]>
 
     supportsGeocoding(): boolean
 }
@@ -114,6 +119,68 @@ export class ApiImpl implements Api {
             return (await response.json()) as GeocodingResult
         } else {
             throw new Error('Geocoding went wrong ' + response.status)
+        }
+    }
+
+    async reverseGeocode(query: POIQuery, bbox: Bbox): Promise<ReverseGeocodingHit[]> {
+        if (!this.supportsGeocoding()) return []
+        // why is main overpass api so much faster?
+        // const url = 'https://overpass.kumi.systems/api/interpreter'
+        const url = 'https://overpass-api.de/api/interpreter'
+
+        // bbox of overpass is minLat, minLon, maxLat, maxLon
+        let minLat = bbox[1],
+            minLon = bbox[0],
+            maxLat = bbox[3],
+            maxLon = bbox[2]
+
+        // Reduce the bbox to improve overpass response time for larger cities or areas.
+        // This might lead to empty responses for POI queries with a small result set.
+        if (maxLat - minLat > 0.3) {
+            const centerLat = (maxLat + minLat) / 2
+            maxLat = centerLat + 0.15
+            minLat = centerLat - 0.15
+        }
+        if (maxLon - minLon > 0.3) {
+            const centerLon = (maxLon + minLon) / 2
+            maxLon = centerLon + 0.15
+            minLon = centerLon - 0.15
+        }
+
+        let queryString = ''
+        for (const q of query.queries) {
+            // nwr means it searches for nodes, ways and relations
+            queryString += 'nwr'
+            for (const p of q.phrases) {
+                if (p.sign == '=' && p.v == '*') queryString += `["${p.k}"]`
+                else queryString += `["${p.k}"${p.sign}"${p.v}"]`
+            }
+            queryString += `;\n`
+        }
+
+        try {
+            const data = `[out:json][timeout:15][bbox:${minLat}, ${minLon}, ${maxLat}, ${maxLon}];\n(${queryString});\nout center 100;`
+            console.log(data)
+            const result = await fetch(url, {
+                method: 'POST',
+                body: 'data=' + encodeURIComponent(data),
+            })
+            const json = await result.json()
+            if (json.elements) {
+                const res = (json.elements as any[])
+                    .map(e => {
+                        if (e.center) {
+                            return { ...e, point: { lat: e.center.lat, lng: e.center.lon } } as ReverseGeocodingHit
+                        } else {
+                            return { ...e, point: { lat: e.lat, lng: e.lon } } as ReverseGeocodingHit
+                        }
+                    })
+                    .filter(p => !!p.tags && p.point)
+                return res
+            } else return []
+        } catch (error) {
+            console.warn('error occured ' + error)
+            return []
         }
     }
 
@@ -391,5 +458,26 @@ export class ApiImpl implements Api {
 
     public static isTruck(profile: string) {
         return profile.includes('truck')
+    }
+
+    public static getBBoxPoints(points: Coordinate[]): Bbox | null {
+        const bbox: Bbox = points.reduce(
+            (res: Bbox, c) => [
+                Math.min(res[0], c.lng),
+                Math.min(res[1], c.lat),
+                Math.max(res[2], c.lng),
+                Math.max(res[3], c.lat),
+            ],
+            [180, 90, -180, -90] as Bbox
+        )
+        if (points.length == 1) {
+            bbox[0] = bbox[0] - 0.001
+            bbox[1] = bbox[1] - 0.001
+            bbox[2] = bbox[2] + 0.001
+            bbox[3] = bbox[3] + 0.001
+        }
+
+        // return null if the bbox is not valid, e.g. if no url points were given at all
+        return bbox[0] < bbox[2] && bbox[1] < bbox[3] ? bbox : null
     }
 }

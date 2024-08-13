@@ -10,12 +10,21 @@ import {
 } from '@/actions/Actions'
 import TurnNavigationStore, { MapCoordinateSystem, TNSettingsState } from '@/stores/TurnNavigationStore'
 import { SpeechSynthesizer } from '@/SpeechSynthesizer'
-import { ApiInfo, GeocodingResult, RawResult, RoutingArgs, RoutingResult } from '@/api/graphhopper'
+import {
+    ApiInfo,
+    Bbox,
+    GeocodingResult,
+    RawResult,
+    ReverseGeocodingHit,
+    RoutingArgs,
+    RoutingResult, TagHash
+} from '@/api/graphhopper'
 import Api, { ApiImpl } from '@/api/Api'
 import { setTranslation } from '@/translation/Translation'
 import { Coordinate } from '@/stores/QueryStore'
 import { Pixel } from 'ol/pixel'
 import SettingsStore from '@/stores/SettingsStore'
+import {POIQuery} from "@/pois/AddressParseResult";
 
 let routeWithVia = toRoutingResult(require('../turnNavigation/response-hoyerswerda2.json'))
 let reroute1 = toRoutingResult(require('../turnNavigation/reroute1.json'))
@@ -407,6 +416,10 @@ describe('TurnNavigationStore', () => {
                 took: 0,
                 hits: [],
             })
+        }
+
+        reverseGeocode(query: POIQuery, bbox: Bbox): Promise<ReverseGeocodingHit[]> {
+            return Promise.resolve([])
         }
 
         supportsGeocoding(): boolean {

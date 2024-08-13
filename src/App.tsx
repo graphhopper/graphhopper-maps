@@ -7,6 +7,7 @@ import {
     getMapFeatureStore,
     getMapOptionsStore,
     getPathDetailsStore,
+    getPOIsStore,
     getQueryStore,
     getRouteStore,
     getSettingsStore,
@@ -46,7 +47,8 @@ import Cross from '@/sidebar/times-solid.svg'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
-import { SettingsContext } from './contexts/SettingsContext'
+import { SettingsContext } from '@/contexts/SettingsContext'
+import usePOIsLayer from '@/layers/UsePOIsLayer'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -61,6 +63,7 @@ export default function App() {
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
     const [mapFeatures, setMapFeatures] = useState(getMapFeatureStore().state)
+    const [pois, setPOIs] = useState(getPOIsStore().state)
 
     const map = getMap()
 
@@ -74,6 +77,7 @@ export default function App() {
         const onTurnNavigationChanged = () => setTurnNavigation(getTurnNavigationStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
         const onMapFeaturesChanged = () => setMapFeatures(getMapFeatureStore().state)
+        const onPOIsChanged = () => setPOIs(getPOIsStore().state)
 
         getSettingsStore().register(onSettingsChanged)
         getQueryStore().register(onQueryChanged)
@@ -84,6 +88,7 @@ export default function App() {
         getTurnNavigationStore().register(onTurnNavigationChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
+        getPOIsStore().register(onPOIsChanged)
 
         onQueryChanged()
         onInfoChanged()
@@ -93,6 +98,7 @@ export default function App() {
         onTurnNavigationChanged()
         onPathDetailsChanged()
         onMapFeaturesChanged()
+        onPOIsChanged()
 
         return () => {
             getSettingsStore().register(onSettingsChanged)
@@ -104,6 +110,7 @@ export default function App() {
             getTurnNavigationStore().deregister(onTurnNavigationChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
+            getPOIsStore().deregister(onPOIsChanged)
         }
     }, [])
 
@@ -118,12 +125,19 @@ export default function App() {
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
     useCurrentLocationLayer(map, turnNavigation)
+    usePOIsLayer(map, pois)
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <SettingsContext.Provider value={settings}>
             <div className={turnNavigation.showUI ? styles.appNaviWrapper : styles.appWrapper}>
-                <MapPopups map={map} pathDetails={pathDetails} mapFeatures={mapFeatures} />
+                <MapPopups
+                    map={map}
+                    pathDetails={pathDetails}
+                    mapFeatures={mapFeatures}
+                    poiState={pois}
+                    query={query}
+                />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
                 {turnNavigation.showUI ? (
                     <>
@@ -208,7 +222,7 @@ function LargeScreenLayout({
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} turnNavigationSettings={turnNavigation.settings} />
+                        <Search points={query.queryPoints} map={map} turnNavigationSettings={turnNavigation.settings} />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
                             info={route.routingResult.info}
@@ -266,6 +280,7 @@ function SmallScreenLayout({
                     encodedValues={encodedValues}
                     turnNavigationSettings={turnNavigation.settings}
                     drawAreas={drawAreas}
+                    map={map}
                 />
             </div>
             <div className={styles.smallScreenMap}>

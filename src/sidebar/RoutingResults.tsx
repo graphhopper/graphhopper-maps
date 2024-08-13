@@ -535,6 +535,7 @@ function toCoordinate(pos: Position): Coordinate {
 }
 
 function toBBox(segment: Coordinate[]): Bbox {
+    // TODO replace with ApiImpl.getBBoxPoints
     const bbox = getBBoxFromCoord(segment[0], 0.002)
     if (segment.length == 1) bbox
     segment.forEach(c => {
