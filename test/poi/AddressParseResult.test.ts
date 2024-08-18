@@ -58,5 +58,8 @@ describe('reverse geocoder', () => {
         // no "select query", only 'not' queries => leads currently to no match
         res = AddressParseResult.parse('dresden amenity!=bar military!~.*', false)
         expect(res.hasPOIs()).toEqual(false)
+
+        res = AddressParseResult.parse('sushi', false)
+        expect(res.query.toString()).toEqual('cuisine=sushi name~sushi')
     })
 })
