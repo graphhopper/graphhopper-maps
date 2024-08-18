@@ -44,18 +44,32 @@ export class AddressParseResult {
             bigrams.push(queryTokens[i] + ' ' + queryTokens[i + 1])
         }
 
+        const trigrams: string[] = []
+        for (let i = 0; i < queryTokens.length - 2; i++) {
+            trigrams.push(queryTokens[i] + ' ' + queryTokens[i + 1] + ' ' + queryTokens[i + 2])
+        }
+
         for (const val of AddressParseResult.TRIGGER_VALUES) {
+            // three word phrases like 'home improvement store' must be checked before two word phrases
+            if (trigrams.length > 0)
+                for (const keyword of val.k) {
+                    const i = trigrams.indexOf(keyword)
+                    if (i < 0) continue
+                    return new AddressParseResult(cleanQuery.replace(trigrams[i], '').trim(), val.q, val.i, val.k[0])
+                }
+
             // two word phrases like 'public transit' must be checked before single word phrases
-            for (const keyword of val.k) {
-                const i = bigrams.indexOf(keyword)
-                if (i >= 0)
+            if (bigrams.length > 0)
+                for (const keyword of val.k) {
+                    const i = bigrams.indexOf(keyword)
+                    if (i < 0) continue
                     return new AddressParseResult(cleanQuery.replace(bigrams[i], '').trim(), val.q, val.i, val.k[0])
-            }
+                }
 
             for (const keyword of val.k) {
                 const i = queryTokens.indexOf(keyword)
-                if (i >= 0)
-                    return new AddressParseResult(cleanQuery.replace(queryTokens[i], '').trim(), val.q, val.i, val.k[0])
+                if (i < 0) continue
+                return new AddressParseResult(cleanQuery.replace(queryTokens[i], '').trim(), val.q, val.i, val.k[0])
             }
         }
 
@@ -171,6 +185,7 @@ export class AddressParseResult {
             { k: 'poi_cuisine_russian', q: ['cuisine=russian', 'origin=russian'], i: 'restaurant' },
             { k: 'poi_cuisine_turkish', q: ['cuisine=turkish', 'origin=turkish'], i: 'restaurant' },
 
+            { k: 'poi_diy', q: ['shop=doityourself'], i: 'store' },
             { k: 'poi_education', q: ['amenity=school', 'building=school', 'building=university'], i: 'school' },
 
             { k: 'poi_food_burger', q: ['cuisine=burger', 'name~burger'], i: 'restaurant' },

@@ -153,7 +153,7 @@ export class ApiImpl implements Api {
             queryString += 'nwr'
             for (const p of q.phrases) {
                 if (p.sign == '=' && p.v == '*') queryString += `["${p.k}"]`
-                else if(p.ignoreCase) queryString += `["${p.k}"${p.sign}"${p.v}", i]`
+                else if (p.ignoreCase) queryString += `["${p.k}"${p.sign}"${p.v}", i]`
                 else queryString += `["${p.k}"${p.sign}"${p.v}"]`
             }
             queryString += `;\n`

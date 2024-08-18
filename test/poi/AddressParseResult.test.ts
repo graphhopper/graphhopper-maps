@@ -60,6 +60,11 @@ describe('reverse geocoder', () => {
         expect(res.hasPOIs()).toEqual(false)
 
         res = AddressParseResult.parse('sushi', false)
+        expect(res.location).toEqual('')
         expect(res.query.toString()).toEqual('cuisine=sushi name~sushi')
+
+        res = AddressParseResult.parse('Home improvement store', false)
+        expect(res.location).toEqual('')
+        expect(res.query.toString()).toEqual('shop=doityourself')
     })
 })
