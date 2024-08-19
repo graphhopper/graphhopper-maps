@@ -186,6 +186,8 @@ export class AddressParseResult {
             { k: 'poi_cuisine_turkish', q: ['cuisine=turkish', 'origin=turkish'], i: 'restaurant' },
 
             { k: 'poi_diy', q: ['shop=doityourself'], i: 'store' },
+            { k: 'poi_doctor', q: ['amenity=doctors', 'healthcare=doctor'], i: 'local_pharmacy' },
+            { k: 'poi_dentist', q: ['amenity=dentist', 'healthcare=dentist'], i: 'local_pharmacy' },
             { k: 'poi_education', q: ['amenity=school', 'building=school', 'building=university'], i: 'school' },
 
             { k: 'poi_food_burger', q: ['cuisine=burger', 'name~burger'], i: 'restaurant' },
