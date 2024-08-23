@@ -1,5 +1,4 @@
-import { AddressParseResult, POIPhrase } from '@/pois/AddressParseResult'
-import fetchMock from 'jest-fetch-mock'
+import { AddressParseResult } from '@/pois/AddressParseResult'
 import { getTranslation, setTranslation } from '@/translation/Translation'
 
 beforeAll(() => {

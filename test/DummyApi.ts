@@ -1,4 +1,4 @@
-import Api from '../src/api/Api'
+import Api from '@/api/Api'
 import {
     ApiInfo,
     GeocodingResult,
@@ -7,7 +7,7 @@ import {
     RoutingResult,
     RoutingResultInfo,
     Bbox,
-} from '../src/api/graphhopper'
+} from '@/api/graphhopper'
 import { POIAndQuery, POIQuery } from '@/pois/AddressParseResult'
 
 export default class DummyApi implements Api {

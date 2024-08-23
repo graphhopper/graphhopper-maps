@@ -1,5 +1,5 @@
 import NavBar from '@/NavBar'
-import QueryStore, { QueryPoint, QueryPointType } from '../src/stores/QueryStore'
+import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import DummyApi from './DummyApi'
 import { SelectMapLayer, SetPoint, SetVehicleProfile } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'

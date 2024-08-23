@@ -1,4 +1,4 @@
-import { setTranslation } from '../src/translation/Translation'
+import { setTranslation } from '@/translation/Translation'
 
 describe('translate', () => {
     it('should translate', () => {
