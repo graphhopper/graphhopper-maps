@@ -1,7 +1,7 @@
 import styles from './LocationButton.module.css'
 import { onCurrentLocationButtonClicked } from '@/map/MapComponent'
 import Dispatcher from '@/stores/Dispatcher'
-import {SetBBox, SetPoint, ZoomMapToPoint} from '@/actions/Actions'
+import { SetBBox, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
 import { getBBoxFromCoord, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import LocationError from '@/map/location_error.svg'
 import LocationSearching from '@/map/location_searching.svg'

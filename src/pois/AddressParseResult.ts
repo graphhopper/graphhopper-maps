@@ -175,7 +175,11 @@ export class AddressParseResult {
             { k: 'poi_car_rental', q: ['amenity=car_rental', 'amenity=car_sharing'], i: 'car_rental' },
             { k: 'poi_car_repair', q: ['shop=car', 'shop=car_repair'], i: 'car_repair' },
             { k: 'poi_bus_stops', q: ['highway=bus_stop'], i: 'train' },
-            { k: 'poi_cafe', q: ['amenity=cafe', 'amenity=restaurant and cuisine=coffee_shop', 'amenity=internet_cafe'], i: 'restaurant' },
+            {
+                k: 'poi_cafe',
+                q: ['amenity=cafe', 'amenity=restaurant and cuisine=coffee_shop', 'amenity=internet_cafe'],
+                i: 'restaurant',
+            },
             { k: 'poi_charging_station', q: ['amenity=charging_station'], i: 'charger' },
             { k: 'poi_cinema', q: ['amenity=cinema'], i: 'cinematic_blur' },
 
@@ -236,15 +240,25 @@ export class AddressParseResult {
             { k: 'poi_shop_bakery', q: ['shop=bakery'], i: 'store' },
             { k: 'poi_shop_butcher', q: ['shop=butcher'], i: 'store' },
             { k: 'poi_super_markets', q: ['shop=supermarket', 'building=supermarket'], i: 'store' },
-            { k: 'poi_swim', q: ['natural=beach', 'sport=swimming', /* not always properly tagged 'leisure=swimming_pool and access!=private'*/], i: 'pool' },
+            {
+                k: 'poi_swim',
+                q: [
+                    'natural=beach',
+                    'sport=swimming' /* not always properly tagged 'leisure=swimming_pool and access!=private'*/,
+                ],
+                i: 'pool',
+            },
             { k: 'poi_toilets', q: ['amenity=toilets'], i: 'home_and_garden' },
             { k: 'poi_tourism', q: ['tourism=*'], i: 'luggage' },
             { k: 'poi_townhall', q: ['amenity=townhall'], i: 'location_city' },
-            { k: 'poi_transit_stops', q: ['highway=bus_stop', 'railway=tram_stop', 'public_transport=platform', 'railway=platform'], i: 'train' },
+            {
+                k: 'poi_transit_stops',
+                q: ['highway=bus_stop', 'railway=tram_stop', 'public_transport=platform', 'railway=platform'],
+                i: 'train',
+            },
             { k: 'poi_viewpoint', q: ['tourism=viewpoint'], i: 'visibility' },
             { k: 'poi_water', q: ['amenity=drinking_water', 'natural=spring'], i: 'water_drop' },
             { k: 'poi_wifi', q: ['internet_access=* and internet_access!=no', 'amenity=internet_cafe'], i: 'wifi' },
-
         ].map(v => {
             const queries = v.q.map(val => {
                 return new POIAndQuery(
