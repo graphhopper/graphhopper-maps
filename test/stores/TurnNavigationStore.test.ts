@@ -17,14 +17,15 @@ import {
     RawResult,
     ReverseGeocodingHit,
     RoutingArgs,
-    RoutingResult, TagHash
+    RoutingResult,
+    TagHash,
 } from '@/api/graphhopper'
 import Api, { ApiImpl } from '@/api/Api'
 import { setTranslation } from '@/translation/Translation'
 import { Coordinate } from '@/stores/QueryStore'
 import { Pixel } from 'ol/pixel'
 import SettingsStore from '@/stores/SettingsStore'
-import {POIQuery} from "@/pois/AddressParseResult";
+import { POIQuery } from '@/pois/AddressParseResult'
 
 let routeWithVia = toRoutingResult(require('../turnNavigation/response-hoyerswerda2.json'))
 let reroute1 = toRoutingResult(require('../turnNavigation/reroute1.json'))

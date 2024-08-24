@@ -6,7 +6,7 @@ import { createMap, getMap, setMap } from '@/map/map'
 import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
 import { SpeechSynthesizerImpl } from '@/SpeechSynthesizer'
-import {getTranslation, setTranslation} from '@/translation/Translation'
+import { getTranslation, setTranslation } from '@/translation/Translation'
 import { getApi, setApi } from '@/api/Api'
 import QueryStore from '@/stores/QueryStore'
 import RouteStore from '@/stores/RouteStore'
@@ -34,9 +34,9 @@ import NavBar from '@/NavBar'
 import POIsStore from '@/stores/POIsStore'
 import { initDistanceFormat } from '@/Converters'
 import { AddressParseResult } from '@/pois/AddressParseResult'
-import {Pixel} from "ol/pixel";
-import {toLonLat} from "ol/proj";
-import {ErrorAction, InfoReceived, LocationUpdateSync} from "@/actions/Actions";
+import { Pixel } from 'ol/pixel'
+import { toLonLat } from 'ol/proj'
+import { ErrorAction, InfoReceived, LocationUpdateSync } from '@/actions/Actions'
 
 console.log(`Source code: https://github.com/graphhopper/graphhopper-maps/tree/${GIT_SHA}`)
 
