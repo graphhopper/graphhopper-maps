@@ -23,8 +23,10 @@ import local_post_office from '../pois/img/local_post_office.svg'
 import location_city from '../pois/img/location_city.svg'
 import luggage_svg from '../pois/img/luggage.svg'
 import museum_svg from '../pois/img/museum.svg'
-import police from '../pois/img/police.svg'
 import pedal_bike from '../pois/img/pedal_bike.svg'
+import police from '../pois/img/police.svg'
+import pool from '../pois/img/pool.svg'
+import recycling from '../pois/img/recycling.svg'
 import restaurant_svg from '../pois/img/restaurant.svg'
 import school_svg from '../pois/img/school.svg'
 import sports_handball_svg from '../pois/img/sports_handball.svg'
@@ -61,9 +63,11 @@ const svgObjects: { [id: string]: any } = {
     museum: museum_svg(),
     pedal_bike: pedal_bike(),
     police: police(),
+    recycling: recycling(),
     restaurant: restaurant_svg(),
     school: school_svg(),
     sports_handball: sports_handball_svg(),
+    pool: pool(),
     store: store_svg(),
     train: train_svg(),
     universal_currency_alt: universal_currency_alt_svg(),
