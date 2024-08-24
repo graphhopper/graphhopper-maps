@@ -65,5 +65,9 @@ describe('reverse geocoder', () => {
         res = AddressParseResult.parse('Home improvement store', false)
         expect(res.location).toEqual('')
         expect(res.query.toString()).toEqual('shop=doityourself')
+
+        // space should not confuse the parser
+        res = AddressParseResult.parse('bike ', false)
+        expect(res.hasPOIs()).toEqual(false)
     })
 })

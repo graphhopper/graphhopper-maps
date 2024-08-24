@@ -34,7 +34,7 @@ export class AddressParseResult {
         query = query.toLowerCase()
 
         const smallWords = AddressParseResult.REMOVE_VALUES // e.g. 'restaurants in this area' or 'restaurants in berlin'
-        const queryTokens: string[] = query.split(' ').filter(token => !smallWords.includes(token))
+        const queryTokens: string[] = query.split(' ').filter(token => token && !smallWords.includes(token))
         const res = AddressParseResult.getGeneric(queryTokens)
         if (res.hasPOIs()) return res
 
@@ -165,11 +165,19 @@ export class AddressParseResult {
         AddressParseResult.REMOVE_VALUES = t('poi_removal_words')
         AddressParseResult.TRIGGER_VALUES = [
             { k: 'poi_airports', q: ['aeroway=aerodrome and landuse!=military and military!~.*'], i: 'flight_takeoff' },
+            // poi_bureau_de_change must come before atm due to single word phrase 'money'
+            { k: 'poi_bureau_de_change', q: ['amenity=bureau_de_change'], i: 'local_atm' },
             { k: 'poi_atm', q: ['amenity=atm', 'amenity=bank'], i: 'local_atm' },
             { k: 'poi_banks', q: ['amenity=bank'], i: 'universal_currency_alt' },
+            { k: 'poi_bicycle', q: ['shop=bicycle'], i: 'pedal_bike' },
+            { k: 'poi_bicycle_rental', q: ['amenity=bicycle_rental'], i: 'pedal_bike' },
+
+            { k: 'poi_car_rental', q: ['amenity=car_rental', 'amenity=car_sharing'], i: 'car_rental' },
+            { k: 'poi_car_repair', q: ['shop=car', 'shop=car_repair'], i: 'car_repair' },
             { k: 'poi_bus_stops', q: ['highway=bus_stop'], i: 'train' },
-            { k: 'poi_cafe', q: ['amenity=cafe', 'amenity=restaurant and cuisine=coffee_shop'], i: 'restaurant' },
+            { k: 'poi_cafe', q: ['amenity=cafe', 'amenity=restaurant and cuisine=coffee_shop', 'amenity=internet_cafe'], i: 'restaurant' },
             { k: 'poi_charging_station', q: ['amenity=charging_station'], i: 'charger' },
+            { k: 'poi_cinema', q: ['amenity=cinema'], i: 'cinematic_blur' },
 
             { k: 'poi_cuisine_american', q: ['cuisine=american', 'origin=american'], i: 'restaurant' },
             { k: 'poi_cuisine_african', q: ['cuisine=african', 'origin=african'], i: 'restaurant' },
@@ -190,6 +198,7 @@ export class AddressParseResult {
             { k: 'poi_dentist', q: ['amenity=dentist', 'healthcare=dentist'], i: 'local_pharmacy' },
             { k: 'poi_education', q: ['amenity=school', 'building=school', 'building=university'], i: 'school' },
 
+            { k: 'poi_fast_food', q: ['amenity=fast_food'], i: 'restaurant' },
             { k: 'poi_food_burger', q: ['cuisine=burger', 'name~burger'], i: 'restaurant' },
             { k: 'poi_food_kebab', q: ['cuisine=kebab', 'name~kebab'], i: 'restaurant' },
             { k: 'poi_food_pizza', q: ['cuisine=pizza', 'name~pizza'], i: 'restaurant' },
@@ -207,7 +216,7 @@ export class AddressParseResult {
             { k: 'poi_pharmacies', q: ['amenity=pharmacy'], i: 'local_pharmacy' },
             { k: 'poi_playgrounds', q: ['leisure=playground'], i: 'sports_handball' },
             { k: 'poi_police', q: ['amenity=police'], i: 'police' },
-            // important to have this before "post"
+            // poi_post_box must come before poi_post due to single word phrase 'post'
             {
                 k: 'poi_post_box',
                 q: ['amenity=post_box', 'amenity=post_office', 'amenity=post_depot'],
@@ -223,10 +232,16 @@ export class AddressParseResult {
             { k: 'poi_restaurants', q: ['amenity=restaurant'], i: 'restaurant' },
             { k: 'poi_schools', q: ['amenity=school', 'building=school'], i: 'school' },
             { k: 'poi_shopping', q: ['shop=*'], i: 'store' },
+            { k: 'poi_shop_bakery', q: ['shop=bakery'], i: 'store' },
+            { k: 'poi_shop_butcher', q: ['shop=butcher'], i: 'store' },
             { k: 'poi_super_markets', q: ['shop=supermarket', 'building=supermarket'], i: 'store' },
             { k: 'poi_toilets', q: ['amenity=toilets'], i: 'home_and_garden' },
             { k: 'poi_tourism', q: ['tourism=*'], i: 'luggage' },
+            { k: 'poi_townhall', q: ['amenity=townhall'], i: 'location_city' },
+            { k: 'poi_viewpoint', q: ['tourism=viewpoint'], i: 'visibility' },
             { k: 'poi_water', q: ['amenity=drinking_water'], i: 'water_drop' },
+            { k: 'poi_wifi', q: ['internet_access=* and internet_access!=no', 'amenity=internet_cafe'], i: 'wifi' },
+
         ].map(v => {
             const queries = v.q.map(val => {
                 return new POIAndQuery(
