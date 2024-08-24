@@ -18,7 +18,7 @@ import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
 import { Coordinate } from '@/stores/QueryStore'
-import { POIPhrase, POIAndQuery, POIQuery } from '@/pois/AddressParseResult'
+import { POIQuery } from '@/pois/AddressParseResult'
 
 interface ApiProfile {
     name: string
@@ -153,6 +153,7 @@ export class ApiImpl implements Api {
             queryString += 'nwr'
             for (const p of q.phrases) {
                 if (p.sign == '=' && p.v == '*') queryString += `["${p.k}"]`
+                else if (p.ignoreCase) queryString += `["${p.k}"${p.sign}"${p.v}", i]`
                 else queryString += `["${p.k}"${p.sign}"${p.v}"]`
             }
             queryString += `;\n`
