@@ -106,7 +106,6 @@ export default function AddressInput(props: AddressInputProps) {
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             const inputElement = event.target as HTMLInputElement
             if (event.key === 'Escape') {
-                inputElement.blur()
                 // onBlur is deactivated for mobile so force:
                 setHasFocus(false)
                 setText(origText)
@@ -164,7 +163,6 @@ export default function AddressInput(props: AddressInputProps) {
                             props.onAddressSelected(item.toText(), item.point)
                         }
                     }
-                    inputElement.blur()
                     // onBlur is deactivated for mobile so force:
                     setHasFocus(false)
                     hideSuggestions()
