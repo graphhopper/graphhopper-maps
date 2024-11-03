@@ -31,7 +31,6 @@ const config = {
             'track_type',
             'country',
         ],
-        snapPreventions: ['ferry'],
     },
 
     // Use 'profiles' to define which profiles are visible and how. Useful if the /info endpoint contains too many or too "ugly" profile
