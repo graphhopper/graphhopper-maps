@@ -5,13 +5,13 @@ import Autocomplete, {
     AutocompleteItem,
     GeocodingItem,
     POIQueryItem,
-    SelectCurrentLocationItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
 
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
+import CurrentLocationIcon from './current-location.svg'
 import styles from './AddressInput.module.css'
-import Api, { ApiImpl, getApi } from '@/api/Api'
+import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import { coordinateToText, hitToItem, nominatimHitToItem, textToCoordinate } from '@/Converters'
 import { useMediaQuery } from 'react-responsive'
@@ -19,7 +19,6 @@ import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
 import { toLonLat, transformExtent } from 'ol/proj'
-import { calcDist } from '@/distUtils'
 import { Map } from 'ol'
 import { AddressParseResult } from '@/pois/AddressParseResult'
 import { getMap } from '@/map/map'
@@ -79,11 +78,6 @@ export default function AddressInput(props: AddressInputProps) {
 
     // if item is selected we need to clear the autocompletion list
     useEffect(() => setAutocompleteItems([]), [props.point])
-    // if no items but input is selected show current location item
-    useEffect(() => {
-        if (hasFocus && text.length == 0 && autocompleteItems.length === 0)
-            setAutocompleteItems([new SelectCurrentLocationItem()])
-    }, [autocompleteItems, hasFocus])
 
     function hideSuggestions() {
         geocoder.cancel()
@@ -207,6 +201,7 @@ export default function AddressInput(props: AddressInputProps) {
                     style={props.moveStartIndex == props.index ? { borderWidth: '2px', margin: '-1px' } : {}}
                     className={styles.input}
                     type="text"
+                    autoFocus={props.index == 0}
                     ref={searchInput}
                     autoComplete="off"
                     onChange={e => {
@@ -223,6 +218,7 @@ export default function AddressInput(props: AddressInputProps) {
                         if (origAutocompleteItems.length > 0) setAutocompleteItems(origAutocompleteItems)
                     }}
                     onBlur={() => {
+                        setHasFocus(false)
                         if (!isSmallScreen) hideSuggestions() // see #398
                     }}
                     value={text}
@@ -234,13 +230,25 @@ export default function AddressInput(props: AddressInputProps) {
                 <PlainButton
                     style={text.length == 0 ? { display: 'none' } : {}}
                     className={styles.btnInputClear}
-                    onClick={() => {
+                    onMouseDown={(e) => {
+                        e.preventDefault() // do not lose focus and close mobile-input view when clicked
                         setText('')
                         props.onChange('')
                         searchInput.current!.focus()
                     }}
                 >
                     <Cross />
+                </PlainButton>
+
+                <PlainButton
+                    style={text.length == 0 && hasFocus ? {} : { display: 'none' }}
+                    className={styles.btnCurrentLocation}
+                    onMouseDown={(e) => {
+                        // here it is desired to close mobile-input view when clicked
+                        onCurrentLocationSelected(props.onAddressSelected)
+                    }}
+                >
+                    <CurrentLocationIcon />
                 </PlainButton>
 
                 {autocompleteItems.length > 0 && (
@@ -257,9 +265,6 @@ export default function AddressInput(props: AddressInputProps) {
                                 if (item instanceof GeocodingItem) {
                                     hideSuggestions()
                                     props.onAddressSelected(item.toText(), item.point)
-                                } else if (item instanceof SelectCurrentLocationItem) {
-                                    hideSuggestions()
-                                    onCurrentLocationSelected(props.onAddressSelected)
                                 } else if (item instanceof POIQueryItem) {
                                     hideSuggestions()
                                     handlePoiSearch(poiSearch, item.result, props.map)
