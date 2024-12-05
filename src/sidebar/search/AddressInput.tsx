@@ -248,7 +248,7 @@ export default function AddressInput(props: AddressInputProps) {
                     className={styles.btnCurrentLocation}
                     // no onClick because otherwise focus would be lost before button receives click
                     onMouseDown={(e) => {
-                        // here it is desired to close mobile-input view when clicked
+                        // here it is desired to close mobile-input view when clicked -> no "e.preventDefault()"
                         onCurrentLocationSelected(props.onAddressSelected)
                     }}
                 >
