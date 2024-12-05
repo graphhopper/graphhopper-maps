@@ -174,6 +174,9 @@ export default function AddressInput(props: AddressInputProps) {
     const lonlat = toLonLat(getMap().getView().getCenter()!)
     const biasCoord = { lng: lonlat[0], lat: lonlat[1] }
 
+    // do not focus on mobile as we would hide the map with the "input"-view
+    const focusFirstInput = props.index == 0 && !isSmallScreen
+
     return (
         <div className={containerClass}>
             <div
@@ -201,7 +204,7 @@ export default function AddressInput(props: AddressInputProps) {
                     style={props.moveStartIndex == props.index ? { borderWidth: '2px', margin: '-1px' } : {}}
                     className={styles.input}
                     type="text"
-                    autoFocus={props.index == 0}
+                    autoFocus={focusFirstInput}
                     ref={searchInput}
                     autoComplete="off"
                     onChange={e => {
@@ -219,7 +222,7 @@ export default function AddressInput(props: AddressInputProps) {
                     }}
                     onBlur={() => {
                         setHasFocus(false)
-                        if (!isSmallScreen) hideSuggestions() // see #398
+                        hideSuggestions()
                     }}
                     value={text}
                     placeholder={tr(
@@ -230,11 +233,11 @@ export default function AddressInput(props: AddressInputProps) {
                 <PlainButton
                     style={text.length == 0 ? { display: 'none' } : {}}
                     className={styles.btnInputClear}
+                    // no onClick because otherwise focus would be lost before button receives click
                     onMouseDown={(e) => {
                         e.preventDefault() // do not lose focus and close mobile-input view when clicked
                         setText('')
                         props.onChange('')
-                        searchInput.current!.focus()
                     }}
                 >
                     <Cross />
@@ -243,6 +246,7 @@ export default function AddressInput(props: AddressInputProps) {
                 <PlainButton
                     style={text.length == 0 && hasFocus ? {} : { display: 'none' }}
                     className={styles.btnCurrentLocation}
+                    // no onClick because otherwise focus would be lost before button receives click
                     onMouseDown={(e) => {
                         // here it is desired to close mobile-input view when clicked
                         onCurrentLocationSelected(props.onAddressSelected)

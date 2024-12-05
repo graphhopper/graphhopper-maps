@@ -6,6 +6,8 @@
 }
 
 .btnCurrentLocation {
+    opacity: 1;
+    transition: opacity 2s ease-in-out;
     padding: 0 7px 0 5px;
     color: grey;
     width: 32px;
