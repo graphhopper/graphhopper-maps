@@ -113,11 +113,11 @@ function AutocompleteEntry({
             }}
             // using click events for mouse interaction and touch end to select an entry.
             onClick={() => onSelect()}
-            // TODO NOW is this onTouchEnd workaround still required?
-            // onTouchEnd={e => {
-            //     e.preventDefault() // do not forward click to underlying component
-            //     onSelect()
-            // }}
+            // minor workaround to improve success rate for click even if start and end location on screen are slightly different
+            onTouchEnd={e => {
+                e.preventDefault() // do not forward click to underlying component
+                onSelect()
+            }}
         >
             {children}
         </button>
