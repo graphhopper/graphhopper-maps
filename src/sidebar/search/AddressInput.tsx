@@ -100,10 +100,8 @@ export default function AddressInput(props: AddressInputProps) {
         (event: React.KeyboardEvent<HTMLInputElement>) => {
             const inputElement = event.target as HTMLInputElement
             if (event.key === 'Escape') {
-                // onBlur is deactivated for mobile so force:
-                setHasFocus(false)
                 setText(origText)
-                hideSuggestions()
+                searchInput.current!.blur()
                 return
             }
 
@@ -157,9 +155,6 @@ export default function AddressInput(props: AddressInputProps) {
                             props.onAddressSelected(item.toText(), item.point)
                         }
                     }
-                    // onBlur is deactivated for mobile so force:
-                    setHasFocus(false)
-                    hideSuggestions()
                     break
             }
         },
@@ -193,10 +188,7 @@ export default function AddressInput(props: AddressInputProps) {
             >
                 <PlainButton
                     className={styles.btnClose}
-                    onClick={() => {
-                        setHasFocus(false)
-                        hideSuggestions()
-                    }}
+                    onClick={() => searchInput.current!.blur()}
                 >
                     <ArrowBack />
                 </PlainButton>
@@ -233,9 +225,10 @@ export default function AddressInput(props: AddressInputProps) {
                 <PlainButton
                     style={text.length == 0 ? { display: 'none' } : {}}
                     className={styles.btnInputClear}
-                    // no onClick because otherwise focus would be lost before button receives click
-                    onMouseDown={(e) => {
-                        e.preventDefault() // do not lose focus and close mobile-input view when clicked
+                    onMouseDown={(e) =>
+                        e.preventDefault()  // prevents that input->onBlur is called when clicking the button
+                    }
+                    onClick={(e) => {
                         setText('')
                         props.onChange('')
                     }}
@@ -246,10 +239,13 @@ export default function AddressInput(props: AddressInputProps) {
                 <PlainButton
                     style={text.length == 0 && hasFocus ? {} : { display: 'none' }}
                     className={styles.btnCurrentLocation}
-                    // no onClick because otherwise focus would be lost before button receives click
-                    onMouseDown={(e) => {
-                        // here it is desired to close mobile-input view when clicked -> no "e.preventDefault()"
+                    onMouseDown={(e) =>
+                        e.preventDefault() // prevents that input->onBlur is called when clicking the button
+                    }
+                    onClick={() => {
                         onCurrentLocationSelected(props.onAddressSelected)
+                        // but when clicked => close mobile-input view
+                        searchInput.current!.blur()
                     }}
                 >
                     <CurrentLocationIcon />
