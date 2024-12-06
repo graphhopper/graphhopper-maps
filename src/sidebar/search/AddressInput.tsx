@@ -149,6 +149,7 @@ export default function AddressInput(props: AddressInputProps) {
                             props.onAddressSelected(item.toText(), item.point)
                         }
                     }
+                    searchInput.current!.blur()
                     break
             }
         },
