@@ -127,7 +127,7 @@ export default function AddressInput(props: AddressInputProps) {
                         if (item instanceof POIQueryItem) {
                             handlePoiSearch(poiSearch, item.result, props.map)
                             props.onAddressSelected(item.result.text(item.result.poi), undefined)
-                        } else if (highlightedResult < 0) {
+                        } else if (highlightedResult < 0 && !props.point.isInitialized) {
                             // by default use the first result, otherwise the highlighted one
                             getApi()
                                 .geocode(text, 'nominatim')
@@ -144,6 +144,7 @@ export default function AddressInput(props: AddressInputProps) {
                             props.onAddressSelected(item.toText(), item.point)
                         }
                     }
+                    // do not disturb 'tab' cycle
                     if (event.key == 'Enter') searchInput.current!.blur()
                     break
             }
