@@ -1,11 +1,7 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Coordinate, getBBoxFromCoord, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Bbox, GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
-import Autocomplete, {
-    AutocompleteItem,
-    GeocodingItem,
-    POIQueryItem,
-} from '@/sidebar/search/AddressInputAutocomplete'
+import Autocomplete, { AutocompleteItem, GeocodingItem, POIQueryItem } from '@/sidebar/search/AddressInputAutocomplete'
 
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
@@ -92,7 +88,6 @@ export default function AddressInput(props: AddressInputProps) {
 
     const onKeypress = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
-            const inputElement = event.target as HTMLInputElement
             if (event.key === 'Escape') {
                 setText(origText)
                 searchInput.current!.blur()
@@ -149,7 +144,7 @@ export default function AddressInput(props: AddressInputProps) {
                             props.onAddressSelected(item.toText(), item.point)
                         }
                     }
-                    searchInput.current!.blur()
+                    if (event.key == 'Enter') searchInput.current!.blur()
                     break
             }
         },
@@ -183,8 +178,8 @@ export default function AddressInput(props: AddressInputProps) {
             >
                 <PlainButton
                     className={styles.btnClose}
-                    onMouseDown={(e) =>
-                        e.preventDefault() // prevents that input->onBlur is called when just "mouse down" event (lose focus only for onClick)
+                    onMouseDown={
+                        e => e.preventDefault() // prevents that input->onBlur is called when just "mouse down" event (lose focus only for onClick)
                     }
                     onClick={() => searchInput.current!.blur()}
                 >
@@ -223,12 +218,13 @@ export default function AddressInput(props: AddressInputProps) {
                 />
 
                 <PlainButton
+                    tabIndex={-1}
                     style={text.length == 0 ? { display: 'none' } : {}}
                     className={styles.btnInputClear}
-                    onMouseDown={(e) =>
-                        e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
+                    onMouseDown={
+                        e => e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
                     }
-                    onClick={(e) => {
+                    onClick={e => {
                         setText('')
                         props.onChange('')
                         // if we clear the text without focus then explicitly request it to improve usability:
@@ -239,10 +235,11 @@ export default function AddressInput(props: AddressInputProps) {
                 </PlainButton>
 
                 <PlainButton
+                    tabIndex={-1}
                     style={text.length == 0 && hasFocus ? {} : { display: 'none' }}
                     className={styles.btnCurrentLocation}
-                    onMouseDown={(e) =>
-                        e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
+                    onMouseDown={
+                        e => e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
                     }
                     onClick={() => {
                         onCurrentLocationSelected(props.onAddressSelected)
