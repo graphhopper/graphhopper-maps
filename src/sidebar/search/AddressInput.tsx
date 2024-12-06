@@ -1,17 +1,13 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Coordinate, getBBoxFromCoord, QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Bbox, GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
-import Autocomplete, {
-    AutocompleteItem,
-    GeocodingItem,
-    POIQueryItem,
-    SelectCurrentLocationItem,
-} from '@/sidebar/search/AddressInputAutocomplete'
+import Autocomplete, { AutocompleteItem, GeocodingItem, POIQueryItem } from '@/sidebar/search/AddressInputAutocomplete'
 
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
+import CurrentLocationIcon from './current-location.svg'
 import styles from './AddressInput.module.css'
-import Api, { ApiImpl, getApi } from '@/api/Api'
+import Api, { getApi } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import { coordinateToText, hitToItem, nominatimHitToItem, textToCoordinate } from '@/Converters'
 import { useMediaQuery } from 'react-responsive'
@@ -19,7 +15,6 @@ import PopUp from '@/sidebar/search/PopUp'
 import PlainButton from '@/PlainButton'
 import { onCurrentLocationSelected } from '@/map/MapComponent'
 import { toLonLat, transformExtent } from 'ol/proj'
-import { calcDist } from '@/distUtils'
 import { Map } from 'ol'
 import { AddressParseResult } from '@/pois/AddressParseResult'
 import { getMap } from '@/map/map'
@@ -79,17 +74,6 @@ export default function AddressInput(props: AddressInputProps) {
 
     // if item is selected we need to clear the autocompletion list
     useEffect(() => setAutocompleteItems([]), [props.point])
-    // if no items but input is selected show current location item
-    useEffect(() => {
-        if (hasFocus && text.length == 0 && autocompleteItems.length === 0)
-            setAutocompleteItems([new SelectCurrentLocationItem()])
-    }, [autocompleteItems, hasFocus])
-
-    function hideSuggestions() {
-        geocoder.cancel()
-        setOrigAutocompleteItems(autocompleteItems)
-        setAutocompleteItems([])
-    }
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
@@ -104,12 +88,9 @@ export default function AddressInput(props: AddressInputProps) {
 
     const onKeypress = useCallback(
         (event: React.KeyboardEvent<HTMLInputElement>) => {
-            const inputElement = event.target as HTMLInputElement
             if (event.key === 'Escape') {
-                // onBlur is deactivated for mobile so force:
-                setHasFocus(false)
                 setText(origText)
-                hideSuggestions()
+                searchInput.current!.blur()
                 return
             }
 
@@ -146,7 +127,7 @@ export default function AddressInput(props: AddressInputProps) {
                         if (item instanceof POIQueryItem) {
                             handlePoiSearch(poiSearch, item.result, props.map)
                             props.onAddressSelected(item.result.text(item.result.poi), undefined)
-                        } else if (highlightedResult < 0) {
+                        } else if (highlightedResult < 0 && !props.point.isInitialized) {
                             // by default use the first result, otherwise the highlighted one
                             getApi()
                                 .geocode(text, 'nominatim')
@@ -163,9 +144,8 @@ export default function AddressInput(props: AddressInputProps) {
                             props.onAddressSelected(item.toText(), item.point)
                         }
                     }
-                    // onBlur is deactivated for mobile so force:
-                    setHasFocus(false)
-                    hideSuggestions()
+                    // do not disturb 'tab' cycle
+                    if (event.key == 'Enter') searchInput.current!.blur()
                     break
             }
         },
@@ -179,6 +159,9 @@ export default function AddressInput(props: AddressInputProps) {
     // get the bias point for the geocoder
     const lonlat = toLonLat(getMap().getView().getCenter()!)
     const biasCoord = { lng: lonlat[0], lat: lonlat[1] }
+
+    // do not focus on mobile as we would hide the map with the "input"-view
+    const focusFirstInput = props.index == 0 && !isSmallScreen
 
     return (
         <div className={containerClass}>
@@ -196,10 +179,10 @@ export default function AddressInput(props: AddressInputProps) {
             >
                 <PlainButton
                     className={styles.btnClose}
-                    onClick={() => {
-                        setHasFocus(false)
-                        hideSuggestions()
-                    }}
+                    onMouseDown={
+                        e => e.preventDefault() // prevents that input->onBlur is called when just "mouse down" event (lose focus only for onClick)
+                    }
+                    onClick={() => searchInput.current!.blur()}
                 >
                     <ArrowBack />
                 </PlainButton>
@@ -207,6 +190,7 @@ export default function AddressInput(props: AddressInputProps) {
                     style={props.moveStartIndex == props.index ? { borderWidth: '2px', margin: '-1px' } : {}}
                     className={styles.input}
                     type="text"
+                    autoFocus={focusFirstInput}
                     ref={searchInput}
                     autoComplete="off"
                     onChange={e => {
@@ -223,7 +207,10 @@ export default function AddressInput(props: AddressInputProps) {
                         if (origAutocompleteItems.length > 0) setAutocompleteItems(origAutocompleteItems)
                     }}
                     onBlur={() => {
-                        if (!isSmallScreen) hideSuggestions() // see #398
+                        setHasFocus(false)
+                        geocoder.cancel()
+                        setOrigAutocompleteItems(autocompleteItems)
+                        setAutocompleteItems([])
                     }}
                     value={text}
                     placeholder={tr(
@@ -232,15 +219,36 @@ export default function AddressInput(props: AddressInputProps) {
                 />
 
                 <PlainButton
+                    tabIndex={-1}
                     style={text.length == 0 ? { display: 'none' } : {}}
                     className={styles.btnInputClear}
-                    onClick={() => {
+                    onMouseDown={
+                        e => e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
+                    }
+                    onClick={e => {
                         setText('')
                         props.onChange('')
+                        // if we clear the text without focus then explicitly request it to improve usability:
                         searchInput.current!.focus()
                     }}
                 >
                     <Cross />
+                </PlainButton>
+
+                <PlainButton
+                    tabIndex={-1}
+                    style={text.length == 0 && hasFocus ? {} : { display: 'none' }}
+                    className={styles.btnCurrentLocation}
+                    onMouseDown={
+                        e => e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
+                    }
+                    onClick={() => {
+                        onCurrentLocationSelected(props.onAddressSelected)
+                        // but when clicked => we want to lose the focus e.g. to close mobile-input view
+                        searchInput.current!.blur()
+                    }}
+                >
+                    <CurrentLocationIcon />
                 </PlainButton>
 
                 {autocompleteItems.length > 0 && (
@@ -253,19 +261,13 @@ export default function AddressInput(props: AddressInputProps) {
                             items={autocompleteItems}
                             highlightedItem={autocompleteItems[highlightedResult]}
                             onSelect={item => {
-                                setHasFocus(false)
                                 if (item instanceof GeocodingItem) {
-                                    hideSuggestions()
                                     props.onAddressSelected(item.toText(), item.point)
-                                } else if (item instanceof SelectCurrentLocationItem) {
-                                    hideSuggestions()
-                                    onCurrentLocationSelected(props.onAddressSelected)
                                 } else if (item instanceof POIQueryItem) {
-                                    hideSuggestions()
                                     handlePoiSearch(poiSearch, item.result, props.map)
                                     setText(item.result.text(item.result.poi))
                                 }
-                                searchInput.current!.blur()
+                                searchInput.current!.blur() // see also AutocompleteEntry->onMouseDown
                             }}
                         />
                     </ResponsiveAutocomplete>

@@ -30,23 +30,6 @@
     background-color: #c6c6c6;
 }
 
-.currentLocationEntry {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0.5rem 0.5rem;
-}
-
-.currentLocationIcon {
-    width: 1.2rem;
-}
-
-.currentLocationIcon > svg {
-    height: 100%;
-    width: 100%;
-}
-
 .poiEntry {
     padding: 0.5em 0;
     display: flex;
