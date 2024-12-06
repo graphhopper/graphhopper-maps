@@ -268,7 +268,7 @@ export default function AddressInput(props: AddressInputProps) {
                                     handlePoiSearch(poiSearch, item.result, props.map)
                                     setText(item.result.text(item.result.poi))
                                 }
-                                searchInput.current!.blur()
+                                searchInput.current!.blur() // is called in combination with e.preventDefault in AutocompleteEntry->onMouseDown
                             }}
                         />
                     </ResponsiveAutocomplete>

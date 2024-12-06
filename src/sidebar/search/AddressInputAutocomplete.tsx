@@ -108,15 +108,16 @@ function AutocompleteEntry({
     return (
         <button
             className={className}
-            // using click events for mouse interaction and touch end to select an entry.
-            onClick={() => onSelect()}
-            onTouchEnd={e => {
-                e.preventDefault() // do not forward click to underlying component
-                onSelect()
-            }}
             onMouseDown={e => {
                 e.preventDefault() // prevent blur event for our input, see #398
             }}
+            // using click events for mouse interaction and touch end to select an entry.
+            onClick={() => onSelect()}
+            // TODO NOW is this onTouchEnd workaround still required?
+            // onTouchEnd={e => {
+            //     e.preventDefault() // do not forward click to underlying component
+            //     onSelect()
+            // }}
         >
             {children}
         </button>
