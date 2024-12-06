@@ -184,7 +184,7 @@ export default function AddressInput(props: AddressInputProps) {
                 <PlainButton
                     className={styles.btnClose}
                     onMouseDown={(e) =>
-                        e.preventDefault() // prevents that input->onBlur is called when just "mouse down" event (lose focus only for a proper click)
+                        e.preventDefault() // prevents that input->onBlur is called when just "mouse down" event (lose focus only for onClick)
                     }
                     onClick={() => searchInput.current!.blur()}
                 >
@@ -231,7 +231,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onClick={(e) => {
                         setText('')
                         props.onChange('')
-                        // if we clear the text without focus then explicitely request it:
+                        // if we clear the text without focus then explicitly request it to improve usability:
                         searchInput.current!.focus()
                     }}
                 >
@@ -269,7 +269,7 @@ export default function AddressInput(props: AddressInputProps) {
                                     handlePoiSearch(poiSearch, item.result, props.map)
                                     setText(item.result.text(item.result.poi))
                                 }
-                                searchInput.current!.blur() // is called in combination with e.preventDefault in AutocompleteEntry->onMouseDown
+                                searchInput.current!.blur() // see also AutocompleteEntry->onMouseDown
                             }}
                         />
                     </ResponsiveAutocomplete>

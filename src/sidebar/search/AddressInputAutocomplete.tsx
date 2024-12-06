@@ -108,15 +108,16 @@ function AutocompleteEntry({
     return (
         <button
             className={className}
-            onMouseDown={e => {
-                e.preventDefault() // prevent blur event for our input, see #398
-            }}
             // using click events for mouse interaction and touch end to select an entry.
             onClick={() => onSelect()}
             // minor workaround to improve success rate for click even if start and end location on screen are slightly different
             onTouchEnd={e => {
                 e.preventDefault() // do not forward click to underlying component
                 onSelect()
+            }}
+            onMouseDown={e => {
+                e.preventDefault() // Prevent blur event for our input, see #398.
+                // See also the onMouseDown calls in the buttons in AddressInput.tsx created for the same reason.
             }}
         >
             {children}
