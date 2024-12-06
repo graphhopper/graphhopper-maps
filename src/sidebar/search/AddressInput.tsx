@@ -79,12 +79,6 @@ export default function AddressInput(props: AddressInputProps) {
     // if item is selected we need to clear the autocompletion list
     useEffect(() => setAutocompleteItems([]), [props.point])
 
-    function hideSuggestions() {
-        geocoder.cancel()
-        setOrigAutocompleteItems(autocompleteItems)
-        setAutocompleteItems([])
-    }
-
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
     const [highlightedResult, setHighlightedResult] = useState<number>(-1)
@@ -188,6 +182,9 @@ export default function AddressInput(props: AddressInputProps) {
             >
                 <PlainButton
                     className={styles.btnClose}
+                    onMouseDown={(e) =>
+                        e.preventDefault() // prevents that input->onBlur is called when just "mouse down" event (lose focus only for a proper click)
+                    }
                     onClick={() => searchInput.current!.blur()}
                 >
                     <ArrowBack />
@@ -214,7 +211,9 @@ export default function AddressInput(props: AddressInputProps) {
                     }}
                     onBlur={() => {
                         setHasFocus(false)
-                        hideSuggestions()
+                        geocoder.cancel()
+                        setOrigAutocompleteItems(autocompleteItems)
+                        setAutocompleteItems([])
                     }}
                     value={text}
                     placeholder={tr(
@@ -226,11 +225,13 @@ export default function AddressInput(props: AddressInputProps) {
                     style={text.length == 0 ? { display: 'none' } : {}}
                     className={styles.btnInputClear}
                     onMouseDown={(e) =>
-                        e.preventDefault() // prevents that input->onBlur is called when clicking the button
+                        e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
                     }
                     onClick={(e) => {
                         setText('')
                         props.onChange('')
+                        // if we clear the text without focus then explicitely request it:
+                        searchInput.current!.focus()
                     }}
                 >
                     <Cross />
@@ -240,11 +241,11 @@ export default function AddressInput(props: AddressInputProps) {
                     style={text.length == 0 && hasFocus ? {} : { display: 'none' }}
                     className={styles.btnCurrentLocation}
                     onMouseDown={(e) =>
-                        e.preventDefault() // prevents that input->onBlur is called when clicking the button (loosing focus would hide this button)
+                        e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
                     }
                     onClick={() => {
                         onCurrentLocationSelected(props.onAddressSelected)
-                        // but when clicked => we want to loose the focuse e.g. to close mobile-input view
+                        // but when clicked => we want to lose the focus e.g. to close mobile-input view
                         searchInput.current!.blur()
                     }}
                 >
@@ -261,12 +262,9 @@ export default function AddressInput(props: AddressInputProps) {
                             items={autocompleteItems}
                             highlightedItem={autocompleteItems[highlightedResult]}
                             onSelect={item => {
-                                setHasFocus(false)
                                 if (item instanceof GeocodingItem) {
-                                    hideSuggestions()
                                     props.onAddressSelected(item.toText(), item.point)
                                 } else if (item instanceof POIQueryItem) {
-                                    hideSuggestions()
                                     handlePoiSearch(poiSearch, item.result, props.map)
                                     setText(item.result.text(item.result.poi))
                                 }
