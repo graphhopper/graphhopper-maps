@@ -226,7 +226,7 @@ export default function AddressInput(props: AddressInputProps) {
                     style={text.length == 0 ? { display: 'none' } : {}}
                     className={styles.btnInputClear}
                     onMouseDown={(e) =>
-                        e.preventDefault()  // prevents that input->onBlur is called when clicking the button
+                        e.preventDefault() // prevents that input->onBlur is called when clicking the button
                     }
                     onClick={(e) => {
                         setText('')
@@ -240,11 +240,11 @@ export default function AddressInput(props: AddressInputProps) {
                     style={text.length == 0 && hasFocus ? {} : { display: 'none' }}
                     className={styles.btnCurrentLocation}
                     onMouseDown={(e) =>
-                        e.preventDefault() // prevents that input->onBlur is called when clicking the button
+                        e.preventDefault() // prevents that input->onBlur is called when clicking the button (loosing focus would hide this button)
                     }
                     onClick={() => {
                         onCurrentLocationSelected(props.onAddressSelected)
-                        // but when clicked => close mobile-input view
+                        // but when clicked => we want to loose the focuse e.g. to close mobile-input view
                         searchInput.current!.blur()
                     }}
                 >
