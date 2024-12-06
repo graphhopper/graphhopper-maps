@@ -116,8 +116,9 @@ function AutocompleteEntry({
                 onSelect()
             }}
             onMouseDown={e => {
-                e.preventDefault() // Prevent blur event for our input, see #398.
+                // prevents that input->onBlur is called when clicking the autocomplete item (focus would be lost and autocomplete items would disappear before they can be clicked)
                 // See also the onMouseDown calls in the buttons in AddressInput.tsx created for the same reason.
+                e.preventDefault()
             }}
         >
             {children}
