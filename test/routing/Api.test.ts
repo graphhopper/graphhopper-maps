@@ -112,7 +112,6 @@ describe('route', () => {
             locale: 'en_US',
             points_encoded: true,
             points_encoded_multiplier: 1e6,
-            snap_preventions: ['ferry'],
             details: [
                 'road_class',
                 'road_environment',
@@ -155,7 +154,6 @@ describe('route', () => {
             locale: 'en_US',
             points_encoded: true,
             points_encoded_multiplier: 1e6,
-            snap_preventions: ['ferry'],
             details: [
                 'road_class',
                 'road_environment',
@@ -207,7 +205,6 @@ describe('route', () => {
             locale: 'en_US',
             points_encoded: true,
             points_encoded_multiplier: 1e6,
-            snap_preventions: ['ferry'],
             details: [
                 'road_class',
                 'road_environment',
@@ -315,7 +312,6 @@ describe('route', () => {
             locale: 'de_DE',
             points_encoded: true,
             points_encoded_multiplier: 1e6,
-            snap_preventions: ['ferry'],
             details: [
                 'road_class',
                 'road_environment',

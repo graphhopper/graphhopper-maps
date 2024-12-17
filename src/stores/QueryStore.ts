@@ -242,7 +242,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 ...state,
                 queryPoints: newPoints,
             }
-            return this.routeIfReady(newState, true)
+            return this.routeIfReady(newState, false)
         } else if (action instanceof InfoReceived) {
             // Do nothing if no routing profiles were received
             if (action.result.profiles.length <= 0) return state

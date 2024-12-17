@@ -101,13 +101,6 @@ const SearchBox = ({
 }) => {
     const point = points[index]
 
-    // With this ref and tabIndex=-1 we ensure that the first 'TAB' gives the focus the first input but the marker won't be included in the TAB sequence, #194
-    const myMarkerRef = useRef<HTMLDivElement>(null)
-
-    useEffect(() => {
-        if (index == 0) myMarkerRef.current?.focus()
-    }, [])
-
     function onClickOrDrop() {
         onDropPreviewSelect(-1)
         const newIndex = moveStartIndex < index ? index + 1 : index
@@ -122,8 +115,6 @@ const SearchBox = ({
         <>
             {(moveStartIndex < 0 || moveStartIndex == index) && (
                 <div
-                    ref={myMarkerRef}
-                    tabIndex={-1}
                     title={tr('drag_to_reorder')}
                     className={styles.markerContainer}
                     draggable

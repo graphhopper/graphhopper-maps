@@ -283,10 +283,11 @@ export class ApiImpl implements Api {
             locale: getTranslation().getLang(),
             points_encoded: true,
             points_encoded_multiplier: 1e6,
-            snap_preventions: config.request?.snapPreventions ? config.request.snapPreventions : [],
             ...profileConfig,
             details: details,
         }
+
+        if (config.request?.snapPreventions) request.snap_preventions = config.request?.snapPreventions
 
         if (args.customModel) {
             request['ch.disable'] = true
