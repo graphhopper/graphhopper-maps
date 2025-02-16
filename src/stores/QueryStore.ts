@@ -310,7 +310,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 if (maxDistance < 200_000) {
                     // Use a single request, possibly including alternatives when custom models are enabled.
                     requests = [QueryStore.buildRouteRequest(state)]
-                } else if (maxDistance < 500_000) {
+                } else if (maxDistance < 700_000) {
                     // Force no alternatives for longer custom model routes.
                     requests = [
                         QueryStore.buildRouteRequest({
@@ -326,7 +326,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                             'Using the custom model feature is unfortunately not ' +
                                 'possible when the request points are further than ' +
                                 // todo: use settings#showDistanceInMiles, but not sure how to use state from another store here
-                                metersToText(500_000, false) +
+                                metersToText(700_000, false) +
                                 ' apart.'
                         )
                     )

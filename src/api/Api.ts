@@ -292,6 +292,7 @@ export class ApiImpl implements Api {
         if (args.customModel) {
             request.custom_model = args.customModel
             request['ch.disable'] = true
+            request['timeout_ms'] = 10000
         }
 
         if (
@@ -302,6 +303,7 @@ export class ApiImpl implements Api {
         ) {
             return {
                 ...request,
+                timeout_ms: 10000,
                 'alternative_route.max_paths': args.maxAlternativeRoutes,
                 algorithm: 'alternative_route',
             }
