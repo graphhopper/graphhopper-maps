@@ -25,6 +25,7 @@ export interface RoutingRequest {
     'alternative_route.max_paths'?: number
     'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean
+    timeout_ms?: number
     algorithm?: 'alternative_route' | 'round_trip'
     snap_preventions?: string[]
     details?: string[]

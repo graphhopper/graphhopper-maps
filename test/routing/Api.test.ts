@@ -165,6 +165,7 @@ describe('route', () => {
                 'track_type',
                 'country',
             ],
+            timeout_ms: 10000,
             'alternative_route.max_paths': args.maxAlternativeRoutes,
             algorithm: 'alternative_route',
         }
@@ -216,8 +217,9 @@ describe('route', () => {
                 'track_type',
                 'country',
             ],
-            'ch.disable': true,
             custom_model: args.customModel!,
+            'ch.disable': true,
+            timeout_ms: 10000,
         }
 
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')

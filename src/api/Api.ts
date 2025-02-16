@@ -290,8 +290,9 @@ export class ApiImpl implements Api {
         if (config.request?.snapPreventions) request.snap_preventions = config.request?.snapPreventions
 
         if (args.customModel) {
-            request['ch.disable'] = true
             request.custom_model = args.customModel
+            request['ch.disable'] = true
+            request['timeout_ms'] = 10000
         }
 
         if (args.heading) {
@@ -299,6 +300,7 @@ export class ApiImpl implements Api {
             request['ch.disable'] = true
             request.headings = [args.heading]
             request.heading_penalty = 120
+            request['timeout_ms'] = 10000
         }
 
         if (
@@ -309,6 +311,7 @@ export class ApiImpl implements Api {
         ) {
             return {
                 ...request,
+                timeout_ms: 10000,
                 'alternative_route.max_paths': args.maxAlternativeRoutes,
                 algorithm: 'alternative_route',
             }
