@@ -8,7 +8,7 @@
 }
 
 .resultSelectableArea:hover .resultSummary {
-    border-left: rgba(201, 217, 241, 0.8) solid 0.25rem;
+    border-left: rgba(201, 217, 241, 0.7) solid 0.25rem;
     padding: 0 1rem 0 15px;
 }
 
@@ -21,7 +21,7 @@
 }
 
 .selectedResultSummary {
-    border-left: rgb(49, 104, 187) solid 0.25rem !important;
+    border-left: rgba(39, 100, 200, 0.85) solid 0.25rem !important;
     padding: 0 1rem 0 15px;
 }
 

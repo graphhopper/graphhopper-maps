@@ -46,13 +46,13 @@ function addUnselectedPathsLayer(map: Map, paths: Path[]) {
     const styleArray = [
         new Style({
             stroke: new Stroke({
-                color: 'rgba(39,93,173,1)',
+                color: 'rgba(39,93,173,0.8)',
                 width: 6,
             }),
         }),
         new Style({
             stroke: new Stroke({
-                color: 'rgba(201,217,241,0.8)',
+                color: 'rgba(201,217,241,0.7)',
                 width: 4,
             }),
         }),
@@ -121,9 +121,8 @@ function createBezierLineString(start: number[], end: number[]): LineString {
 function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryPoint[]) {
     const style = new Style({
         stroke: new Stroke({
-            // color: 'rgba(170,170,170,1)',
-            color: '#275DAD',
-            width: 4,
+            color: 'rgba(143,183,241,0.9)',
+            width: 5,
             lineDash: [1, 10],
             lineCap: 'round',
             lineJoin: 'round',
@@ -147,14 +146,14 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
     const styleArray = [
         new Style({
             stroke: new Stroke({
-                color: 'rgba(255,255,255,1)',
-                width: 9,
+                color: 'rgba(255,255,255,0.9)',
+                width: 10,
             }),
         }),
         new Style({
             stroke: new Stroke({
-                color: 'rgb(49,104,187)',
-                width: 7,
+                color: 'rgba(39,100,200,0.85)',
+                width: 8,
             }),
         }),
     ]
