@@ -270,7 +270,6 @@ describe('QueryStore', () => {
 
             expect(newState).toEqual({
                 ...state,
-                profileGroupMapping: undefined,
                 profiles: [{ name: 'some-other-profile' }],
             })
         })

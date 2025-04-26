@@ -445,7 +445,7 @@ export class ApiImpl implements Api {
 
     public static isMotorVehicle(profile: string) {
         return (
-            profile.includes('car') ||
+            profile.includes('car') && !profile.includes('cargobike') ||
             profile.includes('truck') ||
             profile.includes('scooter') ||
             profile.includes('bus') ||
