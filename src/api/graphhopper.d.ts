@@ -1,5 +1,5 @@
 import { LineString } from 'geojson'
-import { CustomModel } from '@/stores/QueryStore'
+import { Coordinate, CustomModel } from '@/stores/QueryStore'
 
 // minLon, minLat, maxLon, maxLat
 export type Bbox = [number, number, number, number]
@@ -22,6 +22,7 @@ export interface RoutingRequest {
     'alternative_route.max_paths'?: number
     'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean
+    timeout_ms?: number
     algorithm?: 'alternative_route' | 'round_trip'
     snap_preventions?: string[]
     details?: string[]
@@ -112,13 +113,24 @@ interface Details {
     readonly hike_rating: [number, number, boolean][]
 }
 
+export interface TagHash {
+    [key: string]: string
+}
+
+export interface ReverseGeocodingHit {
+    readonly tags: TagHash
+    readonly type: string
+    readonly id: number
+    readonly point: Coordinate
+}
+
 export interface GeocodingResult {
     readonly hits: GeocodingHit[]
     readonly took: number
 }
 
 export interface GeocodingHit {
-    readonly point: { lat: number; lng: number }
+    readonly point: Coordinate
     readonly extent: Bbox
     readonly osm_id: string
     readonly osm_type: string

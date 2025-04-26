@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 import fetchMock from 'jest-fetch-mock'
-import { ErrorAction, InfoReceived, RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
+import { RouteRequestFailed, RouteRequestSuccess } from '@/actions/Actions'
 import { setTranslation } from '@/translation/Translation'
 
 import Dispatcher from '@/stores/Dispatcher'
@@ -112,7 +112,6 @@ describe('route', () => {
             locale: 'en_US',
             points_encoded: true,
             points_encoded_multiplier: 1e6,
-            snap_preventions: ['ferry'],
             details: [
                 'road_class',
                 'road_environment',
@@ -155,7 +154,6 @@ describe('route', () => {
             locale: 'en_US',
             points_encoded: true,
             points_encoded_multiplier: 1e6,
-            snap_preventions: ['ferry'],
             details: [
                 'road_class',
                 'road_environment',
@@ -167,6 +165,7 @@ describe('route', () => {
                 'track_type',
                 'country',
             ],
+            timeout_ms: 10000,
             'alternative_route.max_paths': args.maxAlternativeRoutes,
             algorithm: 'alternative_route',
         }
@@ -207,7 +206,6 @@ describe('route', () => {
             locale: 'en_US',
             points_encoded: true,
             points_encoded_multiplier: 1e6,
-            snap_preventions: ['ferry'],
             details: [
                 'road_class',
                 'road_environment',
@@ -221,6 +219,7 @@ describe('route', () => {
             ],
             custom_model: args.customModel!,
             'ch.disable': true,
+            timeout_ms: 10000,
         }
 
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
@@ -315,7 +314,6 @@ describe('route', () => {
             locale: 'de_DE',
             points_encoded: true,
             points_encoded_multiplier: 1e6,
-            snap_preventions: ['ferry'],
             details: [
                 'road_class',
                 'road_environment',

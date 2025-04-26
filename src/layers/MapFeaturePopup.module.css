@@ -5,3 +5,67 @@
     padding: 5px 10px 5px 10px;
     border-radius: 10px;
 }
+
+.poiPopup {
+    position: relative;
+    top: -40px;
+    left: 20px;
+    max-width: 300px;
+
+    background-color: white;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    padding: 5px 10px 5px 10px;
+    border-radius: 10px;
+}
+
+.poiPopup div:first-child {
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+.poiPopupButton {
+    display: flex;
+    flex-direction: row;
+    gap: 7px;
+    padding-top: 12px;
+    padding-bottom: 8px;
+}
+
+.poiPopupButton svg {
+    margin-top: 3px;
+}
+
+.poiPopup a {
+    color: gray;
+    text-decoration: none;
+}
+
+.poiPopup a:hover {
+    color: black;
+    text-decoration: underline;
+}
+
+.poiPopupTable {
+    font-size: small;
+    padding: 6px 0;
+}
+
+.osmLink {
+    padding-bottom: 7px;
+}
+
+.osmLink a {
+    font-size: small;
+}
+
+.poiPopupTable th,
+.poiPopupTable td {
+    border-bottom: 1px solid #ccc;
+    padding: 3px 1px 3px 0;
+    text-align: left;
+
+    /* strange, why do we need the following? */
+    word-break: break-all;
+    min-width: 120px;
+}

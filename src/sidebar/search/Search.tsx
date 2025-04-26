@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { getBBoxFromCoord, QueryPoint } from '@/stores/QueryStore'
+import { Coordinate, getBBoxFromCoord, QueryPoint } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetBBox, SetPoint } from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
 import PlainButton from '@/PlainButton'
+import { Map } from 'ol'
 
 import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
@@ -14,7 +15,7 @@ import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
 import { RoutingProfile } from '@/api/graphhopper'
 
-export default function Search({ points, profile }: { points: QueryPoint[]; profile: RoutingProfile }) {
+export default function Search({ points, profile, map }: { points: QueryPoint[]; profile: RoutingProfile; map: Map }) {
     const [showSettings, setShowSettings] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
@@ -41,6 +42,7 @@ export default function Search({ points, profile }: { points: QueryPoint[]; prof
                         }}
                         dropPreviewIndex={dropPreviewIndex}
                         onDropPreviewSelect={onDropPreviewSelect}
+                        map={map}
                     />
                 ))}
             </div>
@@ -76,6 +78,7 @@ const SearchBox = ({
     onMoveStartSelect,
     dropPreviewIndex,
     onDropPreviewSelect,
+    map,
 }: {
     index: number
     points: QueryPoint[]
@@ -86,15 +89,9 @@ const SearchBox = ({
     onMoveStartSelect: (index: number, showTargetIcon: boolean) => void
     dropPreviewIndex: number
     onDropPreviewSelect: (index: number) => void
+    map: Map
 }) => {
     const point = points[index]
-
-    // With this ref and tabIndex=-1 we ensure that the first 'TAB' gives the focus the first input but the marker won't be included in the TAB sequence, #194
-    const myMarkerRef = useRef<HTMLDivElement>(null)
-
-    useEffect(() => {
-        if (index == 0) myMarkerRef.current?.focus()
-    }, [])
 
     function onClickOrDrop() {
         onDropPreviewSelect(-1)
@@ -110,8 +107,6 @@ const SearchBox = ({
         <>
             {(moveStartIndex < 0 || moveStartIndex == index) && (
                 <div
-                    ref={myMarkerRef}
-                    tabIndex={-1}
                     title={tr('drag_to_reorder')}
                     className={styles.markerContainer}
                     draggable
@@ -163,6 +158,7 @@ const SearchBox = ({
 
             <div className={styles.searchBoxInput}>
                 <AddressInput
+                    map={map}
                     moveStartIndex={moveStartIndex}
                     dropPreviewIndex={dropPreviewIndex}
                     index={index}

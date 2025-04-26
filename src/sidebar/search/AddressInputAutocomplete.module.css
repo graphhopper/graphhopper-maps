@@ -30,21 +30,17 @@
     background-color: #c6c6c6;
 }
 
-.currentLocationEntry {
+.poiEntry {
+    padding: 0.5em 0;
     display: flex;
     flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0.5rem 0.5rem;
+    gap: 0.4rem;
+    text-align: start;
+    margin: 0.4rem 0.5rem;
 }
 
-.currentLocationIcon {
-    width: 1.2rem;
-}
-
-.currentLocationIcon > svg {
-    height: 100%;
-    width: 100%;
+.poiEntryPrimaryText {
+    font-weight: bold;
 }
 
 .geocodingEntry {

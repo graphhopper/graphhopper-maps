@@ -2,6 +2,7 @@ import { Action } from '@/stores/Dispatcher'
 import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { POI } from '@/stores/POIsStore'
 import { Settings } from '@/stores/SettingsStore'
 
 export class InfoReceived implements Action {
@@ -244,5 +245,21 @@ export class UpdateSettings implements Action {
 
     constructor(updatedSettings: Partial<Settings>) {
         this.updatedSettings = updatedSettings
+    }
+}
+
+export class SelectPOI implements Action {
+    readonly selected: POI | null
+
+    constructor(selected: POI | null) {
+        this.selected = selected
+    }
+}
+
+export class SetPOIs implements Action {
+    readonly pois: POI[]
+
+    constructor(pois: POI[]) {
+        this.pois = pois
     }
 }

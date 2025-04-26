@@ -1,5 +1,5 @@
 import NavBar from '@/NavBar'
-import QueryStore, { QueryPoint, QueryPointType } from '../src/stores/QueryStore'
+import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import DummyApi from './DummyApi'
 import { SelectMapLayer, SetPoint, SetVehicleProfile } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
@@ -7,7 +7,7 @@ import { coordinateToText } from '@/Converters'
 
 // import the window and mock it with jest
 import { window } from '@/Window'
-import MapOptionsStore, { StyleOption } from '@/stores/MapOptionsStore'
+import MapOptionsStore from '@/stores/MapOptionsStore'
 import * as config from 'config'
 import { RoutingProfile } from '@/api/graphhopper'
 
@@ -129,10 +129,7 @@ describe('NavBar', function () {
             url.searchParams.append('profile', profile)
             url.searchParams.append('layer', layer)
 
-            window.location = {
-                ...window.location,
-                href: url.toString(),
-            }
+            window.location.href = url.toString()
 
             // act
             navBar.updateStateFromUrl()
@@ -153,10 +150,7 @@ describe('NavBar', function () {
         })
 
         it('should parse the url and set no points when no points are set', () => {
-            window.location = {
-                ...window.location,
-                href: 'https://origin.com',
-            }
+            window.location.href = 'https://origin.com'
             const point1 = queryStore.state.queryPoints[0]
             const point2 = queryStore.state.queryPoints[1]
 
@@ -175,7 +169,7 @@ describe('NavBar', function () {
 
         it('should parse the url and only skip invalid points', () => {
             const expectedUrl = 'https://current.origin/?point=&point=11%2C12'
-            window.location = { ...window.location, href: expectedUrl }
+            window.location.href = expectedUrl
 
             // act
             navBar.updateStateFromUrl()
@@ -201,10 +195,7 @@ describe('NavBar', function () {
         })
 
         it('should parse the url and invalidate old points', () => {
-            window.location = {
-                ...window.location,
-                href: 'https://origin.com',
-            }
+            window.location.href = 'https://origin.com'
             Dispatcher.dispatch(
                 new SetPoint(
                     {
@@ -225,10 +216,7 @@ describe('NavBar', function () {
         })
 
         it('should parse the url and set defaults for layer if not provided', () => {
-            window.location = {
-                ...window.location,
-                href: 'https://origin.com',
-            }
+            window.location.href = 'https://origin.com'
 
             // act
             navBar.updateStateFromUrl()
@@ -246,10 +234,7 @@ describe('NavBar', function () {
             const layername = 'Omniscale'
             const url = new URL(window.location.origin + window.location.pathname)
             url.searchParams.append('layer', layername)
-            window.location = {
-                ...window.location,
-                href: url.toString(),
-            }
+            window.location.href = url.toString()
 
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'some-profile' }))
             const defaultProfile = queryStore.state.routingProfile
@@ -272,10 +257,7 @@ describe('NavBar', function () {
             url.searchParams.append('layer', layername)
             url.searchParams.append('vehicle', profileName)
 
-            window.location = {
-                ...window.location,
-                href: url.toString(),
-            }
+            window.location.href = url.toString()
 
             // act
             navBar.updateStateFromUrl()
@@ -302,10 +284,7 @@ describe('NavBar', function () {
         url.searchParams.append('profile', profile)
         url.searchParams.append('layer', layer)
 
-        window.location = {
-            ...window.location,
-            href: url.toString(),
-        }
+        window.location.href = url.toString()
 
         // act
         callbacks.forEach(callback => callback('popstate'))

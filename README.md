@@ -4,7 +4,11 @@ A route planner user interface for the [GraphHopper routing engine](https://gith
 
 [Try it out](https://graphhopper.com/maps/)!
 
+We have developed an intuite and simple user interface to find routes:
+
 [![GraphHopper Maps route planner](https://www.graphhopper.com/wp-content/uploads/2023/03/gh-maps-202303.png)](https://graphhopper.com/maps/)
+
+With autocomplete, alternative routes, information along the route and POI search and everything available in all major browsers including mobile browsers. Read more details about it [here](https://www.graphhopper.com/maps-route-planner/).
 
 ## Turn-by-Turn navigation
 
@@ -54,3 +58,4 @@ This project uses
  * the [codemirror](https://codemirror.net/) code editor for the custom model editor.
  * many icons from Google's [open source font library](https://fonts.google.com/icons).
  * many more open source projects - see the package.json
+

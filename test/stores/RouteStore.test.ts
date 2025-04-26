@@ -1,9 +1,18 @@
 import RouteStore from '@/stores/RouteStore'
-import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Api from '@/api/Api'
-import { ApiInfo, GeocodingResult, Path, RoutingArgs, RoutingResult } from '@/api/graphhopper'
+import {
+    ApiInfo,
+    Bbox,
+    GeocodingResult,
+    Path,
+    ReverseGeocodingHit,
+    RoutingArgs,
+    RoutingResult,
+} from '@/api/graphhopper'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
 import { ClearPoints, ClearRoute, RemovePoint, SetPoint, SetSelectedPath } from '@/actions/Actions'
+import { POIQuery } from '@/pois/AddressParseResult'
 
 describe('RouteStore', () => {
     afterEach(() => {
@@ -66,6 +75,10 @@ function createEmptyQueryPoint(): QueryPoint {
 
 class DummyApi implements Api {
     geocode(query: string): Promise<GeocodingResult> {
+        throw Error('not implemented')
+    }
+
+    reverseGeocode(query: POIQuery, bbox: Bbox): Promise<ReverseGeocodingHit[]> {
         throw Error('not implemented')
     }
 
