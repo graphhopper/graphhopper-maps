@@ -23,7 +23,7 @@ export default function SettingsBox({profile}: { profile: RoutingProfile }) {
     return (
         <div className={styles.parent}>
             {groupName && <span className={styles.groupProfileOptionsHeader}>
-                {tr(group.settings_tr_key)}
+                {tr(groupName + "_settings")}
             </span>}
             {groupName && <div className={styles.settingsTable}>
                 <div className={styles.groupProfileOptions}>
@@ -33,7 +33,7 @@ export default function SettingsBox({profile}: { profile: RoutingProfile }) {
                                    name={groupName} value={option.profile}
                                    onClick={() => setProfile(option.profile)}/>
                             <label htmlFor={option.profile}>
-                                {tr(group.settings_tr_key + '_' + option.profile)}
+                                {tr(groupName + '_settings_' + option.profile)}
                             </label>
                         </div>
                     ))}

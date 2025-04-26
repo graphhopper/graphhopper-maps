@@ -45,7 +45,6 @@ export class ProfileGroupMap {
 }
 
 export interface ProfileGroup {
-    readonly settings_tr_key: string
     readonly options: { profile: string } []
 }
 
