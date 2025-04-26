@@ -49,10 +49,20 @@
     grid-column: 1 / span 3;
 }
 
-.addSearchBox,
-.settingsButton {
+.addSearchBox {
     font-size: 14px;
     color: gray;
+}
+
+.settingsButton,
+.settingsButton:hover {
+    font-size: 14px;
+    font-weight: bold;
+    color: rgba(39, 100, 200, 0.85);
+}
+
+.settingsButton:hover {
+    color: rgb(35, 92, 185);
 }
 
 .lastSearchLine {

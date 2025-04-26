@@ -26,25 +26,21 @@
     align-items: center;
 }
 
-.carProfileOptionsHeader {
+.groupProfileOptionsHeader {
     font-weight: bold;
 }
 
-.carProfileOptions div {
-    padding: 4px 14px;
+.groupProfileOptions div {
+    padding: 4px 20px;
 }
 
-.carProfileOptions label,
+.groupProfileOptions label,
 input {
     cursor: pointer;
 }
 
-.carProfileOptions label {
+.groupProfileOptions label {
     margin-left: 10px;
-}
-
-.carProfileOptions {
-    padding: 12px 5px;
 }
 
 .toggleButton {
@@ -94,7 +90,8 @@ input {
 
 .title,
 .infoLine,
-.settingsTable {
+.settingsTable,
+.groupProfileOptionsHeader {
     font-size: 14px;
     color: gray;
 }

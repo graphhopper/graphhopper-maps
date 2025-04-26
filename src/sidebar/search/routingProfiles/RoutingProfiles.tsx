@@ -1,24 +1,25 @@
-import React, { useEffect, useState } from 'react'
+import React, {useEffect, useState} from 'react'
 import styles from './RoutingProfiles.module.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetVehicleProfile } from '@/actions/Actions'
-import { RoutingProfile } from '@/api/graphhopper'
+import {SetVehicleProfile} from '@/actions/Actions'
+import {RoutingProfile} from '@/api/graphhopper'
 import PlainButton from '@/PlainButton'
 import Chevron from './chevron.svg'
-import { tr } from '@/translation/Translation'
+import {tr} from '@/translation/Translation'
 import CustomModelBoxSVG from '@/sidebar/open_custom_model.svg'
-import { icons } from '@/sidebar/search/routingProfiles/profileIcons'
+import {icons} from '@/sidebar/search/routingProfiles/profileIcons'
+import {ProfileGroup, ProfileGroupMap} from "@/stores/QueryStore";
 
 export default function ({
-    routingProfiles,
-    profileGroupMapping,
-    selectedProfile,
-    showCustomModelBox,
-    toggleCustomModelBox,
-    customModelBoxEnabled,
-}: {
+                             routingProfiles,
+                             profileGroupMapping,
+                             selectedProfile,
+                             showCustomModelBox,
+                             toggleCustomModelBox,
+                             customModelBoxEnabled,
+                         }: {
     routingProfiles: RoutingProfile[]
-    profileGroupMapping: Record<string, string>
+    profileGroupMapping: Record<string, ProfileGroup>
     selectedProfile: RoutingProfile
     showCustomModelBox: boolean
     toggleCustomModelBox: () => void
@@ -82,6 +83,7 @@ export default function ({
         if (!icons[p.name]) customProfiles[key] = [...(customProfiles[key] || []), p.name]
     })
 
+    let profileToGroup = ProfileGroupMap.create(profileGroupMapping)
     return (
         <div className={styles.profilesParent}>
             <PlainButton
@@ -89,7 +91,7 @@ export default function ({
                 className={showCustomModelBox ? styles.enabledCMBox : styles.cmBox}
                 onClick={toggleCustomModelBox}
             >
-                <CustomModelBoxSVG />
+                <CustomModelBoxSVG/>
             </PlainButton>
             <div className={styles.carousel}>
                 <PlainButton
@@ -98,13 +100,12 @@ export default function ({
                     onClick={() => move(false)}
                     disabled={profileScroll <= 0}
                 >
-                    <Chevron />
+                    <Chevron/>
                 </PlainButton>
                 <ul className={styles.profiles} id="profiles_carousel_items" onScroll={onScroll}>
-                    {routingProfiles.map(profile => {
+                    {routingProfiles.filter(profile => !profileToGroup[profile.name] || profile.name == profileToGroup[profile.name]).map(profile => {
                         const isProfileSelected =
-                            profile.name === selectedProfile.name ||
-                            profile.name === profileGroupMapping[selectedProfile.name]
+                            profile.name === selectedProfile.name || profile.name == profileToGroup[selectedProfile.name]
                         const className = isProfileSelected
                             ? styles.selectedProfile + ' ' + styles.profileBtn
                             : styles.profileBtn
@@ -116,7 +117,7 @@ export default function ({
                                     className={className}
                                 >
                                     {customModelBoxEnabled && profile.name === selectedProfile.name && (
-                                        <CustomModelBoxSVG className={styles.asIndicator} />
+                                        <CustomModelBoxSVG className={styles.asIndicator}/>
                                     )}
                                     {getIcon(profile.name, customProfiles)}
                                 </PlainButton>
@@ -130,7 +131,7 @@ export default function ({
                     onClick={() => move()}
                     disabled={profileScroll >= profileWidth}
                 >
-                    <Chevron />
+                    <Chevron/>
                 </PlainButton>
             </div>
         </div>
@@ -147,7 +148,7 @@ function getIcon(profileName: string, customProfiles: Record<string, Array<strin
         if (index >= 1) {
             let icon = icons[key.slice(0, -1)] // slice to remove underscore from key
             if (!icon) icon = icons.question_mark
-            return key === '_' ? <NumberIcon number={index} /> : <IconWithBatchNumber baseIcon={icon} number={index} />
+            return key === '_' ? <NumberIcon number={index}/> : <IconWithBatchNumber baseIcon={icon} number={index}/>
         }
     }
 
@@ -155,17 +156,17 @@ function getIcon(profileName: string, customProfiles: Record<string, Array<strin
     return React.createElement(icons.question_mark)
 }
 
-function IconWithBatchNumber({ baseIcon, number }: { baseIcon: any; number: number }) {
+function IconWithBatchNumber({baseIcon, number}: { baseIcon: any; number: number }) {
     return (
         <div className={styles.iconContainer}>
             {React.createElement(baseIcon)}
             <div className={styles.batchNumber}>
-                <NumberIcon number={number} />
+                <NumberIcon number={number}/>
             </div>
         </div>
     )
 }
 
-function NumberIcon({ number }: { number: number }) {
+function NumberIcon({number}: { number: number }) {
     return <span>{number}</span>
 }

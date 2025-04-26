@@ -7,6 +7,7 @@ declare module 'custom-model-editor/src/index'
 declare module 'config' {
     import ol from 'ol/dist/ol'
     import array = ol.array
+    import {ProfileGroup, ProfileGroupMap} from "@/stores/QueryStore";
     const routingApi: string
     const geocodingApi: string
     const defaultTiles: string
@@ -33,7 +34,7 @@ declare module 'config' {
         }
         maxZoom?: number
     }
-    const profile_group_mapping: Record<string, string>
+    const profile_group_mapping: Record<string, ProfileGroup>
     const profiles: object
 }
 
