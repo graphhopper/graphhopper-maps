@@ -60,7 +60,6 @@ export default function ({ query, route, error, encodedValues, drawAreas, map }:
                         </div>
                         <RoutingProfiles
                             routingProfiles={query.profiles}
-                            profileGroupMapping={query.profileGroupMapping}
                             selectedProfile={query.routingProfile}
                             showCustomModelBox={showCustomModelBox}
                             toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}

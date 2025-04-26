@@ -8,18 +8,17 @@ import Chevron from './chevron.svg'
 import { tr } from '@/translation/Translation'
 import CustomModelBoxSVG from '@/sidebar/open_custom_model.svg'
 import { icons } from '@/sidebar/search/routingProfiles/profileIcons'
-import { ProfileGroup, ProfileGroupMap } from '@/stores/QueryStore'
+import { ProfileGroupMap } from '@/stores/QueryStore'
+import * as config from 'config'
 
 export default function ({
     routingProfiles,
-    profileGroupMapping,
     selectedProfile,
     showCustomModelBox,
     toggleCustomModelBox,
     customModelBoxEnabled,
 }: {
     routingProfiles: RoutingProfile[]
-    profileGroupMapping: Record<string, ProfileGroup>
     selectedProfile: RoutingProfile
     showCustomModelBox: boolean
     toggleCustomModelBox: () => void
@@ -83,7 +82,7 @@ export default function ({
         if (!icons[p.name]) customProfiles[key] = [...(customProfiles[key] || []), p.name]
     })
 
-    let profileToGroup = ProfileGroupMap.create(profileGroupMapping)
+    let profileToGroup = ProfileGroupMap.create(config.profile_group_mapping)
     return (
         <div className={styles.profilesParent}>
             <PlainButton

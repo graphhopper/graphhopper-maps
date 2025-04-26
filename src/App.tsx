@@ -178,7 +178,6 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                         </PlainButton>
                         <RoutingProfiles
                             routingProfiles={query.profiles}
-                            profileGroupMapping={query.profileGroupMapping}
                             selectedProfile={query.routingProfile}
                             showCustomModelBox={showCustomModelBox}
                             toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}

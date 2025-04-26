@@ -268,7 +268,11 @@ describe('QueryStore', () => {
                 })
             )
 
-            expect(newState).toEqual({ ...state, profiles: [{ name: 'some-other-profile' }] })
+            expect(newState).toEqual({
+                ...state,
+                profileGroupMapping: undefined,
+                profiles: [{ name: 'some-other-profile' }],
+            })
         })
         it('should use the first profile received from info endpoint', () => {
             const expectedProfile = {

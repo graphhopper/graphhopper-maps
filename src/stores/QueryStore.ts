@@ -35,11 +35,12 @@ export function getBBoxFromCoord(c: Coordinate, offset: number = 0.005): Bbox {
 export class ProfileGroupMap {
     public static create(map: Record<string, ProfileGroup>): Record<string, string> {
         let res: Record<string, string> = {}
-        for (const [key, value] of Object.entries(map)) {
-            for (const option of value.options) {
-                res[option.profile] = key
+        if (map)
+            for (const [key, value] of Object.entries(map)) {
+                for (const option of value.options) {
+                    res[option.profile] = key
+                }
             }
-        }
         return res
     }
 }
@@ -50,7 +51,6 @@ export interface ProfileGroup {
 
 export interface QueryStoreState {
     readonly profiles: RoutingProfile[]
-    readonly profileGroupMapping: Record<string, ProfileGroup>
     readonly lastProfiles: Record<string, string>
     readonly queryPoints: QueryPoint[]
     readonly nextQueryPointId: number
@@ -117,7 +117,6 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         return {
             profiles: [],
-            profileGroupMapping: {},
             lastProfiles: {},
             queryPoints: [
                 QueryStore.getEmptyPoint(0, QueryPointType.From),
@@ -278,7 +277,6 @@ export default class QueryStore extends Store<QueryStoreState> {
                 {
                     ...state,
                     profiles,
-                    profileGroupMapping: config.profile_group_mapping,
                     routingProfile: profile,
                 },
                 true
@@ -300,7 +298,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             const newState: QueryStoreState = {
                 ...state,
-                routingProfile: { name: name },
+                routingProfile: { ...action.profile, name: name },
                 lastProfiles: { ...state.lastProfiles, [key]: value },
             }
             return this.routeIfReady(newState, true)
