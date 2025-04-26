@@ -1,7 +1,7 @@
-import {coordinateToText, metersToText} from '@/Converters'
-import Api, {ApiImpl} from '@/api/Api'
+import { coordinateToText, metersToText } from '@/Converters'
+import Api, { ApiImpl } from '@/api/Api'
 import Store from '@/stores/Store'
-import Dispatcher, {Action} from '@/stores/Dispatcher'
+import Dispatcher, { Action } from '@/stores/Dispatcher'
 import {
     AddPoint,
     ClearPoints,
@@ -18,10 +18,10 @@ import {
     SetQueryPoints,
     SetVehicleProfile,
 } from '@/actions/Actions'
-import {Bbox, RoutingArgs, RoutingProfile} from '@/api/graphhopper'
-import {calcDist} from '@/distUtils'
+import { Bbox, RoutingArgs, RoutingProfile } from '@/api/graphhopper'
+import { calcDist } from '@/distUtils'
 import config from 'config'
-import {customModel2prettyString, customModelExamples} from '@/sidebar/CustomModelExamples'
+import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 
 export interface Coordinate {
     lat: number
@@ -33,8 +33,8 @@ export function getBBoxFromCoord(c: Coordinate, offset: number = 0.005): Bbox {
 }
 
 export class ProfileGroupMap {
-    public static create(map: Record<string, ProfileGroup>) : Record<string, string> {
-    let res: Record<string, string> = {}
+    public static create(map: Record<string, ProfileGroup>): Record<string, string> {
+        let res: Record<string, string> = {}
         for (const [key, value] of Object.entries(map)) {
             for (const option of value.options) {
                 res[option.profile] = key
@@ -45,7 +45,7 @@ export class ProfileGroupMap {
 }
 
 export interface ProfileGroup {
-    readonly options: { profile: string } []
+    readonly options: { profile: string }[]
 }
 
 export interface QueryStoreState {
@@ -113,8 +113,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         // prettify the custom model if it can be parsed or leave it as is otherwise
         try {
             initialCustomModelStr = customModel2prettyString(JSON.parse(initialCustomModelStr))
-        } catch (e) {
-        }
+        } catch (e) {}
 
         return {
             profiles: [],
@@ -152,7 +151,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 return {
                     ...point,
                     queryText: '',
-                    point: {lat: 0, lng: 0},
+                    point: { lat: 0, lng: 0 },
                     isInitialized: false,
                 }
             })
@@ -205,7 +204,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             // determine colors for each point. I guess this could be smarter if this needs to be faster
             const newPoints = tmp.map((point, i) => {
                 const type = QueryStore.getPointType(i, tmp.length)
-                return {...point, color: QueryStore.getMarkerColor(type), type: type}
+                return { ...point, color: QueryStore.getMarkerColor(type), type: type }
             })
 
             const newState: QueryStoreState = {
@@ -238,7 +237,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     color: QueryStore.getMarkerColor(type),
                     queryText: '',
                     isInitialized: false,
-                    coordinate: {lat: 0, lng: 0},
+                    coordinate: { lat: 0, lng: 0 },
                 })
             }
             const nextId = state.nextQueryPointId + queryPoints.length
@@ -256,7 +255,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 .filter(point => point.id !== action.point.id)
                 .map((point, i) => {
                     const type = QueryStore.getPointType(i, state.queryPoints.length - 1)
-                    return {...point, color: QueryStore.getMarkerColor(type), type: type}
+                    return { ...point, color: QueryStore.getMarkerColor(type), type: type }
                 })
 
             const newState: QueryStoreState = {
@@ -270,7 +269,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             // if there are profiles defined in the config file use them, otherwise use the profiles from /info
             const profiles: RoutingProfile[] = config.profiles
-                ? Object.keys(config.profiles).map(profile => ({name: profile}))
+                ? Object.keys(config.profiles).map(profile => ({ name: profile }))
                 : action.result.profiles
 
             // if a routing profile was in the url keep it, otherwise select the first entry as default profile
@@ -301,8 +300,8 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             const newState: QueryStoreState = {
                 ...state,
-                routingProfile: {name: name},
-                lastProfiles: {...state.lastProfiles, [key]: value},
+                routingProfile: { name: name },
+                lastProfiles: { ...state.lastProfiles, [key]: value },
             }
             return this.routeIfReady(newState, true)
         } else if (action instanceof SetCustomModel) {
@@ -360,10 +359,10 @@ export default class QueryStore extends Store<QueryStoreState> {
                     Dispatcher.dispatch(
                         new ErrorAction(
                             'Using the custom model feature is unfortunately not ' +
-                            'possible when the request points are further than ' +
-                            // todo: use settings#showDistanceInMiles, but not sure how to use state from another store here
-                            metersToText(700_000, false) +
-                            ' apart.'
+                                'possible when the request points are further than ' +
+                                // todo: use settings#showDistanceInMiles, but not sure how to use state from another store here
+                                metersToText(700_000, false) +
+                                ' apart.'
                         )
                     )
                     return state
@@ -388,7 +387,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             return {
                 ...state,
-                currentRequest: {subRequests: this.send(requests, zoom)},
+                currentRequest: { subRequests: this.send(requests, zoom) },
             }
         }
         return state
@@ -450,7 +449,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             subRequests,
             r => r.args === args,
             r => {
-                return {...r, state}
+                return { ...r, state }
             }
         )
     }
@@ -482,8 +481,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         if (state.customModelEnabled)
             try {
                 customModel = JSON.parse(state.customModelStr)
-            } catch {
-            }
+            } catch {}
 
         return {
             points: coordinates,
@@ -497,7 +495,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             isInitialized: false,
             queryText: '',
-            coordinate: {lat: 0, lng: 0},
+            coordinate: { lat: 0, lng: 0 },
             id: id,
             color: QueryStore.getMarkerColor(type),
             type: type,
