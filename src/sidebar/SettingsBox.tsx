@@ -9,7 +9,7 @@ import { useContext } from 'react'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import { RoutingProfile } from '@/api/graphhopper'
 import * as config from 'config'
-import { ProfileGroupMap } from '@/utils'
+import { ProfileGroupMap } from '@/distUtils'
 
 export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
     const settings = useContext(SettingsContext)

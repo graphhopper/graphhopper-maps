@@ -7,6 +7,7 @@ import QueryStore, { getBBoxFromCoord, QueryPoint, QueryPointType, QueryStoreSta
 import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
 import { ApiImpl, getApi } from '@/api/Api'
 import { AddressParseResult } from '@/pois/AddressParseResult'
+import { getQueryStore } from '@/stores/Stores'
 
 export default class NavBar {
     private readonly queryStore: QueryStore

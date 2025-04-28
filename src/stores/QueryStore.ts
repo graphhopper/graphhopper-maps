@@ -19,7 +19,7 @@ import {
     SetVehicleProfile,
 } from '@/actions/Actions'
 import { Bbox, RoutingArgs, RoutingProfile } from '@/api/graphhopper'
-import { calcDist, ProfileGroupMap } from '@/utils'
+import { calcDist, ProfileGroupMap } from '@/distUtils'
 import config from 'config'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 
@@ -44,13 +44,6 @@ export interface QueryStoreState {
     readonly customModelStr: string
 }
 
-export interface CustomModel {
-    readonly speed?: object[]
-    readonly priority?: object[]
-    readonly distance_influence?: number
-    readonly areas?: object
-}
-
 export interface QueryPoint {
     readonly coordinate: Coordinate
     readonly queryText: string
@@ -58,6 +51,13 @@ export interface QueryPoint {
     readonly color: string
     readonly id: number
     readonly type: QueryPointType
+}
+
+export interface CustomModel {
+    readonly speed?: object[]
+    readonly priority?: object[]
+    readonly distance_influence?: number
+    readonly areas?: object
 }
 
 export enum QueryPointType {

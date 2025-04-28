@@ -1,10 +1,10 @@
+import { ApiImpl } from '@/api/Api'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetBBox, SetPOIs } from '@/actions/Actions'
 import { hitToItem } from '@/Converters'
 import { GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
 import { tr, Translation } from '@/translation/Translation'
 import { POI } from '@/stores/POIsStore'
-import { ApiImpl } from '@/api/Api'
 
 export class AddressParseResult {
     location: string

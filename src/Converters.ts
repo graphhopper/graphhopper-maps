@@ -1,4 +1,5 @@
 import { GeocodingHit } from '@/api/graphhopper'
+
 import { Coordinate } from '@/stores/QueryStore'
 
 export function milliSecondsToText(ms: number) {

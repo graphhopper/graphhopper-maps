@@ -17,8 +17,8 @@ import {
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
-import { POIQuery } from '@/pois/AddressParseResult'
 import { Coordinate } from '@/stores/QueryStore'
+import { POIQuery } from '@/pois/AddressParseResult'
 
 interface ApiProfile {
     name: string
