@@ -1,4 +1,18 @@
+import { ProfileGroup } from 'config'
 import { Coordinate } from '@/stores/QueryStore'
+
+export class ProfileGroupMap {
+    public static create(map: Record<string, ProfileGroup>): Record<string, string> {
+        let res: Record<string, string> = {}
+        if (map)
+            for (const [key, value] of Object.entries(map)) {
+                for (const option of value.options) {
+                    res[option.profile] = key
+                }
+            }
+        return res
+    }
+}
 
 /**
  * Calculates the great-circle distance between two points on Earth given the latitudes and longitudes

@@ -20,7 +20,7 @@ import {
     SetPoint,
     SetVehicleProfile,
 } from '@/actions/Actions'
-import { POIAndQuery, POIQuery } from '@/pois/AddressParseResult'
+import { POIQuery } from '@/pois/AddressParseResult'
 
 class ApiMock implements Api {
     private readonly callback: { (args: RoutingArgs): void }
@@ -268,7 +268,10 @@ describe('QueryStore', () => {
                 })
             )
 
-            expect(newState).toEqual({ ...state, profiles: [{ name: 'some-other-profile' }] })
+            expect(newState).toEqual({
+                ...state,
+                profiles: [{ name: 'some-other-profile' }],
+            })
         })
         it('should use the first profile received from info endpoint', () => {
             const expectedProfile = {

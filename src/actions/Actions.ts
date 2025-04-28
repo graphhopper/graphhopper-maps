@@ -37,6 +37,14 @@ export class SetVehicleProfile implements Action {
     }
 }
 
+export class SetVehicleProfileGroup implements Action {
+    readonly group: string
+
+    constructor(group: string) {
+        this.group = group
+    }
+}
+
 export class AddPoint implements Action {
     readonly atIndex: number
     readonly coordinate: Coordinate

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import styles from './RoutingProfiles.module.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetVehicleProfile } from '@/actions/Actions'
+import { SetVehicleProfile, SetVehicleProfileGroup } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import PlainButton from '@/PlainButton'
 import Chevron from './chevron.svg'
 import { tr } from '@/translation/Translation'
 import CustomModelBoxSVG from '@/sidebar/open_custom_model.svg'
 import { icons } from '@/sidebar/search/routingProfiles/profileIcons'
+import * as config from 'config'
+import { ProfileGroupMap } from '@/utils'
 
 export default function ({
     routingProfiles,
@@ -80,6 +82,7 @@ export default function ({
         if (!icons[p.name]) customProfiles[key] = [...(customProfiles[key] || []), p.name]
     })
 
+    let profileToGroup = ProfileGroupMap.create(config.profile_group_mapping)
     return (
         <div className={styles.profilesParent}>
             <PlainButton
@@ -99,26 +102,38 @@ export default function ({
                     <Chevron />
                 </PlainButton>
                 <ul className={styles.profiles} id="profiles_carousel_items" onScroll={onScroll}>
-                    {routingProfiles.map(profile => {
-                        const className =
-                            profile.name === selectedProfile.name
+                    {routingProfiles
+                        .filter(
+                            profile => !profileToGroup[profile.name] || profile.name == profileToGroup[profile.name]
+                        )
+                        .map(profile => {
+                            const isProfileSelected =
+                                profile.name === selectedProfile.name ||
+                                profile.name == profileToGroup[selectedProfile.name]
+                            const className = isProfileSelected
                                 ? styles.selectedProfile + ' ' + styles.profileBtn
                                 : styles.profileBtn
-                        return (
-                            <li key={profile.name}>
-                                <PlainButton
-                                    title={tr(profile.name)}
-                                    onClick={() => Dispatcher.dispatch(new SetVehicleProfile(profile))}
-                                    className={className}
-                                >
-                                    {customModelBoxEnabled && profile.name === selectedProfile.name && (
-                                        <CustomModelBoxSVG className={styles.asIndicator} />
-                                    )}
-                                    {getIcon(profile.name, customProfiles)}
-                                </PlainButton>
-                            </li>
-                        )
-                    })}
+                            return (
+                                <li key={profile.name}>
+                                    <PlainButton
+                                        title={tr(profile.name)}
+                                        onClick={() =>
+                                            Dispatcher.dispatch(
+                                                profileToGroup[profile.name]
+                                                    ? new SetVehicleProfileGroup(profileToGroup[profile.name])
+                                                    : new SetVehicleProfile(profile)
+                                            )
+                                        }
+                                        className={className}
+                                    >
+                                        {customModelBoxEnabled && profile.name === selectedProfile.name && (
+                                            <CustomModelBoxSVG className={styles.asIndicator} />
+                                        )}
+                                        {getIcon(profile.name, customProfiles)}
+                                    </PlainButton>
+                                </li>
+                            )
+                        })}
                 </ul>
                 <PlainButton
                     className={styles.chevron + ' ' + styles.flip}

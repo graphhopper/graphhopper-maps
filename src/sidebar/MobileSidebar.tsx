@@ -74,7 +74,7 @@ export default function ({ query, route, error, encodedValues, drawAreas, map }:
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} map={map} />
+                        <Search points={query.queryPoints} profile={query.routingProfile} map={map} />
                     </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}

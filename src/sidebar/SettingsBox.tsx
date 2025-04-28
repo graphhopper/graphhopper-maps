@@ -1,18 +1,47 @@
-import { UpdateSettings } from '@/actions/Actions'
+import { SetVehicleProfile, UpdateSettings } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
-import { useContext, useState } from 'react'
+import { useContext } from 'react'
 import { SettingsContext } from '@/contexts/SettingsContext'
+import { RoutingProfile } from '@/api/graphhopper'
+import * as config from 'config'
+import { ProfileGroupMap } from '@/utils'
 
-export default function SettingsBox() {
+export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
     const settings = useContext(SettingsContext)
 
+    function setProfile(n: string) {
+        Dispatcher.dispatch(new SetVehicleProfile({ name: profile.name === n ? 'car' : n }))
+    }
+
+    const groupName = ProfileGroupMap.create(config.profile_group_mapping)[profile.name]
+    const group = config.profile_group_mapping[groupName]
     return (
         <div className={styles.parent}>
+            {groupName && <span className={styles.groupProfileOptionsHeader}>{tr(groupName + '_settings')}</span>}
+            {groupName && (
+                <div className={styles.settingsTable}>
+                    <div className={styles.groupProfileOptions}>
+                        {group.options.map(option => (
+                            <div key={option.profile}>
+                                <input
+                                    checked={profile.name === option.profile}
+                                    type="radio"
+                                    id={option.profile}
+                                    name={groupName}
+                                    value={option.profile}
+                                    onChange={() => setProfile(option.profile)}
+                                />
+                                <label htmlFor={option.profile}>{tr(groupName + '_settings_' + option.profile)}</label>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
             <div className={styles.title}>{tr('settings')}</div>
             <div className={styles.settingsTable}>
                 <SettingsToggle
@@ -75,8 +104,8 @@ function SettingsToggle({ title, enabled, onClick }: { title: string; enabled: b
 
 function SettingsCheckbox({ title, enabled, onClick }: { title: string; enabled: boolean; onClick: () => void }) {
     return (
-        <div className={styles.settingsCheckbox} onClick={onClick}>
-            <input type="checkbox" checked={enabled} onChange={ignore => {}}></input>
+        <div className={styles.settingsCheckbox}>
+            <input type="checkbox" checked={enabled} onChange={onClick}></input>
             <label style={{ color: enabled ? '#5b616a' : 'gray' }}>{title}</label>
         </div>
     )

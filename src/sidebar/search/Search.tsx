@@ -13,8 +13,9 @@ import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
+import { RoutingProfile } from '@/api/graphhopper'
 
-export default function Search({ points, map }: { points: QueryPoint[]; map: Map }) {
+export default function Search({ points, profile, map }: { points: QueryPoint[]; profile: RoutingProfile; map: Map }) {
     const [showSettings, setShowSettings] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
@@ -62,7 +63,7 @@ export default function Search({ points, map }: { points: QueryPoint[]; map: Map
                     {showSettings ? tr('settings_close') : tr('settings')}
                 </PlainButton>
             </div>
-            {showSettings && <SettingsBox />}
+            {showSettings && <SettingsBox profile={profile} />}
         </div>
     )
 }
