@@ -1,42 +1,5 @@
-import { Bbox } from '@/api/graphhopper'
 import { ProfileGroup } from 'config'
-
-export interface CustomModel {
-    readonly speed?: object[]
-    readonly priority?: object[]
-    readonly distance_influence?: number
-    readonly areas?: object
-}
-
-export interface Coordinate {
-    lat: number
-    lng: number
-}
-
-export function getBBoxFromCoord(c: Coordinate, offset: number = 0.005): Bbox {
-    return [c.lng - offset, c.lat - offset, c.lng + offset, c.lat + offset]
-}
-
-export function getBBoxPoints(points: Coordinate[]): Bbox | null {
-    const bbox: Bbox = points.reduce(
-        (res: Bbox, c) => [
-            Math.min(res[0], c.lng),
-            Math.min(res[1], c.lat),
-            Math.max(res[2], c.lng),
-            Math.max(res[3], c.lat),
-        ],
-        [180, 90, -180, -90] as Bbox
-    )
-    if (points.length == 1) {
-        bbox[0] = bbox[0] - 0.001
-        bbox[1] = bbox[1] - 0.001
-        bbox[2] = bbox[2] + 0.001
-        bbox[3] = bbox[3] + 0.001
-    }
-
-    // return null if the bbox is not valid, e.g. if no url points were given at all
-    return bbox[0] < bbox[2] && bbox[1] < bbox[3] ? bbox : null
-}
+import { Coordinate } from '@/stores/QueryStore'
 
 export class ProfileGroupMap {
     public static create(map: Record<string, ProfileGroup>): Record<string, string> {

@@ -8,8 +8,8 @@ import OffIcon from '@/sidebar/toggle_off.svg'
 import { useContext } from 'react'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import { RoutingProfile } from '@/api/graphhopper'
-import { ProfileGroupMap } from '@/stores/QueryStore'
 import * as config from 'config'
+import { ProfileGroupMap } from '@/utils'
 
 export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
     const settings = useContext(SettingsContext)

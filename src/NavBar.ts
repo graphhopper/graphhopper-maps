@@ -3,11 +3,10 @@ import Dispatcher from '@/stores/Dispatcher'
 import { ClearPoints, SelectMapLayer, SetBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
-import QueryStore, { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
+import QueryStore, { getBBoxFromCoord, QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
 import MapOptionsStore, { MapOptionsStoreState } from './stores/MapOptionsStore'
-import { getApi } from '@/api/Api'
+import { ApiImpl, getApi } from '@/api/Api'
 import { AddressParseResult } from '@/pois/AddressParseResult'
-import { getBBoxFromCoord, getBBoxPoints } from '@/utils'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
@@ -159,7 +158,7 @@ export default class NavBar {
         const bbox =
             initializedPoints.length == 1
                 ? getBBoxFromCoord(initializedPoints[0].coordinate)
-                : getBBoxPoints(initializedPoints.map(p => p.coordinate))
+                : ApiImpl.getBBoxPoints(initializedPoints.map(p => p.coordinate))
         if (bbox) Dispatcher.dispatch(new SetBBox(bbox))
         return Dispatcher.dispatch(new SetQueryPoints(points))
     }

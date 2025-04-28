@@ -4,7 +4,7 @@ import { hitToItem } from '@/Converters'
 import { GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
 import { tr, Translation } from '@/translation/Translation'
 import { POI } from '@/stores/POIsStore'
-import { getBBoxPoints } from '@/utils'
+import { ApiImpl } from '@/api/Api'
 
 export class AddressParseResult {
     location: string
@@ -144,7 +144,7 @@ export class AddressParseResult {
                     address: res.secondText,
                 } as POI
             })
-        const bbox = getBBoxPoints(pois.map(p => p.coordinate))
+        const bbox = ApiImpl.getBBoxPoints(pois.map(p => p.coordinate))
         if (bbox) {
             if (parseResult.location) Dispatcher.dispatch(new SetBBox(bbox))
             Dispatcher.dispatch(new SetPOIs(pois))

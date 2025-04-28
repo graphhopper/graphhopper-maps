@@ -1,5 +1,5 @@
 import { GeocodingHit } from '@/api/graphhopper'
-import { Coordinate } from '@/utils'
+import { Coordinate } from '@/stores/QueryStore'
 
 export function milliSecondsToText(ms: number) {
     const hours = Math.floor(ms / 3600000)

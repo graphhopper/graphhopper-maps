@@ -1,10 +1,9 @@
 import { Action } from '@/stores/Dispatcher'
-import { QueryPoint } from '@/stores/QueryStore'
+import { Coordinate, QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 import { POI } from '@/stores/POIsStore'
 import { Settings } from '@/stores/SettingsStore'
-import { Coordinate } from '@/utils'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
