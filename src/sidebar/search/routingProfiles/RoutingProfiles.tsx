@@ -9,7 +9,7 @@ import { tr } from '@/translation/Translation'
 import CustomModelBoxSVG from '@/sidebar/open_custom_model.svg'
 import { icons } from '@/sidebar/search/routingProfiles/profileIcons'
 import * as config from 'config'
-import { ProfileGroupMap } from '@/distUtils'
+import { ProfileGroupMap } from '@/utils'
 
 export default function ({
     routingProfiles,

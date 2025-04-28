@@ -19,7 +19,7 @@ import {
     SetVehicleProfile,
 } from '@/actions/Actions'
 import { Bbox, RoutingArgs, RoutingProfile } from '@/api/graphhopper'
-import { calcDist, ProfileGroupMap } from '@/distUtils'
+import { calcDist, ProfileGroupMap } from '@/utils'
 import config from 'config'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 
