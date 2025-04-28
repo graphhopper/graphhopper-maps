@@ -2,7 +2,8 @@ import React from 'react'
 import styles from '@/layers/MapFeaturePopup.module.css'
 import MapPopup from '@/layers/MapPopup'
 import { Map } from 'ol'
-import { Coordinate } from '@/stores/QueryStore'
+
+import { Coordinate } from '@/utils'
 
 interface MapFeaturePopupProps {
     map: Map

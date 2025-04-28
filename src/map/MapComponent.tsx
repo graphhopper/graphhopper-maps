@@ -2,11 +2,11 @@ import 'ol/ol.css'
 import styles from '@/map/Map.module.css'
 import { useEffect, useRef } from 'react'
 import { Map } from 'ol'
-import { Coordinate, getBBoxFromCoord } from '@/stores/QueryStore'
 import { Bbox } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
 import { ErrorAction } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
+import { Coordinate, getBBoxFromCoord } from '@/utils'
 
 type MapComponentProps = {
     map: Map

@@ -19,19 +19,10 @@ import {
     SetVehicleProfile,
     SetVehicleProfileGroup,
 } from '@/actions/Actions'
-import { Bbox, RoutingArgs, RoutingProfile } from '@/api/graphhopper'
-import { calcDist, ProfileGroupMap } from '@/utils'
+import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
+import { calcDist, Coordinate, ProfileGroupMap } from '@/utils'
 import config from 'config'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
-
-export interface Coordinate {
-    lat: number
-    lng: number
-}
-
-export function getBBoxFromCoord(c: Coordinate, offset: number = 0.005): Bbox {
-    return [c.lng - offset, c.lat - offset, c.lng + offset, c.lat + offset]
-}
 
 export interface QueryStoreState {
     readonly profiles: RoutingProfile[]
@@ -52,13 +43,6 @@ export interface QueryPoint {
     readonly color: string
     readonly id: number
     readonly type: QueryPointType
-}
-
-export interface CustomModel {
-    readonly speed?: object[]
-    readonly priority?: object[]
-    readonly distance_influence?: number
-    readonly areas?: object
 }
 
 export enum QueryPointType {

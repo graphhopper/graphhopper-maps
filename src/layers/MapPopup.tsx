@@ -1,7 +1,8 @@
 import { Map, Overlay } from 'ol'
 import { useEffect, useRef, useState } from 'react'
 import { fromLonLat } from 'ol/proj'
-import { Coordinate } from '@/stores/QueryStore'
+
+import { Coordinate } from '@/utils'
 
 interface MapPopupProps {
     map: Map

@@ -1,4 +1,4 @@
-import { CustomModel } from '@/stores/QueryStore'
+import { CustomModel } from '@/utils'
 
 export const customModelExamples: { [key: string]: CustomModel } = {
     default_example: {

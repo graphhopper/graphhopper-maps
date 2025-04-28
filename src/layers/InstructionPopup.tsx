@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 import styles from '@/layers/DefaultMapPopup.module.css'
 import { Map } from 'ol'
 import MapPopup from '@/layers/MapPopup'
-import { Coordinate } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { InstructionClicked } from '@/actions/Actions'
+import { Coordinate } from '@/utils'
 
 interface InstructionPopupProps {
     map: Map

@@ -1,5 +1,4 @@
-import { Coordinate } from '@/stores/QueryStore'
-import { calcDist } from '@/utils'
+import { calcDist, Coordinate } from '@/utils'
 
 /**
  * Finds the way-point that follows the part of a route that is closest to a given location

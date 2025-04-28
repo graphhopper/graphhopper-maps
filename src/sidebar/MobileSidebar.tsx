@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Coordinate, QueryPoint, QueryPointType, QueryStoreState, RequestState } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType, QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
@@ -12,6 +12,7 @@ import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import { Map } from 'ol'
+import { Coordinate } from '@/utils'
 
 type MobileSidebarProps = {
     query: QueryStoreState

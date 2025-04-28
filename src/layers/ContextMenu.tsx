@@ -1,10 +1,11 @@
 import { Map, Overlay } from 'ol'
 import { ContextMenuContent } from '@/map/ContextMenuContent'
 import { useEffect, useRef, useState } from 'react'
-import { Coordinate, QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint } from '@/stores/QueryStore'
 import { fromLonLat, toLonLat } from 'ol/proj'
 import styles from '@/layers/ContextMenu.module.css'
 import { RouteStoreState } from '@/stores/RouteStore'
+import { Coordinate } from '@/utils'
 
 interface ContextMenuProps {
     map: Map
