@@ -35,7 +35,7 @@ export function getBBoxFromCoord(c: Coordinate, offset: number = 0.005): Bbox {
 
 export interface QueryStoreState {
     readonly profiles: RoutingProfile[]
-    readonly selectedProfilePerGroup: Record<string, string>
+    readonly memorizedProfilePerGroup: Record<string, string>
     readonly queryPoints: QueryPoint[]
     readonly nextQueryPointId: number
     readonly currentRequest: CurrentRequest
@@ -101,7 +101,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         return {
             profiles: [],
-            selectedProfilePerGroup: {},
+            memorizedProfilePerGroup: {},
             queryPoints: [
                 QueryStore.getEmptyPoint(0, QueryPointType.From),
                 QueryStore.getEmptyPoint(1, QueryPointType.To),
@@ -266,7 +266,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 true
             )
         } else if (action instanceof SetVehicleProfileGroup) {
-            let prevProfile = this.state.selectedProfilePerGroup[action.group]
+            let prevProfile = this.state.memorizedProfilePerGroup[action.group]
 
             // here we assume the name of the group can be used as default profile
             if (!prevProfile) prevProfile = action.group
@@ -285,7 +285,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 routingProfile: { ...action.profile, name: name },
                 // keep track of "selected option" like car_avoid_motorway for group 'car' and if we switch back to
                 // this group ('car') then we still want the profile car_avoid_motorway
-                selectedProfilePerGroup: { ...state.selectedProfilePerGroup, [groupName]: name },
+                memorizedProfilePerGroup: { ...state.memorizedProfilePerGroup, [groupName]: name },
             }
             return this.routeIfReady(newState, true)
         } else if (action instanceof SetCustomModel) {
