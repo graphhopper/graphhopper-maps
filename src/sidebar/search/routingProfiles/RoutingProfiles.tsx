@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styles from './RoutingProfiles.module.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetVehicleProfile } from '@/actions/Actions'
+import { SetVehicleProfile, SetVehicleProfileGroup } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import PlainButton from '@/PlainButton'
 import Chevron from './chevron.svg'
@@ -117,7 +117,13 @@ export default function ({
                                 <li key={profile.name}>
                                     <PlainButton
                                         title={tr(profile.name)}
-                                        onClick={() => Dispatcher.dispatch(new SetVehicleProfile(profile))}
+                                        onClick={() =>
+                                            Dispatcher.dispatch(
+                                                profileToGroup[profile.name]
+                                                    ? new SetVehicleProfileGroup(profileToGroup[profile.name])
+                                                    : new SetVehicleProfile(profile)
+                                            )
+                                        }
                                         className={className}
                                     >
                                         {customModelBoxEnabled && profile.name === selectedProfile.name && (
