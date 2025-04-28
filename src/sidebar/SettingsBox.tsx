@@ -34,7 +34,7 @@ export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
                                     id={option.profile}
                                     name={groupName}
                                     value={option.profile}
-                                    onClick={() => setProfile(option.profile)}
+                                    onChange={() => setProfile(option.profile)}
                                 />
                                 <label htmlFor={option.profile}>{tr(groupName + '_settings_' + option.profile)}</label>
                             </div>
@@ -104,8 +104,8 @@ function SettingsToggle({ title, enabled, onClick }: { title: string; enabled: b
 
 function SettingsCheckbox({ title, enabled, onClick }: { title: string; enabled: boolean; onClick: () => void }) {
     return (
-        <div className={styles.settingsCheckbox} onClick={onClick}>
-            <input type="checkbox" checked={enabled} onChange={ignore => {}}></input>
+        <div className={styles.settingsCheckbox}>
+            <input type="checkbox" checked={enabled} onChange={onClick}></input>
             <label style={{ color: enabled ? '#5b616a' : 'gray' }}>{title}</label>
         </div>
     )
