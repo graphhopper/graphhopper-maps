@@ -63,18 +63,6 @@ const config = {
     //      { profile: 'racingbike' },
     //      { profile: 'ecargobike' }
     //    ]
-    //  },
-    //  truck: {
-    //    options: [
-    //      { profile: 'small_truck' },
-    //      { profile: 'truck' }
-    //    ]
-    //  },
-    //  foot: {
-    //    options: [
-    //      { profile: 'foot' },
-    //      { profile: 'hike' }
-    //    ]
     //  }
     // }
 }
