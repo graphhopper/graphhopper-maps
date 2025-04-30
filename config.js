@@ -10,7 +10,7 @@ const config = {
     defaultTiles: 'OpenStreetMap',
     // various api keys used for the GH backend and the different tile providers
     keys: {
-        graphhopper: 'bfb9d728-3732-4542-9e92-f638ac1c9f3a',
+        graphhopper: 'efc33bcc-a9e6-450b-9221-c52c5bf57de3',
         maptiler: 'missing_api_key',
         omniscale: 'missing_api_key',
         thunderforest: 'missing_api_key',
