@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { getBBoxFromCoord, QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint } from '@/stores/QueryStore'
 import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetBBox, SetPoint } from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
@@ -14,14 +14,18 @@ import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
 import { TNSettingsState } from '@/stores/TurnNavigationStore'
+import { RoutingProfile } from '@/api/graphhopper'
+import { getBBoxFromCoord } from '@/utils'
 
 export default function Search({
     points,
+    profile,
     map,
     turnNavigationSettings,
 }: {
     points: QueryPoint[]
     map: Map
+    profile: RoutingProfile
     turnNavigationSettings: TNSettingsState
 }) {
     const [showSettings, setShowSettings] = useState(false)
@@ -71,7 +75,7 @@ export default function Search({
                     {showSettings ? tr('settings_close') : tr('settings')}
                 </PlainButton>
             </div>
-            {showSettings && <SettingsBox turnNavSettings={turnNavigationSettings} />}
+            {showSettings && <SettingsBox profile={profile} turnNavSettings={turnNavigationSettings} />}
         </div>
     )
 }

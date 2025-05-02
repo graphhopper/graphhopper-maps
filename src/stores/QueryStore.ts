@@ -17,23 +17,16 @@ import {
     SetPoint,
     SetQueryPoints,
     SetVehicleProfile,
+    SetVehicleProfileGroup,
 } from '@/actions/Actions'
-import { Bbox, RoutingArgs, RoutingProfile } from '@/api/graphhopper'
-import { calcDist } from '@/turnNavigation/GeoMethods'
+import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
+import { calcDist, Coordinate, ProfileGroupMap } from '@/utils'
 import config from 'config'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 
-export interface Coordinate {
-    lat: number
-    lng: number
-}
-
-export function getBBoxFromCoord(c: Coordinate, offset: number = 0.005): Bbox {
-    return [c.lng - offset, c.lat - offset, c.lng + offset, c.lat + offset]
-}
-
 export interface QueryStoreState {
     readonly profiles: RoutingProfile[]
+    readonly memorizedProfilePerGroup: Record<string, string>
     readonly queryPoints: QueryPoint[]
     readonly nextQueryPointId: number
     readonly currentRequest: CurrentRequest
@@ -50,13 +43,6 @@ export interface QueryPoint {
     readonly color: string
     readonly id: number
     readonly type: QueryPointType
-}
-
-export interface CustomModel {
-    readonly speed?: object[]
-    readonly priority?: object[]
-    readonly distance_influence?: number
-    readonly areas?: object
 }
 
 export enum QueryPointType {
@@ -99,6 +85,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         return {
             profiles: [],
+            memorizedProfilePerGroup: {},
             queryPoints: [
                 QueryStore.getEmptyPoint(0, QueryPointType.From),
                 QueryStore.getEmptyPoint(1, QueryPointType.To),
@@ -262,12 +249,28 @@ export default class QueryStore extends Store<QueryStoreState> {
                 },
                 true
             )
-        } else if (action instanceof SetVehicleProfile) {
+        } else if (action instanceof SetVehicleProfileGroup) {
+            let prevProfile = this.state.memorizedProfilePerGroup[action.group]
+
+            // here we assume the name of the group can be used as default profile
+            if (!prevProfile) prevProfile = action.group
+
             const newState: QueryStoreState = {
                 ...state,
-                routingProfile: action.profile,
+                routingProfile: { ...this.state.routingProfile, name: prevProfile },
             }
-
+            return this.routeIfReady(newState, true)
+        } else if (action instanceof SetVehicleProfile) {
+            const name = action.profile.name
+            const profileToGroup = ProfileGroupMap.create(config.profile_group_mapping)
+            const groupName = profileToGroup[name]
+            const newState: QueryStoreState = {
+                ...state,
+                routingProfile: { ...action.profile, name: name },
+                // keep track of "selected option" like car_avoid_motorway for group 'car' and if we switch back to
+                // this group ('car') then we still want the profile car_avoid_motorway
+                memorizedProfilePerGroup: { ...state.memorizedProfilePerGroup, [groupName]: name },
+            }
             return this.routeIfReady(newState, true)
         } else if (action instanceof SetCustomModel) {
             const newState = {

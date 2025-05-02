@@ -26,6 +26,23 @@
     align-items: center;
 }
 
+.groupProfileOptionsHeader {
+    font-weight: bold;
+}
+
+.groupProfileOptions div {
+    padding: 4px 20px;
+}
+
+.groupProfileOptions label,
+input {
+    cursor: pointer;
+}
+
+.groupProfileOptions label {
+    margin-left: 10px;
+}
+
 .toggleButton {
     display: flex;
     align-items: center;
@@ -74,7 +91,8 @@
 .title,
 .infoLine,
 .copyLinkRow,
-.settingsTable {
+.settingsTable,
+.groupProfileOptionsHeader {
     font-size: 14px;
     color: gray;
 }

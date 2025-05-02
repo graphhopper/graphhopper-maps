@@ -1,5 +1,5 @@
 import { Instruction, Path } from '@/api/graphhopper'
-import { Coordinate } from '@/stores/QueryStore'
+import { Coordinate } from '@/utils'
 
 export function getCurrentDetails(path: Path, pillarPoint: Coordinate, details: [any, any, any][][]): any[] {
     const points = path.points.coordinates

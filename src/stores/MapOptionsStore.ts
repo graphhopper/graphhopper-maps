@@ -160,13 +160,6 @@ const mapillion: VectorStyle = {
         osmAttribution +
         ', &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
 }
-const lyrk: RasterStyle = {
-    name: 'Lyrk',
-    type: 'raster',
-    url: ['https://tiles.lyrk.org/lr/{z}/{x}/{y}?apikey=6e8cfef737a140e2a58c8122aaa26077'],
-    attribution: osmAttribution + ', <a href="https://geodienste.lyrk.de/">Lyrk</a>',
-    maxZoom: 15,
-}
 const wanderreitkarte: RasterStyle = {
     name: 'WanderReitKarte',
     type: 'raster',
@@ -191,8 +184,6 @@ const styleOptions: StyleOption[] = [
     tfOutdoors,
     // kurviger,
     mapillion,
-    // lyrk,
-    // wanderreitkarte,
 ]
 
 export default class MapOptionsStore extends Store<MapOptionsStoreState> {

@@ -222,7 +222,12 @@ function LargeScreenLayout({
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} map={map} turnNavigationSettings={turnNavigation.settings} />
+                        <Search
+                            points={query.queryPoints}
+                            profile={query.routingProfile}
+                            map={map}
+                            turnNavigationSettings={turnNavigation.settings}
+                        />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
                             info={route.routingResult.info}

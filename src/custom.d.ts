@@ -9,6 +9,10 @@ interface Window {
 }
 
 declare module 'config' {
+    interface ProfileGroup {
+        readonly options: { profile: string }[]
+    }
+
     const routingApi: string
     const geocodingApi: string
     const defaultTiles: string
@@ -36,6 +40,7 @@ declare module 'config' {
         }
         maxZoom?: number
     }
+    const profile_group_mapping: Record<string, ProfileGroup>
     const profiles: object
 }
 

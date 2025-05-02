@@ -1,13 +1,13 @@
 import { Map } from 'ol'
 import { useEffect } from 'react'
 import { PathDetailsStoreState } from '@/stores/PathDetailsStore'
-import { Coordinate } from '@/stores/QueryStore'
 import { FeatureCollection } from 'geojson'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Stroke, Style } from 'ol/style'
 import { GeoJSON } from 'ol/format'
 import { fromLonLat } from 'ol/proj'
+import { Coordinate } from '@/utils'
 
 const highlightedPathSegmentLayerKey = 'highlightedPathSegmentLayer'
 

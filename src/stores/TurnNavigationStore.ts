@@ -1,4 +1,3 @@
-import { Coordinate } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
 import {
     ErrorAction,
@@ -36,6 +35,7 @@ import { SpeechSynthesizer } from '@/SpeechSynthesizer'
 import { Pixel } from 'ol/pixel'
 import SettingsStore from '@/stores/SettingsStore'
 import { meterToFt, meterToMiles } from '@/Converters'
+import { Coordinate } from '@/utils'
 
 export interface TurnNavigationStoreState {
     // TODO replace "showUI" with a composite state depending on activePath, coordinate and instruction

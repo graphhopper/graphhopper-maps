@@ -1,5 +1,6 @@
 import { LineString } from 'geojson'
-import { Coordinate, CustomModel } from '@/stores/QueryStore'
+
+import { Coordinate, CustomModel } from '@/utils'
 
 // minLon, minLat, maxLon, maxLat
 export type Bbox = [number, number, number, number]

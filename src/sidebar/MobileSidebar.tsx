@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Coordinate, QueryPoint, QueryPointType, QueryStoreState, RequestState } from '@/stores/QueryStore'
+import { QueryPoint, QueryPointType, QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
@@ -13,6 +13,7 @@ import CloseInputsIcon from './unfold_less.svg'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import { TNSettingsState, TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import { Map } from 'ol'
+import { Coordinate } from '@/utils'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -84,7 +85,12 @@ export default function ({
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} map={map} turnNavigationSettings={turnNavigationSettings} />
+                        <Search
+                            points={query.queryPoints}
+                            profile={query.routingProfile}
+                            map={map}
+                            turnNavigationSettings={turnNavigationSettings}
+                        />
                     </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}

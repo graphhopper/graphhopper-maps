@@ -1,13 +1,14 @@
 import React from 'react'
 import { coordinateToText } from '@/Converters'
 import styles from './ContextMenuContent.module.css'
-import QueryStore, { Coordinate, QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import { tr } from '@/translation/Translation'
 import { MarkerComponent } from '@/map/Marker'
+import { Coordinate } from '@/utils'
 
 export function ContextMenuContent({
     coordinate,

@@ -1,5 +1,5 @@
-import { Coordinate } from '@/stores/QueryStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
+import { Coordinate } from '@/utils'
 
 // test data, can be shown using these url parameters:
 // ?point=52.550,13.352&point=52.547,13.358&point=52.541,13.368&point=52.542,13.376&point=52.542,13.383

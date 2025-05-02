@@ -1,10 +1,11 @@
 import { Action } from '@/stores/Dispatcher'
-import { Coordinate, QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
 import { TNSettingsState } from '@/stores/TurnNavigationStore'
 import { POI } from '@/stores/POIsStore'
 import { Settings } from '@/stores/SettingsStore'
+import { Coordinate } from '@/utils'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -79,6 +80,14 @@ export class SetVehicleProfile implements Action {
 
     constructor(profile: RoutingProfile) {
         this.profile = profile
+    }
+}
+
+export class SetVehicleProfileGroup implements Action {
+    readonly group: string
+
+    constructor(group: string) {
+        this.group = group
     }
 }
 
