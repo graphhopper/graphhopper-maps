@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import styles from './MapOptions.module.css'
 import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import Dispatcher from '@/stores/Dispatcher'
@@ -9,8 +9,22 @@ import * as config from 'config'
 
 export default function (props: MapOptionsStoreState) {
     const [isOpen, setIsOpen] = useState(false)
+    const containerRef = useRef<HTMLDivElement>(null)
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setIsOpen(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [])
     return (
         <div
+            ref={containerRef}
             className={styles.mapOptionsContainer}
             onMouseEnter={() => setIsOpen(true)}
             onMouseLeave={() => setIsOpen(false)}
