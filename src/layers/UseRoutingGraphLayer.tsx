@@ -32,7 +32,7 @@ export default function useRoutingGraphLayer(map: Map, routingGraphEnabled: bool
             zIndex: 0.6,
         })
 
-        const onHover = (e: MapBrowserEvent) => {
+        const onHover = (e: MapBrowserEvent<UIEvent>) => {
             const features = map.getFeaturesAtPixel(e.pixel, {
                 layerFilter: l => l === routingGraphLayer,
                 hitTolerance: 5,
