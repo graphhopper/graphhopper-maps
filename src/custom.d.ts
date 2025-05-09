@@ -18,6 +18,7 @@ declare module 'config' {
         maptiler: string
         thunderforest: string
         kurviger: string
+        tracestrack: string
     }
     const request: {
         details: string[]

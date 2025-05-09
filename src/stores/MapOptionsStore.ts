@@ -13,6 +13,7 @@ const osApiKey = config.keys.omniscale
 const mapTilerKey = config.keys.maptiler
 const thunderforestApiKey = config.keys.thunderforest
 const kurvigerApiKey = config.keys.kurviger
+const tracestrackApiKey = config.keys.tracestrack
 
 const osmAttribution =
     '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
@@ -135,21 +136,14 @@ const tfOutdoors: RasterStyle = {
         ', <a href="https://www.thunderforest.com/maps/outdoors/" target="_blank">Thunderforest Outdoors</a>',
     tilePixelRatio: tilePixelRatio,
 }
-const path = '/raster/styles/kurviger-liberty/{z}/{x}/{y}' + retina2x + '.png?key=' + kurvigerApiKey
-const kurviger: RasterStyle = {
-    name: 'Kurviger Liberty',
+const tracestrack: RasterStyle = {
+    name: 'Tracestrack',
     type: 'raster',
     url: [
-        'https://a-tiles.mapilion.com' + path,
-        'https://b-tiles.mapilion.com' + path,
-        'https://c-tiles.mapilion.com' + path,
-        'https://d-tiles.mapilion.com' + path,
-        'https://e-tiles.mapilion.com' + path,
+        'https://tile.tracestrack.com/auto-en/{z}/{x}/{y}.webp?key=' + tracestrackApiKey
     ],
-    attribution:
-        osmAttribution +
-        ',&copy; <a href="https://kurviger.de/" target="_blank">Kurviger</a> &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
-    maxZoom: 22,
+    attribution: osmAttribution + ',&copy; <a href="https://tracestrack.com/" target="_blank">Tracestrack</a>',
+    maxZoom: 19,
     tilePixelRatio: tilePixelRatio,
 }
 const mapillion: VectorStyle = {
@@ -175,6 +169,7 @@ const wanderreitkarte: RasterStyle = {
 
 const styleOptions: StyleOption[] = [
     omniscale,
+    tracestrack,
     osmOrg,
     osmCycl,
     esriSatellite,
@@ -182,7 +177,6 @@ const styleOptions: StyleOption[] = [
     tfTransport,
     tfCycle,
     tfOutdoors,
-    kurviger,
     mapillion,
     wanderreitkarte,
 ]
