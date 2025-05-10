@@ -154,6 +154,12 @@ const mapillion: VectorStyle = {
         osmAttribution +
         ', &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
 }
+const planetiler: VectorStyle = {
+    name: 'Planetiler',
+    type: 'vector',
+    url: 'http://localhost:7070/styles/basic-preview/style.json',
+    attribution: osmAttribution,
+}
 const wanderreitkarte: RasterStyle = {
     name: 'WanderReitKarte',
     type: 'raster',
@@ -168,17 +174,8 @@ const wanderreitkarte: RasterStyle = {
 }
 
 const styleOptions: StyleOption[] = [
-    omniscale,
-    tracestrack,
+    planetiler,
     osmOrg,
-    osmCycl,
-    esriSatellite,
-    mapTilerSatellite,
-    tfTransport,
-    tfCycle,
-    tfOutdoors,
-    mapillion,
-    wanderreitkarte,
 ]
 
 export default class MapOptionsStore extends Store<MapOptionsStoreState> {

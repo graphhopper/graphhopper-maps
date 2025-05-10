@@ -94,7 +94,7 @@ export class ApiImpl implements Api {
                 hits: [],
                 took: 0,
             }
-        const url = this.getGeocodingURLWithKey('geocode')
+        const url = this.getGeocodingURLWithKey('photon')
         url.searchParams.append('q', query)
         url.searchParams.append('provider', provider)
         const langAndCountry = getTranslation().getLang().split('_')
