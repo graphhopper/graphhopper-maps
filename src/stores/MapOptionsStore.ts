@@ -13,7 +13,6 @@ const osApiKey = config.keys.omniscale
 const mapTilerKey = config.keys.maptiler
 const thunderforestApiKey = config.keys.thunderforest
 const kurvigerApiKey = config.keys.kurviger
-const tracestrackApiKey = config.keys.tracestrack
 
 const osmAttribution =
     '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
@@ -136,16 +135,6 @@ const tfOutdoors: RasterStyle = {
         ', <a href="https://www.thunderforest.com/maps/outdoors/" target="_blank">Thunderforest Outdoors</a>',
     tilePixelRatio: tilePixelRatio,
 }
-const tracestrack: RasterStyle = {
-    name: 'Tracestrack',
-    type: 'raster',
-    url: [
-        'https://tile.tracestrack.com/auto-en/{z}/{x}/{y}.webp?key=' + tracestrackApiKey
-    ],
-    attribution: osmAttribution + ',&copy; <a href="https://tracestrack.com/" target="_blank">Tracestrack</a>',
-    maxZoom: 19,
-    tilePixelRatio: tilePixelRatio,
-}
 const mapillion: VectorStyle = {
     name: 'Mapilion',
     type: 'vector',
@@ -169,7 +158,6 @@ const wanderreitkarte: RasterStyle = {
 
 const styleOptions: StyleOption[] = [
     omniscale,
-    tracestrack,
     osmOrg,
     osmCycl,
     esriSatellite,
