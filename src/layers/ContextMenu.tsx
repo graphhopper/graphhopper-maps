@@ -1,6 +1,6 @@
 import {Map, Overlay} from 'ol'
 import {ContextMenuContent} from '@/map/ContextMenuContent'
-import {useContext, useEffect, useRef, useState} from 'react'
+import {useCallback, useContext, useEffect, useRef, useState} from 'react'
 import {QueryPoint} from '@/stores/QueryStore'
 import {fromLonLat, toLonLat} from 'ol/proj'
 import styles from '@/layers/ContextMenu.module.css'
@@ -26,19 +26,14 @@ export default function ContextMenu({map, route, queryPoints}: ContextMenuProps)
     const container = useRef<HTMLDivElement | null>(null)
     const settings = useContext(SettingsContext)
 
-    const queryPointsRef = useRef(queryPoints)
-    queryPointsRef.current = queryPoints
-    const settingsRef = useRef(settings)
-    settingsRef.current = settings
-
-    const openContextMenu = (e: any) => {
+    const openContextMenu = useCallback((e: any) => {
         e.preventDefault()
         const coordinate = map.getEventCoordinate(e)
         const lonLat = toLonLat(coordinate)
         setMenuCoordinate({lng: lonLat[0], lat: lonLat[1]})
-    }
+    }, [map])
 
-    const handleClick = (e: any) => {
+    const handleClick = useCallback((e: any) => {
         if (e.dragging) return
 
         // If click is inside the context menu, do nothing
@@ -53,22 +48,21 @@ export default function ContextMenu({map, route, queryPoints}: ContextMenuProps)
             return
         }
 
-        if (!settingsRef.current.addPointOnClick) return
+        if (!settings.addPointOnClick) return
 
         const lonLat = toLonLat(e.coordinate)
         const myCoord = {lng: lonLat[0], lat: lonLat[1]}
 
-        const points = queryPointsRef.current
-        let idx = points.length
+        let idx = queryPoints.length
         if (idx == 2) {
-            if (!points[1].isInitialized) idx--;
+            if (!queryPoints[1].isInitialized) idx--;
         }
         if (idx == 1) {
-            if (!points[0].isInitialized) idx--;
+            if (!queryPoints[0].isInitialized) idx--;
         }
         if (idx < 2) {
             const setPoint = new SetPoint({
-                ...points[idx],
+                ...queryPoints[idx],
                 coordinate: myCoord,
                 queryText: coordinateToText(myCoord),
                 isInitialized: true
@@ -76,7 +70,7 @@ export default function ContextMenu({map, route, queryPoints}: ContextMenuProps)
             Dispatcher.dispatch(setPoint)
         } else
             Dispatcher.dispatch(new AddPoint(idx, myCoord, true, false))
-    }
+    }, [menuCoordinate, settings.addPointOnClick, queryPoints])
 
     useEffect(() => {
         overlay.setElement(container.current!)
@@ -85,30 +79,43 @@ export default function ContextMenu({map, route, queryPoints}: ContextMenuProps)
         const longTouchHandler = new LongTouchHandler(e => openContextMenu(e))
 
         function onMapTargetChange() {
-            // it is important to set up new listeners whenever the map target changes, like when we switch between the
-            // small and large screen layout, see #203
+            const targetElement = map.getTargetElement()
+            if (!targetElement) {
+                console.warn('Map target element is null. Delaying event listeners setup.');
+                return;
+            }
 
-            // we cannot listen to right-click simply using map.on('contextmenu') and need to add the listener to
-            // the map container instead
-            // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
-            map.getTargetElement().addEventListener('contextmenu', openContextMenu)
-
-            map.getTargetElement().addEventListener('touchstart', e => longTouchHandler.onTouchStart(e))
-            map.getTargetElement().addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
-            map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
+            targetElement.addEventListener('contextmenu', openContextMenu)
+            targetElement.addEventListener('touchstart', e => longTouchHandler.onTouchStart(e))
+            targetElement.addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
+            targetElement.addEventListener('touchend', () => longTouchHandler.onTouchEnd())
 
             map.on('singleclick', handleClick)
         }
 
+        const cleanupMapTarget = () => {
+            const targetElement = map.getTargetElement()
+            if (targetElement) {
+                targetElement.removeEventListener('contextmenu', openContextMenu)
+                targetElement.removeEventListener('touchstart', e => longTouchHandler.onTouchStart(e))
+                targetElement.removeEventListener('touchmove', () => longTouchHandler.onTouchEnd())
+                targetElement.removeEventListener('touchend', () => longTouchHandler.onTouchEnd())
+            }
+            map.un('singleclick', handleClick)
+        }
+
+        // Set up initial listeners
+        onMapTargetChange()
+
+        // Listen for target changes
         map.on('change:target', onMapTargetChange)
 
         return () => {
-            map.getTargetElement().removeEventListener('contextmenu', openContextMenu)
-            map.un('singleclick', handleClick)
+            cleanupMapTarget()
             map.removeOverlay(overlay)
             map.un('change:target', onMapTargetChange)
         }
-    }, [map])
+    }, [map, openContextMenu, handleClick])
 
     useEffect(() => {
         overlay.setPosition(menuCoordinate ? fromLonLat([menuCoordinate.lng, menuCoordinate.lat]) : undefined)
