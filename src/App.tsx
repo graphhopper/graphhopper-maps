@@ -93,7 +93,7 @@ export default function App() {
         onPOIsChanged()
 
         return () => {
-            getSettingsStore().register(onSettingsChanged)
+            getSettingsStore().deregister(onSettingsChanged)
             getQueryStore().deregister(onQueryChanged)
             getApiInfoStore().deregister(onInfoChanged)
             getRouteStore().deregister(onRouteChanged)
