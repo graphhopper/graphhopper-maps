@@ -133,6 +133,7 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
     })
     layer.setStyle(style)
     for (let i = 0; i < selectedPath.snapped_waypoints.coordinates.length; i++) {
+        if(i >= queryPoints.length) break // can happen if deleted too fast
         const start = fromLonLat([queryPoints[i].coordinate.lng, queryPoints[i].coordinate.lat])
         const end = fromLonLat(selectedPath.snapped_waypoints.coordinates[i])
         layer.getSource()?.addFeature(new Feature(createBezierLineString(start, end)))
