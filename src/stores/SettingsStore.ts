@@ -1,7 +1,7 @@
 import Store from '@/stores/Store'
-import {Action} from '@/stores/Dispatcher'
-import {SetCustomModelEnabled, UpdateSettings} from '@/actions/Actions'
-import {getMap} from "@/map/map";
+import { Action } from '@/stores/Dispatcher'
+import { SetCustomModelEnabled, UpdateSettings } from '@/actions/Actions'
+import { getMap } from '@/map/map'
 
 export interface Settings {
     showDistanceInMiles: boolean

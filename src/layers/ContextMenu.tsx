@@ -1,15 +1,15 @@
-import {Map, Overlay} from 'ol'
-import {ContextMenuContent} from '@/map/ContextMenuContent'
-import {useCallback, useContext, useEffect, useRef, useState} from 'react'
-import {QueryPoint} from '@/stores/QueryStore'
-import {fromLonLat, toLonLat} from 'ol/proj'
+import { Map, Overlay } from 'ol'
+import { ContextMenuContent } from '@/map/ContextMenuContent'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { QueryPoint } from '@/stores/QueryStore'
+import { fromLonLat, toLonLat } from 'ol/proj'
 import styles from '@/layers/ContextMenu.module.css'
-import {RouteStoreState} from '@/stores/RouteStore'
-import {Coordinate} from '@/utils'
-import Dispatcher from "@/stores/Dispatcher";
-import {AddPoint, SetPoint} from "@/actions/Actions";
-import {coordinateToText} from "@/Converters";
-import {SettingsContext} from "@/contexts/SettingsContext";
+import { RouteStoreState } from '@/stores/RouteStore'
+import { Coordinate } from '@/utils'
+import Dispatcher from '@/stores/Dispatcher'
+import { AddPoint, SetPoint } from '@/actions/Actions'
+import { coordinateToText } from '@/Converters'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
 interface ContextMenuProps {
     map: Map
@@ -21,56 +21,64 @@ const overlay = new Overlay({
     autoPan: true,
 })
 
-export default function ContextMenu({map, route, queryPoints}: ContextMenuProps) {
+export default function ContextMenu({ map, route, queryPoints }: ContextMenuProps) {
     const [menuCoordinate, setMenuCoordinate] = useState<Coordinate | null>(null)
     const container = useRef<HTMLDivElement | null>(null)
     const settings = useContext(SettingsContext)
 
-    const openContextMenu = useCallback((e: any) => {
-        e.preventDefault()
-        const coordinate = map.getEventCoordinate(e)
-        const lonLat = toLonLat(coordinate)
-        setMenuCoordinate({lng: lonLat[0], lat: lonLat[1]})
-    }, [map])
+    const openContextMenu = useCallback(
+        (e: any) => {
+            e.preventDefault()
+            const coordinate = map.getEventCoordinate(e)
+            const lonLat = toLonLat(coordinate)
+            setMenuCoordinate({ lng: lonLat[0], lat: lonLat[1] })
+        },
+        [map]
+    )
 
-    const handleClick = useCallback((e: any) => {
-        if (e.dragging) return
+    const handleClick = useCallback(
+        (e: any) => {
+            if (e.dragging) return
 
-        // If click is inside the context menu, do nothing
-        const clickedElement = document.elementFromPoint(e.pixel[0], e.pixel[1])
-        if (container.current?.contains(clickedElement)) {
-            return
-        }
+            // If click is inside the context menu, do nothing
+            const clickedElement = document.elementFromPoint(e.pixel[0], e.pixel[1])
+            if (container.current?.contains(clickedElement)) {
+                return
+            }
 
-        if (menuCoordinate) {
-            // Context menu is open -> close it and skip adding a point
-            setMenuCoordinate(null)
-            return
-        }
+            if (menuCoordinate) {
+                // Context menu is open -> close it and skip adding a point
+                setMenuCoordinate(null)
+                return
+            }
 
-        if (!settings.addPointOnClick) return
+            if (!settings.addPointOnClick) return
 
-        const lonLat = toLonLat(e.coordinate)
-        const myCoord = {lng: lonLat[0], lat: lonLat[1]}
+            const lonLat = toLonLat(e.coordinate)
+            const myCoord = { lng: lonLat[0], lat: lonLat[1] }
 
-        let idx = queryPoints.length
-        if (idx == 2) {
-            if (!queryPoints[1].isInitialized) idx--;
-        }
-        if (idx == 1) {
-            if (!queryPoints[0].isInitialized) idx--;
-        }
-        if (idx < 2) {
-            const setPoint = new SetPoint({
-                ...queryPoints[idx],
-                coordinate: myCoord,
-                queryText: coordinateToText(myCoord),
-                isInitialized: true
-            }, false);
-            Dispatcher.dispatch(setPoint)
-        } else
-            Dispatcher.dispatch(new AddPoint(idx, myCoord, true, false))
-    }, [menuCoordinate, settings.addPointOnClick, queryPoints])
+            let idx = queryPoints.length
+            if (idx == 2) {
+                if (!queryPoints[1].isInitialized) idx--
+            }
+            if (idx == 1) {
+                if (!queryPoints[0].isInitialized) idx--
+            }
+            if (idx < 2) {
+                const setPoint = new SetPoint(
+                    {
+                        ...queryPoints[idx],
+                        coordinate: myCoord,
+                        queryText: coordinateToText(myCoord),
+                        isInitialized: true,
+                    },
+                    false
+                )
+                Dispatcher.dispatch(setPoint)
+            } else Dispatcher.dispatch(new AddPoint(idx, myCoord, true, false))
+        },
+        [menuCoordinate, settings.addPointOnClick, queryPoints]
+    )
 
     useEffect(() => {
         overlay.setElement(container.current!)
@@ -81,8 +89,8 @@ export default function ContextMenu({map, route, queryPoints}: ContextMenuProps)
         function onMapTargetChange() {
             const targetElement = map.getTargetElement()
             if (!targetElement) {
-                console.warn('Map target element is null. Delaying event listeners setup.');
-                return;
+                console.warn('Map target element is null. Delaying event listeners setup.')
+                return
             }
 
             targetElement.addEventListener('contextmenu', openContextMenu)
