@@ -6,6 +6,7 @@ import {
     ToggleExternalMVTLayer,
     ToggleRoutingGraph,
     ToggleUrbanDensityLayer,
+    UpdateSettings,
 } from '@/actions/Actions'
 import config from 'config'
 
@@ -198,6 +199,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     ...state,
                     selectedStyle: styleOption,
                 }
+        } else if (action instanceof UpdateSettings) {
         } else if (action instanceof ToggleRoutingGraph) {
             return {
                 ...state,

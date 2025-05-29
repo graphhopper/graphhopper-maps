@@ -51,6 +51,13 @@ export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
                         Dispatcher.dispatch(new UpdateSettings({ showDistanceInMiles: !settings.showDistanceInMiles }))
                     }
                 />
+                <SettingsToggle
+                    title={tr('Add Point on Click (Desktop)')}
+                    enabled={settings.addPointOnClick}
+                    onClick={() =>
+                        Dispatcher.dispatch(new UpdateSettings({ addPointOnClick: !settings.addPointOnClick }))
+                    }
+                />
             </div>
             <div className={styles.title}>{tr('settings_gpx_export')}</div>
             <div className={styles.settingsTable}>
