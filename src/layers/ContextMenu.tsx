@@ -87,21 +87,22 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
         const longTouchHandler = new LongTouchHandler(e => openContextMenu(e))
 
         function onMapTargetChange() {
-            const targetElement = map.getTargetElement()
-            if (!targetElement) {
-                console.warn('Map target element is null. Delaying event listeners setup.')
-                return
-            }
+            // it is important to setup new listeners whenever the map target changes, like when we switch between the
+            // small and large screen layout, see #203
 
-            targetElement.addEventListener('contextmenu', openContextMenu)
-            targetElement.addEventListener('touchstart', e => longTouchHandler.onTouchStart(e))
-            targetElement.addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
-            targetElement.addEventListener('touchend', () => longTouchHandler.onTouchEnd())
+            // we cannot listen to right-click simply using map.on('contextmenu') and need to add the listener to
+            // the map container instead
+            // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
+            map.getTargetElement().addEventListener('contextmenu', openContextMenu)
 
-            map.on('singleclick', handleClick)
+            map.getTargetElement().addEventListener('touchstart', e => longTouchHandler.onTouchStart(e))
+            map.getTargetElement().addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
+            map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
         }
+        map.on('singleclick', handleClick)
+        map.on('change:target', onMapTargetChange)
 
-        const cleanupMapTarget = () => {
+        return () => {
             const targetElement = map.getTargetElement()
             if (targetElement) {
                 targetElement.removeEventListener('contextmenu', openContextMenu)
@@ -110,16 +111,6 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
                 targetElement.removeEventListener('touchend', () => longTouchHandler.onTouchEnd())
             }
             map.un('singleclick', handleClick)
-        }
-
-        // Set up initial listeners
-        onMapTargetChange()
-
-        // Listen for target changes
-        map.on('change:target', onMapTargetChange)
-
-        return () => {
-            cleanupMapTarget()
             map.removeOverlay(overlay)
             map.un('change:target', onMapTargetChange)
         }
