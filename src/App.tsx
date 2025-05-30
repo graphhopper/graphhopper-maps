@@ -219,7 +219,10 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
                 <LocationButton queryPoints={query.queryPoints} />
             </div>
             <div className={styles.map}>
-                <MapComponent map={map} />
+                <MapComponent map={map} paths={route.routingResult.paths}
+                                            selectedPath={route.selectedPath}
+                                            queryPoints={query.queryPoints}
+                                            smallScreenRoutingResultVisible={false}/>
             </div>
 
             <div className={styles.pathDetails}>
@@ -243,7 +246,10 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
                 />
             </div>
             <div className={styles.smallScreenMap}>
-                <MapComponent map={map} />
+                <MapComponent map={map} paths={route.routingResult.paths}
+                                           selectedPath={route.selectedPath}
+                                           queryPoints={query.queryPoints}
+                                           smallScreenRoutingResultVisible={true}/>
             </div>
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.onMapRightSide}>

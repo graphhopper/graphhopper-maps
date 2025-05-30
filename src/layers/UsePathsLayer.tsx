@@ -35,14 +35,14 @@ export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Pat
     }, [map, paths, selectedPath])
 }
 
-function removeCurrentPathLayers(map: Map) {
+export function removeCurrentPathLayers(map: Map) {
     map.getLayers()
         .getArray()
         .filter(l => l.get(pathsLayerKey) || l.get(selectedPathLayerKey) || l.get(accessNetworkLayerKey))
         .forEach(l => map.removeLayer(l))
 }
 
-function addUnselectedPathsLayer(map: Map, paths: Path[]) {
+export function addUnselectedPathsLayer(map: Map, paths: Path[]) {
     const styleArray = [
         new Style({
             stroke: new Stroke({
@@ -118,7 +118,7 @@ function createBezierLineString(start: number[], end: number[]): LineString {
     return new LineString(bezierPoints)
 }
 
-function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryPoint[]) {
+export function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryPoint[]) {
     const style = new Style({
         stroke: new Stroke({
             color: 'rgba(143,183,241,0.9)',
@@ -143,7 +143,7 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
     map.addLayer(layer)
 }
 
-function addSelectedPathsLayer(map: Map, selectedPath: Path) {
+export function addSelectedPathsLayer(map: Map, selectedPath: Path) {
     const styleArray = [
         new Style({
             stroke: new Stroke({
