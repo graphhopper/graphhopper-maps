@@ -90,11 +90,15 @@ function RoutingResult({
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.mtb_rating, s => s > 1)
 
-    const privateOrDeliveryInfo = ApiImpl.isMotorVehicle(profile)
+    const privateInfo = ApiImpl.isMotorVehicle(profile)
+        ? getInfoFor(path.points, path.details.road_access, s => s === 'private')
+        : new RouteInfo()
+
+    const deliveryEtcInfo = ApiImpl.isMotorVehicle(profile)
         ? getInfoFor(
               path.points,
               path.details.road_access,
-              s => s === 'private' || s === 'customers' || s === 'delivery'
+              s => s === 'delivery' || s === 'customers' || s === 'destination'
           )
         : new RouteInfo()
     const badTrackInfo = !ApiImpl.isMotorVehicle(profile)
@@ -125,7 +129,7 @@ function RoutingResult({
         accessCondInfo.distance > 0 ||
         footAccessCondInfo.distance > 0 ||
         bikeAccessCondInfo.distance > 0 ||
-        privateOrDeliveryInfo.distance > 0 ||
+        privateInfo.distance > 0 ||
         trunkInfo.distance > 0 ||
         badTrackInfo.distance > 0 ||
         stepsInfo.distance > 0 ||
@@ -262,12 +266,25 @@ function RoutingResult({
                             type={'private'}
                             child={<PrivateIcon />}
                             value={
-                                privateOrDeliveryInfo.distance > 0 &&
-                                metersToShortText(privateOrDeliveryInfo.distance, showDistanceInMiles)
+                                privateInfo.distance > 0 && metersToShortText(privateInfo.distance, showDistanceInMiles)
                             }
                             selected={selectedRH}
-                            segments={privateOrDeliveryInfo.segments}
+                            segments={privateInfo.segments}
                             values={[]}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains', [tr('restricted_sections')])}
+                            setType={t => setSelectedRH(t)}
+                            type={'delivery_etc'}
+                            child={<PrivateIcon />}
+                            value={
+                                deliveryEtcInfo.distance > 0 &&
+                                metersToShortText(deliveryEtcInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={deliveryEtcInfo.segments}
+                            values={deliveryEtcInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}

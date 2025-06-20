@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint } from '@/stores/QueryStore'
@@ -14,7 +14,7 @@ import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
 import { RoutingProfile } from '@/api/graphhopper'
-import { Coordinate, getBBoxFromCoord } from '@/utils'
+import { getBBoxFromCoord } from '@/utils'
 
 export default function Search({ points, profile, map }: { points: QueryPoint[]; profile: RoutingProfile; map: Map }) {
     const [showSettings, setShowSettings] = useState(false)
