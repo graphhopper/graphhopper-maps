@@ -12,6 +12,8 @@ import right from './right.png'
 import sharpRight from './sharp_right.png'
 import roundabout from './roundabout.png'
 import keepRight from './keep_right.png'
+import ferry from './ferry.png'
+import unknown from './unknown.png'
 import uTurnRight from './u_turn_right.png'
 import ptStartTrip from './pt_start_trip.png'
 import ptTransferTo from './pt_transfer_to.png'
@@ -110,6 +112,8 @@ function getSignName(sign: number) {
             return keepRight
         case 8:
             return uTurnRight
+        case 9:
+            return ferry
         case 101:
             return ptStartTrip
         case 102:
@@ -117,6 +121,6 @@ function getSignName(sign: number) {
         case 103:
             return ptEndTrip
         default:
-            return 'unknown'
+            return unknown
     }
 }
