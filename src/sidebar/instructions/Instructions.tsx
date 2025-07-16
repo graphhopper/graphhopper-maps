@@ -107,6 +107,7 @@ function getSignName(sign: number) {
         case 3:
             return sharpRight
         case 6:
+        case -6:
             return roundabout
         case 7:
             return keepRight
