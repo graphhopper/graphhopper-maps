@@ -1,24 +1,78 @@
 import 'ol/ol.css'
 import styles from '@/map/Map.module.css'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Map } from 'ol'
 import { Bbox } from '@/api/graphhopper'
 import Dispatcher from '@/stores/Dispatcher'
 import { ErrorAction } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
 import { Coordinate, getBBoxFromCoord } from '@/utils'
+import { addUnselectedPathsLayer, addSelectedPathsLayer, addAccessNetworkLayer, removeCurrentPathLayers } from '@/layers/UsePathsLayer'
+import { Path } from '@/api/graphhopper'
+import { QueryPoint } from '@/stores/QueryStore'
+import VisibilityOnIcon  from '@/sidebar/visibility_on.svg'
+import VisibilityOffIcon  from '@/sidebar/visibility_off.svg'
 
 type MapComponentProps = {
-    map: Map
+    map: Map,
+    paths: Path[],
+    selectedPath: Path,
+    queryPoints: QueryPoint[]
 }
 
 /** A small react component that simply attaches our map instance to a div to show the map **/
-export default function ({ map }: MapComponentProps) {
+export default function ({
+    map, paths, selectedPath, queryPoints, smallScreenRoutingResultVisible
+}: MapComponentProps & { smallScreenRoutingResultVisible?: boolean }) {
     const mapElement = useRef<HTMLDivElement | null>(null)
     useEffect(() => {
         map.setTarget(mapElement.current!)
     }, [map])
-    return <div ref={mapElement} className={styles.mapContainer} />
+    const [showPaths, setShowPaths] = useState(true)
+    useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === 'h') setShowPaths(false)
+      }
+      const handleKeyUp = (e: KeyboardEvent) => {
+          if (e.key === 'h') setShowPaths(true)
+      }
+      window.addEventListener('keydown', handleKeyDown)
+      window.addEventListener('keyup', handleKeyUp)
+      return () => {
+          window.removeEventListener('keydown', handleKeyDown)
+          window.removeEventListener('keyup', handleKeyUp)
+      }
+    }, [])
+    useEffect(() => {
+        removeCurrentPathLayers(map)
+        if (showPaths) {
+            addUnselectedPathsLayer(map, paths.filter(p => p != selectedPath))
+            addSelectedPathsLayer(map, selectedPath)
+            addAccessNetworkLayer(map, selectedPath, queryPoints)
+        }
+        return () => {
+            removeCurrentPathLayers(map)
+        }
+    }, [map, paths, selectedPath, showPaths])
+    return (
+        <div
+            ref={mapElement}
+            className={
+                styles.mapContainer +
+                (smallScreenRoutingResultVisible ? ' ' + styles.smallScreenRoutingResultVisible : '')
+            }
+        >
+            <div className={styles.topBar}>
+                <button
+                  className={styles.hidePathsButton}
+                  onClick={() => setShowPaths(v => !v)}
+                  title={showPaths ? tr('hide_route') : tr('show_route')}
+                >
+                  {showPaths ? <VisibilityOffIcon width={20} height={20} /> : <VisibilityOnIcon width={20} height={20} />}
+                </button>
+            </div>
+        </div>
+    )
 }
 
 export function onCurrentLocationSelected(
