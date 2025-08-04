@@ -201,3 +201,16 @@
     font-size: small;
     padding: 10px 5px 10px 3rem;
 }
+
+.profileIcon {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.5rem;
+    width: 20px;
+    height: 20px;
+}
+
+.profileIcon svg {
+    width: 100%;
+    height: 100%;
+}
