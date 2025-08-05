@@ -29,24 +29,6 @@ import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
 import { Bbox } from '@/api/graphhopper'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import { Settings } from '@/stores/SettingsStore'
-import { icons } from '@/sidebar/search/routingProfiles/profileIcons'
-import React from 'react'
-
-function getProfileIcon(profileName: string) {
-    // First try to get exact match
-    let icon = icons[profileName]
-    if (icon) return React.createElement(icon)
-    
-    // If no exact match, try to find a base profile
-    const baseProfile = Object.keys(icons).find(k => profileName.startsWith(k + '_'))
-    if (baseProfile) {
-        icon = icons[baseProfile]
-        if (icon) return React.createElement(icon)
-    }
-    
-    // Fallback to question mark
-    return React.createElement(icons.question_mark)
-}
 
 export interface RoutingResultsProps {
     info: RoutingResultInfo
@@ -85,7 +67,6 @@ function RoutingResult({
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
     const settings = useContext(SettingsContext)
     const showDistanceInMiles = settings.showDistanceInMiles
-    const isMobile = useMediaQuery({ query: '(max-width: 44rem)' })
 
     const fordInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ford')
     const tollInfo = getInfoFor(
@@ -163,10 +144,7 @@ function RoutingResult({
             <div className={styles.resultSelectableArea} onClick={() => Dispatcher.dispatch(new SetSelectedPath(path))}>
                 <div className={resultSummaryClass}>
                     <div className={styles.resultValues}>
-                        <span className={styles.resultMainText}>
-                            {isMobile && <span className={styles.profileIcon}>{getProfileIcon(profile)}</span>}
-                            {milliSecondsToText(path.time)}
-                        </span>
+                        <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
                         <span className={styles.resultSecondaryText}>
                             {metersToShortText(path.distance, showDistanceInMiles)}
                         </span>
