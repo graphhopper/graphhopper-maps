@@ -13,7 +13,6 @@ import {
     getQueryStore,
     getRouteStore,
     getSettingsStore,
-    getCurrentLocationStore,
     setStores,
 } from '@/stores/Stores'
 import Dispatcher from '@/stores/Dispatcher'
@@ -32,7 +31,6 @@ import MapFeatureStore from '@/stores/MapFeatureStore'
 import SettingsStore from '@/stores/SettingsStore'
 import { ErrorAction, InfoReceived } from '@/actions/Actions'
 import POIsStore from '@/stores/POIsStore'
-import CurrentLocationStore from '@/stores/CurrentLocationStore'
 import { setDistanceFormat } from '@/Converters'
 import { AddressParseResult } from '@/pois/AddressParseResult'
 
@@ -63,7 +61,6 @@ setStores({
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
     poisStore: new POIsStore(),
-    currentLocationStore: new CurrentLocationStore(),
 })
 
 setMap(createMap())
@@ -78,7 +75,6 @@ Dispatcher.register(getMapOptionsStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getMapFeatureStore())
 Dispatcher.register(getPOIsStore())
-Dispatcher.register(getCurrentLocationStore())
 
 // register map action receiver
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')

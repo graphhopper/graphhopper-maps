@@ -9,20 +9,13 @@ import LocationOn from '@/map/location_on.svg'
 import { useState } from 'react'
 import { tr } from '@/translation/Translation'
 import { getBBoxFromCoord } from '@/utils'
-import { ToggleCurrentLocation } from '@/stores/CurrentLocationStore'
-import { CurrentLocationStoreState } from '@/stores/CurrentLocationStore'
 
-export default function LocationButton(props: { queryPoints: QueryPoint[]; currentLocation: CurrentLocationStoreState }) {
+export default function LocationButton(props: { queryPoints: QueryPoint[] }) {
     const [locationSearch, setLocationSearch] = useState('synched_map_or_initial')
-    
     return (
         <div
             className={styles.locationOnOff}
             onClick={() => {
-                // First toggle location display
-                Dispatcher.dispatch(new ToggleCurrentLocation(!props.currentLocation.enabled))
-                
-                // Then handle the location button click for routing/centering
                 setLocationSearch('search')
                 onCurrentLocationButtonClicked(coordinate => {
                     if (coordinate) {
