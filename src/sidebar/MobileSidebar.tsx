@@ -101,11 +101,12 @@ function SmallSearchView(props: { points: QueryPoint[]; selectedProfile: Routing
     const from = props.points[0]
     const to = props.points[props.points.length - 1]
     const isSmallHeight = useMediaQuery({ query: '(max-height: 36rem)' })
-    let icon = icons[props.selectedProfile.name]
+    const icon = icons[props.selectedProfile.name]
+    const iconElement = icon ? React.createElement(icon) : React.createElement(icons.question_mark)
 
     return (
         <div className={styles.btnOpenContainer} onClick={props.onClick}>
-            <div className={styles.profile}>{React.createElement(icon)}</div>
+            <div className={styles.profile}>{iconElement}</div>
             <div className={styles.mapView}>
                 {!isSmallHeight && <SmallQueryPoint text={from.queryText} color={from.color} position={from.type} />}
                 {!isSmallHeight && <IntermediatePoint points={props.points} />}
