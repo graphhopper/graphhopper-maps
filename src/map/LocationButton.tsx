@@ -15,9 +15,15 @@ export default function LocationButton(props: { currentLocation: CurrentLocation
         if (props.currentLocation.enabled) {
             if (!props.currentLocation.syncView) setLocationSearch('on_but_not_in_sync')
             else if (props.currentLocation.error) setLocationSearch('error')
-            else setLocationSearch('initial')
+            else if (props.currentLocation.coordinate != null) setLocationSearch('initial')
+            else setLocationSearch('search')
         }
-    }, [props.currentLocation.syncView, props.currentLocation.error, props.currentLocation.enabled])
+    }, [
+        props.currentLocation.syncView,
+        props.currentLocation.error,
+        props.currentLocation.enabled,
+        props.currentLocation.coordinate,
+    ])
 
     return (
         <div

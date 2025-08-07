@@ -3,7 +3,6 @@ import Dispatcher, { Action } from '@/stores/Dispatcher'
 import {
     CurrentLocation,
     CurrentLocationError,
-    MoveMapToPoint,
     StartSyncCurrentLocation,
     StartWatchCurrentLocation,
     StopSyncCurrentLocation,
@@ -16,6 +15,7 @@ export interface CurrentLocationStoreState {
     error: string | null
     enabled: boolean
     syncView: boolean
+    accuracy: number // meters
     coordinate: Coordinate | null
 }
 
@@ -27,6 +27,7 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
             error: null,
             enabled: false,
             syncView: false,
+            accuracy: 0,
             coordinate: null,
         })
     }
@@ -38,7 +39,6 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
                 return state
             }
 
-            console.log('NOW start ' + JSON.stringify(action, null, 2))
             this.start()
             return {
                 ...state,
@@ -48,7 +48,7 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
                 coordinate: null,
             }
         } else if (action instanceof StopWatchCurrentLocation) {
-            console.log('NOW stop ' + JSON.stringify(action, null, 2))
+            // TODO NOW stop location watching e.g. when pressing the location button once again if it shows 'success'
             this.stop()
             return {
                 ...state,
@@ -57,7 +57,6 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
                 syncView: false,
             }
         } else if (action instanceof CurrentLocationError) {
-            console.log('NOW error ' + JSON.stringify(action, null, 2))
             return {
                 ...state,
                 enabled: false,
@@ -65,18 +64,17 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
                 coordinate: null,
             }
         } else if (action instanceof CurrentLocation) {
-            console.log('NOW current ' + JSON.stringify(action, null, 2))
             return {
                 ...state,
+                accuracy: action.accuracy,
                 coordinate: action.coordinate,
             }
         } else if (action instanceof StartSyncCurrentLocation) {
             if (!state.enabled) {
-                console.log('NOW cannot start sync as not enabled')
+                console.warn('cannot start synchronizing view as current location not enabled')
                 return state
             }
 
-            console.log('NOW start sync ' + JSON.stringify(action, null, 2))
             return {
                 ...state,
                 error: null,
@@ -86,7 +84,6 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
         } else if (action instanceof StopSyncCurrentLocation) {
             if (!state.enabled) return state
 
-            console.log('NOW stop sync ' + JSON.stringify(action, null, 2))
             return {
                 ...state,
                 error: null,
@@ -106,7 +103,10 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
         this.watchId = navigator.geolocation.watchPosition(
             position => {
                 Dispatcher.dispatch(
-                    new CurrentLocation({ lng: position.coords.longitude, lat: position.coords.latitude })
+                    new CurrentLocation(
+                        { lng: position.coords.longitude, lat: position.coords.latitude },
+                        position.coords.accuracy
+                    )
                 )
             },
             error => {
