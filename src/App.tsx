@@ -171,13 +171,22 @@ interface LayoutProps {
     route: RouteStoreState
     map: Map
     mapOptions: MapOptionsStoreState
+    currentLocation: CurrentLocationStoreState
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
-    currentLocation: CurrentLocationStoreState
 }
 
-function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas, currentLocation }: LayoutProps) {
+function LargeScreenLayout({
+    query,
+    route,
+    map,
+    error,
+    mapOptions,
+    encodedValues,
+    drawAreas,
+    currentLocation,
+}: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     return (
@@ -228,7 +237,7 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
             <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
             <div className={styles.onMapRightSide}>
                 <MapOptions {...mapOptions} />
-                <LocationButton queryPoints={query.queryPoints} currentLocation={currentLocation} />
+                <LocationButton currentLocation={currentLocation} />
             </div>
             <div className={styles.map}>
                 <MapComponent map={map} />
@@ -241,7 +250,16 @@ function LargeScreenLayout({ query, route, map, error, mapOptions, encodedValues
     )
 }
 
-function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues, drawAreas, currentLocation }: LayoutProps) {
+function SmallScreenLayout({
+    query,
+    route,
+    map,
+    error,
+    mapOptions,
+    encodedValues,
+    drawAreas,
+    currentLocation,
+}: LayoutProps) {
     return (
         <>
             <div className={styles.smallScreenSidebar}>
@@ -260,7 +278,7 @@ function SmallScreenLayout({ query, route, map, error, mapOptions, encodedValues
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.onMapRightSide}>
                     <MapOptions {...mapOptions} />
-                    <LocationButton queryPoints={query.queryPoints} currentLocation={currentLocation} />
+                    <LocationButton currentLocation={currentLocation} />
                 </div>
             </div>
 

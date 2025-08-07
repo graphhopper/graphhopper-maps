@@ -1,55 +1,40 @@
 import styles from './LocationButton.module.css'
-import { onCurrentLocationButtonClicked } from '@/map/MapComponent'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetBBox, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
-import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { StartSyncCurrentLocation, StartWatchCurrentLocation } from '@/actions/Actions'
 import LocationError from '@/map/location_error.svg'
 import LocationSearching from '@/map/location_searching.svg'
 import LocationOn from '@/map/location_on.svg'
-import { useState } from 'react'
-import { tr } from '@/translation/Translation'
-import { getBBoxFromCoord } from '@/utils'
-import { ToggleCurrentLocation } from '@/stores/CurrentLocationStore'
+import LocationNotInSync from '@/map/location_not_in_sync.svg'
+import { useEffect, useState } from 'react'
 import { CurrentLocationStoreState } from '@/stores/CurrentLocationStore'
 
-export default function LocationButton(props: { queryPoints: QueryPoint[]; currentLocation: CurrentLocationStoreState }) {
-    const [locationSearch, setLocationSearch] = useState('synched_map_or_initial')
-    
+export default function LocationButton(props: { currentLocation: CurrentLocationStoreState }) {
+    const [locationSearch, setLocationSearch] = useState('initial')
+
+    useEffect(() => {
+        if (props.currentLocation.enabled) {
+            if (!props.currentLocation.syncView) setLocationSearch('on_but_not_in_sync')
+            else if (props.currentLocation.error) setLocationSearch('error')
+            else setLocationSearch('initial')
+        }
+    }, [props.currentLocation.syncView, props.currentLocation.error, props.currentLocation.enabled])
+
     return (
         <div
             className={styles.locationOnOff}
             onClick={() => {
-                // First toggle location display
-                Dispatcher.dispatch(new ToggleCurrentLocation(!props.currentLocation.enabled))
-                
-                // Then handle the location button click for routing/centering
-                setLocationSearch('search')
-                onCurrentLocationButtonClicked(coordinate => {
-                    if (coordinate) {
-                        if (props.queryPoints[0] && !props.queryPoints[0].isInitialized)
-                            Dispatcher.dispatch(
-                                new SetPoint(
-                                    {
-                                        ...props.queryPoints[0],
-                                        coordinate,
-                                        queryText: tr('current_location'),
-                                        isInitialized: true,
-                                        type: QueryPointType.From,
-                                    },
-                                    false
-                                )
-                            )
-                        Dispatcher.dispatch(new ZoomMapToPoint(coordinate))
-                        // We do not reset state of this button when map is moved, so we do not know if
-                        // the map is currently showing the location.
-                        setLocationSearch('synched_map_or_initial')
-                    } else setLocationSearch('error')
-                })
+                if (props.currentLocation.enabled && !props.currentLocation.error) {
+                    Dispatcher.dispatch(new StartSyncCurrentLocation())
+                } else {
+                    Dispatcher.dispatch(new StartWatchCurrentLocation())
+                    setLocationSearch('search')
+                }
             }}
         >
             {locationSearch == 'error' && <LocationError />}
             {locationSearch == 'search' && <LocationSearching />}
-            {locationSearch == 'synched_map_or_initial' && <LocationOn />}
+            {locationSearch == 'initial' && <LocationOn />}
+            {locationSearch == 'on_but_not_in_sync' && <LocationNotInSync />}
         </div>
     )
 }

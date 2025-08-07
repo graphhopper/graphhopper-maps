@@ -1,67 +1,123 @@
 import Store from '@/stores/Store'
-import { Action } from '@/stores/Dispatcher'
+import Dispatcher, { Action } from '@/stores/Dispatcher'
+import {
+    CurrentLocation,
+    CurrentLocationError,
+    MoveMapToPoint,
+    StartSyncCurrentLocation,
+    StartWatchCurrentLocation,
+    StopSyncCurrentLocation,
+    StopWatchCurrentLocation,
+} from '@/actions/Actions'
+import { tr } from '@/translation/Translation'
+import { Coordinate } from '@/utils'
 
 export interface CurrentLocationStoreState {
+    error: string | null
     enabled: boolean
-    tracking: boolean
-    hasPermission: boolean | null
-}
-
-export class ToggleCurrentLocation implements Action {
-    readonly enabled: boolean
-
-    constructor(enabled: boolean) {
-        this.enabled = enabled
-    }
-}
-
-export class ToggleLocationTracking implements Action {
-    readonly tracking: boolean
-
-    constructor(tracking: boolean) {
-        this.tracking = tracking
-    }
-}
-
-export class SetLocationPermission implements Action {
-    readonly hasPermission: boolean | null
-
-    constructor(hasPermission: boolean | null) {
-        this.hasPermission = hasPermission
-    }
+    syncView: boolean
+    coordinate: Coordinate | null
 }
 
 export default class CurrentLocationStore extends Store<CurrentLocationStoreState> {
-    constructor() {
-        super(CurrentLocationStore.getInitialState())
-    }
+    private watchId: number | null = null
 
-    private static getInitialState(): CurrentLocationStoreState {
-        return {
+    constructor() {
+        super({
+            error: null,
             enabled: false,
-            tracking: false,
-            hasPermission: null
-        }
+            syncView: false,
+            coordinate: null,
+        })
     }
 
     reduce(state: CurrentLocationStoreState, action: Action): CurrentLocationStoreState {
-        if (action instanceof ToggleCurrentLocation) {
-            return {
-                ...state,
-                enabled: action.enabled,
-                tracking: action.enabled ? state.tracking : false
+        if (action instanceof StartWatchCurrentLocation) {
+            if (state.enabled) {
+                console.log('NOW cannot start as already started. ID = ' + this.watchId)
+                return state
             }
-        } else if (action instanceof ToggleLocationTracking) {
+
+            console.log('NOW start ' + JSON.stringify(action, null, 2))
+            this.start()
             return {
                 ...state,
-                tracking: action.tracking
+                error: null,
+                enabled: true,
+                syncView: true,
+                coordinate: null,
             }
-        } else if (action instanceof SetLocationPermission) {
+        } else if (action instanceof StopWatchCurrentLocation) {
+            console.log('NOW stop ' + JSON.stringify(action, null, 2))
+            this.stop()
             return {
                 ...state,
-                hasPermission: action.hasPermission
+                error: null,
+                enabled: false,
+                syncView: false,
+            }
+        } else if (action instanceof CurrentLocationError) {
+            console.log('NOW error ' + JSON.stringify(action, null, 2))
+            return {
+                ...state,
+                enabled: false,
+                error: action.error,
+                coordinate: null,
+            }
+        } else if (action instanceof CurrentLocation) {
+            console.log('NOW current ' + JSON.stringify(action, null, 2))
+            return {
+                ...state,
+                coordinate: action.coordinate,
+            }
+        } else if (action instanceof StartSyncCurrentLocation) {
+            if (!state.enabled) {
+                console.log('NOW cannot start sync as not enabled')
+                return state
+            }
+
+            console.log('NOW start sync ' + JSON.stringify(action, null, 2))
+            return {
+                ...state,
+                error: null,
+                enabled: true,
+                syncView: true,
+            }
+        } else if (action instanceof StopSyncCurrentLocation) {
+            if (!state.enabled) return state
+
+            console.log('NOW stop sync ' + JSON.stringify(action, null, 2))
+            return {
+                ...state,
+                error: null,
+                syncView: false,
             }
         }
         return state
+    }
+
+    start() {
+        if (!navigator.geolocation) {
+            Dispatcher.dispatch(new CurrentLocationError('Geolocation is not supported in this browser'))
+            this.watchId = null
+            return
+        }
+
+        this.watchId = navigator.geolocation.watchPosition(
+            position => {
+                Dispatcher.dispatch(
+                    new CurrentLocation({ lng: position.coords.longitude, lat: position.coords.latitude })
+                )
+            },
+            error => {
+                Dispatcher.dispatch(new CurrentLocationError(tr('searching_location_failed') + ': ' + error.message))
+            },
+            // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
+            { timeout: 300_000, enableHighAccuracy: true }
+        )
+    }
+
+    stop() {
+        if (this.watchId) navigator.geolocation.clearWatch(this.watchId)
     }
 }

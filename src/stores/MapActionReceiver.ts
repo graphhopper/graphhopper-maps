@@ -7,7 +7,7 @@ import {
     RouteRequestSuccess,
     SetBBox,
     SetSelectedPath,
-    ZoomMapToPoint,
+    MoveMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
@@ -30,7 +30,7 @@ export default class MapActionReceiver implements ActionReceiver {
             // we estimate the map size to be equal to the window size. we don't know better at this point, because
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
-        } else if (action instanceof ZoomMapToPoint) {
+        } else if (action instanceof MoveMapToPoint) {
             let zoom = this.map.getView().getZoom()
             if (zoom == undefined || zoom < 8) zoom = 8
             this.map.getView().animate({

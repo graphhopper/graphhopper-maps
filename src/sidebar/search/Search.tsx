@@ -2,7 +2,16 @@ import { useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
 import { QueryPoint } from '@/stores/QueryStore'
-import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetBBox, SetPoint } from '@/actions/Actions'
+import {
+    AddPoint,
+    ClearRoute,
+    InvalidatePoint,
+    MovePoint,
+    RemovePoint,
+    SetBBox,
+    SetPoint,
+    StopSyncCurrentLocation,
+} from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
@@ -34,6 +43,7 @@ export default function Search({ points, profile, map }: { points: QueryPoint[];
                         onChange={() => {
                             Dispatcher.dispatch(new ClearRoute())
                             Dispatcher.dispatch(new InvalidatePoint(point))
+                            Dispatcher.dispatch(new StopSyncCurrentLocation())
                         }}
                         showTargetIcons={showTargetIcons}
                         moveStartIndex={moveStartIndex}
