@@ -7,8 +7,6 @@ import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style'
 import { CurrentLocationStoreState } from '@/stores/CurrentLocationStore'
 import { fromLonLat } from 'ol/proj'
 
-const LOCATION_LAYER_KEY = 'gh:current_location'
-
 export default function useCurrentLocationLayer(map: Map, locationState: CurrentLocationStoreState) {
     const layerRef = useRef<VectorLayer<VectorSource> | null>(null)
     const positionFeatureRef = useRef<Feature | null>(null)
@@ -85,15 +83,6 @@ function createLocationLayer(): VectorLayer<VectorSource> {
                             }),
                         }),
                     }),
-                    // Pulsing effect outer ring
-                    // new Style({
-                    //     image: new CircleStyle({
-                    //         radius: 16,
-                    //         fill: new Fill({
-                    //             color: 'rgba(66, 133, 244, 0.2)'
-                    //         })
-                    //     })
-                    // })
                 ]
             } else if (geometry instanceof CircleGeom) {
                 // Accuracy circle style
