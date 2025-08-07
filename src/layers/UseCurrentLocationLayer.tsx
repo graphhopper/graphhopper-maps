@@ -1,5 +1,5 @@
 import { Feature, Map } from 'ol'
-import { useEffect } from 'react'
+import {useEffect, useRef} from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Circle, Circle as CircleGeom, Point } from 'ol/geom'
@@ -10,43 +10,59 @@ import { fromLonLat } from 'ol/proj'
 const LOCATION_LAYER_KEY = 'gh:current_location'
 
 export default function useCurrentLocationLayer(map: Map, locationState: CurrentLocationStoreState) {
+    const layerRef = useRef<VectorLayer<VectorSource> | null>(null)
+    const positionFeatureRef = useRef<Feature | null>(null)
+    const accuracyFeatureRef = useRef<Feature | null>(null)
+
+    // Create layer once when enabled
     useEffect(() => {
         if (!locationState.enabled) {
-            removeCurrentLocationLayer(map)
+            if (layerRef.current) {
+                map.removeLayer(layerRef.current)
+                layerRef.current = null
+                positionFeatureRef.current = null
+                accuracyFeatureRef.current = null
+            }
+            return
+        } else if (!layerRef.current) {
+            const layer = createLocationLayer()
+            const positionFeature = new Feature()
+            const accuracyFeature = new Feature()
+            layer.getSource()?.addFeature(positionFeature)
+            layer.getSource()?.addFeature(accuracyFeature)
+            map.addLayer(layer)
+
+            layerRef.current = layer
+            positionFeatureRef.current = positionFeature
+            accuracyFeatureRef.current = accuracyFeature
+        }
+
+        return () => {
+            if (layerRef.current) {
+                map.removeLayer(layerRef.current)
+                layerRef.current = null
+                positionFeatureRef.current = null
+                accuracyFeatureRef.current = null
+            }
+        }
+    }, [locationState.enabled])
+
+    useEffect(() => {
+        if (!locationState.enabled || !locationState.coordinate || !positionFeatureRef.current || !accuracyFeatureRef.current) {
             return
         }
 
-        const positionFeature = new Feature()
-        const accuracyFeature = new Feature()
-        if (locationState.coordinate) {
-            const coord = fromLonLat([locationState.coordinate.lng, locationState.coordinate.lat])
-            positionFeature.setGeometry(new Point(coord))
-            accuracyFeature.setGeometry(new Circle(coord, locationState.accuracy))
+        const coord = fromLonLat([locationState.coordinate.lng, locationState.coordinate.lat])
+        positionFeatureRef.current.setGeometry(new Point(coord))
+        accuracyFeatureRef.current.setGeometry(new Circle(coord, locationState.accuracy))
 
-            if (locationState.syncView) {
-                // TODO same code as for MoveMapToPoint action, but calling Dispatcher here is ugly
-                let zoom = map.getView().getZoom()
-                if (zoom == undefined || zoom < 8) zoom = 8
-                map.getView().animate({ zoom: zoom, center: coord, duration: 400 })
-            }
+        if (locationState.syncView) {
+            // TODO same code as for MoveMapToPoint action, but calling Dispatcher here is ugly
+            let zoom = map.getView().getZoom()
+            if (zoom == undefined || zoom < 8) zoom = 8
+            map.getView().animate({ zoom: zoom, center: coord, duration: 400 })
         }
-
-        const layer = createLocationLayer()
-        layer.getSource()?.addFeature(positionFeature)
-        layer.getSource()?.addFeature(accuracyFeature)
-        map.addLayer(layer)
-
-        return () => {
-            map.removeLayer(layer)
-        }
-    }, [locationState.enabled, locationState.coordinate, locationState.syncView])
-}
-
-function removeCurrentLocationLayer(map: Map) {
-    map.getLayers()
-        .getArray()
-        .filter(l => l.get(LOCATION_LAYER_KEY))
-        .forEach(l => map.removeLayer(l))
+    }, [locationState.coordinate, locationState.accuracy, locationState.syncView, locationState.enabled])
 }
 
 function createLocationLayer(): VectorLayer<VectorSource> {
