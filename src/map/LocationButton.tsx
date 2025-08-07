@@ -1,6 +1,6 @@
 import styles from './LocationButton.module.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { StartSyncCurrentLocation, StartWatchCurrentLocation } from '@/actions/Actions'
+import {StartSyncCurrentLocation, StartWatchCurrentLocation, StopWatchCurrentLocation} from '@/actions/Actions'
 import LocationError from '@/map/location_error.svg'
 import LocationSearching from '@/map/location_searching.svg'
 import LocationOn from '@/map/location_on.svg'
@@ -32,11 +32,14 @@ export default function LocationButton(props: { currentLocation: CurrentLocation
         <div
             className={styles.locationOnOff}
             onClick={() => {
-                if (props.currentLocation.enabled && !props.currentLocation.error) {
+                if (props.currentLocation.enabled && !props.currentLocation.syncView && !props.currentLocation.error) {
                     Dispatcher.dispatch(new StartSyncCurrentLocation())
                 } else {
-                    Dispatcher.dispatch(new StartWatchCurrentLocation())
-                    setLocationSearch('search')
+                    if (props.currentLocation.enabled) {
+                        Dispatcher.dispatch(new StopWatchCurrentLocation())
+                    } else {
+                        Dispatcher.dispatch(new StartWatchCurrentLocation())
+                    }
                 }
             }}
         >

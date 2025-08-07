@@ -48,7 +48,6 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
                 coordinate: null,
             }
         } else if (action instanceof StopWatchCurrentLocation) {
-            // TODO NOW stop location watching e.g. when pressing the location button once again if it shows 'success'
             this.stop()
             return {
                 ...state,
