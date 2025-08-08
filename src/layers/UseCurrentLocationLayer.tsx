@@ -9,8 +9,8 @@ import { fromLonLat } from 'ol/proj'
 
 export default function useCurrentLocationLayer(map: Map, locationState: CurrentLocationStoreState) {
     const layerRef = useRef<VectorLayer<VectorSource> | null>(null)
-    const posFeatureRef = useRef<Feature | null>(null)
-    const accFeatureRef = useRef<Feature | null>(null)
+    const positionFeatureRef = useRef<Feature | null>(null)
+    const accuracyFeatureRef = useRef<Feature | null>(null)
     const headingFeatureRef = useRef<Feature | null>(null)
 
     // Create layer once when enabled
@@ -19,8 +19,8 @@ export default function useCurrentLocationLayer(map: Map, locationState: Current
             if (layerRef.current) {
                 map.removeLayer(layerRef.current)
                 layerRef.current = null
-                posFeatureRef.current = null
-                accFeatureRef.current = null
+                positionFeatureRef.current = null
+                accuracyFeatureRef.current = null
                 headingFeatureRef.current = null
             }
             return
@@ -35,8 +35,8 @@ export default function useCurrentLocationLayer(map: Map, locationState: Current
             map.addLayer(layer)
 
             layerRef.current = layer
-            posFeatureRef.current = positionFeature
-            accFeatureRef.current = accuracyFeature
+            positionFeatureRef.current = positionFeature
+            accuracyFeatureRef.current = accuracyFeature
             headingFeatureRef.current = headingFeature
         }
 
@@ -44,8 +44,8 @@ export default function useCurrentLocationLayer(map: Map, locationState: Current
             if (layerRef.current) {
                 map.removeLayer(layerRef.current)
                 layerRef.current = null
-                posFeatureRef.current = null
-                accFeatureRef.current = null
+                positionFeatureRef.current = null
+                accuracyFeatureRef.current = null
                 headingFeatureRef.current = null
             }
         }
@@ -55,15 +55,15 @@ export default function useCurrentLocationLayer(map: Map, locationState: Current
         if (
             !locationState.enabled ||
             !locationState.coordinate ||
-            !posFeatureRef.current ||
-            !accFeatureRef.current ||
+            !positionFeatureRef.current ||
+            !accuracyFeatureRef.current ||
             !headingFeatureRef.current
         )
             return
 
         const coord = fromLonLat([locationState.coordinate.lng, locationState.coordinate.lat])
-        posFeatureRef.current.setGeometry(new Point(coord))
-        accFeatureRef.current.setGeometry(new Circle(coord, locationState.accuracy))
+        positionFeatureRef.current.setGeometry(new Point(coord))
+        accuracyFeatureRef.current.setGeometry(new Circle(coord, locationState.accuracy))
 
         // Set heading feature position (style will handle the triangle and rotation)
         if (locationState.heading != null) {
