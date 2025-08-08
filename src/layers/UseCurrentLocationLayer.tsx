@@ -18,34 +18,22 @@ export default function useCurrentLocationLayer(map: Map, locationState: Current
             if (layerRef.current) {
                 map.removeLayer(layerRef.current)
                 layerRef.current = null
-                positionFeatureRef.current = null
-                accuracyFeatureRef.current = null
-                headingFeatureRef.current = null
             }
             return
         } else if (!layerRef.current) {
             const layer = createLocationLayer()
-            const positionFeature = new Feature()
-            const accuracyFeature = new Feature()
-            const headingFeature = new Feature()
-            layer.getSource()?.addFeature(positionFeature)
-            layer.getSource()?.addFeature(accuracyFeature)
-            layer.getSource()?.addFeature(headingFeature)
+            layer.getSource()?.addFeature((positionFeatureRef.current = new Feature()))
+            layer.getSource()?.addFeature((accuracyFeatureRef.current = new Feature()))
+            layer.getSource()?.addFeature((headingFeatureRef.current = new Feature()))
             map.addLayer(layer)
 
             layerRef.current = layer
-            positionFeatureRef.current = positionFeature
-            accuracyFeatureRef.current = accuracyFeature
-            headingFeatureRef.current = headingFeature
         }
 
         return () => {
             if (layerRef.current) {
                 map.removeLayer(layerRef.current)
                 layerRef.current = null
-                positionFeatureRef.current = null
-                accuracyFeatureRef.current = null
-                headingFeatureRef.current = null
             }
         }
     }, [locationState.enabled])
@@ -54,6 +42,8 @@ export default function useCurrentLocationLayer(map: Map, locationState: Current
         if (
             !locationState.enabled ||
             !locationState.coordinate ||
+            !layerRef.current ||
+            // typescript complaints without the following
             !positionFeatureRef.current ||
             !accuracyFeatureRef.current ||
             !headingFeatureRef.current
