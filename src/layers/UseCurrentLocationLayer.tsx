@@ -74,10 +74,15 @@ export default function useCurrentLocationLayer(map: Map, locationState: Current
         }
 
         if (locationState.syncView) {
-            // TODO same code as for MoveMapToPoint action, but calling Dispatcher here is ugly
-            let zoom = map.getView().getZoom()
-            if (zoom == undefined || zoom < 8) zoom = 8
-            map.getView().animate({ zoom: zoom, center: coord, duration: 400 })
+            const currentZoom = map.getView().getZoom()
+            const targetZoom = currentZoom == undefined || currentZoom < 8 ? 8 : currentZoom
+            const zoomDifference = Math.abs(targetZoom - (currentZoom || 0))
+            if (zoomDifference > 0.1) {
+                map.getView().animate({ zoom: targetZoom, center: coord, duration: 400 })
+            } else {
+                // for smaller zoom changes set center without animation to avoid pulsing of map
+                map.getView().setCenter(coord)
+            }
         }
     }, [
         locationState.coordinate,
