@@ -75,7 +75,7 @@ export default function useCurrentLocationLayer(map: Map, locationState: Current
 
         if (locationState.syncView) {
             const currentZoom = map.getView().getZoom()
-            const targetZoom = currentZoom == undefined || currentZoom < 8 ? 8 : currentZoom
+            const targetZoom = currentZoom == undefined || currentZoom < 16 ? 16 : currentZoom
             const zoomDifference = Math.abs(targetZoom - (currentZoom || 0))
             if (zoomDifference > 0.1) {
                 map.getView().animate({ zoom: targetZoom, center: coord, duration: 400 })
