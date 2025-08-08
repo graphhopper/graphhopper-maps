@@ -13,7 +13,6 @@ export default function useCurrentLocationLayer(map: Map, locationState: Current
     const accuracyFeatureRef = useRef<Feature | null>(null)
     const headingFeatureRef = useRef<Feature | null>(null)
 
-    // Create layer once when enabled
     useEffect(() => {
         if (!locationState.enabled) {
             if (layerRef.current) {
@@ -65,12 +64,13 @@ export default function useCurrentLocationLayer(map: Map, locationState: Current
         positionFeatureRef.current.setGeometry(new Point(coord))
         accuracyFeatureRef.current.setGeometry(new Circle(coord, locationState.accuracy))
 
-        // Set heading feature position (style will handle the triangle and rotation)
+        // set heading feature position (style will handle the triangle and rotation)
         if (locationState.heading != null) {
             headingFeatureRef.current.setGeometry(new Point(coord))
             headingFeatureRef.current.set('heading', locationState.heading)
         } else {
             headingFeatureRef.current.setGeometry(undefined)
+            headingFeatureRef.current.unset('heading') // not strictly necessary
         }
 
         if (locationState.syncView) {
@@ -99,23 +99,22 @@ function createLocationLayer(): VectorLayer<VectorSource> {
         style: feature => {
             const geometry = feature.getGeometry()
             if (geometry instanceof Point) {
-                // Check if this is the heading feature
                 const heading = feature.get('heading')
                 if (heading !== undefined) {
-                    // Triangle style for heading direction
+                    // triangle style for heading direction
                     return new Style({
                         image: new RegularShape({
                             points: 3,
                             radius: 8,
                             displacement: [0, 9],
-                            rotation: (heading * Math.PI) / 180, // Convert degrees to radians
+                            rotation: (heading * Math.PI) / 180, // convert degrees to radians
                             fill: new Fill({ color: '#368fe8' }),
                             stroke: new Stroke({ color: '#FFFFFF', width: 1 }),
                         }),
                         zIndex: 1,
                     })
                 } else {
-                    // Blue dot style for position
+                    // blue dot style for position
                     return new Style({
                         image: new CircleStyle({
                             radius: 8,
@@ -126,7 +125,7 @@ function createLocationLayer(): VectorLayer<VectorSource> {
                     })
                 }
             } else if (geometry instanceof CircleGeom) {
-                // Accuracy circle style
+                // accuracy circle style
                 return new Style({
                     fill: new Fill({ color: 'rgba(66, 133, 244, 0.1)' }),
                     stroke: new Stroke({ color: 'rgba(66, 133, 244, 0.3)', width: 1 }),
@@ -135,6 +134,6 @@ function createLocationLayer(): VectorLayer<VectorSource> {
             }
             return []
         },
-        zIndex: 4, // Above paths and query points
+        zIndex: 4, // layer itself should be above paths and query points
     })
 }
