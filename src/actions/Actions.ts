@@ -296,9 +296,11 @@ export class CurrentLocationError implements Action {
 export class CurrentLocation implements Action {
     readonly coordinate: Coordinate
     readonly accuracy: number
+    readonly heading: number | null
 
-    constructor(coordinate: Coordinate, accuracy: number) {
+    constructor(coordinate: Coordinate, accuracy: number, heading: number | null) {
         this.coordinate = coordinate
         this.accuracy = accuracy
+        this.heading = heading
     }
 }

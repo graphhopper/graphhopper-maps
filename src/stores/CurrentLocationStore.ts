@@ -16,6 +16,7 @@ export interface CurrentLocationStoreState {
     enabled: boolean
     syncView: boolean
     accuracy: number // meters
+    heading: number | null
     coordinate: Coordinate | null
 }
 
@@ -28,11 +29,15 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
             enabled: false,
             syncView: false,
             accuracy: 0,
+            heading: null,
             coordinate: null,
         })
     }
 
     reduce(state: CurrentLocationStoreState, action: Action): CurrentLocationStoreState {
+        // console.log('NOW ', action.constructor.name, action)
+        // console.log('NOW state ', state)
+
         if (action instanceof StartWatchCurrentLocation) {
             if (state.enabled) {
                 console.log('NOW cannot start as already started. ID = ' + this.watchId)
@@ -45,6 +50,7 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
                 error: null,
                 enabled: true,
                 syncView: true,
+                heading: null,
                 coordinate: null,
             }
         } else if (action instanceof StopWatchCurrentLocation) {
@@ -53,18 +59,22 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
                 ...state,
                 error: null,
                 enabled: false,
+                heading: null,
                 syncView: false,
             }
         } else if (action instanceof CurrentLocationError) {
             return {
                 ...state,
                 enabled: false,
+                syncView: false,
                 error: action.error,
+                heading: null,
                 coordinate: null,
             }
         } else if (action instanceof CurrentLocation) {
             return {
                 ...state,
+                heading: action.heading,
                 accuracy: action.accuracy,
                 coordinate: action.coordinate,
             }
@@ -104,7 +114,9 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
                 Dispatcher.dispatch(
                     new CurrentLocation(
                         { lng: position.coords.longitude, lat: position.coords.latitude },
-                        position.coords.accuracy
+                        position.coords.accuracy,
+                        // heading is in degrees from north, clockwise
+                        position.coords.heading
                     )
                 )
             },
