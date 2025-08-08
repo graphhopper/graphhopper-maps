@@ -1,48 +1,36 @@
 import styles from './LocationButton.module.css'
-import { onCurrentLocationButtonClicked } from '@/map/MapComponent'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetBBox, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
-import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
+import { StartSyncCurrentLocation, StartWatchCurrentLocation, StopWatchCurrentLocation } from '@/actions/Actions'
 import LocationError from '@/map/location_error.svg'
 import LocationSearching from '@/map/location_searching.svg'
 import LocationOn from '@/map/location_on.svg'
-import { useState } from 'react'
-import { tr } from '@/translation/Translation'
-import { getBBoxFromCoord } from '@/utils'
+import Location from '@/map/location.svg'
+import LocationNotInSync from '@/map/location_not_in_sync.svg'
+import { CurrentLocationStoreState } from '@/stores/CurrentLocationStore'
 
-export default function LocationButton(props: { queryPoints: QueryPoint[] }) {
-    const [locationSearch, setLocationSearch] = useState('synched_map_or_initial')
+export default function LocationButton(props: { currentLocation: CurrentLocationStoreState }) {
     return (
         <div
             className={styles.locationOnOff}
             onClick={() => {
-                setLocationSearch('search')
-                onCurrentLocationButtonClicked(coordinate => {
-                    if (coordinate) {
-                        if (props.queryPoints[0] && !props.queryPoints[0].isInitialized)
-                            Dispatcher.dispatch(
-                                new SetPoint(
-                                    {
-                                        ...props.queryPoints[0],
-                                        coordinate,
-                                        queryText: tr('current_location'),
-                                        isInitialized: true,
-                                        type: QueryPointType.From,
-                                    },
-                                    false
-                                )
-                            )
-                        Dispatcher.dispatch(new ZoomMapToPoint(coordinate))
-                        // We do not reset state of this button when map is moved, so we do not know if
-                        // the map is currently showing the location.
-                        setLocationSearch('synched_map_or_initial')
-                    } else setLocationSearch('error')
-                })
+                if (props.currentLocation.enabled && !props.currentLocation.syncView && !props.currentLocation.error) {
+                    Dispatcher.dispatch(new StartSyncCurrentLocation())
+                } else {
+                    if (props.currentLocation.enabled) {
+                        Dispatcher.dispatch(new StopWatchCurrentLocation())
+                    } else {
+                        Dispatcher.dispatch(new StartWatchCurrentLocation())
+                    }
+                }
             }}
         >
-            {locationSearch == 'error' && <LocationError />}
-            {locationSearch == 'search' && <LocationSearching />}
-            {locationSearch == 'synched_map_or_initial' && <LocationOn />}
+            {(() => {
+                if (props.currentLocation.error) return <LocationError />
+                if (!props.currentLocation.enabled) return <Location />
+                if (!props.currentLocation.syncView) return <LocationNotInSync />
+                if (props.currentLocation.coordinate != null) return <LocationOn />
+                return <LocationSearching />
+            })()}
         </div>
     )
 }
