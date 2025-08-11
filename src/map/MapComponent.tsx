@@ -43,23 +43,3 @@ export function onCurrentLocationSelected(
         { timeout: 300_000, enableHighAccuracy: true }
     )
 }
-
-export function onCurrentLocationButtonClicked(onSelect: (coordinate: Coordinate | undefined) => void) {
-    if (!navigator.geolocation) {
-        Dispatcher.dispatch(new ErrorAction('Geolocation is not supported in this browser'))
-        onSelect(undefined)
-        return
-    }
-
-    navigator.geolocation.getCurrentPosition(
-        position => {
-            onSelect({ lat: position.coords.latitude, lng: position.coords.longitude })
-        },
-        error => {
-            Dispatcher.dispatch(new ErrorAction(tr('searching_location_failed') + ': ' + error.message))
-            onSelect(undefined)
-        },
-        // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
-        { timeout: 300_000, enableHighAccuracy: true }
-    )
-}
