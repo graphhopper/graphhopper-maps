@@ -41,27 +41,3 @@
 .customAttribution button {
     display: none;
 }
-
-.topBar {
-    position: absolute;
-    left: 0;
-    bottom: -0.3rem;
-    width: 100%;
-    z-index: 1;
-    padding: 1px 180px;
-}
-
-.hidePathsButton {
-    display: inline-block;
-    background: none;
-    border: none;
-    font-size: 13px;
-    padding: 8px 16px;
-    margin: 0;
-}
-
-@media (max-width: 44rem) {
-    .smallScreenRoutingResultVisible .topBar {
-        bottom: 8.25rem;
-    }
-}

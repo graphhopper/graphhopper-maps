@@ -1,7 +1,7 @@
 import { Feature, Map } from 'ol'
 import { Path } from '@/api/graphhopper'
 import { FeatureCollection } from 'geojson'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { GeoJSON } from 'ol/format'
@@ -21,6 +21,7 @@ const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
 
 export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Path, queryPoints: QueryPoint[]) {
+    const [showPaths, setShowPaths] = useState(true)
     useEffect(() => {
         removeCurrentPathLayers(map)
         addUnselectedPathsLayer(
@@ -33,16 +34,41 @@ export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Pat
             removeCurrentPathLayers(map)
         }
     }, [map, paths, selectedPath])
+    useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === 'h') setShowPaths(false)
+      }
+      const handleKeyUp = (e: KeyboardEvent) => {
+          if (e.key === 'h') setShowPaths(true)
+      }
+      window.addEventListener('keydown', handleKeyDown)
+      window.addEventListener('keyup', handleKeyUp)
+      return () => {
+          window.removeEventListener('keydown', handleKeyDown)
+          window.removeEventListener('keyup', handleKeyUp)
+      }
+    } , [])
+    useEffect(() => {
+        removeCurrentPathLayers(map)
+        if (showPaths) {
+            addUnselectedPathsLayer(map, paths.filter(p => p != selectedPath))
+            addSelectedPathsLayer(map, selectedPath)
+            addAccessNetworkLayer(map, selectedPath, queryPoints)
+        }
+        return () => {
+            removeCurrentPathLayers(map)
+        }
+    }, [map, paths, selectedPath, showPaths])
 }
 
-export function removeCurrentPathLayers(map: Map) {
+function removeCurrentPathLayers(map: Map) {
     map.getLayers()
         .getArray()
         .filter(l => l.get(pathsLayerKey) || l.get(selectedPathLayerKey) || l.get(accessNetworkLayerKey))
         .forEach(l => map.removeLayer(l))
 }
 
-export function addUnselectedPathsLayer(map: Map, paths: Path[]) {
+function addUnselectedPathsLayer(map: Map, paths: Path[]) {
     const styleArray = [
         new Style({
             stroke: new Stroke({
@@ -118,7 +144,7 @@ function createBezierLineString(start: number[], end: number[]): LineString {
     return new LineString(bezierPoints)
 }
 
-export function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryPoint[]) {
+function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryPoint[]) {
     const style = new Style({
         stroke: new Stroke({
             color: 'rgba(143,183,241,0.9)',
@@ -143,7 +169,7 @@ export function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints:
     map.addLayer(layer)
 }
 
-export function addSelectedPathsLayer(map: Map, selectedPath: Path) {
+function addSelectedPathsLayer(map: Map, selectedPath: Path) {
     const styleArray = [
         new Style({
             stroke: new Stroke({
