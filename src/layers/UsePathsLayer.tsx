@@ -1,7 +1,7 @@
 import { Feature, Map } from 'ol'
 import { Path } from '@/api/graphhopper'
 import { FeatureCollection } from 'geojson'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { GeoJSON } from 'ol/format'
@@ -21,6 +21,7 @@ const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
 
 export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Path, queryPoints: QueryPoint[]) {
+    const [showPaths, setShowPaths] = useState(true)
     useEffect(() => {
         removeCurrentPathLayers(map)
         addUnselectedPathsLayer(
@@ -33,6 +34,31 @@ export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Pat
             removeCurrentPathLayers(map)
         }
     }, [map, paths, selectedPath])
+    useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === 'h') setShowPaths(false)
+      }
+      const handleKeyUp = (e: KeyboardEvent) => {
+          if (e.key === 'h') setShowPaths(true)
+      }
+      window.addEventListener('keydown', handleKeyDown)
+      window.addEventListener('keyup', handleKeyUp)
+      return () => {
+          window.removeEventListener('keydown', handleKeyDown)
+          window.removeEventListener('keyup', handleKeyUp)
+      }
+    } , [])
+    useEffect(() => {
+        removeCurrentPathLayers(map)
+        if (showPaths) {
+            addUnselectedPathsLayer(map, paths.filter(p => p != selectedPath))
+            addSelectedPathsLayer(map, selectedPath)
+            addAccessNetworkLayer(map, selectedPath, queryPoints)
+        }
+        return () => {
+            removeCurrentPathLayers(map)
+        }
+    }, [map, paths, selectedPath, showPaths])
 }
 
 function removeCurrentPathLayers(map: Map) {
