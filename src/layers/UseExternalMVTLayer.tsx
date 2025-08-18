@@ -50,7 +50,7 @@ export default function useExternalMVTLayer(map: Map, externalMVTLayerEnabled: b
             },
         })
 
-        const onHover = (e: MapBrowserEvent<UIEvent>) => {
+        const onHover = (e: MapBrowserEvent<PointerEvent>) => {
             selectionSource.clear()
             const features = map.getFeaturesAtPixel(e.pixel, {
                 layerFilter: l => l === externalMVTLayer,
@@ -72,10 +72,10 @@ export default function useExternalMVTLayer(map: Map, externalMVTLayerEnabled: b
         if (externalMVTLayerEnabled) {
             map.addLayer(externalMVTLayer)
             map.addLayer(selectionLayer)
-            map.on('pointermove', onHover)
+            map.on('pointermove', onHover as any)
         }
         return () => {
-            map.un('pointermove', onHover)
+            map.un('pointermove', onHover as any)
             map.removeLayer(externalMVTLayer)
             map.removeLayer(selectionLayer)
         }
