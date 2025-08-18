@@ -7,6 +7,7 @@ export type Bbox = [number, number, number, number]
 
 export interface RoutingArgs {
     readonly points: [number, number][]
+    readonly pointHints: string[]
     readonly profile: string
     readonly maxAlternativeRoutes: number
     readonly customModel: CustomModel | null
@@ -14,6 +15,7 @@ export interface RoutingArgs {
 
 export interface RoutingRequest {
     readonly points: ReadonlyArray<[number, number]>
+    readonly point_hints: string[]
     profile: string
     locale: string
     points_encoded: boolean

@@ -71,6 +71,7 @@ describe('route', () => {
     it('should use correct metadata', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'profile',
             customModel: null,
@@ -99,6 +100,7 @@ describe('route', () => {
     it('transforms routingArgs into routing request with default algorithm for maxAlternativeRoutes: 1', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
             customModel: null,
@@ -106,6 +108,7 @@ describe('route', () => {
 
         const expectedBody: RoutingRequest = {
             points: args.points,
+            point_hints: [],
             profile: args.profile,
             elevation: true,
             instructions: true,
@@ -141,6 +144,7 @@ describe('route', () => {
     it('transforms routingArgs into routing request with alternative_route algorithm for maxAlternativeRoutes > 1', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 2,
             profile: 'car',
             customModel: null,
@@ -148,6 +152,7 @@ describe('route', () => {
 
         const expectedBody: RoutingRequest = {
             points: args.points,
+            point_hints: [],
             profile: args.profile,
             elevation: true,
             instructions: true,
@@ -186,6 +191,7 @@ describe('route', () => {
     it('transforms routingArgs into routing request with custom model', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
             customModel: {
@@ -200,6 +206,7 @@ describe('route', () => {
 
         const expectedBody: RoutingRequest = {
             points: args.points,
+            point_hints: [],
             profile: args.profile,
             elevation: true,
             instructions: true,
@@ -242,6 +249,7 @@ describe('route', () => {
                 [0, 0],
                 [1, 1],
             ],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'bla',
             customModel: null,
@@ -263,6 +271,7 @@ describe('route', () => {
                 [0, 0],
                 [1, 1],
             ],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'bla',
             customModel: null,
@@ -287,6 +296,7 @@ describe('route', () => {
         const args: RoutingArgs = {
             profile: 'car',
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 3,
             customModel: null,
         }
@@ -301,6 +311,7 @@ describe('route', () => {
         setTranslation('de', true)
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
             customModel: null,
@@ -308,6 +319,7 @@ describe('route', () => {
 
         const expectedBody: RoutingRequest = {
             points: args.points,
+            point_hints: [],
             profile: args.profile,
             elevation: true,
             instructions: true,
