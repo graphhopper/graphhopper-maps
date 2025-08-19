@@ -17,10 +17,10 @@ interface PathDetailsProps {
 
 export default function ({ selectedPath }: PathDetailsProps) {
     // keep a ref to the container to determine the size of the graph,
-    const containerRef: React.RefObject<HTMLDivElement> = useRef(null)
+    const containerRef: React.RefObject<HTMLDivElement | null> = useRef(null)
 
     // keep a ref to the container of the actual graph and pass it to the graph once the container is mounted
-    const heightgraphRef: React.RefObject<HTMLDivElement> = useRef(null)
+    const heightgraphRef: React.RefObject<HTMLDivElement | null> = useRef(null)
     const [graph, setGraph] = useState<any | null>(null)
     useEffect(() => {
         const options = {

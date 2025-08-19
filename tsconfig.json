@@ -4,6 +4,7 @@
         "sourceMap": true,
         "noImplicitAny": true,
         "jsx": "react-jsx",
+        "jsxImportSource": "react",
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
         "importHelpers": true,

@@ -50,7 +50,7 @@ export default function useExternalMVTLayer(map: Map, externalMVTLayerEnabled: b
             },
         })
 
-        const onHover = (e: MapBrowserEvent<UIEvent>) => {
+        const onHover = (e: MapBrowserEvent) => {
             selectionSource.clear()
             const features = map.getFeaturesAtPixel(e.pixel, {
                 layerFilter: l => l === externalMVTLayer,

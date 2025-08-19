@@ -1,8 +1,7 @@
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import {JSX, ReactNode, useCallback, useEffect, useRef, useState} from 'react'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Bbox, GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
 import Autocomplete, { AutocompleteItem, GeocodingItem, POIQueryItem } from '@/sidebar/search/AddressInputAutocomplete'
-
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import CurrentLocationIcon from './current-location.svg'
