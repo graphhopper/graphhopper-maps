@@ -32,7 +32,7 @@ export default function useRoutingGraphLayer(map: Map, routingGraphEnabled: bool
             zIndex: 0.6,
         })
 
-        const onHover = (e: MapBrowserEvent<PointerEvent>) => {
+        const onHover = (e: MapBrowserEvent) => {
             const features = map.getFeaturesAtPixel(e.pixel, {
                 layerFilter: l => l === routingGraphLayer,
                 hitTolerance: 5,
@@ -64,11 +64,11 @@ export default function useRoutingGraphLayer(map: Map, routingGraphEnabled: bool
         if (routingGraphEnabled) {
             map.addLayer(routingGraphLayer)
             map.addLayer(selectionLayer)
-            map.on('pointermove', onHover as any)
+            map.on('pointermove', onHover)
         }
         return () => {
             Dispatcher.dispatch(new RoutingGraphHover(null, {}))
-            map.un('pointermove', onHover as any)
+            map.un('pointermove', onHover)
             map.removeLayer(routingGraphLayer)
             map.removeLayer(selectionLayer)
         }
