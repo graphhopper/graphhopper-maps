@@ -24,16 +24,18 @@ export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Pat
     const [showPaths, setShowPaths] = useState(true)
     useEffect(() => {
         removeCurrentPathLayers(map)
-        addUnselectedPathsLayer(
-            map,
-            paths.filter(p => p != selectedPath)
-        )
-        addSelectedPathsLayer(map, selectedPath)
-        addAccessNetworkLayer(map, selectedPath, queryPoints)
+        if (showPaths) {
+            addUnselectedPathsLayer(
+                map,
+                paths.filter(p => p != selectedPath)
+            )
+            addSelectedPathsLayer(map, selectedPath)
+            addAccessNetworkLayer(map, selectedPath, queryPoints)
+        }
         return () => {
             removeCurrentPathLayers(map)
         }
-    }, [map, paths, selectedPath])
+    }, [map, paths, selectedPath, showPaths])
     useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
           if (e.key === 'h') setShowPaths(false)
@@ -48,17 +50,6 @@ export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Pat
           window.removeEventListener('keyup', handleKeyUp)
       }
     } , [])
-    useEffect(() => {
-        removeCurrentPathLayers(map)
-        if (showPaths) {
-            addUnselectedPathsLayer(map, paths.filter(p => p != selectedPath))
-            addSelectedPathsLayer(map, selectedPath)
-            addAccessNetworkLayer(map, selectedPath, queryPoints)
-        }
-        return () => {
-            removeCurrentPathLayers(map)
-        }
-    }, [map, paths, selectedPath, showPaths])
 }
 
 function removeCurrentPathLayers(map: Map) {
