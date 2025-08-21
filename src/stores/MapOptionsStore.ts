@@ -178,7 +178,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
         const selectedStyle = styleOptions.find(s => s.name === config.defaultTiles)
         if (!selectedStyle)
             console.warn(
-                `Could not find tile layer specified in config: '${config.defaultTiles}', using default instead`
+                `Could not find tile layer specified in config: '${config.defaultTiles}', using default instead`,
             )
         return {
             selectedStyle: selectedStyle ? selectedStyle : omniscale,

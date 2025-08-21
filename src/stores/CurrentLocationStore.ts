@@ -116,15 +116,15 @@ export default class CurrentLocationStore extends Store<CurrentLocationStoreStat
                         { lng: position.coords.longitude, lat: position.coords.latitude },
                         position.coords.accuracy,
                         // heading is in degrees from north, clockwise
-                        position.coords.heading
-                    )
+                        position.coords.heading,
+                    ),
                 )
             },
             error => {
                 Dispatcher.dispatch(new CurrentLocationError(tr('searching_location_failed') + ': ' + error.message))
             },
             // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
-            { timeout: 300_000, enableHighAccuracy: true }
+            { timeout: 300_000, enableHighAccuracy: true },
         )
     }
 

@@ -46,8 +46,8 @@ const Line = function ({ instruction, index, us }: { instruction: Instruction; i
                 Dispatcher.dispatch(
                     new InstructionClicked(
                         { lng: instruction.points[0][0], lat: instruction.points[0][1] },
-                        instruction.text
-                    )
+                        instruction.text,
+                    ),
                 )
             }
         >

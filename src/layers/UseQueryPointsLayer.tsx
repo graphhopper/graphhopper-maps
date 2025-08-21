@@ -109,8 +109,8 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSourc
                     coordinate,
                     queryText: coordinateToText(coordinate),
                 },
-                false
-            )
+                false,
+            ),
         )
     })
     modify.set('gh:drag_query_point', true)

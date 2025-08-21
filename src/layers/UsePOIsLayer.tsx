@@ -119,7 +119,7 @@ function addPOISelection(map: Map) {
                         src: 'data:image/svg+xml;utf8,' + svgStrings[props.icon],
                         displacement: [0, 18],
                     }),
-                })
+                }),
             )
             Dispatcher.dispatch(new SelectPOI(props.poi))
         } else Dispatcher.dispatch(new SelectPOI(null))

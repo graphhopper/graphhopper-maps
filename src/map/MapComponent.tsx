@@ -22,7 +22,7 @@ export default function ({ map }: MapComponentProps) {
 }
 
 export function onCurrentLocationSelected(
-    onSelect: (queryText: string, coordinate: Coordinate | undefined, bbox: Bbox | undefined) => void
+    onSelect: (queryText: string, coordinate: Coordinate | undefined, bbox: Bbox | undefined) => void,
 ) {
     if (!navigator.geolocation) {
         Dispatcher.dispatch(new ErrorAction('Geolocation is not supported in this browser'))
@@ -40,6 +40,6 @@ export function onCurrentLocationSelected(
             onSelect('', undefined, undefined)
         },
         // DO NOT use e.g. maximumAge: 5_000 -> getCurrentPosition will then never return on mobile firefox!?
-        { timeout: 300_000, enableHighAccuracy: true }
+        { timeout: 300_000, enableHighAccuracy: true },
     )
 }

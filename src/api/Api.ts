@@ -79,7 +79,7 @@ export class ApiImpl implements Api {
         } else {
             if (result.message) throw new Error(result.message)
             throw new Error(
-                'There has been an error. Server responded with ' + response.statusText + ' (' + response.status + ')'
+                'There has been an error. Server responded with ' + response.statusText + ' (' + response.status + ')',
             )
         }
     }
@@ -87,7 +87,7 @@ export class ApiImpl implements Api {
     async geocode(
         query: string,
         provider: string,
-        additionalOptions?: Record<string, string>
+        additionalOptions?: Record<string, string>,
     ): Promise<GeocodingResult> {
         if (!this.supportsGeocoding())
             return {

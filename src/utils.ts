@@ -32,7 +32,7 @@ export function getBBoxPoints(points: Coordinate[]): Bbox | null {
             Math.max(res[2], c.lng),
             Math.max(res[3], c.lat),
         ],
-        [180, 90, -180, -90] as Bbox
+        [180, 90, -180, -90] as Bbox,
     )
     if (points.length == 1) {
         bbox[0] = bbox[0] - 0.001
@@ -67,8 +67,8 @@ export function calcDist(point1: Coordinate, point2: Coordinate): number {
         2 *
         Math.asin(
             Math.sqrt(
-                sinDeltaLat * sinDeltaLat + sinDeltaLon * sinDeltaLon * Math.cos(toRad(lat1)) * Math.cos(toRad(lat2))
-            )
+                sinDeltaLat * sinDeltaLat + sinDeltaLon * sinDeltaLon * Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)),
+            ),
         )
     )
 }

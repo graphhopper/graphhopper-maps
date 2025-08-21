@@ -41,7 +41,7 @@ export default function ({ query, route, error, encodedValues, drawAreas, map }:
             const clickInside = event.target instanceof Node && searchContainerRef.current?.contains(event.target)
             if (!clickInside && isShortScreen && hasResult(route)) setIsSmallSearchView(true)
         },
-        [isShortScreen, route]
+        [isShortScreen, route],
     )
     useEffect(() => {
         window.addEventListener('mousedown', handleWindowClick)

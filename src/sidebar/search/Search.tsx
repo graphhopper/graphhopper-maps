@@ -189,8 +189,8 @@ const SearchBox = ({
                                     queryText: queryText,
                                     coordinate: coordinate ? coordinate : point.coordinate,
                                 },
-                                initCount > 0
-                            )
+                                initCount > 0,
+                            ),
                         )
                     }}
                     clearDragDrop={() => {

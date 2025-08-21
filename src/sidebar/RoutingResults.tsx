@@ -72,7 +72,7 @@ function RoutingResult({
     const tollInfo = getInfoFor(
         path.points,
         path.details.toll,
-        s => s === 'all' || (s === 'hgv' && ApiImpl.isTruck(profile))
+        s => s === 'all' || (s === 'hgv' && ApiImpl.isTruck(profile)),
     )
     const ferryInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ferry')
     const accessCondInfo = getInfoFor(path.points, path.details.access_conditional, s => s != null && s.length > 0)
@@ -103,7 +103,7 @@ function RoutingResult({
         ? getInfoFor(
               path.points,
               path.details.road_access,
-              s => s === 'delivery' || s === 'customers' || s === 'destination'
+              s => s === 'delivery' || s === 'customers' || s === 'destination',
           )
         : new RouteInfo()
     const badTrackInfo = !ApiImpl.isMotorVehicle(profile)
@@ -111,7 +111,7 @@ function RoutingResult({
         : getInfoFor(
               path.points,
               path.details.track_type,
-              s => s === 'grade2' || s === 'grade3' || s === 'grade4' || s === 'grade5'
+              s => s === 'grade2' || s === 'grade3' || s === 'grade4' || s === 'grade5',
           )
     const trunkInfo = ApiImpl.isMotorVehicle(profile)
         ? new RouteInfo()
@@ -443,7 +443,11 @@ function RHButton(p: {
     if (p.value === false) return null
     return (
         <PlainButton
-            className={(p.addClassName || "") + " " + (p.selected == p.type ? styles.selectedRouteHintButton : styles.routeHintButton)}
+            className={
+                (p.addClassName || '') +
+                ' ' +
+                (p.selected == p.type ? styles.selectedRouteHintButton : styles.routeHintButton)
+            }
             onClick={() => {
                 p.setType(p.type)
 
@@ -601,7 +605,7 @@ function downloadGPX(path: Path, settings: Settings) {
         xmlString += '<rte>\n'
         xmlString += path.instructions.reduce((prevString: string, instruction: Instruction) => {
             let routeSegment = `<rtept lat="${instruction.points[0][1].toFixed(
-                6
+                6,
             )}" lon="${instruction.points[0][0].toFixed(6)}">`
             routeSegment += `<desc>${instruction.text}</desc><extensions><gh:distance>${instruction.distance}</gh:distance>`
             routeSegment += `<gh:time>${instruction.time}</gh:time><gh:sign>${instruction.sign}</gh:sign>`
@@ -630,7 +634,7 @@ function downloadGPX(path: Path, settings: Settings) {
     tmpElement.href = URL.createObjectURL(file)
     const date = new Date()
     tmpElement.download = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
-        date.getUTCDate()
+        date.getUTCDate(),
     )}-${metersToTextForFile(path.distance, settings.showDistanceInMiles)}.gpx`
     tmpElement.click()
 }
@@ -662,7 +666,7 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
             paths.length,
             ...subRequests
                 .filter(request => request.state === RequestState.SENT)
-                .map(request => request.args.maxAlternativeRoutes)
+                .map(request => request.args.maxAlternativeRoutes),
         )
     }
     return paths.length
@@ -688,7 +692,7 @@ function createListContent({ info, paths, currentRequest, selectedPath, profile 
                     isSelected={paths[i] === selectedPath}
                     profile={profile}
                     info={info}
-                />
+                />,
             )
         else result.push(<RoutingResultPlaceholder key={i} />)
     }

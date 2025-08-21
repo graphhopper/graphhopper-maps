@@ -36,8 +36,8 @@ export function ContextMenuContent({
                     queryText: coordinateToText(coordinate),
                     isInitialized: true,
                 },
-                false
-            )
+                false,
+            ),
         )
     }
 
@@ -155,7 +155,7 @@ export function ContextMenuContent({
                     window.open(
                         `https://www.openstreetmap.org/query?lat=${coordinate.lat}&lon=${coordinate.lng}`,
                         '_blank',
-                        'noopener,noreferrer'
+                        'noopener,noreferrer',
                     )
                 }}
             >
