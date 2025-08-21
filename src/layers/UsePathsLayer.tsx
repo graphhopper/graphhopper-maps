@@ -1,10 +1,8 @@
 import { Feature, Map } from 'ol'
 import { Path } from '@/api/graphhopper'
-import { FeatureCollection } from 'geojson'
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { GeoJSON } from 'ol/format'
 import { Stroke, Style } from 'ol/style'
 import { fromLonLat } from 'ol/proj'
 import { Select } from 'ol/interaction'
@@ -21,18 +19,43 @@ const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
 
 export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Path, queryPoints: QueryPoint[]) {
+    const [showPaths, setShowPaths] = useState(true)
+
     useEffect(() => {
         removeCurrentPathLayers(map)
-        addUnselectedPathsLayer(
-            map,
-            paths.filter(p => p != selectedPath),
-        )
-        addSelectedPathsLayer(map, selectedPath)
-        addAccessNetworkLayer(map, selectedPath, queryPoints)
+        if (showPaths) {
+            addUnselectedPathsLayer(
+                map,
+                paths.filter(p => p != selectedPath),
+            )
+            addSelectedPathsLayer(map, selectedPath)
+            addAccessNetworkLayer(map, selectedPath, queryPoints)
+        }
         return () => {
             removeCurrentPathLayers(map)
         }
-    }, [map, paths, selectedPath])
+    }, [map, paths, selectedPath, showPaths])
+
+    useEffect(() => {
+        const target = map.getTargetElement()
+        if (!target) return
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'h') setShowPaths(false)
+        }
+
+        const handleKeyUp = (e: KeyboardEvent) => {
+            if (e.key === 'h') setShowPaths(true)
+        }
+
+        target.tabIndex = 0
+
+        target.addEventListener('keydown', handleKeyDown)
+        target.addEventListener('keyup', handleKeyUp)
+        return () => {
+            target.removeEventListener('keydown', handleKeyDown)
+            target.removeEventListener('keyup', handleKeyUp)
+        }
+    }, []) // run only once when component is initialized
 }
 
 function removeCurrentPathLayers(map: Map) {
