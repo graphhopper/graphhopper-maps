@@ -61,7 +61,7 @@ export default function CustomModelBox({
     useEffect(() => {
         // we start with the encoded values we already have, but they might be empty still
         const instance = create(convertEncodedValuesForEditor(encodedValues), (element: Node) =>
-            divElement.current?.appendChild(element)
+            divElement.current?.appendChild(element),
         )
         setEditor(instance)
 
@@ -91,7 +91,7 @@ export default function CustomModelBox({
                 Dispatcher.dispatch(new SetCustomModel(editor.value, true))
             }
         },
-        [editor, isValid]
+        [editor, isValid],
     )
 
     return (
@@ -127,7 +127,7 @@ export default function CustomModelBox({
                         // When selecting an example we request a routing request and act like the model is valid,
                         // even when it is not according to the editor validation.
                         Dispatcher.dispatch(
-                            new SetCustomModel(customModel2prettyString(customModelExamples[e.target.value]), true)
+                            new SetCustomModel(customModel2prettyString(customModelExamples[e.target.value]), true),
                         )
                     }}
                 >

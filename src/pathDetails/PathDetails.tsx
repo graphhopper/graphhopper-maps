@@ -17,10 +17,10 @@ interface PathDetailsProps {
 
 export default function ({ selectedPath }: PathDetailsProps) {
     // keep a ref to the container to determine the size of the graph,
-    const containerRef: React.RefObject<HTMLDivElement> = useRef(null)
+    const containerRef: React.RefObject<HTMLDivElement | null> = useRef(null)
 
     // keep a ref to the container of the actual graph and pass it to the graph once the container is mounted
-    const heightgraphRef: React.RefObject<HTMLDivElement> = useRef(null)
+    const heightgraphRef: React.RefObject<HTMLDivElement | null> = useRef(null)
     const [graph, setGraph] = useState<any | null>(null)
     useEffect(() => {
         const options = {
@@ -82,7 +82,7 @@ function onPathDetailHover(point: Coordinate, elevation: number, description: st
 function onRangeSelected(bbox: { sw: Coordinate; ne: Coordinate } | null) {
     // bbox = null means that the range was cleared
     Dispatcher.dispatch(
-        new PathDetailsRangeSelected(bbox ? [bbox.sw.lng, bbox.sw.lat, bbox.ne.lng, bbox.ne.lat] : null)
+        new PathDetailsRangeSelected(bbox ? [bbox.sw.lng, bbox.sw.lat, bbox.ne.lng, bbox.ne.lat] : null),
     )
 }
 
@@ -155,7 +155,7 @@ function buildPathDetailsData(selectedPath: Path) {
     // path details
     Object.entries(selectedPath.details).map(([detailName, details]) => {
         const features = details.map(([from, to, value = 'Undefined']: [number, number, string | number]) =>
-            createFeature(coordinates.slice(from, to + 1), value)
+            createFeature(coordinates.slice(from, to + 1), value),
         )
         result.data.push(createFeatureCollection(tr(detailName), features))
         result.mappings[tr(detailName)] = createColorMapping(details)

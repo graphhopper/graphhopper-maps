@@ -151,7 +151,7 @@ export class AddressParseResult {
             Dispatcher.dispatch(new SetPOIs(pois))
         } else {
             console.warn(
-                'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult)
+                'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult),
             )
         }
     }
@@ -272,7 +272,7 @@ export class AddressParseResult {
                         if (kv.length > 1) return new POIPhrase(kv[0], '~', kv[1], true)
                         kv = v.split('=')
                         return new POIPhrase(kv[0], '=', kv[1], false)
-                    })
+                    }),
                 )
             })
             return {

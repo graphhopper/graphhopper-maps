@@ -50,7 +50,7 @@ describe('info api', () => {
                     profiles: [],
                     elevation: expected.elevation,
                     encoded_values: expected.encoded_values,
-                })
+                }),
             )
         })
 
@@ -292,7 +292,7 @@ describe('route', () => {
         }
         fetchMock.mockResponse(() => Promise.resolve({ status: 500 }))
         await expect(new ApiImpl('https://some.api/', 'https://some.api/', 'key').route(args)).rejects.toThrow(
-            'Route calculation timed out'
+            'Route calculation timed out',
         )
     })
 

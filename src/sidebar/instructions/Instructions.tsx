@@ -12,6 +12,8 @@ import right from './right.png'
 import sharpRight from './sharp_right.png'
 import roundabout from './roundabout.png'
 import keepRight from './keep_right.png'
+import ferry from './ferry.png'
+import unknown from './unknown.png'
 import uTurnRight from './u_turn_right.png'
 import ptStartTrip from './pt_start_trip.png'
 import ptTransferTo from './pt_transfer_to.png'
@@ -44,8 +46,8 @@ const Line = function ({ instruction, index, us }: { instruction: Instruction; i
                 Dispatcher.dispatch(
                     new InstructionClicked(
                         { lng: instruction.points[0][0], lat: instruction.points[0][1] },
-                        instruction.text
-                    )
+                        instruction.text,
+                    ),
                 )
             }
         >
@@ -105,11 +107,14 @@ function getSignName(sign: number) {
         case 3:
             return sharpRight
         case 6:
+        case -6:
             return roundabout
         case 7:
             return keepRight
         case 8:
             return uTurnRight
+        case 9:
+            return ferry
         case 101:
             return ptStartTrip
         case 102:
@@ -117,6 +122,6 @@ function getSignName(sign: number) {
         case 103:
             return ptEndTrip
         default:
-            return 'unknown'
+            return unknown
     }
 }

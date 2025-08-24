@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType, QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
@@ -13,6 +13,11 @@ import CloseInputsIcon from './unfold_less.svg'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import { Map } from 'ol'
 import { Coordinate } from '@/utils'
+import PlainButton from '@/PlainButton'
+import { tr } from '@/translation/Translation'
+import Chevron from '@/sidebar/search/routingProfiles/chevron.svg'
+import { icons } from '@/sidebar/search/routingProfiles/profileIcons'
+import { RoutingProfile } from '@/api/graphhopper'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -36,7 +41,7 @@ export default function ({ query, route, error, encodedValues, drawAreas, map }:
             const clickInside = event.target instanceof Node && searchContainerRef.current?.contains(event.target)
             if (!clickInside && isShortScreen && hasResult(route)) setIsSmallSearchView(true)
         },
-        [isShortScreen, route]
+        [isShortScreen, route],
     )
     useEffect(() => {
         window.addEventListener('mousedown', handleWindowClick)
@@ -53,7 +58,11 @@ export default function ({ query, route, error, encodedValues, drawAreas, map }:
         <div className={styles.sidebar}>
             <div className={styles.background} ref={searchContainerRef}>
                 {isSmallSearchView ? (
-                    <SmallSearchView points={query.queryPoints} onClick={() => setIsSmallSearchView(false)} />
+                    <SmallSearchView
+                        selectedProfile={query.routingProfile}
+                        points={query.queryPoints}
+                        onClick={() => setIsSmallSearchView(false)}
+                    />
                 ) : (
                     <div className={styles.btnCloseContainer}>
                         <div className={styles.btnCloseInputs} onClick={() => setIsSmallSearchView(true)}>
@@ -88,13 +97,16 @@ function hasResult(route: RouteStoreState) {
     return route.routingResult.paths.length > 0
 }
 
-function SmallSearchView(props: { points: QueryPoint[]; onClick: () => void }) {
+function SmallSearchView(props: { points: QueryPoint[]; selectedProfile: RoutingProfile; onClick: () => void }) {
     const from = props.points[0]
     const to = props.points[props.points.length - 1]
     const isSmallHeight = useMediaQuery({ query: '(max-height: 36rem)' })
+    const icon = icons[props.selectedProfile.name]
+    const iconElement = icon ? React.createElement(icon) : React.createElement(icons.question_mark)
 
     return (
         <div className={styles.btnOpenContainer} onClick={props.onClick}>
+            <div className={styles.profile}>{iconElement}</div>
             <div className={styles.mapView}>
                 {!isSmallHeight && <SmallQueryPoint text={from.queryText} color={from.color} position={from.type} />}
                 {!isSmallHeight && <IntermediatePoint points={props.points} />}

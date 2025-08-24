@@ -1,7 +1,6 @@
 import { Map, Overlay } from 'ol'
-import { useEffect, useRef, useState } from 'react'
+import { JSX, useEffect, useRef, useState } from 'react'
 import { fromLonLat } from 'ol/proj'
-
 import { Coordinate } from '@/utils'
 
 interface MapPopupProps {
@@ -12,15 +11,19 @@ interface MapPopupProps {
 
 export default function MapPopup({ map, coordinate, children }: MapPopupProps) {
     const [overlay, setOverlay] = useState<Overlay | undefined>()
-    const container = useRef<HTMLDivElement | null>(null)
+    const container = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        const overlay = new Overlay({
+        const newOverlay = new Overlay({
             element: container.current!,
             autoPan: false,
         })
-        setOverlay(overlay)
-        map.addOverlay(overlay)
+        setOverlay(newOverlay)
+        map.addOverlay(newOverlay)
+
+        return () => {
+            map.removeOverlay(newOverlay)
+        }
     }, [map])
 
     useEffect(() => {

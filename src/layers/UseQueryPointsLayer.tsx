@@ -85,7 +85,7 @@ function removeDragInteractions(map: Map) {
         .forEach(i => map.removeInteraction(i))
 }
 
-function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSource<Feature<Geometry>>>) {
+function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSource>) {
     let tmp = queryPointsLayer.getSource()
     if (tmp == null) throw new Error('source must not be null') // typescript requires this
     const modify = new Modify({
@@ -109,8 +109,8 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSourc
                     coordinate,
                     queryText: coordinateToText(coordinate),
                 },
-                false
-            )
+                false,
+            ),
         )
     })
     modify.set('gh:drag_query_point', true)
