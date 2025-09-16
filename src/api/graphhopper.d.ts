@@ -28,6 +28,7 @@ export interface RoutingRequest {
     snap_preventions?: string[]
     details?: string[]
     custom_model?: CustomModel
+    'astarbi.epsilon'?: number
 }
 
 export interface ErrorResponse {

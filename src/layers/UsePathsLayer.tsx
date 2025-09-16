@@ -25,7 +25,7 @@ export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Pat
         if (showPaths) {
             addUnselectedPathsLayer(
                 map,
-                paths.filter(p => p != selectedPath)
+                paths.filter(p => p != selectedPath),
             )
             addSelectedPathsLayer(map, selectedPath)
             addAccessNetworkLayer(map, selectedPath, queryPoints)
@@ -46,7 +46,7 @@ export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Pat
         const viewport = map.getViewport()
         if (!viewport) return
 
-        viewport.tabIndex = -1  // Make element focusable but not in tab order
+        viewport.tabIndex = -1 // Make element focusable but not in tab order
 
         viewport.addEventListener('keydown', handleKeyDown)
         viewport.addEventListener('keyup', handleKeyUp)

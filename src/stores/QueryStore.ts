@@ -308,7 +308,7 @@ export default class QueryStore extends Store<QueryStoreState> {
     private routeIfReady(state: QueryStoreState, zoom: boolean): QueryStoreState {
         if (QueryStore.isReadyToRoute(state)) {
             let requests
-            const maxDistance = getMaxDistance(state.queryPoints)
+            const maxDistance = getMaxDistance(state.queryPoints.map(qp => qp.coordinate))
             if (state.customModelEnabled) {
                 if (maxDistance < 200_000) {
                     // Use a single request, possibly including alternatives when custom models are enabled.
@@ -482,10 +482,10 @@ function replace<T>(array: T[], compare: { (element: T): boolean }, provider: { 
     return result
 }
 
-function getMaxDistance(queryPoints: QueryPoint[]): number {
+export function getMaxDistance(coordinates: Coordinate[]): number {
     let max = 0
-    for (let idx = 1; idx < queryPoints.length; idx++) {
-        const dist = calcDist(queryPoints[idx - 1].coordinate, queryPoints[idx].coordinate)
+    for (let idx = 1; idx < coordinates.length; idx++) {
+        const dist = calcDist(coordinates[idx - 1], coordinates[idx])
         max = Math.max(dist, max)
     }
     return max
