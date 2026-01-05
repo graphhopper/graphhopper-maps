@@ -22,7 +22,8 @@ jobs:
           node-version: v24.12.0
 
       - name: Build
-
+        env:
+          NODE_AUTH_TOKEN: $ACTIONS_ID_TOKEN_REQUEST_TOKEN
         run: |
           rm -f ~/.npmrc
           npm config list
