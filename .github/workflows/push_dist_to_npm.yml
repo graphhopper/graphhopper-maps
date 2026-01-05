@@ -33,4 +33,4 @@ jobs:
           # no dependencies or scripts in package.json (they should not be installed when installing the package, because they are all included in the bundle already)
           node -e "const packageJson=require('./package.json'); packageJson.scripts={}; packageJson.dependencies={}; packageJson.devDependencies={}; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
           # we need to set the access to public, because organization scoped packages are private by default
-          npm publish --access public
+          npm publish --access public --tag commit
