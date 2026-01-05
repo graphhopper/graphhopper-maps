@@ -24,8 +24,9 @@ jobs:
       - name: Build
 
         run: |
+          rm -f ~/.npmrc
+          npm config list
           npm --version
-          echo "OIDC token: $ACTIONS_ID_TOKEN_REQUEST_TOKEN"
           npm whoami
           npm version --git-tag-version=false 0.0.0-$(git rev-parse HEAD)
           # limit distribution to the dist folder (just for this build), and set package name
