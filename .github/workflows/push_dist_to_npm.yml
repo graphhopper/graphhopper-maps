@@ -20,6 +20,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: v24.12.0
+          registry-url: https://registry.npmjs.org
+          scope: '@graphhopper'  # your package scope
+          publish-auth-token: ${{ steps.npm-oidc.outputs.token }}
 
       - name: Build
 
@@ -33,4 +36,4 @@ jobs:
           # no dependencies or scripts in package.json (they should not be installed when installing the package, because they are all included in the bundle already)
           node -e "const packageJson=require('./package.json'); packageJson.scripts={}; packageJson.dependencies={}; packageJson.devDependencies={}; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
           # we need to set the access to public, because organization scoped packages are private by default
-          npm publish --provenance --access public
+          npm publish --access public
