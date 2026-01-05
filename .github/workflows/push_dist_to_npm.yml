@@ -24,6 +24,7 @@ jobs:
       - name: Build
 
         run: |
+          npm --version
           npm whoami
           npm version --git-tag-version=false 0.0.0-$(git rev-parse HEAD)
           # limit distribution to the dist folder (just for this build), and set package name
