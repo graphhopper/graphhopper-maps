@@ -27,7 +27,6 @@ jobs:
           # workaround only necessary for older node versions but we have 24.12.0 which has 11.6.2 (must be 11.5.1 or later)
           # npm install -g npm@latest 
           npm --version
-          npm whoami
           #npm version --git-tag-version=false 0.0.0-$(git rev-parse HEAD)
           npm version --git-tag-version=false 0.0.1
           # limit distribution to the dist folder (just for this build), and set package name
