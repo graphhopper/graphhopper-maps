@@ -4,17 +4,21 @@ on:
     branches:
       - master
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 jobs:
   publish:
     if: github.repository_owner == 'graphhopper'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     environment: npm
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           registry-url: https://registry.npmjs.org/
           node-version: v20.14.0
@@ -31,5 +35,3 @@ jobs:
           node -e "const packageJson=require('./package.json'); packageJson.scripts={}; packageJson.dependencies={}; packageJson.devDependencies={}; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
           # we need to set the access to public, because organization scoped packages are private by default
           npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_JS_ORG_ACCESS_TOKEN }}
