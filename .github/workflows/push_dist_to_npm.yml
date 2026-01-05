@@ -20,9 +20,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: v24.12.0
-          registry-url: https://registry.npmjs.org
-          scope: '@graphhopper'  # your package scope
-          publish-auth-token: ${{ steps.npm-oidc.outputs.token }}
 
       - name: Build
 
