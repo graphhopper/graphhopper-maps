@@ -28,7 +28,6 @@ jobs:
           # npm install -g npm@latest 
           npm --version
           #npm version --git-tag-version=false 0.0.0-$(git rev-parse HEAD)
-          npm version --git-tag-version=false 0.0.1
           # limit distribution to the dist folder (just for this build), and set package name
           node -e "const packageJson=require('./package.json'); packageJson.files=['dist/']; packageJson.name='@graphhopper/graphhopper-maps-bundle'; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
           npm ci
