@@ -61,7 +61,8 @@ export default class MapActionReceiver implements ActionReceiver {
             }
             if (action.zoom) fitBounds(this.map, widerBBox, isSmallScreen)
         } else if (action instanceof SetSelectedPath) {
-            fitBounds(this.map, action.path.bbox!, isSmallScreen)
+            // Forcing to change bounds is ugly if zoomed in and for alternatives. See #437
+            // fitBounds(this.map, action.path.bbox!, isSmallScreen)
         } else if (action instanceof PathDetailsRangeSelected) {
             // we either use the bbox from the path detail selection or go back to the route bbox when the path details
             // were deselected
