@@ -19,13 +19,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: v20.14.0
+          node-version: v24.12.0
 
       - name: Build
 
         run: |
-          npm version --git-tag-version=false 0.0.0-$(git rev-parse HEAD)
           npm whoami
+          npm version --git-tag-version=false 0.0.0-$(git rev-parse HEAD)
           # limit distribution to the dist folder (just for this build), and set package name
           node -e "const packageJson=require('./package.json'); packageJson.files=['dist/']; packageJson.name='@graphhopper/graphhopper-maps-bundle'; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
           npm ci
