@@ -24,6 +24,7 @@ import {
     getQueryStore,
     getRouteStore,
     getSettingsStore,
+    getCurrentLocationStore,
     setStores,
 } from '@/stores/Stores'
 import MapOptionsStore from '@/stores/MapOptionsStore'
@@ -32,7 +33,8 @@ import PathDetailsStore from '@/stores/PathDetailsStore'
 import Dispatcher from '@/stores/Dispatcher'
 import NavBar from '@/NavBar'
 import POIsStore from '@/stores/POIsStore'
-import { initDistanceFormat } from '@/Converters'
+import CurrentLocationStore from '@/stores/CurrentLocationStore'
+import { setDistanceFormat } from '@/Converters'
 import { AddressParseResult } from '@/pois/AddressParseResult'
 import { Pixel } from 'ol/pixel'
 import { toLonLat } from 'ol/proj'
@@ -49,7 +51,7 @@ const fakeParam = url.searchParams.get('fake')
 const fakeGPSDelta = fakeParam ? parseFloat(fakeParam) : NaN
 setTranslation(locale || navigator.language)
 
-initDistanceFormat(locale || navigator.language)
+setDistanceFormat(new Intl.NumberFormat(navigator.language, { maximumFractionDigits: 1 }))
 AddressParseResult.setPOITriggerPhrases(getTranslation())
 
 // use graphhopper api key from url or try using one from the config
@@ -87,6 +89,7 @@ setStores({
     pathDetailsStore: new PathDetailsStore(),
     mapFeatureStore: new MapFeatureStore(),
     poisStore: new POIsStore(),
+    currentLocationStore: new CurrentLocationStore(),
 })
 
 setMap(createMap())
@@ -102,6 +105,7 @@ Dispatcher.register(getTurnNavigationStore())
 Dispatcher.register(getPathDetailsStore())
 Dispatcher.register(getMapFeatureStore())
 Dispatcher.register(getPOIsStore())
+Dispatcher.register(getCurrentLocationStore())
 
 // register map action receiver
 const smallScreenMediaQuery = window.matchMedia('(max-width: 44rem)')
@@ -136,6 +140,6 @@ document.body.appendChild(rootDiv)
 const root = createRoot(rootDiv)
 root.render(
     // <StrictMode>
-    <App />
+    <App />,
     // </StrictMode>
 )

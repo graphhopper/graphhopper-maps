@@ -8,12 +8,12 @@ import { calcDist, Coordinate } from '@/utils'
  */
 export function findNextWayPoint(
     routes: { coordinates: Coordinate[]; wayPoints: Coordinate[] }[],
-    location: Coordinate
+    location: Coordinate,
 ): { closestRoute: number; nextWayPoint: number; distance: number } {
     if (
         routes.length < 1 ||
         routes.some(
-            r => r.coordinates.length < 2 || r.wayPoints.length < 2 || r.wayPoints.length > r.coordinates.length
+            r => r.coordinates.length < 2 || r.wayPoints.length < 2 || r.wayPoints.length > r.coordinates.length,
         )
     )
         throw new Error('Invalid input when trying to find the next way point')

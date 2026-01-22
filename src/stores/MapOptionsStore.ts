@@ -135,23 +135,6 @@ const tfOutdoors: RasterStyle = {
         ', <a href="https://www.thunderforest.com/maps/outdoors/" target="_blank">Thunderforest Outdoors</a>',
     tilePixelRatio: tilePixelRatio,
 }
-const path = '/raster/styles/kurviger-liberty/{z}/{x}/{y}' + retina2x + '.png?key=' + kurvigerApiKey
-const kurviger: RasterStyle = {
-    name: 'Kurviger Liberty',
-    type: 'raster',
-    url: [
-        'https://a-tiles.mapilion.com' + path,
-        'https://b-tiles.mapilion.com' + path,
-        'https://c-tiles.mapilion.com' + path,
-        'https://d-tiles.mapilion.com' + path,
-        'https://e-tiles.mapilion.com' + path,
-    ],
-    attribution:
-        osmAttribution +
-        ',&copy; <a href="https://kurviger.de/" target="_blank">Kurviger</a> &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
-    maxZoom: 22,
-    tilePixelRatio: tilePixelRatio,
-}
 const mapillion: VectorStyle = {
     name: 'Mapilion',
     type: 'vector',
@@ -182,7 +165,6 @@ const styleOptions: StyleOption[] = [
     tfTransport,
     tfCycle,
     tfOutdoors,
-    // kurviger,
     mapillion,
 ]
 
@@ -195,7 +177,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
         const selectedStyle = styleOptions.find(s => s.name === config.defaultTiles)
         if (!selectedStyle)
             console.warn(
-                `Could not find tile layer specified in config: '${config.defaultTiles}', using default instead`
+                `Could not find tile layer specified in config: '${config.defaultTiles}', using default instead`,
             )
         return {
             selectedStyle: selectedStyle ? selectedStyle : omniscale,

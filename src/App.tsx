@@ -12,6 +12,7 @@ import {
     getRouteStore,
     getSettingsStore,
     getTurnNavigationStore,
+    getCurrentLocationStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
 import MapOptions from '@/map/MapOptions'
@@ -23,6 +24,7 @@ import { QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
+import { CurrentLocationStoreState } from '@/stores/CurrentLocationStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { TurnNavigationStoreState } from './stores/TurnNavigationStore'
@@ -41,7 +43,7 @@ import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import PlainButton from '@/PlainButton'
 import TurnNavigation from '@/turnNavigation/TurnNavigation'
 import MapPopups from '@/map/MapPopups'
-import useCurrentLocationLayer from '@/layers/CurrentLocationLayer'
+import useNavigationLocationLayer from '@/layers/NavigationLocationLayer'
 import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
 import useAreasLayer from '@/layers/UseAreasLayer'
@@ -49,6 +51,7 @@ import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import usePOIsLayer from '@/layers/UsePOIsLayer'
+import useCurrentLocationLayer from '@/layers/UseCurrentLocationLayer'
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -64,6 +67,7 @@ export default function App() {
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
     const [mapFeatures, setMapFeatures] = useState(getMapFeatureStore().state)
     const [pois, setPOIs] = useState(getPOIsStore().state)
+    const [currentLocation, setCurrentLocation] = useState(getCurrentLocationStore().state)
 
     const map = getMap()
 
@@ -78,6 +82,7 @@ export default function App() {
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
         const onMapFeaturesChanged = () => setMapFeatures(getMapFeatureStore().state)
         const onPOIsChanged = () => setPOIs(getPOIsStore().state)
+        const onCurrentLocationChanged = () => setCurrentLocation(getCurrentLocationStore().state)
 
         getSettingsStore().register(onSettingsChanged)
         getQueryStore().register(onQueryChanged)
@@ -89,6 +94,7 @@ export default function App() {
         getPathDetailsStore().register(onPathDetailsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
         getPOIsStore().register(onPOIsChanged)
+        getCurrentLocationStore().register(onCurrentLocationChanged)
 
         onQueryChanged()
         onInfoChanged()
@@ -99,9 +105,10 @@ export default function App() {
         onPathDetailsChanged()
         onMapFeaturesChanged()
         onPOIsChanged()
+        onCurrentLocationChanged()
 
         return () => {
-            getSettingsStore().register(onSettingsChanged)
+            getSettingsStore().deregister(onSettingsChanged)
             getQueryStore().deregister(onQueryChanged)
             getApiInfoStore().deregister(onInfoChanged)
             getRouteStore().deregister(onRouteChanged)
@@ -111,6 +118,7 @@ export default function App() {
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
             getPOIsStore().deregister(onPOIsChanged)
+            getCurrentLocationStore().deregister(onCurrentLocationChanged)
         }
     }, [])
 
@@ -121,11 +129,12 @@ export default function App() {
     useAreasLayer(map, settings.drawAreasEnabled, query.customModelStr, query.customModelEnabled)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
-    usePathsLayer(map, route, query.queryPoints, turnNavigation)
+    usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints, turnNavigation)
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
-    useCurrentLocationLayer(map, turnNavigation)
+    useNavigationLocationLayer(map, turnNavigation)
     usePOIsLayer(map, pois)
+    useCurrentLocationLayer(map, currentLocation)
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
@@ -156,6 +165,7 @@ export default function App() {
                         turnNavigation={turnNavigation}
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
+                        currentLocation={currentLocation}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -167,6 +177,7 @@ export default function App() {
                         turnNavigation={turnNavigation}
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
+                        currentLocation={currentLocation}
                     />
                 )}
             </div>
@@ -179,6 +190,7 @@ interface LayoutProps {
     route: RouteStoreState
     map: Map
     mapOptions: MapOptionsStoreState
+    currentLocation: CurrentLocationStoreState
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
@@ -194,6 +206,7 @@ function LargeScreenLayout({
     encodedValues,
     drawAreas,
     turnNavigation,
+    currentLocation,
 }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
@@ -252,7 +265,7 @@ function LargeScreenLayout({
             <div className={styles.popupContainer} id={POPUP_CONTAINER_ID} />
             <div className={styles.onMapRightSide}>
                 <MapOptions {...mapOptions} />
-                <LocationButton queryPoints={query.queryPoints} />
+                <LocationButton currentLocation={currentLocation} />
             </div>
             <div className={styles.map}>
                 <MapComponent map={map} />
@@ -274,6 +287,7 @@ function SmallScreenLayout({
     encodedValues,
     drawAreas,
     turnNavigation,
+    currentLocation,
 }: LayoutProps) {
     return (
         <>
@@ -294,7 +308,7 @@ function SmallScreenLayout({
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.onMapRightSide}>
                     <MapOptions {...mapOptions} />
-                    <LocationButton queryPoints={query.queryPoints} />
+                    <LocationButton currentLocation={currentLocation} />
                 </div>
             </div>
             <div className={styles.smallScreenRoutingResult}>

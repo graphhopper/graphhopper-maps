@@ -236,7 +236,7 @@ export class ToggleExternalMVTLayer implements Action {
 
 export class MapIsLoaded implements Action {}
 
-export class ZoomMapToPoint implements Action {
+export class MoveMapToPoint implements Action {
     readonly coordinate: Coordinate
 
     constructor(coordinate: Coordinate) {
@@ -320,5 +320,37 @@ export class SetPOIs implements Action {
 
     constructor(pois: POI[]) {
         this.pois = pois
+    }
+}
+
+/**
+ * Start watching the location and synchronizing the view.
+ */
+export class StartWatchCurrentLocation implements Action {}
+export class StopWatchCurrentLocation implements Action {}
+
+/**
+ * Start synchronizing the view again.
+ */
+export class StartSyncCurrentLocation implements Action {}
+export class StopSyncCurrentLocation implements Action {}
+
+export class CurrentLocationError implements Action {
+    readonly error: string
+
+    constructor(error: string) {
+        this.error = error
+    }
+}
+
+export class CurrentLocation implements Action {
+    readonly coordinate: Coordinate
+    readonly accuracy: number
+    readonly heading: number | null
+
+    constructor(coordinate: Coordinate, accuracy: number, heading: number | null) {
+        this.coordinate = coordinate
+        this.accuracy = accuracy
+        this.heading = heading
     }
 }

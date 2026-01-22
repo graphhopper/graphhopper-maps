@@ -46,7 +46,7 @@ function addPathSegmentsLayer(map: Map, pathDetails: PathDetailsStoreState) {
     const highlightedPathSegmentsLayer = new VectorLayer({
         source: new VectorSource({
             features: new GeoJSON().readFeatures(
-                createHighlightedPathSegments(pathDetails.pathDetailsHighlightedSegments)
+                createHighlightedPathSegments(pathDetails.pathDetailsHighlightedSegments),
             ),
         }),
         style: () => style,

@@ -151,7 +151,7 @@ export class AddressParseResult {
             Dispatcher.dispatch(new SetPOIs(pois))
         } else {
             console.warn(
-                'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult)
+                'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult),
             )
         }
     }
@@ -204,11 +204,11 @@ export class AddressParseResult {
             { k: 'poi_education', q: ['amenity=school', 'building=school', 'building=university'], i: 'school' },
 
             { k: 'poi_fast_food', q: ['amenity=fast_food'], i: 'restaurant' },
-            { k: 'poi_food_burger', q: ['cuisine=burger', 'name~burger'], i: 'restaurant' },
+            { k: 'poi_food_burger', q: ['cuisine=burger', 'name~burger', 'cuisine=american', 'origin=american'], i: 'restaurant' },
             { k: 'poi_food_kebab', q: ['cuisine=kebab', 'name~kebab'], i: 'restaurant' },
-            { k: 'poi_food_pizza', q: ['cuisine=pizza', 'name~pizza'], i: 'restaurant' },
+            { k: 'poi_food_pizza', q: ['cuisine=pizza', 'name~pizza', 'cuisine=italian', 'origin=italian'], i: 'restaurant' },
             { k: 'poi_food_sandwich', q: ['cuisine=sandwich', 'name~sandwich'], i: 'restaurant' },
-            { k: 'poi_food_sushi', q: ['cuisine=sushi', 'name~sushi'], i: 'restaurant' },
+            { k: 'poi_food_sushi', q: ['cuisine=sushi', 'name~sushi', 'cuisine=japanese', 'origin=japanese'], i: 'restaurant' },
             { k: 'poi_food_chicken', q: ['cuisine=chicken', 'name~chicken'], i: 'restaurant' },
 
             { k: 'poi_gas_station', q: ['amenity=fuel'], i: 'local_gas_station' },
@@ -272,7 +272,7 @@ export class AddressParseResult {
                         if (kv.length > 1) return new POIPhrase(kv[0], '~', kv[1], true)
                         kv = v.split('=')
                         return new POIPhrase(kv[0], '=', kv[1], false)
-                    })
+                    }),
                 )
             })
             return {

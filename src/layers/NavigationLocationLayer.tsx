@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Feature, Map } from 'ol'
 import { Point } from 'ol/geom'
 import { fromLonLat } from 'ol/proj'
@@ -12,7 +12,7 @@ import { getCurrentBackgroundLayers } from '@/layers/UseBackgroundLayer'
 
 // This class renders just the arrow on the current location. The map rotation is done elsewhere and the arrow will
 // always point to north.
-export default function useCurrentLocationLayer(map: Map, turnNavigation: TurnNavigationStoreState) {
+export default function useNavigationLocationLayer(map: Map, turnNavigation: TurnNavigationStoreState) {
     const point = new Point(fromLonLat([turnNavigation.coordinate.lng, turnNavigation.coordinate.lat]))
     const feature = new Feature({ geometry: point })
     // Synchronize the position of the view animation (see MapActionReceiver) with the arrow via the "postrender" event.

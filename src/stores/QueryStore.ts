@@ -145,7 +145,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                         type: type,
                         id: this.state.nextQueryPointId + index,
                     }
-                }
+                },
             )
 
             const newState = {
@@ -215,7 +215,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     queryPoints: queryPoints,
                     nextQueryPointId: nextId,
                 },
-                true
+                true,
             )
         } else if (action instanceof RemovePoint) {
             const newPoints = state.queryPoints
@@ -247,7 +247,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     profiles,
                     routingProfile: profile,
                 },
-                true
+                true,
             )
         } else if (action instanceof SetVehicleProfileGroup) {
             let prevProfile = this.state.memorizedProfilePerGroup[action.group]
@@ -292,7 +292,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
     private static handleFinishedRequest(
         state: QueryStoreState,
-        action: RouteRequestSuccess | RouteRequestFailed
+        action: RouteRequestSuccess | RouteRequestFailed,
     ): QueryStoreState {
         const newState = action instanceof RouteRequestSuccess ? RequestState.SUCCESS : RequestState.FAILED
         const newSubrequests = QueryStore.replaceSubRequest(state.currentRequest.subRequests, action.request, newState)
@@ -308,7 +308,7 @@ export default class QueryStore extends Store<QueryStoreState> {
     private routeIfReady(state: QueryStoreState, zoom: boolean): QueryStoreState {
         if (QueryStore.isReadyToRoute(state)) {
             let requests
-            const maxDistance = getMaxDistance(state.queryPoints)
+            const maxDistance = getMaxDistance(state.queryPoints.map(qp => qp.coordinate))
             if (state.customModelEnabled) {
                 if (maxDistance < 200_000) {
                     // Use a single request, possibly including alternatives when custom models are enabled.
@@ -330,8 +330,8 @@ export default class QueryStore extends Store<QueryStoreState> {
                                 'possible when the request points are further than ' +
                                 // todo: use settings#showDistanceInMiles, but not sure how to use state from another store here
                                 metersToText(700_000, false) +
-                                ' apart.'
-                        )
+                                ' apart.',
+                        ),
                     )
                     return state
                 }
@@ -408,7 +408,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return replace(
             points,
             p => p.id === point.id,
-            () => point
+            () => point,
         )
     }
 
@@ -418,7 +418,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             r => r.args === args,
             r => {
                 return { ...r, state }
-            }
+            },
         )
     }
 
@@ -442,7 +442,7 @@ export default class QueryStore extends Store<QueryStoreState> {
     private static buildRouteRequest(state: QueryStoreState): RoutingArgs {
         const coordinates = state.queryPoints.map(point => [point.coordinate.lng, point.coordinate.lat]) as [
             number,
-            number
+            number,
         ][]
 
         let customModel = null
@@ -482,10 +482,10 @@ function replace<T>(array: T[], compare: { (element: T): boolean }, provider: { 
     return result
 }
 
-function getMaxDistance(queryPoints: QueryPoint[]): number {
+export function getMaxDistance(coordinates: Coordinate[]): number {
     let max = 0
-    for (let idx = 1; idx < queryPoints.length; idx++) {
-        const dist = calcDist(queryPoints[idx - 1].coordinate, queryPoints[idx].coordinate)
+    for (let idx = 1; idx < coordinates.length; idx++) {
+        const dist = calcDist(coordinates[idx - 1], coordinates[idx])
         max = Math.max(dist, max)
     }
     return max

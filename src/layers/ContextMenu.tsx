@@ -37,9 +37,11 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
         map.addOverlay(overlay)
 
         const longTouchHandler = new LongTouchHandler(e => openContextMenu(e))
-
+        const handleTouchStart = (e: any) => longTouchHandler.onTouchStart(e)
+        const handleTouchMove = () => longTouchHandler.onTouchEnd()
+        const handleTouchEnd = () => longTouchHandler.onTouchEnd()
         function onMapTargetChange() {
-            // it is important to setup new listeners whenever the map target changes, like when we switch between the
+            // it is important to set up new listeners whenever the map target changes, like when we switch between the
             // small and large screen layout, see #203
 
             // we cannot listen to right-click simply using map.on('contextmenu') and need to add the listener to
@@ -47,9 +49,9 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             // https://github.com/openlayers/openlayers/issues/12512#issuecomment-879403189
             map.getTargetElement().addEventListener('contextmenu', openContextMenu)
 
-            map.getTargetElement().addEventListener('touchstart', e => longTouchHandler.onTouchStart(e))
-            map.getTargetElement().addEventListener('touchmove', () => longTouchHandler.onTouchEnd())
-            map.getTargetElement().addEventListener('touchend', () => longTouchHandler.onTouchEnd())
+            map.getTargetElement().addEventListener('touchstart', handleTouchStart)
+            map.getTargetElement().addEventListener('touchmove', handleTouchMove)
+            map.getTargetElement().addEventListener('touchend', handleTouchEnd)
 
             map.getTargetElement().addEventListener('click', closeContextMenu)
         }
@@ -57,6 +59,11 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 
         return () => {
             map.getTargetElement().removeEventListener('contextmenu', openContextMenu)
+
+            map.getTargetElement().removeEventListener('touchstart', handleTouchStart)
+            map.getTargetElement().removeEventListener('touchmove', handleTouchMove)
+            map.getTargetElement().removeEventListener('touchend', handleTouchEnd)
+
             map.getTargetElement().removeEventListener('click', closeContextMenu)
             map.removeOverlay(overlay)
             map.un('change:target', onMapTargetChange)

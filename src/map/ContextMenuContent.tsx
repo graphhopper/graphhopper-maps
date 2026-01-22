@@ -3,7 +3,7 @@ import { coordinateToText } from '@/Converters'
 import styles from './ContextMenuContent.module.css'
 import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, SetPoint, ZoomMapToPoint } from '@/actions/Actions'
+import { AddPoint, SetPoint, MoveMapToPoint } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import { tr } from '@/translation/Translation'
@@ -36,8 +36,8 @@ export function ContextMenuContent({
                     queryText: coordinateToText(coordinate),
                     isInitialized: true,
                 },
-                false
-            )
+                false,
+            ),
         )
     }
 
@@ -143,7 +143,7 @@ export function ContextMenuContent({
                 className={styles.entry}
                 onClick={() => {
                     onSelect()
-                    Dispatcher.dispatch(new ZoomMapToPoint(coordinate))
+                    Dispatcher.dispatch(new MoveMapToPoint(coordinate))
                 }}
             >
                 {tr('center_map')}
@@ -155,7 +155,7 @@ export function ContextMenuContent({
                     window.open(
                         `https://www.openstreetmap.org/query?lat=${coordinate.lat}&lon=${coordinate.lng}`,
                         '_blank',
-                        'noopener,noreferrer'
+                        'noopener,noreferrer',
                     )
                 }}
             >

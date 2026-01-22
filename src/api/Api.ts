@@ -18,7 +18,7 @@ import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
 import { POIQuery } from '@/pois/AddressParseResult'
-import { Coordinate } from '@/utils'
+import { getMaxDistance } from '@/stores/QueryStore'
 
 interface ApiProfile {
     name: string
@@ -79,7 +79,7 @@ export class ApiImpl implements Api {
         } else {
             if (result.message) throw new Error(result.message)
             throw new Error(
-                'There has been an error. Server responded with ' + response.statusText + ' (' + response.status + ')'
+                'There has been an error. Server responded with ' + response.statusText + ' (' + response.status + ')',
             )
         }
     }
@@ -87,7 +87,7 @@ export class ApiImpl implements Api {
     async geocode(
         query: string,
         provider: string,
-        additionalOptions?: Record<string, string>
+        additionalOptions?: Record<string, string>,
     ): Promise<GeocodingResult> {
         if (!this.supportsGeocoding())
             return {
@@ -290,6 +290,12 @@ export class ApiImpl implements Api {
         if (config.request?.snapPreventions) request.snap_preventions = config.request?.snapPreventions
 
         if (args.customModel) {
+            const maxDist = getMaxDistance(args.points.map(point => ({ lat: point[1], lng: point[0] })))
+            // performance improvement for longer distances, but use with caution, as the heuristic result may deviate significantly from the optimum
+            if (maxDist > 250_000) request['astarbi.epsilon'] = 1.8
+            else if (maxDist > 150_000) request['astarbi.epsilon'] = 1.6
+            else if (maxDist > 100_000) request['astarbi.epsilon'] = 1.4
+
             request.custom_model = args.customModel
             request['ch.disable'] = true
             request['timeout_ms'] = 10000

@@ -190,7 +190,7 @@ describe('NavBar', function () {
                 1,
                 null,
                 '',
-                expectedUrl + '&profile=&layer=OpenStreetMap'
+                expectedUrl + '&profile=&layer=OpenStreetMap',
             )
         })
 
@@ -202,8 +202,8 @@ describe('NavBar', function () {
                         ...queryStore.state.queryPoints[0],
                         isInitialized: true,
                     },
-                    true
-                )
+                    true,
+                ),
             )
 
             //act

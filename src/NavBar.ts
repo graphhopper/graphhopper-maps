@@ -175,7 +175,7 @@ export default class NavBar {
         return NavBar.createUrl(
             window.location.origin + window.location.pathname,
             this.queryStore.state,
-            this.mapStore.state
+            this.mapStore.state,
         ).toString()
     }
 }

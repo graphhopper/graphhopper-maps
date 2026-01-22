@@ -204,6 +204,14 @@
     color: black;
 }
 
+.redButton {
+    color: red !important;
+}
+
+.orangeButton {
+    color: orange !important;
+}
+
 .routeHintButton,
 .routeHintButton span {
     color: gray;

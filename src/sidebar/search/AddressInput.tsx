@@ -1,8 +1,7 @@
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { JSX, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Bbox, GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
 import Autocomplete, { AutocompleteItem, GeocodingItem, POIQueryItem } from '@/sidebar/search/AddressInputAutocomplete'
-
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import CurrentLocationIcon from './current-location.svg'
@@ -61,14 +60,14 @@ export default function AddressInput(props: AddressInputProps) {
                         obj.mainText,
                         obj.secondText,
                         hit.point,
-                        hit.extent ? hit.extent : getBBoxFromCoord(hit.point)
-                    )
+                        hit.extent ? hit.extent : getBBoxFromCoord(hit.point),
+                    ),
                 )
             })
 
             setOrigText(query)
             setAutocompleteItems(items)
-        })
+        }),
     )
 
     const [poiSearch] = useState(new ReverseGeocoder(getApi(), props.point, AddressParseResult.handleGeocodingResponse))
@@ -150,7 +149,7 @@ export default function AddressInput(props: AddressInputProps) {
                     break
             }
         },
-        [autocompleteItems, highlightedResult]
+        [autocompleteItems, highlightedResult],
     )
 
     // the "fullscreen" css is only defined for smallscreen
@@ -215,7 +214,7 @@ export default function AddressInput(props: AddressInputProps) {
                     }}
                     value={text}
                     placeholder={tr(
-                        type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint'
+                        type == QueryPointType.From ? 'from_hint' : type == QueryPointType.To ? 'to_hint' : 'via_hint',
                     )}
                 />
 
@@ -323,7 +322,7 @@ function calculateHighlightedIndex(length: number, currentIndex: number, increme
  */
 class Geocoder {
     private requestId = 0
-    private readonly timeout = new Timout(200)
+    private readonly timeout = new Timout(100)
     private readonly api: Api
     private readonly onSuccess: (query: string, provider: string, hits: GeocodingHit[]) => void
 
@@ -384,14 +383,14 @@ export class ReverseGeocoder {
     private readonly onSuccess: (
         hits: ReverseGeocodingHit[],
         parseResult: AddressParseResult,
-        queryPoint: QueryPoint
+        queryPoint: QueryPoint,
     ) => void
     private readonly queryPoint: QueryPoint
 
     constructor(
         api: Api,
         queryPoint: QueryPoint,
-        onSuccess: (hits: ReverseGeocodingHit[], parseResult: AddressParseResult, queryPoint: QueryPoint) => void
+        onSuccess: (hits: ReverseGeocodingHit[], parseResult: AddressParseResult, queryPoint: QueryPoint) => void,
     ) {
         this.api = api
         this.onSuccess = onSuccess

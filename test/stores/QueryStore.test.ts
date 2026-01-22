@@ -60,7 +60,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     throw Error('not expected')
-                })
+                }),
             )
             const point: QueryPoint = {
                 ...store.state.queryPoints[0],
@@ -146,7 +146,7 @@ describe('QueryStore', () => {
             const newState = store.reduce(state, new InvalidatePoint(point))
 
             expect(
-                newState.queryPoints.filter(p => p.id === point.id).every(point => !point.isInitialized)
+                newState.queryPoints.filter(p => p.id === point.id).every(point => !point.isInitialized),
             ).toBeTruthy()
             expect(newState.queryPoints.filter(p => p.id !== point.id).every(point => point.isInitialized)).toBeTruthy()
         })
@@ -176,7 +176,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     counter++
-                })
+                }),
             )
             const newPointId = store.state.nextQueryPointId
             const atIndex = 1
@@ -192,7 +192,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     counter++
-                })
+                }),
             )
             const newPointId = store.state.nextQueryPointId
             const atIndex = 1
@@ -216,7 +216,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     counter++
-                })
+                }),
             )
 
             const initializedPoints = store.state.queryPoints.map(p => ({ ...p, isInitialized: true }))
@@ -236,7 +236,7 @@ describe('QueryStore', () => {
 
             expect(lastState.queryPoints.length).toEqual(2)
             expect(
-                lastState.queryPoints.every((p, i) => isCorrectType(p, i, lastState.queryPoints.length))
+                lastState.queryPoints.every((p, i) => isCorrectType(p, i, lastState.queryPoints.length)),
             ).toBeTruthy()
             expect(counter).toEqual(1)
         })
@@ -246,7 +246,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     fail('no routing request when profile was already set.')
-                })
+                }),
             )
 
             const profile = 'some-profile'
@@ -265,7 +265,7 @@ describe('QueryStore', () => {
                     version: '',
                     bbox: [0, 0, 0, 0],
                     encoded_values: [],
-                })
+                }),
             )
 
             expect(newState).toEqual({
@@ -285,7 +285,7 @@ describe('QueryStore', () => {
                 new ApiMock(args => {
                     expect(args.profile).toEqual(expectedProfile.name)
                     routingRequestWasIssued = true
-                })
+                }),
             )
             let state: QueryStoreState = store.state
 
@@ -297,8 +297,8 @@ describe('QueryStore', () => {
                         ...state.queryPoints[0],
                         isInitialized: true,
                     },
-                    true
-                )
+                    true,
+                ),
             )
             state = store.reduce(
                 state,
@@ -307,8 +307,8 @@ describe('QueryStore', () => {
                         ...state.queryPoints[1],
                         isInitialized: true,
                     },
-                    true
-                )
+                    true,
+                ),
             )
             state = store.reduce(
                 state,
@@ -318,7 +318,7 @@ describe('QueryStore', () => {
                     version: '',
                     bbox: [0, 0, 0, 0],
                     encoded_values: [],
-                })
+                }),
             )
 
             expect(state.routingProfile).toEqual(expectedProfile)
@@ -366,7 +366,7 @@ describe('QueryStore', () => {
                 new RouteRequestSuccess(routingArgs, true, {
                     info: { took: 1, road_data_timestamp: '', copyright: [] } as RoutingResultInfo,
                     paths: [],
-                })
+                }),
             )
 
             expect(newState.currentRequest.subRequests[0].state).toEqual(RequestState.SUCCESS)

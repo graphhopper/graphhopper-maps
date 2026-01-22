@@ -26,7 +26,7 @@ export default function PathDetailPopup({ map, pathDetails }: PathDetailPopupPro
                         {metersToText(
                             Math.round(pathDetails.pathDetailsPoint.elevation),
                             settings.showDistanceInMiles,
-                            true
+                            true,
                         )}
                         <br />
                         {pathDetails.pathDetailsPoint!.description}

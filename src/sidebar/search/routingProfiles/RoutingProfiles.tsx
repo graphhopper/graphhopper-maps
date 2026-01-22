@@ -104,7 +104,7 @@ export default function ({
                 <ul className={styles.profiles} id="profiles_carousel_items" onScroll={onScroll}>
                     {routingProfiles
                         .filter(
-                            profile => !profileToGroup[profile.name] || profile.name == profileToGroup[profile.name]
+                            profile => !profileToGroup[profile.name] || profile.name == profileToGroup[profile.name],
                         )
                         .map(profile => {
                             const isProfileSelected =
@@ -121,7 +121,7 @@ export default function ({
                                             Dispatcher.dispatch(
                                                 profileToGroup[profile.name]
                                                     ? new SetVehicleProfileGroup(profileToGroup[profile.name])
-                                                    : new SetVehicleProfile(profile)
+                                                    : new SetVehicleProfile(profile),
                                             )
                                         }
                                         className={className}

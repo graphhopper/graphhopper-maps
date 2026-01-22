@@ -1,10 +1,8 @@
 import { Feature, Map } from 'ol'
 import { Path } from '@/api/graphhopper'
-import { FeatureCollection } from 'geojson'
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { GeoJSON } from 'ol/format'
 import { Stroke, Style } from 'ol/style'
 import { fromLonLat } from 'ol/proj'
 import { Select } from 'ol/interaction'
@@ -24,26 +22,50 @@ const accessNetworkLayerKey = 'accessNetworkLayer'
 
 export default function usePathsLayer(
     map: Map,
-    route: RouteStoreState,
+    paths: Path[],
+    selectedPath: Path,
     queryPoints: QueryPoint[],
     turnNavigation: TurnNavigationStoreState
 ) {
+    const [showPaths, setShowPaths] = useState(true)
+
     useEffect(() => {
         removeCurrentPathLayers(map)
         if (turnNavigation.showUI && turnNavigation.activePath) {
             addSelectedPathsLayer(map, turnNavigation.activePath, true)
         } else {
-            addUnselectedPathsLayer(
-                map,
-                route.routingResult.paths.filter(p => p != route.selectedPath)
-            )
-            addSelectedPathsLayer(map, route.selectedPath, false)
-            addAccessNetworkLayer(map, route.selectedPath, queryPoints)
+            if (showPaths) {
+                addUnselectedPathsLayer(map, paths.filter(p => p != selectedPath))
+                addSelectedPathsLayer(map, selectedPath, false)
+                addAccessNetworkLayer(map, selectedPath, queryPoints)
+            }
         }
         return () => {
             removeCurrentPathLayers(map)
         }
-    }, [map, route.routingResult.paths, route.selectedPath, turnNavigation.showUI, turnNavigation.activePath])
+    }, [map, paths, selectedPath, turnNavigation.showUI, turnNavigation.activePath])
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'h') setShowPaths(false)
+        }
+
+        const handleKeyUp = (e: KeyboardEvent) => {
+            if (e.key === 'h') setShowPaths(true)
+        }
+
+        const viewport = map.getViewport()
+        if (!viewport) return
+
+        viewport.tabIndex = -1 // Make element focusable but not in tab order
+
+        viewport.addEventListener('keydown', handleKeyDown)
+        viewport.addEventListener('keyup', handleKeyUp)
+        return () => {
+            viewport.removeEventListener('keydown', handleKeyDown)
+            viewport.removeEventListener('keyup', handleKeyUp)
+        }
+    }, []) // run only once when component is initialized
 }
 
 function removeCurrentPathLayers(map: Map) {
@@ -144,6 +166,7 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
     })
     layer.setStyle(style)
     for (let i = 0; i < selectedPath.snapped_waypoints.coordinates.length; i++) {
+        if (i >= queryPoints.length) break // can happen if deleted too fast
         const start = fromLonLat([queryPoints[i].coordinate.lng, queryPoints[i].coordinate.lat])
         const end = fromLonLat(selectedPath.snapped_waypoints.coordinates[i])
         layer.getSource()?.addFeature(new Feature(createBezierLineString(start, end)))
