@@ -29,18 +29,13 @@ export default class MapLibreLayer extends Layer {
         container.style.width = '100%'
         container.style.height = '100%'
 
-        this.maplibreMap = new maplibregl.Map(
-            Object.assign(
-                {},
-                { style: style },
-                {
-                    container: container,
-                    attributionControl: false,
-                    interactive: false,
-                    trackResize: false,
-                }
-            )
-        )
+        this.maplibreMap = new maplibregl.Map({
+            style: style,
+            container: container,
+            attributionControl: false,
+            interactive: false,
+            trackResize: false,
+        })
 
         this.applyOpacity_()
     }
