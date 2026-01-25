@@ -19,7 +19,6 @@ import {
     TurnNavigationStop,
 } from '@/actions/Actions'
 import Dispatcher, { Action } from '@/stores/Dispatcher'
-import NoSleep from '@/turnNavigation/nosleep.js'
 import Api, { ApiImpl } from '@/api/Api'
 import {
     calcDist,
@@ -96,7 +95,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private readonly api: Api
     private watchId: any = undefined
     private interval: any
-    private noSleep: NoSleep | null = null
+    private wakeLockSentinel: WakeLockSentinel | null = null;
     private readonly speechSynthesizer: SpeechSynthesizer
     private readonly cs: MapCoordinateSystem
     private readonly settingsStore: SettingsStore
@@ -596,7 +595,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             currentIndex++
         }, 1000)
 
-        this.doNoSleep()
+        await this.requestWakeLock()
     }
 
     private async createFixedPathFromAPICall() {
@@ -615,11 +614,29 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         return response.paths[0]
     }
 
-    private doNoSleep() {
-        if (!this.noSleep) this.noSleep = new NoSleep()
-        this.noSleep.enable().catch(err => {
-            console.warn("NoSleep.js couldn't be initialized: " + JSON.stringify(err))
-        })
+    private requestWakeLock() {
+        if (!navigator.wakeLock) return
+        navigator.wakeLock.request("screen")
+            .then((wakeLock: WakeLockSentinel) => {
+                this.wakeLockSentinel = wakeLock;
+                console.log("Wake Lock active.");
+            })
+            .catch((err: any) => {
+                console.error(`${err.name}, ${err.message}`);
+                throw err;
+            });
+    }
+
+    private releaseWakeLock() {
+        if (!this.wakeLockSentinel) return
+        this.wakeLockSentinel.release()
+            .then(() => {
+                this.wakeLockSentinel = null;
+                console.log("Wake Lock released.");
+            })
+            .catch((err) => {
+                console.error("Failed to release Wake Lock:", err.name, err.message);
+            });
     }
 
     private locationUpdate(pos: any) {
@@ -659,7 +676,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             )
 
             // initialize and enable after potential fullscreen change
-            this.doNoSleep()
+            this.requestWakeLock();
         }
     }
 
@@ -671,6 +688,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
         if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
-        if (this.noSleep) this.noSleep.disable()
+        if (this.wakeLockSentinel) this.releaseWakeLock()
     }
 }
