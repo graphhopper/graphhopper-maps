@@ -609,12 +609,14 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private requestFullscreen() {
-        (document.documentElement as any).requestFullscreen?.()
-            .then(() => console.log('requestFullscreen'))
-            .catch((err: any) => {
-                console.error(`${err.name}, ${err.message}`);
-                throw err;
-            });
+        // let's note do this. we cover the address bar to get space which is nice but we'll also cover the status bar
+        // if a user wants to avoid the address bar he can always install the app in the homescreen
+        // (document.documentElement as any).requestFullscreen?.()
+        //     .then(() => console.log('requestFullscreen'))
+        //     .catch((err: any) => {
+        //         console.error(`${err.name}, ${err.message}`);
+        //         throw err;
+        //     });
     }
 
     private requestWakeLock() {
