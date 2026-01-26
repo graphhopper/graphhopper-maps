@@ -609,8 +609,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private requestFullscreen() {
-        (document.documentElement as any).requestFullscreen?.() ||
-        (document.documentElement as any).webkitRequestFullscreen?.()
+        (document.documentElement as any).requestFullscreen?.()
             .then(() => console.log('requestFullscreen'))
             .catch((err: any) => {
                 console.error(`${err.name}, ${err.message}`);
