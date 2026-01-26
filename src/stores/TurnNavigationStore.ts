@@ -18,9 +18,8 @@ import {
     TurnNavigationStart,
     TurnNavigationStop,
 } from '@/actions/Actions'
-import Dispatcher, { Action } from '@/stores/Dispatcher'
-import NoSleep from '@/turnNavigation/nosleep.js'
-import Api, { ApiImpl } from '@/api/Api'
+import Dispatcher, {Action} from '@/stores/Dispatcher'
+import Api, {ApiImpl} from '@/api/Api'
 import {
     calcDist,
     calcOrientation,
@@ -29,13 +28,13 @@ import {
     toDegrees,
     toNorthBased,
 } from '@/turnNavigation/GeoMethods'
-import { Instruction, Path, RoutingArgs } from '@/api/graphhopper'
-import { tr } from '@/translation/Translation'
-import { SpeechSynthesizer } from '@/SpeechSynthesizer'
-import { Pixel } from 'ol/pixel'
+import {Instruction, Path, RoutingArgs} from '@/api/graphhopper'
+import {tr} from '@/translation/Translation'
+import {SpeechSynthesizer} from '@/SpeechSynthesizer'
+import {Pixel} from 'ol/pixel'
 import SettingsStore from '@/stores/SettingsStore'
-import { meterToFt, meterToMiles } from '@/Converters'
-import { Coordinate } from '@/utils'
+import {meterToFt, meterToMiles} from '@/Converters'
+import {Coordinate} from '@/utils'
 
 export interface TurnNavigationStoreState {
     // TODO replace "showUI" with a composite state depending on activePath, coordinate and instruction
@@ -96,7 +95,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private readonly api: Api
     private watchId: any = undefined
     private interval: any
-    private noSleep: NoSleep | null = null
+    private wakeLockSentinel: WakeLockSentinel | null = null;
     private readonly speechSynthesizer: SpeechSynthesizer
     private readonly cs: MapCoordinateSystem
     private readonly settingsStore: SettingsStore
@@ -131,7 +130,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 syncView: true,
                 soundEnabled: Number.isNaN(fakeGPSDelta),
                 forceVectorTiles: true,
-                fullScreen: true,
+                fullScreen: false,
             } as TNSettingsState,
             instruction: {} as TNInstructionState,
             thenInstructionSign: null,
@@ -495,13 +494,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
     private async initFake() {
         if (this.state.settings.fullScreen)
-            try {
-                let el = document.documentElement
-                let requestFullscreenFct = el.requestFullscreen
-                requestFullscreenFct.call(el)
-            } catch (e) {
-                console.log('error requesting full screen ' + JSON.stringify(e))
-            }
+            this.requestFullscreen()
 
         console.log('started fake GPS injection')
 
@@ -596,7 +589,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             currentIndex++
         }, 1000)
 
-        this.doNoSleep()
+        this.requestWakeLock()
     }
 
     private async createFixedPathFromAPICall() {
@@ -615,11 +608,38 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         return response.paths[0]
     }
 
-    private doNoSleep() {
-        if (!this.noSleep) this.noSleep = new NoSleep()
-        this.noSleep.enable().catch(err => {
-            console.warn("NoSleep.js couldn't be initialized: " + JSON.stringify(err))
-        })
+    private requestFullscreen() {
+        (document.documentElement as any).requestFullscreen?.()
+            .then(() => console.log('requestFullscreen'))
+            .catch((err: any) => {
+                console.error(`${err.name}, ${err.message}`);
+                throw err;
+            });
+    }
+
+    private requestWakeLock() {
+        if (!navigator.wakeLock) return
+        navigator.wakeLock.request("screen")
+            .then((wakeLock: WakeLockSentinel) => {
+                this.wakeLockSentinel = wakeLock;
+                console.log("Wake Lock active.");
+            })
+            .catch((err: any) => {
+                console.error(`${err.name}, ${err.message}`);
+                throw err;
+            });
+    }
+
+    private releaseWakeLock() {
+        if (!this.wakeLockSentinel) return
+        this.wakeLockSentinel.release()
+            .then(() => {
+                this.wakeLockSentinel = null;
+                console.log("Wake Lock released.");
+            })
+            .catch((err) => {
+                console.error("Failed to release Wake Lock:", err.name, err.message);
+            });
     }
 
     private locationUpdate(pos: any) {
@@ -636,13 +656,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
             if (this.state.settings.fullScreen)
-                try {
-                    let el = document.documentElement
-                    let requestFullscreenFct = el.requestFullscreen
-                    requestFullscreenFct.call(el)
-                } catch (e) {
-                    console.log('error requesting full screen ' + JSON.stringify(e))
-                }
+                this.requestFullscreen()
 
             this.watchId = navigator.geolocation.watchPosition(
                 this.locationUpdate.bind(this),
@@ -659,7 +673,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             )
 
             // initialize and enable after potential fullscreen change
-            this.doNoSleep()
+            this.requestWakeLock();
         }
     }
 
@@ -671,6 +685,6 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
         if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
-        if (this.noSleep) this.noSleep.disable()
+        if (this.wakeLockSentinel) this.releaseWakeLock()
     }
 }
