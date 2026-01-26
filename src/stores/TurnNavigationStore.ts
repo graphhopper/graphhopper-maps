@@ -18,8 +18,8 @@ import {
     TurnNavigationStart,
     TurnNavigationStop,
 } from '@/actions/Actions'
-import Dispatcher, { Action } from '@/stores/Dispatcher'
-import Api, { ApiImpl } from '@/api/Api'
+import Dispatcher, {Action} from '@/stores/Dispatcher'
+import Api, {ApiImpl} from '@/api/Api'
 import {
     calcDist,
     calcOrientation,
@@ -28,13 +28,13 @@ import {
     toDegrees,
     toNorthBased,
 } from '@/turnNavigation/GeoMethods'
-import { Instruction, Path, RoutingArgs } from '@/api/graphhopper'
-import { tr } from '@/translation/Translation'
-import { SpeechSynthesizer } from '@/SpeechSynthesizer'
-import { Pixel } from 'ol/pixel'
+import {Instruction, Path, RoutingArgs} from '@/api/graphhopper'
+import {tr} from '@/translation/Translation'
+import {SpeechSynthesizer} from '@/SpeechSynthesizer'
+import {Pixel} from 'ol/pixel'
 import SettingsStore from '@/stores/SettingsStore'
-import { meterToFt, meterToMiles } from '@/Converters'
-import { Coordinate } from '@/utils'
+import {meterToFt, meterToMiles} from '@/Converters'
+import {Coordinate} from '@/utils'
 
 export interface TurnNavigationStoreState {
     // TODO replace "showUI" with a composite state depending on activePath, coordinate and instruction
@@ -130,7 +130,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 syncView: true,
                 soundEnabled: Number.isNaN(fakeGPSDelta),
                 forceVectorTiles: true,
-                fullScreen: true,
+                fullScreen: false,
             } as TNSettingsState,
             instruction: {} as TNInstructionState,
             thenInstructionSign: null,
@@ -609,14 +609,12 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private requestFullscreen() {
-        // let's note do this. we cover the address bar to get space which is nice but we'll also cover the status bar
-        // if a user wants to avoid the address bar he can always install the app in the homescreen
-        // (document.documentElement as any).requestFullscreen?.()
-        //     .then(() => console.log('requestFullscreen'))
-        //     .catch((err: any) => {
-        //         console.error(`${err.name}, ${err.message}`);
-        //         throw err;
-        //     });
+        (document.documentElement as any).requestFullscreen?.()
+            .then(() => console.log('requestFullscreen'))
+            .catch((err: any) => {
+                console.error(`${err.name}, ${err.message}`);
+                throw err;
+            });
     }
 
     private requestWakeLock() {
