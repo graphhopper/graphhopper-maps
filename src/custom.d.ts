@@ -4,6 +4,10 @@ declare module '*.png'
 declare module 'heightgraph/src/heightgraph'
 declare module 'custom-model-editor/src/index'
 
+interface Window {
+    ghSaveFile: ({ fileName: string, mimeType: string, fileContents: xmlString }) => Promise<any>
+}
+
 declare module 'config' {
     interface ProfileGroup {
         readonly options: { profile: string }[]
@@ -12,6 +16,7 @@ declare module 'config' {
     const routingApi: string
     const geocodingApi: string
     const defaultTiles: string
+    const navigationTiles: string
     const keys: {
         graphhopper: string
         omniscale: string

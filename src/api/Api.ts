@@ -301,6 +301,14 @@ export class ApiImpl implements Api {
             request['timeout_ms'] = 10000
         }
 
+        if (args.heading) {
+            // for navigation we use heading => we have to disable CH
+            request['ch.disable'] = true
+            request.headings = [args.heading]
+            request.heading_penalty = 120
+            request['timeout_ms'] = 10000
+        }
+
         if (
             args.points.length <= 2 &&
             args.maxAlternativeRoutes > 1 &&
@@ -344,7 +352,7 @@ export class ApiImpl implements Api {
         }
     }
 
-    private static decodeResult(result: RawResult, is3D: boolean) {
+    public static decodeResult(result: RawResult, is3D: boolean) {
         return result.paths
             .map((path: RawPath) => {
                 return {
