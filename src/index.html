@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
         <meta name="description" content="Open source routes, driving directions and browser-based GPS navigation" />
         <meta
             name="keywords"
@@ -34,6 +34,7 @@
 
             body {
                 min-height: 100%;
+                padding-top: env(safe-area-inset-top, 0);
             }
 
             ul {
