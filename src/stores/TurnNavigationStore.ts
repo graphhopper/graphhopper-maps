@@ -494,13 +494,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
     private async initFake() {
         if (this.state.settings.fullScreen)
-            try {
-                let el = document.documentElement
-                let requestFullscreenFct = el.requestFullscreen
-                requestFullscreenFct.call(el)
-            } catch (e) {
-                console.log('error requesting full screen ' + JSON.stringify(e))
-            }
+            this.requestFullscreen()
 
         console.log('started fake GPS injection')
 
@@ -595,7 +589,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             currentIndex++
         }, 1000)
 
-        await this.requestWakeLock()
+        this.requestWakeLock()
     }
 
     private async createFixedPathFromAPICall() {
@@ -612,6 +606,16 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         })
 
         return response.paths[0]
+    }
+
+    private requestFullscreen() {
+        (document.documentElement as any).requestFullscreen?.() ||
+        (document.documentElement as any).webkitRequestFullscreen?.()
+            .then(() => console.log('requestFullscreen'))
+            .catch((err: any) => {
+                console.error(`${err.name}, ${err.message}`);
+                throw err;
+            });
     }
 
     private requestWakeLock() {
@@ -653,13 +657,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
             if (this.state.settings.fullScreen)
-                try {
-                    let el = document.documentElement
-                    let requestFullscreenFct = el.requestFullscreen
-                    requestFullscreenFct.call(el)
-                } catch (e) {
-                    console.log('error requesting full screen ' + JSON.stringify(e))
-                }
+                this.requestFullscreen()
 
             this.watchId = navigator.geolocation.watchPosition(
                 this.locationUpdate.bind(this),
