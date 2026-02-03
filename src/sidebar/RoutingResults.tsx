@@ -7,13 +7,15 @@ import { PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/action
 import { metersToShortText, metersToTextForFile, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
+import NaviSVG from '@/sidebar/navigation.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
+import Cross from '@/sidebar/times-solid.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
 import { LineString, Position } from 'geojson'
 import { calcDist, Coordinate, getBBoxFromCoord } from '@/utils'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
-import { ApiImpl } from '@/api/Api'
+import { ApiImpl, getApi } from '@/api/Api'
 import FordIcon from '@/sidebar/routeHints/water.svg'
 import CondAccessIcon from '@/sidebar/routeHints/remove_road.svg'
 import FerryIcon from '@/sidebar/routeHints/directions_boat.svg'
@@ -67,6 +69,8 @@ function RoutingResult({
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
     const settings = useContext(SettingsContext)
     const showDistanceInMiles = settings.showDistanceInMiles
+    const [showViaWarning, setShowViaWarning] = useState(false)
+    const [showNativeWarning, setShowNativeWarning] = useState(false)
 
     const fordInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ford')
     const tollInfo = getInfoFor(
@@ -145,6 +149,51 @@ function RoutingResult({
         dangerousHikeRatingInfo.distance > 0 ||
         steepInfo.distance > 0
 
+    // Check if native navigation is available
+    const nativeNavigation = (window as any).ghNativeNavigation ?? null
+
+    if (showViaWarning)
+        return (
+            <div className={styles.showRiskButtons}>
+                <div className={styles.showRiskAccept}>
+                    <div>{tr('via_not_supported')}</div>
+                </div>
+                <PlainButton className={styles.showRiskBack} onClick={() => setShowViaWarning(false)}>
+                    <Cross />
+                </PlainButton>
+            </div>
+        )
+
+    if (showNativeWarning)
+        return (
+            <div className={styles.showRiskButtons}>
+                <div className={styles.showRiskAccept}>
+                    <div>{tr('warning')}</div>
+                    <PlainButton
+                        onClick={() => {
+                            if (path.snapped_waypoints.coordinates.length > 2) {
+                                setShowNativeWarning(false)
+                                setShowViaWarning(true)
+                                return
+                            }
+                            nativeNavigation.start(
+                                path,
+                                getApi().createURLWithKey('navigate').toString(),
+                                profile,
+                                () => {}
+                            )
+                            setShowNativeWarning(false)
+                        }}
+                    >
+                        {tr('accept_risks_after_warning')}
+                    </PlainButton>
+                </div>
+                <PlainButton className={styles.showRiskBack} onClick={() => setShowNativeWarning(false)}>
+                    <Cross />
+                </PlainButton>
+            </div>
+        )
+
     return (
         <div className={styles.resultRow}>
             <div className={styles.resultSelectableArea} onClick={() => Dispatcher.dispatch(new SetSelectedPath(path))}>
@@ -170,6 +219,15 @@ function RoutingResult({
                             </span>
                         )}
                     </div>
+                    {isSelected && nativeNavigation && (
+                        <PlainButton
+                            className={styles.exportButton}
+                            onClick={() => setShowNativeWarning(true)}
+                        >
+                            <NaviSVG />
+                            <div>{tr('start_navigation')}</div>
+                        </PlainButton>
+                    )}
                     {isSelected && (
                         <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path, settings)}>
                             <GPXDownload />

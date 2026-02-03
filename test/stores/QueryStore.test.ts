@@ -52,6 +52,10 @@ class ApiMock implements Api {
     supportsGeocoding(): boolean {
         return false
     }
+
+    createURLWithKey(endpoint: string): URL {
+        throw Error('not implemented')
+    }
 }
 
 describe('QueryStore', () => {

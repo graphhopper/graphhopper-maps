@@ -95,4 +95,8 @@ class DummyApi implements Api {
     supportsGeocoding(): boolean {
         return false
     }
+
+    createURLWithKey(endpoint: string): URL {
+        throw Error('not implemented')
+    }
 }

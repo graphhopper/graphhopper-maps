@@ -36,6 +36,8 @@ export default interface Api {
     reverseGeocode(query: POIQuery, bbox: Bbox): Promise<ReverseGeocodingHit[]>
 
     supportsGeocoding(): boolean
+
+    createURLWithKey(endpoint: string): URL
 }
 
 let api: Api | undefined
@@ -261,6 +263,10 @@ export class ApiImpl implements Api {
         const url = new URL(this.routingApi + endpoint)
         url.searchParams.append('key', this.apiKey)
         return url
+    }
+
+    public createURLWithKey(endpoint: string) {
+        return this.getRoutingURLWithKey(endpoint)
     }
 
     private getGeocodingURLWithKey(endpoint: string) {

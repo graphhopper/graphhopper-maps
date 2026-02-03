@@ -44,4 +44,8 @@ export default class DummyApi implements Api {
     supportsGeocoding(): boolean {
         return true
     }
+
+    createURLWithKey(endpoint: string): URL {
+        throw Error('not implemented')
+    }
 }
