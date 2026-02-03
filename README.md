@@ -4,7 +4,7 @@ A route planner user interface for the [GraphHopper routing engine](https://gith
 
 [Try it out](https://graphhopper.com/maps/)!
 
-We have developed an intuite and simple user interface to find routes:
+We have developed an intuitive and simple user interface to find routes:
 
 [![GraphHopper Maps route planner](https://www.graphhopper.com/wp-content/uploads/2025/06/graphhopper-maps-2025.png)](https://graphhopper.com/maps/)
 
