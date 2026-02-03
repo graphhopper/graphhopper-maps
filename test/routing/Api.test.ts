@@ -258,6 +258,7 @@ describe('route', () => {
     })
 
     it('should create an action when an error is received', async () => {
+        jest.spyOn(console, 'warn').mockImplementation(() => {})
         const args: RoutingArgs = {
             points: [
                 [0, 0],
