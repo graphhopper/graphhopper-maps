@@ -11,6 +11,7 @@ import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import CustomModelBox from '@/sidebar/CustomModelBox'
+import { TNSettingsState, TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import { Map } from 'ol'
 import { Coordinate } from '@/utils'
 import PlainButton from '@/PlainButton'
@@ -26,9 +27,18 @@ type MobileSidebarProps = {
     encodedValues: object[]
     drawAreas: boolean
     map: Map
+    turnNavigationSettings: TNSettingsState
 }
 
-export default function ({ query, route, error, encodedValues, drawAreas, map }: MobileSidebarProps) {
+export default function ({
+    query,
+    route,
+    error,
+    encodedValues,
+    drawAreas,
+    map,
+    turnNavigationSettings,
+}: MobileSidebarProps) {
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     // the following three elements control, whether the small search view is displayed
     const isShortScreen = useMediaQuery({ query: '(max-height: 55rem)' })
@@ -84,7 +94,12 @@ export default function ({ query, route, error, encodedValues, drawAreas, map }:
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} profile={query.routingProfile} map={map} />
+                        <Search
+                            points={query.queryPoints}
+                            profile={query.routingProfile}
+                            map={map}
+                            turnNavigationSettings={turnNavigationSettings}
+                        />
                     </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}

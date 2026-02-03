@@ -1,6 +1,6 @@
-import { GeocodingHit } from '@/api/graphhopper'
+import {GeocodingHit} from '@/api/graphhopper'
 
-import { Coordinate } from '@/utils'
+import {Coordinate} from '@/utils'
 
 export function milliSecondsToText(ms: number) {
     const hours = Math.floor(ms / 3600000)
@@ -12,7 +12,8 @@ export function milliSecondsToText(ms: number) {
     return (hourText ? hourText + ' ' : '') + minutes + ' min'
 }
 
-let distanceFormat: Intl.NumberFormat = new Intl.NumberFormat('en', { maximumFractionDigits: 1 })
+let distanceFormat: Intl.NumberFormat = new Intl.NumberFormat('en', {maximumFractionDigits: 1})
+
 export function setDistanceFormat(_distanceFormat: Intl.NumberFormat) {
     distanceFormat = _distanceFormat
 }
@@ -49,6 +50,22 @@ export function metersToShortText(meters: number, showDistanceInMiles: boolean) 
         if (meters < 100_000) return distanceFormat.format(meters / 1000) + 'km'
         return Math.round(meters / 1000) + 'km'
     }
+}
+
+export function kmToMPHIfMiles(value: number, showDistanceInMiles: boolean, roundTo10 = false) {
+    return showDistanceInMiles
+        ? roundTo10
+            ? Math.round(value / 1.60934 / 10.0) * 10
+            : Math.round(value / 1.60934)
+        : Math.round(value)
+}
+
+export function meterToFt(value: number) {
+    return value / 0.3048
+}
+
+export function meterToMiles(value: number) {
+    return value / 1609.34
 }
 
 export function hitToItem(hit: GeocodingHit) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import PathDetails from '@/pathDetails/PathDetails'
 import styles from './App.module.css'
 import {
@@ -11,6 +11,7 @@ import {
     getQueryStore,
     getRouteStore,
     getSettingsStore,
+    getTurnNavigationStore,
     getCurrentLocationStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
@@ -26,6 +27,7 @@ import { ErrorStoreState } from '@/stores/ErrorStore'
 import { CurrentLocationStoreState } from '@/stores/CurrentLocationStore'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
+import { TurnNavigationStoreState } from './stores/TurnNavigationStore'
 import useBackgroundLayer from '@/layers/UseBackgroundLayer'
 import useQueryPointsLayer from '@/layers/UseQueryPointsLayer'
 import usePathsLayer from '@/layers/UsePathsLayer'
@@ -38,10 +40,12 @@ import useRoutingGraphLayer from '@/layers/UseRoutingGraphLayer'
 import useUrbanDensityLayer from '@/layers/UseUrbanDensityLayer'
 import useMapBorderLayer from '@/layers/UseMapBorderLayer'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
+import PlainButton from '@/PlainButton'
+import TurnNavigation from '@/turnNavigation/TurnNavigation'
 import MapPopups from '@/map/MapPopups'
+import useNavigationLocationLayer from '@/layers/NavigationLocationLayer'
 import Menu from '@/sidebar/menu.svg'
 import Cross from '@/sidebar/times-solid.svg'
-import PlainButton from '@/PlainButton'
 import useAreasLayer from '@/layers/UseAreasLayer'
 import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
@@ -57,6 +61,7 @@ export default function App() {
     const [query, setQuery] = useState(getQueryStore().state)
     const [info, setInfo] = useState(getApiInfoStore().state)
     const [route, setRoute] = useState(getRouteStore().state)
+    const [turnNavigation, setTurnNavigation] = useState(getTurnNavigationStore().state)
     const [error, setError] = useState(getErrorStore().state)
     const [mapOptions, setMapOptions] = useState(getMapOptionsStore().state)
     const [pathDetails, setPathDetails] = useState(getPathDetailsStore().state)
@@ -73,6 +78,7 @@ export default function App() {
         const onRouteChanged = () => setRoute(getRouteStore().state)
         const onErrorChanged = () => setError(getErrorStore().state)
         const onMapOptionsChanged = () => setMapOptions(getMapOptionsStore().state)
+        const onTurnNavigationChanged = () => setTurnNavigation(getTurnNavigationStore().state)
         const onPathDetailsChanged = () => setPathDetails(getPathDetailsStore().state)
         const onMapFeaturesChanged = () => setMapFeatures(getMapFeatureStore().state)
         const onPOIsChanged = () => setPOIs(getPOIsStore().state)
@@ -84,6 +90,7 @@ export default function App() {
         getRouteStore().register(onRouteChanged)
         getErrorStore().register(onErrorChanged)
         getMapOptionsStore().register(onMapOptionsChanged)
+        getTurnNavigationStore().register(onTurnNavigationChanged)
         getPathDetailsStore().register(onPathDetailsChanged)
         getMapFeatureStore().register(onMapFeaturesChanged)
         getPOIsStore().register(onPOIsChanged)
@@ -94,6 +101,7 @@ export default function App() {
         onRouteChanged()
         onErrorChanged()
         onMapOptionsChanged()
+        onTurnNavigationChanged()
         onPathDetailsChanged()
         onMapFeaturesChanged()
         onPOIsChanged()
@@ -106,6 +114,7 @@ export default function App() {
             getRouteStore().deregister(onRouteChanged)
             getErrorStore().deregister(onErrorChanged)
             getMapOptionsStore().deregister(onMapOptionsChanged)
+            getTurnNavigationStore().deregister(onTurnNavigationChanged)
             getPathDetailsStore().deregister(onPathDetailsChanged)
             getMapFeatureStore().deregister(onMapFeaturesChanged)
             getPOIsStore().deregister(onPOIsChanged)
@@ -120,16 +129,17 @@ export default function App() {
     useAreasLayer(map, settings.drawAreasEnabled, query.customModelStr, query.customModelEnabled)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
-    usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints)
+    usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints, turnNavigation)
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails)
+    useNavigationLocationLayer(map, turnNavigation)
     usePOIsLayer(map, pois)
     useCurrentLocationLayer(map, currentLocation)
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
         <SettingsContext.Provider value={settings}>
-            <div className={styles.appWrapper}>
+            <div className={turnNavigation.showUI ? styles.appNaviWrapper : styles.appWrapper}>
                 <MapPopups
                     map={map}
                     pathDetails={pathDetails}
@@ -138,13 +148,21 @@ export default function App() {
                     query={query}
                 />
                 <ContextMenu map={map} route={route} queryPoints={query.queryPoints} />
-                {isSmallScreen ? (
+                {turnNavigation.showUI ? (
+                    <>
+                        <TurnNavigation turnNavigation={turnNavigation} />
+                        <div className={styles.map}>
+                            <MapComponent map={map} />
+                        </div>
+                    </>
+                ) : isSmallScreen ? (
                     <SmallScreenLayout
                         query={query}
                         route={route}
                         map={map}
                         mapOptions={mapOptions}
                         error={error}
+                        turnNavigation={turnNavigation}
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
@@ -156,6 +174,7 @@ export default function App() {
                         map={map}
                         mapOptions={mapOptions}
                         error={error}
+                        turnNavigation={turnNavigation}
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
@@ -175,6 +194,7 @@ interface LayoutProps {
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
+    turnNavigation: TurnNavigationStoreState
 }
 
 function LargeScreenLayout({
@@ -185,10 +205,12 @@ function LargeScreenLayout({
     mapOptions,
     encodedValues,
     drawAreas,
+    turnNavigation,
     currentLocation,
 }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
+
     return (
         <>
             {showSidebar ? (
@@ -213,7 +235,12 @@ function LargeScreenLayout({
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} profile={query.routingProfile} map={map} />
+                        <Search
+                            points={query.queryPoints}
+                            profile={query.routingProfile}
+                            map={map}
+                            turnNavigationSettings={turnNavigation.settings}
+                        />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>
                         <RoutingResults
                             info={route.routingResult.info}
@@ -221,6 +248,7 @@ function LargeScreenLayout({
                             selectedPath={route.selectedPath}
                             currentRequest={query.currentRequest}
                             profile={query.routingProfile.name}
+                            turnNavigation={turnNavigation}
                         />
                         <div>
                             <PoweredBy />
@@ -258,6 +286,7 @@ function SmallScreenLayout({
     mapOptions,
     encodedValues,
     drawAreas,
+    turnNavigation,
     currentLocation,
 }: LayoutProps) {
     return (
@@ -268,6 +297,7 @@ function SmallScreenLayout({
                     route={route}
                     error={error}
                     encodedValues={encodedValues}
+                    turnNavigationSettings={turnNavigation.settings}
                     drawAreas={drawAreas}
                     map={map}
                 />
@@ -281,7 +311,6 @@ function SmallScreenLayout({
                     <LocationButton currentLocation={currentLocation} />
                 </div>
             </div>
-
             <div className={styles.smallScreenRoutingResult}>
                 <RoutingResults
                     info={route.routingResult.info}
@@ -289,6 +318,7 @@ function SmallScreenLayout({
                     selectedPath={route.selectedPath}
                     currentRequest={query.currentRequest}
                     profile={query.routingProfile.name}
+                    turnNavigation={turnNavigation}
                 />
             </div>
 

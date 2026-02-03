@@ -2,6 +2,7 @@ import { Action } from '@/stores/Dispatcher'
 import { QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { TNSettingsState } from '@/stores/TurnNavigationStore'
 import { POI } from '@/stores/POIsStore'
 import { Settings } from '@/stores/SettingsStore'
 import { Coordinate } from '@/utils'
@@ -11,6 +12,50 @@ export class InfoReceived implements Action {
 
     constructor(result: ApiInfo) {
         this.result = result
+    }
+}
+
+export class TurnNavigationStop implements Action {}
+
+export class TurnNavigationStart implements Action {}
+
+export class LocationUpdateSync implements Action {
+    readonly enableViewSync: boolean
+
+    constructor(enableViewSync: boolean) {
+        this.enableViewSync = enableViewSync
+    }
+}
+
+export class LocationUpdate implements Action {
+    readonly coordinate: Coordinate
+    readonly speed: number // in meter/sec
+    readonly heading: number
+    readonly syncView: boolean
+
+    constructor(coordinate: Coordinate, syncView: boolean, speed: number, heading: number) {
+        this.coordinate = coordinate
+        this.speed = speed
+        this.syncView = syncView
+        this.heading = heading
+    }
+}
+
+export class TurnNavigationSettingsUpdate implements Action {
+    readonly settings: TNSettingsState
+
+    constructor(settings: TNSettingsState) {
+        this.settings = settings
+    }
+}
+
+export class TurnNavigationReroutingFailed implements Action {}
+export class TurnNavigationReroutingTimeResetForTest implements Action {}
+export class TurnNavigationRerouting implements Action {
+    readonly path: Path
+
+    constructor(path: Path) {
+        this.path = path
     }
 }
 
@@ -157,9 +202,11 @@ export class DismissLastError implements Action {}
 
 export class SelectMapLayer implements Action {
     readonly layer: string
+    readonly forNavigation: boolean
 
-    constructor(layer: string) {
+    constructor(layer: string, forNavigation: boolean = false) {
         this.layer = layer
+        this.forNavigation = forNavigation
     }
 }
 
@@ -248,6 +295,9 @@ export class InstructionClicked implements Action {
         this.text = text
     }
 }
+
+export class ToggleVectorTilesForNavigation implements Action {}
+export class ToggleFullScreenForNavigation implements Action {}
 
 export class UpdateSettings implements Action {
     readonly updatedSettings: Partial<Settings>

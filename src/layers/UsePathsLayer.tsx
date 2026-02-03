@@ -10,30 +10,41 @@ import { click } from 'ol/events/condition'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetSelectedPath } from '@/actions/Actions'
 import { SelectEvent } from 'ol/interaction/Select'
+import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
+import { RouteStoreState } from '@/stores/RouteStore'
+import { Geometry, LineString } from 'ol/geom'
 import { QueryPoint } from '@/stores/QueryStore'
 import { distance } from 'ol/coordinate'
-import LineString from 'ol/geom/LineString'
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
 
-export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Path, queryPoints: QueryPoint[]) {
+export default function usePathsLayer(
+    map: Map,
+    paths: Path[],
+    selectedPath: Path,
+    queryPoints: QueryPoint[],
+    turnNavigation: TurnNavigationStoreState
+) {
     const [showPaths, setShowPaths] = useState(true)
+
     useEffect(() => {
         removeCurrentPathLayers(map)
-        if (showPaths) {
-            addUnselectedPathsLayer(
-                map,
-                paths.filter(p => p != selectedPath),
-            )
-            addSelectedPathsLayer(map, selectedPath)
-            addAccessNetworkLayer(map, selectedPath, queryPoints)
+        if (turnNavigation.showUI && turnNavigation.activePath) {
+            addSelectedPathsLayer(map, turnNavigation.activePath, true)
+        } else {
+            if (showPaths) {
+                addUnselectedPathsLayer(map, paths.filter(p => p != selectedPath))
+                addSelectedPathsLayer(map, selectedPath, false)
+                addAccessNetworkLayer(map, selectedPath, queryPoints)
+            }
         }
         return () => {
             removeCurrentPathLayers(map)
         }
-    }, [map, paths, selectedPath, showPaths])
+    }, [map, paths, selectedPath, turnNavigation.showUI, turnNavigation.activePath])
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'h') setShowPaths(false)
@@ -165,7 +176,7 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
     map.addLayer(layer)
 }
 
-function addSelectedPathsLayer(map: Map, selectedPath: Path) {
+function addSelectedPathsLayer(map: Map, selectedPath: Path, updateMoreFrequently: boolean) {
     const styleArray = [
         new Style({
             stroke: new Stroke({
@@ -180,14 +191,18 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
             }),
         }),
     ]
+
     const layer = new VectorLayer({
         source: new VectorSource({
             features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
         }),
         style: styleArray,
+        updateWhileAnimating: updateMoreFrequently,
+        updateWhileInteracting: updateMoreFrequently,
         opacity: 0.8,
         zIndex: 2,
     })
+
     layer.set(selectedPathLayerKey, true)
     map.addLayer(layer)
 }
