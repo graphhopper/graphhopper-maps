@@ -70,7 +70,6 @@ function RoutingResult({
     useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
     const settings = useContext(SettingsContext)
     const showDistanceInMiles = settings.showDistanceInMiles
-    const [showViaWarning, setShowViaWarning] = useState(false)
     const [showNativeWarning, setShowNativeWarning] = useState(false)
 
     const fordInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ford')
@@ -153,24 +152,7 @@ function RoutingResult({
     // Check if native navigation is available
     const nativeNavigation = (window as any).ghNativeNavigation ?? null
 
-    if (showViaWarning)
-        return (
-            <div className={styles.showRiskButtons}>
-                <div className={styles.showRiskAccept}>
-                    <div>{tr('via_not_supported')}</div>
-                </div>
-                <PlainButton className={styles.showRiskBack} onClick={() => setShowViaWarning(false)}>
-                    <Cross />
-                </PlainButton>
-            </div>
-        )
-
     const startNavigation = () => {
-        if (path.snapped_waypoints.coordinates.length > 2) {
-            setShowNativeWarning(false)
-            setShowViaWarning(true)
-            return
-        }
         try {
             nativeNavigation.start(
                 getApi().createURLWithKey('navigate').toString(),
