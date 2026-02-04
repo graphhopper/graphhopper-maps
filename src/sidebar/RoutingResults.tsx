@@ -3,7 +3,7 @@ import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
-import { PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
+import { PathDetailsElevationSelected, SetBBox, SetSelectedPath, UpdateSettings } from '@/actions/Actions'
 import { metersToShortText, metersToTextForFile, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
@@ -165,6 +165,26 @@ function RoutingResult({
             </div>
         )
 
+    const startNavigation = () => {
+        if (path.snapped_waypoints.coordinates.length > 2) {
+            setShowNativeWarning(false)
+            setShowViaWarning(true)
+            return
+        }
+        try {
+            nativeNavigation.start(
+                getApi().createURLWithKey('navigate').toString(),
+                JSON.stringify(ApiImpl.createRequest(requestArguments)),
+                () => {
+                    console.log("Navigating closed")
+                },
+            )
+        } catch (e) {
+            console.error(e)
+        }
+        setShowNativeWarning(false)
+    }
+
     if (showNativeWarning)
         return (
             <div className={styles.showRiskButtons}>
@@ -172,23 +192,8 @@ function RoutingResult({
                     <div>{tr('warning')}</div>
                     <PlainButton
                         onClick={() => {
-                            if (path.snapped_waypoints.coordinates.length > 2) {
-                                setShowNativeWarning(false)
-                                setShowViaWarning(true)
-                                return
-                            }
-                            try {
-                                nativeNavigation.start(
-                                    getApi().createURLWithKey('navigate').toString(),
-                                    JSON.stringify(ApiImpl.createRequest(requestArguments)),
-                                    () => {
-                                        console.log("Navigating closed")
-                                    },
-                                )
-                            } catch (e) {
-                                console.error(e)
-                            }
-                            setShowNativeWarning(false)
+                            Dispatcher.dispatch(new UpdateSettings({ nativeNavigationRisksAccepted: true }))
+                            startNavigation()
                         }}
                     >
                         {tr('accept_risks_after_warning')}
@@ -226,7 +231,13 @@ function RoutingResult({
                         )}
                     </div>
                     {isSelected && nativeNavigation && (
-                        <PlainButton className={styles.exportButton} onClick={() => setShowNativeWarning(true)}>
+                        <PlainButton className={styles.exportButton} onClick={() => {
+                            if (settings.nativeNavigationRisksAccepted) {
+                                startNavigation()
+                            } else {
+                                setShowNativeWarning(true)
+                            }
+                        }}>
                             <NaviSVG />
                             <div>{tr('start_navigation')}</div>
                         </PlainButton>

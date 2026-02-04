@@ -8,6 +8,7 @@ export interface Settings {
     gpxExportRte: boolean
     gpxExportWpt: boolean
     gpxExportTrk: boolean
+    nativeNavigationRisksAccepted: boolean
 }
 
 export const defaultSettings: Settings = {
@@ -16,6 +17,7 @@ export const defaultSettings: Settings = {
     gpxExportRte: false,
     gpxExportWpt: false,
     gpxExportTrk: true,
+    nativeNavigationRisksAccepted: false,
 }
 
 export default class SettingsStore extends Store<Settings> {
