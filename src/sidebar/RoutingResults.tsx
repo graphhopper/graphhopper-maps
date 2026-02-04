@@ -4,7 +4,7 @@ import styles from './RoutingResult.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
-import { metersToShortText, metersToTextForFile, milliSecondsToText } from '@/Converters'
+import {metersToShortText, metersToText, metersToTextForFile, milliSecondsToText} from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
@@ -152,7 +152,7 @@ function RoutingResult({
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
                         <span className={styles.resultSecondaryText}>
-                            {metersToShortText(path.distance, showDistanceInMiles)}
+                            {metersToText(path.distance, showDistanceInMiles)}
                         </span>
                         {isSelected && !ApiImpl.isMotorVehicle(profile) && (
                             <div className={styles.elevationHint}>
