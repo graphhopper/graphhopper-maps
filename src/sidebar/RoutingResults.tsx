@@ -1,4 +1,4 @@
-import { Instruction, Path, RoutingResultInfo } from '@/api/graphhopper'
+import { Bbox, Instruction, Path, RoutingArgs, RoutingResultInfo } from '@/api/graphhopper'
 import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
@@ -28,7 +28,6 @@ import GetOffBikeIcon from '@/sidebar/routeHints/push_bike.svg'
 import SteepIcon from '@/sidebar/routeHints/elevation.svg'
 import BadTrackIcon from '@/sidebar/routeHints/ssid_chart.svg'
 import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
-import { Bbox } from '@/api/graphhopper'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import { Settings } from '@/stores/SettingsStore'
 
@@ -53,11 +52,13 @@ function RoutingResult({
     path,
     isSelected,
     profile,
+    requestArguments,
 }: {
     info: RoutingResultInfo
     path: Path
     isSelected: boolean
     profile: string
+    requestArguments: RoutingArgs
 }) {
     const [isExpanded, setExpanded] = useState(false)
     const [selectedRH, setSelectedRH] = useState('')
@@ -176,12 +177,17 @@ function RoutingResult({
                                 setShowViaWarning(true)
                                 return
                             }
-                            nativeNavigation.start(
-                                path,
-                                getApi().createURLWithKey('navigate').toString(),
-                                profile,
-                                () => {}
-                            )
+                            try {
+                                nativeNavigation.start(
+                                    getApi().createURLWithKey('navigate').toString(),
+                                    JSON.stringify(ApiImpl.createRequest(requestArguments)),
+                                    () => {
+                                        console.log("Navigating closed")
+                                    },
+                                )
+                            } catch (e) {
+                                console.error(e)
+                            }
                             setShowNativeWarning(false)
                         }}
                     >
@@ -220,10 +226,7 @@ function RoutingResult({
                         )}
                     </div>
                     {isSelected && nativeNavigation && (
-                        <PlainButton
-                            className={styles.exportButton}
-                            onClick={() => setShowNativeWarning(true)}
-                        >
+                        <PlainButton className={styles.exportButton} onClick={() => setShowNativeWarning(true)}>
                             <NaviSVG />
                             <div>{tr('start_navigation')}</div>
                         </PlainButton>
@@ -732,7 +735,15 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 
 function createSingletonListContent(props: RoutingResultsProps) {
     if (props.paths.length > 0)
-        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} info={props.info} />
+        return (
+            <RoutingResult
+                path={props.selectedPath}
+                isSelected={true}
+                profile={props.profile}
+                info={props.info}
+                requestArguments={props.currentRequest.subRequests[0].args}
+            />
+        )
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlaceholder key={1} />
     return ''
 }
@@ -750,6 +761,7 @@ function createListContent({ info, paths, currentRequest, selectedPath, profile 
                     isSelected={paths[i] === selectedPath}
                     profile={profile}
                     info={info}
+                    requestArguments={currentRequest.subRequests[i].args}
                 />,
             )
         else result.push(<RoutingResultPlaceholder key={i} />)
