@@ -214,27 +214,12 @@ export default function RouteStats({
             )
         }
 
-        // Steps (bike and foot)
+        // Footway (footway + pedestrian) and steps as separate values in the roads line (bike and foot)
         if (!ApiImpl.isMotorVehicle(profile)) {
-            const steps = roadDist.get('steps') || 0
-            if (steps > 0) {
-                lines.push(
-                    <div key="steps">
-                        <span className={styles.label}>Steps: </span>
-                        {pct(steps, totalDist)}% ({Math.round(steps)} m)
-                    </div>,
-                )
-            }
-
             const footways = (roadDist.get('footway') || 0) + (roadDist.get('pedestrian') || 0)
-            if (footways > 0) {
-                lines.push(
-                    <div key="footways">
-                        <span className={styles.label}>Footway/pedestrian: </span>
-                        {pct(footways, totalDist)}%
-                    </div>,
-                )
-            }
+            if (footways > 0) parts.push(`${pct(footways, totalDist)}% footway`)
+            const steps = roadDist.get('steps') || 0
+            if (steps > 0) parts.push(`${pct(steps, totalDist)}% steps`)
         }
     }
 
@@ -259,37 +244,47 @@ export default function RouteStats({
         }
     }
 
-    // Speed range stats
+    // Speed range stats + avg/max
     if (path.details.average_speed) {
+        const details = path.details.average_speed
         const thresholds = getSpeedThresholds(profile)
-        const distBelow = computeSpeedDistances(coords, path.details.average_speed, thresholds)
+        const distBelow = computeSpeedDistances(coords, details, thresholds)
+
+        // average speed from total distance / time
+        const avgSpeed = path.time > 0 ? (totalDist / 1000) / (path.time / 3_600_000) : 0
+        // max speed from detail segments
+        let maxSpeed = 0
+        for (const [, , speed] of details) {
+            if (speed > maxSpeed) maxSpeed = speed
+        }
 
         const parts: string[] = []
+        parts.push(`avg ${Math.round(avgSpeed)} km/h`)
+        parts.push(`max ${Math.round(maxSpeed)} km/h`)
         for (let i = 0; i < thresholds.length; i++) {
             if (distBelow[i] > 0) parts.push(`${pct(distBelow[i], totalDist)}% <${thresholds[i]} km/h`)
         }
 
-        if (parts.length > 0) {
-            lines.push(
-                <div key="speed">
-                    <span className={styles.label}>Speed: </span>
-                    {parts.join(', ')}
-                </div>,
-            )
-        }
+        lines.push(
+            <div key="speed">
+                <span className={styles.label}>Speed: </span>
+                {parts.join(', ')}
+            </div>,
+        )
     }
 
-    // Naismith time (foot profiles only)
-    if (ApiImpl.isFootLike(profile) && path.ascend > 0) {
-        // Naismith's rule: 5 km/h horizontal + 1 hour per 600m ascent
-        const horizontalMinutes = (totalDist / 1000 / 5) * 60
-        const ascentMinutes = (path.ascend / 600) * 60
-        const naismithMinutes = horizontalMinutes + ascentMinutes
+    // Swiss hiking time (foot profiles only)
+    // Schweizer Wanderwege formula: 4 km/h horizontal, 300 m/h ascent, 500 m/h descent
+    // Total = max(T_horizontal, T_vertical) + min(T_horizontal, T_vertical) / 2
+    if (ApiImpl.isFootLike(profile) && (path.ascend > 0 || path.descend > 0)) {
+        const tHorizontal = (totalDist / 1000 / 4) * 60 // minutes
+        const tVertical = (path.ascend / 300) * 60 + (path.descend / 500) * 60 // minutes
+        const swissMinutes = Math.max(tHorizontal, tVertical) + Math.min(tHorizontal, tVertical) / 2
 
         lines.push(
-            <div key="naismith">
-                <span className={styles.label}>Naismith: </span>
-                {formatTime(naismithMinutes)}
+            <div key="hiking_time">
+                <span className={styles.label}>Hiking time: </span>
+                {formatTime(swissMinutes)}
             </div>,
         )
     }
