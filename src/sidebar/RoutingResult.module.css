@@ -204,6 +204,35 @@
     border-color: #d5d4d4;
 }
 
+.instructionsToggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0 1.5rem 0 1.4em;
+    font-size: 14px;
+    color: #5b616a;
+    cursor: pointer;
+    line-height: 1.5;
+    width: 100%;
+    text-align: left;
+}
+
+.instructionsToggle:hover {
+    color: #383838;
+}
+
+.instructionsToggleArrow {
+    font-size: 15px;
+    color: #999;
+    flex-shrink: 0;
+    margin-left: 0.5em;
+}
+
+.instructionsToggleLabel {
+    font-weight: 600;
+    color: #383838;
+}
+
 .routingResultRoadData {
     color: gray;
     font-size: small;

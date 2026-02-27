@@ -59,13 +59,17 @@ function RoutingResult({
     profile: string
 }) {
     const [isExpanded, setExpanded] = useState(false)
+    const [showInstructions, setShowInstructions] = useState(false)
     const [selectedRH, setSelectedRH] = useState('')
     const [descriptionRH, setDescriptionRH] = useState('')
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
 
-    useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
+    useEffect(() => {
+        setExpanded(isSelected && isExpanded)
+        if (!isSelected) setShowInstructions(false)
+    }, [isSelected])
     const settings = useContext(SettingsContext)
     const showDistanceInMiles = settings.showDistanceInMiles
 
@@ -421,11 +425,23 @@ function RoutingResult({
             {isExpanded && (
                 <RouteStats path={path} profile={profile} showDistanceInMiles={showDistanceInMiles} />
             )}
-            {isExpanded && <Instructions instructions={path.instructions} us={showDistanceInMiles} />}
             {isExpanded && (
-                <div className={styles.routingResultRoadData}>
-                    {tr('road_data_from')}: {info.road_data_timestamp}
-                </div>
+                <PlainButton
+                    className={styles.instructionsToggle}
+                    onClick={() => setShowInstructions(!showInstructions)}
+                >
+                    <span className={styles.instructionsToggleLabel}>Turn instructions: </span>
+                    {path.instructions.length} steps
+                    <span className={styles.instructionsToggleArrow}>{showInstructions ? '▴' : '▾'}</span>
+                </PlainButton>
+            )}
+            {isExpanded && showInstructions && (
+                <>
+                    <Instructions instructions={path.instructions} us={showDistanceInMiles} />
+                    <div className={styles.routingResultRoadData}>
+                        {tr('road_data_from')}: {info.road_data_timestamp}
+                    </div>
+                </>
             )}
         </div>
     )

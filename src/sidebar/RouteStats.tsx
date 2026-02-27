@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Path } from '@/api/graphhopper'
 import { Position } from 'geojson'
 import { calcDist } from '@/utils'
@@ -111,6 +111,70 @@ function getSpeedThresholds(profile: string): number[] {
     return [5, 10, 15, 20]
 }
 
+interface DetailEntry {
+    name: string
+    pct: number
+    km: string
+}
+
+/** Sorted detail entries for the expanded view, sorted by distance descending */
+function detailEntries(distMap: Map<string, number>, totalDist: number): DetailEntry[] {
+    return [...distMap.entries()]
+        .filter(([, d]) => d > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([name, d]) => ({
+            name: name || '(unknown)',
+            pct: pct(d, totalDist),
+            km: (d / 1000).toFixed(1) + ' km',
+        }))
+}
+
+function ExpandableStat({
+    label,
+    summary,
+    details,
+    extraInfo,
+}: {
+    label: string
+    summary: string
+    details?: DetailEntry[]
+    extraInfo?: { name: string; value: string }[]
+}) {
+    const [expanded, setExpanded] = useState(false)
+    const hasExpanded = (details && details.length > 0) || (extraInfo && extraInfo.length > 0)
+
+    return (
+        <div>
+            <div
+                className={hasExpanded ? styles.statClickable : styles.statLine}
+                onClick={() => hasExpanded && setExpanded(!expanded)}
+            >
+                <span className={styles.label}>{label}: </span>
+                {summary}
+                {hasExpanded && (
+                    <span className={styles.statArrow}>{expanded ? '▴' : '▾'}</span>
+                )}
+            </div>
+            {expanded && hasExpanded && (
+                <div className={styles.statDetails}>
+                    {extraInfo && extraInfo.map((info, i) => (
+                        <div key={`extra-${i}`} className={styles.detailRow}>
+                            <span className={styles.detailName}>{info.name}</span>
+                            <span className={styles.detailValue}>{info.value}</span>
+                        </div>
+                    ))}
+                    {details && details.map(d => (
+                        <div key={d.name} className={styles.detailRow}>
+                            <span className={styles.detailName}>{d.name}</span>
+                            <span className={styles.detailValue}>{d.km}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
 export default function RouteStats({
     path,
     profile,
@@ -141,10 +205,12 @@ export default function RouteStats({
 
         if (parts.length > 0) {
             lines.push(
-                <div key="surface">
-                    <span className={styles.label}>Surface: </span>
-                    {parts.join(', ')}
-                </div>,
+                <ExpandableStat
+                    key="surface"
+                    label="Surface"
+                    summary={parts.join(', ')}
+                    details={detailEntries(surfaceDist, totalDist)}
+                />,
             )
         }
     }
@@ -164,10 +230,12 @@ export default function RouteStats({
         }
 
         lines.push(
-            <div key="bike_network">
-                <span className={styles.label}>Bike network: </span>
-                {parts.join(', ')}
-            </div>,
+            <ExpandableStat
+                key="bike_network"
+                label="Bike network"
+                summary={parts.join(', ')}
+                details={detailEntries(bnDist, totalDist)}
+            />,
         )
     }
 
@@ -186,10 +254,12 @@ export default function RouteStats({
         }
 
         lines.push(
-            <div key="foot_network">
-                <span className={styles.label}>Foot network: </span>
-                {parts.join(', ')}
-            </div>,
+            <ExpandableStat
+                key="foot_network"
+                label="Foot network"
+                summary={parts.join(', ')}
+                details={detailEntries(fnDist, totalDist)}
+            />,
         )
     }
 
@@ -205,21 +275,23 @@ export default function RouteStats({
         if (medium > 0) parts.push(`${pct(medium, totalDist)}% medium`)
         if (small > 0) parts.push(`${pct(small, totalDist)}% small`)
 
-        if (parts.length > 0) {
-            lines.push(
-                <div key="road_class">
-                    <span className={styles.label}>Roads: </span>
-                    {parts.join(', ')}
-                </div>,
-            )
-        }
-
         // Footway (footway + pedestrian) and steps as separate values in the roads line (bike and foot)
         if (!ApiImpl.isMotorVehicle(profile)) {
             const footways = (roadDist.get('footway') || 0) + (roadDist.get('pedestrian') || 0)
             if (footways > 0) parts.push(`${pct(footways, totalDist)}% footway`)
             const steps = roadDist.get('steps') || 0
             if (steps > 0) parts.push(`${pct(steps, totalDist)}% steps`)
+        }
+
+        if (parts.length > 0) {
+            lines.push(
+                <ExpandableStat
+                    key="road_class"
+                    label="Roads"
+                    summary={parts.join(', ')}
+                    details={detailEntries(roadDist, totalDist)}
+                />,
+            )
         }
     }
 
@@ -235,11 +307,17 @@ export default function RouteStats({
         }
 
         if (parts.length > 0) {
+            const inclineExtra = [
+                { name: 'total ascent', value: `${Math.round(path.ascend)} m` },
+                { name: 'total descent', value: `${Math.round(path.descend)} m` },
+            ]
             lines.push(
-                <div key="incline">
-                    <span className={styles.label}>Incline: </span>
-                    {parts.join(', ')}
-                </div>,
+                <ExpandableStat
+                    key="incline"
+                    label="Incline"
+                    summary={parts.join(', ')}
+                    extraInfo={inclineExtra}
+                />,
             )
         }
     }
@@ -259,17 +337,22 @@ export default function RouteStats({
         }
 
         const parts: string[] = []
-        parts.push(`avg ${Math.round(avgSpeed)} km/h`)
-        parts.push(`max ${Math.round(maxSpeed)} km/h`)
         for (let i = 0; i < thresholds.length; i++) {
             if (distBelow[i] > 0) parts.push(`${pct(distBelow[i], totalDist)}% <${thresholds[i]} km/h`)
         }
 
+        const speedExtra = [
+            { name: 'average', value: `${Math.round(avgSpeed)} km/h` },
+            { name: 'maximum', value: `${Math.round(maxSpeed)} km/h` },
+        ]
+
         lines.push(
-            <div key="speed">
-                <span className={styles.label}>Speed: </span>
-                {parts.join(', ')}
-            </div>,
+            <ExpandableStat
+                key="speed"
+                label="Speed"
+                summary={parts.length > 0 ? parts.join(', ') : 'no slow sections'}
+                extraInfo={speedExtra}
+            />,
         )
     }
 
@@ -282,10 +365,7 @@ export default function RouteStats({
         const swissMinutes = Math.max(tHorizontal, tVertical) + Math.min(tHorizontal, tVertical) / 2
 
         lines.push(
-            <div key="hiking_time">
-                <span className={styles.label}>Hiking time: </span>
-                {formatTime(swissMinutes)}
-            </div>,
+            <ExpandableStat key="hiking_time" label="Hiking time" summary={formatTime(swissMinutes)} />,
         )
     }
 
