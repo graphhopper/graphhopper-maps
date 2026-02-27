@@ -9,6 +9,7 @@ import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
+import RouteStats from '@/sidebar/RouteStats'
 import { LineString, Position } from 'geojson'
 import { calcDist, Coordinate, getBBoxFromCoord } from '@/utils'
 import { useMediaQuery } from 'react-responsive'
@@ -416,6 +417,9 @@ function RoutingResult({
                     </div>
                     {descriptionRH && <div>{descriptionRH}</div>}
                 </div>
+            )}
+            {isExpanded && (
+                <RouteStats path={path} profile={profile} showDistanceInMiles={showDistanceInMiles} />
             )}
             {isExpanded && <Instructions instructions={path.instructions} us={showDistanceInMiles} />}
             {isExpanded && (

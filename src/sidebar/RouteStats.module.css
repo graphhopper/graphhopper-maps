@@ -1,0 +1,12 @@
+.routeStats {
+    padding: 0.4rem 1.5rem 0.4rem 1.4em;
+    font-size: 13px;
+    color: #5b616a;
+    line-height: 1.6;
+    border-bottom: 1px solid #eee;
+}
+
+.label {
+    font-weight: 600;
+    color: #383838;
+}
