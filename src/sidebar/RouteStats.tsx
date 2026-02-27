@@ -5,26 +5,76 @@ import { calcDist } from '@/utils'
 import { ApiImpl } from '@/api/Api'
 import styles from './RouteStats.module.css'
 
-const PAVED_SURFACES = new Set([
-    'asphalt', 'concrete', 'paved', 'paving_stones', 'concrete:plates', 'concrete:lanes', 'metal',
-])
-const UNPAVED_SURFACES = new Set([
-    'unpaved', 'gravel', 'dirt', 'grass', 'sand', 'ground', 'earth', 'mud', 'wood', 'compacted', 'fine_gravel', 'grass_paver',
-    'cobblestone', 'sett', 'unhewn_cobblestone',
-])
+// Stable color map: same value always gets the same color regardless of route
+const VALUE_COLORS: Record<string, string> = {
+    // Surface - paved (blue tones)
+    asphalt: '#1976D2',
+    paved: '#42A5F5',
+    concrete: '#5C6BC0',
+    paving_stones: '#7E57C2',
+    'concrete:plates': '#0097A7',
+    'concrete:lanes': '#00ACC1',
+    metal: '#90A4AE',
+    // Surface - unpaved (distinct warm/natural tones)
+    compacted: '#A1887F',
+    gravel: '#FF8A65',
+    fine_gravel: '#FFB74D',
+    unpaved: '#C68642',
+    dirt: '#8D6E63',
+    ground: '#9E9D24',
+    earth: '#A0522D',
+    grass: '#4CAF50',
+    grass_paver: '#81C784',
+    sand: '#FFD54F',
+    mud: '#5D4037',
+    wood: '#D84315',
+    cobblestone: '#F06292',
+    sett: '#CE93D8',
+    unhewn_cobblestone: '#AB47BC',
+    // Road classes
+    motorway: '#D32F2F',
+    trunk: '#E64A19',
+    primary: '#F57C00',
+    secondary: '#FFA726',
+    tertiary: '#42A5F5',
+    residential: '#66BB6A',
+    unclassified: '#78909C',
+    living_street: '#81C784',
+    service: '#A5D6A7',
+    cycleway: '#AB47BC',
+    path: '#26A69A',
+    track: '#8D6E63',
+    bridleway: '#795548',
+    footway: '#EC407A',
+    pedestrian: '#F48FB1',
+    steps: '#FF5722',
+    // Network levels
+    international: '#D32F2F',
+    national: '#1976D2',
+    regional: '#388E3C',
+    local: '#FFA000',
+}
 
+const INCLINE_COLORS = ['#2E7D32', '#FF9800', '#F44336', '#7B1FA2']
+const INCLINE_LABELS = ['flat (<4%)', 'mild (4–8%)', 'steep (8–12%)', 'very steep (≥12%)']
+const SPEED_COLORS = ['#F44336', '#FF9800', '#FFD54F', '#66BB6A', '#2E7D32']
+
+const PAVED = new Set(['asphalt', 'concrete', 'paved', 'paving_stones', 'concrete:plates', 'concrete:lanes', 'metal'])
+const UNPAVED = new Set([
+    'unpaved', 'gravel', 'dirt', 'grass', 'sand', 'ground', 'earth', 'mud', 'wood',
+    'compacted', 'fine_gravel', 'grass_paver', 'cobblestone', 'sett', 'unhewn_cobblestone',
+])
 const BIG_ROADS = new Set(['primary', 'secondary', 'trunk', 'motorway'])
 const MEDIUM_ROADS = new Set(['tertiary', 'residential', 'unclassified', 'living_street', 'service'])
 const SMALL_ROADS = new Set(['cycleway', 'path', 'track', 'bridleway'])
+const NETWORK_KEYS = ['international', 'national', 'regional', 'local'] as const
 
-const BN_KEYS = ['international', 'national', 'regional', 'local'] as const
-const FN_KEYS = ['international', 'national', 'regional', 'local'] as const
+// --- Distance computation ---
 
-function calcSegmentDist(coords: Position[], from: number, to: number): number {
+function segmentDist(coords: Position[], from: number, to: number): number {
     let dist = 0
-    for (let i = from; i < to; i++) {
+    for (let i = from; i < to; i++)
         dist += calcDist({ lat: coords[i][1], lng: coords[i][0] }, { lat: coords[i + 1][1], lng: coords[i + 1][0] })
-    }
     return dist
 }
 
@@ -33,76 +83,64 @@ function computeDetailDistances(coords: Position[], details: [number, number, an
     if (!details) return distances
     for (const [from, to, value] of details) {
         const key = value != null ? String(value) : ''
-        const dist = calcSegmentDist(coords, from, to)
-        distances.set(key, (distances.get(key) || 0) + dist)
+        distances.set(key, (distances.get(key) || 0) + segmentDist(coords, from, to))
     }
     return distances
 }
 
+/** Compute cumulative distances above each incline threshold using 100m smoothing */
 function computeInclineDistances(coords: Position[], thresholds: number[]): number[] {
     const distAbove = thresholds.map(() => 0)
     if (coords.length < 2 || coords[0].length < 3) return distAbove
-
-    let segDist = 0
-    let prevElePoint = coords[0]
-    let prevDistPoint = coords[0]
-
+    let dist = 0, prevEle = coords[0], prevPos = coords[0]
     for (let i = 1; i < coords.length; i++) {
-        const curr = coords[i]
-        segDist += calcDist({ lat: prevDistPoint[1], lng: prevDistPoint[0] }, { lat: curr[1], lng: curr[0] })
-        prevDistPoint = curr
-        // smooth over ~100m to reduce elevation noise
-        if (segDist > 100) {
-            const slope = (100 * Math.abs(curr[2] - prevElePoint[2])) / segDist
-            for (let t = 0; t < thresholds.length; t++) {
-                if (slope >= thresholds[t]) {
-                    distAbove[t] += segDist
-                }
-            }
-            prevElePoint = curr
-            segDist = 0
+        const c = coords[i]
+        dist += calcDist({ lat: prevPos[1], lng: prevPos[0] }, { lat: c[1], lng: c[0] })
+        prevPos = c
+        if (dist > 100) {
+            const slope = (100 * Math.abs(c[2] - prevEle[2])) / dist
+            for (let t = 0; t < thresholds.length; t++)
+                if (slope >= thresholds[t]) distAbove[t] += dist
+            prevEle = c
+            dist = 0
         }
     }
     return distAbove
 }
 
-function computeSpeedDistances(
-    coords: Position[],
-    details: [number, number, number][] | undefined,
-    thresholds: number[],
-): number[] {
+/** Compute cumulative distances below each speed threshold */
+function computeSpeedDistances(coords: Position[], details: [number, number, number][], thresholds: number[]): number[] {
     const distBelow = thresholds.map(() => 0)
-    if (!details) return distBelow
     for (const [from, to, speed] of details) {
-        const dist = calcSegmentDist(coords, from, to)
-        for (let t = 0; t < thresholds.length; t++) {
-            if (speed < thresholds[t]) {
-                distBelow[t] += dist
-            }
-        }
+        const d = segmentDist(coords, from, to)
+        for (let t = 0; t < thresholds.length; t++)
+            if (speed < thresholds[t]) distBelow[t] += d
     }
     return distBelow
 }
 
 function sumForKeys(distances: Map<string, number>, keys: Iterable<string>): number {
     let total = 0
-    for (const key of keys) {
-        total += distances.get(key) || 0
-    }
+    for (const k of keys) total += distances.get(k) || 0
     return total
 }
 
-function pct(value: number, total: number): number {
-    if (total <= 0) return 0
-    return Math.round((100 * value) / total)
+// --- Formatting ---
+
+function pct(value: number, total: number): string {
+    if (total <= 0) return '0%'
+    return Math.round((100 * value) / total) + '%'
+}
+
+function fmtKm(meters: number): string {
+    return (meters / 1000).toFixed(1) + ' km'
 }
 
 function formatTime(minutes: number): string {
     const h = Math.floor(minutes / 60)
     const m = Math.round(minutes % 60)
     if (m === 60) return h + 1 + ' h'
-    if (h > 0) return `${h} h ${m} min`
-    return `${m} min`
+    return h > 0 ? `${h} h ${m} min` : `${m} min`
 }
 
 function getSpeedThresholds(profile: string): number[] {
@@ -111,22 +149,42 @@ function getSpeedThresholds(profile: string): number[] {
     return [5, 10, 15, 20]
 }
 
+// --- Detail entries & components ---
+
 interface DetailEntry {
     name: string
-    pct: number
     km: string
+    color: string
+    fraction: number
 }
 
-/** Sorted detail entries for the expanded view, sorted by distance descending */
+interface SummaryEntry {
+    name: string
+    value: string
+}
+
+/** Build detail entries from a distance map, sorted by distance descending */
 function detailEntries(distMap: Map<string, number>, totalDist: number): DetailEntry[] {
     return [...distMap.entries()]
         .filter(([, d]) => d > 0)
         .sort((a, b) => b[1] - a[1])
         .map(([name, d]) => ({
             name: name || '(unknown)',
-            pct: pct(d, totalDist),
-            km: (d / 1000).toFixed(1) + ' km',
+            km: fmtKm(d),
+            color: VALUE_COLORS[name] || '#BDBDBD',
+            fraction: d / totalDist,
         }))
+}
+
+function ColorBar({ entries }: { entries: DetailEntry[] }) {
+    if (entries.length === 0) return null
+    return (
+        <div className={styles.colorBar}>
+            {entries.map((d, i) => (
+                <div key={i} className={styles.colorBarSegment} style={{ backgroundColor: d.color, flex: d.fraction }} />
+            ))}
+        </div>
+    )
 }
 
 function ExpandableStat({
@@ -136,35 +194,48 @@ function ExpandableStat({
     extraInfo,
 }: {
     label: string
-    summary: string
+    summary?: string
     details?: DetailEntry[]
-    extraInfo?: { name: string; value: string }[]
+    extraInfo?: SummaryEntry[]
 }) {
     const [expanded, setExpanded] = useState(false)
-    const hasExpanded = (details && details.length > 0) || (extraInfo && extraInfo.length > 0)
+    const hasDetails = !!(details && details.length > 0)
+    const hasExpanded = hasDetails || !!(extraInfo && extraInfo.length > 0)
 
     return (
         <div>
             <div
                 className={hasExpanded ? styles.statClickable : styles.statLine}
-                onClick={() => hasExpanded && setExpanded(!expanded)}
+                onClick={hasExpanded ? () => setExpanded(!expanded) : undefined}
             >
-                <span className={styles.label}>{label}: </span>
-                {summary}
-                {hasExpanded && (
-                    <span className={styles.statArrow}>{expanded ? '▴' : '▾'}</span>
+                {hasDetails ? (
+                    <>
+                        <span className={styles.label}>{label}</span>
+                        <ColorBar entries={details!} />
+                    </>
+                ) : (
+                    <span>
+                        <span className={styles.label}>{label}: </span>
+                        {summary}
+                    </span>
                 )}
+                {hasExpanded && <span className={styles.statArrow}>{expanded ? '▴' : '▾'}</span>}
             </div>
             {expanded && hasExpanded && (
                 <div className={styles.statDetails}>
-                    {extraInfo && extraInfo.map((info, i) => (
-                        <div key={`extra-${i}`} className={styles.detailRow}>
-                            <span className={styles.detailName}>{info.name}</span>
-                            <span className={styles.detailValue}>{info.value}</span>
+                    {extraInfo && extraInfo.length > 0 && (
+                        <div className={styles.statSummary}>
+                            {extraInfo.map((info, i) => (
+                                <div key={i} className={styles.detailRow}>
+                                    <span className={styles.detailName}>{info.name}</span>
+                                    <span className={styles.detailValue}>{info.value}</span>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                    {details && details.map(d => (
+                    )}
+                    {details?.map(d => (
                         <div key={d.name} className={styles.detailRow}>
+                            <span className={styles.colorDot} style={{ backgroundColor: d.color }} />
                             <span className={styles.detailName}>{d.name}</span>
                             <span className={styles.detailValue}>{d.km}</span>
                         </div>
@@ -175,201 +246,137 @@ function ExpandableStat({
     )
 }
 
-export default function RouteStats({
-    path,
-    profile,
-    showDistanceInMiles,
-}: {
-    path: Path
-    profile: string
-    showDistanceInMiles: boolean
-}) {
+// --- Main component ---
+
+export default function RouteStats({ path, profile }: { path: Path; profile: string }) {
     const coords = path.points.coordinates
     const totalDist = path.distance
-
     if (totalDist <= 0) return null
 
     const lines: React.ReactNode[] = []
 
-    // Surface stats (all profiles)
+    // Surface
     if (path.details.surface) {
-        const surfaceDist = computeDetailDistances(coords, path.details.surface)
-        const paved = sumForKeys(surfaceDist, PAVED_SURFACES)
-        const unpaved = sumForKeys(surfaceDist, UNPAVED_SURFACES)
-        const missing = Math.max(0, totalDist - paved - unpaved)
-
-        const parts: string[] = []
-        if (paved > 0) parts.push(`${pct(paved, totalDist)}% paved`)
-        if (unpaved > 0) parts.push(`${pct(unpaved, totalDist)}% unpaved`)
-        if (missing > 0) parts.push(`${pct(missing, totalDist)}% missing`)
-
-        if (parts.length > 0) {
+        const dist = computeDetailDistances(coords, path.details.surface)
+        if (dist.size > 0) {
+            const pavedDist = sumForKeys(dist, PAVED)
+            const unpavedDist = sumForKeys(dist, UNPAVED)
+            const extra: SummaryEntry[] = []
+            if (pavedDist > 0) extra.push({ name: 'paved', value: pct(pavedDist, totalDist) })
+            if (unpavedDist > 0) extra.push({ name: 'unpaved', value: pct(unpavedDist, totalDist) })
             lines.push(
-                <ExpandableStat
-                    key="surface"
-                    label="Surface"
-                    summary={parts.join(', ')}
-                    details={detailEntries(surfaceDist, totalDist)}
-                />,
+                <ExpandableStat key="surface" label="Surface" details={detailEntries(dist, totalDist)} extraInfo={extra} />,
             )
         }
     }
 
-    // Bike network stats (bike profiles only)
-    if (ApiImpl.isBikeLike(profile) && path.details.bike_network) {
-        const bnDist = computeDetailDistances(coords, path.details.bike_network)
-        const onNetwork = sumForKeys(bnDist, BN_KEYS)
-        const onPct = pct(onNetwork, totalDist)
-
-        const parts: string[] = [`${onPct}% total`]
-        for (const key of BN_KEYS) {
-            const d = bnDist.get(key) || 0
-            if (d > 0) {
-                parts.push(`${pct(d, totalDist)}% ${key}`)
+    // Bike / foot network
+    const networks: [string, string, [number, number, any][] | undefined, boolean][] = [
+        ['bike_network', 'Bike network', path.details.bike_network, ApiImpl.isBikeLike(profile)],
+        ['foot_network', 'Foot network', path.details.foot_network, ApiImpl.isFootLike(profile)],
+    ]
+    for (const [key, label, details, active] of networks) {
+        if (active && details) {
+            const dist = computeDetailDistances(coords, details)
+            const onNetwork = sumForKeys(dist, NETWORK_KEYS)
+            if (dist.size > 0) {
+                lines.push(
+                    <ExpandableStat
+                        key={key}
+                        label={label}
+                        details={detailEntries(dist, totalDist)}
+                        extraInfo={[{ name: 'on network', value: pct(onNetwork, totalDist) }]}
+                    />,
+                )
             }
         }
-
-        lines.push(
-            <ExpandableStat
-                key="bike_network"
-                label="Bike network"
-                summary={parts.join(', ')}
-                details={detailEntries(bnDist, totalDist)}
-            />,
-        )
     }
 
-    // Foot network stats (foot profiles only)
-    if (ApiImpl.isFootLike(profile) && path.details.foot_network) {
-        const fnDist = computeDetailDistances(coords, path.details.foot_network)
-        const onNetwork = sumForKeys(fnDist, FN_KEYS)
-        const onPct = pct(onNetwork, totalDist)
-
-        const parts: string[] = [`${onPct}% total`]
-        for (const key of FN_KEYS) {
-            const d = fnDist.get(key) || 0
-            if (d > 0) {
-                parts.push(`${pct(d, totalDist)}% ${key}`)
-            }
-        }
-
-        lines.push(
-            <ExpandableStat
-                key="foot_network"
-                label="Foot network"
-                summary={parts.join(', ')}
-                details={detailEntries(fnDist, totalDist)}
-            />,
-        )
-    }
-
-    // Road class stats
+    // Roads
     if (path.details.road_class) {
-        const roadDist = computeDetailDistances(coords, path.details.road_class)
-        const big = sumForKeys(roadDist, BIG_ROADS)
-        const medium = sumForKeys(roadDist, MEDIUM_ROADS)
-        const small = sumForKeys(roadDist, SMALL_ROADS)
-
-        const parts: string[] = []
-        if (big > 0) parts.push(`${pct(big, totalDist)}% big`)
-        if (medium > 0) parts.push(`${pct(medium, totalDist)}% medium`)
-        if (small > 0) parts.push(`${pct(small, totalDist)}% small`)
-
-        // Footway (footway + pedestrian) and steps as separate values in the roads line (bike and foot)
-        if (!ApiImpl.isMotorVehicle(profile)) {
-            const footways = (roadDist.get('footway') || 0) + (roadDist.get('pedestrian') || 0)
-            if (footways > 0) parts.push(`${pct(footways, totalDist)}% footway`)
-            const steps = roadDist.get('steps') || 0
-            if (steps > 0) parts.push(`${pct(steps, totalDist)}% steps`)
-        }
-
-        if (parts.length > 0) {
+        const dist = computeDetailDistances(coords, path.details.road_class)
+        if (dist.size > 0) {
+            const extra: SummaryEntry[] = []
+            const big = sumForKeys(dist, BIG_ROADS)
+            const medium = sumForKeys(dist, MEDIUM_ROADS)
+            const small = sumForKeys(dist, SMALL_ROADS)
+            if (big > 0) extra.push({ name: 'big roads', value: pct(big, totalDist) })
+            if (medium > 0) extra.push({ name: 'medium', value: pct(medium, totalDist) })
+            if (small > 0) extra.push({ name: 'small', value: pct(small, totalDist) })
             lines.push(
-                <ExpandableStat
-                    key="road_class"
-                    label="Roads"
-                    summary={parts.join(', ')}
-                    details={detailEntries(roadDist, totalDist)}
-                />,
+                <ExpandableStat key="roads" label="Roads" details={detailEntries(dist, totalDist)} extraInfo={extra} />,
             )
         }
     }
 
-    // Incline stats from 3D coordinates (all profiles when elevation available)
+    // Incline (from 3D polyline)
     if (coords.length > 1 && coords[0].length >= 3) {
-        const thresholds = [4, 8, 12]
-        const names = ['mild (≥4%)', 'steep (≥8%)', 'very steep (≥12%)']
-        const distAbove = computeInclineDistances(coords, thresholds)
-
-        const parts: string[] = []
-        for (let i = 0; i < thresholds.length; i++) {
-            if (distAbove[i] > 0) parts.push(`${pct(distAbove[i], totalDist)}% ${names[i]}`)
-        }
-
-        if (parts.length > 0) {
-            const inclineExtra = [
-                { name: 'total ascent', value: `${Math.round(path.ascend)} m` },
-                { name: 'total descent', value: `${Math.round(path.descend)} m` },
-            ]
+        const distAbove = computeInclineDistances(coords, [4, 8, 12])
+        if (distAbove[0] > 0) {
+            const segments = [totalDist - distAbove[0], distAbove[0] - distAbove[1], distAbove[1] - distAbove[2], distAbove[2]]
+            const inclineDetails = segments
+                .map((d, i) => ({ name: INCLINE_LABELS[i], km: fmtKm(d), color: INCLINE_COLORS[i], fraction: d / totalDist }))
+                .filter(d => d.fraction > 0)
             lines.push(
                 <ExpandableStat
                     key="incline"
                     label="Incline"
-                    summary={parts.join(', ')}
-                    extraInfo={inclineExtra}
+                    details={inclineDetails}
+                    extraInfo={[
+                        { name: 'total ascent', value: `${Math.round(path.ascend)} m` },
+                        { name: 'total descent', value: `${Math.round(path.descend)} m` },
+                    ]}
                 />,
             )
         }
     }
 
-    // Speed range stats + avg/max
+    // Speed
     if (path.details.average_speed) {
-        const details = path.details.average_speed
         const thresholds = getSpeedThresholds(profile)
-        const distBelow = computeSpeedDistances(coords, details, thresholds)
+        const distBelow = computeSpeedDistances(coords, path.details.average_speed, thresholds)
+        const boundaries = [0, ...distBelow, totalDist]
+        const speedLabels = [
+            `< ${thresholds[0]}`,
+            ...thresholds.slice(0, -1).map((t, i) => `${t}–${thresholds[i + 1]}`),
+            `≥ ${thresholds[thresholds.length - 1]}`,
+        ].map(s => `${s} km/h`)
+        const speedDetails = boundaries
+            .slice(0, -1)
+            .map((_, i) => ({
+                name: speedLabels[i],
+                km: fmtKm(boundaries[i + 1] - boundaries[i]),
+                color: SPEED_COLORS[i] || SPEED_COLORS[SPEED_COLORS.length - 1],
+                fraction: (boundaries[i + 1] - boundaries[i]) / totalDist,
+            }))
+            .filter(d => d.fraction > 0)
 
-        // average speed from total distance / time
         const avgSpeed = path.time > 0 ? (totalDist / 1000) / (path.time / 3_600_000) : 0
-        // max speed from detail segments
         let maxSpeed = 0
-        for (const [, , speed] of details) {
+        for (const [, , speed] of path.details.average_speed)
             if (speed > maxSpeed) maxSpeed = speed
-        }
-
-        const parts: string[] = []
-        for (let i = 0; i < thresholds.length; i++) {
-            if (distBelow[i] > 0) parts.push(`${pct(distBelow[i], totalDist)}% <${thresholds[i]} km/h`)
-        }
-
-        const speedExtra = [
-            { name: 'average', value: `${Math.round(avgSpeed)} km/h` },
-            { name: 'maximum', value: `${Math.round(maxSpeed)} km/h` },
-        ]
 
         lines.push(
             <ExpandableStat
                 key="speed"
                 label="Speed"
-                summary={parts.length > 0 ? parts.join(', ') : 'no slow sections'}
-                extraInfo={speedExtra}
+                details={speedDetails}
+                extraInfo={[
+                    { name: 'average', value: `${Math.round(avgSpeed)} km/h` },
+                    { name: 'maximum', value: `${Math.round(maxSpeed)} km/h` },
+                ]}
             />,
         )
     }
 
     // Swiss hiking time (foot profiles only)
-    // Schweizer Wanderwege formula: 4 km/h horizontal, 300 m/h ascent, 500 m/h descent
-    // Total = max(T_horizontal, T_vertical) + min(T_horizontal, T_vertical) / 2
     if (ApiImpl.isFootLike(profile) && (path.ascend > 0 || path.descend > 0)) {
-        const tHorizontal = (totalDist / 1000 / 4) * 60 // minutes
-        const tVertical = (path.ascend / 300) * 60 + (path.descend / 500) * 60 // minutes
-        const swissMinutes = Math.max(tHorizontal, tVertical) + Math.min(tHorizontal, tVertical) / 2
-
+        const tH = (totalDist / 1000 / 4) * 60
+        const tV = (path.ascend / 300 + path.descend / 500) * 60
         lines.push(
-            <ExpandableStat key="hiking_time" label="Hiking time" summary={formatTime(swissMinutes)} />,
+            <ExpandableStat key="hiking_time" label="Hiking time" summary={formatTime(Math.max(tH, tV) + Math.min(tH, tV) / 2)} />,
         )
     }
 
-    if (lines.length === 0) return null
-
-    return <div className={styles.routeStats}>{lines}</div>
+    return lines.length > 0 ? <div className={styles.routeStats}>{lines}</div> : null
 }

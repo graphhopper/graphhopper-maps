@@ -423,7 +423,7 @@ function RoutingResult({
                 </div>
             )}
             {isExpanded && (
-                <RouteStats path={path} profile={profile} showDistanceInMiles={showDistanceInMiles} />
+                <RouteStats path={path} profile={profile} />
             )}
             {isExpanded && (
                 <PlainButton

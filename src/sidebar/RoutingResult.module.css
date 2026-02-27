@@ -208,8 +208,8 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    padding: 0 1.5rem 0 1.4em;
-    font-size: 14px;
+    padding: 0.3rem 1.5rem 1.2rem 1.4em;
+    font-size: 15px;
     color: #5b616a;
     cursor: pointer;
     line-height: 1.5;
@@ -222,10 +222,12 @@
 }
 
 .instructionsToggleArrow {
-    font-size: 15px;
+    font-size: 16px;
     color: #999;
     flex-shrink: 0;
     margin-left: 0.5em;
+    position: relative;
+    top: -2px;
 }
 
 .instructionsToggleLabel {
@@ -236,5 +238,5 @@
 .routingResultRoadData {
     color: gray;
     font-size: small;
-    padding: 10px 5px 10px 3rem;
+    padding: 10px 5px 0.75rem 3rem;
 }
