@@ -161,6 +161,20 @@ interface DetailEntry {
 interface SummaryEntry {
     name: string
     value: string
+    colors?: string[]
+    more?: boolean
+}
+
+/** Get colors of the top N contributors and whether there are more */
+function topColors(distMap: Map<string, number>, keys: Iterable<string>, n: number = 4) {
+    const sorted = [...keys]
+        .map(k => ({ key: k, dist: distMap.get(k) || 0 }))
+        .filter(e => e.dist > 0)
+        .sort((a, b) => b.dist - a.dist)
+    return {
+        colors: sorted.slice(0, n).map(e => VALUE_COLORS[e.key] || '#BDBDBD'),
+        more: sorted.length > n,
+    }
 }
 
 /** Build detail entries from a distance map, sorted by distance descending */
@@ -227,6 +241,10 @@ function ExpandableStat({
                         <div className={styles.statSummary}>
                             {extraInfo.map((info, i) => (
                                 <div key={i} className={styles.detailRow}>
+                                    {info.colors?.map((c, j) => (
+                                        <span key={j} className={styles.colorDot} style={{ backgroundColor: c }} />
+                                    ))}
+                                    {info.more && <span className={styles.moreDots}>…</span>}
                                     <span className={styles.detailName}>{info.name}</span>
                                     <span className={styles.detailValue}>{info.value}</span>
                                 </div>
@@ -262,8 +280,8 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             const pavedDist = sumForKeys(dist, PAVED)
             const unpavedDist = sumForKeys(dist, UNPAVED)
             const extra: SummaryEntry[] = []
-            if (pavedDist > 0) extra.push({ name: 'paved', value: pct(pavedDist, totalDist) })
-            if (unpavedDist > 0) extra.push({ name: 'unpaved', value: pct(unpavedDist, totalDist) })
+            if (pavedDist > 0) extra.push({ name: 'paved', value: pct(pavedDist, totalDist), ...topColors(dist, PAVED) })
+            if (unpavedDist > 0) extra.push({ name: 'unpaved', value: pct(unpavedDist, totalDist), ...topColors(dist, UNPAVED) })
             lines.push(
                 <ExpandableStat key="surface" label="Surface" details={detailEntries(dist, totalDist)} extraInfo={extra} />,
             )
@@ -285,7 +303,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                         key={key}
                         label={label}
                         details={detailEntries(dist, totalDist)}
-                        extraInfo={[{ name: 'on network', value: pct(onNetwork, totalDist) }]}
+                        extraInfo={[{ name: 'on network', value: pct(onNetwork, totalDist), ...topColors(dist, NETWORK_KEYS) }]}
                     />,
                 )
             }
@@ -300,9 +318,9 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             const big = sumForKeys(dist, BIG_ROADS)
             const medium = sumForKeys(dist, MEDIUM_ROADS)
             const small = sumForKeys(dist, SMALL_ROADS)
-            if (big > 0) extra.push({ name: 'big roads', value: pct(big, totalDist) })
-            if (medium > 0) extra.push({ name: 'medium', value: pct(medium, totalDist) })
-            if (small > 0) extra.push({ name: 'small', value: pct(small, totalDist) })
+            if (big > 0) extra.push({ name: 'big roads', value: pct(big, totalDist), ...topColors(dist, BIG_ROADS) })
+            if (medium > 0) extra.push({ name: 'medium', value: pct(medium, totalDist), ...topColors(dist, MEDIUM_ROADS) })
+            if (small > 0) extra.push({ name: 'small', value: pct(small, totalDist), ...topColors(dist, SMALL_ROADS) })
             lines.push(
                 <ExpandableStat key="roads" label="Roads" details={detailEntries(dist, totalDist)} extraInfo={extra} />,
             )
@@ -352,9 +370,11 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             .filter(d => d.fraction > 0)
 
         const avgSpeed = path.time > 0 ? (totalDist / 1000) / (path.time / 3_600_000) : 0
-        let maxSpeed = 0
-        for (const [, , speed] of path.details.average_speed)
+        let maxSpeed = 0, minSpeed = Infinity
+        for (const [, , speed] of path.details.average_speed) {
             if (speed > maxSpeed) maxSpeed = speed
+            if (speed < minSpeed) minSpeed = speed
+        }
 
         lines.push(
             <ExpandableStat
@@ -363,6 +383,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                 details={speedDetails}
                 extraInfo={[
                     { name: 'average', value: `${Math.round(avgSpeed)} km/h` },
+                    { name: 'minimum', value: `${Math.round(minSpeed)} km/h` },
                     { name: 'maximum', value: `${Math.round(maxSpeed)} km/h` },
                 ]}
             />,

@@ -9,14 +9,14 @@
 
 .label {
     font-weight: 600;
-    font-size: 15px;
+    font-size: 16px;
     color: #383838;
     flex-shrink: 0;
     min-width: 7em;
 }
 
 .statLine {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.5;
 }
 
@@ -24,7 +24,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.5;
     gap: 0.5em;
 }
@@ -34,7 +34,7 @@
 }
 
 .statArrow {
-    font-size: 16px;
+    font-size: 22px;
     color: #999;
     flex-shrink: 0;
     margin-left: auto;
@@ -46,15 +46,23 @@
     margin-left: auto;
     padding-right: 1.2em;
     color: #777;
-    font-size: 14px;
+    font-size: 14.5px;
     line-height: 1.6;
     max-width: 18em;
 }
 
 .statSummary {
-    padding-bottom: 0.3em;
-    margin-bottom: 0.2em;
-    border-bottom: 1px solid #eee;
+    padding-bottom: 0.4em;
+    margin-bottom: 0.3em;
+    border-bottom: 2px solid #e8e8e8;
+    font-size: 15.5px;
+}
+
+.moreDots {
+    color: #aaa;
+    font-size: 12px;
+    margin-right: 0.4em;
+    flex-shrink: 0;
 }
 
 .detailRow {

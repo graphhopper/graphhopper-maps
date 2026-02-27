@@ -1,6 +1,7 @@
 import { Instruction, Path, RoutingResultInfo } from '@/api/graphhopper'
 import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
+import statsStyles from './RouteStats.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
@@ -426,14 +427,11 @@ function RoutingResult({
                 <RouteStats path={path} profile={profile} />
             )}
             {isExpanded && (
-                <PlainButton
-                    className={styles.instructionsToggle}
-                    onClick={() => setShowInstructions(!showInstructions)}
-                >
-                    <span className={styles.instructionsToggleLabel}>Turn instructions: </span>
+                <div className={styles.instructionsToggle} onClick={() => setShowInstructions(!showInstructions)}>
+                    <span className={statsStyles.label}>Turn instructions: </span>
                     {path.instructions.length} steps
-                    <span className={styles.instructionsToggleArrow}>{showInstructions ? '▴' : '▾'}</span>
-                </PlainButton>
+                    <span className={statsStyles.statArrow}>{showInstructions ? '▴' : '▾'}</span>
+                </div>
             )}
             {isExpanded && showInstructions && (
                 <>
