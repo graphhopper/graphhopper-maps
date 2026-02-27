@@ -10,6 +10,10 @@ import SmallTruckIcon from './small_truck.svg'
 import TruckIcon from './truck.svg'
 import WheelchairIcon from './wheelchair.svg'
 import QuestionMarkIcon from './question_mark.svg'
+import EcargobikeIcon from './ecargobike.svg'
+import MotorwayDisabledIcon from './motorway_disabled.svg'
+import FerryDisabledIcon from './ferry_disabled.svg'
+import TollDisabledIcon from './toll_disabled.svg'
 
 // ALL AVAILABLE ICONS
 // every svg gets mapped to a key, so icons can be easily added
@@ -23,7 +27,11 @@ export const icons: Record<string, any> = {
     bike: BicycleIcon,
     mtb: MtbBicycleIcon, // Mountainbike
     racingbike: RacingbikeIcon,
+    ecargobike: EcargobikeIcon,
     motorcycle: MotorcycleIcon,
     wheelchair: WheelchairIcon,
     question_mark: QuestionMarkIcon,
+    car_avoid_motorway: MotorwayDisabledIcon,
+    car_avoid_ferry: FerryDisabledIcon,
+    car_avoid_toll: TollDisabledIcon,
 }

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="24"
+   viewBox="0 96 960 960"
+   width="24"
+   version="1.1"
+   id="svg16"
+   sodipodi:docname="motorway_disabled.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs20" />
+  <sodipodi:namedview
+     id="namedview18"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="true"
+     inkscape:zoom="20.763701"
+     inkscape:cx="12.690416"
+     inkscape:cy="14.111164"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg16">
+    <inkscape:grid
+       type="xygrid"
+       id="grid723" />
+  </sodipodi:namedview>
+  <path
+     style="fill:none;stroke:currentColor;stroke-width:45.36;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none"
+     d="m 570.33939,191.68699 -48.17285,0.29853 0.62859,191.37699 100.41345,0.61904 z"
+     id="path719-9"
+     sodipodi:nodetypes="ccccc" />
+  <path
+     id="path721-1"
+     style="fill:none;stroke:currentColor;stroke-width:45.3544;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 677.89062,575.6875 -59.68534,-0.0407 78.56653,68.74073 z M 522.60698,713.31191 524.0625,959.125 783.35938,959.90625 762.2031,922.65096 Z"
+     sodipodi:nodetypes="ccccccccc" />
+  <rect
+     fill="currentColor"
+     x="127.68493"
+     y="431.21518"
+     width="700"
+     height="70"
+     rx="10"
+     id="rect12"
+     style="paint-order:markers stroke fill" />
+  <rect
+     fill="currentColor"
+     x="199.44609"
+     y="467.57745"
+     width="56.163334"
+     height="70"
+     rx="0.80233335"
+     id="rect12-3"
+     style="stroke-width:0.283255" />
+  <rect
+     fill="currentColor"
+     x="703.41547"
+     y="467.02899"
+     width="56.163334"
+     height="70"
+     rx="0.80233335"
+     id="rect12-3-5"
+     style="stroke-width:0.28;stroke-dasharray:none;paint-order:fill markers stroke" />
+  <path
+     id="path719"
+     style="fill:none;stroke:currentColor;stroke-width:45.3544;stroke-linecap:round;stroke-linejoin:miter"
+     d="m 388.35938,191.85938 -40.41472,146.91375 51.64611,44.96498 36.26861,-0.23811 0.625,-191.40625 z"
+     sodipodi:nodetypes="cccccc" />
+  <path
+     style="fill:none;stroke:currentColor;stroke-width:45.3544;stroke-linecap:round;stroke-linejoin:miter"
+     d="m 280.75931,575.81218 84.66687,-0.007 69.07401,60.46919 0.11181,323.01889 -259.3104,0.7225 z"
+     id="path721"
+     sodipodi:nodetypes="cccccc" />
+  <rect
+     style="fill:none;stroke:currentColor;stroke-width:47.9343;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;paint-order:markers stroke fill"
+     id="rect2910"
+     width="975.1579"
+     height="31.611822"
+     x="261.74893"
+     y="82.567024"
+     transform="matrix(0.75252221,0.65856687,-0.65647224,0.75435019,0,0)" />
+</svg>
