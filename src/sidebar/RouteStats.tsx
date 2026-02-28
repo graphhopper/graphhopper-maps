@@ -3,6 +3,7 @@ import { Path } from '@/api/graphhopper'
 import { Position } from 'geojson'
 import { calcDist } from '@/utils'
 import { ApiImpl } from '@/api/Api'
+import { tr } from '@/translation/Translation'
 import styles from './RouteStats.module.css'
 
 // Stable color map: same value always gets the same color regardless of route
@@ -179,12 +180,12 @@ function topColors(distMap: Map<string, number>, keys: Iterable<string>, n: numb
 }
 
 /** Build detail entries from a distance map, sorted by distance descending */
-function detailEntries(distMap: Map<string, number>, totalDist: number): DetailEntry[] {
+function detailEntries(distMap: Map<string, number>, totalDist: number, missingLabel = 'unknown'): DetailEntry[] {
     return [...distMap.entries()]
         .filter(([, d]) => d > 0)
         .sort((a, b) => b[1] - a[1])
         .map(([name, d]) => ({
-            name: name || '(unknown)',
+            name: (!name || name === 'missing') ? missingLabel : name,
             km: fmtKm(d),
             color: VALUE_COLORS[name] || '#BDBDBD',
             fraction: d / totalDist,
@@ -284,15 +285,15 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             if (pavedDist > 0) extra.push({ name: 'paved', value: pct(pavedDist, totalDist), ...topColors(dist, PAVED) })
             if (unpavedDist > 0) extra.push({ name: 'unpaved', value: pct(unpavedDist, totalDist), ...topColors(dist, UNPAVED) })
             lines.push(
-                <ExpandableStat key="surface" label="Surface" details={detailEntries(dist, totalDist)} extraInfo={extra} />,
+                <ExpandableStat key="surface" label={tr('route_stats_surface')} details={detailEntries(dist, totalDist)} extraInfo={extra} />,
             )
         }
     }
 
     // Bike / foot network
     const networks: [string, string, [number, number, any][] | undefined, boolean][] = [
-        ['bike_network', 'Bike network', path.details.bike_network, ApiImpl.isBikeLike(profile)],
-        ['foot_network', 'Foot network', path.details.foot_network, ApiImpl.isFootLike(profile)],
+        ['bike_network', tr('route_stats_bike_network'), path.details.bike_network, ApiImpl.isBikeLike(profile)],
+        ['foot_network', tr('route_stats_foot_network'), path.details.foot_network, ApiImpl.isFootLike(profile)],
     ]
     for (const [key, label, details, active] of networks) {
         if (active && details) {
@@ -303,7 +304,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                     <ExpandableStat
                         key={key}
                         label={label}
-                        details={detailEntries(dist, totalDist)}
+                        details={detailEntries(dist, totalDist, 'none')}
                         extraInfo={[{ name: 'on network', value: pct(onNetwork, totalDist), ...topColors(dist, NETWORK_KEYS) }]}
                     />,
                 )
@@ -323,7 +324,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             if (medium > 0) extra.push({ name: 'medium', value: pct(medium, totalDist), ...topColors(dist, MEDIUM_ROADS) })
             if (small > 0) extra.push({ name: 'small', value: pct(small, totalDist), ...topColors(dist, SMALL_ROADS) })
             lines.push(
-                <ExpandableStat key="roads" label="Roads" details={detailEntries(dist, totalDist)} extraInfo={extra} />,
+                <ExpandableStat key="roads" label={tr('route_stats_roads')} details={detailEntries(dist, totalDist)} extraInfo={extra} />,
             )
         }
     }
@@ -339,7 +340,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             lines.push(
                 <ExpandableStat
                     key="incline"
-                    label="Incline"
+                    label={tr('route_stats_incline')}
                     details={inclineDetails}
                     extraInfo={[
                         { name: 'total ascent', value: `${Math.round(path.ascend)} m` },
@@ -380,7 +381,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
         lines.push(
             <ExpandableStat
                 key="speed"
-                label="Speed"
+                label={tr('route_stats_speed')}
                 details={speedDetails}
                 extraInfo={[
                     { name: 'average', value: `${Math.round(avgSpeed)} km/h` },
@@ -396,7 +397,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
         const tH = (totalDist / 1000 / 4) * 60
         const tV = (path.ascend / 300 + path.descend / 500) * 60
         lines.push(
-            <ExpandableStat key="hiking_time" label="Hiking time" summary={formatTime(Math.max(tH, tV) + Math.min(tH, tV) / 2)} />,
+            <ExpandableStat key="hiking_time" label={tr('route_stats_hiking_time')} summary={formatTime(Math.max(tH, tV) + Math.min(tH, tV) / 2)} />,
         )
     }
 
