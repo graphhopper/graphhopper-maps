@@ -7,30 +7,31 @@ import styles from './RouteStats.module.css'
 
 // Stable color map: same value always gets the same color regardless of route
 const VALUE_COLORS: Record<string, string> = {
-    // Surface - paved (blue tones)
-    asphalt: '#1976D2',
-    paved: '#42A5F5',
-    concrete: '#5C6BC0',
-    paving_stones: '#7E57C2',
-    'concrete:plates': '#0097A7',
-    'concrete:lanes': '#00ACC1',
-    metal: '#90A4AE',
-    // Surface - unpaved (distinct warm/natural tones)
-    compacted: '#A1887F',
+    // Surface - paved (greens)
+    asphalt: '#2E7D32',
+    paved: '#43A047',
+    concrete: '#66BB6A',
+    paving_stones: '#81C784',
+    'concrete:plates': '#A5D6A7',
+    'concrete:lanes': '#388E3C',
+    metal: '#00897B',
+    // Surface - unpaved (warm/natural tones)
+    compacted: '#FFB74D',
     gravel: '#FF8A65',
-    fine_gravel: '#FFB74D',
+    fine_gravel: '#FFCC80',
     unpaved: '#C68642',
-    dirt: '#8D6E63',
     ground: '#9E9D24',
-    earth: '#A0522D',
-    grass: '#4CAF50',
-    grass_paver: '#81C784',
+    earth: '#8D6E63',
+    grass: '#7CB342',
+    grass_paver: '#AED581',
     sand: '#FFD54F',
     mud: '#5D4037',
-    wood: '#D84315',
-    cobblestone: '#F06292',
-    sett: '#CE93D8',
-    unhewn_cobblestone: '#AB47BC',
+    // Surface - rough/uncomfortable (reds/pinks)
+    dirt: '#E53935',
+    wood: '#C62828',
+    cobblestone: '#D81B60',
+    sett: '#AD1457',
+    unhewn_cobblestone: '#880E4F',
     // Road classes
     motorway: '#D32F2F',
     trunk: '#E64A19',
@@ -41,18 +42,18 @@ const VALUE_COLORS: Record<string, string> = {
     unclassified: '#78909C',
     living_street: '#81C784',
     service: '#A5D6A7',
-    cycleway: '#AB47BC',
-    path: '#26A69A',
-    track: '#8D6E63',
+    cycleway: '#2E7D32',
+    path: '#66BB6A',
+    track: '#81C784',
     bridleway: '#795548',
     footway: '#EC407A',
     pedestrian: '#F48FB1',
     steps: '#FF5722',
     // Network levels
-    international: '#D32F2F',
-    national: '#1976D2',
-    regional: '#388E3C',
-    local: '#FFA000',
+    international: '#2E7D32',
+    national: '#66BB6A',
+    regional: '#1565C0',
+    local: '#42A5F5',
 }
 
 const INCLINE_COLORS = ['#2E7D32', '#FF9800', '#F44336', '#7B1FA2']
