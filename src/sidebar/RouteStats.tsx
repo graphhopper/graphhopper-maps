@@ -58,7 +58,7 @@ const VALUE_COLORS: Record<string, string> = {
 }
 
 const INCLINE_COLORS = ['#2E7D32', '#FF9800', '#F44336', '#7B1FA2']
-const INCLINE_LABELS = ['flat (<4%)', 'mild (4–8%)', 'steep (8–12%)', 'very steep (≥12%)']
+const INCLINE_LABELS = ['flat (<3%)', 'mild (3–6%)', 'steep (6–10%)', 'very steep (≥10%)']
 const SPEED_COLORS = ['#F44336', '#FF9800', '#FFD54F', '#66BB6A', '#2E7D32']
 
 const PAVED = new Set(['asphalt', 'concrete', 'paved', 'paving_stones', 'concrete:plates', 'concrete:lanes', 'metal'])
@@ -331,7 +331,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
 
     // Incline (from 3D polyline)
     if (coords.length > 1 && coords[0].length >= 3) {
-        const distAbove = computeInclineDistances(coords, [4, 8, 12])
+        const distAbove = computeInclineDistances(coords, [3, 6, 10])
         if (distAbove[0] > 0) {
             const segments = [totalDist - distAbove[0], distAbove[0] - distAbove[1], distAbove[1] - distAbove[2], distAbove[2]]
             const inclineDetails = segments
