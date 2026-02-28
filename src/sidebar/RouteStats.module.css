@@ -1,0 +1,105 @@
+.routeStats {
+    padding: 0.5rem 1.5rem 0.75rem 1.4em;
+    font-size: 14px;
+    color: #5b616a;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.label {
+    font-weight: 600;
+    font-size: 16px;
+    color: #383838;
+    flex-shrink: 0;
+    min-width: 7em;
+}
+
+.statLine {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.statClickable {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    line-height: 1.5;
+    gap: 0.5em;
+}
+
+.statClickable:hover {
+    color: #383838;
+}
+
+.statArrow {
+    font-size: 22px;
+    color: #999;
+    flex-shrink: 0;
+    margin-left: auto;
+    position: relative;
+    top: -2px;
+}
+
+.statDetails {
+    margin-left: auto;
+    padding-right: 1.2em;
+    color: #777;
+    font-size: 14.5px;
+    line-height: 1.6;
+    max-width: 18em;
+}
+
+.statSummary {
+    padding-bottom: 0.4em;
+    margin-bottom: 0.3em;
+    border-bottom: 2px solid #e8e8e8;
+    font-size: 16px;
+}
+
+.moreDots {
+    color: #aaa;
+    font-size: 12px;
+    margin-right: 0.4em;
+    flex-shrink: 0;
+}
+
+.detailRow {
+    display: flex;
+    align-items: center;
+}
+
+.detailName {
+    white-space: nowrap;
+    flex: 1;
+}
+
+.detailValue {
+    text-align: right;
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding-left: 1em;
+}
+
+.colorBar {
+    flex: 1;
+    display: flex;
+    height: 12px;
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 2em;
+}
+
+.colorBarSegment {
+    min-width: 1px;
+}
+
+.colorDot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5em;
+    flex-shrink: 0;
+}
