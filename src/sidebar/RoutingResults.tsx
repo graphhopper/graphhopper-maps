@@ -196,7 +196,7 @@ function RoutingResult({
                     )}
                 </div>
             </div>
-            {isSelected && !isExpanded && showHints && (
+            {isSelected && showHints && (
                 <div className={styles.routeHints}>
                     <div className={styles.icons}>
                         <RHButton
