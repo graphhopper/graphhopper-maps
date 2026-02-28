@@ -343,8 +343,8 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                     label={tr('route_stats_incline')}
                     details={inclineDetails}
                     extraInfo={[
-                        { name: 'total ascent', value: `${Math.round(path.ascend)} m` },
-                        { name: 'total descent', value: `${Math.round(path.descend)} m` },
+                        { name: 'total ascent', value: `${Math.floor(path.ascend)} m` },
+                        { name: 'total descent', value: `${Math.floor(path.descend)} m` },
                     ]}
                 />,
             )
