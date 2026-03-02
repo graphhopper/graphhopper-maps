@@ -105,11 +105,6 @@ function inspectDetail(entries: [number, number, any][]): {
     }
 }
 
-function detectVisualizationType(entries: [number, number, any][]): 'area' | 'bars' | 'line' {
-    const info = inspectDetail(entries)
-    return info.numeric && info.minVal !== info.maxVal ? 'line' : 'bars'
-}
-
 export function sanitizeNumericValues(
     entries: [number, number, any][],
 ): [number, number, any][] {
@@ -136,8 +131,8 @@ export function transformPathDetail(
     profile: string = '',
 ): ChartPathDetail {
     const sanitized = sanitizeNumericValues(entries)
-    const type = detectVisualizationType(sanitized)
     const info = inspectDetail(sanitized)
+    const type = info.numeric && info.minVal !== info.maxVal ? 'line' : 'bars'
 
     const isSpeedDetail = key === 'average_speed' || key === 'max_speed'
 

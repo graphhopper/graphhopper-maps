@@ -10,7 +10,7 @@ export interface PathDetailSegment {
     toDistance: number
     value: string | number | boolean
     color: string
-    coordinates: [number, number][] // [lng, lat]
+    coordinates: [number, number][] // [lng, lat] — concrete arrays needed by OpenLayers for GeoJSON features
 }
 
 export interface LegendEntry {
