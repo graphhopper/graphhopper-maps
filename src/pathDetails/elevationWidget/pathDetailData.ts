@@ -1,0 +1,245 @@
+import { ChartData, ChartPathDetail, ElevationPoint, LegendEntry, PathDetailSegment } from './types'
+import { assignDiscreteColors, getNumericGradientColor, isMissingValue } from './colors'
+
+export interface PathLike {
+    points: { coordinates: number[][] }
+    snapped_waypoints: { coordinates: number[][] }
+    details: object
+    distance: number
+}
+
+interface QueryPointLike {
+    coordinate: { lat: number; lng: number }
+    type: number // 0=From, 1=To, other=Via
+}
+
+/**
+ * Calculates great-circle distance between two [lng, lat] points in meters.
+ */
+function haversine(p: number[], q: number[]): number {
+    const toRad = (deg: number) => deg * 0.017453292519943295
+    const lat1 = p[1],
+        lat2 = q[1],
+        lon1 = p[0],
+        lon2 = q[0]
+    const sinDeltaLat = Math.sin(toRad(lat2 - lat1) / 2)
+    const sinDeltaLon = Math.sin(toRad(lon2 - lon1) / 2)
+    return (
+        6371000 *
+        2 *
+        Math.asin(Math.sqrt(sinDeltaLat * sinDeltaLat + sinDeltaLon * sinDeltaLon * Math.cos(toRad(lat1)) * Math.cos(toRad(lat2))))
+    )
+}
+
+export function extractElevationProfile(coordinates: number[][]): ElevationPoint[] {
+    if (coordinates.length === 0) return []
+    const points: ElevationPoint[] = []
+    let cumDist = 0
+    for (let i = 0; i < coordinates.length; i++) {
+        if (i > 0) cumDist += haversine(coordinates[i - 1], coordinates[i])
+        points.push({
+            distance: cumDist,
+            elevation: coordinates[i].length >= 3 ? coordinates[i][2] : 0,
+            lng: coordinates[i][0],
+            lat: coordinates[i][1],
+        })
+    }
+    return points
+}
+
+export function calculateViaPointDistances(
+    path: PathLike,
+    queryPoints: QueryPointLike[],
+): number[] {
+    const coords = path.points.coordinates
+    if (coords.length === 0) return []
+
+    // Build cumulative distances
+    const cumDist: number[] = [0]
+    for (let i = 1; i < coords.length; i++) {
+        cumDist.push(cumDist[i - 1] + haversine(coords[i - 1], coords[i]))
+    }
+
+    // snapped_waypoints has coordinates for all query points (From, Vias, To)
+    // We want only via points (skip first=From and last=To)
+    const waypointCoords = path.snapped_waypoints.coordinates
+    if (waypointCoords.length <= 2) return []
+
+    const viaDistances: number[] = []
+    for (let w = 1; w < waypointCoords.length - 1; w++) {
+        const wp = waypointCoords[w]
+        // Find closest point on route
+        let minDist = Infinity
+        let bestIdx = 0
+        for (let i = 0; i < coords.length; i++) {
+            const d = haversine(coords[i], wp)
+            if (d < minDist) {
+                minDist = d
+                bestIdx = i
+            }
+        }
+        viaDistances.push(cumDist[bestIdx])
+    }
+    return viaDistances
+}
+
+function inspectDetail(entries: [number, number, any][]): {
+    numeric: boolean
+    minVal: number
+    maxVal: number
+} {
+    let minVal = Infinity
+    let maxVal = -Infinity
+    let numberCount = 0
+    let nonNullCount = 0
+    for (const entry of entries) {
+        const val = entry[2]
+        if (val == null) continue
+        nonNullCount++
+        if (typeof val === 'number' && isFinite(val)) {
+            numberCount++
+            minVal = Math.min(val, minVal)
+            maxVal = Math.max(val, maxVal)
+        }
+    }
+    return {
+        numeric: numberCount === nonNullCount && numberCount > 0,
+        minVal: minVal === Infinity ? 0 : minVal,
+        maxVal: maxVal === -Infinity ? 0 : maxVal,
+    }
+}
+
+function detectVisualizationType(entries: [number, number, any][]): 'area' | 'bars' | 'line' {
+    const info = inspectDetail(entries)
+    return info.numeric && info.minVal !== info.maxVal ? 'line' : 'bars'
+}
+
+export function sanitizeNumericValues(
+    entries: [number, number, any][],
+): [number, number, any][] {
+    // Cap Infinity values at 99th percentile
+    const finiteVals = entries.map(e => e[2]).filter((v): v is number => typeof v === 'number' && isFinite(v))
+    if (finiteVals.length === 0) return entries
+
+    finiteVals.sort((a, b) => a - b)
+    const p99 = finiteVals[Math.floor(finiteVals.length * 0.99)]
+
+    return entries.map(([from, to, val]) => {
+        if (val == null) return [from, to, 0]
+        if (typeof val === 'number' && !isFinite(val)) return [from, to, p99]
+        return [from, to, val]
+    })
+}
+
+export function transformPathDetail(
+    key: string,
+    label: string,
+    entries: [number, number, any][],
+    coordinates: number[][],
+    cumulativeDistances: number[],
+): ChartPathDetail {
+    const sanitized = sanitizeNumericValues(entries)
+    const type = detectVisualizationType(sanitized)
+    const info = inspectDetail(sanitized)
+
+    let segments: PathDetailSegment[]
+    let legend: LegendEntry[]
+
+    if (type === 'line') {
+        // Numeric values - use gradient coloring
+        segments = sanitized.map(([from, to, val]) => {
+            const factor = info.maxVal !== info.minVal ? (val - info.minVal) / (info.maxVal - info.minVal) : 0
+            return {
+                fromDistance: cumulativeDistances[from] || 0,
+                toDistance: cumulativeDistances[to] || 0,
+                value: val,
+                color: getNumericGradientColor(factor),
+                coordinates: coordinates.slice(from, to + 1).map(c => [c[0], c[1]] as [number, number]),
+            }
+        })
+        const mid = Math.round((info.minVal + info.maxVal) / 2)
+        legend = [
+            { label: String(info.minVal), color: getNumericGradientColor(0) },
+            { label: String(mid), color: getNumericGradientColor(0.5) },
+            { label: String(info.maxVal), color: getNumericGradientColor(1) },
+        ]
+    } else {
+        // Discrete values
+        const allValues = sanitized.map(e => e[2])
+        const colorMap = assignDiscreteColors(key, allValues)
+
+        segments = sanitized.map(([from, to, val]) => ({
+            fromDistance: cumulativeDistances[from] || 0,
+            toDistance: cumulativeDistances[to] || 0,
+            value: val ?? 'Undefined',
+            color: colorMap.get(String(val ?? 'Undefined')) || '#dddddd',
+            coordinates: coordinates.slice(from, to + 1).map(c => [c[0], c[1]] as [number, number]),
+        }))
+
+        // Build legend from unique values preserving order
+        const seen = new Set<string>()
+        legend = []
+        for (const [, , val] of sanitized) {
+            const str = String(val ?? 'Undefined')
+            if (!seen.has(str)) {
+                seen.add(str)
+                legend.push({ label: str, color: colorMap.get(str) || '#dddddd' })
+            }
+        }
+    }
+
+    return {
+        key,
+        label,
+        type,
+        segments,
+        legend,
+        minValue: type === 'line' ? info.minVal : undefined,
+        maxValue: type === 'line' ? info.maxVal : undefined,
+    }
+}
+
+export function buildChartData(
+    selectedPath: PathLike,
+    alternativePaths: PathLike[],
+    queryPoints: QueryPointLike[],
+    translateFn: (key: string) => string,
+): ChartData {
+    const coordinates = selectedPath.points.coordinates.map(pos =>
+        pos.length === 2 ? [...pos, 0] : pos,
+    )
+
+    const elevation = extractElevationProfile(coordinates)
+
+    // Build cumulative distances array for index-based lookups
+    const cumulativeDistances: number[] = elevation.map(p => p.distance)
+
+    // Alternative elevations
+    const alternativeElevations = alternativePaths
+        .filter(p => p !== selectedPath && p.points.coordinates.length > 0)
+        .map(p => {
+            const altCoords = p.points.coordinates.map(pos => (pos.length === 2 ? [...pos, 0] : pos))
+            return extractElevationProfile(altCoords)
+        })
+
+    // Path details
+    const pathDetails: ChartPathDetail[] = []
+    const details = selectedPath.details as { [key: string]: [number, number, any][] }
+    for (const [key, entries] of Object.entries(details)) {
+        if (!entries || entries.length === 0) continue
+        pathDetails.push(
+            transformPathDetail(key, translateFn(key), entries, coordinates, cumulativeDistances),
+        )
+    }
+
+    // Via point distances
+    const viaPointDistances = calculateViaPointDistances(selectedPath, queryPoints)
+
+    return {
+        elevation,
+        alternativeElevations,
+        pathDetails,
+        viaPointDistances,
+        totalDistance: selectedPath.distance,
+    }
+}

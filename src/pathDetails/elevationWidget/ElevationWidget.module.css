@@ -1,0 +1,64 @@
+.container {
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 0.4rem 0.4rem 0 0;
+    pointer-events: auto;
+}
+
+.canvasContainer {
+    position: relative;
+    width: 100%;
+    cursor: crosshair;
+    overflow: hidden;
+}
+
+.chartCanvas {
+    display: block;
+}
+
+.overlayCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.1rem 0.5rem 0;
+    flex-wrap: nowrap;
+}
+
+.expandButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f8f8f9;
+    cursor: pointer;
+    font-size: 9px;
+    color: #666;
+    flex-shrink: 0;
+    margin-left: auto;
+    padding: 0 0 0 1px;
+}
+
+.expandButton:hover {
+    background: #e8e8e8;
+    color: #333;
+}
+
+@media (max-width: 44rem) {
+    .expandButton {
+        display: none;
+    }
+
+    .container {
+        border-radius: 0;
+    }
+}
