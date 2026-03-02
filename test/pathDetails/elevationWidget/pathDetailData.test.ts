@@ -53,7 +53,7 @@ describe('pathDetailData', () => {
                 details: {},
                 distance: 1000,
             }
-            expect(calculateViaPointDistances(path, [])).toEqual([])
+            expect(calculateViaPointDistances(path)).toEqual([])
         })
 
         it('returns empty for empty path', () => {
@@ -63,7 +63,7 @@ describe('pathDetailData', () => {
                 details: {},
                 distance: 0,
             }
-            expect(calculateViaPointDistances(path, [])).toEqual([])
+            expect(calculateViaPointDistances(path)).toEqual([])
         })
 
         it('finds via point distance', () => {
@@ -84,7 +84,7 @@ describe('pathDetailData', () => {
                 details: {},
                 distance: 5000,
             }
-            const result = calculateViaPointDistances(path, [])
+            const result = calculateViaPointDistances(path)
             expect(result).toHaveLength(1)
             expect(result[0]).toBeGreaterThan(0)
         })
@@ -185,7 +185,7 @@ describe('pathDetailData', () => {
                 },
                 distance: 1400,
             }
-            const result = buildChartData(path, [], [], k => k)
+            const result = buildChartData(path, [], k => k)
             expect(result.elevation).toHaveLength(3)
             expect(result.totalDistance).toBe(1400)
             expect(result.pathDetails).toHaveLength(1)
@@ -204,7 +204,7 @@ describe('pathDetailData', () => {
                 details: {},
                 distance: 700,
             }
-            const result = buildChartData(path, [], [], k => k)
+            const result = buildChartData(path, [], k => k)
             expect(result.elevation).toHaveLength(2)
             expect(result.elevation[0].elevation).toBe(0)
         })
@@ -216,7 +216,7 @@ describe('pathDetailData', () => {
                 details: {},
                 distance: 0,
             }
-            const result = buildChartData(path, [], [], k => k)
+            const result = buildChartData(path, [], k => k)
             expect(result.elevation).toHaveLength(0)
         })
 
@@ -233,7 +233,7 @@ describe('pathDetailData', () => {
                 details: {},
                 distance: 900,
             }
-            const result = buildChartData(main, [alt], [], k => k)
+            const result = buildChartData(main, [alt], k => k)
             expect(result.alternativeElevations).toHaveLength(1)
             expect(result.alternativeElevations[0]).toHaveLength(3)
         })

@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Path } from '@/api/graphhopper'
-import { QueryPoint } from '@/stores/QueryStore'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsHover } from '@/actions/Actions'
@@ -12,7 +11,6 @@ import { tr } from '@/translation/Translation'
 interface ElevationInfoBarProps {
     selectedPath: Path
     alternativePaths: Path[]
-    queryPoints: QueryPoint[]
     profile: string
     isExpanded: boolean
     onToggleExpanded: () => void
@@ -22,7 +20,6 @@ interface ElevationInfoBarProps {
 export default function ElevationInfoBar({
     selectedPath,
     alternativePaths,
-    queryPoints,
     profile,
     isExpanded,
     onToggleExpanded,
@@ -35,9 +32,9 @@ export default function ElevationInfoBar({
     const chartData = useMemo(
         () =>
             selectedPath.points.coordinates.length > 0
-                ? buildChartData(selectedPath, alternativePaths, queryPoints, tr, profile)
+                ? buildChartData(selectedPath, alternativePaths, tr, profile)
                 : null,
-        [selectedPath, alternativePaths, queryPoints, profile],
+        [selectedPath, alternativePaths, profile],
     )
 
     const inclineDetail = useMemo(

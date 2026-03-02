@@ -255,7 +255,6 @@ function LargeScreenLayout({
                 <ElevationInfoBar
                     selectedPath={route.selectedPath}
                     alternativePaths={route.routingResult.paths}
-                    queryPoints={query.queryPoints}
                     profile={query.routingProfile.name}
                     isExpanded={isExpanded}
                     onToggleExpanded={() => setIsExpanded(!isExpanded)}
@@ -282,7 +281,6 @@ function SmallScreenLayout({
         <ElevationInfoBar
             selectedPath={route.selectedPath}
             alternativePaths={route.routingResult.paths}
-            queryPoints={query.queryPoints}
             profile={query.routingProfile.name}
             isExpanded={false}
             onToggleExpanded={() => {}}

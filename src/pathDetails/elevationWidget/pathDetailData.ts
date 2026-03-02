@@ -1,5 +1,5 @@
 import { ChartData, ChartPathDetail, ElevationPoint, LegendEntry, PathDetailSegment } from './types'
-import { assignDiscreteColors, getNumericGradientColor, getSpeedColor, getSpeedLabels, getSpeedThresholds, getSlopeColor, SPEED_COLORS, INCLINE_CATEGORIES, isMissingValue } from './colors'
+import { assignDiscreteColors, getNumericGradientColor, getSpeedColor, getSpeedLabels, getSpeedThresholds, getSlopeColor, SPEED_COLORS, INCLINE_CATEGORIES } from './colors'
 
 export interface PathLike {
     points: { coordinates: number[][] }
@@ -7,11 +7,6 @@ export interface PathLike {
     // type is: { [key: string]: [number, number, any][] } -> simpler regarding TS, but then explicit cast necessary
     details: object
     distance: number
-}
-
-interface QueryPointLike {
-    coordinate: { lat: number; lng: number }
-    type: number // 0=From, 1=To, other=Via
 }
 
 /**
@@ -48,7 +43,6 @@ export function extractElevationPoints(coordinates: number[][]): ElevationPoint[
 
 export function calculateViaPointDistances(
     path: PathLike,
-    queryPoints: QueryPointLike[],
 ): number[] {
     const coords = path.points.coordinates
     if (coords.length === 0) return []
@@ -224,7 +218,6 @@ export function transformPathDetail(
 export function buildChartData(
     selectedPath: PathLike,
     alternativePaths: PathLike[],
-    queryPoints: QueryPointLike[],
     translateFn: (key: string) => string,
     profile: string = '',
 ): ChartData {
@@ -257,7 +250,7 @@ export function buildChartData(
     }
 
     // Via point distances
-    const viaPointDistances = calculateViaPointDistances(selectedPath, queryPoints)
+    const viaPointDistances = calculateViaPointDistances(selectedPath)
 
     return {
         elevation,
