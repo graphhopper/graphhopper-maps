@@ -375,39 +375,58 @@ export default class ChartRenderer {
     ) {
         if (elev.length < 2) return
 
-        // Merge consecutive segments with the same slope color to avoid sub-pixel gaps
-        const runs: { fromIdx: number; toIdx: number; color: string }[] = []
-        let currentColor = ''
-        let runStart = 0
+        // For long routes the elevation data can have thousands of points, leading to
+        // hundreds of tiny color-change polygons that create visual noise. To avoid this
+        // we quantize into bins of at least MIN_BIN_PX pixels wide. Within each bin we
+        // pick the steepest slope to determine the color — this preserves steep sections
+        // visually even when they span only a few data points. Adjacent bins with the
+        // same color are then merged into single polygons to minimize draw calls.
+        const totalDist = elev[elev.length - 1].distance
+        const plotWidth = xScale(totalDist) - xScale(0)
+        const MIN_BIN_PX = 1
+        const minBinDist = (MIN_BIN_PX / plotWidth) * totalDist
+        const bins: { fromIdx: number; toIdx: number; color: string }[] = []
+        let binStart = 0
+        let maxAbsSlope = 0
+        let steepestSlope = 0
 
         for (let i = 0; i < elev.length - 1; i++) {
-            const dist = elev[i + 1].distance - elev[i].distance
-            const slope = dist > 0 ? (100 * (elev[i + 1].elevation - elev[i].elevation)) / dist : 0
-            const color = getSlopeColor(slope)
-            if (color !== currentColor) {
-                if (currentColor !== '') {
-                    runs.push({ fromIdx: runStart, toIdx: i, color: currentColor })
-                }
-                runStart = i
-                currentColor = color
+            const segDist = elev[i + 1].distance - elev[i].distance
+            const slope = segDist > 0 ? (100 * (elev[i + 1].elevation - elev[i].elevation)) / segDist : 0
+            const absSlope = Math.abs(slope)
+            if (absSlope > maxAbsSlope) {
+                maxAbsSlope = absSlope
+                steepestSlope = slope
+            }
+
+            const binSpan = elev[i + 1].distance - elev[binStart].distance
+            if (binSpan >= minBinDist || i === elev.length - 2) {
+                bins.push({ fromIdx: binStart, toIdx: i + 1, color: getSlopeColor(steepestSlope) })
+                binStart = i + 1
+                maxAbsSlope = 0
+                steepestSlope = 0
             }
         }
-        if (currentColor !== '') {
-            runs.push({ fromIdx: runStart, toIdx: elev.length - 1, color: currentColor })
+
+        // Merge consecutive bins with the same color
+        const runs: { fromIdx: number; toIdx: number; color: string }[] = []
+        for (const bin of bins) {
+            const last = runs[runs.length - 1]
+            if (last && last.color === bin.color) {
+                last.toIdx = bin.toIdx
+            } else {
+                runs.push({ ...bin })
+            }
         }
 
-        // Draw each merged run as a single filled polygon
+        // Draw each run as a single filled polygon
         for (const run of runs) {
-            const x1 = xScale(elev[run.fromIdx].distance)
-            const x2 = xScale(elev[run.toIdx].distance)
-            if (x2 - x1 < 0.1) continue
-
             ctx.beginPath()
-            ctx.moveTo(x1, baseline)
+            ctx.moveTo(xScale(elev[run.fromIdx].distance), baseline)
             for (let i = run.fromIdx; i <= run.toIdx; i++) {
                 ctx.lineTo(xScale(elev[i].distance), yScale(elev[i].elevation))
             }
-            ctx.lineTo(x2, baseline)
+            ctx.lineTo(xScale(elev[run.toIdx].distance), baseline)
             ctx.closePath()
             ctx.fillStyle = run.color + '60'
             ctx.fill()
