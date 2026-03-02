@@ -139,7 +139,7 @@ export default class ChartRenderer {
 
         const x = margin.left + (hit.distance / totalDist) * plotWidth
         const plotBottom = this.cssHeight - margin.bottom
-        const detailBarH = this.selectedDetail ? DETAIL_BAR_HEIGHT : 0
+        const detailBarH = this.selectedDetail && this.selectedDetail.type !== 'line' ? DETAIL_BAR_HEIGHT : 0
 
         ctx.beginPath()
         ctx.strokeStyle = '#333'
@@ -252,7 +252,7 @@ export default class ChartRenderer {
         const margin = this.getEffectiveMargin()
         const plotWidth = this.cssWidth - margin.left - margin.right
         const plotBottom = this.cssHeight - margin.bottom
-        const detailBarH = this.selectedDetail ? DETAIL_BAR_HEIGHT : 0
+        const detailBarH = this.selectedDetail && this.selectedDetail.type !== 'line' ? DETAIL_BAR_HEIGHT : 0
         const plotHeight = plotBottom - margin.top - detailBarH
 
         const elev = this.data.elevation
