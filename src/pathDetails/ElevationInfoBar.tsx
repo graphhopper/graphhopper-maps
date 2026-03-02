@@ -1,10 +1,10 @@
-import { useCallback, useContext, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Path } from '@/api/graphhopper'
 import { QueryPoint } from '@/stores/QueryStore'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsHover } from '@/actions/Actions'
-import { buildChartData } from './elevationWidget/pathDetailData'
+import { buildChartData, buildInclineDetail } from './elevationWidget/pathDetailData'
 import { ChartHoverResult, ChartPathDetail } from './elevationWidget/types'
 import ElevationWidget from './elevationWidget/ElevationWidget'
 import { tr } from '@/translation/Translation'
@@ -29,6 +29,8 @@ export default function ElevationInfoBar({
     onActiveDetailChanged,
 }: ElevationInfoBarProps) {
     const settings = useContext(SettingsContext)
+    const [inclineOnMap, setInclineOnMap] = useState(false)
+    const [selectedDropdownDetail, setSelectedDropdownDetail] = useState<ChartPathDetail | null>(null)
 
     const chartData = useMemo(
         () =>
@@ -37,6 +39,17 @@ export default function ElevationInfoBar({
                 : null,
         [selectedPath, alternativePaths, queryPoints, profile],
     )
+
+    const inclineDetail = useMemo(
+        () => (chartData ? buildInclineDetail(chartData.elevation) : null),
+        [chartData],
+    )
+
+    // Compute effective active detail: dropdown detail takes priority, then incline toggle
+    useEffect(() => {
+        const effective = selectedDropdownDetail ?? (inclineOnMap ? inclineDetail : null)
+        onActiveDetailChanged(effective)
+    }, [selectedDropdownDetail, inclineOnMap, inclineDetail, onActiveDetailChanged])
 
     const handleHover = useCallback((result: ChartHoverResult | null) => {
         if (result) {
@@ -53,12 +66,13 @@ export default function ElevationInfoBar({
         }
     }, [])
 
-    const handleDetailSelected = useCallback(
-        (detail: ChartPathDetail | null) => {
-            onActiveDetailChanged(detail)
-        },
-        [onActiveDetailChanged],
-    )
+    const handleDetailSelected = useCallback((detail: ChartPathDetail | null) => {
+        setSelectedDropdownDetail(detail)
+    }, [])
+
+    const handleToggleIncline = useCallback(() => {
+        setInclineOnMap(prev => !prev)
+    }, [])
 
     return (
         <ElevationWidget
@@ -68,6 +82,8 @@ export default function ElevationInfoBar({
             onDetailSelected={handleDetailSelected}
             isExpanded={isExpanded}
             onToggleExpanded={onToggleExpanded}
+            showInclineOnMap={inclineOnMap}
+            onToggleInclineOnMap={handleToggleIncline}
             elevationLabel={tr('elevation')}
         />
     )

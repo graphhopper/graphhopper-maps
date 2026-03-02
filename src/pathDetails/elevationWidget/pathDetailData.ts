@@ -1,5 +1,5 @@
 import { ChartData, ChartPathDetail, ElevationPoint, LegendEntry, PathDetailSegment } from './types'
-import { assignDiscreteColors, getNumericGradientColor, getSpeedColor, getSpeedLabels, getSpeedThresholds, SPEED_COLORS, isMissingValue } from './colors'
+import { assignDiscreteColors, getNumericGradientColor, getSpeedColor, getSpeedLabels, getSpeedThresholds, getSlopeColor, SPEED_COLORS, INCLINE_CATEGORIES, isMissingValue } from './colors'
 
 export interface PathLike {
     points: { coordinates: number[][] }
@@ -262,4 +262,43 @@ export function buildChartData(
         viaPointDistances,
         totalDistance: selectedPath.distance,
     }
+}
+
+export function buildInclineDetail(elevation: ElevationPoint[]): ChartPathDetail {
+    const legend = INCLINE_CATEGORIES.map(c => ({ label: c.label, color: c.color }))
+
+    if (elevation.length < 2) {
+        return { key: '_incline', label: 'Incline', type: 'bars', segments: [], legend }
+    }
+
+    // Compute slope between consecutive points and assign incline colors
+    const raw: PathDetailSegment[] = []
+    for (let i = 0; i < elevation.length - 1; i++) {
+        const p = elevation[i]
+        const q = elevation[i + 1]
+        const dist = q.distance - p.distance
+        const slopePercent = dist > 0 ? ((q.elevation - p.elevation) / dist) * 100 : 0
+        const color = getSlopeColor(slopePercent)
+        raw.push({
+            fromDistance: p.distance,
+            toDistance: q.distance,
+            value: Math.round(Math.abs(slopePercent) * 10) / 10,
+            color,
+            coordinates: [[p.lng, p.lat], [q.lng, q.lat]],
+        })
+    }
+
+    // Merge consecutive segments with the same color for cleaner map rendering
+    const segments: PathDetailSegment[] = []
+    for (const seg of raw) {
+        const last = segments[segments.length - 1]
+        if (last && last.color === seg.color) {
+            last.toDistance = seg.toDistance
+            last.coordinates.push(seg.coordinates[seg.coordinates.length - 1])
+        } else {
+            segments.push({ ...seg, coordinates: [...seg.coordinates] })
+        }
+    }
+
+    return { key: '_incline', label: 'Incline', type: 'bars', segments, legend }
 }
