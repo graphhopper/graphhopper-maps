@@ -61,7 +61,7 @@ describe('colors', () => {
 
         it('generates correct speed labels', () => {
             const labels = getSpeedLabels([30, 50, 80])
-            expect(labels).toEqual(['< 30 km/h', '30\u201350 km/h', '50\u201380 km/h', '\u2265 80 km/h'])
+            expect(labels).toEqual(['< 30', '30\u201350', '50\u201380', '\u2265 80'])
         })
     })
 

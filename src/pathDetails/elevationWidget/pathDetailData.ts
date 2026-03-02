@@ -214,6 +214,7 @@ export function transformPathDetail(
         legend,
         minValue: type === 'line' ? info.minVal : undefined,
         maxValue: type === 'line' ? info.maxVal : undefined,
+        unit: isSpeedDetail ? 'km/h' : undefined,
     }
 }
 

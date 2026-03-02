@@ -26,6 +26,7 @@ export interface ChartPathDetail {
     legend: LegendEntry[]
     minValue?: number
     maxValue?: number
+    unit?: string
 }
 
 export interface ChartData {

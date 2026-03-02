@@ -529,6 +529,14 @@ export default class ChartRenderer {
             if (y < plotTop || y > plotBottom - detailBarH) continue
             ctx.fillText(String(Math.round(t)), rightX + 4, y)
         }
+
+        // Draw unit label at top of axis
+        if (detail.unit) {
+            ctx.font = '9px sans-serif'
+            ctx.textAlign = 'left'
+            ctx.textBaseline = 'bottom'
+            ctx.fillText(detail.unit, rightX + 3, plotTop - 1)
+        }
     }
 
     private drawViaPointMarkers(

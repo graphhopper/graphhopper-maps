@@ -75,7 +75,12 @@ function addPathSegmentsLayer(map: Map, pathDetails: PathDetailsStoreState) {
 }
 
 function addActiveDetailLayer(map: Map, detail: ChartPathDetail) {
-    const features: any[] = detail.segments.map(seg => ({
+    // Sort segments so shorter ones are drawn last (on top).
+    // This ensures small distinctive segments (e.g. steps, cobblestone)
+    // aren't overshadowed by adjacent longer segments with round line caps.
+    const sorted = [...detail.segments].sort((a, b) => b.coordinates.length - a.coordinates.length)
+
+    const features: any[] = sorted.map(seg => ({
         type: 'Feature',
         geometry: {
             type: 'LineString',
@@ -100,7 +105,7 @@ function addActiveDetailLayer(map: Map, detail: ChartPathDetail) {
                 stroke: new Stroke({
                     color: feature.get('color') || '#666',
                     width: 6,
-                    lineCap: 'round',
+                    lineCap: 'butt',
                     lineJoin: 'round',
                 }),
             })

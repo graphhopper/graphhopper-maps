@@ -120,7 +120,7 @@ export function getSpeedLabels(thresholds: number[]): string[] {
         `< ${thresholds[0]}`,
         ...thresholds.slice(0, -1).map((t, i) => `${t}\u2013${thresholds[i + 1]}`),
         `\u2265 ${thresholds[thresholds.length - 1]}`,
-    ].map(s => `${s} km/h`)
+    ]
 }
 
 // Colorblind-friendly palette from SRON (https://personal.sron.nl/~pault/#sec:qualitative)
