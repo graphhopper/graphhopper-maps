@@ -29,13 +29,16 @@ function planeDist(p: number[], q: number[]): number {
 
 export function extractElevationPoints(coordinates: number[][]): ElevationPoint[] {
     if (coordinates.length === 0) return []
+    const has3D = coordinates[0].length >= 3
     const points: ElevationPoint[] = []
     let cumDist = 0
     for (let i = 0; i < coordinates.length; i++) {
+        if (has3D && coordinates[i].length < 3)
+            throw new Error(`Coordinate at index ${i} is 2D but first coordinate is 3D`)
         if (i > 0) cumDist += planeDist(coordinates[i - 1], coordinates[i])
         points.push({
             distance: cumDist,
-            elevation: coordinates[i].length >= 3 ? coordinates[i][2] : 0,
+            elevation: has3D ? coordinates[i][2] : 0,
             lng: coordinates[i][0],
             lat: coordinates[i][1],
         })
@@ -225,9 +228,9 @@ export function buildChartData(
     translateFn: (key: string) => string,
     profile: string = '',
 ): ChartData {
-    const coordinates = selectedPath.points.coordinates.map(pos =>
-        pos.length === 2 ? [...pos, 0] : pos,
-    )
+    const raw = selectedPath.points.coordinates
+    const needs3D = raw.length > 0 && raw[0].length === 2
+    const coordinates = needs3D ? raw.map(pos => [pos[0], pos[1], 0]) : raw
 
     const elevation = extractElevationPoints(coordinates)
 
@@ -238,7 +241,8 @@ export function buildChartData(
     const alternativeElevations = alternativePaths
         .filter(p => p !== selectedPath && p.points.coordinates.length > 0)
         .map(p => {
-            const altCoords = p.points.coordinates.map(pos => (pos.length === 2 ? [...pos, 0] : pos))
+            const altRaw = p.points.coordinates
+            const altCoords = altRaw.length > 0 && altRaw[0].length === 2 ? altRaw.map(pos => [pos[0], pos[1], 0]) : altRaw
             return extractElevationPoints(altCoords)
         })
 
