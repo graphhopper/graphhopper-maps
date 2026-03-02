@@ -15,29 +15,24 @@ interface QueryPointLike {
 }
 
 /**
- * Calculates great-circle distance between two [lng, lat] points in meters.
+ * Equirectangular plane projection distance between two [lng, lat] points in meters.
+ * Consistent with GraphHopper's DistancePlaneProjection (see graphhopper#3296).
+ * For now do not use calcDist from utils.ts to make it easy to separate this from GH Maps.
  */
-function haversine(p: number[], q: number[]): number {
+function planeDist(p: number[], q: number[]): number {
     const toRad = (deg: number) => deg * 0.017453292519943295
-    const lat1 = p[1],
-        lat2 = q[1],
-        lon1 = p[0],
-        lon2 = q[0]
-    const sinDeltaLat = Math.sin(toRad(lat2 - lat1) / 2)
-    const sinDeltaLon = Math.sin(toRad(lon2 - lon1) / 2)
-    return (
-        6371000 *
-        2 *
-        Math.asin(Math.sqrt(sinDeltaLat * sinDeltaLat + sinDeltaLon * sinDeltaLon * Math.cos(toRad(lat1)) * Math.cos(toRad(lat2))))
-    )
+    const dLat = toRad(q[1] - p[1])
+    const dLon = toRad(q[0] - p[0])
+    const x = Math.cos(toRad((p[1] + q[1]) / 2)) * dLon
+    return 6371000 * Math.sqrt(dLat * dLat + x * x)
 }
 
-export function extractElevationProfile(coordinates: number[][]): ElevationPoint[] {
+export function extractElevationPoints(coordinates: number[][]): ElevationPoint[] {
     if (coordinates.length === 0) return []
     const points: ElevationPoint[] = []
     let cumDist = 0
     for (let i = 0; i < coordinates.length; i++) {
-        if (i > 0) cumDist += haversine(coordinates[i - 1], coordinates[i])
+        if (i > 0) cumDist += planeDist(coordinates[i - 1], coordinates[i])
         points.push({
             distance: cumDist,
             elevation: coordinates[i].length >= 3 ? coordinates[i][2] : 0,
@@ -58,7 +53,7 @@ export function calculateViaPointDistances(
     // Build cumulative distances
     const cumDist: number[] = [0]
     for (let i = 1; i < coords.length; i++) {
-        cumDist.push(cumDist[i - 1] + haversine(coords[i - 1], coords[i]))
+        cumDist.push(cumDist[i - 1] + planeDist(coords[i - 1], coords[i]))
     }
 
     // snapped_waypoints has coordinates for all query points (From, Vias, To)
@@ -67,19 +62,22 @@ export function calculateViaPointDistances(
     if (waypointCoords.length <= 2) return []
 
     const viaDistances: number[] = []
+    let searchFrom = 0
     for (let w = 1; w < waypointCoords.length - 1; w++) {
         const wp = waypointCoords[w]
-        // Find closest point on route
+        // Find closest point on route, starting from previous match
+        // since waypoints are ordered along the route
         let minDist = Infinity
-        let bestIdx = 0
-        for (let i = 0; i < coords.length; i++) {
-            const d = haversine(coords[i], wp)
+        let bestIdx = searchFrom
+        for (let i = searchFrom; i < coords.length; i++) {
+            const d = planeDist(coords[i], wp)
             if (d < minDist) {
                 minDist = d
                 bestIdx = i
             }
         }
         viaDistances.push(cumDist[bestIdx])
+        searchFrom = bestIdx
     }
     return viaDistances
 }
@@ -231,7 +229,7 @@ export function buildChartData(
         pos.length === 2 ? [...pos, 0] : pos,
     )
 
-    const elevation = extractElevationProfile(coordinates)
+    const elevation = extractElevationPoints(coordinates)
 
     // Build cumulative distances array for index-based lookups
     const cumulativeDistances: number[] = elevation.map(p => p.distance)
@@ -241,7 +239,7 @@ export function buildChartData(
         .filter(p => p !== selectedPath && p.points.coordinates.length > 0)
         .map(p => {
             const altCoords = p.points.coordinates.map(pos => (pos.length === 2 ? [...pos, 0] : pos))
-            return extractElevationProfile(altCoords)
+            return extractElevationPoints(altCoords)
         })
 
     // Path details

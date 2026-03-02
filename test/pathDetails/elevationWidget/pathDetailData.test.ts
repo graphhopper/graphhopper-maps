@@ -1,5 +1,5 @@
 import {
-    extractElevationProfile,
+    extractElevationPoints,
     calculateViaPointDistances,
     transformPathDetail,
     sanitizeNumericValues,
@@ -7,13 +7,13 @@ import {
 } from '@/pathDetails/elevationWidget/pathDetailData'
 
 describe('pathDetailData', () => {
-    describe('extractElevationProfile', () => {
+    describe('extractElevationPoints', () => {
         it('returns empty array for empty coordinates', () => {
-            expect(extractElevationProfile([])).toEqual([])
+            expect(extractElevationPoints([])).toEqual([])
         })
 
         it('returns single point with distance 0', () => {
-            const result = extractElevationProfile([[13.4, 52.5, 100]])
+            const result = extractElevationPoints([[13.4, 52.5, 100]])
             expect(result).toHaveLength(1)
             expect(result[0].distance).toBe(0)
             expect(result[0].elevation).toBe(100)
@@ -27,7 +27,7 @@ describe('pathDetailData', () => {
                 [13.01, 52.0, 110],
                 [13.02, 52.0, 105],
             ]
-            const result = extractElevationProfile(coords)
+            const result = extractElevationPoints(coords)
             expect(result).toHaveLength(3)
             expect(result[0].distance).toBe(0)
             expect(result[1].distance).toBeGreaterThan(0)
@@ -39,7 +39,7 @@ describe('pathDetailData', () => {
                 [13.0, 52.0],
                 [13.01, 52.0],
             ]
-            const result = extractElevationProfile(coords)
+            const result = extractElevationPoints(coords)
             expect(result[0].elevation).toBe(0)
             expect(result[1].elevation).toBe(0)
         })
