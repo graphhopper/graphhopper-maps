@@ -2,7 +2,11 @@ import {
     getSlopeColor,
     getNumericGradientColor,
     assignDiscreteColors,
+    getSpeedColor,
+    getSpeedThresholds,
+    getSpeedLabels,
     INCLINE_CATEGORIES,
+    SPEED_COLORS,
     DISCRETE_PALETTE,
     SURFACE_COLORS,
     ROAD_CLASS_COLORS,
@@ -30,6 +34,34 @@ describe('colors', () => {
         it('returns very steep color for >10% slopes', () => {
             expect(getSlopeColor(11)).toBe(INCLINE_CATEGORIES[3].color)
             expect(getSlopeColor(-25)).toBe(INCLINE_CATEGORIES[3].color)
+        })
+    })
+
+    describe('getSpeedColor', () => {
+        it('assigns colors by bucket for car profile', () => {
+            const thresholds = getSpeedThresholds('car')
+            expect(thresholds).toEqual([30, 50, 80])
+            expect(getSpeedColor(20, thresholds)).toBe(SPEED_COLORS[0]) // < 30
+            expect(getSpeedColor(40, thresholds)).toBe(SPEED_COLORS[1]) // 30-50
+            expect(getSpeedColor(60, thresholds)).toBe(SPEED_COLORS[2]) // 50-80
+            expect(getSpeedColor(100, thresholds)).toBe(SPEED_COLORS[3]) // >= 80
+        })
+
+        it('uses bike thresholds for bike profile', () => {
+            const thresholds = getSpeedThresholds('bike')
+            expect(thresholds).toEqual([5, 10, 15, 20])
+            expect(getSpeedColor(3, thresholds)).toBe(SPEED_COLORS[0]) // < 5
+            expect(getSpeedColor(25, thresholds)).toBe(SPEED_COLORS[4]) // >= 20
+        })
+
+        it('uses foot thresholds for hike profile', () => {
+            const thresholds = getSpeedThresholds('hike')
+            expect(thresholds).toEqual([3, 4, 5])
+        })
+
+        it('generates correct speed labels', () => {
+            const labels = getSpeedLabels([30, 50, 80])
+            expect(labels).toEqual(['< 30 km/h', '30\u201350 km/h', '50\u201380 km/h', '\u2265 80 km/h'])
         })
     })
 

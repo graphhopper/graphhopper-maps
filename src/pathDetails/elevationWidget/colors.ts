@@ -1,42 +1,49 @@
 export const SURFACE_COLORS: Record<string, string> = {
+    // Paved (greens)
     asphalt: '#2E7D32',
     paved: '#43A047',
-    concrete: '#388E3C',
-    'concrete:plates': '#388E3C',
+    concrete: '#66BB6A',
+    'concrete:plates': '#A5D6A7',
     'concrete:lanes': '#388E3C',
-    paving_stones: '#4CAF50',
-    compacted: '#8BC34A',
-    fine_gravel: '#CDDC39',
+    paving_stones: '#81C784',
+    metal: '#00897B',
+    // Unpaved (warm/natural tones)
+    compacted: '#FFB74D',
     gravel: '#FF8A65',
+    fine_gravel: '#FFCC80',
     unpaved: '#C68642',
+    ground: '#9E9D24',
+    earth: '#8D6E63',
+    grass: '#7CB342',
+    grass_paver: '#AED581',
+    sand: '#FFD54F',
+    mud: '#5D4037',
+    // Rough/uncomfortable (reds/pinks)
     dirt: '#E53935',
-    sand: '#FFB74D',
-    ground: '#A1887F',
-    grass: '#66BB6A',
+    wood: '#C62828',
     cobblestone: '#D81B60',
     'cobblestone:flattened': '#D81B60',
-    sett: '#AB47BC',
-    wood: '#795548',
-    metal: '#607D8B',
+    sett: '#AD1457',
+    unhewn_cobblestone: '#880E4F',
 }
 
 export const ROAD_CLASS_COLORS: Record<string, string> = {
     motorway: '#D32F2F',
     trunk: '#E64A19',
     primary: '#F57C00',
-    secondary: '#FFA000',
-    tertiary: '#FDD835',
-    residential: '#90A4AE',
-    unclassified: '#B0BEC5',
-    service: '#CFD8DC',
-    living_street: '#80CBC4',
-    track: '#A1887F',
+    secondary: '#FFA726',
+    tertiary: '#42A5F5',
+    residential: '#66BB6A',
+    unclassified: '#78909C',
+    living_street: '#81C784',
+    service: '#A5D6A7',
     cycleway: '#2E7D32',
-    footway: '#4CAF50',
     path: '#66BB6A',
-    pedestrian: '#81C784',
+    track: '#81C784',
+    bridleway: '#795548',
+    footway: '#EC407A',
+    pedestrian: '#F48FB1',
     steps: '#FF5722',
-    bridleway: '#8D6E63',
 }
 
 export const ROAD_ENVIRONMENT_COLORS: Record<string, string> = {
@@ -78,11 +85,43 @@ export interface InclineCategory {
 }
 
 export const INCLINE_CATEGORIES: InclineCategory[] = [
-    { label: '0-3%', maxSlope: 3, color: '#66BB6A' },
-    { label: '3-6%', maxSlope: 6, color: '#FFC107' },
-    { label: '6-10%', maxSlope: 10, color: '#FF7043' },
-    { label: '>10%', maxSlope: Infinity, color: '#E53935' },
+    { label: 'flat (<3%)', maxSlope: 3, color: '#2E7D32' },
+    { label: 'mild (3\u20136%)', maxSlope: 6, color: '#FF9800' },
+    { label: 'steep (6\u201310%)', maxSlope: 10, color: '#F44336' },
+    { label: 'very steep (\u226510%)', maxSlope: Infinity, color: '#7B1FA2' },
 ]
+
+// Speed colors: red (slow) -> green (fast), with profile-specific thresholds
+export const SPEED_COLORS = ['#F44336', '#FF9800', '#FFD54F', '#66BB6A', '#2E7D32']
+
+export function getSpeedThresholds(profile: string): number[] {
+    const isMotorVehicle =
+        (profile.includes('car') && !profile.includes('cargobike')) ||
+        profile.includes('truck') ||
+        profile.includes('scooter') ||
+        profile.includes('bus') ||
+        profile.includes('motorcycle')
+    const isFootLike = profile.includes('hike') || profile.includes('foot')
+
+    if (isMotorVehicle) return [30, 50, 80]
+    if (isFootLike) return [3, 4, 5]
+    return [5, 10, 15, 20] // bike-like default
+}
+
+export function getSpeedColor(speed: number, thresholds: number[]): string {
+    for (let i = 0; i < thresholds.length; i++) {
+        if (speed < thresholds[i]) return SPEED_COLORS[i]
+    }
+    return SPEED_COLORS[Math.min(thresholds.length, SPEED_COLORS.length - 1)]
+}
+
+export function getSpeedLabels(thresholds: number[]): string[] {
+    return [
+        `< ${thresholds[0]}`,
+        ...thresholds.slice(0, -1).map((t, i) => `${t}\u2013${thresholds[i + 1]}`),
+        `\u2265 ${thresholds[thresholds.length - 1]}`,
+    ].map(s => `${s} km/h`)
+}
 
 // Colorblind-friendly palette from SRON (https://personal.sron.nl/~pault/#sec:qualitative)
 export const DISCRETE_PALETTE = [

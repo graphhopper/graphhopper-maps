@@ -1,5 +1,5 @@
 import { ChartData, ChartPathDetail, ElevationPoint, LegendEntry, PathDetailSegment } from './types'
-import { assignDiscreteColors, getNumericGradientColor, isMissingValue } from './colors'
+import { assignDiscreteColors, getNumericGradientColor, getSpeedColor, getSpeedLabels, getSpeedThresholds, SPEED_COLORS, isMissingValue } from './colors'
 
 export interface PathLike {
     points: { coordinates: number[][] }
@@ -137,16 +137,34 @@ export function transformPathDetail(
     entries: [number, number, any][],
     coordinates: number[][],
     cumulativeDistances: number[],
+    profile: string = '',
 ): ChartPathDetail {
     const sanitized = sanitizeNumericValues(entries)
     const type = detectVisualizationType(sanitized)
     const info = inspectDetail(sanitized)
 
+    const isSpeedDetail = key === 'average_speed' || key === 'max_speed'
+
     let segments: PathDetailSegment[]
     let legend: LegendEntry[]
 
-    if (type === 'line') {
-        // Numeric values - use gradient coloring
+    if (type === 'line' && isSpeedDetail) {
+        // Speed values - use profile-specific discrete bucket colors
+        const thresholds = getSpeedThresholds(profile)
+        segments = sanitized.map(([from, to, val]) => ({
+            fromDistance: cumulativeDistances[from] || 0,
+            toDistance: cumulativeDistances[to] || 0,
+            value: val,
+            color: getSpeedColor(val, thresholds),
+            coordinates: coordinates.slice(from, to + 1).map(c => [c[0], c[1]] as [number, number]),
+        }))
+        const labels = getSpeedLabels(thresholds)
+        legend = labels.map((lbl, i) => ({
+            label: lbl,
+            color: SPEED_COLORS[Math.min(i, SPEED_COLORS.length - 1)],
+        }))
+    } else if (type === 'line') {
+        // Other numeric values - use gradient coloring
         segments = sanitized.map(([from, to, val]) => {
             const factor = info.maxVal !== info.minVal ? (val - info.minVal) / (info.maxVal - info.minVal) : 0
             return {
@@ -204,6 +222,7 @@ export function buildChartData(
     alternativePaths: PathLike[],
     queryPoints: QueryPointLike[],
     translateFn: (key: string) => string,
+    profile: string = '',
 ): ChartData {
     const coordinates = selectedPath.points.coordinates.map(pos =>
         pos.length === 2 ? [...pos, 0] : pos,
@@ -228,7 +247,7 @@ export function buildChartData(
     for (const [key, entries] of Object.entries(details)) {
         if (!entries || entries.length === 0) continue
         pathDetails.push(
-            transformPathDetail(key, translateFn(key), entries, coordinates, cumulativeDistances),
+            transformPathDetail(key, translateFn(key), entries, coordinates, cumulativeDistances, profile),
         )
     }
 

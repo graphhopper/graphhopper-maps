@@ -13,6 +13,7 @@ interface ElevationInfoBarProps {
     selectedPath: Path
     alternativePaths: Path[]
     queryPoints: QueryPoint[]
+    profile: string
     isExpanded: boolean
     onToggleExpanded: () => void
     onActiveDetailChanged: (detail: ChartPathDetail | null) => void
@@ -22,6 +23,7 @@ export default function ElevationInfoBar({
     selectedPath,
     alternativePaths,
     queryPoints,
+    profile,
     isExpanded,
     onToggleExpanded,
     onActiveDetailChanged,
@@ -31,9 +33,9 @@ export default function ElevationInfoBar({
     const chartData = useMemo(
         () =>
             selectedPath.points.coordinates.length > 0
-                ? buildChartData(selectedPath, alternativePaths, queryPoints, tr)
+                ? buildChartData(selectedPath, alternativePaths, queryPoints, tr, profile)
                 : null,
-        [selectedPath, alternativePaths, queryPoints],
+        [selectedPath, alternativePaths, queryPoints, profile],
     )
 
     const handleHover = useCallback((result: ChartHoverResult | null) => {

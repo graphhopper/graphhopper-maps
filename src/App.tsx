@@ -256,6 +256,7 @@ function LargeScreenLayout({
                     selectedPath={route.selectedPath}
                     alternativePaths={route.routingResult.paths}
                     queryPoints={query.queryPoints}
+                    profile={query.routingProfile.name}
                     isExpanded={isExpanded}
                     onToggleExpanded={() => setIsExpanded(!isExpanded)}
                     onActiveDetailChanged={onActiveDetailChanged}
@@ -282,6 +283,7 @@ function SmallScreenLayout({
             selectedPath={route.selectedPath}
             alternativePaths={route.routingResult.paths}
             queryPoints={query.queryPoints}
+            profile={query.routingProfile.name}
             isExpanded={false}
             onToggleExpanded={() => {}}
             onActiveDetailChanged={onActiveDetailChanged}
