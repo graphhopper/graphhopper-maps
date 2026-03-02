@@ -39,6 +39,37 @@
     flex-shrink: 0;
 }
 
+.altButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f8f8f9;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    position: relative;
+}
+
+.altButton:hover {
+    background: #e8e8e8;
+}
+
+.altButtonActive {
+    background: #e8eef5;
+    border-color: #888;
+}
+
+.altNumber {
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+    line-height: 1;
+}
+
 .inclineButton {
     display: flex;
     align-items: center;

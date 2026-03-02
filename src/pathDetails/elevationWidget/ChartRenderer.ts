@@ -21,6 +21,7 @@ export default class ChartRenderer {
         devicePixelRatio: typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
     }
     private selectedDetail: ChartPathDetail | null = null
+    private visibleAltIndex = -1 // -1 = none
     private cssWidth = 0
     private cssHeight = 0
 
@@ -50,6 +51,11 @@ export default class ChartRenderer {
 
     setSelectedDetail(detail: ChartPathDetail | null) {
         this.selectedDetail = detail
+        this.render()
+    }
+
+    setVisibleAltIndex(index: number) {
+        this.visibleAltIndex = index
         this.render()
     }
 
@@ -263,9 +269,9 @@ export default class ChartRenderer {
 
         // Draw elevation area only when no line-type detail is active
         if (!isLineDetail) {
-            // Draw alternative elevations
-            for (const altElev of this.data.alternativeElevations) {
-                this.drawAlternativeElevation(ctx, altElev, plotWidth, plotBottom, detailBarH, plotHeight, eleMin, eleMax)
+            // Draw visible alternative elevation (if any)
+            if (this.visibleAltIndex >= 0 && this.visibleAltIndex < this.data.alternativeElevations.length) {
+                this.drawAlternativeElevation(ctx, this.data.alternativeElevations[this.visibleAltIndex], plotWidth, plotBottom, detailBarH, plotHeight, eleMin, eleMax)
             }
 
             // Draw main elevation area with slope coloring
@@ -352,14 +358,12 @@ export default class ChartRenderer {
 
         ctx.beginPath()
         ctx.strokeStyle = ALT_ROUTE_COLOR
-        ctx.lineWidth = 1.5
-        ctx.setLineDash([4, 3])
+        ctx.lineWidth = 1
         ctx.moveTo(altXScale(altElev[0].distance), yScale(altElev[0].elevation))
         for (let i = 1; i < altElev.length; i++) {
             ctx.lineTo(altXScale(altElev[i].distance), yScale(altElev[i].elevation))
         }
         ctx.stroke()
-        ctx.setLineDash([])
     }
 
     private drawElevationArea(

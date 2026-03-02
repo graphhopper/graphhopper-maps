@@ -37,6 +37,14 @@ export default function ElevationInfoBar({
         [selectedPath, alternativePaths, profile],
     )
 
+    // Original 1-based route numbers for each alternative (e.g. if route 2 is selected, alts are [1, 3])
+    const altRouteNumbers = useMemo(() => {
+        return alternativePaths
+            .map((p, i) => ({ path: p, num: i + 1 }))
+            .filter(x => x.path !== selectedPath && x.path.points.coordinates.length > 0)
+            .map(x => x.num)
+    }, [selectedPath, alternativePaths])
+
     const inclineDetail = useMemo(
         () => (chartData ? buildInclineDetail(chartData.elevation) : null),
         [chartData],
@@ -79,6 +87,7 @@ export default function ElevationInfoBar({
             onDetailSelected={handleDetailSelected}
             isExpanded={isExpanded}
             onToggleExpanded={onToggleExpanded}
+            altRouteNumbers={altRouteNumbers}
             showInclineOnMap={inclineOnMap}
             onToggleInclineOnMap={handleToggleIncline}
             elevationLabel={tr('elevation')}
