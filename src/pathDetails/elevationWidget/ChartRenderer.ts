@@ -269,13 +269,13 @@ export default class ChartRenderer {
 
         // Draw elevation area only when no line-type detail is active
         if (!isLineDetail) {
-            // Draw visible alternative elevation (if any)
+            // Draw main elevation area with slope coloring
+            this.drawElevationArea(ctx, elev, xScale, yScale, plotBottom - detailBarH)
+
+            // Draw alternative elevation on top so it's clearly visible
             if (this.visibleAltIndex >= 0 && this.visibleAltIndex < this.data.alternativeElevations.length) {
                 this.drawAlternativeElevation(ctx, this.data.alternativeElevations[this.visibleAltIndex], plotWidth, plotBottom, detailBarH, plotHeight, eleMin, eleMax)
             }
-
-            // Draw main elevation area with slope coloring
-            this.drawElevationArea(ctx, elev, xScale, yScale, plotBottom - detailBarH)
         }
 
         // Draw detail bar or line
@@ -358,7 +358,7 @@ export default class ChartRenderer {
 
         ctx.beginPath()
         ctx.strokeStyle = ALT_ROUTE_COLOR
-        ctx.lineWidth = 1
+        ctx.lineWidth = 2
         ctx.moveTo(altXScale(altElev[0].distance), yScale(altElev[0].elevation))
         for (let i = 1; i < altElev.length; i++) {
             ctx.lineTo(altXScale(altElev[i].distance), yScale(altElev[i].elevation))
