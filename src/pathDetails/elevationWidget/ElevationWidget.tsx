@@ -95,7 +95,7 @@ export default function ElevationWidget({
             const y = e.clientY - rect.top
             const result = rendererRef.current.hitTest(x, y)
             if (result) {
-                rendererRef.current.drawHoverLine(result.distance)
+                rendererRef.current.drawHoverLine(result)
                 onHover(result)
             } else {
                 rendererRef.current.clearHoverLine()

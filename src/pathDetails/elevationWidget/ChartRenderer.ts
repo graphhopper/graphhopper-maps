@@ -29,6 +29,7 @@ export default class ChartRenderer {
         this.overlayCanvas = overlayCanvas
     }
 
+    // widens the right margin so the right y-axis labels have room outside the plot area
     private getEffectiveMargin() {
         const base = this.config.margin
         if (this.selectedDetail?.type === 'line') {
@@ -66,6 +67,8 @@ export default class ChartRenderer {
         this.render()
     }
 
+    // The hitTest method determines what data point is under the mouse.
+    // It uses binary search to get the closest elevation data for a certain x value.
     hitTest(pixelX: number, pixelY: number): ChartHoverResult | null {
         if (!this.data || this.data.elevation.length === 0) return null
         const margin = this.getEffectiveMargin()
@@ -115,7 +118,7 @@ export default class ChartRenderer {
         }
     }
 
-    drawHoverLine(distance: number) {
+    drawHoverLine(hit: ChartHoverResult) {
         const ctx = this.overlayCanvas.getContext('2d')
         if (!ctx || !this.data || this.data.elevation.length === 0) return
         const dpr = this.config.devicePixelRatio
@@ -128,7 +131,7 @@ export default class ChartRenderer {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
         ctx.clearRect(0, 0, this.cssWidth, this.cssHeight)
 
-        const x = margin.left + (distance / totalDist) * plotWidth
+        const x = margin.left + (hit.distance / totalDist) * plotWidth
         const plotBottom = this.cssHeight - margin.bottom
         const detailBarH = this.selectedDetail ? DETAIL_BAR_HEIGHT : 0
 
@@ -139,24 +142,13 @@ export default class ChartRenderer {
         ctx.lineTo(Math.round(x) + 0.5, plotBottom)
         ctx.stroke()
 
-        const elev = this.data.elevation
-        // Find closest point
-        let lo = 0
-        let hi = elev.length - 1
-        while (lo < hi) {
-            const mid = (lo + hi) >> 1
-            if (elev[mid].distance < distance) lo = mid + 1
-            else hi = mid
-        }
-        if (lo > 0 && Math.abs(elev[lo - 1].distance - distance) < Math.abs(elev[lo].distance - distance)) lo--
-
         const isLineDetail = this.selectedDetail?.type === 'line'
 
         // Draw elevation dot (only when not showing a line-type detail)
         if (!isLineDetail) {
             const { eleMin, eleMax } = this.getElevationRange()
             const plotHeight = plotBottom - margin.top - detailBarH
-            const elevY = plotBottom - detailBarH - ((elev[lo].elevation - eleMin) / (eleMax - eleMin || 1)) * plotHeight
+            const elevY = plotBottom - detailBarH - ((hit.elevation - eleMin) / (eleMax - eleMin || 1)) * plotHeight
 
             ctx.beginPath()
             ctx.arc(x, elevY, 4, 0, Math.PI * 2)
@@ -169,20 +161,12 @@ export default class ChartRenderer {
 
         // Build tooltip label - context-aware
         const miles = this.config.showDistanceInMiles
-        const distLabel = formatDistanceLabel(distance, miles)
+        const distLabel = formatDistanceLabel(hit.distance, miles)
         let valueLabel: string
-        if (this.selectedDetail) {
-            // Find the segment at this distance
-            let segValue: string | undefined
-            for (const seg of this.selectedDetail.segments) {
-                if (distance >= seg.fromDistance && distance <= seg.toDistance) {
-                    segValue = String(seg.value)
-                    break
-                }
-            }
-            valueLabel = segValue ?? ''
+        if (hit.segment) {
+            valueLabel = String(hit.segment.value)
         } else {
-            valueLabel = formatElevationLabel(elev[lo].elevation, miles)
+            valueLabel = formatElevationLabel(hit.elevation, miles)
         }
         const label = valueLabel ? `${distLabel}  ${valueLabel}` : distLabel
 
@@ -221,6 +205,7 @@ export default class ChartRenderer {
         ctx.restore()
     }
 
+    // scans min+max and ensure 100m minimum span, plus adds padding
     private getElevationRange(): { eleMin: number; eleMax: number } {
         if (!this.data || this.data.elevation.length === 0) return { eleMin: 0, eleMax: 100 }
         let eleMin = Infinity
@@ -280,7 +265,7 @@ export default class ChartRenderer {
         if (!isLineDetail) {
             // Draw alternative elevations
             for (const altElev of this.data.alternativeElevations) {
-                this.drawAlternativeElevation(ctx, altElev, totalDist, plotWidth, plotBottom, detailBarH, plotHeight, eleMin, eleMax)
+                this.drawAlternativeElevation(ctx, altElev, plotWidth, plotBottom, detailBarH, plotHeight, eleMin, eleMax)
             }
 
             // Draw main elevation area with slope coloring
@@ -350,7 +335,6 @@ export default class ChartRenderer {
     private drawAlternativeElevation(
         ctx: CanvasRenderingContext2D,
         altElev: ElevationPoint[],
-        mainTotalDist: number,
         plotWidth: number,
         plotBottom: number,
         detailBarH: number,
@@ -362,20 +346,17 @@ export default class ChartRenderer {
         const margin = this.getEffectiveMargin()
         const altTotalDist = altElev[altElev.length - 1].distance
 
-        // Scale proportionally so x axis matches main route's total distance display
-        const altXScale = (d: number) => margin.left + (d / altTotalDist) * (mainTotalDist / mainTotalDist) * plotWidth
-        // Actually we want the alt route to span the full plot width proportionally
-        // i.e. at its own total distance it reaches the right edge
-        const altXScaleFull = (d: number) => margin.left + (d / altTotalDist) * plotWidth
+        // Alt route spans the full plot width at its own total distance
+        const altXScale = (d: number) => margin.left + (d / altTotalDist) * plotWidth
         const yScale = (e: number) => plotBottom - detailBarH - ((e - eleMin) / (eleMax - eleMin)) * plotHeight
 
         ctx.beginPath()
         ctx.strokeStyle = ALT_ROUTE_COLOR
         ctx.lineWidth = 1.5
         ctx.setLineDash([4, 3])
-        ctx.moveTo(altXScaleFull(altElev[0].distance), yScale(altElev[0].elevation))
+        ctx.moveTo(altXScale(altElev[0].distance), yScale(altElev[0].elevation))
         for (let i = 1; i < altElev.length; i++) {
-            ctx.lineTo(altXScaleFull(altElev[i].distance), yScale(altElev[i].elevation))
+            ctx.lineTo(altXScale(altElev[i].distance), yScale(altElev[i].elevation))
         }
         ctx.stroke()
         ctx.setLineDash([])
@@ -433,7 +414,7 @@ export default class ChartRenderer {
         // Draw elevation line on top
         ctx.beginPath()
         ctx.strokeStyle = '#555'
-        ctx.lineWidth = 1.5
+        ctx.lineWidth = 1
         ctx.moveTo(xScale(elev[0].distance), yScale(elev[0].elevation))
         for (let i = 1; i < elev.length; i++) {
             ctx.lineTo(xScale(elev[i].distance), yScale(elev[i].elevation))

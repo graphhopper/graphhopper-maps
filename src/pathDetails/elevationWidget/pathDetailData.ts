@@ -4,6 +4,7 @@ import { assignDiscreteColors, getNumericGradientColor, getSpeedColor, getSpeedL
 export interface PathLike {
     points: { coordinates: number[][] }
     snapped_waypoints: { coordinates: number[][] }
+    // type is: { [key: string]: [number, number, any][] } -> simpler regarding TS, but then explicit cast necessary
     details: object
     distance: number
 }
@@ -218,6 +219,7 @@ export function transformPathDetail(
     }
 }
 
+//Called once per route selection
 export function buildChartData(
     selectedPath: PathLike,
     alternativePaths: PathLike[],
@@ -264,6 +266,7 @@ export function buildChartData(
     }
 }
 
+// Generates a synthetic ChartPathDetail from the elevation data to be used for route colors on map
 export function buildInclineDetail(elevation: ElevationPoint[]): ChartPathDetail {
     const legend = INCLINE_CATEGORIES.map(c => ({ label: c.label, color: c.color }))
 
