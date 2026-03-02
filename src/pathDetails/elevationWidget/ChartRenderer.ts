@@ -392,7 +392,7 @@ export default class ChartRenderer {
             runs.push({ fromIdx: runStart, toIdx: elev.length - 1, color: currentColor })
         }
 
-        // Draw each merged run as a single filled polygon (extend 1px to cover inter-color gaps)
+        // Draw each merged run as a single filled polygon
         for (const run of runs) {
             const x1 = xScale(elev[run.fromIdx].distance)
             const x2 = xScale(elev[run.toIdx].distance)
@@ -403,11 +403,9 @@ export default class ChartRenderer {
             for (let i = run.fromIdx; i <= run.toIdx; i++) {
                 ctx.lineTo(xScale(elev[i].distance), yScale(elev[i].elevation))
             }
-            // Extend right edge by 1px to overlap with next run
-            ctx.lineTo(x2 + 1, yScale(elev[run.toIdx].elevation))
-            ctx.lineTo(x2 + 1, baseline)
+            ctx.lineTo(x2, baseline)
             ctx.closePath()
-            ctx.fillStyle = run.color + '60' // 38% opacity
+            ctx.fillStyle = run.color + '60'
             ctx.fill()
         }
 
