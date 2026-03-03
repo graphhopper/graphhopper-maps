@@ -19,7 +19,7 @@ export default function DetailSelector({ details, selectedKey, onSelect, elevati
                 borderRadius: 4,
                 background: 'transparent',
                 cursor: 'pointer',
-                maxWidth: 160,
+                maxWidth: 120,
             }}
         >
             <option value="">{elevationLabel}</option>

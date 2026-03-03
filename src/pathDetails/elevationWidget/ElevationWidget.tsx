@@ -160,8 +160,8 @@ export default function ElevationWidget({
                     elevationLabel={elevationLabel}
                 />
                 {selectedDetail
-                    ? <Legend entries={selectedDetail.legend} maxVisible={onClose && !isExpanded ? 2 : undefined} />
-                    : hasData && <Legend entries={inclineLegend} maxVisible={onClose && !isExpanded ? 2 : undefined} />
+                    ? <Legend entries={selectedDetail.legend} maxVisible={onClose && !isExpanded ? 3 : undefined} />
+                    : hasData && <Legend entries={inclineLegend} maxVisible={onClose && !isExpanded ? 3 : undefined} />
                 }
                 <div className={styles.buttons}>
                     {!selectedDetail && altCount > 0 && (
