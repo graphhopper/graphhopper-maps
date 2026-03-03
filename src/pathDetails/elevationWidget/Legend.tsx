@@ -7,7 +7,7 @@ interface LegendProps {
 export default function Legend({ entries }: LegendProps) {
     if (entries.length === 0) return null
     return (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem 0.75rem', fontSize: '11px', color: '#555' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem 0.75rem', fontSize: '13px', color: '#555' }}>
             {entries.map((entry, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                     <span
