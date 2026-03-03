@@ -197,8 +197,8 @@ function LargeScreenLayout({
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     // 'compact' | 'expanded' | 'closed'
     const [elevationState, setElevationState] = useState<'compact' | 'expanded' | 'closed'>('compact')
-    // Re-show elevation widget when a new route is selected
-    useEffect(() => { setElevationState('compact') }, [route.selectedPath])
+    // Re-show elevation widget when a new route is calculated (only if currently closed)
+    useEffect(() => { setElevationState(s => s === 'closed' ? 'compact' : s) }, [route.selectedPath])
     const hasRoute = route.selectedPath.points.coordinates.length > 0
     return (
         <>
