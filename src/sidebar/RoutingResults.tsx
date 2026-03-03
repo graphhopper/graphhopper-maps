@@ -422,7 +422,7 @@ function RoutingResult({
                     {descriptionRH && <div>{descriptionRH}</div>}
                 </div>
             )}
-            {isExpanded && detailsExtra}
+            {detailsExtra && <div style={{ display: isExpanded ? undefined : 'none' }}>{detailsExtra}</div>}
             {isExpanded && <Instructions instructions={path.instructions} us={showDistanceInMiles} />}
             {isExpanded && (
                 <div className={styles.routingResultRoadData}>
