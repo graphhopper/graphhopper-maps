@@ -14,6 +14,7 @@ interface ElevationInfoBarProps {
     profile: string
     isExpanded: boolean
     onToggleExpanded: () => void
+    onClose?: () => void
     onActiveDetailChanged: (detail: ChartPathDetail | null) => void
 }
 
@@ -23,6 +24,7 @@ export default function ElevationInfoBar({
     profile,
     isExpanded,
     onToggleExpanded,
+    onClose,
     onActiveDetailChanged,
 }: ElevationInfoBarProps) {
     const settings = useContext(SettingsContext)
@@ -87,6 +89,7 @@ export default function ElevationInfoBar({
             onDetailSelected={handleDetailSelected}
             isExpanded={isExpanded}
             onToggleExpanded={onToggleExpanded}
+            onClose={onClose}
             altRouteNumbers={altRouteNumbers}
             showInclineOnMap={inclineOnMap}
             onToggleInclineOnMap={handleToggleIncline}

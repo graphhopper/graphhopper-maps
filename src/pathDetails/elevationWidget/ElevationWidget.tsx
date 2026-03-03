@@ -26,6 +26,7 @@ interface ElevationWidgetProps {
     onDetailSelected: (detail: ChartPathDetail | null) => void
     isExpanded: boolean
     onToggleExpanded: () => void
+    onClose?: () => void
     altRouteNumbers: number[]
     showInclineOnMap: boolean
     onToggleInclineOnMap: () => void
@@ -41,6 +42,7 @@ export default function ElevationWidget({
     onDetailSelected,
     isExpanded,
     onToggleExpanded,
+    onClose,
     altRouteNumbers,
     showInclineOnMap,
     onToggleInclineOnMap,
@@ -158,8 +160,8 @@ export default function ElevationWidget({
                     elevationLabel={elevationLabel}
                 />
                 {selectedDetail
-                    ? <Legend entries={selectedDetail.legend} />
-                    : hasData && <Legend entries={inclineLegend} />
+                    ? <Legend entries={selectedDetail.legend} maxVisible={onClose && !isExpanded ? 2 : undefined} />
+                    : hasData && <Legend entries={inclineLegend} maxVisible={onClose && !isExpanded ? 2 : undefined} />
                 }
                 <div className={styles.buttons}>
                     {!selectedDetail && altCount > 0 && (
@@ -193,10 +195,19 @@ export default function ElevationWidget({
                     <button
                         className={styles.expandButton}
                         onClick={onToggleExpanded}
-                        title={isExpanded ? 'Collapse' : 'Expand'}
+                        title={isExpanded ? 'Compact' : 'Expand'}
                     >
                         {isExpanded ? '\u25C0' : '\u25B6'}
                     </button>
+                    {isExpanded && onClose && (
+                        <button
+                            className={styles.expandButton}
+                            onClick={onClose}
+                            title="Close"
+                        >
+                            {'\u2715'}
+                        </button>
+                    )}
                 </div>
             </div>
             <div className={styles.canvasContainer} ref={containerRef} style={{ height: CHART_HEIGHT }}>

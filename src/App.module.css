@@ -92,6 +92,28 @@
     pointer-events: none;
 }
 
+.elevationReopenButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px 4px 0 0;
+    border-bottom: none;
+    background: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    font-size: 9px;
+    color: #666;
+    pointer-events: auto;
+    padding: 0;
+}
+
+.elevationReopenButton:hover {
+    background: #e8e8e8;
+    color: #333;
+}
+
 .smallScreenMap {
     grid-row: 1 / span 3;
     grid-column: 1 / span 1;

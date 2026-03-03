@@ -195,7 +195,11 @@ function LargeScreenLayout({
 }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
-    const [isExpanded, setIsExpanded] = useState(false)
+    // 'compact' | 'expanded' | 'closed'
+    const [elevationState, setElevationState] = useState<'compact' | 'expanded' | 'closed'>('compact')
+    // Re-show elevation widget when a new route is selected
+    useEffect(() => { setElevationState('compact') }, [route.selectedPath])
+    const hasRoute = route.selectedPath.points.coordinates.length > 0
     return (
         <>
             {showSidebar ? (
@@ -251,13 +255,28 @@ function LargeScreenLayout({
                 <MapComponent map={map} />
             </div>
 
-            <div className={isExpanded ? styles.pathDetailsExpanded : styles.pathDetails}>
+            {elevationState === 'closed' && hasRoute && (
+                <div className={styles.pathDetails}>
+                    <button
+                        className={styles.elevationReopenButton}
+                        onClick={() => setElevationState('compact')}
+                        title="Show elevation"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 1792 1792" fill="#666">
+                            <path d="M1920 1536v128h-2048v-1536h128v1408h1920zm-384-1024l256 896h-1664v-576l448-576 576 576z"/>
+                        </svg>
+                    </button>
+                </div>
+            )}
+            <div className={elevationState === 'expanded' ? styles.pathDetailsExpanded : styles.pathDetails}
+                 style={{ display: elevationState === 'closed' ? 'none' : undefined }}>
                 <ElevationInfoBar
                     selectedPath={route.selectedPath}
                     alternativePaths={route.routingResult.paths}
                     profile={query.routingProfile.name}
-                    isExpanded={isExpanded}
-                    onToggleExpanded={() => setIsExpanded(!isExpanded)}
+                    isExpanded={elevationState === 'expanded'}
+                    onToggleExpanded={() => setElevationState(s => s === 'expanded' ? 'compact' : 'expanded')}
+                    onClose={() => setElevationState('closed')}
                     onActiveDetailChanged={onActiveDetailChanged}
                 />
             </div>
