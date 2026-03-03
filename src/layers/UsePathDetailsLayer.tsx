@@ -96,19 +96,26 @@ function addActiveDetailLayer(map: Map, detail: ChartPathDetail) {
         features,
     }
 
+    const styleCache: Record<string, Style> = {}
     const layer = new VectorLayer({
         source: new VectorSource({
             features: new GeoJSON().readFeatures(featureCollection),
         }),
         style: (feature) => {
-            return new Style({
-                stroke: new Stroke({
-                    color: feature.get('color') || '#666',
-                    width: 6,
-                    lineCap: 'butt',
-                    lineJoin: 'round',
-                }),
-            })
+            const color = feature.get('color') || '#666'
+            let style = styleCache[color]
+            if (!style) {
+                style = new Style({
+                    stroke: new Stroke({
+                        color,
+                        width: 6,
+                        lineCap: 'butt',
+                        lineJoin: 'round',
+                    }),
+                })
+                styleCache[color] = style
+            }
+            return style
         },
     })
     layer.set(activeDetailLayerKey, true)
