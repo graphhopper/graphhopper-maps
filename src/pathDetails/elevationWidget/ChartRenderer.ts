@@ -2,9 +2,9 @@ import { ChartConfig, ChartData, ChartHoverResult, ChartPathDetail, ElevationPoi
 import { calculateNiceTicks, formatDistanceLabel, formatElevationLabel } from './axisUtils'
 import { getSlopeColor } from './colors'
 
-const DEFAULT_MARGIN = { top: 10, right: 15, bottom: 28, left: 45 }
+const DEFAULT_MARGIN = { top: 10, right: 15, bottom: 26, left: 48 }
 const DETAIL_BAR_HEIGHT = 20
-const FONT = '11px sans-serif'
+const FONT = '12px sans-serif'
 const AXIS_COLOR = '#666'
 const GRID_COLOR = '#e8e8e8'
 const VIA_POINT_COLOR = '#76D0F7'
@@ -513,7 +513,7 @@ export default class ChartRenderer {
         const margin = this.getEffectiveMargin()
         const rightX = this.cssWidth - margin.right
         const ticks = calculateNiceTicks(min, max, 4)
-        ctx.font = '10px sans-serif'
+        ctx.font = FONT
         ctx.fillStyle = '#1976D2'
         ctx.textBaseline = 'middle'
 
@@ -534,7 +534,7 @@ export default class ChartRenderer {
 
         // Draw unit label at top of axis
         if (detail.unit) {
-            ctx.font = '9px sans-serif'
+            ctx.font = '10px sans-serif'
             ctx.textAlign = 'left'
             ctx.textBaseline = 'bottom'
             ctx.fillText(detail.unit, rightX + 3, plotTop - 1)
@@ -590,7 +590,7 @@ export default class ChartRenderer {
         for (const t of ticks) {
             const x = xScale(t)
             if (x < margin.left || x > this.cssWidth - margin.right) continue
-            ctx.fillText(formatDistanceLabel(t, miles), x, plotBottom + 4)
+            ctx.fillText(formatDistanceLabel(t, miles), x, plotBottom + 5)
         }
     }
 
