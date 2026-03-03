@@ -45,7 +45,7 @@
     flex-direction: column;
     border-radius: 0.5rem;
     background-color: white;
-    max-height: calc(100% - 9.5rem);
+    max-height: calc(100% - 10.3rem);
     margin: 0.5rem;
 
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
