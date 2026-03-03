@@ -33,10 +33,16 @@ export default class ChartRenderer {
     // widens the right margin so the right y-axis labels have room outside the plot area
     private getEffectiveMargin() {
         const base = this.config.margin
-        if (this.selectedDetail?.type === 'line') {
-            return { ...base, right: 35 }
+        let left = base.left
+        // Widen left margin for 4+ digit elevation labels (e.g. "1200 m")
+        if (this.data && this.data.elevation.length > 0) {
+            const { eleMax } = this.getElevationRange()
+            if (Math.abs(eleMax) >= 1000) left = 56
         }
-        return base
+        if (this.selectedDetail?.type === 'line') {
+            return { ...base, left, right: 35 }
+        }
+        return { ...base, left }
     }
 
     setData(data: ChartData | null) {
