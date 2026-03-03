@@ -506,6 +506,8 @@ export default class ChartRenderer {
         const pad = (max - min) * 0.1
         min -= pad
         max += pad
+        // Don't push min below 0 when all original values are non-negative
+        if (detail.minValue >= 0) min = Math.max(0, min)
 
         const lineY = (v: number) => plotBottom - detailBarH - ((v - min) / (max - min)) * plotHeight
 

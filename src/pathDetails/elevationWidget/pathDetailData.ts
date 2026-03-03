@@ -105,10 +105,12 @@ function inspectDetail(entries: [number, number, any][]): {
     }
 }
 
+// Sanitize numeric entries: cap Infinity at 99th percentile, replace null with 0.
+// Only call this after confirming the detail is numeric, to avoid turning
+// null/missing values into 0 which would affect type detection and coloring.
 export function sanitizeNumericValues(
     entries: [number, number, any][],
 ): [number, number, any][] {
-    // Cap Infinity values at 99th percentile
     const finiteVals = entries.map(e => e[2]).filter((v): v is number => typeof v === 'number' && isFinite(v))
     if (finiteVals.length === 0) return entries
 
@@ -130,9 +132,13 @@ export function transformPathDetail(
     cumulativeDistances: number[],
     profile: string = '',
 ): ChartPathDetail {
-    const sanitized = sanitizeNumericValues(entries)
-    const info = inspectDetail(sanitized)
+    const info = inspectDetail(entries)
     const type = info.numeric && info.minVal !== info.maxVal ? 'line' : 'bars'
+    const sanitized = info.numeric ? sanitizeNumericValues(entries) : entries
+
+    // Recompute min/max from sanitized values so the chart y-axis covers all
+    // actually plotted values (null→0 and Infinity→p99 may shift the range).
+    const sanitizedInfo = info.numeric ? inspectDetail(sanitized) : info
 
     const isSpeedDetail = key === 'average_speed' || key === 'max_speed'
 
@@ -157,7 +163,7 @@ export function transformPathDetail(
     } else if (type === 'line') {
         // Other numeric values - use gradient coloring
         segments = sanitized.map(([from, to, val]) => {
-            const factor = info.maxVal !== info.minVal ? (val - info.minVal) / (info.maxVal - info.minVal) : 0
+            const factor = sanitizedInfo.maxVal !== sanitizedInfo.minVal ? (val - sanitizedInfo.minVal) / (sanitizedInfo.maxVal - sanitizedInfo.minVal) : 0
             return {
                 fromDistance: cumulativeDistances[from] || 0,
                 toDistance: cumulativeDistances[to] || 0,
@@ -166,11 +172,11 @@ export function transformPathDetail(
                 coordinates: coordinates.slice(from, to + 1).map(c => [c[0], c[1]] as [number, number]),
             }
         })
-        const mid = Math.round((info.minVal + info.maxVal) / 2)
+        const mid = Math.round((sanitizedInfo.minVal + sanitizedInfo.maxVal) / 2)
         legend = [
-            { label: String(info.minVal), color: getNumericGradientColor(0) },
+            { label: String(sanitizedInfo.minVal), color: getNumericGradientColor(0) },
             { label: String(mid), color: getNumericGradientColor(0.5) },
-            { label: String(info.maxVal), color: getNumericGradientColor(1) },
+            { label: String(sanitizedInfo.maxVal), color: getNumericGradientColor(1) },
         ]
     } else {
         // Discrete values
@@ -203,8 +209,8 @@ export function transformPathDetail(
         type,
         segments,
         legend,
-        minValue: type === 'line' ? info.minVal : undefined,
-        maxValue: type === 'line' ? info.maxVal : undefined,
+        minValue: type === 'line' ? sanitizedInfo.minVal : undefined,
+        maxValue: type === 'line' ? sanitizedInfo.maxVal : undefined,
         unit: isSpeedDetail ? 'km/h' : undefined,
     }
 }
