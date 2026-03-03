@@ -6,6 +6,11 @@
     pointer-events: auto;
 }
 
+.containerExpanded {
+    border-radius: 0;
+    box-shadow: none;
+}
+
 .canvasContainer {
     position: relative;
     width: 100%;
