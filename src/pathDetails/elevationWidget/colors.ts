@@ -86,10 +86,10 @@ export interface InclineCategory {
 }
 
 export const INCLINE_CATEGORIES: InclineCategory[] = [
-    { label: 'flat (<3%)', shortLabel: 'flat', maxSlope: 3, color: '#2E7D32' },
+    { label: 'flat (\u22643%)', shortLabel: 'flat', maxSlope: 3, color: '#2E7D32' },
     { label: 'mild (3\u20136%)', shortLabel: 'mild', maxSlope: 6, color: '#FF9800' },
     { label: 'steep (6\u201310%)', shortLabel: 'steep', maxSlope: 10, color: '#F44336' },
-    { label: 'very steep (\u226510%)', shortLabel: 'v. steep', maxSlope: Infinity, color: '#7B1FA2' },
+    { label: 'very steep (>10%)', shortLabel: 'v. steep', maxSlope: Infinity, color: '#7B1FA2' },
 ]
 
 // Speed colors: red (slow) -> green (fast), with profile-specific thresholds
