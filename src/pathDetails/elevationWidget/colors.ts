@@ -80,15 +80,16 @@ const NAMED_COLOR_MAPS: Record<string, Record<string, string>> = {
 // Incline categories: grouped by absolute slope percentage
 export interface InclineCategory {
     label: string
+    shortLabel: string
     maxSlope: number
     color: string
 }
 
 export const INCLINE_CATEGORIES: InclineCategory[] = [
-    { label: 'flat (<3%)', maxSlope: 3, color: '#2E7D32' },
-    { label: 'mild (3\u20136%)', maxSlope: 6, color: '#FF9800' },
-    { label: 'steep (6\u201310%)', maxSlope: 10, color: '#F44336' },
-    { label: 'very steep (\u226510%)', maxSlope: Infinity, color: '#7B1FA2' },
+    { label: 'flat (<3%)', shortLabel: 'flat', maxSlope: 3, color: '#2E7D32' },
+    { label: 'mild (3\u20136%)', shortLabel: 'mild', maxSlope: 6, color: '#FF9800' },
+    { label: 'steep (6\u201310%)', shortLabel: 'steep', maxSlope: 10, color: '#F44336' },
+    { label: 'very steep (\u226510%)', shortLabel: 'v. steep', maxSlope: Infinity, color: '#7B1FA2' },
 ]
 
 // Speed colors: red (slow) -> green (fast), with profile-specific thresholds

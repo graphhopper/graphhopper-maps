@@ -2,11 +2,22 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './ElevationWidget.module.css'
 import ChartRenderer from './ChartRenderer'
 import { ChartData, ChartHoverResult, ChartPathDetail, LegendEntry } from './types'
-import { INCLINE_CATEGORIES } from './colors'
+import { INCLINE_CATEGORIES, getSlopeColor } from './colors'
+import { ElevationPoint } from './types'
 import DetailSelector from './DetailSelector'
 import Legend from './Legend'
 
-const INCLINE_LEGEND: LegendEntry[] = INCLINE_CATEGORIES.map(c => ({ label: c.label, color: c.color }))
+// Slope colors are also computed in ChartRenderer.drawElevationArea. Duplicate calculation here to keep the
+// legend independent of the renderer's draw cycle.
+function getUsedInclineCategories(elevation: ElevationPoint[]): Set<string> {
+    const used = new Set<string>()
+    for (let i = 0; i < elevation.length - 1; i++) {
+        const dist = elevation[i + 1].distance - elevation[i].distance
+        const slope = dist > 0 ? (100 * (elevation[i + 1].elevation - elevation[i].elevation)) / dist : 0
+        used.add(getSlopeColor(slope))
+    }
+    return used
+}
 
 interface ElevationWidgetProps {
     data: ChartData | null
@@ -126,6 +137,13 @@ export default function ElevationWidget({
     const selectedDetail = hasData ? (data.pathDetails.find(d => d.key === selectedKey) || null) : null
     const altCount = data?.alternativeElevations.length ?? 0
 
+    const usedColors = data && data.elevation.length >= 2 ? getUsedInclineCategories(data.elevation) : null
+    const inclineLegend = usedColors
+        ? INCLINE_CATEGORIES
+            .filter(c => usedColors.has(c.color))
+            .map(c => ({ label: isExpanded ? c.label : c.shortLabel, color: c.color }))
+        : []
+
     const cycleAlt = useCallback(() => {
         setAltIndex(prev => (prev + 1 >= altCount ? -1 : prev + 1))
     }, [altCount])
@@ -141,7 +159,7 @@ export default function ElevationWidget({
                 />
                 {selectedDetail
                     ? <Legend entries={selectedDetail.legend} />
-                    : hasData && <Legend entries={INCLINE_LEGEND} />
+                    : hasData && <Legend entries={inclineLegend} />
                 }
                 <div className={styles.buttons}>
                     {!selectedDetail && altCount > 0 && (
