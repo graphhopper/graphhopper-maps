@@ -8,15 +8,20 @@ export function calculateNiceTicks(min: number, max: number, maxTicks: number): 
     const range = max - min
     const roughStep = range / (maxTicks - 1)
 
-    // Find a "nice" step size: 1, 2, 5, 10, 20, 50, 100, ...
+    // Find the smallest "nice" step (1, 2, 5 × 10^n) that keeps the tick count
+    // within maxTicks. The niceMin/niceMax rounding can extend the range beyond
+    // [min, max], so we verify the actual count rather than relying on roughStep alone.
     const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)))
-    const residual = roughStep / magnitude
-
-    let niceStep: number
-    if (residual <= 1.5) niceStep = magnitude
-    else if (residual <= 3.5) niceStep = 2 * magnitude
-    else if (residual <= 7.5) niceStep = 5 * magnitude
-    else niceStep = 10 * magnitude
+    let niceStep = 10 * magnitude
+    for (const m of [1, 2, 5, 10]) {
+        const step = m * magnitude
+        const lo = Math.floor(min / step) * step
+        const hi = Math.ceil(max / step) * step
+        if (Math.round((hi - lo) / step) + 1 <= maxTicks) {
+            niceStep = step
+            break
+        }
+    }
 
     const niceMin = Math.floor(min / niceStep) * niceStep
     const niceMax = Math.ceil(max / niceStep) * niceStep

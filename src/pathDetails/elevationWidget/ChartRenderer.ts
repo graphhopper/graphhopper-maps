@@ -335,7 +335,8 @@ export default class ChartRenderer {
         }
 
         // Vertical grid lines
-        const xTicks = calculateNiceTicks(0, totalDist, 6)
+        const maxXTicks = Math.max(2, Math.floor(plotWidth / 80))
+        const xTicks = calculateNiceTicks(0, totalDist, maxXTicks)
         for (const t of xTicks) {
             const x = Math.round(xScale(t)) + 0.5
             if (x < margin.left || x > margin.left + plotWidth) continue
@@ -593,7 +594,9 @@ export default class ChartRenderer {
     ) {
         const margin = this.getEffectiveMargin()
         const miles = this.config.showDistanceInMiles
-        const ticks = calculateNiceTicks(0, totalDist, 6)
+        const plotWidth = this.cssWidth - margin.left - margin.right
+        const maxTicks = Math.max(2, Math.floor(plotWidth / 80))
+        const ticks = calculateNiceTicks(0, totalDist, maxTicks)
 
         // Axis line
         ctx.strokeStyle = AXIS_COLOR
