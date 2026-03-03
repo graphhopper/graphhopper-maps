@@ -265,7 +265,9 @@ export default class ChartRenderer {
         const totalDist = elev[elev.length - 1].distance
         const { eleMin, eleMax } = this.getElevationRange()
 
-        const xScale = (d: number) => margin.left + (d / totalDist) * plotWidth
+        const xScale = totalDist > 0
+            ? (d: number) => margin.left + (d / totalDist) * plotWidth
+            : (_d: number) => margin.left + plotWidth / 2
         const yScale = (e: number) => plotBottom - detailBarH - ((e - eleMin) / (eleMax - eleMin)) * plotHeight
 
         // Draw grid
@@ -379,7 +381,18 @@ export default class ChartRenderer {
         yScale: (e: number) => number,
         baseline: number,
     ) {
-        if (elev.length < 2) return
+        if (elev.length === 0) return
+
+        // Single point or zero-distance route: draw a dot at the elevation
+        if (elev.length < 2 || elev[elev.length - 1].distance === 0) {
+            const x = xScale(elev[0].distance)
+            const y = yScale(elev[0].elevation)
+            ctx.beginPath()
+            ctx.arc(x, y, 4, 0, Math.PI * 2)
+            ctx.fillStyle = '#555'
+            ctx.fill()
+            return
+        }
 
         // For long routes the elevation data can have thousands of points, leading to
         // hundreds of tiny color-change polygons that create visual noise. To avoid this
