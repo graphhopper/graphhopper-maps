@@ -7,9 +7,17 @@ describe('axisUtils', () => {
         })
 
         it('returns ticks spanning the range', () => {
-            const ticks = calculateNiceTicks(0, 100, 5)
-            expect(ticks[0]).toBeLessThanOrEqual(0)
-            expect(ticks[ticks.length - 1]).toBeGreaterThanOrEqual(100)
+            const cases: [number, number, number][] = [
+                [0, 100, 5],
+                [-50, 50, 5],
+                [100, 105, 5],
+            ]
+            for (const [min, max, maxTicks] of cases) {
+                const ticks = calculateNiceTicks(min, max, maxTicks)
+                expect(ticks.length).toBeGreaterThanOrEqual(2)
+                expect(ticks[0]).toBeLessThanOrEqual(min)
+                expect(ticks[ticks.length - 1]).toBeGreaterThanOrEqual(max)
+            }
         })
 
         it('produces nice round numbers', () => {
@@ -17,19 +25,6 @@ describe('axisUtils', () => {
             for (const t of ticks) {
                 expect(t % 200).toBe(0)
             }
-        })
-
-        it('handles negative to positive range', () => {
-            const ticks = calculateNiceTicks(-50, 50, 5)
-            expect(ticks[0]).toBeLessThanOrEqual(-50)
-            expect(ticks[ticks.length - 1]).toBeGreaterThanOrEqual(50)
-        })
-
-        it('handles small ranges', () => {
-            const ticks = calculateNiceTicks(100, 105, 5)
-            expect(ticks.length).toBeGreaterThanOrEqual(2)
-            expect(ticks[0]).toBeLessThanOrEqual(100)
-            expect(ticks[ticks.length - 1]).toBeGreaterThanOrEqual(105)
         })
 
         it('returns sorted ascending ticks', () => {
@@ -40,7 +35,6 @@ describe('axisUtils', () => {
         })
 
         it('never produces more visible ticks than maxTicks', () => {
-            // Various distances (in meters) that previously caused too many ticks
             const cases: [number, number, number][] = [
                 [0, 1703000, 6],  // 1703 km
                 [0, 5000000, 6],  // 5000 km
@@ -59,26 +53,16 @@ describe('axisUtils', () => {
             }
         })
 
-        it('produces at least 2 visible ticks for compact 18km route', () => {
-            const plotWidth = 350
-            const maxTicks = Math.max(2, Math.floor(plotWidth / 65))
-            const totalDist = 18000
-            const ticks = calculateNiceTicks(0, totalDist, maxTicks)
-            const visible = ticks.filter(t => t > 0 && t <= totalDist)
-            expect(visible.length).toBeGreaterThanOrEqual(2)
-        })
-
-        it('ensures sufficient pixel spacing for x-axis labels', () => {
+        it('ensures sufficient ticks and pixel spacing for x-axis labels', () => {
             const minSpacingPx = 60
-            // Test at compact (~350px plot) and expanded (~1200px plot) widths
             const plotWidths = [350, 700, 1200]
-            const distances = [1703000, 50000, 500000, 5000000]
+            const distances = [18000, 50000, 82100, 500000, 1703000, 5000000]
             for (const plotWidth of plotWidths) {
                 const maxTicks = Math.max(2, Math.floor(plotWidth / 65))
                 for (const totalDist of distances) {
                     const ticks = calculateNiceTicks(0, totalDist, maxTicks)
                     const visible = ticks.filter(t => t >= 0 && t <= totalDist)
-                    if (visible.length < 2) continue
+                    expect(visible.length).toBeGreaterThanOrEqual(2)
                     for (let i = 1; i < visible.length; i++) {
                         const pxGap = ((visible[i] - visible[i - 1]) / totalDist) * plotWidth
                         expect(pxGap).toBeGreaterThanOrEqual(minSpacingPx)

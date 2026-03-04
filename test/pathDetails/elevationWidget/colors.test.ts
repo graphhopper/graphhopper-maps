@@ -66,25 +66,18 @@ describe('colors', () => {
     })
 
     describe('getNumericGradientColor', () => {
-        it('returns blue at factor 0', () => {
+        it('returns blue at lower bound and clamps below', () => {
             expect(getNumericGradientColor(0)).toBe('rgb(0, 153, 247)')
-        })
-
-        it('returns red at factor 1', () => {
-            expect(getNumericGradientColor(1)).toBe('rgb(241, 23, 18)')
-        })
-
-        it('clamps below 0', () => {
             expect(getNumericGradientColor(-1)).toBe('rgb(0, 153, 247)')
         })
 
-        it('clamps above 1', () => {
+        it('returns red at upper bound and clamps above', () => {
+            expect(getNumericGradientColor(1)).toBe('rgb(241, 23, 18)')
             expect(getNumericGradientColor(2)).toBe('rgb(241, 23, 18)')
         })
 
         it('interpolates at 0.5', () => {
-            const color = getNumericGradientColor(0.5)
-            expect(color).toBe('rgb(121, 88, 133)')
+            expect(getNumericGradientColor(0.5)).toBe('rgb(121, 88, 133)')
         })
     })
 
