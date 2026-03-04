@@ -45,7 +45,7 @@
     flex-direction: column;
     border-radius: 0.5rem;
     background-color: white;
-    max-height: calc(100% - 2rem);
+    max-height: calc(100% - 10.3rem);
     margin: 0.5rem;
 
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
@@ -73,13 +73,44 @@
 }
 
 .pathDetails {
-    grid-column: 2 / span 2;
+    grid-column: 1 / span 1;
     grid-row: 1 / span 1;
-    z-index: 1;
+    z-index: 2;
     align-self: end;
-    overflow: hidden; /* This is important to make the heightgraph shrink */
-    margin: 0;
+    overflow: hidden;
+    margin: 0 0.5rem 0.5rem 0.5rem;
     pointer-events: none;
+}
+
+.pathDetailsExpanded {
+    grid-column: 1 / span 3;
+    grid-row: 1 / span 1;
+    z-index: 2;
+    align-self: end;
+    overflow: hidden;
+    margin: 0 0.5rem 0.5rem 0.5rem;
+    pointer-events: none;
+}
+
+.elevationReopenButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    font-size: 9px;
+    color: #666;
+    pointer-events: auto;
+    padding: 0;
+}
+
+.elevationReopenButton:hover {
+    background: #e8e8e8;
+    color: #333;
 }
 
 .smallScreenMap {
