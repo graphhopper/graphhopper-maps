@@ -215,6 +215,28 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
 
     const lines: React.ReactNode[] = []
 
+    // Incline (from 3D polyline) — first so it's close to the elevation widget on mobile
+    if (coords.length > 1 && coords[0].length >= 3) {
+        const distAbove = computeInclineDistances(coords, [3, 6, 10])
+        if (distAbove[0] > 0) {
+            const segments = [totalDist - distAbove[0], distAbove[0] - distAbove[1], distAbove[1] - distAbove[2], distAbove[2]]
+            const inclineDetails = segments
+                .map((d, i) => ({ name: INCLINE_CATEGORIES[i].label, km: fmtKm(d), color: INCLINE_CATEGORIES[i].color, fraction: d / totalDist }))
+                .filter(d => d.fraction > 0)
+            lines.push(
+                <ExpandableStat
+                    key="incline"
+                    label={tr('route_stats_incline')}
+                    details={inclineDetails}
+                    extraInfo={[
+                        { name: 'total ascent', value: `${Math.floor(path.ascend)} m` },
+                        { name: 'total descent', value: `${Math.floor(path.descend)} m` },
+                    ]}
+                />,
+            )
+        }
+    }
+
     // Surface
     const surfaceColors = NAMED_COLOR_MAPS['surface'] || {}
     if (path.details.surface) {
@@ -268,28 +290,6 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             if (small > 0) extra.push({ name: 'small', value: pct(small, totalDist), ...topColors(roadColors, dist, SMALL_ROADS) })
             lines.push(
                 <ExpandableStat key="roads" label={tr('route_stats_roads')} details={detailEntries(roadColors, dist, totalDist)} extraInfo={extra} />,
-            )
-        }
-    }
-
-    // Incline (from 3D polyline)
-    if (coords.length > 1 && coords[0].length >= 3) {
-        const distAbove = computeInclineDistances(coords, [3, 6, 10])
-        if (distAbove[0] > 0) {
-            const segments = [totalDist - distAbove[0], distAbove[0] - distAbove[1], distAbove[1] - distAbove[2], distAbove[2]]
-            const inclineDetails = segments
-                .map((d, i) => ({ name: INCLINE_CATEGORIES[i].label, km: fmtKm(d), color: INCLINE_CATEGORIES[i].color, fraction: d / totalDist }))
-                .filter(d => d.fraction > 0)
-            lines.push(
-                <ExpandableStat
-                    key="incline"
-                    label={tr('route_stats_incline')}
-                    details={inclineDetails}
-                    extraInfo={[
-                        { name: 'total ascent', value: `${Math.floor(path.ascend)} m` },
-                        { name: 'total descent', value: `${Math.floor(path.descend)} m` },
-                    ]}
-                />,
             )
         }
     }
