@@ -40,7 +40,7 @@ export default function ElevationInfoBar({
     )
 
     // Original 1-based route numbers for each alternative (e.g. if route 2 is selected, alts are [1, 3])
-    const altRouteNumbers = useMemo(() => {
+    const alternativeRouteNumbers = useMemo(() => {
         return alternativePaths
             .map((p, i) => ({ path: p, num: i + 1 }))
             .filter(x => x.path !== selectedPath && x.path.points.coordinates.length > 0)
@@ -90,7 +90,7 @@ export default function ElevationInfoBar({
             isExpanded={isExpanded}
             onToggleExpanded={onToggleExpanded}
             onClose={onClose}
-            altRouteNumbers={altRouteNumbers}
+            alternativeRouteNumbers={alternativeRouteNumbers}
             showInclineOnMap={inclineOnMap}
             onToggleInclineOnMap={handleToggleIncline}
             elevationLabel={tr('elevation')}

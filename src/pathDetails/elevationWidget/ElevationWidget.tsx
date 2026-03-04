@@ -27,7 +27,7 @@ interface ElevationWidgetProps {
     isExpanded: boolean
     onToggleExpanded: () => void
     onClose?: () => void
-    altRouteNumbers: number[]
+    alternativeRouteNumbers: number[]
     showInclineOnMap: boolean
     onToggleInclineOnMap: () => void
     elevationLabel: string
@@ -43,7 +43,7 @@ export default function ElevationWidget({
     isExpanded,
     onToggleExpanded,
     onClose,
-    altRouteNumbers,
+    alternativeRouteNumbers,
     showInclineOnMap,
     onToggleInclineOnMap,
     elevationLabel,
@@ -54,7 +54,7 @@ export default function ElevationWidget({
     const rendererRef = useRef<ChartRenderer | null>(null)
     const observerRef = useRef<ResizeObserver | null>(null)
     const [selectedKey, setSelectedKey] = useState<string | null>(null)
-    const [altIndex, setAltIndex] = useState(-1) // -1 = hidden, 0..N-1 = show that alternative
+    const [alternativeIndex, setAltIndex] = useState(-1) // -1 = hidden, 0..N-1 = show that alternative
 
     // Lazily initialize renderer when canvas refs become available,
     // and update data in the same effect so ordering is guaranteed.
@@ -103,14 +103,14 @@ export default function ElevationWidget({
         onDetailSelected(detail)
     }, [selectedKey, data])
 
-    // Sync alt index with renderer, and reset when data changes
+    // Sync alternative index with renderer, and reset when data changes
     useEffect(() => {
         setAltIndex(-1)
     }, [data])
 
     useEffect(() => {
-        rendererRef.current?.setVisibleAltIndex(altIndex)
-    }, [altIndex])
+        rendererRef.current?.setVisibleAlternativeIndex(alternativeIndex)
+    }, [alternativeIndex])
 
     const handleMouseMove = useCallback(
         (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -137,7 +137,7 @@ export default function ElevationWidget({
 
     const hasData = !!data && data.elevation.length > 0
     const selectedDetail = hasData ? (data.pathDetails.find(d => d.key === selectedKey) || null) : null
-    const altCount = data?.alternativeElevations.length ?? 0
+    const alternativeCount = data?.alternativeElevations.length ?? 0
 
     const usedColors = data && data.elevation.length >= 2 ? getUsedInclineCategories(data.elevation) : null
     const inclineLegend = usedColors
@@ -146,9 +146,9 @@ export default function ElevationWidget({
             .map(c => ({ label: isExpanded ? c.label : c.shortLabel, color: c.color }))
         : []
 
-    const cycleAlt = useCallback(() => {
-        setAltIndex(prev => (prev + 1 >= altCount ? -1 : prev + 1))
-    }, [altCount])
+    const cycleAlternative = useCallback(() => {
+        setAltIndex(prev => (prev + 1 >= alternativeCount ? -1 : prev + 1))
+    }, [alternativeCount])
 
     return (
         <div className={`${styles.container}${isExpanded ? ' ' + styles.containerExpanded : ''}`} style={{ display: hasData ? undefined : 'none' }}>
@@ -164,17 +164,17 @@ export default function ElevationWidget({
                     : hasData && <Legend entries={inclineLegend} maxVisible={onClose && !isExpanded ? 3 : undefined} />
                 }
                 <div className={styles.buttons}>
-                    {!selectedDetail && altCount > 0 && (
+                    {!selectedDetail && alternativeCount > 0 && (
                         <button
-                            className={`${styles.altButton}${altIndex >= 0 ? ' ' + styles.altButtonActive : ''}`}
-                            onClick={cycleAlt}
-                            title={altIndex >= 0 ? `Route ${altRouteNumbers[altIndex]}` : 'Show alternative elevation'}
+                            className={`${styles.alternativeButton}${alternativeIndex >= 0 ? ' ' + styles.alternativeButtonActive : ''}`}
+                            onClick={cycleAlternative}
+                            title={alternativeIndex >= 0 ? `Route ${alternativeRouteNumbers[alternativeIndex]}` : 'Show alternative elevation'}
                         >
-                            {altIndex >= 0 && altCount > 1
-                                ? <span className={styles.altNumber}>{altRouteNumbers[altIndex]}</span>
+                            {alternativeIndex >= 0 && alternativeCount > 1
+                                ? <span className={styles.alternativeNumber}>{alternativeRouteNumbers[alternativeIndex]}</span>
                                 : <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                    <path d="M1 10 Q4 4 7 7 Q10 10 13 4" stroke={altIndex >= 0 ? '#555' : '#aaa'} strokeWidth="1.5" fill="none" />
-                                    <path d="M1 10 Q5 6 9 5 L13 4" stroke={altIndex >= 0 ? '#aaa' : '#ccc'} strokeWidth="1" strokeDasharray="2 2" fill="none" />
+                                    <path d="M1 10 Q4 4 7 7 Q10 10 13 4" stroke={alternativeIndex >= 0 ? '#555' : '#aaa'} strokeWidth="1.5" fill="none" />
+                                    <path d="M1 10 Q5 6 9 5 L13 4" stroke={alternativeIndex >= 0 ? '#aaa' : '#ccc'} strokeWidth="1" strokeDasharray="2 2" fill="none" />
                                 </svg>
                             }
                         </button>

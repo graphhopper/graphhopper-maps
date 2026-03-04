@@ -8,7 +8,7 @@ const FONT = '12px sans-serif'
 const AXIS_COLOR = '#666'
 const GRID_COLOR = '#e8e8e8'
 const VIA_POINT_COLOR = '#76D0F7'
-const ALT_ROUTE_COLOR = '#aaa'
+const ALTERNATIVE_ROUTE_COLOR = '#aaa'
 
 export default class ChartRenderer {
     private chartCanvas: HTMLCanvasElement
@@ -21,7 +21,7 @@ export default class ChartRenderer {
         devicePixelRatio: typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
     }
     private selectedDetail: ChartPathDetail | null = null
-    private visibleAltIndex = -1 // -1 = none
+    private visibleAlternativeIndex = -1 // -1 = none
     private cssWidth = 0
     private cssHeight = 0
 
@@ -60,8 +60,8 @@ export default class ChartRenderer {
         this.render()
     }
 
-    setVisibleAltIndex(index: number) {
-        this.visibleAltIndex = index
+    setVisibleAlternativeIndex(index: number) {
+        this.visibleAlternativeIndex = index
         this.render()
     }
 
@@ -281,8 +281,8 @@ export default class ChartRenderer {
             this.drawElevationArea(ctx, elev, xScale, yScale, plotBottom - detailBarH)
 
             // Draw alternative elevation on top so it's clearly visible
-            if (this.visibleAltIndex >= 0 && this.visibleAltIndex < this.data.alternativeElevations.length) {
-                this.drawAlternativeElevation(ctx, this.data.alternativeElevations[this.visibleAltIndex], plotWidth, plotBottom, detailBarH, plotHeight, eleMin, eleMax)
+            if (this.visibleAlternativeIndex >= 0 && this.visibleAlternativeIndex < this.data.alternativeElevations.length) {
+                this.drawAlternativeElevation(ctx, this.data.alternativeElevations[this.visibleAlternativeIndex], plotWidth, plotBottom, detailBarH, plotHeight, eleMin, eleMax)
             }
         }
 
@@ -349,7 +349,7 @@ export default class ChartRenderer {
 
     private drawAlternativeElevation(
         ctx: CanvasRenderingContext2D,
-        altElev: ElevationPoint[],
+        alternativeElev: ElevationPoint[],
         plotWidth: number,
         plotBottom: number,
         detailBarH: number,
@@ -357,20 +357,20 @@ export default class ChartRenderer {
         eleMin: number,
         eleMax: number,
     ) {
-        if (altElev.length < 2) return
+        if (alternativeElev.length < 2) return
         const margin = this.getEffectiveMargin()
-        const altTotalDist = altElev[altElev.length - 1].distance
+        const alternativeTotalDist = alternativeElev[alternativeElev.length - 1].distance
 
-        // Alt route spans the full plot width at its own total distance
-        const altXScale = (d: number) => margin.left + (d / altTotalDist) * plotWidth
+        // Alternative route spans the full plot width at its own total distance
+        const alternativeXScale = (d: number) => margin.left + (d / alternativeTotalDist) * plotWidth
         const yScale = (e: number) => plotBottom - detailBarH - ((e - eleMin) / (eleMax - eleMin)) * plotHeight
 
         ctx.beginPath()
-        ctx.strokeStyle = ALT_ROUTE_COLOR
+        ctx.strokeStyle = ALTERNATIVE_ROUTE_COLOR
         ctx.lineWidth = 2
-        ctx.moveTo(altXScale(altElev[0].distance), yScale(altElev[0].elevation))
-        for (let i = 1; i < altElev.length; i++) {
-            ctx.lineTo(altXScale(altElev[i].distance), yScale(altElev[i].elevation))
+        ctx.moveTo(alternativeXScale(alternativeElev[0].distance), yScale(alternativeElev[0].elevation))
+        for (let i = 1; i < alternativeElev.length; i++) {
+            ctx.lineTo(alternativeXScale(alternativeElev[i].distance), yScale(alternativeElev[i].elevation))
         }
         ctx.stroke()
     }

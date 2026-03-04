@@ -43,7 +43,7 @@
     flex-shrink: 0;
 }
 
-.altButton {
+.alternativeButton {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -58,16 +58,16 @@
     position: relative;
 }
 
-.altButton:hover {
+.alternativeButton:hover {
     background: #e8e8e8;
 }
 
-.altButtonActive {
+.alternativeButtonActive {
     background: #e8eef5;
     border-color: #888;
 }
 
-.altNumber {
+.alternativeNumber {
     font-size: 12px;
     font-weight: 700;
     color: #555;

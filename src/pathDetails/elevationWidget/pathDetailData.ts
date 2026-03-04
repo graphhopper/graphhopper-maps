@@ -235,9 +235,9 @@ export function buildChartData(
     const alternativeElevations = alternativePaths
         .filter(p => p !== selectedPath && p.points.coordinates.length > 0)
         .map(p => {
-            const altRaw = p.points.coordinates
-            const altCoords = altRaw.length > 0 && altRaw[0].length === 2 ? altRaw.map(pos => [pos[0], pos[1], 0]) : altRaw
-            return extractElevationPoints(altCoords)
+            const rawCoords = p.points.coordinates
+            const coords = rawCoords.length > 0 && rawCoords[0].length === 2 ? rawCoords.map(pos => [pos[0], pos[1], 0]) : rawCoords
+            return extractElevationPoints(coords)
         })
 
     // Path details
