@@ -134,8 +134,8 @@ function ExpandableStat({
     extraInfo?: SummaryEntry[]
 }) {
     const [expanded, setExpanded] = useState(false)
-    const hasDetails = !!(details && details.length > 0)
-    const hasExpanded = hasDetails || !!(extraInfo && extraInfo.length > 0)
+    const hasDetails = (details && details.length > 0)
+    const hasExpanded = hasDetails || (extraInfo && extraInfo.length > 0)
 
     return (
         <div>
@@ -185,8 +185,6 @@ function ExpandableStat({
     )
 }
 
-// --- Main component ---
-
 export default function RouteStats({ path, profile }: { path: Path; profile: string }) {
     const coords = path.points.coordinates
     const totalDist = path.distance
@@ -194,7 +192,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
 
     const lines: React.ReactNode[] = []
 
-    // Incline (from 3D polyline) — first so it's close to the elevation widget on mobile
+    // Incline (from 3D polyline) should come first, so it's close to the elevation widget on mobile
     if (coords.length > 1 && coords[0].length >= 3) {
         const categoryDistances = computeInclineCategoryDistances(coords)
         const inclineDetails = categoryDistances
@@ -213,7 +211,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
         )
     }
 
-    // Surface
+    // surface
     const surfaceColors = NAMED_COLOR_MAPS['surface'] || {}
     if (path.details.surface) {
         const dist = computeDetailDistances(coords, path.details.surface)
@@ -229,7 +227,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
         }
     }
 
-    // Bike / foot network
+    // bike / foot network
     const networks: [string, string, [number, number, any][] | undefined, boolean][] = [
         ['bike_network', tr('route_stats_bike_network'), path.details.bike_network, ApiImpl.isBikeLike(profile)],
         ['foot_network', tr('route_stats_foot_network'), path.details.foot_network, ApiImpl.isFootLike(profile)],
@@ -308,6 +306,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
     }
 
     // Swiss hiking time (foot profiles only)
+    /*
     if (ApiImpl.isFootLike(profile) && (path.ascend > 0 || path.descend > 0)) {
         const tH = (totalDist / 1000 / 4) * 60
         const tV = (path.ascend / 300 + path.descend / 500) * 60
@@ -315,6 +314,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             <ExpandableStat key="hiking_time" label={tr('route_stats_hiking_time')} summary={formatTime(Math.max(tH, tV) + Math.min(tH, tV) / 2)} />,
         )
     }
+     */
 
     return lines.length > 0 ? <div className={styles.routeStats}>{lines}</div> : null
 }

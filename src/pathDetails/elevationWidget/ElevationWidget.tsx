@@ -7,6 +7,8 @@ import { ElevationPoint } from './types'
 import DetailSelector from './DetailSelector'
 import Legend from './Legend'
 
+// Slope colors are also computed in ChartRenderer.drawElevationArea. Duplicate calculation here to keep the
+// legend independent of the renderer's draw cycle.
 function getUsedInclineCategories(elevation: ElevationPoint[]): Set<string> {
     const coords = elevation.map(p => [p.lng, p.lat, p.elevation])
     const distances = computeInclineCategoryDistances(coords)
