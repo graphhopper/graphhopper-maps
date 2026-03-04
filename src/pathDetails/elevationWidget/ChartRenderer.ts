@@ -66,6 +66,7 @@ export default class ChartRenderer {
     }
 
     resize(width: number, height: number) {
+        if (width === this.cssWidth && height === this.cssHeight) return
         this.cssWidth = width
         this.cssHeight = height
         const dpr = this.config.devicePixelRatio
