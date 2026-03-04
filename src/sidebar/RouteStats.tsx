@@ -5,61 +5,7 @@ import { calcDist } from '@/utils'
 import { ApiImpl } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import styles from './RouteStats.module.css'
-
-// Stable color map: same value always gets the same color regardless of route
-const VALUE_COLORS: Record<string, string> = {
-    // Surface - paved (greens)
-    asphalt: '#2E7D32',
-    paved: '#43A047',
-    concrete: '#66BB6A',
-    paving_stones: '#81C784',
-    'concrete:plates': '#A5D6A7',
-    'concrete:lanes': '#388E3C',
-    metal: '#00897B',
-    // Surface - unpaved (warm/natural tones)
-    compacted: '#FFB74D',
-    gravel: '#FF8A65',
-    fine_gravel: '#FFCC80',
-    unpaved: '#C68642',
-    ground: '#9E9D24',
-    earth: '#8D6E63',
-    grass: '#7CB342',
-    grass_paver: '#AED581',
-    sand: '#FFD54F',
-    mud: '#5D4037',
-    // Surface - rough/uncomfortable (reds/pinks)
-    dirt: '#E53935',
-    wood: '#C62828',
-    cobblestone: '#D81B60',
-    sett: '#AD1457',
-    unhewn_cobblestone: '#880E4F',
-    // Road classes
-    motorway: '#D32F2F',
-    trunk: '#E64A19',
-    primary: '#F57C00',
-    secondary: '#FFA726',
-    tertiary: '#42A5F5',
-    residential: '#66BB6A',
-    unclassified: '#78909C',
-    living_street: '#81C784',
-    service: '#A5D6A7',
-    cycleway: '#2E7D32',
-    path: '#66BB6A',
-    track: '#81C784',
-    bridleway: '#795548',
-    footway: '#EC407A',
-    pedestrian: '#F48FB1',
-    steps: '#FF5722',
-    // Network levels
-    international: '#2E7D32',
-    national: '#66BB6A',
-    regional: '#1565C0',
-    local: '#42A5F5',
-}
-
-const INCLINE_COLORS = ['#2E7D32', '#FF9800', '#F44336', '#7B1FA2']
-const INCLINE_LABELS = ['flat (<3%)', 'mild (3–6%)', 'steep (6–10%)', 'very steep (≥10%)']
-const SPEED_COLORS = ['#F44336', '#FF9800', '#FFD54F', '#66BB6A', '#2E7D32']
+import { NAMED_COLOR_MAPS, INCLINE_CATEGORIES, SPEED_COLORS, getSpeedThresholds, getSpeedLabels } from '@/pathDetails/elevationWidget/colors'
 
 const PAVED = new Set(['asphalt', 'concrete', 'paved', 'paving_stones', 'concrete:plates', 'concrete:lanes', 'metal'])
 const UNPAVED = new Set([
@@ -102,7 +48,7 @@ function computeInclineDistances(coords: Position[], thresholds: number[]): numb
         if (dist > 100) {
             const slope = (100 * Math.abs(c[2] - prevEle[2])) / dist
             for (let t = 0; t < thresholds.length; t++)
-                if (slope >= thresholds[t]) distAbove[t] += dist
+                if (slope > thresholds[t]) distAbove[t] += dist
             prevEle = c
             dist = 0
         }
@@ -145,12 +91,6 @@ function formatTime(minutes: number): string {
     return h > 0 ? `${h} h ${m} min` : `${m} min`
 }
 
-function getSpeedThresholds(profile: string): number[] {
-    if (ApiImpl.isMotorVehicle(profile)) return [30, 50, 80]
-    if (ApiImpl.isFootLike(profile)) return [3, 4, 5]
-    return [5, 10, 15, 20]
-}
-
 // --- Detail entries & components ---
 
 interface DetailEntry {
@@ -168,26 +108,26 @@ interface SummaryEntry {
 }
 
 /** Get colors of the top N contributors and whether there are more */
-function topColors(distMap: Map<string, number>, keys: Iterable<string>, n: number = 4) {
+function topColors(colorMap: Record<string, string>, distMap: Map<string, number>, keys: Iterable<string>, n: number = 4) {
     const sorted = [...keys]
         .map(k => ({ key: k, dist: distMap.get(k) || 0 }))
         .filter(e => e.dist > 0)
         .sort((a, b) => b.dist - a.dist)
     return {
-        colors: sorted.slice(0, n).map(e => VALUE_COLORS[e.key] || '#BDBDBD'),
+        colors: sorted.slice(0, n).map(e => colorMap[e.key] || '#BDBDBD'),
         more: sorted.length > n,
     }
 }
 
 /** Build detail entries from a distance map, sorted by distance descending */
-function detailEntries(distMap: Map<string, number>, totalDist: number, missingLabel = 'unknown'): DetailEntry[] {
+function detailEntries(colorMap: Record<string, string>, distMap: Map<string, number>, totalDist: number, missingLabel = 'unknown'): DetailEntry[] {
     return [...distMap.entries()]
         .filter(([, d]) => d > 0)
         .sort((a, b) => b[1] - a[1])
         .map(([name, d]) => ({
             name: (!name || name === 'missing') ? missingLabel : name,
             km: fmtKm(d),
-            color: VALUE_COLORS[name] || '#BDBDBD',
+            color: colorMap[name] || '#BDBDBD',
             fraction: d / totalDist,
         }))
 }
@@ -276,16 +216,17 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
     const lines: React.ReactNode[] = []
 
     // Surface
+    const surfaceColors = NAMED_COLOR_MAPS['surface'] || {}
     if (path.details.surface) {
         const dist = computeDetailDistances(coords, path.details.surface)
         if (dist.size > 0) {
             const pavedDist = sumForKeys(dist, PAVED)
             const unpavedDist = sumForKeys(dist, UNPAVED)
             const extra: SummaryEntry[] = []
-            if (pavedDist > 0) extra.push({ name: 'paved', value: pct(pavedDist, totalDist), ...topColors(dist, PAVED) })
-            if (unpavedDist > 0) extra.push({ name: 'unpaved', value: pct(unpavedDist, totalDist), ...topColors(dist, UNPAVED) })
+            if (pavedDist > 0) extra.push({ name: 'paved', value: pct(pavedDist, totalDist), ...topColors(surfaceColors, dist, PAVED) })
+            if (unpavedDist > 0) extra.push({ name: 'unpaved', value: pct(unpavedDist, totalDist), ...topColors(surfaceColors, dist, UNPAVED) })
             lines.push(
-                <ExpandableStat key="surface" label={tr('route_stats_surface')} details={detailEntries(dist, totalDist)} extraInfo={extra} />,
+                <ExpandableStat key="surface" label={tr('route_stats_surface')} details={detailEntries(surfaceColors, dist, totalDist)} extraInfo={extra} />,
             )
         }
     }
@@ -297,6 +238,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
     ]
     for (const [key, label, details, active] of networks) {
         if (active && details) {
+            const colors = NAMED_COLOR_MAPS[key] || {}
             const dist = computeDetailDistances(coords, details)
             const onNetwork = sumForKeys(dist, NETWORK_KEYS)
             if (dist.size > 0) {
@@ -304,8 +246,8 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                     <ExpandableStat
                         key={key}
                         label={label}
-                        details={detailEntries(dist, totalDist, 'none')}
-                        extraInfo={[{ name: 'on network', value: pct(onNetwork, totalDist), ...topColors(dist, NETWORK_KEYS) }]}
+                        details={detailEntries(colors, dist, totalDist, 'none')}
+                        extraInfo={[{ name: 'on network', value: pct(onNetwork, totalDist), ...topColors(colors, dist, NETWORK_KEYS) }]}
                     />,
                 )
             }
@@ -313,6 +255,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
     }
 
     // Roads
+    const roadColors = NAMED_COLOR_MAPS['road_class'] || {}
     if (path.details.road_class) {
         const dist = computeDetailDistances(coords, path.details.road_class)
         if (dist.size > 0) {
@@ -320,11 +263,11 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             const big = sumForKeys(dist, BIG_ROADS)
             const medium = sumForKeys(dist, MEDIUM_ROADS)
             const small = sumForKeys(dist, SMALL_ROADS)
-            if (big > 0) extra.push({ name: 'big roads', value: pct(big, totalDist), ...topColors(dist, BIG_ROADS) })
-            if (medium > 0) extra.push({ name: 'medium', value: pct(medium, totalDist), ...topColors(dist, MEDIUM_ROADS) })
-            if (small > 0) extra.push({ name: 'small', value: pct(small, totalDist), ...topColors(dist, SMALL_ROADS) })
+            if (big > 0) extra.push({ name: 'big roads', value: pct(big, totalDist), ...topColors(roadColors, dist, BIG_ROADS) })
+            if (medium > 0) extra.push({ name: 'medium', value: pct(medium, totalDist), ...topColors(roadColors, dist, MEDIUM_ROADS) })
+            if (small > 0) extra.push({ name: 'small', value: pct(small, totalDist), ...topColors(roadColors, dist, SMALL_ROADS) })
             lines.push(
-                <ExpandableStat key="roads" label={tr('route_stats_roads')} details={detailEntries(dist, totalDist)} extraInfo={extra} />,
+                <ExpandableStat key="roads" label={tr('route_stats_roads')} details={detailEntries(roadColors, dist, totalDist)} extraInfo={extra} />,
             )
         }
     }
@@ -335,7 +278,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
         if (distAbove[0] > 0) {
             const segments = [totalDist - distAbove[0], distAbove[0] - distAbove[1], distAbove[1] - distAbove[2], distAbove[2]]
             const inclineDetails = segments
-                .map((d, i) => ({ name: INCLINE_LABELS[i], km: fmtKm(d), color: INCLINE_COLORS[i], fraction: d / totalDist }))
+                .map((d, i) => ({ name: INCLINE_CATEGORIES[i].label, km: fmtKm(d), color: INCLINE_CATEGORIES[i].color, fraction: d / totalDist }))
                 .filter(d => d.fraction > 0)
             lines.push(
                 <ExpandableStat
@@ -356,11 +299,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
         const thresholds = getSpeedThresholds(profile)
         const distBelow = computeSpeedDistances(coords, path.details.average_speed, thresholds)
         const boundaries = [0, ...distBelow, totalDist]
-        const speedLabels = [
-            `< ${thresholds[0]}`,
-            ...thresholds.slice(0, -1).map((t, i) => `${t}–${thresholds[i + 1]}`),
-            `≥ ${thresholds[thresholds.length - 1]}`,
-        ].map(s => `${s} km/h`)
+        const speedLabels = getSpeedLabels(thresholds).map(s => `${s} km/h`)
         const speedDetails = boundaries
             .slice(0, -1)
             .map((_, i) => ({

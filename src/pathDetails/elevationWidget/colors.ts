@@ -68,13 +68,22 @@ export const TOLL_COLORS: Record<string, string> = {
     hgv: '#FF9800',
 }
 
+export const NETWORK_COLORS: Record<string, string> = {
+    international: '#2E7D32',
+    national: '#66BB6A',
+    regional: '#1565C0',
+    local: '#42A5F5',
+}
+
 // Named color maps for known detail keys
-const NAMED_COLOR_MAPS: Record<string, Record<string, string>> = {
+export const NAMED_COLOR_MAPS: Record<string, Record<string, string>> = {
     surface: SURFACE_COLORS,
     road_class: ROAD_CLASS_COLORS,
     road_environment: ROAD_ENVIRONMENT_COLORS,
     track_type: TRACK_TYPE_COLORS,
     toll: TOLL_COLORS,
+    bike_network: NETWORK_COLORS,
+    foot_network: NETWORK_COLORS,
 }
 
 // Incline categories: grouped by absolute slope percentage
