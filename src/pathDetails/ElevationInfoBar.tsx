@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Path } from '@/api/graphhopper'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import Dispatcher from '@/stores/Dispatcher'
@@ -55,19 +55,23 @@ export default function ElevationInfoBar({
         return () => Dispatcher.dispatch(new SetActiveDetail(null))
     }, [selectedDropdownDetail, inclineOnMap, inclineDetail])
 
+    const hoverRaf = useRef(0)
     const handleHover = useCallback((result: ChartHoverResult | null) => {
-        if (result) {
-            const description = result.segment ? String(result.segment.value) : ''
-            Dispatcher.dispatch(
-                new PathDetailsHover({
-                    point: result.point,
-                    elevation: result.elevation,
-                    description,
-                }),
-            )
-        } else {
-            Dispatcher.dispatch(new PathDetailsHover(null))
-        }
+        cancelAnimationFrame(hoverRaf.current)
+        hoverRaf.current = requestAnimationFrame(() => {
+            if (result) {
+                const description = result.segment ? String(result.segment.value) : ''
+                Dispatcher.dispatch(
+                    new PathDetailsHover({
+                        point: result.point,
+                        elevation: result.elevation,
+                        description,
+                    }),
+                )
+            } else {
+                Dispatcher.dispatch(new PathDetailsHover(null))
+            }
+        })
     }, [])
 
     const handleDetailSelected = useCallback((detail: ChartPathDetail | null) => {

@@ -73,7 +73,7 @@ export default function ElevationWidget({
 
             const observer = new ResizeObserver(entries => {
                 for (const entry of entries) {
-                    const w = entry.contentRect.width
+                    const w = Math.floor(entry.contentRect.width)
                     if (w > 0) renderer.resize(w, CHART_HEIGHT)
                 }
             })
@@ -132,6 +132,31 @@ export default function ElevationWidget({
 
     const handleMouseLeave = useCallback(() => {
         rendererRef.current?.clearHoverLine()
+        onHover(null)
+    }, [onHover])
+
+    const handleTouchMove = useCallback(
+        (e: React.TouchEvent<HTMLCanvasElement>) => {
+            if (!rendererRef.current) return
+            e.preventDefault() // prevent scrolling while interacting with chart
+            const touch = e.touches[0]
+            const rect = e.currentTarget.getBoundingClientRect()
+            const x = touch.clientX - rect.left
+            const y = touch.clientY - rect.top
+            const result = rendererRef.current.hitTest(x, y)
+            if (result) {
+                rendererRef.current.drawHoverLine(result)
+                onHover(result)
+            } else {
+                rendererRef.current.clearHoverLine()
+                onHover(null)
+            }
+        },
+        [onHover],
+    )
+
+    const handleTouchEnd = useCallback(() => {
+        // Keep the hover line visible after finger lifts — don't clear it
         onHover(null)
     }, [onHover])
 
@@ -217,7 +242,10 @@ export default function ElevationWidget({
                     className={styles.overlayCanvas}
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
-                    style={{ pointerEvents: 'auto' }}
+                    onTouchStart={handleTouchMove}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    style={{ pointerEvents: 'auto', touchAction: 'none' }}
                 />
             </div>
         </div>
