@@ -36,7 +36,7 @@ function computeDetailDistances(coords: Position[], details: [number, number, an
     return distances
 }
 
-/** Compute cumulative distances above each incline threshold using 100m smoothing */
+/** Compute cumulative distances above each incline threshold using 50m smoothing */
 function computeInclineDistances(coords: Position[], thresholds: number[]): number[] {
     const distAbove = thresholds.map(() => 0)
     if (coords.length < 2 || coords[0].length < 3) return distAbove
@@ -45,13 +45,20 @@ function computeInclineDistances(coords: Position[], thresholds: number[]): numb
         const c = coords[i]
         dist += calcDist({ lat: prevPos[1], lng: prevPos[0] }, { lat: c[1], lng: c[0] })
         prevPos = c
-        if (dist > 100) {
+        if (dist > 50) {
             const slope = (100 * Math.abs(c[2] - prevEle[2])) / dist
             for (let t = 0; t < thresholds.length; t++)
                 if (slope > thresholds[t]) distAbove[t] += dist
             prevEle = c
             dist = 0
         }
+    }
+    // remaining tail shorter than 50m
+    if (dist > 0) {
+        const last = coords[coords.length - 1]
+        const slope = (100 * Math.abs(last[2] - prevEle[2])) / dist
+        for (let t = 0; t < thresholds.length; t++)
+            if (slope > thresholds[t]) distAbove[t] += dist
     }
     return distAbove
 }
@@ -218,23 +225,21 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
     // Incline (from 3D polyline) — first so it's close to the elevation widget on mobile
     if (coords.length > 1 && coords[0].length >= 3) {
         const distAbove = computeInclineDistances(coords, [3, 6, 10])
-        if (distAbove[0] > 0) {
-            const segments = [totalDist - distAbove[0], distAbove[0] - distAbove[1], distAbove[1] - distAbove[2], distAbove[2]]
-            const inclineDetails = segments
-                .map((d, i) => ({ name: INCLINE_CATEGORIES[i].label, km: fmtKm(d), color: INCLINE_CATEGORIES[i].color, fraction: d / totalDist }))
-                .filter(d => d.fraction > 0)
-            lines.push(
-                <ExpandableStat
-                    key="incline"
-                    label={tr('route_stats_incline')}
-                    details={inclineDetails}
-                    extraInfo={[
-                        { name: 'total ascent', value: `${Math.floor(path.ascend)} m` },
-                        { name: 'total descent', value: `${Math.floor(path.descend)} m` },
-                    ]}
-                />,
-            )
-        }
+        const segments = [totalDist - distAbove[0], distAbove[0] - distAbove[1], distAbove[1] - distAbove[2], distAbove[2]]
+        const inclineDetails = segments
+            .map((d, i) => ({ name: INCLINE_CATEGORIES[i].label, km: fmtKm(d), color: INCLINE_CATEGORIES[i].color, fraction: d / totalDist }))
+            .filter(d => d.fraction > 0)
+        lines.push(
+            <ExpandableStat
+                key="incline"
+                label={tr('route_stats_incline')}
+                details={inclineDetails}
+                extraInfo={[
+                    { name: 'total ascent', value: `${Math.floor(path.ascend)} m` },
+                    { name: 'total descent', value: `${Math.floor(path.descend)} m` },
+                ]}
+            />,
+        )
     }
 
     // Surface
