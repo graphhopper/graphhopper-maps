@@ -11,6 +11,7 @@ import Details from '@/sidebar/list.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
 import RouteStats from '@/sidebar/RouteStats'
+import ElevationInfoBar from '@/pathDetails/ElevationInfoBar'
 import { LineString, Position } from 'geojson'
 import { calcDist, Coordinate, getBBoxFromCoord } from '@/utils'
 import { useMediaQuery } from 'react-responsive'
@@ -64,6 +65,9 @@ function RoutingResult({
     isExpanded: boolean
     setExpanded: (v: boolean) => void
 }) {
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+    const [elevationMounted, setElevationMounted] = useState(false)
+    if (isExpanded && !elevationMounted) setElevationMounted(true)
     const [showInstructions, setShowInstructions] = useState(false)
     const [selectedRH, setSelectedRH] = useState('')
     const [descriptionRH, setDescriptionRH] = useState('')
@@ -424,6 +428,18 @@ function RoutingResult({
                         />
                     </div>
                     {descriptionRH && <div>{descriptionRH}</div>}
+                </div>
+            )}
+            {isSmallScreen && elevationMounted && (
+                <div style={{ display: isExpanded ? undefined : 'none' }}>
+                    <hr className={styles.elevationSeparator} />
+                    <ElevationInfoBar
+                        selectedPath={path}
+                        alternativePaths={[]}
+                        profile={profile}
+                        isExpanded={false}
+                        onToggleExpanded={() => {}}
+                    />
                 </div>
             )}
             {isExpanded && (

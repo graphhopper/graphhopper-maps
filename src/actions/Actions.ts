@@ -229,6 +229,14 @@ export class PathDetailsElevationSelected implements Action {
     }
 }
 
+export class SetActiveDetail implements Action {
+    readonly detail: any | null
+
+    constructor(detail: any | null) {
+        this.detail = detail
+    }
+}
+
 export class RoutingGraphHover implements Action {
     readonly point: Coordinate | null
     readonly properties: object

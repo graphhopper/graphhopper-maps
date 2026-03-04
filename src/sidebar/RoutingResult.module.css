@@ -224,3 +224,9 @@
     font-size: small;
     padding: 10px 5px 0.75rem 3rem;
 }
+
+.elevationSeparator {
+    border: none;
+    border-top: 1px solid lightgray;
+    margin: 0.5rem 0 0;
+}
