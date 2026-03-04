@@ -51,6 +51,10 @@ export default class PathDetailsStore extends Store<PathDetailsStoreState> {
                 pathDetailsHighlightedSegments: action.segments,
             }
         } else if (action instanceof SetActiveDetail) {
+            // Important: return the same state reference when the detail hasn't changed, otherwise the
+            // spread creates a new object on every dispatch, triggering a re-render loop via Store's
+            // reference equality check.
+            if (action.detail === state.activeDetail) return state
             return {
                 ...state,
                 activeDetail: action.detail,
