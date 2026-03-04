@@ -67,3 +67,27 @@ function formatNumber(n: number): string {
     if (n >= 10) return (Math.round(n * 10) / 10).toString()
     return (Math.round(n * 100) / 100).toString()
 }
+
+/**
+ * Compute padded y-axis range for a detail line chart.
+ * Adds 10% padding on each side and clamps min to 0 when all values are non-negative.
+ */
+export function computeDetailYRange(dataMin: number, dataMax: number): { min: number; max: number } {
+    const range = dataMax - dataMin
+    const pad = (range > 0 ? range : Math.abs(dataMax) || 1) * 0.1
+    let min = dataMin - pad
+    let max = dataMax + pad
+    if (dataMin >= 0) min = Math.max(0, min)
+    return { min, max }
+}
+
+/**
+ * Format a detail y-axis tick value. Uses enough decimal places to avoid duplicate labels.
+ */
+export function formatDetailTick(value: number, ticks: number[]): string {
+    if (ticks.length < 2) return String(value)
+    const step = Math.abs(ticks[1] - ticks[0])
+    if (step >= 1) return String(Math.round(value))
+    const decimals = Math.min(4, Math.ceil(-Math.log10(step)))
+    return value.toFixed(decimals)
+}

@@ -159,11 +159,14 @@ export function transformPathDetail(
                 coordinates: coordinates.slice(from, to + 1).map(c => [c[0], c[1]] as [number, number]),
             }
         })
-        const mid = Math.round((sanitizedInfo.minVal + sanitizedInfo.maxVal) / 2)
+        const range = sanitizedInfo.maxVal - sanitizedInfo.minVal
+        const precision = range >= 10 ? 1 : range >= 1 ? 100 : 10000
+        const round = (v: number) => Math.round(v * precision) / precision
+        const mid = round((sanitizedInfo.minVal + sanitizedInfo.maxVal) / 2)
         legend = [
-            { label: String(sanitizedInfo.minVal), color: getNumericGradientColor(0) },
+            { label: String(round(sanitizedInfo.minVal)), color: getNumericGradientColor(0) },
             { label: String(mid), color: getNumericGradientColor(0.5) },
-            { label: String(sanitizedInfo.maxVal), color: getNumericGradientColor(1) },
+            { label: String(round(sanitizedInfo.maxVal)), color: getNumericGradientColor(1) },
         ]
     } else {
         // Discrete values

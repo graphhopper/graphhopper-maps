@@ -1,4 +1,4 @@
-import { calculateNiceTicks, formatDistanceLabel, formatElevationLabel } from '@/pathDetails/elevationWidget/axisUtils'
+import { calculateNiceTicks, formatDistanceLabel, formatElevationLabel, computeDetailYRange, formatDetailTick } from '@/pathDetails/elevationWidget/axisUtils'
 
 describe('axisUtils', () => {
     describe('calculateNiceTicks', () => {
@@ -105,6 +105,28 @@ describe('axisUtils', () => {
 
         it('rounds to nearest integer', () => {
             expect(formatElevationLabel(100.7, false)).toBe('101 m')
+        })
+    })
+
+    describe('computeDetailYRange', () => {
+        it('adds 10% padding and clamps non-negative min to 0', () => {
+            // curvature-like: 0.5–1.0, range=0.5, pad=0.05
+            expect(computeDetailYRange(0.5, 1.0)).toEqual({ min: expect.closeTo(0.45), max: expect.closeTo(1.05) })
+            // speed-like: non-negative min clamped to 0
+            expect(computeDetailYRange(10, 120).min).toBe(0)
+            // negative data: no clamping
+            expect(computeDetailYRange(-10, 10).min).toBeCloseTo(-12)
+            // equal min/max: uses fallback range
+            expect(computeDetailYRange(5, 5).min).toBeLessThan(5)
+        })
+    })
+
+    describe('formatDetailTick', () => {
+        it('uses enough decimals to keep ticks distinct', () => {
+            expect(formatDetailTick(10, [0, 10, 20])).toBe('10')
+            expect(formatDetailTick(0.6, [0.4, 0.6, 0.8, 1.0])).toBe('0.6')
+            expect(formatDetailTick(1.0, [0.4, 0.6, 0.8, 1.0])).toBe('1.0')
+            expect(formatDetailTick(0.01, [0.01, 0.02, 0.03])).toBe('0.01')
         })
     })
 })
