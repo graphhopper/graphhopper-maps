@@ -39,7 +39,7 @@ describe('axisUtils', () => {
             }
         })
 
-        it('never produces more ticks than maxTicks', () => {
+        it('never produces more visible ticks than maxTicks', () => {
             // Various distances (in meters) that previously caused too many ticks
             const cases: [number, number, number][] = [
                 [0, 1703000, 6],  // 1703 km
@@ -49,11 +49,23 @@ describe('axisUtils', () => {
                 [0, 50000, 6],
                 [-50, 50, 5],
                 [0, 1000, 6],
+                [0, 82100, 5],    // 82.1 km compact
+                [0, 18000, 5],    // 18 km compact
             ]
             for (const [min, max, maxTicks] of cases) {
                 const ticks = calculateNiceTicks(min, max, maxTicks)
-                expect(ticks.length).toBeLessThanOrEqual(maxTicks)
+                const visible = ticks.filter(t => t >= min && t <= max)
+                expect(visible.length).toBeLessThanOrEqual(maxTicks)
             }
+        })
+
+        it('produces at least 2 visible ticks for compact 18km route', () => {
+            const plotWidth = 350
+            const maxTicks = Math.max(2, Math.floor(plotWidth / 65))
+            const totalDist = 18000
+            const ticks = calculateNiceTicks(0, totalDist, maxTicks)
+            const visible = ticks.filter(t => t > 0 && t <= totalDist)
+            expect(visible.length).toBeGreaterThanOrEqual(2)
         })
 
         it('ensures sufficient pixel spacing for x-axis labels', () => {
@@ -62,7 +74,7 @@ describe('axisUtils', () => {
             const plotWidths = [350, 700, 1200]
             const distances = [1703000, 50000, 500000, 5000000]
             for (const plotWidth of plotWidths) {
-                const maxTicks = Math.max(2, Math.floor(plotWidth / 80))
+                const maxTicks = Math.max(2, Math.floor(plotWidth / 65))
                 for (const totalDist of distances) {
                     const ticks = calculateNiceTicks(0, totalDist, maxTicks)
                     const visible = ticks.filter(t => t >= 0 && t <= totalDist)

@@ -15,9 +15,11 @@ export function calculateNiceTicks(min: number, max: number, maxTicks: number): 
     let niceStep = 10 * magnitude
     for (const m of [1, 2, 5, 10]) {
         const step = m * magnitude
-        const lo = Math.floor(min / step) * step
-        const hi = Math.ceil(max / step) * step
-        if (Math.round((hi - lo) / step) + 1 <= maxTicks) {
+        // Count only ticks that fall within [min, max] — ticks outside this range
+        // are generated but filtered out during rendering, so they shouldn't count.
+        const firstVisible = Math.ceil(min / step) * step
+        const lastVisible = Math.floor(max / step) * step
+        if (lastVisible >= firstVisible && Math.round((lastVisible - firstVisible) / step) + 1 <= maxTicks) {
             niceStep = step
             break
         }

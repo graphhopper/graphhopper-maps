@@ -335,7 +335,7 @@ export default class ChartRenderer {
         }
 
         // Vertical grid lines
-        const maxXTicks = Math.max(2, Math.floor(plotWidth / 80))
+        const maxXTicks = Math.max(2, Math.floor(plotWidth / 65))
         const xTicks = calculateNiceTicks(0, totalDist, maxXTicks)
         for (const t of xTicks) {
             const x = Math.round(xScale(t)) + 0.5
@@ -595,7 +595,7 @@ export default class ChartRenderer {
         const margin = this.getEffectiveMargin()
         const miles = this.config.showDistanceInMiles
         const plotWidth = this.cssWidth - margin.left - margin.right
-        const maxTicks = Math.max(2, Math.floor(plotWidth / 80))
+        const maxTicks = Math.max(2, Math.floor(plotWidth / 65))
         const ticks = calculateNiceTicks(0, totalDist, maxTicks)
 
         // Axis line
