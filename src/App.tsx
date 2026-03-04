@@ -15,6 +15,7 @@ import {
     getCurrentLocationStore,
 } from '@/stores/Stores'
 import MapComponent from '@/map/MapComponent'
+import mapStyles from '@/map/Map.module.css'
 import MapOptions from '@/map/MapOptions'
 import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
@@ -199,6 +200,11 @@ function LargeScreenLayout({
     const [elevationState, setElevationState] = useState<'compact' | 'expanded' | 'closed'>('compact')
     // Re-show elevation widget when a new route is calculated (only if currently closed)
     useEffect(() => { setElevationState(s => s === 'closed' ? 'compact' : s) }, [route.selectedPath])
+    // Hide map attribution when elevation widget is expanded (it would be covered)
+    useEffect(() => {
+        const el = map.getTargetElement()?.querySelector('.' + mapStyles.customAttribution) as HTMLElement | null
+        if (el) el.style.display = elevationState === 'expanded' ? 'none' : ''
+    }, [elevationState, map])
     const hasRoute = route.selectedPath.points.coordinates.length > 0
     return (
         <>
