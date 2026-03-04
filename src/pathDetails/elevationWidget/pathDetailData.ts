@@ -1,5 +1,5 @@
 import { ChartData, ChartPathDetail, ElevationPoint, LegendEntry, PathDetailSegment } from './types'
-import { assignDiscreteColors, getNumericGradientColor, getSpeedColor, getSpeedLabels, getSpeedThresholds, getSlopeColor, SPEED_COLORS, INCLINE_CATEGORIES } from './colors'
+import { assignDiscreteColors, getNumericGradientColor, getSpeedColor, getSpeedLabels, getSpeedThresholds, getSlopeColor, SPEED_COLORS, INCLINE_CATEGORIES, planeDist } from './colors'
 
 export interface PathLike {
     points: { coordinates: number[][] }
@@ -7,19 +7,6 @@ export interface PathLike {
     // type is: { [key: string]: [number, number, any][] } -> simpler regarding TS, but then explicit cast necessary
     details: object
     distance: number
-}
-
-/**
- * Equirectangular plane projection distance between two [lng, lat] points in meters.
- * Consistent with GraphHopper's DistancePlaneProjection (see graphhopper#3296).
- * For now do not use calcDist from utils.ts to make it easy to separate this from GH Maps.
- */
-function planeDist(p: number[], q: number[]): number {
-    const toRad = (deg: number) => deg * 0.017453292519943295
-    const dLat = toRad(q[1] - p[1])
-    const dLon = toRad(q[0] - p[0])
-    const x = Math.cos(toRad((p[1] + q[1]) / 2)) * dLon
-    return 6371000 * Math.sqrt(dLat * dLat + x * x)
 }
 
 export function extractElevationPoints(coordinates: number[][]): ElevationPoint[] {

@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { Path } from '@/api/graphhopper'
 import { Position } from 'geojson'
-import { calcDist } from '@/utils'
 import { ApiImpl } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import styles from './RouteStats.module.css'
-import { NAMED_COLOR_MAPS, INCLINE_CATEGORIES, SPEED_COLORS, getSpeedThresholds, getSpeedLabels } from '@/pathDetails/elevationWidget/colors'
+import { NAMED_COLOR_MAPS, INCLINE_CATEGORIES, SPEED_COLORS, getSpeedThresholds, getSpeedLabels, computeInclineCategoryDistances, planeDist } from '@/pathDetails/elevationWidget/colors'
 
 const PAVED = new Set(['asphalt', 'concrete', 'paved', 'paving_stones', 'concrete:plates', 'concrete:lanes', 'metal'])
 const UNPAVED = new Set([
@@ -22,7 +21,7 @@ const NETWORK_KEYS = ['international', 'national', 'regional', 'local'] as const
 function segmentDist(coords: Position[], from: number, to: number): number {
     let dist = 0
     for (let i = from; i < to; i++)
-        dist += calcDist({ lat: coords[i][1], lng: coords[i][0] }, { lat: coords[i + 1][1], lng: coords[i + 1][0] })
+        dist += planeDist(coords[i], coords[i + 1])
     return dist
 }
 
@@ -34,33 +33,6 @@ function computeDetailDistances(coords: Position[], details: [number, number, an
         distances.set(key, (distances.get(key) || 0) + segmentDist(coords, from, to))
     }
     return distances
-}
-
-/** Compute cumulative distances above each incline threshold using 50m smoothing */
-function computeInclineDistances(coords: Position[], thresholds: number[]): number[] {
-    const distAbove = thresholds.map(() => 0)
-    if (coords.length < 2 || coords[0].length < 3) return distAbove
-    let dist = 0, prevEle = coords[0], prevPos = coords[0]
-    for (let i = 1; i < coords.length; i++) {
-        const c = coords[i]
-        dist += calcDist({ lat: prevPos[1], lng: prevPos[0] }, { lat: c[1], lng: c[0] })
-        prevPos = c
-        if (dist > 50) {
-            const slope = (100 * Math.abs(c[2] - prevEle[2])) / dist
-            for (let t = 0; t < thresholds.length; t++)
-                if (slope > thresholds[t]) distAbove[t] += dist
-            prevEle = c
-            dist = 0
-        }
-    }
-    // remaining tail shorter than 50m
-    if (dist > 0) {
-        const last = coords[coords.length - 1]
-        const slope = (100 * Math.abs(last[2] - prevEle[2])) / dist
-        for (let t = 0; t < thresholds.length; t++)
-            if (slope > thresholds[t]) distAbove[t] += dist
-    }
-    return distAbove
 }
 
 /** Compute cumulative distances below each speed threshold */
@@ -224,9 +196,8 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
 
     // Incline (from 3D polyline) — first so it's close to the elevation widget on mobile
     if (coords.length > 1 && coords[0].length >= 3) {
-        const distAbove = computeInclineDistances(coords, [3, 6, 10])
-        const segments = [totalDist - distAbove[0], distAbove[0] - distAbove[1], distAbove[1] - distAbove[2], distAbove[2]]
-        const inclineDetails = segments
+        const categoryDistances = computeInclineCategoryDistances(coords)
+        const inclineDetails = categoryDistances
             .map((d, i) => ({ name: INCLINE_CATEGORIES[i].label, km: fmtKm(d), color: INCLINE_CATEGORIES[i].color, fraction: d / totalDist }))
             .filter(d => d.fraction > 0)
         lines.push(
