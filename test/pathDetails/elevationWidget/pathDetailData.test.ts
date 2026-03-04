@@ -151,6 +151,17 @@ describe('pathDetailData', () => {
             expect(result.type).toBe('bars')
         })
 
+        it('produces distinct legend labels for small numeric ranges', () => {
+            const entries: [number, number, any][] = [
+                [0, 1, 0.5],
+                [1, 2, 1.0],
+            ]
+            const result = transformPathDetail('curvature', 'Curvature', entries, coords, cumDist)
+            expect(result.type).toBe('line')
+            const labels = result.legend.map(l => l.label)
+            expect(new Set(labels).size).toBe(labels.length)
+        })
+
         it('assigns missing color for special values', () => {
             const entries: [number, number, any][] = [
                 [0, 1, 'missing'],

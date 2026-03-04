@@ -1,5 +1,5 @@
 import { ChartConfig, ChartData, ChartHoverResult, ChartPathDetail, ElevationPoint } from './types'
-import { calculateNiceTicks, formatDistanceLabel, formatElevationLabel } from './axisUtils'
+import { calculateNiceTicks, formatDistanceLabel, formatElevationLabel, computeDetailYRange, formatDetailTick } from './axisUtils'
 import { getSlopeColor } from './colors'
 
 const DEFAULT_MARGIN = { top: 10, right: 15, bottom: 26, left: 48 }
@@ -496,19 +496,7 @@ export default class ChartRenderer {
         plotTop: number,
     ) {
         if (detail.minValue === undefined || detail.maxValue === undefined) return
-        let min = detail.minValue
-        let max = detail.maxValue
-        // Ensure minimum span
-        if (max - min < 10) {
-            const mid = (min + max) / 2
-            min = mid - 25
-            max = mid + 25
-        }
-        const pad = (max - min) * 0.1
-        min -= pad
-        max += pad
-        // Don't push min below 0 when all original values are non-negative
-        if (detail.minValue >= 0) min = Math.max(0, min)
+        const { min, max } = computeDetailYRange(detail.minValue, detail.maxValue)
 
         const lineY = (v: number) => plotBottom - detailBarH - ((v - min) / (max - min)) * plotHeight
 
@@ -551,7 +539,7 @@ export default class ChartRenderer {
         for (const t of ticks) {
             const y = lineY(t)
             if (y < plotTop || y > plotBottom - detailBarH) continue
-            ctx.fillText(String(Math.round(t)), rightX + 4, y)
+            ctx.fillText(formatDetailTick(t, ticks), rightX + 4, y)
         }
 
         // Draw unit label at top of axis
