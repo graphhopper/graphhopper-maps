@@ -1,6 +1,6 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { ClearPoints, ClearRoute, RemovePoint, RouteRequestSuccess, SetPoint, SetSelectedPath } from '@/actions/Actions'
+import { AddPoint, ClearPoints, ClearRoute, RemovePoint, RouteRequestSuccess, SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { Path, RoutingResult } from '@/api/graphhopper'
 
 export interface RouteStoreState {
@@ -62,6 +62,7 @@ export default class RouteStore extends Store<RouteStoreState> {
             }
         } else if (
             action instanceof SetPoint ||
+            action instanceof AddPoint ||
             action instanceof ClearRoute ||
             action instanceof ClearPoints ||
             action instanceof RemovePoint

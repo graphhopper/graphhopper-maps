@@ -151,7 +151,7 @@ export default function ElevationWidget({
     }, [alternativeCount])
 
     return (
-        <div className={`${styles.container}${isExpanded ? ' ' + styles.containerExpanded : ''}`} style={{ display: hasData ? undefined : 'none' }}>
+        <div className={`${styles.container}${isExpanded ? ' ' + styles.containerExpanded : ''}`}>
             <div className={styles.controls}>
                 <DetailSelector
                     details={data?.pathDetails || []}
