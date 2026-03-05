@@ -1,6 +1,6 @@
 .container {
     position: relative;
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: white;
     border-radius: 0.5rem;
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
     pointer-events: auto;
