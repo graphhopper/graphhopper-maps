@@ -193,7 +193,7 @@ export function getNumericGradientColor(factor: number): string {
 }
 
 export function isMissingValue(value: string | number | boolean): boolean {
-    return value === 'missing' || value === 'unclassified' || value === 'Undefined' || value === ''
+    return value === 'missing'
 }
 
 export function assignDiscreteColors(

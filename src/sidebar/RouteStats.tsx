@@ -4,7 +4,7 @@ import { Position } from 'geojson'
 import { ApiImpl } from '@/api/Api'
 import { tr } from '@/translation/Translation'
 import styles from './RouteStats.module.css'
-import { NAMED_COLOR_MAPS, INCLINE_CATEGORIES, SPEED_COLORS, getSpeedThresholds, getSpeedLabels, computeInclineCategoryDistances, planeDist } from '@/pathDetails/elevationWidget/colors'
+import { NAMED_COLOR_MAPS, INCLINE_CATEGORIES, SPEED_COLORS, getSpeedThresholds, getSpeedLabels, computeInclineCategoryDistances, planeDist, isMissingValue } from '@/pathDetails/elevationWidget/colors'
 
 const PAVED = new Set(['asphalt', 'concrete', 'paved', 'paving_stones', 'concrete:plates', 'concrete:lanes', 'metal'])
 const UNPAVED = new Set([
@@ -99,12 +99,12 @@ function topColors(colorMap: Record<string, string>, distMap: Map<string, number
 }
 
 /** Build detail entries from a distance map, sorted by distance descending */
-function detailEntries(colorMap: Record<string, string>, distMap: Map<string, number>, totalDist: number, missingLabel = 'unknown'): DetailEntry[] {
+function detailEntries(colorMap: Record<string, string>, distMap: Map<string, number>, totalDist: number, missingLabel = 'missing'): DetailEntry[] {
     return [...distMap.entries()]
         .filter(([, d]) => d > 0)
         .sort((a, b) => b[1] - a[1])
         .map(([name, d]) => ({
-            name: (!name || name === 'missing') ? missingLabel : name,
+            name: isMissingValue(name) ? missingLabel : name,
             km: fmtKm(d),
             color: colorMap[name] || '#BDBDBD',
             fraction: d / totalDist,

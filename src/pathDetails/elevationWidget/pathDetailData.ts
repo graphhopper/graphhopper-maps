@@ -185,7 +185,7 @@ export function transformPathDetail(
         const seen = new Set<string>()
         legend = []
         for (const [, , val] of sanitized) {
-            const str = String(val ?? 'Undefined')
+            const str = String(val ?? 'missing')
             if (!seen.has(str)) {
                 seen.add(str)
                 legend.push({ label: str, color: colorMap.get(str) || '#dddddd' })
