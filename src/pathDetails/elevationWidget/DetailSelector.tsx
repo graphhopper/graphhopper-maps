@@ -14,7 +14,8 @@ export default function DetailSelector({ details, selectedKey, onSelect, elevati
             onChange={e => onSelect(e.target.value || null)}
             style={{
                 fontSize: '13px',
-                padding: '6px 4px',
+                height: 26,
+                padding: '0 4px',
                 border: '1px solid #ccc',
                 borderRadius: 4,
                 background: 'transparent',

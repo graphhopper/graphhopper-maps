@@ -3,7 +3,7 @@ import { calculateNiceTicks, formatDistanceLabel, formatElevationLabel, computeD
 import { getSlopeColor } from './colors'
 
 const DEFAULT_MARGIN = { top: 10, right: 15, bottom: 26, left: 48 }
-const DETAIL_BAR_HEIGHT = 20
+const DETAIL_BAR_HEIGHT = 50
 const FONT = '12px sans-serif'
 const AXIS_COLOR = '#666'
 const GRID_COLOR = '#e8e8e8'
@@ -34,8 +34,11 @@ export default class ChartRenderer {
     private getEffectiveMargin() {
         const base = this.config.margin
         let left = base.left
-        // Widen left margin for 4+ digit elevation labels (e.g. "1200 m")
-        if (this.data && this.data.elevation.length > 0) {
+        const isBarDetail = this.selectedDetail != null && this.selectedDetail.type !== 'line'
+        if (isBarDetail) {
+            left = 15
+        } else if (this.data && this.data.elevation.length > 0) {
+            // Widen left margin for 4+ digit elevation labels (e.g. "1200 m")
             const { eleMax } = this.getElevationRange()
             if (Math.abs(eleMax) >= 1000) left = 56
         }
@@ -146,7 +149,6 @@ export default class ChartRenderer {
 
         const x = margin.left + (hit.distance / totalDist) * plotWidth
         const plotBottom = this.cssHeight - margin.bottom
-        const detailBarH = this.selectedDetail && this.selectedDetail.type !== 'line' ? DETAIL_BAR_HEIGHT : 0
 
         ctx.beginPath()
         ctx.strokeStyle = '#333'
@@ -155,13 +157,11 @@ export default class ChartRenderer {
         ctx.lineTo(Math.round(x) + 0.5, plotBottom)
         ctx.stroke()
 
-        const isLineDetail = this.selectedDetail?.type === 'line'
-
-        // Draw elevation dot (only when not showing a line-type detail)
-        if (!isLineDetail) {
+        // Draw elevation dot only when no detail is active
+        if (!this.selectedDetail) {
             const { eleMin, eleMax } = this.getElevationRange()
-            const plotHeight = plotBottom - margin.top - detailBarH
-            const elevY = plotBottom - detailBarH - ((hit.elevation - eleMin) / (eleMax - eleMin || 1)) * plotHeight
+            const plotHeight = plotBottom - margin.top
+            const elevY = plotBottom - ((hit.elevation - eleMin) / (eleMax - eleMin || 1)) * plotHeight
 
             ctx.beginPath()
             ctx.arc(x, elevY, 4, 0, Math.PI * 2)
@@ -259,7 +259,9 @@ export default class ChartRenderer {
         const margin = this.getEffectiveMargin()
         const plotWidth = this.cssWidth - margin.left - margin.right
         const plotBottom = this.cssHeight - margin.bottom
-        const detailBarH = this.selectedDetail && this.selectedDetail.type !== 'line' ? DETAIL_BAR_HEIGHT : 0
+        const isLineDetail = this.selectedDetail?.type === 'line'
+        const isBarDetail = this.selectedDetail != null && !isLineDetail
+        const detailBarH = isBarDetail ? DETAIL_BAR_HEIGHT : 0
         const plotHeight = plotBottom - margin.top - detailBarH
 
         const elev = this.data.elevation
@@ -271,19 +273,19 @@ export default class ChartRenderer {
             : (_d: number) => margin.left + plotWidth / 2
         const yScale = (e: number) => plotBottom - detailBarH - ((e - eleMin) / (eleMax - eleMin)) * plotHeight
 
-        // Draw grid
-        this.drawGrid(ctx, eleMin, eleMax, totalDist, xScale, yScale, plotWidth, plotHeight, detailBarH)
+        // Draw grid (skip for bar details since bars fill the chart area)
+        if (!isBarDetail) {
+            this.drawGrid(ctx, eleMin, eleMax, totalDist, xScale, yScale, plotWidth, plotHeight, detailBarH)
+        }
 
-        const isLineDetail = this.selectedDetail?.type === 'line'
-
-        // Draw elevation area only when no line-type detail is active
-        if (!isLineDetail) {
+        // Draw elevation area only when no detail is active
+        if (!this.selectedDetail) {
             // Draw main elevation area with slope coloring
-            this.drawElevationArea(ctx, elev, xScale, yScale, plotBottom - detailBarH)
+            this.drawElevationArea(ctx, elev, xScale, yScale, plotBottom)
 
             // Draw alternative elevation on top so it's clearly visible
             if (this.visibleAlternativeIndex >= 0 && this.visibleAlternativeIndex < this.data.alternativeElevations.length) {
-                this.drawAlternativeElevation(ctx, this.data.alternativeElevations[this.visibleAlternativeIndex], plotWidth, plotBottom, detailBarH, plotHeight, eleMin, eleMax)
+                this.drawAlternativeElevation(ctx, this.data.alternativeElevations[this.visibleAlternativeIndex], plotWidth, plotBottom, 0, plotHeight, eleMin, eleMax)
             }
         }
 
@@ -301,8 +303,8 @@ export default class ChartRenderer {
 
         // Draw axes
         this.drawXAxis(ctx, totalDist, xScale, plotBottom)
-        if (!isLineDetail) {
-            this.drawYAxis(ctx, eleMin, eleMax, yScale, margin.left, margin.top, plotBottom - detailBarH)
+        if (!this.selectedDetail) {
+            this.drawYAxis(ctx, eleMin, eleMax, yScale, margin.left, margin.top, plotBottom)
         }
 
         ctx.restore()
@@ -472,18 +474,35 @@ export default class ChartRenderer {
         barHeight: number,
     ) {
         const barTop = plotBottom - barHeight
-        for (const seg of detail.segments) {
-            const x1 = xScale(seg.fromDistance)
-            const x2 = xScale(seg.toDistance)
-            ctx.fillStyle = seg.color
-            ctx.fillRect(x1, barTop, x2 - x1, barHeight)
+
+        // Merge consecutive same-color segments and snap to pixel boundaries
+        // to avoid thin white stripes from subpixel anti-aliasing gaps
+        const segments = detail.segments
+        if (segments.length === 0) return
+        let runFrom = Math.round(xScale(segments[0].fromDistance))
+        let runTo = Math.round(xScale(segments[0].toDistance))
+        let runColor = segments[0].color
+
+        for (let i = 1; i <= segments.length; i++) {
+            const seg = segments[i]
+            if (seg && seg.color === runColor) {
+                runTo = Math.round(xScale(seg.toDistance))
+            } else {
+                ctx.fillStyle = runColor
+                ctx.fillRect(runFrom, barTop, runTo - runFrom, barHeight)
+                if (seg) {
+                    runFrom = runTo
+                    runTo = Math.round(xScale(seg.toDistance))
+                    runColor = seg.color
+                }
+            }
         }
 
         // Draw bar border
         ctx.strokeStyle = '#ccc'
         ctx.lineWidth = 0.5
-        ctx.strokeRect(xScale(detail.segments[0]?.fromDistance || 0), barTop,
-            xScale(detail.segments[detail.segments.length - 1]?.toDistance || 0) - xScale(detail.segments[0]?.fromDistance || 0),
+        ctx.strokeRect(xScale(segments[0].fromDistance), barTop,
+            xScale(segments[segments.length - 1].toDistance) - xScale(segments[0].fromDistance),
             barHeight)
     }
 
