@@ -474,18 +474,35 @@ export default class ChartRenderer {
         barHeight: number,
     ) {
         const barTop = plotBottom - barHeight
-        for (const seg of detail.segments) {
-            const x1 = xScale(seg.fromDistance)
-            const x2 = xScale(seg.toDistance)
-            ctx.fillStyle = seg.color
-            ctx.fillRect(x1, barTop, x2 - x1, barHeight)
+
+        // Merge consecutive same-color segments and snap to pixel boundaries
+        // to avoid thin white stripes from subpixel anti-aliasing gaps
+        const segments = detail.segments
+        if (segments.length === 0) return
+        let runFrom = Math.round(xScale(segments[0].fromDistance))
+        let runTo = Math.round(xScale(segments[0].toDistance))
+        let runColor = segments[0].color
+
+        for (let i = 1; i <= segments.length; i++) {
+            const seg = segments[i]
+            if (seg && seg.color === runColor) {
+                runTo = Math.round(xScale(seg.toDistance))
+            } else {
+                ctx.fillStyle = runColor
+                ctx.fillRect(runFrom, barTop, runTo - runFrom, barHeight)
+                if (seg) {
+                    runFrom = runTo
+                    runTo = Math.round(xScale(seg.toDistance))
+                    runColor = seg.color
+                }
+            }
         }
 
         // Draw bar border
         ctx.strokeStyle = '#ccc'
         ctx.lineWidth = 0.5
-        ctx.strokeRect(xScale(detail.segments[0]?.fromDistance || 0), barTop,
-            xScale(detail.segments[detail.segments.length - 1]?.toDistance || 0) - xScale(detail.segments[0]?.fromDistance || 0),
+        ctx.strokeRect(xScale(segments[0].fromDistance), barTop,
+            xScale(segments[segments.length - 1].toDistance) - xScale(segments[0].fromDistance),
             barHeight)
     }
 
