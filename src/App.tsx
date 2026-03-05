@@ -196,16 +196,23 @@ function LargeScreenLayout({
 }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
-    // 'compact' | 'expanded' | 'closed'
-    const [elevationState, setElevationState] = useState<'compact' | 'expanded' | 'closed'>('compact')
-    // Re-show elevation widget when a new route is calculated (only if currently closed)
-    useEffect(() => { setElevationState(s => s === 'closed' ? 'compact' : s) }, [route.selectedPath])
+    const [elevationState, setElevationState] = useState<'compact' | 'expanded' | 'closed'>('closed')
+    const hasRoute = route.selectedPath.points.coordinates.length > 0
+    const routeRequestPending = query.currentRequest.subRequests.some(r => r.state === RequestState.SENT)
+    // Show elevation widget when a route arrives, hide when route is gone
+    // (but not during transient empty states like via point addition where a new request is already pending)
+    useEffect(() => {
+        if (hasRoute) {
+            setElevationState(s => s === 'closed' ? 'compact' : s)
+        } else if (!routeRequestPending) {
+            setElevationState('closed')
+        }
+    }, [hasRoute, routeRequestPending])
     // Hide map attribution when elevation widget is expanded (it would be covered)
     useEffect(() => {
         const el = map.getTargetElement()?.querySelector('.' + mapStyles.customAttribution) as HTMLElement | null
         if (el) el.style.display = elevationState === 'expanded' ? 'none' : ''
     }, [elevationState, map])
-    const hasRoute = route.selectedPath.points.coordinates.length > 0
     return (
         <>
             {showSidebar ? (
