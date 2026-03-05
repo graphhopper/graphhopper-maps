@@ -122,26 +122,40 @@ function ColorBar({ entries }: { entries: DetailEntry[] }) {
     )
 }
 
+// Persist expand/collapse state across component remounts (e.g. when route recalculates after adding a point)
+const expandedStatsSet = new Set<string>()
+
 function ExpandableStat({
+    statKey,
     label,
     summary,
     details,
     extraInfo,
 }: {
+    statKey: string
     label: string
     summary?: string
     details?: DetailEntry[]
     extraInfo?: SummaryEntry[]
 }) {
-    const [expanded, setExpanded] = useState(false)
+    const [expanded, setExpanded] = useState(() => expandedStatsSet.has(statKey))
     const hasDetails = (details && details.length > 0)
     const hasExpanded = hasDetails || (extraInfo && extraInfo.length > 0)
+
+    const toggle = () => {
+        setExpanded(prev => {
+            const next = !prev
+            if (next) expandedStatsSet.add(statKey)
+            else expandedStatsSet.delete(statKey)
+            return next
+        })
+    }
 
     return (
         <div>
             <div
                 className={hasExpanded ? styles.statClickable : styles.statLine}
-                onClick={hasExpanded ? () => setExpanded(!expanded) : undefined}
+                onClick={hasExpanded ? toggle : undefined}
             >
                 {hasDetails ? (
                     <>
@@ -201,6 +215,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
         lines.push(
             <ExpandableStat
                 key="incline"
+                statKey="incline"
                 label={tr('route_stats_incline')}
                 details={inclineDetails}
                 extraInfo={[
@@ -222,7 +237,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             if (pavedDist > 0) extra.push({ name: 'paved', value: pct(pavedDist, totalDist), ...topColors(surfaceColors, dist, PAVED) })
             if (unpavedDist > 0) extra.push({ name: 'unpaved', value: pct(unpavedDist, totalDist), ...topColors(surfaceColors, dist, UNPAVED) })
             lines.push(
-                <ExpandableStat key="surface" label={tr('route_stats_surface')} details={detailEntries(surfaceColors, dist, totalDist)} extraInfo={extra} />,
+                <ExpandableStat key="surface" statKey="surface" label={tr('route_stats_surface')} details={detailEntries(surfaceColors, dist, totalDist)} extraInfo={extra} />,
             )
         }
     }
@@ -241,6 +256,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                 lines.push(
                     <ExpandableStat
                         key={key}
+                        statKey={key}
                         label={label}
                         details={detailEntries(colors, dist, totalDist, 'none')}
                         extraInfo={[{ name: 'on network', value: pct(onNetwork, totalDist), ...topColors(colors, dist, NETWORK_KEYS) }]}
@@ -263,7 +279,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             if (medium > 0) extra.push({ name: 'medium', value: pct(medium, totalDist), ...topColors(roadColors, dist, MEDIUM_ROADS) })
             if (small > 0) extra.push({ name: 'small', value: pct(small, totalDist), ...topColors(roadColors, dist, SMALL_ROADS) })
             lines.push(
-                <ExpandableStat key="roads" label={tr('route_stats_roads')} details={detailEntries(roadColors, dist, totalDist)} extraInfo={extra} />,
+                <ExpandableStat key="roads" statKey="roads" label={tr('route_stats_roads')} details={detailEntries(roadColors, dist, totalDist)} extraInfo={extra} />,
             )
         }
     }
@@ -294,6 +310,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
         lines.push(
             <ExpandableStat
                 key="speed"
+                statKey="speed"
                 label={tr('route_stats_speed')}
                 details={speedDetails}
                 extraInfo={[
