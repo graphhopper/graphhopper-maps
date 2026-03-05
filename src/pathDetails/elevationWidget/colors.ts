@@ -47,11 +47,11 @@ export const ROAD_CLASS_COLORS: Record<string, string> = {
 }
 
 export const ROAD_ENVIRONMENT_COLORS: Record<string, string> = {
-    road: '#757575',
+    road: '#8D6E63',
     ferry: '#1976D2',
-    bridge: '#5D4037',
-    tunnel: '#37474F',
-    ford: '#FF8F00',
+    bridge: '#F9A825',
+    tunnel: '#424242',
+    ford: '#E53935',
 }
 
 export const TRACK_TYPE_COLORS: Record<string, string> = {
