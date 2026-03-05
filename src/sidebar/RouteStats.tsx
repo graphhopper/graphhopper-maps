@@ -258,7 +258,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                         key={key}
                         statKey={key}
                         label={label}
-                        details={detailEntries(colors, dist, totalDist, 'none')}
+                        details={detailEntries(colors, dist, totalDist)}
                         extraInfo={[{ name: 'on network', value: pct(onNetwork, totalDist), ...topColors(colors, dist, NETWORK_KEYS) }]}
                     />,
                 )
