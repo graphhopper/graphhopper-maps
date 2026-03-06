@@ -168,7 +168,7 @@ export default function ElevationWidget({
     const inclineLegend = usedColors
         ? INCLINE_CATEGORIES
             .filter(c => usedColors.has(c.color))
-            .map(c => ({ label: isExpanded ? c.label : c.shortLabel, color: c.color }))
+            .map(c => ({ label: isExpanded ? c.label : c.shortLabel, color: c.color, title: c.tooltip }))
         : []
 
     const cycleAlternative = useCallback(() => {

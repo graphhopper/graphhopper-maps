@@ -16,6 +16,7 @@ export interface PathDetailSegment {
 export interface LegendEntry {
     label: string
     color: string
+    title?: string
 }
 
 export interface ChartPathDetail {
