@@ -179,9 +179,9 @@ export function computeInclineCategoryDistances(coords: number[][]): number[] {
     for (let i = 0; i < coords.length - 1; i++) {
         const dist = planeDist(coords[i], coords[i + 1])
         if (dist <= 0) continue
-        const absSlope = (100 * Math.abs(coords[i + 1][2] - coords[i][2])) / dist
+        const slope = (100 * (coords[i + 1][2] - coords[i][2])) / dist
         for (let j = 0; j < INCLINE_CATEGORIES.length; j++) {
-            if (absSlope <= INCLINE_CATEGORIES[j].maxSlope) { distances[j] += dist; break }
+            if (slope >= INCLINE_CATEGORIES[j].minSlope) { distances[j] += dist; break }
         }
     }
     return distances

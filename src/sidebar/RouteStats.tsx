@@ -77,6 +77,7 @@ interface DetailEntry {
     km: string
     color: string
     fraction: number
+    title?: string
 }
 
 interface SummaryEntry {
@@ -187,9 +188,16 @@ function ExpandableStat({
                         </div>
                     )}
                     {details?.map(d => (
-                        <div key={d.name} className={styles.detailRow}>
+                        <div key={d.title || d.name} className={styles.detailRow}>
                             <span className={styles.colorDot} style={{ backgroundColor: d.color }} />
-                            <span className={styles.detailName}>{d.name}</span>
+                            {d.title ? (
+                                <>
+                                    <span className={styles.detailArrow}>{d.name}</span>
+                                    <span className={styles.detailRange}>{d.title}</span>
+                                </>
+                            ) : (
+                                <span className={styles.detailName}>{d.name}</span>
+                            )}
                             <span className={styles.detailValue}>{d.km}</span>
                         </div>
                     ))}
@@ -210,7 +218,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
     if (coords.length > 1 && coords[0].length >= 3) {
         const categoryDistances = computeInclineCategoryDistances(coords)
         const inclineDetails = categoryDistances
-            .map((d, i) => ({ name: INCLINE_CATEGORIES[i].label, km: fmtKm(d), color: INCLINE_CATEGORIES[i].color, fraction: d / totalDist }))
+            .map((d, i) => ({ name: INCLINE_CATEGORIES[i].label, km: fmtKm(d), color: INCLINE_CATEGORIES[i].color, fraction: d / totalDist, title: INCLINE_CATEGORIES[i].tooltip }))
             .filter(d => d.fraction > 0)
         lines.push(
             <ExpandableStat

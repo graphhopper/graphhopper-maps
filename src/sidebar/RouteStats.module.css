@@ -70,6 +70,18 @@
     align-items: center;
 }
 
+.detailArrow {
+    width: 1.8em;
+    flex-shrink: 0;
+    text-align: left;
+}
+
+.detailRange {
+    white-space: nowrap;
+    text-align: right;
+    min-width: 7em;
+}
+
 .detailName {
     white-space: nowrap;
     flex: 1;
@@ -79,7 +91,7 @@
     text-align: right;
     flex-shrink: 0;
     white-space: nowrap;
-    padding-left: 1em;
+    margin-left: auto;
 }
 
 .colorBar {
