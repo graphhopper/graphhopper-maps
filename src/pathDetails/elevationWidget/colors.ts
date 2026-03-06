@@ -86,19 +86,24 @@ export const NAMED_COLOR_MAPS: Record<string, Record<string, string>> = {
     foot_network: NETWORK_COLORS,
 }
 
-// Incline categories: grouped by absolute slope percentage
+// Incline categories: ordered from steepest uphill to steepest downhill.
+// minSlope is the lower bound (inclusive) for each bucket; getSlopeColor
+// iterates in order and picks the first match where percent >= minSlope.
 export interface InclineCategory {
     label: string
     shortLabel: string
-    maxSlope: number
+    tooltip: string
+    minSlope: number
     color: string
 }
 
 export const INCLINE_CATEGORIES: InclineCategory[] = [
-    { label: 'flat (\u22643%)', shortLabel: 'flat', maxSlope: 3, color: '#2E7D32' },
-    { label: 'mild (3\u20136%)', shortLabel: 'mild', maxSlope: 6, color: '#FF9800' },
-    { label: 'steep (6\u201310%)', shortLabel: 'steep', maxSlope: 10, color: '#F44336' },
-    { label: 'very steep (>10%)', shortLabel: 'v. steep', maxSlope: Infinity, color: '#7B1FA2' },
+    { label: '\u2191\u2191', shortLabel: '\u2191\u2191', tooltip: '>10%', minSlope: 10, color: '#D50000' },
+    { label: '\u2191', shortLabel: '\u2191', tooltip: '6..10%', minSlope: 6, color: '#F44336' },
+    { label: '\u2197', shortLabel: '\u2197', tooltip: '3..6%', minSlope: 3, color: '#FF9800' },
+    { label: '-', shortLabel: '-', tooltip: '\u22126..3%', minSlope: -6, color: '#2E7D32' },
+    { label: '\u2193', shortLabel: '\u2193', tooltip: '\u221210..\u22126%', minSlope: -10, color: '#42A5F5' },
+    { label: '\u2193\u2193', shortLabel: '\u2193\u2193', tooltip: '<\u221210%', minSlope: -Infinity, color: '#1565C0' },
 ]
 
 // Speed colors: red (slow) -> green (fast), with profile-specific thresholds
@@ -149,9 +154,8 @@ export const DISCRETE_PALETTE = [
 const MISSING_COLOR = '#dddddd'
 
 export function getSlopeColor(percent: number): string {
-    const abs = Math.abs(percent)
     for (const cat of INCLINE_CATEGORIES) {
-        if (abs <= cat.maxSlope) return cat.color
+        if (percent >= cat.minSlope) return cat.color
     }
     return INCLINE_CATEGORIES[INCLINE_CATEGORIES.length - 1].color
 }

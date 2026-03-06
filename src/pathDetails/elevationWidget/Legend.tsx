@@ -12,7 +12,7 @@ export default function Legend({ entries, maxVisible }: LegendProps) {
     return (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem 0.75rem', fontSize: '13px', color: '#555' }}>
             {visible.map((entry, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <div key={i} title={entry.title} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                     <span
                         style={{
                             display: 'inline-block',

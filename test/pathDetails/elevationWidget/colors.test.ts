@@ -14,26 +14,35 @@ import {
 
 describe('colors', () => {
     describe('getSlopeColor', () => {
-        it('returns flat color for 0-3% slopes', () => {
-            expect(getSlopeColor(0)).toBe(INCLINE_CATEGORIES[0].color)
-            expect(getSlopeColor(3)).toBe(INCLINE_CATEGORIES[0].color)
-            expect(getSlopeColor(-2)).toBe(INCLINE_CATEGORIES[0].color)
+        it('returns v. steep up color for >= 10%', () => {
+            expect(getSlopeColor(10)).toBe(INCLINE_CATEGORIES[0].color)
+            expect(getSlopeColor(25)).toBe(INCLINE_CATEGORIES[0].color)
         })
 
-        it('returns mild color for 3-6% slopes', () => {
-            expect(getSlopeColor(4)).toBe(INCLINE_CATEGORIES[1].color)
+        it('returns steep up color for 6 to 10%', () => {
             expect(getSlopeColor(6)).toBe(INCLINE_CATEGORIES[1].color)
-            expect(getSlopeColor(-5)).toBe(INCLINE_CATEGORIES[1].color)
+            expect(getSlopeColor(9)).toBe(INCLINE_CATEGORIES[1].color)
         })
 
-        it('returns steep color for 6-10% slopes', () => {
-            expect(getSlopeColor(7)).toBe(INCLINE_CATEGORIES[2].color)
-            expect(getSlopeColor(10)).toBe(INCLINE_CATEGORIES[2].color)
+        it('returns mild up color for 3 to 6%', () => {
+            expect(getSlopeColor(3)).toBe(INCLINE_CATEGORIES[2].color)
+            expect(getSlopeColor(5)).toBe(INCLINE_CATEGORIES[2].color)
         })
 
-        it('returns very steep color for >10% slopes', () => {
-            expect(getSlopeColor(11)).toBe(INCLINE_CATEGORIES[3].color)
-            expect(getSlopeColor(-25)).toBe(INCLINE_CATEGORIES[3].color)
+        it('returns flat color for -6 to 3%', () => {
+            expect(getSlopeColor(2)).toBe(INCLINE_CATEGORIES[3].color)
+            expect(getSlopeColor(0)).toBe(INCLINE_CATEGORIES[3].color)
+            expect(getSlopeColor(-6)).toBe(INCLINE_CATEGORIES[3].color)
+        })
+
+        it('returns steep down color for -10 to -6%', () => {
+            expect(getSlopeColor(-7)).toBe(INCLINE_CATEGORIES[4].color)
+            expect(getSlopeColor(-10)).toBe(INCLINE_CATEGORIES[4].color)
+        })
+
+        it('returns v. steep down color for < -10%', () => {
+            expect(getSlopeColor(-11)).toBe(INCLINE_CATEGORIES[5].color)
+            expect(getSlopeColor(-25)).toBe(INCLINE_CATEGORIES[5].color)
         })
     })
 
