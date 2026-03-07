@@ -35,7 +35,7 @@ function computeDetailDistances(coords: Position[], details: [number, number, an
     return distances
 }
 
-/** Compute cumulative distances below each speed threshold */
+// Compute cumulative distances below each speed threshold
 function computeSpeedDistances(coords: Position[], details: [number, number, number][], thresholds: number[]): number[] {
     const distBelow = thresholds.map(() => 0)
     for (const [from, to, speed] of details) {
@@ -87,7 +87,7 @@ interface SummaryEntry {
     more?: boolean
 }
 
-/** Get colors of the top N contributors and whether there are more */
+// Get colors of the top N contributors and whether there are more
 function topColors(colorMap: Record<string, string>, distMap: Map<string, number>, keys: Iterable<string>, n: number = 4) {
     const sorted = [...keys]
         .map(k => ({ key: k, dist: distMap.get(k) || 0 }))
@@ -99,7 +99,7 @@ function topColors(colorMap: Record<string, string>, distMap: Map<string, number
     }
 }
 
-/** Build detail entries from a distance map, sorted by distance descending */
+// Build detail entries from a distance map, sorted by distance descending
 function detailEntries(colorMap: Record<string, string>, distMap: Map<string, number>, totalDist: number, missingLabel = 'missing'): DetailEntry[] {
     return [...distMap.entries()]
         .filter(([, d]) => d > 0)
