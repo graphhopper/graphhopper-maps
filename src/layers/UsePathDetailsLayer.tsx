@@ -20,7 +20,6 @@ const activeDetailLayerKey = 'activeDetailLayer'
 export default function usePathDetailsLayer(
     map: Map,
     pathDetails: PathDetailsStoreState,
-    activeDetail: ChartPathDetail | null = null,
 ) {
     // Highlighted segments (elevation threshold)
     useEffect(() => {
@@ -34,13 +33,13 @@ export default function usePathDetailsLayer(
     // Active detail colored segments
     useEffect(() => {
         removeLayer(map, activeDetailLayerKey)
-        if (activeDetail) {
-            addActiveDetailLayer(map, activeDetail)
+        if (pathDetails.activeDetail) {
+            addActiveDetailLayer(map, pathDetails.activeDetail)
         }
         return () => {
             removeLayer(map, activeDetailLayerKey)
         }
-    }, [map, activeDetail])
+    }, [map, pathDetails.activeDetail])
 
     return
 }

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import ElevationInfoBar from '@/pathDetails/ElevationInfoBar'
-import { ChartPathDetail } from '@/pathDetails/elevationWidget/types'
 import styles from './App.module.css'
 import {
     getApiInfoStore,
@@ -124,8 +123,7 @@ export default function App() {
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints)
     useQueryPointsLayer(map, query.queryPoints)
-    const [activeDetail, setActiveDetail] = useState<ChartPathDetail | null>(null)
-    usePathDetailsLayer(map, pathDetails, activeDetail)
+    usePathDetailsLayer(map, pathDetails)
     usePOIsLayer(map, pois)
     useCurrentLocationLayer(map, currentLocation)
 
@@ -151,7 +149,6 @@ export default function App() {
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
-                        onActiveDetailChanged={setActiveDetail}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -163,7 +160,6 @@ export default function App() {
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
-                        onActiveDetailChanged={setActiveDetail}
                     />
                 )}
             </div>
@@ -180,7 +176,6 @@ interface LayoutProps {
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
-    onActiveDetailChanged: (detail: ChartPathDetail | null) => void
 }
 
 function LargeScreenLayout({
@@ -192,7 +187,6 @@ function LargeScreenLayout({
     encodedValues,
     drawAreas,
     currentLocation,
-    onActiveDetailChanged,
 }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
@@ -290,7 +284,6 @@ function LargeScreenLayout({
                     isExpanded={elevationState === 'expanded'}
                     onToggleExpanded={() => setElevationState(s => s === 'expanded' ? 'compact' : 'expanded')}
                     onClose={() => setElevationState('closed')}
-                    onActiveDetailChanged={onActiveDetailChanged}
                 />
             </div>
         </>
@@ -306,19 +299,7 @@ function SmallScreenLayout({
     encodedValues,
     drawAreas,
     currentLocation,
-    onActiveDetailChanged,
 }: LayoutProps) {
-    const hasPath = route.selectedPath.points.coordinates.length > 0
-    const elevationWidget = hasPath ? (
-        <ElevationInfoBar
-            selectedPath={route.selectedPath}
-            alternativePaths={route.routingResult.paths}
-            profile={query.routingProfile.name}
-            isExpanded={false}
-            onToggleExpanded={() => {}}
-            onActiveDetailChanged={onActiveDetailChanged}
-        />
-    ) : undefined
     return (
         <>
             <div className={styles.smallScreenSidebar}>
@@ -348,7 +329,6 @@ function SmallScreenLayout({
                     selectedPath={route.selectedPath}
                     currentRequest={query.currentRequest}
                     profile={query.routingProfile.name}
-                    detailsExtra={elevationWidget}
                 />
             </div>
 

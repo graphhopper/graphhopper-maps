@@ -125,5 +125,7 @@
 
     .container {
         border-radius: 0;
+        box-shadow: none;
+        margin: 0.5rem 1rem;
     }
 }

@@ -115,11 +115,9 @@ describe('colors', () => {
         })
 
         it('assigns missing color for special values', () => {
-            const values = ['missing', 'unclassified', 'Undefined', 'asphalt']
+            const values = ['missing', 'asphalt']
             const map = assignDiscreteColors('surface', values)
             expect(map.get('missing')).toBe('#dddddd')
-            expect(map.get('unclassified')).toBe('#dddddd')
-            expect(map.get('Undefined')).toBe('#dddddd')
             expect(map.get('asphalt')).toBe(SURFACE_COLORS['asphalt'])
         })
 

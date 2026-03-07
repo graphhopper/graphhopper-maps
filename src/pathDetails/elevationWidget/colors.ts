@@ -68,13 +68,22 @@ export const TOLL_COLORS: Record<string, string> = {
     hgv: '#FF9800',
 }
 
+export const NETWORK_COLORS: Record<string, string> = {
+    international: '#2E7D32',
+    national: '#66BB6A',
+    regional: '#1565C0',
+    local: '#42A5F5',
+}
+
 // Named color maps for known detail keys
-const NAMED_COLOR_MAPS: Record<string, Record<string, string>> = {
+export const NAMED_COLOR_MAPS: Record<string, Record<string, string>> = {
     surface: SURFACE_COLORS,
     road_class: ROAD_CLASS_COLORS,
     road_environment: ROAD_ENVIRONMENT_COLORS,
     track_type: TRACK_TYPE_COLORS,
     toll: TOLL_COLORS,
+    bike_network: NETWORK_COLORS,
+    foot_network: NETWORK_COLORS,
 }
 
 // Incline categories: ordered from steepest uphill to steepest downhill.
@@ -151,6 +160,33 @@ export function getSlopeColor(percent: number): string {
     return INCLINE_CATEGORIES[INCLINE_CATEGORIES.length - 1].color
 }
 
+/**
+ * Equirectangular plane projection distance, consistent with GraphHopper's DistancePlaneProjection.
+ * See graphhopper#3296.
+ */
+export function planeDist(p: number[], q: number[]): number {
+    const toRad = (deg: number) => deg * 0.017453292519943295
+    const dLat = toRad(q[1] - p[1])
+    const dLon = toRad(q[0] - p[0])
+    const x = Math.cos(toRad((p[1] + q[1]) / 2)) * dLon
+    return 6371000 * Math.sqrt(dLat * dLat + x * x)
+}
+
+/** Compute distance per incline category from [lng, lat, ele] coordinates. Returns array parallel to INCLINE_CATEGORIES. */
+export function computeInclineCategoryDistances(coords: number[][]): number[] {
+    const distances = INCLINE_CATEGORIES.map(() => 0)
+    if (coords.length < 2 || coords[0].length < 3) return distances
+    for (let i = 0; i < coords.length - 1; i++) {
+        const dist = planeDist(coords[i], coords[i + 1])
+        if (dist <= 0) continue
+        const slope = (100 * (coords[i + 1][2] - coords[i][2])) / dist
+        for (let j = 0; j < INCLINE_CATEGORIES.length; j++) {
+            if (slope >= INCLINE_CATEGORIES[j].minSlope) { distances[j] += dist; break }
+        }
+    }
+    return distances
+}
+
 export function getNumericGradientColor(factor: number): string {
     // blue [0,153,247] to red [241,23,18]
     const clamped = Math.max(0, Math.min(1, factor))
@@ -161,7 +197,7 @@ export function getNumericGradientColor(factor: number): string {
 }
 
 export function isMissingValue(value: string | number | boolean): boolean {
-    return value === 'missing' || value === 'unclassified' || value === 'Undefined' || value === ''
+    return value === 'missing'
 }
 
 export function assignDiscreteColors(
