@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Path } from '@/api/graphhopper'
 import { Position } from 'geojson'
 import { ApiImpl } from '@/api/Api'
 import { tr } from '@/translation/Translation'
+import { metersToShortText } from '@/Converters'
+import { SettingsContext } from '@/contexts/SettingsContext'
 import styles from './RouteStats.module.css'
 import { NAMED_COLOR_MAPS, INCLINE_CATEGORIES, SPEED_COLORS, getSpeedThresholds, getSpeedLabels, computeInclineCategoryDistances, planeDist, isMissingValue } from '@/pathDetails/elevationWidget/colors'
 
@@ -59,9 +61,6 @@ function pct(value: number, total: number): string {
     return Math.round((100 * value) / total) + '%'
 }
 
-function fmtKm(meters: number): string {
-    return (meters / 1000).toFixed(1) + ' km'
-}
 
 function formatTime(minutes: number): string {
     const h = Math.floor(minutes / 60)
@@ -100,13 +99,13 @@ function topColors(colorMap: Record<string, string>, distMap: Map<string, number
 }
 
 // Build detail entries from a distance map, sorted by distance descending
-function detailEntries(colorMap: Record<string, string>, distMap: Map<string, number>, totalDist: number, missingLabel = 'missing'): DetailEntry[] {
+function detailEntries(colorMap: Record<string, string>, distMap: Map<string, number>, totalDist: number, us: boolean, missingLabel = 'missing'): DetailEntry[] {
     return [...distMap.entries()]
         .filter(([, d]) => d > 0)
         .sort((a, b) => b[1] - a[1])
         .map(([name, d]) => ({
             name: isMissingValue(name) ? missingLabel : name,
-            km: fmtKm(d),
+            km: metersToShortText(d, us),
             color: colorMap[name] || '#BDBDBD',
             fraction: d / totalDist,
         }))
@@ -208,6 +207,8 @@ function ExpandableStat({
 }
 
 export default function RouteStats({ path, profile }: { path: Path; profile: string }) {
+    const settings = useContext(SettingsContext)
+    const us = settings.showDistanceInMiles
     const coords = path.points.coordinates
     const totalDist = path.distance
     if (totalDist <= 0) return null
@@ -218,7 +219,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
     if (coords.length > 1 && coords[0].length >= 3) {
         const categoryDistances = computeInclineCategoryDistances(coords)
         const inclineDetails = categoryDistances
-            .map((d, i) => ({ name: INCLINE_CATEGORIES[i].label, km: fmtKm(d), color: INCLINE_CATEGORIES[i].color, fraction: d / totalDist, title: INCLINE_CATEGORIES[i].tooltip }))
+            .map((d, i) => ({ name: INCLINE_CATEGORIES[i].label, km: metersToShortText(d, us), color: INCLINE_CATEGORIES[i].color, fraction: d / totalDist, title: INCLINE_CATEGORIES[i].tooltip }))
             .filter(d => d.fraction > 0)
         lines.push(
             <ExpandableStat
@@ -227,8 +228,8 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                 label={tr('route_stats_incline')}
                 details={inclineDetails}
                 extraInfo={[
-                    { name: 'total ascent', value: `${Math.floor(path.ascend)} m` },
-                    { name: 'total descent', value: `${Math.floor(path.descend)} m` },
+                    { name: 'total ascent', value: metersToShortText(path.ascend, us) },
+                    { name: 'total descent', value: metersToShortText(path.descend, us) },
                 ]}
             />,
         )
@@ -245,7 +246,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             if (pavedDist > 0) extra.push({ name: 'paved', value: pct(pavedDist, totalDist), ...topColors(surfaceColors, dist, PAVED) })
             if (unpavedDist > 0) extra.push({ name: 'unpaved', value: pct(unpavedDist, totalDist), ...topColors(surfaceColors, dist, UNPAVED) })
             lines.push(
-                <ExpandableStat key="surface" statKey="surface" label={tr('route_stats_surface')} details={detailEntries(surfaceColors, dist, totalDist)} extraInfo={extra} />,
+                <ExpandableStat key="surface" statKey="surface" label={tr('route_stats_surface')} details={detailEntries(surfaceColors, dist, totalDist, us)} extraInfo={extra} />,
             )
         }
     }
@@ -266,7 +267,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                         key={key}
                         statKey={key}
                         label={label}
-                        details={detailEntries(colors, dist, totalDist)}
+                        details={detailEntries(colors, dist, totalDist, us)}
                         extraInfo={[{ name: 'on network', value: pct(onNetwork, totalDist), ...topColors(colors, dist, NETWORK_KEYS) }]}
                     />,
                 )
@@ -287,7 +288,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             if (medium > 0) extra.push({ name: 'medium', value: pct(medium, totalDist), ...topColors(roadColors, dist, MEDIUM_ROADS) })
             if (small > 0) extra.push({ name: 'small', value: pct(small, totalDist), ...topColors(roadColors, dist, SMALL_ROADS) })
             lines.push(
-                <ExpandableStat key="roads" statKey="roads" label={tr('route_stats_roads')} details={detailEntries(roadColors, dist, totalDist)} extraInfo={extra} />,
+                <ExpandableStat key="roads" statKey="roads" label={tr('route_stats_roads')} details={detailEntries(roadColors, dist, totalDist, us)} extraInfo={extra} />,
             )
         }
     }
@@ -302,7 +303,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             .slice(0, -1)
             .map((_, i) => ({
                 name: speedLabels[i],
-                km: fmtKm(boundaries[i + 1] - boundaries[i]),
+                km: metersToShortText(boundaries[i + 1] - boundaries[i], us),
                 color: SPEED_COLORS[i] || SPEED_COLORS[SPEED_COLORS.length - 1],
                 fraction: (boundaries[i + 1] - boundaries[i]) / totalDist,
             }))
