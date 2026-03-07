@@ -2,6 +2,7 @@ import { Action } from '@/stores/Dispatcher'
 import { QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { ChartPathDetail } from '@/pathDetails/elevationWidget/types'
 import { POI } from '@/stores/POIsStore'
 import { Settings } from '@/stores/SettingsStore'
 import { Coordinate } from '@/utils'
@@ -230,9 +231,9 @@ export class PathDetailsElevationSelected implements Action {
 }
 
 export class SetActiveDetail implements Action {
-    readonly detail: any | null
+    readonly detail: ChartPathDetail | null
 
-    constructor(detail: any | null) {
+    constructor(detail: ChartPathDetail | null) {
         this.detail = detail
     }
 }
