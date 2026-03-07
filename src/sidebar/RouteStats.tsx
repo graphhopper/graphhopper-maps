@@ -228,8 +228,8 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                 label={tr('route_stats_incline')}
                 details={inclineDetails}
                 extraInfo={[
-                    { name: 'total ascent', value: metersToShortText(path.ascend, us) },
-                    { name: 'total descent', value: metersToShortText(path.descend, us) },
+                    { name: tr('route_stats_total_ascent'), value: metersToShortText(path.ascend, us) },
+                    { name: tr('route_stats_total_descent'), value: metersToShortText(path.descend, us) },
                 ]}
             />,
         )
@@ -243,8 +243,8 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             const pavedDist = sumForKeys(dist, PAVED)
             const unpavedDist = sumForKeys(dist, UNPAVED)
             const extra: SummaryEntry[] = []
-            if (pavedDist > 0) extra.push({ name: 'paved', value: pct(pavedDist, totalDist), ...topColors(surfaceColors, dist, PAVED) })
-            if (unpavedDist > 0) extra.push({ name: 'unpaved', value: pct(unpavedDist, totalDist), ...topColors(surfaceColors, dist, UNPAVED) })
+            if (pavedDist > 0) extra.push({ name: tr('paved'), value: pct(pavedDist, totalDist), ...topColors(surfaceColors, dist, PAVED) })
+            if (unpavedDist > 0) extra.push({ name: tr('unpaved'), value: pct(unpavedDist, totalDist), ...topColors(surfaceColors, dist, UNPAVED) })
             lines.push(
                 <ExpandableStat key="surface" statKey="surface" label={tr('route_stats_surface')} details={detailEntries(surfaceColors, dist, totalDist, us)} extraInfo={extra} />,
             )
@@ -268,7 +268,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                         statKey={key}
                         label={label}
                         details={detailEntries(colors, dist, totalDist, us)}
-                        extraInfo={[{ name: 'on network', value: pct(onNetwork, totalDist), ...topColors(colors, dist, NETWORK_KEYS) }]}
+                        extraInfo={[{ name: tr('route_stats_on_network'), value: pct(onNetwork, totalDist), ...topColors(colors, dist, NETWORK_KEYS) }]}
                     />,
                 )
             }
@@ -284,9 +284,9 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             const big = sumForKeys(dist, BIG_ROADS)
             const medium = sumForKeys(dist, MEDIUM_ROADS)
             const small = sumForKeys(dist, SMALL_ROADS)
-            if (big > 0) extra.push({ name: 'big roads', value: pct(big, totalDist), ...topColors(roadColors, dist, BIG_ROADS) })
-            if (medium > 0) extra.push({ name: 'medium', value: pct(medium, totalDist), ...topColors(roadColors, dist, MEDIUM_ROADS) })
-            if (small > 0) extra.push({ name: 'small', value: pct(small, totalDist), ...topColors(roadColors, dist, SMALL_ROADS) })
+            if (big > 0) extra.push({ name: tr('route_stats_big_roads'), value: pct(big, totalDist), ...topColors(roadColors, dist, BIG_ROADS) })
+            if (medium > 0) extra.push({ name: tr('route_stats_medium_roads'), value: pct(medium, totalDist), ...topColors(roadColors, dist, MEDIUM_ROADS) })
+            if (small > 0) extra.push({ name: tr('route_stats_small_roads'), value: pct(small, totalDist), ...topColors(roadColors, dist, SMALL_ROADS) })
             lines.push(
                 <ExpandableStat key="roads" statKey="roads" label={tr('route_stats_roads')} details={detailEntries(roadColors, dist, totalDist, us)} extraInfo={extra} />,
             )
@@ -323,9 +323,9 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                 label={tr('route_stats_speed')}
                 details={speedDetails}
                 extraInfo={[
-                    { name: 'average', value: `${Math.round(avgSpeed)} km/h` },
-                    { name: 'minimum', value: `${Math.round(minSpeed)} km/h` },
-                    { name: 'maximum', value: `${Math.round(maxSpeed)} km/h` },
+                    { name: tr('route_stats_average'), value: `${Math.round(avgSpeed)} km/h` },
+                    { name: tr('route_stats_minimum'), value: `${Math.round(minSpeed)} km/h` },
+                    { name: tr('route_stats_maximum'), value: `${Math.round(maxSpeed)} km/h` },
                 ]}
             />,
         )

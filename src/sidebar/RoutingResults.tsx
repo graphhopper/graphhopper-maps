@@ -448,7 +448,7 @@ function RoutingResult({
             {isExpanded && (
                 <div className={styles.instructionsToggle} onClick={() => setShowInstructions(!showInstructions)}>
                     <span className={statsStyles.label}>{tr('route_stats_turn_instructions')}: </span>
-                    {path.instructions.length} steps
+                    {path.instructions.length} {tr('steps')}
                     <span className={statsStyles.statArrow}>{showInstructions ? '▴' : '▾'}</span>
                 </div>
             )}
