@@ -15,7 +15,7 @@ const UNPAVED = new Set([
 ])
 const BIG_ROADS = new Set(['primary', 'secondary', 'trunk', 'motorway'])
 const MEDIUM_ROADS = new Set(['tertiary', 'residential', 'unclassified', 'living_street', 'service'])
-const SMALL_ROADS = new Set(['cycleway', 'path', 'track', 'bridleway'])
+const SMALL_ROADS = new Set(['cycleway', 'path', 'track', 'bridleway', 'footway', 'pedestrian'])
 const NETWORK_KEYS = ['international', 'national', 'regional', 'local'] as const
 
 // --- Distance computation ---
