@@ -170,10 +170,10 @@ function RoutingResult({
                         {isSelected && !ApiImpl.isMotorVehicle(profile) && (
                             <div className={styles.elevationHint}>
                                 <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
-                                    ↗{metersToShortText(path.ascend, showDistanceInMiles)}{' '}
+                                    {'\u2197\uFE0E'}{metersToShortText(path.ascend, showDistanceInMiles)}{' '}
                                 </span>
                                 <span title={tr('total_descend', [Math.round(path.descend) + 'm'])}>
-                                    ↘{metersToShortText(path.descend, showDistanceInMiles)}
+                                    {'\u2198\uFE0E'}{metersToShortText(path.descend, showDistanceInMiles)}
                                 </span>
                             </div>
                         )}
