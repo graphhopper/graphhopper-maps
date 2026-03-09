@@ -343,7 +343,7 @@ function buildLTSDetail(
         const roadClass = findValue(roadClassDetails, segStart)
         const infra = findValue(infraDetails, segStart)
         const density = urbanDensityDetails ? findValue(urbanDensityDetails, segStart) : ''
-        const lts = classifier(roadClass, infra, density === 'RURAL')
+        const lts = classifier(roadClass, infra, density === 'rural')
         const color = LTS_COLORS[lts - 1].color
 
         raw.push({

@@ -153,8 +153,10 @@ export const LTS_COLORS: LTSEntry[] = [
 ]
 
 const BIKE_LTS1_ROADS = new Set([
-    'cycleway', 'path', 'footway', 'pedestrian', 'living_street', 'bridleway', 'steps', 'service', 'track', 'corridor',
+    'cycleway', 'path', 'footway', 'pedestrian', 'living_street', 'bridleway', 'track', 'corridor',
 ])
+const BIKE_LTS2_ROADS = new Set(['service'])
+const BIKE_LTS3_ROADS = new Set(['steps'])
 const FOOT_LTS1_ROADS = new Set([
     'footway', 'pedestrian', 'path', 'living_street', 'steps', 'bridleway', 'corridor', 'track', 'cycleway', 'service',
 ])
@@ -162,6 +164,8 @@ const FOOT_LTS1_ROADS = new Set([
 export function classifyBikeLTS(roadClass: string, cycleway: string, isRural: boolean): number {
     if (cycleway === 'track' || cycleway === 'separate') return 1
     if (BIKE_LTS1_ROADS.has(roadClass)) return 1
+    if (BIKE_LTS2_ROADS.has(roadClass)) return 2
+    if (BIKE_LTS3_ROADS.has(roadClass)) return 3
     if (roadClass === 'trunk' || roadClass === 'motorway') return 4
     if (roadClass === 'primary' || roadClass === 'secondary') {
         if ((cycleway === 'lane' || cycleway === 'missing') && !isRural) return 3
@@ -222,7 +226,7 @@ export function computeLTSDistances(
         const roadClass = findValue(roadClassDetails, segStart)
         const infra = infraDetails ? findValue(infraDetails, segStart) : ''
         const density = urbanDensityDetails ? findValue(urbanDensityDetails, segStart) : ''
-        const isRural = density === 'RURAL'
+        const isRural = density === 'rural'
 
         const lts = classifier(roadClass, infra, isRural)
 

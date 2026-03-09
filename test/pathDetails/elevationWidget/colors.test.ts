@@ -5,6 +5,7 @@ import {
     getSpeedColor,
     getSpeedThresholds,
     getSpeedLabels,
+    classifyBikeLTS,
     INCLINE_CATEGORIES,
     SPEED_COLORS,
     DISCRETE_PALETTE,
@@ -138,6 +139,30 @@ describe('colors', () => {
             const map = assignDiscreteColors('unknown_key', values)
             expect(map.get('val_0')).toBe(DISCRETE_PALETTE[0])
             expect(map.get('val_9')).toBe(DISCRETE_PALETTE[0]) // wraps
+        })
+    })
+
+    describe('classifyBikeLTS', () => {
+        it('cycleway track/separate overrides road class to LTS 1', () => {
+            expect(classifyBikeLTS('primary', 'track', true)).toBe(1)
+            expect(classifyBikeLTS('trunk', 'separate', false)).toBe(1)
+        })
+
+        it('urban primary/secondary: missing/lane softened to 3, no stays 4', () => {
+            expect(classifyBikeLTS('primary', 'missing', false)).toBe(3)
+            expect(classifyBikeLTS('secondary', 'lane', false)).toBe(3)
+            expect(classifyBikeLTS('primary', 'no', false)).toBe(4)
+        })
+
+        it('rural primary/secondary: always 4 even with missing cycleway', () => {
+            expect(classifyBikeLTS('primary', 'missing', true)).toBe(4)
+            expect(classifyBikeLTS('secondary', 'missing', true)).toBe(4)
+            expect(classifyBikeLTS('secondary', 'lane', true)).toBe(4)
+        })
+
+        it('steps is LTS 3, service is LTS 2', () => {
+            expect(classifyBikeLTS('steps', 'no', false)).toBe(3)
+            expect(classifyBikeLTS('service', 'no', false)).toBe(2)
         })
     })
 })

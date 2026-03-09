@@ -296,8 +296,11 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             }))
             .filter(d => d.fraction > 0)
         if (ltsDetails.length > 0) {
+            const lowStress = ltsDistances[0] + ltsDistances[1]
             lines.push(
-                <ExpandableStat key="lts" statKey="lts" label={tr('route_stats_stress_level')} details={ltsDetails} />,
+                <ExpandableStat key="lts" statKey="lts" label={tr('route_stats_stress_level')} details={ltsDetails}
+                    extraInfo={[{ name: tr('route_stats_low_stress'), value: pct(lowStress, totalDist), colors: [LTS_COLORS[0].color, LTS_COLORS[1].color] }]}
+                />,
             )
         }
     } else if (!isMotor && path.details.road_class) {
