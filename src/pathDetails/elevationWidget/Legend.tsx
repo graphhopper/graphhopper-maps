@@ -3,9 +3,10 @@ import { LegendEntry } from './types'
 interface LegendProps {
     entries: LegendEntry[]
     maxVisible?: number
+    showTitle?: boolean
 }
 
-export default function Legend({ entries, maxVisible }: LegendProps) {
+export default function Legend({ entries, maxVisible, showTitle }: LegendProps) {
     if (entries.length === 0) return null
     const truncated = maxVisible != null && entries.length > maxVisible
     const visible = truncated ? entries.slice(0, maxVisible) : entries
@@ -23,7 +24,7 @@ export default function Legend({ entries, maxVisible }: LegendProps) {
                             flexShrink: 0,
                         }}
                     />
-                    <span>{entry.label}</span>
+                    <span>{showTitle && entry.title ? entry.label + ' ' + entry.title : entry.label}</span>
                 </div>
             ))}
             {truncated && <span style={{ color: '#999' }}>{'\u2026'}</span>}

@@ -138,6 +138,104 @@ export function getSpeedLabels(thresholds: number[]): string[] {
     ]
 }
 
+// Level of Traffic Stress (LTS) 1-4
+export interface LTSEntry {
+    level: number
+    label: string
+    color: string
+}
+
+export const LTS_COLORS: LTSEntry[] = [
+    { level: 1, label: '1', color: '#2E7D32' },
+    { level: 2, label: '2', color: '#66BB6A' },
+    { level: 3, label: '3', color: '#FFD54F' },
+    { level: 4, label: '4', color: '#F44336' },
+]
+
+const BIKE_LTS1_ROADS = new Set([
+    'cycleway', 'path', 'footway', 'pedestrian', 'living_street', 'bridleway', 'steps', 'service', 'track', 'corridor',
+])
+const FOOT_LTS1_ROADS = new Set([
+    'footway', 'pedestrian', 'path', 'living_street', 'steps', 'bridleway', 'corridor', 'track', 'cycleway', 'service',
+])
+
+export function classifyBikeLTS(roadClass: string, cycleway: string, isRural: boolean): number {
+    if (cycleway === 'track' || cycleway === 'separate') return 1
+    if (BIKE_LTS1_ROADS.has(roadClass)) return 1
+    if (roadClass === 'trunk' || roadClass === 'motorway') return 4
+    if (roadClass === 'primary' || roadClass === 'secondary') {
+        if ((cycleway === 'lane' || cycleway === 'missing') && !isRural) return 3
+        return 4
+    }
+    if (roadClass === 'tertiary') {
+        return (cycleway === 'lane' && !isRural) ? 2 : 3
+    }
+    if (roadClass === 'residential') return 2
+    if (roadClass === 'unclassified' && isRural) return 3
+    return 2
+}
+
+export function classifyFootLTS(roadClass: string, sidewalk: string, isRural: boolean): number {
+    if (sidewalk === 'yes' || sidewalk === 'separate') return 1
+    if (FOOT_LTS1_ROADS.has(roadClass)) return 1
+    if (roadClass === 'trunk' || roadClass === 'motorway') return 4
+    if (roadClass === 'primary' || roadClass === 'secondary') {
+        if (sidewalk === 'missing' && !isRural) return 3
+        return 4
+    }
+    if (roadClass === 'tertiary') return isRural ? 4 : 3
+    if (roadClass === 'residential') return 2
+    if (roadClass === 'unclassified' && isRural) return 3
+    return 2
+}
+
+export function computeLTSDistances(
+    coords: number[][],
+    roadClassDetails: [number, number, string][],
+    infraDetails: [number, number, string][] | undefined,
+    urbanDensityDetails: [number, number, string][] | undefined,
+    classifier: (roadClass: string, infra: string, isRural: boolean) => number,
+): number[] {
+    const distances = [0, 0, 0, 0]
+    if (!roadClassDetails || roadClassDetails.length === 0) return distances
+
+    // Collect all breakpoints from the 3 detail arrays
+    const bpSet = new Set<number>()
+    for (const [from, to] of roadClassDetails) { bpSet.add(from); bpSet.add(to) }
+    if (infraDetails) for (const [from, to] of infraDetails) { bpSet.add(from); bpSet.add(to) }
+    if (urbanDensityDetails) for (const [from, to] of urbanDensityDetails) { bpSet.add(from); bpSet.add(to) }
+    const breakpoints = [...bpSet].sort((a, b) => a - b)
+
+    // Build lookup functions
+    const findValue = (details: [number, number, string][], idx: number): string => {
+        for (const [from, to, val] of details) {
+            if (idx >= from && idx < to) return val
+        }
+        return ''
+    }
+
+    for (let i = 0; i < breakpoints.length - 1; i++) {
+        const segStart = breakpoints[i]
+        const segEnd = breakpoints[i + 1]
+        if (segStart >= coords.length - 1 || segEnd > coords.length - 1) continue
+
+        const roadClass = findValue(roadClassDetails, segStart)
+        const infra = infraDetails ? findValue(infraDetails, segStart) : ''
+        const density = urbanDensityDetails ? findValue(urbanDensityDetails, segStart) : ''
+        const isRural = density === 'RURAL'
+
+        const lts = classifier(roadClass, infra, isRural)
+
+        let dist = 0
+        for (let j = segStart; j < segEnd && j < coords.length - 1; j++) {
+            dist += planeDist(coords[j], coords[j + 1])
+        }
+        distances[lts - 1] += dist
+    }
+
+    return distances
+}
+
 // Colorblind-friendly palette from SRON (https://personal.sron.nl/~pault/#sec:qualitative)
 export const DISCRETE_PALETTE = [
     '#332288',

@@ -6,7 +6,7 @@ import { tr } from '@/translation/Translation'
 import { metersToShortText } from '@/Converters'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import styles from './RouteStats.module.css'
-import { NAMED_COLOR_MAPS, INCLINE_CATEGORIES, SPEED_COLORS, getSpeedThresholds, getSpeedLabels, computeInclineCategoryDistances, planeDist, isMissingValue } from '@/pathDetails/elevationWidget/colors'
+import { NAMED_COLOR_MAPS, INCLINE_CATEGORIES, SPEED_COLORS, getSpeedThresholds, getSpeedLabels, computeInclineCategoryDistances, planeDist, isMissingValue, LTS_COLORS, classifyBikeLTS, classifyFootLTS, computeLTSDistances } from '@/pathDetails/elevationWidget/colors'
 
 const PAVED = new Set(['asphalt', 'concrete', 'paved', 'paving_stones', 'concrete:plates', 'concrete:lanes', 'metal'])
 const UNPAVED = new Set([
@@ -275,9 +275,33 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
         }
     }
 
-    // Roads
-    const roadColors = NAMED_COLOR_MAPS['road_class'] || {}
-    if (path.details.road_class) {
+    // Traffic Stress (LTS) for bike/foot, road class fallback if infra details missing, nothing for motor vehicles
+    const isBike = ApiImpl.isBikeLike(profile)
+    const isFoot = ApiImpl.isFootLike(profile)
+    const isMotor = ApiImpl.isMotorVehicle(profile)
+    const infraDetails = isBike ? path.details.cycleway : isFoot ? path.details.sidewalk : undefined
+    const hasLTS = (isBike || isFoot) && path.details.road_class && infraDetails
+
+    if (hasLTS) {
+        const classifier = isBike ? classifyBikeLTS : classifyFootLTS
+        const ltsDistances = computeLTSDistances(coords, path.details.road_class, infraDetails, path.details.urban_density, classifier)
+        const prefix = isBike ? 'bike_lts_' : 'foot_lts_'
+        const ltsTooltips = [tr(prefix + '1'), tr(prefix + '2'), tr(prefix + '3'), tr(prefix + '4')]
+        const ltsDetails = ltsDistances
+            .map((d, i) => ({
+                name: LTS_COLORS[i].label + ' ' + ltsTooltips[i],
+                km: metersToShortText(d, us),
+                color: LTS_COLORS[i].color,
+                fraction: d / totalDist,
+            }))
+            .filter(d => d.fraction > 0)
+        if (ltsDetails.length > 0) {
+            lines.push(
+                <ExpandableStat key="lts" statKey="lts" label={tr('route_stats_stress_level')} details={ltsDetails} />,
+            )
+        }
+    } else if (!isMotor && path.details.road_class) {
+        const roadColors = NAMED_COLOR_MAPS['road_class'] || {}
         const dist = computeDetailDistances(coords, path.details.road_class)
         if (dist.size > 0) {
             const extra: SummaryEntry[] = []

@@ -40,8 +40,8 @@ const config = {
     //
     // profiles: {
     //    car:{}, small_truck:{}, truck:{}, scooter:{},
-    //    foot:{ details: ['foot_network', 'access_conditional', 'foot_conditional', 'hike_rating'] }, hike:{ details: ['foot_network', 'access_conditional', 'foot_conditional', 'hike_rating' ] },
-    //    bike:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating' ] }, mtb:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating'] }, racingbike:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating'] },
+    //    foot:{ details: ['foot_network', 'access_conditional', 'foot_conditional', 'hike_rating', 'sidewalk', 'urban_density'] }, hike:{ details: ['foot_network', 'access_conditional', 'foot_conditional', 'hike_rating', 'sidewalk', 'urban_density' ] },
+    //    bike:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating', 'cycleway', 'urban_density' ] }, mtb:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating', 'cycleway', 'urban_density'] }, racingbike:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating', 'cycleway', 'urban_density'] },
     // }
     //
     // E.g. the 'bike' entry will add a "bike" profile for which we send a request with the specified 'details' parameter. You can even change the profile itself when you specify

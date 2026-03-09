@@ -1,5 +1,6 @@
 import { ChartData, ChartPathDetail, ElevationPoint, LegendEntry, PathDetailSegment } from './types'
-import { assignDiscreteColors, getNumericGradientColor, getSpeedColor, getSpeedLabels, getSpeedThresholds, getSlopeColor, SPEED_COLORS, INCLINE_CATEGORIES, planeDist } from './colors'
+import { assignDiscreteColors, getNumericGradientColor, getSpeedColor, getSpeedLabels, getSpeedThresholds, getSlopeColor, SPEED_COLORS, INCLINE_CATEGORIES, planeDist, LTS_COLORS, classifyBikeLTS, classifyFootLTS } from './colors'
+import { ApiImpl } from '@/api/Api'
 
 export interface PathLike {
     points: { coordinates: number[][] }
@@ -240,6 +241,22 @@ export function buildChartData(
         )
     }
 
+    // Synthetic LTS detail for bike/foot profiles
+    const isBike = ApiImpl.isBikeLike(profile)
+    const isFoot = ApiImpl.isFootLike(profile)
+    const roadClass = details['road_class'] as [number, number, string][] | undefined
+    const infraDetail = isBike ? details['cycleway'] : isFoot ? details['sidewalk'] : undefined
+    if (roadClass?.length && infraDetail?.length) {
+        const classifier = isBike ? classifyBikeLTS : classifyFootLTS
+        const prefix = isBike ? 'bike_lts_' : 'foot_lts_'
+        const legendLabels = [1, 2, 3, 4].map(i => translateFn(prefix + i))
+        pathDetails.push(buildLTSDetail(
+            coordinates, cumulativeDistances, roadClass, infraDetail as [number, number, string][],
+            details['urban_density'] as [number, number, string][] | undefined,
+            classifier, translateFn('route_stats_stress_level'), legendLabels,
+        ))
+    }
+
     // Via point distances
     const viaPointDistances = calculateViaPointDistances(selectedPath)
 
@@ -290,4 +307,70 @@ export function buildInclineDetail(elevation: ElevationPoint[]): ChartPathDetail
     }
 
     return { key: '_incline', label: 'Incline', type: 'bars', segments, legend }
+}
+
+// Generates a synthetic LTS ChartPathDetail from road_class + cycleway/sidewalk + urban_density
+function buildLTSDetail(
+    coordinates: number[][],
+    cumulativeDistances: number[],
+    roadClassDetails: [number, number, string][],
+    infraDetails: [number, number, string][],
+    urbanDensityDetails: [number, number, string][] | undefined,
+    classifier: (roadClass: string, infra: string, isRural: boolean) => number,
+    label: string,
+    legendLabels: string[],
+): ChartPathDetail {
+    // Collect all breakpoints from the detail arrays
+    const bpSet = new Set<number>()
+    for (const [from, to] of roadClassDetails) { bpSet.add(from); bpSet.add(to) }
+    for (const [from, to] of infraDetails) { bpSet.add(from); bpSet.add(to) }
+    if (urbanDensityDetails) for (const [from, to] of urbanDensityDetails) { bpSet.add(from); bpSet.add(to) }
+    const breakpoints = [...bpSet].sort((a, b) => a - b)
+
+    const findValue = (details: [number, number, string][], idx: number): string => {
+        for (const [from, to, val] of details) {
+            if (idx >= from && idx < to) return val
+        }
+        return ''
+    }
+
+    const raw: PathDetailSegment[] = []
+    for (let i = 0; i < breakpoints.length - 1; i++) {
+        const segStart = breakpoints[i]
+        const segEnd = breakpoints[i + 1]
+        if (segStart >= coordinates.length - 1 || segEnd > coordinates.length - 1) continue
+
+        const roadClass = findValue(roadClassDetails, segStart)
+        const infra = findValue(infraDetails, segStart)
+        const density = urbanDensityDetails ? findValue(urbanDensityDetails, segStart) : ''
+        const lts = classifier(roadClass, infra, density === 'RURAL')
+        const color = LTS_COLORS[lts - 1].color
+
+        raw.push({
+            fromDistance: cumulativeDistances[segStart] || 0,
+            toDistance: cumulativeDistances[segEnd] || 0,
+            value: lts,
+            color,
+            coordinates: coordinates.slice(segStart, segEnd + 1).map(c => [c[0], c[1]] as [number, number]),
+        })
+    }
+
+    // Merge consecutive segments with the same LTS level
+    const segments: PathDetailSegment[] = []
+    for (const seg of raw) {
+        const last = segments[segments.length - 1]
+        if (last && last.color === seg.color) {
+            last.toDistance = seg.toDistance
+            last.coordinates.push(...seg.coordinates.slice(1))
+        } else {
+            segments.push({ ...seg, coordinates: [...seg.coordinates] })
+        }
+    }
+
+    const usedLevels = new Set(segments.map(s => s.value as number))
+    const legend = LTS_COLORS
+        .map((c, i) => ({ label: c.label, color: c.color, title: legendLabels[i] }))
+        .filter((_, i) => usedLevels.has(i + 1))
+
+    return { key: '_lts', label, type: 'bars', segments, legend }
 }

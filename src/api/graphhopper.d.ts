@@ -117,6 +117,9 @@ interface Details {
     readonly get_off_bike: [number, number, boolean][]
     readonly mtb_rating: [number, number, boolean][]
     readonly hike_rating: [number, number, boolean][]
+    readonly cycleway: [number, number, string][]
+    readonly sidewalk: [number, number, string][]
+    readonly urban_density: [number, number, string][]
 }
 
 export interface TagHash {
