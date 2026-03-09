@@ -280,7 +280,7 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
     const isFoot = ApiImpl.isFootLike(profile)
     const isMotor = ApiImpl.isMotorVehicle(profile)
     const infraDetails = isBike ? path.details.cycleway : isFoot ? path.details.sidewalk : undefined
-    const hasLTS = (isBike || isFoot) && path.details.road_class && infraDetails
+    const hasLTS = (isBike || isFoot) && path.details.road_class?.length && infraDetails?.length
 
     if (hasLTS) {
         const classifier = isBike ? classifyBikeLTS : classifyFootLTS
