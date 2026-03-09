@@ -121,11 +121,33 @@ export default function App() {
     useAreasLayer(map, settings.drawAreasEnabled, query.customModelStr, query.customModelEnabled)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
-    usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints)
+    const [showPaths, setShowPaths] = useState(true)
+    usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints, showPaths)
     useQueryPointsLayer(map, query.queryPoints)
-    usePathDetailsLayer(map, pathDetails)
+    usePathDetailsLayer(map, pathDetails, showPaths)
     usePOIsLayer(map, pois)
     useCurrentLocationLayer(map, currentLocation)
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'h') setShowPaths(false)
+        }
+        const handleKeyUp = (e: KeyboardEvent) => {
+            if (e.key === 'h') setShowPaths(true)
+        }
+
+        const viewport = map.getViewport()
+        if (!viewport) return
+
+        viewport.tabIndex = -1 // Make element focusable but not in tab order
+
+        window.addEventListener('keydown', handleKeyDown)
+        window.addEventListener('keyup', handleKeyUp)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+            window.removeEventListener('keyup', handleKeyUp)
+        }
+    }, [])
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
