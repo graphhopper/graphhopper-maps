@@ -188,8 +188,8 @@ function InclineIcon({ mode }: { mode: 'normal' | 'incline' | 'hidden' }) {
         </svg>
     )
     if (mode === 'hidden') return (
-        <svg viewBox="0 0 14 14" fill="none" opacity="0.4">
-            <polyline points="3,11 5.5,5 8,9 11,3" stroke="gray" strokeWidth="1.2" fill="none" strokeDasharray="0.5 1.5" strokeLinecap="round" />
+        <svg viewBox="0 0 14 14" fill="none">
+            <polyline points="3,11 5.5,5 8,9 11,3" stroke="gray" strokeWidth="1.2" fill="none" opacity="0.3" />
             <circle cx="3" cy="11" r="1.5" fill="gray" />
             <circle cx="11" cy="3" r="1.5" fill="gray" />
         </svg>
