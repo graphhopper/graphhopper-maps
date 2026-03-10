@@ -16,22 +16,35 @@ interface PathDetailPopupProps {
  */
 export default function PathDetailPopup({ map, pathDetails }: PathDetailPopupProps) {
     const settings = useContext(SettingsContext)
+    const p = pathDetails.pathDetailsPoint
+    const miles = settings.showDistanceInMiles
     return (
-        // todo: use createMapMarker from heightgraph?
-        // {createMapMarker(point.elevation, point.description, showDistanceInMiles)}
-        <MapPopup map={map} coordinate={pathDetails.pathDetailsPoint ? pathDetails.pathDetailsPoint.point : null}>
-            <div className={styles.popup}>
-                {pathDetails.pathDetailsPoint && (
-                    <p>
-                        {metersToText(
-                            Math.round(pathDetails.pathDetailsPoint.elevation),
-                            settings.showDistanceInMiles,
-                            true,
+        <MapPopup map={map} coordinate={p ? p.point : null}>
+            <div className={styles.detailPopup}>
+                {p && (p.description ? (
+                    <>
+                        <div className={styles.detailPopupValue}>
+                            {p.color && <span className={styles.colorDot} style={{ background: p.color }} />}
+                            {p.description}
+                        </div>
+                        {p.distance != null && (
+                            <div>{metersToText(Math.round(p.distance), miles)}</div>
                         )}
-                        <br />
-                        {pathDetails.pathDetailsPoint!.description}
-                    </p>
-                )}
+                    </>
+                ) : (
+                    <>
+                        <div>{metersToText(Math.round(p.elevation), miles, true)}</div>
+                        {p.incline != null && (
+                            <div>
+                                <span className={styles.colorDot} style={{ background: p.color }} />
+                                {p.incline >= 0 ? '+' : ''}{Math.round(p.incline * 10) / 10} %
+                            </div>
+                        )}
+                        {p.distance != null && (
+                            <div>{metersToText(Math.round(p.distance), miles)}</div>
+                        )}
+                    </>
+                ))}
             </div>
         </MapPopup>
     )

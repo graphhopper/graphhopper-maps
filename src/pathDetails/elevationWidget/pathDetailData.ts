@@ -281,10 +281,11 @@ export function buildInclineDetail(elevation: ElevationPoint[]): ChartPathDetail
         const dist = q.distance - p.distance
         const slopePercent = dist > 0 ? ((q.elevation - p.elevation) / dist) * 100 : 0
         const color = getSlopeColor(slopePercent)
+        const sign = slopePercent >= 0 ? '+' : ''
         raw.push({
             fromDistance: p.distance,
             toDistance: q.distance,
-            value: Math.round(Math.abs(slopePercent) * 10) / 10,
+            value: `${sign}${Math.round(slopePercent * 10) / 10} %`,
             color,
             coordinates: [[p.lng, p.lat], [q.lng, q.lat]],
         })

@@ -175,15 +175,15 @@ export default class ChartRenderer {
         // Build tooltip lines
         const miles = this.config.showDistanceInMiles
         const elev = this.data.elevation
-        const lines: string[] = []
+        const lines: { text: string; dotColor?: string }[] = []
 
         if (hit.segment) {
             // When a path detail is selected, show its value + distance
-            lines.push(String(hit.segment.value))
-            lines.push(`distance: ${formatDistanceLabel(hit.distance, miles)}`)
+            lines.push({ text: String(hit.segment.value), dotColor: hit.segment.color })
+            lines.push({ text: `distance: ${formatDistanceLabel(hit.distance, miles)}` })
         } else {
             // Default: elevation, incline, distance
-            lines.push(`elevation: ${formatElevationLabel(hit.elevation, miles)}`)
+            lines.push({ text: `elevation: ${formatElevationLabel(hit.elevation, miles)}` })
 
             // Compute incline between the two surrounding elevation points
             const i = hit.elevationIndex
@@ -194,18 +194,20 @@ export default class ChartRenderer {
                 if (dist > 0) {
                     const slope = ((elev[b].elevation - elev[a].elevation) / dist) * 100
                     const sign = slope >= 0 ? '+' : ''
-                    lines.push(`incline: ${sign}${Math.round(slope * 10) / 10} %`)
+                    lines.push({ text: `incline: ${sign}${Math.round(slope * 10) / 10} %`, dotColor: getSlopeColor(slope) })
                 }
             }
 
-            lines.push(`distance: ${formatDistanceLabel(hit.distance, miles)}`)
+            lines.push({ text: `distance: ${formatDistanceLabel(hit.distance, miles)}` })
         }
 
         ctx.font = '12px sans-serif'
         const lineHeight = 16
         const padding = 6
-        const textWidth = Math.max(...lines.map(l => ctx.measureText(l).width))
-        const tooltipW = textWidth + padding * 2
+        const dotSize = 4
+        const dotSpace = lines.some(l => l.dotColor) ? dotSize * 2 + 4 : 0
+        const textWidth = Math.max(...lines.map(l => ctx.measureText(l.text).width))
+        const tooltipW = textWidth + dotSpace + padding * 2
         const tooltipH = lines.length * lineHeight + padding * 2 - (lineHeight - 12)
         const rightEdge = this.cssWidth - margin.right
         let tooltipX = x + 4
@@ -222,11 +224,20 @@ export default class ChartRenderer {
         ctx.fill()
         ctx.stroke()
 
-        ctx.fillStyle = '#333'
         ctx.textAlign = 'left'
         ctx.textBaseline = 'top'
         for (let i = 0; i < lines.length; i++) {
-            ctx.fillText(lines[i], tooltipX + padding, tooltipY + padding + i * lineHeight)
+            const lineY = tooltipY + padding + i * lineHeight
+            const textX = tooltipX + padding + dotSpace
+            if (lines[i].dotColor) {
+                ctx.fillStyle = lines[i].dotColor!
+                const s = dotSize * 2
+                ctx.beginPath()
+                ctx.roundRect(tooltipX + padding, lineY + 3, s, s, 1)
+                ctx.fill()
+            }
+            ctx.fillStyle = '#333'
+            ctx.fillText(lines[i].text, textX, lineY)
         }
 
         ctx.restore()

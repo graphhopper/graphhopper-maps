@@ -126,7 +126,7 @@ export default function App() {
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints, showPaths)
     useQueryPointsLayer(map, query.queryPoints)
     const [activeDetail, setActiveDetail] = useState<ChartPathDetail | null>(null)
-    usePathDetailsLayer(map, pathDetails, activeDetail, showPaths)
+    usePathDetailsLayer(map, pathDetails, activeDetail, showPaths, route.selectedPath.points.coordinates)
     usePOIsLayer(map, pois)
     useCurrentLocationLayer(map, currentLocation)
 
