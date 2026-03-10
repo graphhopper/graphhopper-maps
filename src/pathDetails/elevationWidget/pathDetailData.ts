@@ -14,7 +14,7 @@ export interface PathLike {
  * Consistent with GraphHopper's DistancePlaneProjection (see graphhopper#3296).
  * For now do not use calcDist from utils.ts to make it easy to separate this from GH Maps.
  */
-function planeDist(p: number[], q: number[]): number {
+export function planeDist(p: number[], q: number[]): number {
     const toRad = (deg: number) => deg * 0.017453292519943295
     const dLat = toRad(q[1] - p[1])
     const dLon = toRad(q[0] - p[0])

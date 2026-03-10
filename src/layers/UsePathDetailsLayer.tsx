@@ -10,6 +10,7 @@ import { GeoJSON } from 'ol/format'
 import { fromLonLat, toLonLat } from 'ol/proj'
 import { Coordinate } from '@/utils'
 import { ChartPathDetail } from '@/pathDetails/elevationWidget/types'
+import { planeDist } from '@/pathDetails/elevationWidget/pathDetailData'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsHover } from '@/actions/Actions'
 
@@ -56,13 +57,7 @@ export default function usePathDetailsLayer(
         }
         const distances = [0]
         for (let i = 1; i < pathCoordinates.length; i++) {
-            const [lng1, lat1] = pathCoordinates[i - 1]
-            const [lng2, lat2] = pathCoordinates[i]
-            const toRad = (deg: number) => deg * 0.017453292519943295
-            const dLat = toRad(lat2 - lat1)
-            const dLon = toRad(lng2 - lng1)
-            const x = Math.cos(toRad((lat1 + lat2) / 2)) * dLon
-            distances.push(distances[i - 1] + 6371000 * Math.sqrt(dLat * dLat + x * x))
+            distances.push(distances[i - 1] + planeDist(pathCoordinates[i - 1], pathCoordinates[i]))
         }
         cumDistRef.current = distances
     }, [pathCoordinates])
