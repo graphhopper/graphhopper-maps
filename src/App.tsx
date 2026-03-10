@@ -126,6 +126,7 @@ export default function App() {
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints, showPaths)
     useQueryPointsLayer(map, query.queryPoints)
     const [activeDetail, setActiveDetail] = useState<ChartPathDetail | null>(null)
+    const [inclineOnMap, setInclineOnMap] = useState(false)
     usePathDetailsLayer(map, pathDetails, activeDetail, showPaths)
     usePOIsLayer(map, pois)
     useCurrentLocationLayer(map, currentLocation)
@@ -174,6 +175,8 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         onActiveDetailChanged={setActiveDetail}
+                        inclineOnMap={inclineOnMap}
+                        onToggleIncline={() => setInclineOnMap(prev => !prev)}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -186,10 +189,28 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         onActiveDetailChanged={setActiveDetail}
+                        inclineOnMap={inclineOnMap}
+                        onToggleIncline={() => setInclineOnMap(prev => !prev)}
                     />
                 )}
             </div>
         </SettingsContext.Provider>
+    )
+}
+
+function InclineIcon({ active }: { active: boolean }) {
+    return active ? (
+        <svg viewBox="0 0 14 14" fill="none">
+            <polyline points="3,11 5.5,5 8,9 11,3" stroke="#2E7D32" strokeWidth="1.2" fill="none" />
+            <circle cx="3" cy="11" r="1.5" fill="#2E7D32" />
+            <circle cx="11" cy="3" r="1.5" fill="#F44336" />
+        </svg>
+    ) : (
+        <svg viewBox="0 0 14 14" fill="none">
+            <polyline points="3,11 5.5,5 8,9 11,3" stroke="gray" strokeWidth="1.2" fill="none" />
+            <circle cx="3" cy="11" r="1.5" fill="gray" />
+            <circle cx="11" cy="3" r="1.5" fill="gray" />
+        </svg>
     )
 }
 
@@ -203,6 +224,8 @@ interface LayoutProps {
     encodedValues: object[]
     drawAreas: boolean
     onActiveDetailChanged: (detail: ChartPathDetail | null) => void
+    inclineOnMap: boolean
+    onToggleIncline: () => void
 }
 
 function LargeScreenLayout({
@@ -215,6 +238,8 @@ function LargeScreenLayout({
     drawAreas,
     currentLocation,
     onActiveDetailChanged,
+    inclineOnMap,
+    onToggleIncline,
 }: LayoutProps) {
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
@@ -285,6 +310,15 @@ function LargeScreenLayout({
             <div className={styles.onMapRightSide}>
                 <MapOptions {...mapOptions} />
                 <LocationButton currentLocation={currentLocation} />
+                {hasRoute && (
+                    <div
+                        className={styles.inclineButton + (inclineOnMap ? ' ' + styles.inclineButtonActive : '')}
+                        onClick={onToggleIncline}
+                        title="Show incline on map"
+                    >
+                        <InclineIcon active={inclineOnMap} />
+                    </div>
+                )}
             </div>
             <div className={styles.map}>
                 <MapComponent map={map} />
@@ -313,6 +347,7 @@ function LargeScreenLayout({
                     onToggleExpanded={() => setElevationState(s => s === 'expanded' ? 'compact' : 'expanded')}
                     onClose={() => setElevationState('closed')}
                     onActiveDetailChanged={onActiveDetailChanged}
+                    inclineOnMap={inclineOnMap}
                 />
             </div>
         </>
@@ -329,6 +364,8 @@ function SmallScreenLayout({
     drawAreas,
     currentLocation,
     onActiveDetailChanged,
+    inclineOnMap,
+    onToggleIncline,
 }: LayoutProps) {
     const hasPath = route.selectedPath.points.coordinates.length > 0
     const elevationWidget = hasPath ? (
@@ -339,6 +376,7 @@ function SmallScreenLayout({
             isExpanded={false}
             onToggleExpanded={() => {}}
             onActiveDetailChanged={onActiveDetailChanged}
+            inclineOnMap={inclineOnMap}
         />
     ) : undefined
     return (
@@ -360,6 +398,29 @@ function SmallScreenLayout({
                 <div className={styles.onMapRightSide}>
                     <MapOptions {...mapOptions} />
                     <LocationButton currentLocation={currentLocation} />
+                    {hasPath && (
+                        <div
+                            className={styles.inclineButton + (inclineOnMap ? ' ' + styles.inclineButtonActive : '')}
+                            onClick={onToggleIncline}
+                            title="Show incline on map"
+                        >
+                            {inclineOnMap ? (
+                                <svg viewBox="0 0 14 14" fill="none">
+                                    <line x1="2" y1="4" x2="7" y2="4" stroke="#2E7D32" strokeWidth="1.8" />
+                                    <line x1="7" y1="4" x2="7" y2="10" stroke="#FF9800" strokeWidth="1.8" />
+                                    <line x1="7" y1="10" x2="12" y2="10" stroke="#F44336" strokeWidth="1.8" />
+                                    <circle cx="2" cy="4" r="2" fill="#2E7D32" />
+                                    <circle cx="12" cy="10" r="2" fill="#F44336" />
+                                </svg>
+                            ) : (
+                                <svg viewBox="0 0 14 14" fill="none">
+                                    <polyline points="2,4 7,4 7,10 12,10" stroke="gray" strokeWidth="1.8" fill="none" />
+                                    <circle cx="2" cy="4" r="2" fill="gray" />
+                                    <circle cx="12" cy="10" r="2" fill="gray" />
+                                </svg>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 

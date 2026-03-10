@@ -74,29 +74,6 @@
     line-height: 1;
 }
 
-.inclineButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background: #f8f8f9;
-    cursor: pointer;
-    flex-shrink: 0;
-    padding: 0;
-}
-
-.inclineButton:hover {
-    background: #e8e8e8;
-}
-
-.inclineButtonActive {
-    background: #e0f0e4;
-    border-color: #2E7D32;
-}
-
 .expandButton {
     display: flex;
     align-items: center;
