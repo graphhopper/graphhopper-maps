@@ -39,6 +39,7 @@ export interface RoutingResultsProps {
     selectedPath: Path
     currentRequest: CurrentRequest
     profile: string
+    inclineOnMap?: boolean
 }
 
 export default function RoutingResults(props: RoutingResultsProps) {
@@ -55,6 +56,7 @@ function RoutingResult({
     path,
     isSelected,
     profile,
+    inclineOnMap,
     isExpanded,
     setExpanded,
 }: {
@@ -62,12 +64,13 @@ function RoutingResult({
     path: Path
     isSelected: boolean
     profile: string
+    inclineOnMap: boolean
     isExpanded: boolean
     setExpanded: (v: boolean) => void
 }) {
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     const [elevationMounted, setElevationMounted] = useState(false)
-    if (isExpanded && !elevationMounted) setElevationMounted(true)
+    if ((isExpanded || inclineOnMap) && !elevationMounted) setElevationMounted(true)
     const [showInstructions, setShowInstructions] = useState(false)
     const [selectedRH, setSelectedRH] = useState('')
     const [descriptionRH, setDescriptionRH] = useState('')
@@ -439,6 +442,7 @@ function RoutingResult({
                         profile={profile}
                         isExpanded={false}
                         onToggleExpanded={() => {}}
+                        inclineOnMap={inclineOnMap}
                     />
                 </div>
             )}
@@ -711,7 +715,7 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
 
 function createSingletonListContent(props: RoutingResultsProps, isExpanded: boolean, setExpanded: (v: boolean) => void) {
     if (props.paths.length > 0)
-        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} info={props.info} isExpanded={isExpanded} setExpanded={setExpanded} />
+        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} info={props.info} inclineOnMap={props.inclineOnMap ?? false} isExpanded={isExpanded} setExpanded={setExpanded} />
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlaceholder key={1} />
     return ''
 }
@@ -720,7 +724,7 @@ function pathKey(path: Path): string {
     return `${path.distance.toFixed(1)}_${path.time}_${path.ascend.toFixed(0)}_${path.descend.toFixed(0)}`
 }
 
-function createListContent({ info, paths, currentRequest, selectedPath, profile }: RoutingResultsProps, isExpanded: boolean, setExpanded: (v: boolean) => void) {
+function createListContent({ info, paths, currentRequest, selectedPath, profile, inclineOnMap }: RoutingResultsProps, isExpanded: boolean, setExpanded: (v: boolean) => void) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
@@ -734,6 +738,7 @@ function createListContent({ info, paths, currentRequest, selectedPath, profile 
                     isSelected={selected}
                     profile={profile}
                     info={info}
+                    inclineOnMap={inclineOnMap ?? false}
                     isExpanded={selected && isExpanded}
                     setExpanded={setExpanded}
                 />,

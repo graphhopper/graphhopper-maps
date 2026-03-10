@@ -15,6 +15,7 @@ interface ElevationInfoBarProps {
     isExpanded: boolean
     onToggleExpanded: () => void
     onClose?: () => void
+    inclineOnMap: boolean
 }
 
 export default function ElevationInfoBar({
@@ -24,9 +25,9 @@ export default function ElevationInfoBar({
     isExpanded,
     onToggleExpanded,
     onClose,
+    inclineOnMap,
 }: ElevationInfoBarProps) {
     const settings = useContext(SettingsContext)
-    const [inclineOnMap, setInclineOnMap] = useState(false)
     const [selectedDropdownDetail, setSelectedDropdownDetail] = useState<ChartPathDetail | null>(null)
 
     const chartData = useMemo(
@@ -78,10 +79,6 @@ export default function ElevationInfoBar({
         setSelectedDropdownDetail(detail)
     }, [])
 
-    const handleToggleIncline = useCallback(() => {
-        setInclineOnMap(prev => !prev)
-    }, [])
-
     return (
         <ElevationWidget
             data={chartData}
@@ -92,8 +89,6 @@ export default function ElevationInfoBar({
             onToggleExpanded={onToggleExpanded}
             onClose={onClose}
             alternativeRouteNumbers={alternativeRouteNumbers}
-            showInclineOnMap={inclineOnMap}
-            onToggleInclineOnMap={handleToggleIncline}
             elevationLabel={tr('elevation')}
         />
     )

@@ -15,6 +15,7 @@ button.entry div {
 
     border: none;
     background: none;
+    color: black;
     text-align: left;
     cursor: pointer;
     outline: inherit;

@@ -9,7 +9,7 @@
 
 .customZoom {
     right: 17px;
-    top: 115px;
+    top: 165px;
 }
 
 @media (max-width: 44rem) {
@@ -41,4 +41,12 @@
 
 .customAttribution button {
     display: none;
+}
+
+@media (max-width: 44rem) {
+    .customAttribution {
+        right: auto;
+        left: 0;
+        border-radius: 0 4px 0 0;
+    }
 }

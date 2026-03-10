@@ -27,8 +27,6 @@ interface ElevationWidgetProps {
     onToggleExpanded: () => void
     onClose?: () => void
     alternativeRouteNumbers: number[]
-    showInclineOnMap: boolean
-    onToggleInclineOnMap: () => void
     elevationLabel: string
 }
 
@@ -43,8 +41,6 @@ export default function ElevationWidget({
     onToggleExpanded,
     onClose,
     alternativeRouteNumbers,
-    showInclineOnMap,
-    onToggleInclineOnMap,
     elevationLabel,
 }: ElevationWidgetProps) {
     const containerRef = useRef<HTMLDivElement>(null)
@@ -201,19 +197,6 @@ export default function ElevationWidget({
                                     <path d="M1 10 Q5 6 9 5 L13 4" stroke={alternativeIndex >= 0 ? '#aaa' : '#ccc'} strokeWidth="1" strokeDasharray="2 2" fill="none" />
                                 </svg>
                             }
-                        </button>
-                    )}
-                    {!selectedDetail && (
-                        <button
-                            className={`${styles.inclineButton}${showInclineOnMap ? ' ' + styles.inclineButtonActive : ''}`}
-                            onClick={onToggleInclineOnMap}
-                            title="Show incline on map"
-                        >
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <line x1="1" y1="10" x2="5" y2="5" stroke="#2E7D32" strokeWidth="2.5" strokeLinecap="round" />
-                                <line x1="5" y1="5" x2="9" y2="3" stroke="#FF9800" strokeWidth="2.5" />
-                                <line x1="9" y1="3" x2="13" y2="10" stroke="#F44336" strokeWidth="2.5" strokeLinecap="round" />
-                            </svg>
                         </button>
                     )}
                     <button
