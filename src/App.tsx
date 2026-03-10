@@ -122,35 +122,16 @@ export default function App() {
     useAreasLayer(map, settings.drawAreasEnabled, query.customModelStr, query.customModelEnabled)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
-    const [showPaths, setShowPaths] = useState(true)
+    type PathDisplayMode = 'normal' | 'incline' | 'hidden'
+    const [pathDisplayMode, setPathDisplayMode] = useState<PathDisplayMode>('normal')
+    const showPaths = pathDisplayMode !== 'hidden'
+    const inclineOnMap = pathDisplayMode === 'incline'
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints, showPaths)
     useQueryPointsLayer(map, query.queryPoints)
     const [activeDetail, setActiveDetail] = useState<ChartPathDetail | null>(null)
-    const [inclineOnMap, setInclineOnMap] = useState(false)
     usePathDetailsLayer(map, pathDetails, activeDetail, showPaths)
     usePOIsLayer(map, pois)
     useCurrentLocationLayer(map, currentLocation)
-
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'h') setShowPaths(false)
-        }
-        const handleKeyUp = (e: KeyboardEvent) => {
-            if (e.key === 'h') setShowPaths(true)
-        }
-
-        const viewport = map.getViewport()
-        if (!viewport) return
-
-        viewport.tabIndex = -1 // Make element focusable but not in tab order
-
-        window.addEventListener('keydown', handleKeyDown)
-        window.addEventListener('keyup', handleKeyUp)
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown)
-            window.removeEventListener('keyup', handleKeyUp)
-        }
-    }, [])
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
@@ -175,8 +156,8 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         onActiveDetailChanged={setActiveDetail}
-                        inclineOnMap={inclineOnMap}
-                        onToggleIncline={() => setInclineOnMap(prev => !prev)}
+                        pathDisplayMode={pathDisplayMode}
+                        onCyclePathDisplay={() => setPathDisplayMode(m => m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal')}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -189,8 +170,8 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         onActiveDetailChanged={setActiveDetail}
-                        inclineOnMap={inclineOnMap}
-                        onToggleIncline={() => setInclineOnMap(prev => !prev)}
+                        pathDisplayMode={pathDisplayMode}
+                        onCyclePathDisplay={() => setPathDisplayMode(m => m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal')}
                     />
                 )}
             </div>
@@ -198,14 +179,22 @@ export default function App() {
     )
 }
 
-function InclineIcon({ active }: { active: boolean }) {
-    return active ? (
+function InclineIcon({ mode }: { mode: 'normal' | 'incline' | 'hidden' }) {
+    if (mode === 'incline') return (
         <svg viewBox="0 0 14 14" fill="none">
             <polyline points="3,11 5.5,5 8,9 11,3" stroke="#2E7D32" strokeWidth="1.2" fill="none" />
             <circle cx="3" cy="11" r="1.5" fill="#2E7D32" />
             <circle cx="11" cy="3" r="1.5" fill="#F44336" />
         </svg>
-    ) : (
+    )
+    if (mode === 'hidden') return (
+        <svg viewBox="0 0 14 14" fill="none" opacity="0.4">
+            <polyline points="3,11 5.5,5 8,9 11,3" stroke="gray" strokeWidth="1.2" fill="none" strokeDasharray="0.5 1.5" strokeLinecap="round" />
+            <circle cx="3" cy="11" r="1.5" fill="gray" />
+            <circle cx="11" cy="3" r="1.5" fill="gray" />
+        </svg>
+    )
+    return (
         <svg viewBox="0 0 14 14" fill="none">
             <polyline points="3,11 5.5,5 8,9 11,3" stroke="gray" strokeWidth="1.2" fill="none" />
             <circle cx="3" cy="11" r="1.5" fill="gray" />
@@ -224,8 +213,8 @@ interface LayoutProps {
     encodedValues: object[]
     drawAreas: boolean
     onActiveDetailChanged: (detail: ChartPathDetail | null) => void
-    inclineOnMap: boolean
-    onToggleIncline: () => void
+    pathDisplayMode: 'normal' | 'incline' | 'hidden'
+    onCyclePathDisplay: () => void
 }
 
 function LargeScreenLayout({
@@ -238,9 +227,10 @@ function LargeScreenLayout({
     drawAreas,
     currentLocation,
     onActiveDetailChanged,
-    inclineOnMap,
-    onToggleIncline,
+    pathDisplayMode,
+    onCyclePathDisplay,
 }: LayoutProps) {
+    const inclineOnMap = pathDisplayMode === 'incline'
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     const [elevationState, setElevationState] = useState<'compact' | 'expanded' | 'closed'>('closed')
@@ -312,11 +302,11 @@ function LargeScreenLayout({
                 <LocationButton currentLocation={currentLocation} />
                 {hasRoute && (
                     <div
-                        className={styles.inclineButton + (inclineOnMap ? ' ' + styles.inclineButtonActive : '')}
-                        onClick={onToggleIncline}
-                        title="Show incline on map"
+                        className={styles.inclineButton + (pathDisplayMode === 'incline' ? ' ' + styles.inclineButtonActive : '')}
+                        onClick={onCyclePathDisplay}
+                        title={pathDisplayMode === 'normal' ? 'Show incline on map' : pathDisplayMode === 'incline' ? 'Hide path' : 'Show path'}
                     >
-                        <InclineIcon active={inclineOnMap} />
+                        <InclineIcon mode={pathDisplayMode} />
                     </div>
                 )}
             </div>
@@ -364,9 +354,10 @@ function SmallScreenLayout({
     drawAreas,
     currentLocation,
     onActiveDetailChanged,
-    inclineOnMap,
-    onToggleIncline,
+    pathDisplayMode,
+    onCyclePathDisplay,
 }: LayoutProps) {
+    const inclineOnMap = pathDisplayMode === 'incline'
     const hasPath = route.selectedPath.points.coordinates.length > 0
     const elevationWidget = hasPath ? (
         <ElevationInfoBar
@@ -400,25 +391,11 @@ function SmallScreenLayout({
                     <LocationButton currentLocation={currentLocation} />
                     {hasPath && (
                         <div
-                            className={styles.inclineButton + (inclineOnMap ? ' ' + styles.inclineButtonActive : '')}
-                            onClick={onToggleIncline}
-                            title="Show incline on map"
+                            className={styles.inclineButton + (pathDisplayMode === 'incline' ? ' ' + styles.inclineButtonActive : '')}
+                            onClick={onCyclePathDisplay}
+                            title={pathDisplayMode === 'normal' ? 'Show incline on map' : pathDisplayMode === 'incline' ? 'Hide path' : 'Show path'}
                         >
-                            {inclineOnMap ? (
-                                <svg viewBox="0 0 14 14" fill="none">
-                                    <line x1="2" y1="4" x2="7" y2="4" stroke="#2E7D32" strokeWidth="1.8" />
-                                    <line x1="7" y1="4" x2="7" y2="10" stroke="#FF9800" strokeWidth="1.8" />
-                                    <line x1="7" y1="10" x2="12" y2="10" stroke="#F44336" strokeWidth="1.8" />
-                                    <circle cx="2" cy="4" r="2" fill="#2E7D32" />
-                                    <circle cx="12" cy="10" r="2" fill="#F44336" />
-                                </svg>
-                            ) : (
-                                <svg viewBox="0 0 14 14" fill="none">
-                                    <polyline points="2,4 7,4 7,10 12,10" stroke="gray" strokeWidth="1.8" fill="none" />
-                                    <circle cx="2" cy="4" r="2" fill="gray" />
-                                    <circle cx="12" cy="10" r="2" fill="gray" />
-                                </svg>
-                            )}
+                            <InclineIcon mode={pathDisplayMode} />
                         </div>
                     )}
                 </div>
