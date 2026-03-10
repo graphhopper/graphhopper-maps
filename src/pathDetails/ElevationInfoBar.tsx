@@ -4,6 +4,7 @@ import { SettingsContext } from '@/contexts/SettingsContext'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsHover } from '@/actions/Actions'
 import { buildChartData, buildInclineDetail } from './elevationWidget/pathDetailData'
+import { getSlopeColor } from './elevationWidget/colors'
 import { ChartHoverResult, ChartPathDetail } from './elevationWidget/types'
 import ElevationWidget from './elevationWidget/ElevationWidget'
 import { tr } from '@/translation/Translation'
@@ -57,16 +58,33 @@ export default function ElevationInfoBar({
     }, [selectedDropdownDetail, inclineOnMap, inclineDetail, onActiveDetailChanged])
 
     const hoverRaf = useRef(0)
+    const chartDataRef = useRef(chartData)
+    chartDataRef.current = chartData
     const handleHover = useCallback((result: ChartHoverResult | null) => {
         cancelAnimationFrame(hoverRaf.current)
         hoverRaf.current = requestAnimationFrame(() => {
             if (result) {
                 const description = result.segment ? String(result.segment.value) : ''
+                const color = result.segment?.color
+                const elev = chartDataRef.current?.elevation
+                let incline: number | undefined
+                if (elev && elev.length >= 2) {
+                    const i = result.elevationIndex
+                    const a = i > 0 ? i - 1 : i
+                    const b = i > 0 ? i : i + 1
+                    const dist = elev[b].distance - elev[a].distance
+                    if (dist > 0) {
+                        incline = ((elev[b].elevation - elev[a].elevation) / dist) * 100
+                    }
+                }
                 Dispatcher.dispatch(
                     new PathDetailsHover({
                         point: result.point,
                         elevation: result.elevation,
                         description,
+                        distance: result.distance,
+                        incline,
+                        color: color ?? (incline != null ? getSlopeColor(incline) : undefined),
                     }),
                 )
             } else {

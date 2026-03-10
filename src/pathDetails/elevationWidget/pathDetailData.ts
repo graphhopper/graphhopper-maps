@@ -14,7 +14,7 @@ export interface PathLike {
  * Consistent with GraphHopper's DistancePlaneProjection (see graphhopper#3296).
  * For now do not use calcDist from utils.ts to make it easy to separate this from GH Maps.
  */
-function planeDist(p: number[], q: number[]): number {
+export function planeDist(p: number[], q: number[]): number {
     const toRad = (deg: number) => deg * 0.017453292519943295
     const dLat = toRad(q[1] - p[1])
     const dLon = toRad(q[0] - p[0])
@@ -281,10 +281,11 @@ export function buildInclineDetail(elevation: ElevationPoint[]): ChartPathDetail
         const dist = q.distance - p.distance
         const slopePercent = dist > 0 ? ((q.elevation - p.elevation) / dist) * 100 : 0
         const color = getSlopeColor(slopePercent)
+        const sign = slopePercent >= 0 ? '+' : ''
         raw.push({
             fromDistance: p.distance,
             toDistance: q.distance,
-            value: Math.round(Math.abs(slopePercent) * 10) / 10,
+            value: `${sign}${Math.round(slopePercent * 10) / 10} %`,
             color,
             coordinates: [[p.lng, p.lat], [q.lng, q.lat]],
         })

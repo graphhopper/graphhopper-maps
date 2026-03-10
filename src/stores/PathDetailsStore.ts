@@ -8,6 +8,9 @@ export interface PathDetailsPoint {
     point: Coordinate
     elevation: number
     description: string
+    distance?: number
+    incline?: number
+    color?: string
 }
 
 export interface PathDetailsStoreState {
