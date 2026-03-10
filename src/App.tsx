@@ -122,34 +122,16 @@ export default function App() {
     useAreasLayer(map, settings.drawAreasEnabled, query.customModelStr, query.customModelEnabled)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
-    const [showPaths, setShowPaths] = useState(true)
+    type PathDisplayMode = 'normal' | 'incline' | 'hidden'
+    const [pathDisplayMode, setPathDisplayMode] = useState<PathDisplayMode>('normal')
+    const showPaths = pathDisplayMode !== 'hidden'
+    const inclineOnMap = pathDisplayMode === 'incline'
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints, showPaths)
     useQueryPointsLayer(map, query.queryPoints)
     const [activeDetail, setActiveDetail] = useState<ChartPathDetail | null>(null)
     usePathDetailsLayer(map, pathDetails, activeDetail, showPaths)
     usePOIsLayer(map, pois)
     useCurrentLocationLayer(map, currentLocation)
-
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'h') setShowPaths(false)
-        }
-        const handleKeyUp = (e: KeyboardEvent) => {
-            if (e.key === 'h') setShowPaths(true)
-        }
-
-        const viewport = map.getViewport()
-        if (!viewport) return
-
-        viewport.tabIndex = -1 // Make element focusable but not in tab order
-
-        window.addEventListener('keydown', handleKeyDown)
-        window.addEventListener('keyup', handleKeyUp)
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown)
-            window.removeEventListener('keyup', handleKeyUp)
-        }
-    }, [])
 
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
     return (
@@ -174,6 +156,8 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         onActiveDetailChanged={setActiveDetail}
+                        pathDisplayMode={pathDisplayMode}
+                        onCyclePathDisplay={() => setPathDisplayMode(m => m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal')}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -186,10 +170,36 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         onActiveDetailChanged={setActiveDetail}
+                        pathDisplayMode={pathDisplayMode}
+                        onCyclePathDisplay={() => setPathDisplayMode(m => m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal')}
                     />
                 )}
             </div>
         </SettingsContext.Provider>
+    )
+}
+
+function InclineIcon({ mode }: { mode: 'normal' | 'incline' | 'hidden' }) {
+    if (mode === 'incline') return (
+        <svg viewBox="0 0 14 14" fill="none">
+            <polyline points="3,11 5.5,5 8,9 11,3" stroke="#2E7D32" strokeWidth="1.2" fill="none" />
+            <circle cx="3" cy="11" r="1.5" fill="#2E7D32" />
+            <circle cx="11" cy="3" r="1.5" fill="#F44336" />
+        </svg>
+    )
+    if (mode === 'hidden') return (
+        <svg viewBox="0 0 14 14" fill="none">
+            <polyline points="3,11 5.5,5 8,9 11,3" stroke="gray" strokeWidth="1.2" fill="none" opacity="0.3" />
+            <circle cx="3" cy="11" r="1.5" fill="gray" />
+            <circle cx="11" cy="3" r="1.5" fill="gray" />
+        </svg>
+    )
+    return (
+        <svg viewBox="0 0 14 14" fill="none">
+            <polyline points="3,11 5.5,5 8,9 11,3" stroke="gray" strokeWidth="1.2" fill="none" />
+            <circle cx="3" cy="11" r="1.5" fill="gray" />
+            <circle cx="11" cy="3" r="1.5" fill="gray" />
+        </svg>
     )
 }
 
@@ -203,6 +213,8 @@ interface LayoutProps {
     encodedValues: object[]
     drawAreas: boolean
     onActiveDetailChanged: (detail: ChartPathDetail | null) => void
+    pathDisplayMode: 'normal' | 'incline' | 'hidden'
+    onCyclePathDisplay: () => void
 }
 
 function LargeScreenLayout({
@@ -215,7 +227,10 @@ function LargeScreenLayout({
     drawAreas,
     currentLocation,
     onActiveDetailChanged,
+    pathDisplayMode,
+    onCyclePathDisplay,
 }: LayoutProps) {
+    const inclineOnMap = pathDisplayMode === 'incline'
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
     const [elevationState, setElevationState] = useState<'compact' | 'expanded' | 'closed'>('closed')
@@ -285,6 +300,15 @@ function LargeScreenLayout({
             <div className={styles.onMapRightSide}>
                 <MapOptions {...mapOptions} />
                 <LocationButton currentLocation={currentLocation} />
+                {hasRoute && (
+                    <div
+                        className={styles.inclineButton + (pathDisplayMode === 'incline' ? ' ' + styles.inclineButtonActive : '')}
+                        onClick={onCyclePathDisplay}
+                        title={pathDisplayMode === 'normal' ? 'Show incline on map' : pathDisplayMode === 'incline' ? 'Hide path' : 'Show path'}
+                    >
+                        <InclineIcon mode={pathDisplayMode} />
+                    </div>
+                )}
             </div>
             <div className={styles.map}>
                 <MapComponent map={map} />
@@ -313,6 +337,7 @@ function LargeScreenLayout({
                     onToggleExpanded={() => setElevationState(s => s === 'expanded' ? 'compact' : 'expanded')}
                     onClose={() => setElevationState('closed')}
                     onActiveDetailChanged={onActiveDetailChanged}
+                    inclineOnMap={inclineOnMap}
                 />
             </div>
         </>
@@ -329,7 +354,10 @@ function SmallScreenLayout({
     drawAreas,
     currentLocation,
     onActiveDetailChanged,
+    pathDisplayMode,
+    onCyclePathDisplay,
 }: LayoutProps) {
+    const inclineOnMap = pathDisplayMode === 'incline'
     const hasPath = route.selectedPath.points.coordinates.length > 0
     const elevationWidget = hasPath ? (
         <ElevationInfoBar
@@ -339,6 +367,7 @@ function SmallScreenLayout({
             isExpanded={false}
             onToggleExpanded={() => {}}
             onActiveDetailChanged={onActiveDetailChanged}
+            inclineOnMap={inclineOnMap}
         />
     ) : undefined
     return (
@@ -360,6 +389,15 @@ function SmallScreenLayout({
                 <div className={styles.onMapRightSide}>
                     <MapOptions {...mapOptions} />
                     <LocationButton currentLocation={currentLocation} />
+                    {hasPath && (
+                        <div
+                            className={styles.inclineButton + (pathDisplayMode === 'incline' ? ' ' + styles.inclineButtonActive : '')}
+                            onClick={onCyclePathDisplay}
+                            title={pathDisplayMode === 'normal' ? 'Show incline on map' : pathDisplayMode === 'incline' ? 'Hide path' : 'Show path'}
+                        >
+                            <InclineIcon mode={pathDisplayMode} />
+                        </div>
+                    )}
                 </div>
             </div>
 
