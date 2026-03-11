@@ -195,6 +195,11 @@ function RoutingResult({
                     {isSelected && (
                         <PlainButton
                             className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
+                            onTouchEnd={(e) => {
+                                // reduce chance for synthetic mouse events that cause ghost clicks (#447)
+                                e.preventDefault()
+                                setExpanded(!isExpanded)
+                            }}
                             onClick={() => setExpanded(!isExpanded)}
                         >
                             <Details />
