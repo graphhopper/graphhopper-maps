@@ -6,12 +6,38 @@ import { tr } from '@/translation/Translation'
 import { metersToShortText } from '@/Converters'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import styles from './RouteStats.module.css'
-import { NAMED_COLOR_MAPS, INCLINE_CATEGORIES, SPEED_COLORS, getSpeedThresholds, getSpeedLabels, computeInclineCategoryDistances, planeDist, isMissingValue, LTS_COLORS, classifyBikeLTS, classifyFootLTS, computeLTSDistances } from '@/pathDetails/elevationWidget/colors'
+import {
+    NAMED_COLOR_MAPS,
+    INCLINE_CATEGORIES,
+    SPEED_COLORS,
+    getSpeedThresholds,
+    getSpeedLabels,
+    computeInclineCategoryDistances,
+    planeDist,
+    isMissingValue,
+    LTS_COLORS,
+    classifyBikeLTS,
+    classifyFootLTS,
+    computeLTSDistances,
+} from '@/pathDetails/elevationWidget/colors'
 
 const PAVED = new Set(['asphalt', 'concrete', 'paved', 'paving_stones', 'concrete:plates', 'concrete:lanes', 'metal'])
 const UNPAVED = new Set([
-    'unpaved', 'gravel', 'dirt', 'grass', 'sand', 'ground', 'earth', 'mud', 'wood',
-    'compacted', 'fine_gravel', 'grass_paver', 'cobblestone', 'sett', 'unhewn_cobblestone',
+    'unpaved',
+    'gravel',
+    'dirt',
+    'grass',
+    'sand',
+    'ground',
+    'earth',
+    'mud',
+    'wood',
+    'compacted',
+    'fine_gravel',
+    'grass_paver',
+    'cobblestone',
+    'sett',
+    'unhewn_cobblestone',
 ])
 const BIG_ROADS = new Set(['primary', 'secondary', 'trunk', 'motorway'])
 const MEDIUM_ROADS = new Set(['tertiary', 'residential', 'unclassified', 'living_street', 'service'])
@@ -22,8 +48,7 @@ const NETWORK_KEYS = ['international', 'national', 'regional', 'local'] as const
 
 function segmentDist(coords: Position[], from: number, to: number): number {
     let dist = 0
-    for (let i = from; i < to; i++)
-        dist += planeDist(coords[i], coords[i + 1])
+    for (let i = from; i < to; i++) dist += planeDist(coords[i], coords[i + 1])
     return dist
 }
 
@@ -38,12 +63,15 @@ function computeDetailDistances(coords: Position[], details: [number, number, an
 }
 
 // Compute cumulative distances below each speed threshold
-function computeSpeedDistances(coords: Position[], details: [number, number, number][], thresholds: number[]): number[] {
+function computeSpeedDistances(
+    coords: Position[],
+    details: [number, number, number][],
+    thresholds: number[],
+): number[] {
     const distBelow = thresholds.map(() => 0)
     for (const [from, to, speed] of details) {
         const d = segmentDist(coords, from, to)
-        for (let t = 0; t < thresholds.length; t++)
-            if (speed < thresholds[t]) distBelow[t] += d
+        for (let t = 0; t < thresholds.length; t++) if (speed < thresholds[t]) distBelow[t] += d
     }
     return distBelow
 }
@@ -60,7 +88,6 @@ function pct(value: number, total: number): string {
     if (total <= 0) return '0%'
     return Math.round((100 * value) / total) + '%'
 }
-
 
 function formatTime(minutes: number): string {
     const h = Math.floor(minutes / 60)
@@ -87,7 +114,12 @@ interface SummaryEntry {
 }
 
 // Get colors of the top N contributors and whether there are more
-function topColors(colorMap: Record<string, string>, distMap: Map<string, number>, keys: Iterable<string>, n: number = 4) {
+function topColors(
+    colorMap: Record<string, string>,
+    distMap: Map<string, number>,
+    keys: Iterable<string>,
+    n: number = 4,
+) {
     const sorted = [...keys]
         .map(k => ({ key: k, dist: distMap.get(k) || 0 }))
         .filter(e => e.dist > 0)
@@ -99,7 +131,13 @@ function topColors(colorMap: Record<string, string>, distMap: Map<string, number
 }
 
 // Build detail entries from a distance map, sorted by distance descending
-function detailEntries(colorMap: Record<string, string>, distMap: Map<string, number>, totalDist: number, us: boolean, missingLabel = 'missing'): DetailEntry[] {
+function detailEntries(
+    colorMap: Record<string, string>,
+    distMap: Map<string, number>,
+    totalDist: number,
+    us: boolean,
+    missingLabel = 'missing',
+): DetailEntry[] {
     return [...distMap.entries()]
         .filter(([, d]) => d > 0)
         .sort((a, b) => b[1] - a[1])
@@ -116,7 +154,11 @@ function ColorBar({ entries }: { entries: DetailEntry[] }) {
     return (
         <div className={styles.colorBar}>
             {entries.map((d, i) => (
-                <div key={i} className={styles.colorBarSegment} style={{ backgroundColor: d.color, flex: d.fraction }} />
+                <div
+                    key={i}
+                    className={styles.colorBarSegment}
+                    style={{ backgroundColor: d.color, flex: d.fraction }}
+                />
             ))}
         </div>
     )
@@ -139,7 +181,7 @@ function ExpandableStat({
     extraInfo?: SummaryEntry[]
 }) {
     const [expanded, setExpanded] = useState(() => expandedStatsSet.has(statKey))
-    const hasDetails = (details && details.length > 0)
+    const hasDetails = details && details.length > 0
     const hasExpanded = hasDetails || (extraInfo && extraInfo.length > 0)
 
     const toggle = () => {
@@ -219,7 +261,13 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
     if (coords.length > 1 && coords[0].length >= 3) {
         const categoryDistances = computeInclineCategoryDistances(coords)
         const inclineDetails = categoryDistances
-            .map((d, i) => ({ name: INCLINE_CATEGORIES[i].label, km: metersToShortText(d, us), color: INCLINE_CATEGORIES[i].color, fraction: d / totalDist, title: INCLINE_CATEGORIES[i].tooltip }))
+            .map((d, i) => ({
+                name: INCLINE_CATEGORIES[i].label,
+                km: metersToShortText(d, us),
+                color: INCLINE_CATEGORIES[i].color,
+                fraction: d / totalDist,
+                title: INCLINE_CATEGORIES[i].tooltip,
+            }))
             .filter(d => d.fraction > 0)
         lines.push(
             <ExpandableStat
@@ -243,10 +291,26 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             const pavedDist = sumForKeys(dist, PAVED)
             const unpavedDist = sumForKeys(dist, UNPAVED)
             const extra: SummaryEntry[] = []
-            if (pavedDist > 0) extra.push({ name: tr('paved'), value: pct(pavedDist, totalDist), ...topColors(surfaceColors, dist, PAVED) })
-            if (unpavedDist > 0) extra.push({ name: tr('unpaved'), value: pct(unpavedDist, totalDist), ...topColors(surfaceColors, dist, UNPAVED) })
+            if (pavedDist > 0)
+                extra.push({
+                    name: tr('paved'),
+                    value: pct(pavedDist, totalDist),
+                    ...topColors(surfaceColors, dist, PAVED),
+                })
+            if (unpavedDist > 0)
+                extra.push({
+                    name: tr('unpaved'),
+                    value: pct(unpavedDist, totalDist),
+                    ...topColors(surfaceColors, dist, UNPAVED),
+                })
             lines.push(
-                <ExpandableStat key="surface" statKey="surface" label={tr('route_stats_surface')} details={detailEntries(surfaceColors, dist, totalDist, us)} extraInfo={extra} />,
+                <ExpandableStat
+                    key="surface"
+                    statKey="surface"
+                    label={tr('route_stats_surface')}
+                    details={detailEntries(surfaceColors, dist, totalDist, us)}
+                    extraInfo={extra}
+                />,
             )
         }
     }
@@ -268,7 +332,13 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                         statKey={key}
                         label={label}
                         details={detailEntries(colors, dist, totalDist, us)}
-                        extraInfo={[{ name: tr('route_stats_on_network'), value: pct(onNetwork, totalDist), ...topColors(colors, dist, NETWORK_KEYS) }]}
+                        extraInfo={[
+                            {
+                                name: tr('route_stats_on_network'),
+                                value: pct(onNetwork, totalDist),
+                                ...topColors(colors, dist, NETWORK_KEYS),
+                            },
+                        ]}
                     />,
                 )
             }
@@ -284,7 +354,13 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
 
     if (hasLTS) {
         const classifier = isBike ? classifyBikeLTS : classifyFootLTS
-        const ltsDistances = computeLTSDistances(coords, path.details.road_class, infraDetails, path.details.urban_density, classifier)
+        const ltsDistances = computeLTSDistances(
+            coords,
+            path.details.road_class,
+            infraDetails,
+            path.details.urban_density,
+            classifier,
+        )
         const prefix = isBike ? 'bike_lts_' : 'foot_lts_'
         const ltsTooltips = [tr(prefix + '1'), tr(prefix + '2'), tr(prefix + '3'), tr(prefix + '4')]
         const ltsDetails = ltsDistances
@@ -298,8 +374,18 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
         if (ltsDetails.length > 0) {
             const lowStress = ltsDistances[0] + ltsDistances[1]
             lines.push(
-                <ExpandableStat key="lts" statKey="lts" label={tr('route_stats_stress_level')} details={ltsDetails}
-                    extraInfo={[{ name: tr('route_stats_low_stress'), value: pct(lowStress, totalDist), colors: [LTS_COLORS[0].color, LTS_COLORS[1].color] }]}
+                <ExpandableStat
+                    key="lts"
+                    statKey="lts"
+                    label={tr('route_stats_stress_level')}
+                    details={ltsDetails}
+                    extraInfo={[
+                        {
+                            name: tr('route_stats_low_stress'),
+                            value: pct(lowStress, totalDist),
+                            colors: [LTS_COLORS[0].color, LTS_COLORS[1].color],
+                        },
+                    ]}
                 />,
             )
         }
@@ -311,11 +397,32 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             const big = sumForKeys(dist, BIG_ROADS)
             const medium = sumForKeys(dist, MEDIUM_ROADS)
             const small = sumForKeys(dist, SMALL_ROADS)
-            if (big > 0) extra.push({ name: tr('route_stats_big_roads'), value: pct(big, totalDist), ...topColors(roadColors, dist, BIG_ROADS) })
-            if (medium > 0) extra.push({ name: tr('route_stats_medium_roads'), value: pct(medium, totalDist), ...topColors(roadColors, dist, MEDIUM_ROADS) })
-            if (small > 0) extra.push({ name: tr('route_stats_small_roads'), value: pct(small, totalDist), ...topColors(roadColors, dist, SMALL_ROADS) })
+            if (big > 0)
+                extra.push({
+                    name: tr('route_stats_big_roads'),
+                    value: pct(big, totalDist),
+                    ...topColors(roadColors, dist, BIG_ROADS),
+                })
+            if (medium > 0)
+                extra.push({
+                    name: tr('route_stats_medium_roads'),
+                    value: pct(medium, totalDist),
+                    ...topColors(roadColors, dist, MEDIUM_ROADS),
+                })
+            if (small > 0)
+                extra.push({
+                    name: tr('route_stats_small_roads'),
+                    value: pct(small, totalDist),
+                    ...topColors(roadColors, dist, SMALL_ROADS),
+                })
             lines.push(
-                <ExpandableStat key="roads" statKey="roads" label={tr('route_stats_roads')} details={detailEntries(roadColors, dist, totalDist, us)} extraInfo={extra} />,
+                <ExpandableStat
+                    key="roads"
+                    statKey="roads"
+                    label={tr('route_stats_roads')}
+                    details={detailEntries(roadColors, dist, totalDist, us)}
+                    extraInfo={extra}
+                />,
             )
         }
     }
@@ -336,8 +443,9 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
             }))
             .filter(d => d.fraction > 0)
 
-        const avgSpeed = path.time > 0 ? (totalDist / 1000) / (path.time / 3_600_000) : 0
-        let maxSpeed = 0, minSpeed = Infinity
+        const avgSpeed = path.time > 0 ? totalDist / 1000 / (path.time / 3_600_000) : 0
+        let maxSpeed = 0,
+            minSpeed = Infinity
         for (const [, , speed] of path.details.average_speed) {
             if (speed > maxSpeed) maxSpeed = speed
             if (speed < minSpeed) minSpeed = speed

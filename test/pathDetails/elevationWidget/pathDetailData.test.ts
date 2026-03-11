@@ -48,8 +48,18 @@ describe('pathDetailData', () => {
     describe('calculateViaPointDistances', () => {
         it('returns empty for paths with no via points', () => {
             const path = {
-                points: { coordinates: [[13.0, 52.0], [13.1, 52.0]] },
-                snapped_waypoints: { coordinates: [[13.0, 52.0], [13.1, 52.0]] },
+                points: {
+                    coordinates: [
+                        [13.0, 52.0],
+                        [13.1, 52.0],
+                    ],
+                },
+                snapped_waypoints: {
+                    coordinates: [
+                        [13.0, 52.0],
+                        [13.1, 52.0],
+                    ],
+                },
                 details: {},
                 distance: 1000,
             }
@@ -76,9 +86,9 @@ describe('pathDetailData', () => {
                 points: { coordinates: coords },
                 snapped_waypoints: {
                     coordinates: [
-                        [13.0, 52.0],   // From
-                        [13.05, 52.0],  // Via
-                        [13.1, 52.0],   // To
+                        [13.0, 52.0], // From
+                        [13.05, 52.0], // Via
+                        [13.1, 52.0], // To
                     ],
                 },
                 details: {},
@@ -211,7 +221,12 @@ describe('pathDetailData', () => {
                         [13.01, 52.0],
                     ],
                 },
-                snapped_waypoints: { coordinates: [[13.0, 52.0], [13.01, 52.0]] },
+                snapped_waypoints: {
+                    coordinates: [
+                        [13.0, 52.0],
+                        [13.01, 52.0],
+                    ],
+                },
                 details: {},
                 distance: 700,
             }
@@ -233,14 +248,35 @@ describe('pathDetailData', () => {
 
         it('includes alternative elevations', () => {
             const main = {
-                points: { coordinates: [[13.0, 52.0, 100], [13.01, 52.0, 110]] },
-                snapped_waypoints: { coordinates: [[13.0, 52.0], [13.01, 52.0]] },
+                points: {
+                    coordinates: [
+                        [13.0, 52.0, 100],
+                        [13.01, 52.0, 110],
+                    ],
+                },
+                snapped_waypoints: {
+                    coordinates: [
+                        [13.0, 52.0],
+                        [13.01, 52.0],
+                    ],
+                },
                 details: {},
                 distance: 700,
             }
             const alt = {
-                points: { coordinates: [[13.0, 52.0, 100], [13.005, 52.001, 120], [13.01, 52.0, 110]] },
-                snapped_waypoints: { coordinates: [[13.0, 52.0], [13.01, 52.0]] },
+                points: {
+                    coordinates: [
+                        [13.0, 52.0, 100],
+                        [13.005, 52.001, 120],
+                        [13.01, 52.0, 110],
+                    ],
+                },
+                snapped_waypoints: {
+                    coordinates: [
+                        [13.0, 52.0],
+                        [13.01, 52.0],
+                    ],
+                },
                 details: {},
                 distance: 900,
             }

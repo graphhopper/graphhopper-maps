@@ -1,4 +1,10 @@
-import { calculateNiceTicks, formatDistanceLabel, formatElevationLabel, computeDetailYRange, formatDetailTick } from '@/pathDetails/elevationWidget/axisUtils'
+import {
+    calculateNiceTicks,
+    formatDistanceLabel,
+    formatElevationLabel,
+    computeDetailYRange,
+    formatDetailTick,
+} from '@/pathDetails/elevationWidget/axisUtils'
 
 describe('axisUtils', () => {
     describe('calculateNiceTicks', () => {
@@ -36,15 +42,15 @@ describe('axisUtils', () => {
 
         it('never produces more visible ticks than maxTicks', () => {
             const cases: [number, number, number][] = [
-                [0, 1703000, 6],  // 1703 km
-                [0, 5000000, 6],  // 5000 km
-                [0, 999000, 6],   // 999 km
+                [0, 1703000, 6], // 1703 km
+                [0, 5000000, 6], // 5000 km
+                [0, 999000, 6], // 999 km
                 [0, 100, 5],
                 [0, 50000, 6],
                 [-50, 50, 5],
                 [0, 1000, 6],
-                [0, 82100, 5],    // 82.1 km compact
-                [0, 18000, 5],    // 18 km compact
+                [0, 82100, 5], // 82.1 km compact
+                [0, 18000, 5], // 18 km compact
             ]
             for (const [min, max, maxTicks] of cases) {
                 const ticks = calculateNiceTicks(min, max, maxTicks)

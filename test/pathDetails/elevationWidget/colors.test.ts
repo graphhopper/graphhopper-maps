@@ -183,12 +183,8 @@ describe('colors', () => {
                 [0, 0.001, 0],
                 [0, 0.002, 0],
             ]
-            const roadClass: [number, number, string][] = [
-                [0, 2, 'primary'],
-            ]
-            const infra: [number, number, string][] = [
-                [0, 2, 'missing'],
-            ]
+            const roadClass: [number, number, string][] = [[0, 2, 'primary']]
+            const infra: [number, number, string][] = [[0, 2, 'missing']]
             const density: [number, number, string][] = [
                 [0, 1, 'urban'],
                 [1, 2, 'rural'],
@@ -203,11 +199,27 @@ describe('colors', () => {
     describe('buildLTSDetail', () => {
         it('keeps consecutive segments with the same LTS level (no merge)', () => {
             const selectedPath = {
-                points: { coordinates: [[0, 0, 0], [0, 0.001, 0], [0, 0.002, 0], [0, 0.003, 0]] },
-                snapped_waypoints: { coordinates: [[0, 0, 0], [0, 0.003, 0]] },
+                points: {
+                    coordinates: [
+                        [0, 0, 0],
+                        [0, 0.001, 0],
+                        [0, 0.002, 0],
+                        [0, 0.003, 0],
+                    ],
+                },
+                snapped_waypoints: {
+                    coordinates: [
+                        [0, 0, 0],
+                        [0, 0.003, 0],
+                    ],
+                },
                 details: {
                     road_class: [[0, 3, 'residential']],
-                    cycleway: [[0, 1, 'lane'], [1, 2, 'lane'], [2, 3, 'lane']],
+                    cycleway: [
+                        [0, 1, 'lane'],
+                        [1, 2, 'lane'],
+                        [2, 3, 'lane'],
+                    ],
                     urban_density: [[0, 3, 'urban']],
                 },
                 distance: 300,
@@ -232,9 +244,17 @@ describe('colors', () => {
                         [0, 0.005, 0],
                     ],
                 },
-                snapped_waypoints: { coordinates: [[0, 0, 0], [0, 0.005, 0]] },
+                snapped_waypoints: {
+                    coordinates: [
+                        [0, 0, 0],
+                        [0, 0.005, 0],
+                    ],
+                },
                 details: {
-                    road_class: [[0, 3, 'residential'], [3, 5, 'primary']],
+                    road_class: [
+                        [0, 3, 'residential'],
+                        [3, 5, 'primary'],
+                    ],
                     cycleway: [[0, 5, 'lane']],
                     urban_density: [[0, 5, 'urban']],
                 },

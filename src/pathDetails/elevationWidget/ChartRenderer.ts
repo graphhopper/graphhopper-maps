@@ -1,5 +1,11 @@
 import { ChartConfig, ChartData, ChartHoverResult, ChartPathDetail, ElevationPoint } from './types'
-import { calculateNiceTicks, formatDistanceLabel, formatElevationLabel, computeDetailYRange, formatDetailTick } from './axisUtils'
+import {
+    calculateNiceTicks,
+    formatDistanceLabel,
+    formatElevationLabel,
+    computeDetailYRange,
+    formatDetailTick,
+} from './axisUtils'
 import { getSlopeColor } from './colors'
 
 const DEFAULT_MARGIN = { top: 10, right: 15, bottom: 26, left: 48 }
@@ -292,9 +298,10 @@ export default class ChartRenderer {
         const totalDist = elev[elev.length - 1].distance
         const { eleMin, eleMax } = this.getElevationRange()
 
-        const xScale = totalDist > 0
-            ? (d: number) => margin.left + (d / totalDist) * plotWidth
-            : (_d: number) => margin.left + plotWidth / 2
+        const xScale =
+            totalDist > 0
+                ? (d: number) => margin.left + (d / totalDist) * plotWidth
+                : (_d: number) => margin.left + plotWidth / 2
         const yScale = (e: number) => plotBottom - detailBarH - ((e - eleMin) / (eleMax - eleMin)) * plotHeight
 
         // Draw grid (skip for bar details since bars fill the chart area)
@@ -308,8 +315,20 @@ export default class ChartRenderer {
             this.drawElevationArea(ctx, elev, xScale, yScale, plotBottom)
 
             // Draw alternative elevation on top so it's clearly visible
-            if (this.visibleAlternativeIndex >= 0 && this.visibleAlternativeIndex < this.data.alternativeElevations.length) {
-                this.drawAlternativeElevation(ctx, this.data.alternativeElevations[this.visibleAlternativeIndex], plotWidth, plotBottom, 0, plotHeight, eleMin, eleMax)
+            if (
+                this.visibleAlternativeIndex >= 0 &&
+                this.visibleAlternativeIndex < this.data.alternativeElevations.length
+            ) {
+                this.drawAlternativeElevation(
+                    ctx,
+                    this.data.alternativeElevations[this.visibleAlternativeIndex],
+                    plotWidth,
+                    plotBottom,
+                    0,
+                    plotHeight,
+                    eleMin,
+                    eleMax,
+                )
             }
         }
 
@@ -525,9 +544,12 @@ export default class ChartRenderer {
         // Draw bar border
         ctx.strokeStyle = '#ccc'
         ctx.lineWidth = 0.5
-        ctx.strokeRect(xScale(segments[0].fromDistance), barTop,
+        ctx.strokeRect(
+            xScale(segments[0].fromDistance),
+            barTop,
             xScale(segments[segments.length - 1].toDistance) - xScale(segments[0].fromDistance),
-            barHeight)
+            barHeight,
+        )
     }
 
     private drawDetailLine(

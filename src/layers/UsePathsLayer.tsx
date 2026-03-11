@@ -18,7 +18,13 @@ const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
 
-export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Path, queryPoints: QueryPoint[], showPaths: boolean = true) {
+export default function usePathsLayer(
+    map: Map,
+    paths: Path[],
+    selectedPath: Path,
+    queryPoints: QueryPoint[],
+    showPaths: boolean = true,
+) {
     useEffect(() => {
         removeCurrentPathLayers(map)
         if (showPaths) {

@@ -13,8 +13,7 @@ function getUsedInclineCategories(elevation: ElevationPoint[]): Set<string> {
     const coords = elevation.map(p => [p.lng, p.lat, p.elevation])
     const distances = computeInclineCategoryDistances(coords)
     const used = new Set<string>()
-    for (let i = 0; i < distances.length; i++)
-        if (distances[i] > 0) used.add(INCLINE_CATEGORIES[i].color)
+    for (let i = 0; i < distances.length; i++) if (distances[i] > 0) used.add(INCLINE_CATEGORIES[i].color)
     return used
 }
 
@@ -156,14 +155,16 @@ export default function ElevationWidget({
     }, [onHover])
 
     const hasData = !!data && data.elevation.length > 0
-    const selectedDetail = hasData ? (data.pathDetails.find(d => d.key === selectedKey) || null) : null
+    const selectedDetail = hasData ? data.pathDetails.find(d => d.key === selectedKey) || null : null
     const alternativeCount = data?.alternativeElevations.length ?? 0
 
     const usedColors = data && data.elevation.length >= 2 ? getUsedInclineCategories(data.elevation) : null
     const inclineLegend = usedColors
-        ? INCLINE_CATEGORIES
-            .filter(c => usedColors.has(c.color))
-            .map(c => ({ label: isExpanded ? c.label : c.shortLabel, color: c.color, title: c.tooltip }))
+        ? INCLINE_CATEGORIES.filter(c => usedColors.has(c.color)).map(c => ({
+              label: isExpanded ? c.label : c.shortLabel,
+              color: c.color,
+              title: c.tooltip,
+          }))
         : []
 
     const cycleAlternative = useCallback(() => {
@@ -179,24 +180,47 @@ export default function ElevationWidget({
                     onSelect={setSelectedKey}
                     elevationLabel={elevationLabel}
                 />
-                {selectedDetail
-                    ? <Legend entries={selectedDetail.legend} maxVisible={onClose && !isExpanded ? 3 : undefined} showTitle={isExpanded} />
-                    : hasData && <Legend entries={inclineLegend} maxVisible={onClose && !isExpanded ? 3 : undefined} />
-                }
+                {selectedDetail ? (
+                    <Legend
+                        entries={selectedDetail.legend}
+                        maxVisible={onClose && !isExpanded ? 3 : undefined}
+                        showTitle={isExpanded}
+                    />
+                ) : (
+                    hasData && <Legend entries={inclineLegend} maxVisible={onClose && !isExpanded ? 3 : undefined} />
+                )}
                 <div className={styles.buttons}>
                     {!selectedDetail && alternativeCount > 0 && (
                         <button
                             className={`${styles.alternativeButton}${alternativeIndex >= 0 ? ' ' + styles.alternativeButtonActive : ''}`}
                             onClick={cycleAlternative}
-                            title={alternativeIndex >= 0 ? `Route ${alternativeRouteNumbers[alternativeIndex]}` : 'Show alternative elevation'}
-                        >
-                            {alternativeIndex >= 0 && alternativeCount > 1
-                                ? <span className={styles.alternativeNumber}>{alternativeRouteNumbers[alternativeIndex]}</span>
-                                : <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                    <path d="M1 10 Q4 4 7 7 Q10 10 13 4" stroke={alternativeIndex >= 0 ? '#555' : '#aaa'} strokeWidth="1.5" fill="none" />
-                                    <path d="M1 10 Q5 6 9 5 L13 4" stroke={alternativeIndex >= 0 ? '#aaa' : '#ccc'} strokeWidth="1" strokeDasharray="2 2" fill="none" />
-                                </svg>
+                            title={
+                                alternativeIndex >= 0
+                                    ? `Route ${alternativeRouteNumbers[alternativeIndex]}`
+                                    : 'Show alternative elevation'
                             }
+                        >
+                            {alternativeIndex >= 0 && alternativeCount > 1 ? (
+                                <span className={styles.alternativeNumber}>
+                                    {alternativeRouteNumbers[alternativeIndex]}
+                                </span>
+                            ) : (
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                    <path
+                                        d="M1 10 Q4 4 7 7 Q10 10 13 4"
+                                        stroke={alternativeIndex >= 0 ? '#555' : '#aaa'}
+                                        strokeWidth="1.5"
+                                        fill="none"
+                                    />
+                                    <path
+                                        d="M1 10 Q5 6 9 5 L13 4"
+                                        stroke={alternativeIndex >= 0 ? '#aaa' : '#ccc'}
+                                        strokeWidth="1"
+                                        strokeDasharray="2 2"
+                                        fill="none"
+                                    />
+                                </svg>
+                            )}
                         </button>
                     )}
                     <button
@@ -207,11 +231,7 @@ export default function ElevationWidget({
                         {isExpanded ? '\u25C0' : '\u25B6'}
                     </button>
                     {isExpanded && onClose && (
-                        <button
-                            className={styles.expandButton}
-                            onClick={onClose}
-                            title="Close"
-                        >
+                        <button className={styles.expandButton} onClick={onClose} title="Close">
                             {'\u2715'}
                         </button>
                     )}

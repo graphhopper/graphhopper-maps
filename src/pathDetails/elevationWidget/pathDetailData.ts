@@ -1,5 +1,18 @@
 import { ChartData, ChartPathDetail, ElevationPoint, LegendEntry, PathDetailSegment } from './types'
-import { assignDiscreteColors, getNumericGradientColor, getSpeedColor, getSpeedLabels, getSpeedThresholds, getSlopeColor, SPEED_COLORS, INCLINE_CATEGORIES, planeDist, LTS_COLORS, classifyBikeLTS, classifyFootLTS } from './colors'
+import {
+    assignDiscreteColors,
+    getNumericGradientColor,
+    getSpeedColor,
+    getSpeedLabels,
+    getSpeedThresholds,
+    getSlopeColor,
+    SPEED_COLORS,
+    INCLINE_CATEGORIES,
+    planeDist,
+    LTS_COLORS,
+    classifyBikeLTS,
+    classifyFootLTS,
+} from './colors'
 import { ApiImpl } from '@/api/Api'
 
 export interface PathLike {
@@ -29,9 +42,7 @@ export function extractElevationPoints(coordinates: number[][]): ElevationPoint[
     return points
 }
 
-export function calculateViaPointDistances(
-    path: PathLike,
-): number[] {
+export function calculateViaPointDistances(path: PathLike): number[] {
     const coords = path.points.coordinates
     if (coords.length === 0) return []
 
@@ -96,9 +107,7 @@ function inspectDetail(entries: [number, number, any][]): {
 // Sanitize numeric entries: cap Infinity at 99th percentile, replace null with 0.
 // Only call this after confirming the detail is numeric, to avoid turning
 // null/missing values into 0 which would affect type detection and coloring.
-export function sanitizeNumericValues(
-    entries: [number, number, any][],
-): [number, number, any][] {
+export function sanitizeNumericValues(entries: [number, number, any][]): [number, number, any][] {
     const finiteVals = entries.map(e => e[2]).filter((v): v is number => typeof v === 'number' && isFinite(v))
     if (finiteVals.length === 0) return entries
 
@@ -151,7 +160,10 @@ export function transformPathDetail(
     } else if (type === 'line') {
         // Other numeric values - use gradient coloring
         segments = sanitized.map(([from, to, val]) => {
-            const factor = sanitizedInfo.maxVal !== sanitizedInfo.minVal ? (val - sanitizedInfo.minVal) / (sanitizedInfo.maxVal - sanitizedInfo.minVal) : 0
+            const factor =
+                sanitizedInfo.maxVal !== sanitizedInfo.minVal
+                    ? (val - sanitizedInfo.minVal) / (sanitizedInfo.maxVal - sanitizedInfo.minVal)
+                    : 0
             return {
                 fromDistance: cumulativeDistances[from] || 0,
                 toDistance: cumulativeDistances[to] || 0,
@@ -227,7 +239,10 @@ export function buildChartData(
         .filter(p => p !== selectedPath && p.points.coordinates.length > 0)
         .map(p => {
             const rawCoords = p.points.coordinates
-            const coords = rawCoords.length > 0 && rawCoords[0].length === 2 ? rawCoords.map(pos => [pos[0], pos[1], 0]) : rawCoords
+            const coords =
+                rawCoords.length > 0 && rawCoords[0].length === 2
+                    ? rawCoords.map(pos => [pos[0], pos[1], 0])
+                    : rawCoords
             return extractElevationPoints(coords)
         })
 
@@ -236,9 +251,7 @@ export function buildChartData(
     const details = selectedPath.details as { [key: string]: [number, number, any][] }
     for (const [key, entries] of Object.entries(details)) {
         if (!entries || entries.length === 0) continue
-        pathDetails.push(
-            transformPathDetail(key, translateFn(key), entries, coordinates, cumulativeDistances, profile),
-        )
+        pathDetails.push(transformPathDetail(key, translateFn(key), entries, coordinates, cumulativeDistances, profile))
     }
 
     // Synthetic LTS detail for bike/foot profiles
@@ -250,11 +263,18 @@ export function buildChartData(
         const classifier = isBike ? classifyBikeLTS : classifyFootLTS
         const prefix = isBike ? 'bike_lts_' : 'foot_lts_'
         const legendLabels = [1, 2, 3, 4].map(i => translateFn(prefix + i))
-        pathDetails.push(buildLTSDetail(
-            coordinates, cumulativeDistances, roadClass, infraDetail as [number, number, string][],
-            details['urban_density'] as [number, number, string][] | undefined,
-            classifier, translateFn('route_stats_stress_level'), legendLabels,
-        ))
+        pathDetails.push(
+            buildLTSDetail(
+                coordinates,
+                cumulativeDistances,
+                roadClass,
+                infraDetail as [number, number, string][],
+                details['urban_density'] as [number, number, string][] | undefined,
+                classifier,
+                translateFn('route_stats_stress_level'),
+                legendLabels,
+            ),
+        )
     }
 
     // Via point distances
@@ -290,7 +310,10 @@ export function buildInclineDetail(elevation: ElevationPoint[]): ChartPathDetail
             toDistance: q.distance,
             value: Math.round(Math.abs(slopePercent) * 10) / 10,
             color,
-            coordinates: [[p.lng, p.lat], [q.lng, q.lat]],
+            coordinates: [
+                [p.lng, p.lat],
+                [q.lng, q.lat],
+            ],
         })
     }
 
@@ -322,9 +345,19 @@ function buildLTSDetail(
 ): ChartPathDetail {
     // Collect all breakpoints from the detail arrays
     const bpSet = new Set<number>()
-    for (const [from, to] of roadClassDetails) { bpSet.add(from); bpSet.add(to) }
-    for (const [from, to] of infraDetails) { bpSet.add(from); bpSet.add(to) }
-    if (urbanDensityDetails) for (const [from, to] of urbanDensityDetails) { bpSet.add(from); bpSet.add(to) }
+    for (const [from, to] of roadClassDetails) {
+        bpSet.add(from)
+        bpSet.add(to)
+    }
+    for (const [from, to] of infraDetails) {
+        bpSet.add(from)
+        bpSet.add(to)
+    }
+    if (urbanDensityDetails)
+        for (const [from, to] of urbanDensityDetails) {
+            bpSet.add(from)
+            bpSet.add(to)
+        }
     const breakpoints = [...bpSet].sort((a, b) => a - b)
 
     const findValue = (details: [number, number, string][], idx: number): string => {
@@ -356,9 +389,9 @@ function buildLTSDetail(
     }
 
     const usedLevels = new Set(raw.map(s => s.value as number))
-    const legend = LTS_COLORS
-        .map((c, i) => ({ label: c.label, color: c.color, title: legendLabels[i] }))
-        .filter((_, i) => usedLevels.has(i + 1))
+    const legend = LTS_COLORS.map((c, i) => ({ label: c.label, color: c.color, title: legendLabels[i] })).filter(
+        (_, i) => usedLevels.has(i + 1),
+    )
 
     return { key: '_lts', label, type: 'bars', segments: raw, legend }
 }

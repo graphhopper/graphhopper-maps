@@ -98,12 +98,30 @@ export interface InclineCategory {
 }
 
 export const INCLINE_CATEGORIES: InclineCategory[] = [
-    { label: '\u2191\uFE0E\u2191\uFE0E', shortLabel: '\u2191\uFE0E\u2191\uFE0E', tooltip: '>10%', minSlope: 10, color: '#D50000' },
+    {
+        label: '\u2191\uFE0E\u2191\uFE0E',
+        shortLabel: '\u2191\uFE0E\u2191\uFE0E',
+        tooltip: '>10%',
+        minSlope: 10,
+        color: '#D50000',
+    },
     { label: '\u2191\uFE0E', shortLabel: '\u2191\uFE0E', tooltip: '6..10%', minSlope: 6, color: '#F44336' },
     { label: '\u2197\uFE0E', shortLabel: '\u2197\uFE0E', tooltip: '3..6%', minSlope: 3, color: '#FF9800' },
     { label: '-', shortLabel: '-', tooltip: '\u22126..3%', minSlope: -6, color: '#2E7D32' },
-    { label: '\u2193\uFE0E', shortLabel: '\u2193\uFE0E', tooltip: '\u221210..\u22126%', minSlope: -10, color: '#42A5F5' },
-    { label: '\u2193\uFE0E\u2193\uFE0E', shortLabel: '\u2193\uFE0E\u2193\uFE0E', tooltip: '<\u221210%', minSlope: -Infinity, color: '#1565C0' },
+    {
+        label: '\u2193\uFE0E',
+        shortLabel: '\u2193\uFE0E',
+        tooltip: '\u221210..\u22126%',
+        minSlope: -10,
+        color: '#42A5F5',
+    },
+    {
+        label: '\u2193\uFE0E\u2193\uFE0E',
+        shortLabel: '\u2193\uFE0E\u2193\uFE0E',
+        tooltip: '<\u221210%',
+        minSlope: -Infinity,
+        color: '#1565C0',
+    },
 ]
 
 // Speed colors: red (slow) -> green (fast), with profile-specific thresholds
@@ -153,12 +171,28 @@ export const LTS_COLORS: LTSEntry[] = [
 ]
 
 const BIKE_LTS1_ROADS = new Set([
-    'cycleway', 'path', 'footway', 'pedestrian', 'living_street', 'bridleway', 'track', 'corridor',
+    'cycleway',
+    'path',
+    'footway',
+    'pedestrian',
+    'living_street',
+    'bridleway',
+    'track',
+    'corridor',
 ])
 const BIKE_LTS2_ROADS = new Set(['service'])
 const BIKE_LTS3_ROADS = new Set(['steps'])
 const FOOT_LTS1_ROADS = new Set([
-    'footway', 'pedestrian', 'path', 'living_street', 'steps', 'bridleway', 'corridor', 'track', 'cycleway', 'service',
+    'footway',
+    'pedestrian',
+    'path',
+    'living_street',
+    'steps',
+    'bridleway',
+    'corridor',
+    'track',
+    'cycleway',
+    'service',
 ])
 
 export function classifyBikeLTS(roadClass: string, cycleway: string, isRural: boolean): number {
@@ -172,7 +206,7 @@ export function classifyBikeLTS(roadClass: string, cycleway: string, isRural: bo
         return 4
     }
     if (roadClass === 'tertiary') {
-        return (cycleway === 'lane' && !isRural) ? 2 : 3
+        return cycleway === 'lane' && !isRural ? 2 : 3
     }
     if (roadClass === 'residential') return 2
     if (roadClass === 'unclassified' && isRural) return 3
@@ -205,9 +239,20 @@ export function computeLTSDistances(
 
     // Collect all breakpoints from the 3 detail arrays
     const bpSet = new Set<number>()
-    for (const [from, to] of roadClassDetails) { bpSet.add(from); bpSet.add(to) }
-    if (infraDetails) for (const [from, to] of infraDetails) { bpSet.add(from); bpSet.add(to) }
-    if (urbanDensityDetails) for (const [from, to] of urbanDensityDetails) { bpSet.add(from); bpSet.add(to) }
+    for (const [from, to] of roadClassDetails) {
+        bpSet.add(from)
+        bpSet.add(to)
+    }
+    if (infraDetails)
+        for (const [from, to] of infraDetails) {
+            bpSet.add(from)
+            bpSet.add(to)
+        }
+    if (urbanDensityDetails)
+        for (const [from, to] of urbanDensityDetails) {
+            bpSet.add(from)
+            bpSet.add(to)
+        }
     const breakpoints = [...bpSet].sort((a, b) => a - b)
 
     // Build lookup functions
@@ -283,7 +328,10 @@ export function computeInclineCategoryDistances(coords: number[][]): number[] {
         if (dist <= 0) continue
         const slope = (100 * (coords[i + 1][2] - coords[i][2])) / dist
         for (let j = 0; j < INCLINE_CATEGORIES.length; j++) {
-            if (slope >= INCLINE_CATEGORIES[j].minSlope) { distances[j] += dist; break }
+            if (slope >= INCLINE_CATEGORIES[j].minSlope) {
+                distances[j] += dist
+                break
+            }
         }
     }
     return distances
@@ -302,10 +350,7 @@ export function isMissingValue(value: string | number | boolean): boolean {
     return value === 'missing'
 }
 
-export function assignDiscreteColors(
-    detailKey: string,
-    values: (string | number | boolean)[],
-): Map<string, string> {
+export function assignDiscreteColors(detailKey: string, values: (string | number | boolean)[]): Map<string, string> {
     const colorMap = new Map<string, string>()
     const namedMap = NAMED_COLOR_MAPS[detailKey]
 

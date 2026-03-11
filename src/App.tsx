@@ -156,7 +156,11 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         pathDisplayMode={pathDisplayMode}
-                        onCyclePathDisplay={() => setPathDisplayMode(m => m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal')}
+                        onCyclePathDisplay={() =>
+                            setPathDisplayMode(m =>
+                                m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal',
+                            )
+                        }
                     />
                 ) : (
                     <LargeScreenLayout
@@ -169,7 +173,11 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         pathDisplayMode={pathDisplayMode}
-                        onCyclePathDisplay={() => setPathDisplayMode(m => m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal')}
+                        onCyclePathDisplay={() =>
+                            setPathDisplayMode(m =>
+                                m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal',
+                            )
+                        }
                     />
                 )}
             </div>
@@ -178,20 +186,22 @@ export default function App() {
 }
 
 function InclineIcon({ mode }: { mode: 'normal' | 'incline' | 'hidden' }) {
-    if (mode === 'incline') return (
-        <svg viewBox="0 0 14 14" fill="none">
-            <polyline points="3,11 5.5,5 8,9 11,3" stroke="#2E7D32" strokeWidth="1.2" fill="none" />
-            <circle cx="3" cy="11" r="1.5" fill="#2E7D32" />
-            <circle cx="11" cy="3" r="1.5" fill="#F44336" />
-        </svg>
-    )
-    if (mode === 'hidden') return (
-        <svg viewBox="0 0 14 14" fill="none">
-            <polyline points="3,11 5.5,5 8,9 11,3" stroke="gray" strokeWidth="1.2" fill="none" opacity="0.3" />
-            <circle cx="3" cy="11" r="1.5" fill="gray" />
-            <circle cx="11" cy="3" r="1.5" fill="gray" />
-        </svg>
-    )
+    if (mode === 'incline')
+        return (
+            <svg viewBox="0 0 14 14" fill="none">
+                <polyline points="3,11 5.5,5 8,9 11,3" stroke="#2E7D32" strokeWidth="1.2" fill="none" />
+                <circle cx="3" cy="11" r="1.5" fill="#2E7D32" />
+                <circle cx="11" cy="3" r="1.5" fill="#F44336" />
+            </svg>
+        )
+    if (mode === 'hidden')
+        return (
+            <svg viewBox="0 0 14 14" fill="none">
+                <polyline points="3,11 5.5,5 8,9 11,3" stroke="gray" strokeWidth="1.2" fill="none" opacity="0.3" />
+                <circle cx="3" cy="11" r="1.5" fill="gray" />
+                <circle cx="11" cy="3" r="1.5" fill="gray" />
+            </svg>
+        )
     return (
         <svg viewBox="0 0 14 14" fill="none">
             <polyline points="3,11 5.5,5 8,9 11,3" stroke="gray" strokeWidth="1.2" fill="none" />
@@ -236,7 +246,7 @@ function LargeScreenLayout({
     // (but not during transient empty states like via point addition where a new request is already pending)
     useEffect(() => {
         if (hasRoute) {
-            setElevationState(s => s === 'closed' ? 'compact' : s)
+            setElevationState(s => (s === 'closed' ? 'compact' : s))
         } else if (!routeRequestPending) {
             setElevationState('closed')
         }
@@ -298,9 +308,18 @@ function LargeScreenLayout({
                 <LocationButton currentLocation={currentLocation} />
                 {hasRoute && (
                     <div
-                        className={styles.inclineButton + (pathDisplayMode === 'incline' ? ' ' + styles.inclineButtonActive : '')}
+                        className={
+                            styles.inclineButton +
+                            (pathDisplayMode === 'incline' ? ' ' + styles.inclineButtonActive : '')
+                        }
                         onClick={onCyclePathDisplay}
-                        title={pathDisplayMode === 'normal' ? 'Show incline on map' : pathDisplayMode === 'incline' ? 'Hide path' : 'Show path'}
+                        title={
+                            pathDisplayMode === 'normal'
+                                ? 'Show incline on map'
+                                : pathDisplayMode === 'incline'
+                                  ? 'Hide path'
+                                  : 'Show path'
+                        }
                     >
                         <InclineIcon mode={pathDisplayMode} />
                     </div>
@@ -318,19 +337,21 @@ function LargeScreenLayout({
                         title="Show elevation"
                     >
                         <svg width="16" height="16" viewBox="0 0 1792 1792" fill="#666">
-                            <path d="M1920 1536v128h-2048v-1536h128v1408h1920zm-384-1024l256 896h-1664v-576l448-576 576 576z"/>
+                            <path d="M1920 1536v128h-2048v-1536h128v1408h1920zm-384-1024l256 896h-1664v-576l448-576 576 576z" />
                         </svg>
                     </button>
                 </div>
             )}
-            <div className={elevationState === 'expanded' ? styles.pathDetailsExpanded : styles.pathDetails}
-                 style={{ display: elevationState === 'closed' ? 'none' : undefined }}>
+            <div
+                className={elevationState === 'expanded' ? styles.pathDetailsExpanded : styles.pathDetails}
+                style={{ display: elevationState === 'closed' ? 'none' : undefined }}
+            >
                 <ElevationInfoBar
                     selectedPath={route.selectedPath}
                     alternativePaths={route.routingResult.paths}
                     profile={query.routingProfile.name}
                     isExpanded={elevationState === 'expanded'}
-                    onToggleExpanded={() => setElevationState(s => s === 'expanded' ? 'compact' : 'expanded')}
+                    onToggleExpanded={() => setElevationState(s => (s === 'expanded' ? 'compact' : 'expanded'))}
                     onClose={() => setElevationState('closed')}
                     inclineOnMap={inclineOnMap}
                 />
@@ -400,9 +421,18 @@ function SmallScreenLayout({
                     <LocationButton currentLocation={currentLocation} />
                     {hasPath && (
                         <div
-                            className={styles.inclineButton + (pathDisplayMode === 'incline' ? ' ' + styles.inclineButtonActive : '')}
+                            className={
+                                styles.inclineButton +
+                                (pathDisplayMode === 'incline' ? ' ' + styles.inclineButtonActive : '')
+                            }
                             onClick={onCyclePathDisplay}
-                            title={pathDisplayMode === 'normal' ? 'Show incline on map' : pathDisplayMode === 'incline' ? 'Hide path' : 'Show path'}
+                            title={
+                                pathDisplayMode === 'normal'
+                                    ? 'Show incline on map'
+                                    : pathDisplayMode === 'incline'
+                                      ? 'Hide path'
+                                      : 'Show path'
+                            }
                         >
                             <InclineIcon mode={pathDisplayMode} />
                         </div>
@@ -440,14 +470,24 @@ function SmallScreenLayout({
     )
 }
 
-function CollapsedFooter({ path, showDistanceInMiles, onClick }: { path: Path; showDistanceInMiles: boolean; onClick: () => void }) {
+function CollapsedFooter({
+    path,
+    showDistanceInMiles,
+    onClick,
+}: {
+    path: Path
+    showDistanceInMiles: boolean
+    onClick: () => void
+}) {
     return (
         <div className={styles.collapsedFooter} onClick={onClick}>
             <div className={styles.handleBar} />
             <div className={styles.collapsedFooterSummary}>
                 <span className={styles.collapsedFooterTime}>{milliSecondsToText(path.time)}</span>
                 {' - '}
-                <span className={styles.collapsedFooterDistance}>{metersToText(path.distance, showDistanceInMiles)}</span>
+                <span className={styles.collapsedFooterDistance}>
+                    {metersToText(path.distance, showDistanceInMiles)}
+                </span>
             </div>
         </div>
     )

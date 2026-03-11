@@ -44,10 +44,7 @@ export default function ElevationInfoBar({
         .filter(x => x.path !== selectedPath && x.path.points.coordinates.length > 0)
         .map(x => x.num)
 
-    const inclineDetail = useMemo(
-        () => (chartData ? buildInclineDetail(chartData.elevation) : null),
-        [chartData],
-    )
+    const inclineDetail = useMemo(() => (chartData ? buildInclineDetail(chartData.elevation) : null), [chartData])
 
     // Compute effective active detail: dropdown detail takes priority, then incline toggle
     useEffect(() => {

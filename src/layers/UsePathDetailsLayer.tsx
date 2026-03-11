@@ -17,11 +17,7 @@ const activeDetailLayerKey = 'activeDetailLayer'
  * This layer highlights path segments that are above the elevation threshold set by the horizontal line in the
  * path details diagram, and also draws colored route segments when a path detail is active.
  */
-export default function usePathDetailsLayer(
-    map: Map,
-    pathDetails: PathDetailsStoreState,
-    showPaths: boolean = true,
-) {
+export default function usePathDetailsLayer(map: Map, pathDetails: PathDetailsStoreState, showPaths: boolean = true) {
     // Highlighted segments (elevation threshold)
     useEffect(() => {
         removeLayer(map, highlightedPathSegmentLayerKey)
@@ -101,7 +97,7 @@ function addActiveDetailLayer(map: Map, detail: ChartPathDetail) {
         source: new VectorSource({
             features: new GeoJSON().readFeatures(featureCollection),
         }),
-        style: (feature) => {
+        style: feature => {
             const color = feature.get('color') || '#666'
             let style = styleCache[color]
             if (!style) {

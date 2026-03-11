@@ -1,6 +1,11 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { PathDetailsElevationSelected, PathDetailsHover, PathDetailsRangeSelected, SetActiveDetail } from '@/actions/Actions'
+import {
+    PathDetailsElevationSelected,
+    PathDetailsHover,
+    PathDetailsRangeSelected,
+    SetActiveDetail,
+} from '@/actions/Actions'
 import { Bbox } from '@/api/graphhopper'
 import { Coordinate } from '@/utils'
 import { ChartPathDetail } from '@/pathDetails/elevationWidget/types'
