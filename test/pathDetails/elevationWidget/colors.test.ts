@@ -201,7 +201,7 @@ describe('colors', () => {
     })
 
     describe('buildLTSDetail', () => {
-        it('merges consecutive segments with the same LTS level', () => {
+        it('keeps consecutive segments with the same LTS level (no merge)', () => {
             const selectedPath = {
                 points: { coordinates: [[0, 0, 0], [0, 0.001, 0], [0, 0.002, 0], [0, 0.003, 0]] },
                 snapped_waypoints: { coordinates: [[0, 0, 0], [0, 0.003, 0]] },
@@ -216,7 +216,8 @@ describe('colors', () => {
             const data = buildChartData(selectedPath as any, [], k => k, 'bike')
             const lts = data.pathDetails.find(d => d.key === '_lts')
             expect(lts).toBeTruthy()
-            expect(lts!.segments.length).toBe(1)
+            expect(lts!.segments.length).toBe(3)
+            expect(lts!.segments.every(s => s.value === 2)).toBe(true)
         })
 
         it('produces multiple LTS values for changing road class', () => {

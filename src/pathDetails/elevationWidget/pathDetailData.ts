@@ -355,22 +355,10 @@ function buildLTSDetail(
         })
     }
 
-    // Merge consecutive segments with the same LTS level
-    const segments: PathDetailSegment[] = []
-    for (const seg of raw) {
-        const last = segments[segments.length - 1]
-        if (last && last.color === seg.color) {
-            last.toDistance = seg.toDistance
-            last.coordinates.push(...seg.coordinates.slice(1))
-        } else {
-            segments.push({ ...seg, coordinates: [...seg.coordinates] })
-        }
-    }
-
-    const usedLevels = new Set(segments.map(s => s.value as number))
+    const usedLevels = new Set(raw.map(s => s.value as number))
     const legend = LTS_COLORS
         .map((c, i) => ({ label: c.label, color: c.color, title: legendLabels[i] }))
         .filter((_, i) => usedLevels.has(i + 1))
 
-    return { key: '_lts', label, type: 'bars', segments, legend }
+    return { key: '_lts', label, type: 'bars', segments: raw, legend }
 }
