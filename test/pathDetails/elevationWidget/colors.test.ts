@@ -157,10 +157,11 @@ describe('colors', () => {
             expect(classifyBikeLTS('primary', 'no', false)).toBe(4)
         })
 
-        it('rural primary/secondary: always 4 even with missing cycleway', () => {
+        it('rural primary/secondary with lane is LTS 3, without is LTS 4', () => {
+            expect(classifyBikeLTS('primary', 'lane', true)).toBe(3)
+            expect(classifyBikeLTS('secondary', 'lane', true)).toBe(3)
             expect(classifyBikeLTS('primary', 'missing', true)).toBe(4)
             expect(classifyBikeLTS('secondary', 'missing', true)).toBe(4)
-            expect(classifyBikeLTS('secondary', 'lane', true)).toBe(4)
         })
 
         it('steps is LTS 3, service is LTS 2', () => {

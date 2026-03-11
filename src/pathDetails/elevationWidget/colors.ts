@@ -202,7 +202,8 @@ export function classifyBikeLTS(roadClass: string, cycleway: string, isRural: bo
     if (BIKE_LTS3_ROADS.has(roadClass)) return 3
     if (roadClass === 'trunk' || roadClass === 'motorway') return 4
     if (roadClass === 'primary' || roadClass === 'secondary') {
-        if ((cycleway === 'lane' || cycleway === 'missing') && !isRural) return 3
+        if (cycleway === 'lane') return 3
+        if (cycleway === 'missing' && !isRural) return 3
         return 4
     }
     if (roadClass === 'tertiary') {
