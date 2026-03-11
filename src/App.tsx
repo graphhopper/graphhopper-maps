@@ -411,7 +411,7 @@ function SmallScreenLayout({
             </div>
 
             <div className={styles.smallScreenFooter} ref={footerRef}>
-                {hasPath && isFooterCollapsed && isShortScreen ? (
+                {hasPath && isFooterCollapsed ? (
                     <CollapsedFooter
                         path={route.selectedPath}
                         showDistanceInMiles={settings.showDistanceInMiles}
@@ -419,7 +419,7 @@ function SmallScreenLayout({
                     />
                 ) : (
                     <>
-                        {hasPath && isShortScreen && (
+                        {hasPath && (
                             <div className={styles.smallScreenFooterHandle} onClick={() => setIsFooterCollapsed(true)}>
                                 <div className={styles.handleBar} />
                             </div>
