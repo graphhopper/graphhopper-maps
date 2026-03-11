@@ -30,6 +30,7 @@ interface ElevationWidgetProps {
 }
 
 const CHART_HEIGHT = 120
+let persistedSelectedKey: string | null = null
 
 export default function ElevationWidget({
     data,
@@ -47,7 +48,7 @@ export default function ElevationWidget({
     const overlayCanvasRef = useRef<HTMLCanvasElement>(null)
     const rendererRef = useRef<ChartRenderer | null>(null)
     const observerRef = useRef<ResizeObserver | null>(null)
-    const [selectedKey, setSelectedKey] = useState<string | null>(null)
+    const [selectedKey, setSelectedKey] = useState<string | null>(persistedSelectedKey)
     const [alternativeIndex, setAltIndex] = useState(-1) // -1 = hidden, 0..N-1 = show that alternative
 
     // Lazily initialize renderer when canvas refs become available,
@@ -94,8 +95,13 @@ export default function ElevationWidget({
     useEffect(() => {
         const detail = data?.pathDetails.find(d => d.key === selectedKey) || null
         rendererRef.current?.setSelectedDetail(detail)
-        onDetailSelected(detail)
+        if (data) onDetailSelected(detail)
     }, [selectedKey, data])
+
+    // Persist selected key across unmount/remount cycles
+    useEffect(() => {
+        persistedSelectedKey = selectedKey
+    }, [selectedKey])
 
     // Sync alternative index with renderer, and reset when data changes
     useEffect(() => {

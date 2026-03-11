@@ -50,7 +50,6 @@ export default function ElevationInfoBar({
     useEffect(() => {
         const effective = selectedDropdownDetail ?? (inclineOnMap ? inclineDetail : null)
         Dispatcher.dispatch(new SetActiveDetail(effective))
-        return () => Dispatcher.dispatch(new SetActiveDetail(null))
     }, [selectedDropdownDetail, inclineOnMap, inclineDetail])
 
     const hoverRaf = useRef(0)

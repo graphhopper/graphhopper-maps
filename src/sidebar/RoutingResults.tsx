@@ -33,6 +33,8 @@ import { Bbox } from '@/api/graphhopper'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import { Settings } from '@/stores/SettingsStore'
 
+let persistedElevationMounted = false
+
 export interface RoutingResultsProps {
     info: RoutingResultInfo
     paths: Path[]
@@ -75,8 +77,9 @@ function RoutingResult({
     setExpanded: (v: boolean) => void
 }) {
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
-    const [elevationMounted, setElevationMounted] = useState(false)
+    const [elevationMounted, setElevationMounted] = useState(persistedElevationMounted)
     if ((isExpanded || inclineOnMap) && !elevationMounted) setElevationMounted(true)
+    if (elevationMounted && !persistedElevationMounted) persistedElevationMounted = true
     const [showInstructions, setShowInstructions] = useState(false)
     const [selectedRH, setSelectedRH] = useState('')
     const [descriptionRH, setDescriptionRH] = useState('')

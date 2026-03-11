@@ -1,9 +1,12 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import {
+    ClearPoints,
+    ClearRoute,
     PathDetailsElevationSelected,
     PathDetailsHover,
     PathDetailsRangeSelected,
+    RouteRequestSuccess,
     SetActiveDetail,
 } from '@/actions/Actions'
 import { Bbox } from '@/api/graphhopper'
@@ -54,6 +57,17 @@ export default class PathDetailsStore extends Store<PathDetailsStoreState> {
                 //       selected details?! -> need to fix in heightgraph
                 ...state,
                 pathDetailsHighlightedSegments: action.segments,
+            }
+        } else if (action instanceof ClearRoute || action instanceof ClearPoints) {
+            return PathDetailsStore.getInitialState()
+        } else if (action instanceof RouteRequestSuccess) {
+            // Clear stale overlay when a new route arrives; ElevationInfoBar will
+            // restore it from the persisted selected key if still applicable.
+            if (!state.activeDetail) return state
+            return {
+                ...state,
+                activeDetail: null,
+                pathDetailsHighlightedSegments: [],
             }
         } else if (action instanceof SetActiveDetail) {
             // Important: return the same state reference when the detail hasn't changed, otherwise the
