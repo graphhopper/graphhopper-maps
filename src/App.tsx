@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import ElevationInfoBar from '@/pathDetails/ElevationInfoBar'
-import { ChartPathDetail } from '@/pathDetails/elevationWidget/types'
 import styles from './App.module.css'
 import {
     getApiInfoStore,
@@ -128,8 +127,7 @@ export default function App() {
     const inclineOnMap = pathDisplayMode === 'incline'
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints, showPaths)
     useQueryPointsLayer(map, query.queryPoints)
-    const [activeDetail, setActiveDetail] = useState<ChartPathDetail | null>(null)
-    usePathDetailsLayer(map, pathDetails, activeDetail, showPaths)
+    usePathDetailsLayer(map, pathDetails, showPaths)
     usePOIsLayer(map, pois)
     useCurrentLocationLayer(map, currentLocation)
 
@@ -155,7 +153,6 @@ export default function App() {
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
-                        onActiveDetailChanged={setActiveDetail}
                         pathDisplayMode={pathDisplayMode}
                         onCyclePathDisplay={() => setPathDisplayMode(m => m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal')}
                     />
@@ -169,7 +166,6 @@ export default function App() {
                         encodedValues={info.encoded_values}
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
-                        onActiveDetailChanged={setActiveDetail}
                         pathDisplayMode={pathDisplayMode}
                         onCyclePathDisplay={() => setPathDisplayMode(m => m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal')}
                     />
@@ -212,7 +208,6 @@ interface LayoutProps {
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
-    onActiveDetailChanged: (detail: ChartPathDetail | null) => void
     pathDisplayMode: 'normal' | 'incline' | 'hidden'
     onCyclePathDisplay: () => void
 }
@@ -226,7 +221,6 @@ function LargeScreenLayout({
     encodedValues,
     drawAreas,
     currentLocation,
-    onActiveDetailChanged,
     pathDisplayMode,
     onCyclePathDisplay,
 }: LayoutProps) {
@@ -336,7 +330,6 @@ function LargeScreenLayout({
                     isExpanded={elevationState === 'expanded'}
                     onToggleExpanded={() => setElevationState(s => s === 'expanded' ? 'compact' : 'expanded')}
                     onClose={() => setElevationState('closed')}
-                    onActiveDetailChanged={onActiveDetailChanged}
                     inclineOnMap={inclineOnMap}
                 />
             </div>
@@ -353,23 +346,11 @@ function SmallScreenLayout({
     encodedValues,
     drawAreas,
     currentLocation,
-    onActiveDetailChanged,
     pathDisplayMode,
     onCyclePathDisplay,
 }: LayoutProps) {
     const inclineOnMap = pathDisplayMode === 'incline'
     const hasPath = route.selectedPath.points.coordinates.length > 0
-    const elevationWidget = hasPath ? (
-        <ElevationInfoBar
-            selectedPath={route.selectedPath}
-            alternativePaths={route.routingResult.paths}
-            profile={query.routingProfile.name}
-            isExpanded={false}
-            onToggleExpanded={() => {}}
-            onActiveDetailChanged={onActiveDetailChanged}
-            inclineOnMap={inclineOnMap}
-        />
-    ) : undefined
     return (
         <>
             <div className={styles.smallScreenSidebar}>
@@ -408,7 +389,7 @@ function SmallScreenLayout({
                     selectedPath={route.selectedPath}
                     currentRequest={query.currentRequest}
                     profile={query.routingProfile.name}
-                    detailsExtra={elevationWidget}
+                    inclineOnMap={inclineOnMap}
                 />
             </div>
 

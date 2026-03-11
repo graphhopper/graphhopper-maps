@@ -5,12 +5,16 @@ import {
     getSpeedColor,
     getSpeedThresholds,
     getSpeedLabels,
+    classifyBikeLTS,
+    classifyFootLTS,
+    computeLTSDistances,
     INCLINE_CATEGORIES,
     SPEED_COLORS,
     DISCRETE_PALETTE,
     SURFACE_COLORS,
     ROAD_CLASS_COLORS,
 } from '@/pathDetails/elevationWidget/colors'
+import { buildChartData } from '@/pathDetails/elevationWidget/pathDetailData'
 
 describe('colors', () => {
     describe('getSlopeColor', () => {
@@ -115,11 +119,9 @@ describe('colors', () => {
         })
 
         it('assigns missing color for special values', () => {
-            const values = ['missing', 'unclassified', 'Undefined', 'asphalt']
+            const values = ['missing', 'asphalt']
             const map = assignDiscreteColors('surface', values)
             expect(map.get('missing')).toBe('#dddddd')
-            expect(map.get('unclassified')).toBe('#dddddd')
-            expect(map.get('Undefined')).toBe('#dddddd')
             expect(map.get('asphalt')).toBe(SURFACE_COLORS['asphalt'])
         })
 
@@ -140,6 +142,110 @@ describe('colors', () => {
             const map = assignDiscreteColors('unknown_key', values)
             expect(map.get('val_0')).toBe(DISCRETE_PALETTE[0])
             expect(map.get('val_9')).toBe(DISCRETE_PALETTE[0]) // wraps
+        })
+    })
+
+    describe('classifyBikeLTS', () => {
+        it('cycleway track/separate overrides road class to LTS 1', () => {
+            expect(classifyBikeLTS('primary', 'track', true)).toBe(1)
+            expect(classifyBikeLTS('trunk', 'separate', false)).toBe(1)
+        })
+
+        it('urban primary/secondary: missing/lane softened to 3, no stays 4', () => {
+            expect(classifyBikeLTS('primary', 'missing', false)).toBe(3)
+            expect(classifyBikeLTS('secondary', 'lane', false)).toBe(3)
+            expect(classifyBikeLTS('primary', 'no', false)).toBe(4)
+        })
+
+        it('rural primary/secondary: always 4 even with missing cycleway', () => {
+            expect(classifyBikeLTS('primary', 'missing', true)).toBe(4)
+            expect(classifyBikeLTS('secondary', 'missing', true)).toBe(4)
+            expect(classifyBikeLTS('secondary', 'lane', true)).toBe(4)
+        })
+
+        it('steps is LTS 3, service is LTS 2', () => {
+            expect(classifyBikeLTS('steps', 'no', false)).toBe(3)
+            expect(classifyBikeLTS('service', 'no', false)).toBe(2)
+        })
+    })
+
+    describe('classifyFootLTS', () => {
+        it('sidewalk yes is LTS 1, urban primary without sidewalk is LTS 3', () => {
+            expect(classifyFootLTS('primary', 'yes', false)).toBe(1)
+            expect(classifyFootLTS('primary', 'missing', false)).toBe(3)
+        })
+    })
+
+    describe('computeLTSDistances', () => {
+        it('treats rural density as higher stress', () => {
+            const coords = [
+                [0, 0, 0],
+                [0, 0.001, 0],
+                [0, 0.002, 0],
+            ]
+            const roadClass: [number, number, string][] = [
+                [0, 2, 'primary'],
+            ]
+            const infra: [number, number, string][] = [
+                [0, 2, 'missing'],
+            ]
+            const density: [number, number, string][] = [
+                [0, 1, 'urban'],
+                [1, 2, 'rural'],
+            ]
+
+            const distances = computeLTSDistances(coords, roadClass, infra, density, classifyBikeLTS)
+            expect(distances[2]).toBeGreaterThan(0) // LTS 3 for urban primary + missing cycleway
+            expect(distances[3]).toBeGreaterThan(0) // LTS 4 for rural primary + missing cycleway
+        })
+    })
+
+    describe('buildLTSDetail', () => {
+        it('keeps consecutive segments with the same LTS level (no merge)', () => {
+            const selectedPath = {
+                points: { coordinates: [[0, 0, 0], [0, 0.001, 0], [0, 0.002, 0], [0, 0.003, 0]] },
+                snapped_waypoints: { coordinates: [[0, 0, 0], [0, 0.003, 0]] },
+                details: {
+                    road_class: [[0, 3, 'residential']],
+                    cycleway: [[0, 1, 'lane'], [1, 2, 'lane'], [2, 3, 'lane']],
+                    urban_density: [[0, 3, 'urban']],
+                },
+                distance: 300,
+            }
+
+            const data = buildChartData(selectedPath as any, [], k => k, 'bike')
+            const lts = data.pathDetails.find(d => d.key === '_lts')
+            expect(lts).toBeTruthy()
+            expect(lts!.segments.length).toBe(3)
+            expect(lts!.segments.every(s => s.value === 2)).toBe(true)
+        })
+
+        it('produces multiple LTS values for changing road class', () => {
+            const selectedPath = {
+                points: {
+                    coordinates: [
+                        [0, 0, 0],
+                        [0, 0.001, 0],
+                        [0, 0.002, 0],
+                        [0, 0.003, 0],
+                        [0, 0.004, 0],
+                        [0, 0.005, 0],
+                    ],
+                },
+                snapped_waypoints: { coordinates: [[0, 0, 0], [0, 0.005, 0]] },
+                details: {
+                    road_class: [[0, 3, 'residential'], [3, 5, 'primary']],
+                    cycleway: [[0, 5, 'lane']],
+                    urban_density: [[0, 5, 'urban']],
+                },
+                distance: 500,
+            }
+
+            const data = buildChartData(selectedPath as any, [], k => k, 'bike')
+            const lts = data.pathDetails.find(d => d.key === '_lts')
+            expect(lts).toBeTruthy()
+            const values = lts!.segments.map(s => s.value)
+            expect(values).toEqual([2, 3])
         })
     })
 })

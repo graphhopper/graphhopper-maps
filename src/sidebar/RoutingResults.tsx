@@ -1,6 +1,7 @@
 import { Instruction, Path, RoutingResultInfo } from '@/api/graphhopper'
 import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
+import statsStyles from './RouteStats.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
@@ -9,6 +10,8 @@ import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
+import RouteStats from '@/sidebar/RouteStats'
+import ElevationInfoBar from '@/pathDetails/ElevationInfoBar'
 import { LineString, Position } from 'geojson'
 import { calcDist, Coordinate, getBBoxFromCoord } from '@/utils'
 import { useMediaQuery } from 'react-responsive'
@@ -36,23 +39,16 @@ export interface RoutingResultsProps {
     selectedPath: Path
     currentRequest: CurrentRequest
     profile: string
-    detailsExtra?: ReactNode
+    inclineOnMap?: boolean
 }
 
 export default function RoutingResults(props: RoutingResultsProps) {
+    const [isExpanded, setExpanded] = useState(false)
     // for landscape orientation there is no need that there is space for the map under the 3 alternatives and so the max-height is smaller for short screen
     const isShortScreen = useMediaQuery({
         query: '(max-height: 45rem) and (orientation: landscape), (max-height: 70rem) and (orientation: portrait)',
     })
-    return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
-}
-
-interface RoutingResultProps {
-    info: RoutingResultInfo
-    path: Path
-    isSelected: boolean
-    profile: string
-    detailsExtra?: ReactNode
+    return <ul>{isShortScreen ? createSingletonListContent(props, isExpanded, setExpanded) : createListContent(props, isExpanded, setExpanded)}</ul>
 }
 
 function RoutingResult({
@@ -60,16 +56,31 @@ function RoutingResult({
     path,
     isSelected,
     profile,
-    detailsExtra,
-}: RoutingResultProps) {
-    const [isExpanded, setExpanded] = useState(false)
+    inclineOnMap,
+    isExpanded,
+    setExpanded,
+}: {
+    info: RoutingResultInfo
+    path: Path
+    isSelected: boolean
+    profile: string
+    inclineOnMap: boolean
+    isExpanded: boolean
+    setExpanded: (v: boolean) => void
+}) {
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+    const [elevationMounted, setElevationMounted] = useState(false)
+    if ((isExpanded || inclineOnMap) && !elevationMounted) setElevationMounted(true)
+    const [showInstructions, setShowInstructions] = useState(false)
     const [selectedRH, setSelectedRH] = useState('')
     const [descriptionRH, setDescriptionRH] = useState('')
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
 
-    useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
+    useEffect(() => {
+        if (!isSelected) setShowInstructions(false)
+    }, [isSelected])
     const settings = useContext(SettingsContext)
     const showDistanceInMiles = settings.showDistanceInMiles
 
@@ -162,10 +173,10 @@ function RoutingResult({
                         {isSelected && !ApiImpl.isMotorVehicle(profile) && (
                             <div className={styles.elevationHint}>
                                 <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
-                                    ↗{metersToShortText(path.ascend, showDistanceInMiles)}{' '}
+                                    {'\u2197\uFE0E'}{metersToShortText(path.ascend, showDistanceInMiles)}{' '}
                                 </span>
                                 <span title={tr('total_descend', [Math.round(path.descend) + 'm'])}>
-                                    ↘{metersToShortText(path.descend, showDistanceInMiles)}
+                                    {'\u2198\uFE0E'}{metersToShortText(path.descend, showDistanceInMiles)}
                                 </span>
                             </div>
                         )}
@@ -192,7 +203,7 @@ function RoutingResult({
                     )}
                 </div>
             </div>
-            {isSelected && !isExpanded && showHints && (
+            {isSelected && showHints && (
                 <div className={styles.routeHints}>
                     <div className={styles.icons}>
                         <RHButton
@@ -422,12 +433,36 @@ function RoutingResult({
                     {descriptionRH && <div>{descriptionRH}</div>}
                 </div>
             )}
-            {detailsExtra && <div style={{ display: isExpanded ? undefined : 'none' }}>{detailsExtra}</div>}
-            {isExpanded && <Instructions instructions={path.instructions} us={showDistanceInMiles} />}
-            {isExpanded && (
-                <div className={styles.routingResultRoadData}>
-                    {tr('road_data_from')}: {info.road_data_timestamp}
+            {isSmallScreen && elevationMounted && (
+                <div style={{ display: isExpanded ? undefined : 'none' }}>
+                    <hr className={styles.elevationSeparator} />
+                    <ElevationInfoBar
+                        selectedPath={path}
+                        alternativePaths={[]}
+                        profile={profile}
+                        isExpanded={false}
+                        onToggleExpanded={() => {}}
+                        inclineOnMap={inclineOnMap}
+                    />
                 </div>
+            )}
+            {isExpanded && (
+                <RouteStats path={path} profile={profile} />
+            )}
+            {isExpanded && (
+                <div className={styles.instructionsToggle} onClick={() => setShowInstructions(!showInstructions)}>
+                    <span className={statsStyles.label}>{tr('route_stats_turn_instructions')}: </span>
+                    {path.instructions.length}
+                    <span className={statsStyles.statArrow}>{showInstructions ? '▴' : '▾'}</span>
+                </div>
+            )}
+            {isExpanded && showInstructions && (
+                <>
+                    <Instructions instructions={path.instructions} us={showDistanceInMiles} />
+                    <div className={styles.routingResultRoadData}>
+                        {tr('road_data_from')}: {info.road_data_timestamp}
+                    </div>
+                </>
             )}
         </div>
     )
@@ -678,31 +713,37 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
     return paths.length
 }
 
-function createSingletonListContent(props: RoutingResultsProps) {
+function createSingletonListContent(props: RoutingResultsProps, isExpanded: boolean, setExpanded: (v: boolean) => void) {
     if (props.paths.length > 0)
-        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} info={props.info} detailsExtra={props.detailsExtra} />
+        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} info={props.info} inclineOnMap={props.inclineOnMap ?? false} isExpanded={isExpanded} setExpanded={setExpanded} />
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlaceholder key={1} />
     return ''
 }
 
-function createListContent({ info, paths, currentRequest, selectedPath, profile, detailsExtra }: RoutingResultsProps) {
+function pathKey(path: Path): string {
+    return `${path.distance.toFixed(1)}_${path.time}_${path.ascend.toFixed(0)}_${path.descend.toFixed(0)}`
+}
+
+function createListContent({ info, paths, currentRequest, selectedPath, profile, inclineOnMap }: RoutingResultsProps, isExpanded: boolean, setExpanded: (v: boolean) => void) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
         if (i < paths.length) {
-            const isSel = paths[i] === selectedPath
+            const selected = paths[i] === selectedPath
             result.push(
                 <RoutingResult
-                    key={i}
+                    key={pathKey(paths[i])}
                     path={paths[i]}
-                    isSelected={isSel}
+                    isSelected={selected}
                     profile={profile}
                     info={info}
-                    detailsExtra={isSel ? detailsExtra : undefined}
+                    inclineOnMap={inclineOnMap ?? false}
+                    isExpanded={selected && isExpanded}
+                    setExpanded={setExpanded}
                 />,
             )
-        } else result.push(<RoutingResultPlaceholder key={i} />)
+        } else result.push(<RoutingResultPlaceholder key={`placeholder-${i}`} />)
     }
 
     return result

@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { Path } from '@/api/graphhopper'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import Dispatcher from '@/stores/Dispatcher'
-import { PathDetailsHover } from '@/actions/Actions'
+import { PathDetailsHover, SetActiveDetail } from '@/actions/Actions'
 import { buildChartData, buildInclineDetail } from './elevationWidget/pathDetailData'
 import { ChartHoverResult, ChartPathDetail } from './elevationWidget/types'
 import ElevationWidget from './elevationWidget/ElevationWidget'
@@ -15,7 +15,6 @@ interface ElevationInfoBarProps {
     isExpanded: boolean
     onToggleExpanded: () => void
     onClose?: () => void
-    onActiveDetailChanged: (detail: ChartPathDetail | null) => void
     inclineOnMap: boolean
 }
 
@@ -26,7 +25,6 @@ export default function ElevationInfoBar({
     isExpanded,
     onToggleExpanded,
     onClose,
-    onActiveDetailChanged,
     inclineOnMap,
 }: ElevationInfoBarProps) {
     const settings = useContext(SettingsContext)
@@ -54,8 +52,9 @@ export default function ElevationInfoBar({
     // Compute effective active detail: dropdown detail takes priority, then incline toggle
     useEffect(() => {
         const effective = selectedDropdownDetail ?? (inclineOnMap ? inclineDetail : null)
-        onActiveDetailChanged(effective)
-    }, [selectedDropdownDetail, inclineOnMap, inclineDetail, onActiveDetailChanged])
+        Dispatcher.dispatch(new SetActiveDetail(effective))
+        return () => Dispatcher.dispatch(new SetActiveDetail(null))
+    }, [selectedDropdownDetail, inclineOnMap, inclineDetail])
 
     const hoverRaf = useRef(0)
     const handleHover = useCallback((result: ChartHoverResult | null) => {

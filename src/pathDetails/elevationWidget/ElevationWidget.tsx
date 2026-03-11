@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './ElevationWidget.module.css'
 import ChartRenderer from './ChartRenderer'
 import { ChartData, ChartHoverResult, ChartPathDetail, LegendEntry } from './types'
-import { INCLINE_CATEGORIES, getSlopeColor } from './colors'
+import { INCLINE_CATEGORIES, computeInclineCategoryDistances } from './colors'
 import { ElevationPoint } from './types'
 import DetailSelector from './DetailSelector'
 import Legend from './Legend'
@@ -10,12 +10,11 @@ import Legend from './Legend'
 // Slope colors are also computed in ChartRenderer.drawElevationArea. Duplicate calculation here to keep the
 // legend independent of the renderer's draw cycle.
 function getUsedInclineCategories(elevation: ElevationPoint[]): Set<string> {
+    const coords = elevation.map(p => [p.lng, p.lat, p.elevation])
+    const distances = computeInclineCategoryDistances(coords)
     const used = new Set<string>()
-    for (let i = 0; i < elevation.length - 1; i++) {
-        const dist = elevation[i + 1].distance - elevation[i].distance
-        const slope = dist > 0 ? (100 * (elevation[i + 1].elevation - elevation[i].elevation)) / dist : 0
-        used.add(getSlopeColor(slope))
-    }
+    for (let i = 0; i < distances.length; i++)
+        if (distances[i] > 0) used.add(INCLINE_CATEGORIES[i].color)
     return used
 }
 
@@ -181,7 +180,7 @@ export default function ElevationWidget({
                     elevationLabel={elevationLabel}
                 />
                 {selectedDetail
-                    ? <Legend entries={selectedDetail.legend} maxVisible={onClose && !isExpanded ? 3 : undefined} />
+                    ? <Legend entries={selectedDetail.legend} maxVisible={onClose && !isExpanded ? 3 : undefined} showTitle={isExpanded} />
                     : hasData && <Legend entries={inclineLegend} maxVisible={onClose && !isExpanded ? 3 : undefined} />
                 }
                 <div className={styles.buttons}>
