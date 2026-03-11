@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import ElevationInfoBar from '@/pathDetails/ElevationInfoBar'
 import styles from './App.module.css'
 import {
@@ -20,6 +20,8 @@ import MobileSidebar from '@/sidebar/MobileSidebar'
 import { useMediaQuery } from 'react-responsive'
 import RoutingResults from '@/sidebar/RoutingResults'
 import PoweredBy from '@/sidebar/PoweredBy'
+import { milliSecondsToText, metersToText } from '@/Converters'
+import { Path } from '@/api/graphhopper'
 import { QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
@@ -351,6 +353,32 @@ function SmallScreenLayout({
 }: LayoutProps) {
     const inclineOnMap = pathDisplayMode === 'incline'
     const hasPath = route.selectedPath.points.coordinates.length > 0
+    const settings = useContext(SettingsContext)
+
+    const isShortScreen = useMediaQuery({ query: '(max-height: 40rem)' })
+    const [isFooterCollapsed, setIsFooterCollapsed] = useState(false)
+    const footerRef = useRef<HTMLDivElement>(null)
+
+    // Auto-expand when new route arrives
+    useEffect(() => {
+        if (hasPath) setIsFooterCollapsed(false)
+    }, [route.routingResult.paths])
+
+    // Auto-collapse on map interaction (only on short screens)
+    useEffect(() => {
+        if (!isShortScreen) return
+        const handleClick = (e: Event) => {
+            if (!(e.target instanceof Node && footerRef.current?.contains(e.target)) && hasPath)
+                setIsFooterCollapsed(true)
+        }
+        window.addEventListener('mousedown', handleClick)
+        window.addEventListener('touchstart', handleClick)
+        return () => {
+            window.removeEventListener('mousedown', handleClick)
+            window.removeEventListener('touchstart', handleClick)
+        }
+    })
+
     return (
         <>
             <div className={styles.smallScreenSidebar}>
@@ -382,20 +410,45 @@ function SmallScreenLayout({
                 </div>
             </div>
 
-            <div className={styles.smallScreenRoutingResult}>
-                <RoutingResults
-                    info={route.routingResult.info}
-                    paths={route.routingResult.paths}
-                    selectedPath={route.selectedPath}
-                    currentRequest={query.currentRequest}
-                    profile={query.routingProfile.name}
-                    inclineOnMap={inclineOnMap}
-                />
-            </div>
-
-            <div className={styles.smallScreenPoweredBy}>
-                <PoweredBy />
+            <div className={styles.smallScreenFooter} ref={footerRef}>
+                {hasPath && isFooterCollapsed ? (
+                    <CollapsedFooter
+                        path={route.selectedPath}
+                        showDistanceInMiles={settings.showDistanceInMiles}
+                        onClick={() => setIsFooterCollapsed(false)}
+                    />
+                ) : (
+                    <>
+                        {hasPath && (
+                            <div className={styles.smallScreenFooterHandle} onClick={() => setIsFooterCollapsed(true)}>
+                                <div className={styles.handleBar} />
+                            </div>
+                        )}
+                        <RoutingResults
+                            info={route.routingResult.info}
+                            paths={route.routingResult.paths}
+                            selectedPath={route.selectedPath}
+                            currentRequest={query.currentRequest}
+                            profile={query.routingProfile.name}
+                            inclineOnMap={inclineOnMap}
+                        />
+                        <PoweredBy />
+                    </>
+                )}
             </div>
         </>
+    )
+}
+
+function CollapsedFooter({ path, showDistanceInMiles, onClick }: { path: Path; showDistanceInMiles: boolean; onClick: () => void }) {
+    return (
+        <div className={styles.collapsedFooter} onClick={onClick}>
+            <div className={styles.handleBar} />
+            <div className={styles.collapsedFooterSummary}>
+                <span className={styles.collapsedFooterTime}>{milliSecondsToText(path.time)}</span>
+                {' - '}
+                <span className={styles.collapsedFooterDistance}>{metersToText(path.distance, showDistanceInMiles)}</span>
+            </div>
+        </div>
     )
 }
