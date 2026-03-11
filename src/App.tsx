@@ -426,30 +426,29 @@ function SmallScreenLayout({
             </div>
 
             <div className={styles.smallScreenFooter} ref={footerRef}>
-                {hasPath && isFooterCollapsed ? (
+                {hasPath && isFooterCollapsed && (
                     <CollapsedFooter
                         path={route.selectedPath}
                         showDistanceInMiles={settings.showDistanceInMiles}
                         onClick={() => setIsFooterCollapsed(false)}
                     />
-                ) : (
-                    <>
-                        {hasPath && (
-                            <div className={styles.smallScreenFooterHandle} onClick={() => setIsFooterCollapsed(true)}>
-                                <div className={styles.handleBar} />
-                            </div>
-                        )}
-                        <RoutingResults
-                            info={route.routingResult.info}
-                            paths={route.routingResult.paths}
-                            selectedPath={route.selectedPath}
-                            currentRequest={query.currentRequest}
-                            profile={query.routingProfile.name}
-                            inclineOnMap={inclineOnMap}
-                        />
-                        <PoweredBy />
-                    </>
                 )}
+                <div style={{ display: hasPath && isFooterCollapsed ? 'none' : undefined }}>
+                    {hasPath && (
+                        <div className={styles.smallScreenFooterHandle} onClick={() => setIsFooterCollapsed(true)}>
+                            <div className={styles.handleBar} />
+                        </div>
+                    )}
+                    <RoutingResults
+                        info={route.routingResult.info}
+                        paths={route.routingResult.paths}
+                        selectedPath={route.selectedPath}
+                        currentRequest={query.currentRequest}
+                        profile={query.routingProfile.name}
+                        inclineOnMap={inclineOnMap}
+                    />
+                    <PoweredBy />
+                </div>
             </div>
         </>
     )
