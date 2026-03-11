@@ -376,7 +376,6 @@ function SmallScreenLayout({
     const hasPath = route.selectedPath.points.coordinates.length > 0
     const settings = useContext(SettingsContext)
 
-    const isShortScreen = useMediaQuery({ query: '(max-height: 40rem)' })
     const [isFooterCollapsed, setIsFooterCollapsed] = useState(false)
     const footerRef = useRef<HTMLDivElement>(null)
 
@@ -385,20 +384,6 @@ function SmallScreenLayout({
         if (hasPath) setIsFooterCollapsed(false)
     }, [route.routingResult.paths])
 
-    // Auto-collapse on map interaction (only on short screens)
-    useEffect(() => {
-        if (!isShortScreen) return
-        const handleClick = (e: Event) => {
-            if (!(e.target instanceof Node && footerRef.current?.contains(e.target)) && hasPath)
-                setIsFooterCollapsed(true)
-        }
-        window.addEventListener('mousedown', handleClick)
-        window.addEventListener('touchstart', handleClick)
-        return () => {
-            window.removeEventListener('mousedown', handleClick)
-            window.removeEventListener('touchstart', handleClick)
-        }
-    })
 
     return (
         <>
