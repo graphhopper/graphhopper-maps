@@ -62,6 +62,7 @@ export default function RoutingResults(props: RoutingResultsProps) {
 function RoutingResult({
     info,
     path,
+    allPaths,
     isSelected,
     profile,
     inclineOnMap,
@@ -70,6 +71,7 @@ function RoutingResult({
 }: {
     info: RoutingResultInfo
     path: Path
+    allPaths: Path[]
     isSelected: boolean
     profile: string
     inclineOnMap: boolean
@@ -454,7 +456,7 @@ function RoutingResult({
                     <hr className={styles.elevationSeparator} />
                     <ElevationInfoBar
                         selectedPath={path}
-                        alternativePaths={[]}
+                        alternativePaths={allPaths}
                         profile={profile}
                         isExpanded={false}
                         onToggleExpanded={() => {}}
@@ -736,6 +738,7 @@ function createSingletonListContent(
         return (
             <RoutingResult
                 path={props.selectedPath}
+                allPaths={props.paths}
                 isSelected={true}
                 profile={props.profile}
                 info={props.info}
@@ -767,6 +770,7 @@ function createListContent(
                 <RoutingResult
                     key={pathKey(paths[i])}
                     path={paths[i]}
+                    allPaths={paths}
                     isSelected={selected}
                     profile={profile}
                     info={info}
