@@ -9,11 +9,24 @@ export default function useBackgroundLayer(map: Map, styleOption: StyleOption) {
     useEffect(() => {
         removeCurrentBackgroundLayers(map)
         addNewBackgroundLayers(map, styleOption)
-        setupMouseInteraction(map)
         return () => {
             removeCurrentBackgroundLayers(map)
         }
     }, [map, styleOption])
+
+    // Pointer cursor over interactive features — registered once, independent of style changes
+    useEffect(() => {
+        const onPointerMove = (evt: any) => {
+            if (evt.dragging) return // skip expensive hit-test while panning
+            const features = map.getFeaturesAtPixel(evt.pixel)
+            const atFeature = features.some(f => f instanceof Feature)
+            map.getTargetElement().style.cursor = atFeature ? 'pointer' : 'default'
+        }
+        map.on('pointermove', onPointerMove)
+        return () => {
+            map.un('pointermove', onPointerMove)
+        }
+    }, [map])
 }
 
 function removeCurrentBackgroundLayers(map: Map) {
@@ -44,13 +57,4 @@ function addNewBackgroundLayers(map: Map, styleOption: StyleOption) {
         tileLayer.set('background-raster-layer', true)
         map.addLayer(tileLayer)
     }
-}
-
-function setupMouseInteraction(map: Map) {
-    map.on('pointermove', function (evt) {
-        const features = map.getFeaturesAtPixel(evt.pixel)
-        // features can also contain 'RenderFeatures' for vector tiles, but in this case the cursor should not change
-        const atFeature = features.some(f => f instanceof Feature)
-        map.getTargetElement().style.cursor = atFeature ? 'pointer' : 'default'
-    })
 }
