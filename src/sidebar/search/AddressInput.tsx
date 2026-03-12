@@ -144,8 +144,13 @@ export default function AddressInput(props: AddressInputProps) {
                             props.onAddressSelected(item.toText(), item.point)
                         }
                     }
-                    // do not disturb 'tab' cycle
-                    if (event.key == 'Enter') searchInput.current!.blur()
+                    // Enter: focus next address input, or blur if last
+                    if (event.key === 'Enter') {
+                        const next = document.querySelector<HTMLElement>('[data-search-box]')!
+                            .querySelectorAll<HTMLInputElement>('input[type="text"]')[props.index + 1]
+                        if (next) next.focus()
+                        else searchInput.current!.blur()
+                    }
                     break
             }
         },

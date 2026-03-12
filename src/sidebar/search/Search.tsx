@@ -33,7 +33,7 @@ export default function Search({ points, profile, map }: { points: QueryPoint[];
 
     return (
         <div className={styles.searchBoxParent}>
-            <div className={styles.searchBox}>
+            <div className={styles.searchBox} data-search-box>
                 {points.map((point, index) => (
                     <SearchBox
                         key={point.id}
