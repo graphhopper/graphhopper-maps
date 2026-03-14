@@ -125,6 +125,29 @@ export default function App() {
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
     type PathDisplayMode = 'normal' | 'incline' | 'hidden'
     const [pathDisplayMode, setPathDisplayMode] = useState<PathDisplayMode>('normal')
+    const pathDisplayModeBeforeHide = useRef<PathDisplayMode>('normal')
+    useEffect(() => {
+        const viewport = map.getViewport()
+        if (!viewport) return
+        viewport.tabIndex = -1
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'h' && !e.repeat) {
+                setPathDisplayMode(m => {
+                    pathDisplayModeBeforeHide.current = m
+                    return 'hidden'
+                })
+            }
+        }
+        const onKeyUp = (e: KeyboardEvent) => {
+            if (e.key === 'h') setPathDisplayMode(pathDisplayModeBeforeHide.current)
+        }
+        viewport.addEventListener('keydown', onKeyDown)
+        viewport.addEventListener('keyup', onKeyUp)
+        return () => {
+            viewport.removeEventListener('keydown', onKeyDown)
+            viewport.removeEventListener('keyup', onKeyUp)
+        }
+    }, [map])
     const showPaths = pathDisplayMode !== 'hidden'
     const inclineOnMap = pathDisplayMode === 'incline'
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints, showPaths)
