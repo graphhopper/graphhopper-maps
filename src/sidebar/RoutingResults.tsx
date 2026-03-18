@@ -683,8 +683,10 @@ function downloadGPX(path: Path, settings: Settings) {
             trackPoint += '</trkpt>\n'
             return prevString + trackPoint
         }, '')
-        xmlString += '</trkseg></trk>\n</gpx>'
+        xmlString += '</trkseg></trk>\n'
     }
+
+    xmlString += '</gpx>'
 
     const tmpElement = document.createElement('a')
     const file = new Blob([xmlString], { type: 'application/gpx+xml' })
