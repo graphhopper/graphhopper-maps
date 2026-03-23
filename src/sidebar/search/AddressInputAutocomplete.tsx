@@ -63,7 +63,7 @@ export default function Autocomplete({ items, highlightedItem, onSelect, onClear
                     recentHeaderShown = true
                     header = (
                         <div className={styles.recentHeader}>
-                            <span title="Recent">
+                            <span title="Recent locations">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 -960 960 960">
                                     <path
                                         fill="currentColor"

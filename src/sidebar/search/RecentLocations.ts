@@ -32,7 +32,7 @@ export function getRecentLocations(minCount: number = 0): RecentLocation[] {
             )
             .map((e: any) => ({ ...e, count: typeof e.count === 'number' ? e.count : 1 }))
             .filter((e: RecentLocation) => e.count > minCount)
-            .sort((a: RecentLocation, b: RecentLocation) => b.timestamp - a.timestamp)
+            .sort((a: RecentLocation, b: RecentLocation) => b.count - a.count || b.timestamp - a.timestamp)
     } catch {
         return []
     }
