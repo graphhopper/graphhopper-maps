@@ -75,21 +75,13 @@ export default function AddressInput(props: AddressInputProps) {
 
     // if item is selected we need to clear the autocompletion list
     useEffect(() => {
-        if (pendingItemsRef.current) {
-            setAutocompleteItems(pendingItemsRef.current)
-            pendingItemsRef.current = null
-        } else {
-            setAutocompleteItems([])
-        }
+        if (props.point.isInitialized) setAutocompleteItems([])
     }, [props.point])
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
     const [highlightedResult, setHighlightedResult] = useState<number>(-1)
     useEffect(() => setHighlightedResult(-1), [autocompleteItems])
-
-    // items to restore after the props.point-change effect clears autocomplete
-    const pendingItemsRef = useRef<AutocompleteItem[] | null>(null)
 
     // for positioning of the autocomplete we need:
     const searchInputContainer = useRef<HTMLInputElement>(null)
@@ -220,14 +212,12 @@ export default function AddressInput(props: AddressInputProps) {
                         if (query === '') {
                             geocoder.cancel()
                             const recents = buildRecentItems(undefined, 5)
-                            pendingItemsRef.current = recents.length > 0 ? recents : null
                             if (recents.length > 0) setAutocompleteItems(recents)
                             else setAutocompleteItems([])
                         } else {
                             const coordinate = textToCoordinate(query)
                             if (!coordinate) {
                                 const recents = buildRecentItems(query)
-                                pendingItemsRef.current = recents.length > 0 ? recents : null
                                 if (recents.length > 0) setAutocompleteItems(recents)
                                 geocoder.request(query, biasCoord, getMap().getView().getZoom())
                             }
