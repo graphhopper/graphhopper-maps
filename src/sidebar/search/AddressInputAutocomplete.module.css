@@ -61,3 +61,26 @@
     font-size: small;
     color: #5b616a;
 }
+
+.recentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: small;
+    font-weight: bold;
+    color: #5b616a;
+    padding: 0.3rem 0.5rem 0;
+}
+
+.clearRecentsButton {
+    border: none;
+    background: none;
+    color: #5b616a;
+    font-size: small;
+    cursor: pointer;
+    padding: 0;
+}
+
+.clearRecentsButton:hover {
+    color: #333;
+}

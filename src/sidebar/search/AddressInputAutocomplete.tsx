@@ -22,6 +22,24 @@ export class GeocodingItem implements AutocompleteItem {
     }
 }
 
+export class RecentLocationItem implements AutocompleteItem {
+    mainText: string
+    secondText: string
+    point: { lat: number; lng: number }
+    bbox: Bbox
+
+    constructor(mainText: string, secondText: string, point: { lat: number; lng: number }, bbox: Bbox) {
+        this.mainText = mainText
+        this.secondText = secondText
+        this.point = point
+        this.bbox = bbox
+    }
+
+    toText() {
+        return this.mainText + ', ' + this.secondText
+    }
+}
+
 export class POIQueryItem implements AutocompleteItem {
     result: AddressParseResult
 
@@ -34,16 +52,39 @@ export interface AutocompleteProps {
     items: AutocompleteItem[]
     highlightedItem: AutocompleteItem
     onSelect: (hit: AutocompleteItem) => void
+    onClearRecents?: () => void
 }
 
-export default function Autocomplete({ items, highlightedItem, onSelect }: AutocompleteProps) {
+export default function Autocomplete({ items, highlightedItem, onSelect, onClearRecents }: AutocompleteProps) {
+    let recentHeaderShown = false
     return (
         <ul>
-            {items.map((item, i) => (
-                <li key={i} className={styles.autocompleteItem}>
-                    {mapToComponent(item, highlightedItem === item, onSelect)}
-                </li>
-            ))}
+            {items.map((item, i) => {
+                let header = null
+                if (item instanceof RecentLocationItem && !recentHeaderShown) {
+                    recentHeaderShown = true
+                    header = (
+                        <div className={styles.recentHeader}>
+                            <span>Recent</span>
+                            {onClearRecents && (
+                                <button
+                                    className={styles.clearRecentsButton}
+                                    onMouseDown={e => e.preventDefault()}
+                                    onClick={onClearRecents}
+                                >
+                                    Clear
+                                </button>
+                            )}
+                        </div>
+                    )
+                }
+                return (
+                    <li key={i} className={styles.autocompleteItem}>
+                        {header}
+                        {mapToComponent(item, highlightedItem === item, onSelect)}
+                    </li>
+                )
+            })}
         </ul>
     )
 }
@@ -51,6 +92,8 @@ export default function Autocomplete({ items, highlightedItem, onSelect }: Autoc
 function mapToComponent(item: AutocompleteItem, isHighlighted: boolean, onSelect: (hit: AutocompleteItem) => void) {
     if (item instanceof GeocodingItem)
         return <GeocodingEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
+    else if (item instanceof RecentLocationItem)
+        return <RecentLocationEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else if (item instanceof POIQueryItem)
         return <POIQueryEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else throw Error('Unsupported item type: ' + typeof item)
@@ -84,6 +127,25 @@ function GeocodingEntry({
     item: GeocodingItem
     isHighlighted: boolean
     onSelect: (item: GeocodingItem) => void
+}) {
+    return (
+        <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
+            <div className={styles.geocodingEntry} title={item.toText()}>
+                <span className={styles.mainText}>{item.mainText}</span>
+                <span className={styles.secondaryText}>{item.secondText}</span>
+            </div>
+        </AutocompleteEntry>
+    )
+}
+
+function RecentLocationEntry({
+    item,
+    isHighlighted,
+    onSelect,
+}: {
+    item: RecentLocationItem
+    isHighlighted: boolean
+    onSelect: (item: RecentLocationItem) => void
 }) {
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
