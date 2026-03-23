@@ -218,7 +218,7 @@ export default function AddressInput(props: AddressInputProps) {
                             const coordinate = textToCoordinate(query)
                             if (!coordinate) {
                                 if (query.length < 2) {
-                                    const recents = buildRecentItems(query)
+                                    const recents = buildRecentItems(query, 5)
                                     if (recents.length > 0) setAutocompleteItems(recents)
                                 }
                                 geocoder.request(query, biasCoord, getMap().getView().getZoom())
