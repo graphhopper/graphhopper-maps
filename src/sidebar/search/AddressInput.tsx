@@ -217,8 +217,10 @@ export default function AddressInput(props: AddressInputProps) {
                         } else {
                             const coordinate = textToCoordinate(query)
                             if (!coordinate) {
-                                const recents = buildRecentItems(query)
-                                if (recents.length > 0) setAutocompleteItems(recents)
+                                if (query.length < 2) {
+                                    const recents = buildRecentItems(query)
+                                    if (recents.length > 0) setAutocompleteItems(recents)
+                                }
                                 geocoder.request(query, biasCoord, getMap().getView().getZoom())
                             }
                         }
@@ -326,10 +328,7 @@ function buildRecentItems(filter?: string, limit?: number): RecentLocationItem[]
         )
     }
     if (limit) recents = recents.slice(0, limit)
-    return recents.map(
-        e =>
-            new RecentLocationItem(e.mainText, e.secondText, { lat: e.lat, lng: e.lng }, getBBoxFromCoord({ lat: e.lat, lng: e.lng })),
-    )
+    return recents.map(e => new RecentLocationItem(e.mainText, e.secondText, { lat: e.lat, lng: e.lng }))
 }
 
 function handlePoiSearch(poiSearch: ReverseGeocoder, result: AddressParseResult, map: Map) {

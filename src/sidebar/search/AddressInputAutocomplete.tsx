@@ -26,13 +26,11 @@ export class RecentLocationItem implements AutocompleteItem {
     mainText: string
     secondText: string
     point: { lat: number; lng: number }
-    bbox: Bbox
 
-    constructor(mainText: string, secondText: string, point: { lat: number; lng: number }, bbox: Bbox) {
+    constructor(mainText: string, secondText: string, point: { lat: number; lng: number }) {
         this.mainText = mainText
         this.secondText = secondText
         this.point = point
-        this.bbox = bbox
     }
 
     toText() {
@@ -65,14 +63,27 @@ export default function Autocomplete({ items, highlightedItem, onSelect, onClear
                     recentHeaderShown = true
                     header = (
                         <div className={styles.recentHeader}>
-                            <span>Recent</span>
+                            <span title="Recent">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 -960 960 960">
+                                    <path
+                                        fill="currentColor"
+                                        d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q150 0 255 105t105 255q0 150-105 255T480-120Zm0-80q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-117 0-198.5 81.5T200-480q0 117 81.5 198.5T480-200Zm-40-264v-216h80v184l128 128-56 56-152-152Z"
+                                    />
+                                </svg>
+                            </span>
                             {onClearRecents && (
                                 <button
                                     className={styles.clearRecentsButton}
                                     onMouseDown={e => e.preventDefault()}
                                     onClick={onClearRecents}
+                                    title="Clear recent locations"
                                 >
-                                    Clear
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 -960 960 960">
+                                        <path
+                                            fill="currentColor"
+                                            d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
+                                        />
+                                    </svg>
                                 </button>
                             )}
                         </div>
