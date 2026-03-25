@@ -45,7 +45,6 @@ export default function AddressInput(props: AddressInputProps) {
     // container for geocoding results which gets set by the geocoder class and set to empty if the underlying query
     // point gets changed from outside also gets filled with an item to select the current location as input if input
     // has focus and geocoding results are empty
-    const [origAutocompleteItems, setOrigAutocompleteItems] = useState<AutocompleteItem[]>([])
     const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>([])
     const [geocoder] = useState(
         new Geocoder(getApi(), (query, provider, hits) => {
@@ -209,12 +208,10 @@ export default function AddressInput(props: AddressInputProps) {
                     onFocus={() => {
                         setHasFocus(true)
                         props.clearDragDrop()
-                        if (origAutocompleteItems.length > 0) setAutocompleteItems(origAutocompleteItems)
                     }}
                     onBlur={() => {
                         setHasFocus(false)
                         geocoder.cancel()
-                        setOrigAutocompleteItems(autocompleteItems)
                         setAutocompleteItems([])
                     }}
                     value={text}
