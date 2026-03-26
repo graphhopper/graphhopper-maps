@@ -86,7 +86,7 @@
 .clearRecentsButton {
     border: none;
     background: none;
-    color: currentColor;
+    color: #5b616a;
     cursor: pointer;
     padding: 0.3rem;
     min-width: 1.5rem;
