@@ -384,7 +384,6 @@ function SmallScreenLayout({
         if (hasPath) setIsFooterCollapsed(false)
     }, [route.routingResult.paths])
 
-
     return (
         <>
             <div className={styles.smallScreenSidebar}>

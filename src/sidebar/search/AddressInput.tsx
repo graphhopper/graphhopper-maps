@@ -46,7 +46,6 @@ export default function AddressInput(props: AddressInputProps) {
     // container for geocoding results which gets set by the geocoder class and set to empty if the underlying query
     // point gets changed from outside also gets filled with an item to select the current location as input if input
     // has focus and geocoding results are empty
-    const [origAutocompleteItems, setOrigAutocompleteItems] = useState<AutocompleteItem[]>([])
     const [autocompleteItems, setAutocompleteItems] = useState<AutocompleteItem[]>([])
     const [geocoder] = useState(
         new Geocoder(getApi(), (query, provider, hits) => {
@@ -154,7 +153,8 @@ export default function AddressInput(props: AddressInputProps) {
                     }
                     // Enter: focus next address input, or blur if last
                     if (event.key === 'Enter') {
-                        const next = document.querySelector<HTMLElement>('[data-search-box]')!
+                        const next = document
+                            .querySelector<HTMLElement>('[data-search-box]')!
                             .querySelectorAll<HTMLInputElement>('input[type="text"]')[props.index + 1]
                         if (next) next.focus()
                         else searchInput.current!.blur()
@@ -230,8 +230,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onFocus={() => {
                         setHasFocus(true)
                         props.clearDragDrop()
-                        if (origAutocompleteItems.length > 0) setAutocompleteItems(origAutocompleteItems)
-                        else if (text === '') {
+                        if (text === '') {
                             const recents = buildRecentItems(undefined, 5)
                             if (recents.length > 0) setAutocompleteItems(recents)
                         }
@@ -239,7 +238,6 @@ export default function AddressInput(props: AddressInputProps) {
                     onBlur={() => {
                         setHasFocus(false)
                         geocoder.cancel()
-                        setOrigAutocompleteItems(autocompleteItems)
                         setAutocompleteItems([])
                     }}
                     value={text}
