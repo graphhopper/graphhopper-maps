@@ -62,39 +62,38 @@
     color: #5b616a;
 }
 
-.recentEntry {
-    display: flex;
-    align-items: center;
-    text-align: start;
-    margin: 0.4rem 0.5rem;
-}
-
-.recentEntryText {
+.recentLocationEntry {
     display: flex;
     flex-direction: column;
-    flex: 1;
-    min-width: 0;
+    text-align: start;
+    margin: 0.2rem 0.5rem;
 }
 
-.recentIcon {
-    flex-shrink: 0;
-    color: #5b616a;
-    margin-left: 0.5rem;
-}
-
-.recentFooter {
+.recentHeader {
     display: flex;
-    justify-content: flex-end;
-    padding: 0.2rem 0.5rem 0.3rem;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.1rem 0.5rem 0 0.5rem;
+    margin-bottom: -0.3rem;
+    padding-right: 0.1rem;
+}
+
+.recentHeaderText {
+    font-size: small;
+    color: #999;
 }
 
 .clearRecentsButton {
     border: none;
     background: none;
-    color: #5b616a;
-    font-size: small;
+    color: currentColor;
     cursor: pointer;
-    padding: 0;
+    padding: 0.3rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .clearRecentsButton:hover {
