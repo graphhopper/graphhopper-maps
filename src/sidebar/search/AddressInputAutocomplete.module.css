@@ -62,14 +62,30 @@
     color: #5b616a;
 }
 
-.recentHeader {
+.recentEntry {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-size: small;
-    font-weight: bold;
+    text-align: start;
+    margin: 0.4rem 0.5rem;
+}
+
+.recentEntryText {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.recentIcon {
+    flex-shrink: 0;
     color: #5b616a;
-    padding: 0.3rem 0.5rem 0;
+    margin-left: 0.5rem;
+}
+
+.recentFooter {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.2rem 0.5rem 0.3rem;
 }
 
 .clearRecentsButton {
