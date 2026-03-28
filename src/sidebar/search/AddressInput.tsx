@@ -79,6 +79,14 @@ export default function AddressInput(props: AddressInputProps) {
         if (props.point.isInitialized) setAutocompleteItems([])
     }, [props.point])
 
+    useEffect(() => {
+        if (hasFocus && !isInitialFocus.current && text === '') {
+            const recents = buildRecentItems(undefined, 5, excludeCoord)
+            if (recents.length > 0) setAutocompleteItems(recents)
+        }
+        isInitialFocus.current = false
+    }, [hasFocus, excludeCoord])
+
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
     const [highlightedResult, setHighlightedResult] = useState<number>(-1)
@@ -234,12 +242,6 @@ export default function AddressInput(props: AddressInputProps) {
                     onFocus={() => {
                         setHasFocus(true)
                         props.clearDragDrop()
-                        if (isInitialFocus.current) {
-                            isInitialFocus.current = false
-                        } else if (text === '') {
-                            const recents = buildRecentItems(undefined, 5, excludeCoord)
-                            if (recents.length > 0) setAutocompleteItems(recents)
-                        }
                     }}
                     onBlur={() => {
                         setHasFocus(false)
