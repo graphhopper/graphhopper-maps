@@ -125,7 +125,13 @@ function RecentLocationEntry({
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
             <div className={styles.recentEntry} title={item.toText()}>
-                <svg className={styles.recentIcon} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 -960 960 960">
+                <svg
+                    className={styles.recentIcon}
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 -960 960 960"
+                >
                     <path
                         fill="currentColor"
                         d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q150 0 255 105t105 255q0 150-105 255T480-120Zm0-80q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-117 0-198.5 81.5T200-480q0 117 81.5 198.5T480-200Zm-40-264v-216h80v184l128 128-56 56-152-152Z"

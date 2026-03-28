@@ -1,7 +1,6 @@
 import { calcDist, Coordinate } from '@/utils'
 import { tr } from '@/translation/Translation'
 import { textToCoordinate } from '@/Converters'
-import { getSettingsStore } from '@/stores/Stores'
 
 const STORAGE_KEY = 'recentLocations'
 export const MAX_ENTRIES = 15
@@ -47,8 +46,12 @@ export function clearRecentLocations(): void {
     }
 }
 
-export function saveRecentLocation(mainText: string, secondText: string, coordinate: Coordinate, now: number = Date.now()): void {
-    if (!getSettingsStore().state.saveRecentLocations) return
+export function saveRecentLocation(
+    mainText: string,
+    secondText: string,
+    coordinate: Coordinate,
+    now: number = Date.now(),
+): void {
     if (mainText === tr('current_location')) return
     if (textToCoordinate(mainText)) return
 

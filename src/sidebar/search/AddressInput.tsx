@@ -1,8 +1,14 @@
-import { JSX, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { JSX, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Bbox, GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
-import Autocomplete, { AutocompleteItem, GeocodingItem, POIQueryItem, RecentLocationItem } from '@/sidebar/search/AddressInputAutocomplete'
+import Autocomplete, {
+    AutocompleteItem,
+    GeocodingItem,
+    POIQueryItem,
+    RecentLocationItem,
+} from '@/sidebar/search/AddressInputAutocomplete'
 import { getRecentLocations, saveRecentLocation } from '@/sidebar/search/RecentLocations'
+import { SettingsContext } from '@/contexts/SettingsContext'
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import CurrentLocationIcon from './current-location.svg'
@@ -34,6 +40,7 @@ export interface AddressInputProps {
 }
 
 export default function AddressInput(props: AddressInputProps) {
+    const saveRecent = useContext(SettingsContext).saveRecentLocations
     const [origText, setOrigText] = useState(props.point.queryText)
     // controlled component pattern with initial value set from props
     const [text, setText] = useState(props.point.queryText)
@@ -118,7 +125,8 @@ export default function AddressInput(props: AddressInputProps) {
                                 setText(origText)
                             } else if (nextIndex >= 0) {
                                 const item = autocompleteItems[nextIndex]
-                                if (item instanceof GeocodingItem || item instanceof RecentLocationItem) setText(item.mainText)
+                                if (item instanceof GeocodingItem || item instanceof RecentLocationItem)
+                                    setText(item.mainText)
                                 else setText(origText)
                             }
                         }
@@ -150,15 +158,15 @@ export default function AddressInput(props: AddressInputProps) {
                                         const hit: GeocodingHit = result.hits[0]
                                         const res = nominatimHitToItem(hit)
                                         props.onAddressSelected(res.mainText + ', ' + res.secondText, hit.point)
-                                        saveRecentLocation(res.mainText, res.secondText, hit.point)
+                                        if (saveRecent) saveRecentLocation(res.mainText, res.secondText, hit.point)
                                     } else if (item instanceof GeocodingItem) {
                                         props.onAddressSelected(item.toText(), item.point)
-                                        saveRecentLocation(item.mainText, item.secondText, item.point)
+                                        if (saveRecent) saveRecentLocation(item.mainText, item.secondText, item.point)
                                     }
                                 })
                         } else if (item instanceof GeocodingItem) {
                             props.onAddressSelected(item.toText(), item.point)
-                            saveRecentLocation(item.mainText, item.secondText, item.point)
+                            if (saveRecent) saveRecentLocation(item.mainText, item.secondText, item.point)
                         }
                     }
                     if (event.key === 'Enter') focusNextOrBlur()
@@ -303,7 +311,7 @@ export default function AddressInput(props: AddressInputProps) {
                                 if (item instanceof GeocodingItem) {
                                     setText(item.toText())
                                     props.onAddressSelected(item.toText(), item.point)
-                                    saveRecentLocation(item.mainText, item.secondText, item.point)
+                                    if (saveRecent) saveRecentLocation(item.mainText, item.secondText, item.point)
                                 } else if (item instanceof RecentLocationItem) {
                                     setText(item.toText())
                                     props.onAddressSelected(item.toText(), item.point)
@@ -323,14 +331,16 @@ export default function AddressInput(props: AddressInputProps) {
 
 function buildRecentItems(filter?: string, limit?: number, excludeCoord?: Coordinate): RecentLocationItem[] {
     let recents = getRecentLocations(0)
-    if (excludeCoord)
-        recents = recents.filter(e => calcDist({ lat: e.lat, lng: e.lng }, excludeCoord) > 0)
+    if (excludeCoord) recents = recents.filter(e => calcDist({ lat: e.lat, lng: e.lng }, excludeCoord) > 0)
     if (filter) {
         const lower = filter.toLowerCase()
         recents = recents.filter(
             e =>
                 e.mainText.toLowerCase().startsWith(lower) ||
-                e.secondText.toLowerCase().split(/[\s,]+/).some(word => word.startsWith(lower)),
+                e.secondText
+                    .toLowerCase()
+                    .split(/[\s,]+/)
+                    .some(word => word.startsWith(lower)),
         )
     }
     if (limit) recents = recents.slice(0, limit)
