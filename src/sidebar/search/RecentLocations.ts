@@ -3,7 +3,7 @@ import { tr } from '@/translation/Translation'
 import { textToCoordinate } from '@/Converters'
 
 const STORAGE_KEY = 'recentLocations'
-const MAX_ENTRIES = 20
+export const MAX_ENTRIES = 15
 const DEDUP_DISTANCE_METERS = 100
 
 export interface RecentLocation {
@@ -46,28 +46,28 @@ export function clearRecentLocations(): void {
     }
 }
 
-export function saveRecentLocation(mainText: string, secondText: string, coordinate: Coordinate): void {
+export function saveRecentLocation(mainText: string, secondText: string, coordinate: Coordinate, now: number = Date.now()): void {
     if (mainText === tr('current_location')) return
     if (textToCoordinate(mainText)) return
 
     try {
         const all = getRecentLocations()
-        const existing = all.find(
-            e => calcDist({ lat: e.lat, lng: e.lng }, coordinate) <= DEDUP_DISTANCE_METERS,
-        )
-        const prevCount = existing ? existing.count : 0
-        const filtered = all.filter(
-            e => calcDist({ lat: e.lat, lng: e.lng }, coordinate) > DEDUP_DISTANCE_METERS,
-        )
+        let prevCount = 0
+        const filtered = all.filter(e => {
+            const isDuplicate = calcDist({ lat: e.lat, lng: e.lng }, coordinate) <= DEDUP_DISTANCE_METERS
+            if (isDuplicate) prevCount = e.count
+            return !isDuplicate
+        })
 
-        filtered.unshift({
+        filtered.push({
             mainText,
             secondText,
             lat: coordinate.lat,
             lng: coordinate.lng,
-            timestamp: Date.now(),
+            timestamp: now,
             count: prevCount + 1,
         })
+        filtered.sort((a, b) => b.timestamp - a.timestamp)
         localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered.slice(0, MAX_ENTRIES)))
     } catch {
         // localStorage unavailable (private browsing, quota exceeded)
