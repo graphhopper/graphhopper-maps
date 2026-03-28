@@ -177,6 +177,7 @@ export default function AddressInput(props: AddressInputProps) {
 
     // do not focus on mobile as we would hide the map with the "input"-view
     const focusFirstInput = props.index == 0 && !isSmallScreen
+    const isInitialFocus = useRef(focusFirstInput)
 
     return (
         <div className={containerClass}>
@@ -232,7 +233,9 @@ export default function AddressInput(props: AddressInputProps) {
                     onFocus={() => {
                         setHasFocus(true)
                         props.clearDragDrop()
-                        if (text === '') {
+                        if (isInitialFocus.current) {
+                            isInitialFocus.current = false
+                        } else if (text === '') {
                             const recents = buildRecentItems(undefined, 5, excludeCoord)
                             if (recents.length > 0) setAutocompleteItems(recents)
                         }
@@ -299,6 +302,7 @@ export default function AddressInput(props: AddressInputProps) {
                                     props.onAddressSelected(item.toText(), item.point)
                                     saveRecentLocation(item.mainText, item.secondText, item.point)
                                 } else if (item instanceof RecentLocationItem) {
+                                    setText(item.toText())
                                     props.onAddressSelected(item.toText(), item.point)
                                 } else if (item instanceof POIQueryItem) {
                                     handlePoiSearch(poiSearch, item.result, props.map)
