@@ -143,19 +143,20 @@ export default function AddressInput(props: AddressInputProps) {
                             props.onAddressSelected(item.toText(), item.point)
                         }
                     }
-                    // Enter: focus next address input, or blur if last
-                    if (event.key === 'Enter') {
-                        const next = document
-                            .querySelector<HTMLElement>('[data-search-box]')!
-                            .querySelectorAll<HTMLInputElement>('input[type="text"]')[props.index + 1]
-                        if (next) next.focus()
-                        else searchInput.current!.blur()
-                    }
+                    if (event.key === 'Enter') focusNextOrBlur()
                     break
             }
         },
         [autocompleteItems, highlightedResult],
     )
+
+    const focusNextOrBlur = () => {
+        const next = document
+            .querySelector<HTMLElement>('[data-search-box]')!
+            .querySelectorAll<HTMLInputElement>('input[type="text"]')[props.index + 1]
+        if (next) next.focus()
+        else searchInput.current!.blur()
+    }
 
     // the "fullscreen" css is only defined for smallscreen
     const containerClass = hasFocus ? styles.fullscreen : ''
@@ -271,7 +272,7 @@ export default function AddressInput(props: AddressInputProps) {
                                     handlePoiSearch(poiSearch, item.result, props.map)
                                     setText(item.result.text(item.result.poi))
                                 }
-                                searchInput.current!.blur() // see also AutocompleteEntry->onMouseDown
+                                focusNextOrBlur()
                             }}
                         />
                     </ResponsiveAutocomplete>
