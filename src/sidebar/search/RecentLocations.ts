@@ -4,7 +4,7 @@ import { textToCoordinate } from '@/Converters'
 
 const STORAGE_KEY = 'recentLocations'
 export const MAX_ENTRIES = 15
-const DEDUP_DISTANCE_METERS = 100
+const DEDUP_DISTANCE_METERS = 5
 
 export interface RecentLocation {
     mainText: string

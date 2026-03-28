@@ -1,4 +1,4 @@
-import { JSX, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { JSX, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Bbox, GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
 import Autocomplete, {
@@ -7,8 +7,7 @@ import Autocomplete, {
     POIQueryItem,
     RecentLocationItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
-import { getRecentLocations, saveRecentLocation } from '@/sidebar/search/RecentLocations'
-import { SettingsContext } from '@/contexts/SettingsContext'
+import { getRecentLocations } from '@/sidebar/search/RecentLocations'
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import CurrentLocationIcon from './current-location.svg'
@@ -30,7 +29,7 @@ export interface AddressInputProps {
     point: QueryPoint
     points: QueryPoint[]
     onCancel: () => void
-    onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
+    onLocationSelected: (mainText: string, secondText: string | undefined, coord: Coordinate | undefined) => void
     onChange: (value: string) => void
     clearDragDrop: () => void
     moveStartIndex: number
@@ -40,7 +39,6 @@ export interface AddressInputProps {
 }
 
 export default function AddressInput(props: AddressInputProps) {
-    const saveRecent = useContext(SettingsContext).saveRecentLocations
     const [origText, setOrigText] = useState(props.point.queryText)
     // controlled component pattern with initial value set from props
     const [text, setText] = useState(props.point.queryText)
@@ -140,15 +138,15 @@ export default function AddressInput(props: AddressInputProps) {
                     // try to parse input as coordinate. Otherwise query nominatim
                     const coordinate = textToCoordinate(text)
                     if (coordinate) {
-                        props.onAddressSelected(text, coordinate)
+                        props.onLocationSelected(text, undefined, coordinate)
                     } else if (autocompleteItems.length > 0) {
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
                         if (item instanceof POIQueryItem) {
                             handlePoiSearch(poiSearch, item.result, props.map)
-                            props.onAddressSelected(item.result.text(item.result.poi), undefined)
+                            props.onLocationSelected(item.result.text(item.result.poi), undefined, undefined)
                         } else if (item instanceof RecentLocationItem) {
-                            props.onAddressSelected(item.toText(), item.point)
+                            props.onLocationSelected(item.mainText, item.secondText, item.point)
                         } else if (highlightedResult < 0 && !props.point.isInitialized) {
                             // by default use the first result, otherwise the highlighted one
                             getApi()
@@ -157,16 +155,13 @@ export default function AddressInput(props: AddressInputProps) {
                                     if (result && result.hits.length > 0) {
                                         const hit: GeocodingHit = result.hits[0]
                                         const res = nominatimHitToItem(hit)
-                                        props.onAddressSelected(res.mainText + ', ' + res.secondText, hit.point)
-                                        if (saveRecent) saveRecentLocation(res.mainText, res.secondText, hit.point)
+                                        props.onLocationSelected(res.mainText, res.secondText, hit.point)
                                     } else if (item instanceof GeocodingItem) {
-                                        props.onAddressSelected(item.toText(), item.point)
-                                        if (saveRecent) saveRecentLocation(item.mainText, item.secondText, item.point)
+                                        props.onLocationSelected(item.mainText, item.secondText, item.point)
                                     }
                                 })
                         } else if (item instanceof GeocodingItem) {
-                            props.onAddressSelected(item.toText(), item.point)
-                            if (saveRecent) saveRecentLocation(item.mainText, item.secondText, item.point)
+                            props.onLocationSelected(item.mainText, item.secondText, item.point)
                         }
                     }
                     if (event.key === 'Enter') focusNextOrBlur()
@@ -290,7 +285,7 @@ export default function AddressInput(props: AddressInputProps) {
                         e => e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
                     }
                     onClick={() => {
-                        onCurrentLocationSelected(props.onAddressSelected)
+                        onCurrentLocationSelected((text, coord) => props.onLocationSelected(text, undefined, coord))
                         // but when clicked => we want to lose the focus e.g. to close mobile-input view
                         searchInput.current!.blur()
                     }}
@@ -310,11 +305,10 @@ export default function AddressInput(props: AddressInputProps) {
                             onSelect={item => {
                                 if (item instanceof GeocodingItem) {
                                     setText(item.toText())
-                                    props.onAddressSelected(item.toText(), item.point)
-                                    if (saveRecent) saveRecentLocation(item.mainText, item.secondText, item.point)
+                                    props.onLocationSelected(item.mainText, item.secondText, item.point)
                                 } else if (item instanceof RecentLocationItem) {
                                     setText(item.toText())
-                                    props.onAddressSelected(item.toText(), item.point)
+                                    props.onLocationSelected(item.mainText, item.secondText, item.point)
                                 } else if (item instanceof POIQueryItem) {
                                     handlePoiSearch(poiSearch, item.result, props.map)
                                     setText(item.result.text(item.result.poi))
