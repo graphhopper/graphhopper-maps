@@ -18,7 +18,7 @@ import { toLonLat, transformExtent } from 'ol/proj'
 import { Map } from 'ol'
 import { AddressParseResult } from '@/pois/AddressParseResult'
 import { getMap } from '@/map/map'
-import { Coordinate, getBBoxFromCoord } from '@/utils'
+import { calcDist, Coordinate, getBBoxFromCoord } from '@/utils'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -42,6 +42,8 @@ export default function AddressInput(props: AddressInputProps) {
     // keep track of focus and toggle fullscreen display on small screens
     const [hasFocus, setHasFocus] = useState(false)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+    const prevPoint = props.index > 0 ? props.points[props.index - 1] : undefined
+    const excludeCoord = prevPoint?.isInitialized ? prevPoint.coordinate : undefined
 
     // container for geocoding results which gets set by the geocoder class and set to empty if the underlying query
     // point gets changed from outside also gets filled with an item to select the current location as input if input
@@ -211,14 +213,14 @@ export default function AddressInput(props: AddressInputProps) {
                         setText(query)
                         if (query === '') {
                             geocoder.cancel()
-                            const recents = buildRecentItems(undefined, 5)
+                            const recents = buildRecentItems(undefined, 5, excludeCoord)
                             if (recents.length > 0) setAutocompleteItems(recents)
                             else setAutocompleteItems([])
                         } else {
                             const coordinate = textToCoordinate(query)
                             if (!coordinate) {
                                 if (query.length < 2) {
-                                    const recents = buildRecentItems(query, 5)
+                                    const recents = buildRecentItems(query, 5, excludeCoord)
                                     if (recents.length > 0) setAutocompleteItems(recents)
                                 }
                                 geocoder.request(query, biasCoord, getMap().getView().getZoom())
@@ -231,7 +233,7 @@ export default function AddressInput(props: AddressInputProps) {
                         setHasFocus(true)
                         props.clearDragDrop()
                         if (text === '') {
-                            const recents = buildRecentItems(undefined, 5)
+                            const recents = buildRecentItems(undefined, 5, excludeCoord)
                             if (recents.length > 0) setAutocompleteItems(recents)
                         }
                     }}
@@ -256,7 +258,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onClick={e => {
                         setText('')
                         props.onChange('')
-                        const recents = buildRecentItems(undefined, 5)
+                        const recents = buildRecentItems(undefined, 5, excludeCoord)
                         if (recents.length > 0) setAutocompleteItems(recents)
                         else setAutocompleteItems([])
                         // if we clear the text without focus then explicitly request it to improve usability:
@@ -315,8 +317,10 @@ export default function AddressInput(props: AddressInputProps) {
     )
 }
 
-function buildRecentItems(filter?: string, limit?: number): RecentLocationItem[] {
-    let recents = getRecentLocations(1)
+function buildRecentItems(filter?: string, limit?: number, excludeCoord?: Coordinate): RecentLocationItem[] {
+    let recents = getRecentLocations(0)
+    if (excludeCoord)
+        recents = recents.filter(e => calcDist({ lat: e.lat, lng: e.lng }, excludeCoord) > 0)
     if (filter) {
         const lower = filter.toLowerCase()
         recents = recents.filter(
