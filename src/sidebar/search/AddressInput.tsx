@@ -284,7 +284,7 @@ export default function AddressInput(props: AddressInputProps) {
                     <CurrentLocationIcon />
                 </PlainButton>
 
-                {autocompleteItems.length > 0 && (
+                {hasFocus && autocompleteItems.length > 0 && (
                     <ResponsiveAutocomplete
                         inputRef={searchInputContainer.current!}
                         index={props.index}
