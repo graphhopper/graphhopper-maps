@@ -265,6 +265,7 @@ export default function AddressInput(props: AddressInputProps) {
                             highlightedItem={autocompleteItems[highlightedResult]}
                             onSelect={item => {
                                 if (item instanceof GeocodingItem) {
+                                    setText(item.toText())
                                     props.onAddressSelected(item.toText(), item.point)
                                 } else if (item instanceof POIQueryItem) {
                                     handlePoiSearch(poiSearch, item.result, props.map)
