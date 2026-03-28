@@ -88,29 +88,6 @@ input {
     font-weight: bold;
 }
 
-.clearRecentsButton {
-    border: 1px solid lightgray;
-    border-radius: 8px;
-    background: none;
-    color: inherit;
-    padding: 3px 5px;
-    cursor: pointer;
-    justify-self: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.clearRecentsButton svg {
-    scale: 1;
-    margin: 0;
-}
-
-.clearRecentsButton:hover {
-    background: #ececec;
-    color: #333;
-}
-
 .title,
 .infoLine,
 .settingsTable,

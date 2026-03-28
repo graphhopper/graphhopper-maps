@@ -5,6 +5,7 @@ import { SetCustomModelEnabled, UpdateSettings } from '@/actions/Actions'
 export interface Settings {
     showDistanceInMiles: boolean
     drawAreasEnabled: boolean
+    saveRecentLocations: boolean
     gpxExportRte: boolean
     gpxExportWpt: boolean
     gpxExportTrk: boolean
@@ -13,6 +14,7 @@ export interface Settings {
 export const defaultSettings: Settings = {
     showDistanceInMiles: false,
     drawAreasEnabled: false,
+    saveRecentLocations: true,
     gpxExportRte: false,
     gpxExportWpt: false,
     gpxExportTrk: true,

@@ -52,14 +52,14 @@ export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
                         Dispatcher.dispatch(new UpdateSettings({ showDistanceInMiles: !settings.showDistanceInMiles }))
                     }
                 />
-                <div className={styles.settingsToggle} style={{ cursor: 'default' }}>
-                    <button className={styles.clearRecentsButton} onClick={() => clearRecentLocations()}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 -960 960 960">
-                            <path fill="currentColor" d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
-                        </svg>
-                    </button>
-                    <div>{tr('clear_recent_locations')}</div>
-                </div>
+                <SettingsToggle
+                    title={tr('save_recent_locations')}
+                    enabled={settings.saveRecentLocations}
+                    onClick={() => {
+                        if (settings.saveRecentLocations) clearRecentLocations()
+                        Dispatcher.dispatch(new UpdateSettings({ saveRecentLocations: !settings.saveRecentLocations }))
+                    }}
+                />
             </div>
             <div className={styles.title}>{tr('settings_gpx_export')}</div>
             <div className={styles.settingsTable}>
