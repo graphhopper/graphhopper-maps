@@ -343,7 +343,8 @@ class Geocoder {
         this.getNextId()
     }
 
-    async requestAsync(query: string, bias: Coordinate | undefined, zoom: number) {
+    async requestAsync(query: string, bias: Coordinate | undefined, zoom: number | undefined) {
+        zoom = Math.round(zoom ?? 11)
         const provider = 'default'
         const currentId = this.getNextId()
         this.timeout.cancel()
