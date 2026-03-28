@@ -62,40 +62,22 @@
     color: #5b616a;
 }
 
-.recentLocationEntry {
+.recentEntry {
+    display: flex;
+    align-items: center;
+    text-align: start;
+    margin: 0.4rem 0.5rem;
+}
+
+.recentEntryText {
     display: flex;
     flex-direction: column;
-    text-align: start;
-    margin: 0.2rem 0.5rem;
+    flex: 1;
+    min-width: 0;
 }
 
-.recentHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.1rem 0.5rem 0 0.5rem;
-    margin-bottom: -0.3rem;
-    padding-right: 0.1rem;
-}
-
-.recentHeaderText {
-    font-size: small;
-    color: #999;
-}
-
-.clearRecentsButton {
-    border: none;
-    background: none;
+.recentIcon {
+    flex-shrink: 0;
     color: #5b616a;
-    cursor: pointer;
-    padding: 0.3rem;
-    min-width: 1.5rem;
-    min-height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.clearRecentsButton:hover {
-    color: #333;
+    margin-right: 0.5rem;
 }

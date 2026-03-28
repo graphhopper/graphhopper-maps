@@ -2,7 +2,7 @@ import { JSX, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Bbox, GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
 import Autocomplete, { AutocompleteItem, GeocodingItem, POIQueryItem, RecentLocationItem } from '@/sidebar/search/AddressInputAutocomplete'
-import { clearRecentLocations, getRecentLocations, saveRecentLocation } from '@/sidebar/search/RecentLocations'
+import { getRecentLocations, saveRecentLocation } from '@/sidebar/search/RecentLocations'
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import CurrentLocationIcon from './current-location.svg'
@@ -312,10 +312,6 @@ export default function AddressInput(props: AddressInputProps) {
                                     setText(item.result.text(item.result.poi))
                                 }
                                 focusNextOrBlur()
-                            }}
-                            onClearRecents={() => {
-                                clearRecentLocations()
-                                setAutocompleteItems([])
                             }}
                         />
                     </ResponsiveAutocomplete>

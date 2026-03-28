@@ -10,6 +10,7 @@ import { SettingsContext } from '@/contexts/SettingsContext'
 import { RoutingProfile } from '@/api/graphhopper'
 import * as config from 'config'
 import { ProfileGroupMap } from '@/utils'
+import { clearRecentLocations } from '@/sidebar/search/RecentLocations'
 
 export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
     const settings = useContext(SettingsContext)
@@ -51,6 +52,14 @@ export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
                         Dispatcher.dispatch(new UpdateSettings({ showDistanceInMiles: !settings.showDistanceInMiles }))
                     }
                 />
+                <div className={styles.settingsToggle} style={{ cursor: 'default' }}>
+                    <button className={styles.clearRecentsButton} onClick={() => clearRecentLocations()}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 -960 960 960">
+                            <path fill="currentColor" d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+                        </svg>
+                    </button>
+                    <div>{tr('clear_recent_locations')}</div>
+                </div>
             </div>
             <div className={styles.title}>{tr('settings_gpx_export')}</div>
             <div className={styles.settingsTable}>
