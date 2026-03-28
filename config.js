@@ -71,4 +71,4 @@ const config = {
 }
 
 // this is needed for jest (with our current setup at least)
-if (module) module.exports = config
+if (typeof module !== 'undefined') module.exports = config

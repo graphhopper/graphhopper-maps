@@ -295,6 +295,7 @@ export default function AddressInput(props: AddressInputProps) {
                             highlightedItem={autocompleteItems[highlightedResult]}
                             onSelect={item => {
                                 if (item instanceof GeocodingItem) {
+                                    setText(item.toText())
                                     props.onAddressSelected(item.toText(), item.point)
                                     saveRecentLocation(item.mainText, item.secondText, item.point)
                                 } else if (item instanceof RecentLocationItem) {
@@ -396,7 +397,8 @@ class Geocoder {
         this.getNextId()
     }
 
-    async requestAsync(query: string, bias: Coordinate | undefined, zoom: number) {
+    async requestAsync(query: string, bias: Coordinate | undefined, zoom: number | undefined) {
+        zoom = Math.round(zoom ?? 11)
         const provider = 'default'
         const currentId = this.getNextId()
         this.timeout.cancel()

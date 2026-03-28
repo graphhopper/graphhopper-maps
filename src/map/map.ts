@@ -3,6 +3,8 @@ import { Map, View } from 'ol'
 import { fromLonLat } from 'ol/proj'
 import { MapIsLoaded, StopSyncCurrentLocation } from '@/actions/Actions'
 import { defaults as defaultControls } from 'ol/control'
+import { defaults as defaultInteractions } from 'ol/interaction'
+import { MouseWheelZoom } from 'ol/interaction'
 import styles from '@/map/Map.module.css'
 
 let map: Map | undefined
@@ -12,10 +14,17 @@ export function createMap(): Map {
         view: new View({
             enableRotation: false,
             multiWorld: false,
-            constrainResolution: true,
             center: fromLonLat([10, 10]),
             zoom: 2,
         }),
+        interactions: defaultInteractions({
+            mouseWheelZoom: false,
+        }).extend([
+            new MouseWheelZoom({
+                constrainResolution: true,
+                timeout: 200,
+            }),
+        ]),
         controls: defaultControls({
             zoom: true,
             zoomOptions: {
