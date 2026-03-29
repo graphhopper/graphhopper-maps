@@ -85,11 +85,15 @@ export default function AddressInput(props: AddressInputProps) {
     }, [props.point])
 
     useEffect(() => {
-        if (hasFocus && !isInitialFocus.current && text === '') {
+        if (!hasFocus) return
+        if (isInitialFocus.current) {
+            isInitialFocus.current = false
+            return
+        }
+        if (text === '') {
             const recents = buildRecentItems(undefined, 5, excludeCoord)
             if (recents.length > 0) setAutocompleteItems(recents)
         }
-        isInitialFocus.current = false
     }, [hasFocus, excludeCoord])
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
