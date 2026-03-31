@@ -51,12 +51,14 @@ function RoutingResult({
     info,
     path,
     isSelected,
+    index,
     profile,
     requestArguments,
 }: {
     info: RoutingResultInfo
     path: Path
     isSelected: boolean
+    index: number
     profile: string
     requestArguments: RoutingArgs
 }) {
@@ -149,8 +151,8 @@ function RoutingResult({
         dangerousHikeRatingInfo.distance > 0 ||
         steepInfo.distance > 0
 
-    // Check if native navigation is available
-    const nativeNavigation = (window as any).ghNativeNavigation ?? null
+    // Native navigation is only available for the first route (not alternatives)
+    const nativeNavigation = index === 0 ? (window as any).ghNativeNavigation ?? null : null
 
     const startNavigation = () => {
         try {
@@ -733,6 +735,7 @@ function createSingletonListContent(props: RoutingResultsProps) {
             <RoutingResult
                 path={props.selectedPath}
                 isSelected={true}
+                index={props.paths.indexOf(props.selectedPath)}
                 profile={props.profile}
                 info={props.info}
                 requestArguments={props.currentRequest.subRequests[0].args}
@@ -753,6 +756,7 @@ function createListContent({ info, paths, currentRequest, selectedPath, profile 
                     key={i}
                     path={paths[i]}
                     isSelected={paths[i] === selectedPath}
+                    index={i}
                     profile={profile}
                     info={info}
                     requestArguments={currentRequest.subRequests[i].args}
