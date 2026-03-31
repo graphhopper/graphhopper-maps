@@ -7,6 +7,7 @@ const STORAGE_KEY = 'settings'
 export interface Settings {
     showDistanceInMiles: boolean
     drawAreasEnabled: boolean // temporary, not persisted to localStorage
+    saveRecentLocations: boolean
     gpxExportRte: boolean
     gpxExportWpt: boolean
     gpxExportTrk: boolean
@@ -15,6 +16,7 @@ export interface Settings {
 export const defaultSettings: Settings = {
     showDistanceInMiles: false,
     drawAreasEnabled: false,
+    saveRecentLocations: true,
     gpxExportRte: false,
     gpxExportWpt: false,
     gpxExportTrk: true,

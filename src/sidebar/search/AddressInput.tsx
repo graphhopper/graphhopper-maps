@@ -1,7 +1,13 @@
 import { JSX, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { Bbox, GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
-import Autocomplete, { AutocompleteItem, GeocodingItem, POIQueryItem } from '@/sidebar/search/AddressInputAutocomplete'
+import Autocomplete, {
+    AutocompleteItem,
+    GeocodingItem,
+    POIQueryItem,
+    RecentLocationItem,
+} from '@/sidebar/search/AddressInputAutocomplete'
+import { getRecentLocations } from '@/sidebar/search/RecentLocations'
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import CurrentLocationIcon from './current-location.svg'
@@ -17,13 +23,13 @@ import { toLonLat, transformExtent } from 'ol/proj'
 import { Map } from 'ol'
 import { AddressParseResult } from '@/pois/AddressParseResult'
 import { getMap } from '@/map/map'
-import { Coordinate, getBBoxFromCoord } from '@/utils'
+import { calcDist, Coordinate, getBBoxFromCoord } from '@/utils'
 
 export interface AddressInputProps {
     point: QueryPoint
     points: QueryPoint[]
     onCancel: () => void
-    onAddressSelected: (queryText: string, coord: Coordinate | undefined) => void
+    onLocationSelected: (mainText: string, secondText: string | undefined, coord: Coordinate | undefined) => void
     onChange: (value: string) => void
     clearDragDrop: () => void
     moveStartIndex: number
@@ -41,6 +47,8 @@ export default function AddressInput(props: AddressInputProps) {
     // keep track of focus and toggle fullscreen display on small screens
     const [hasFocus, setHasFocus] = useState(false)
     const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+    const prevPoint = props.index > 0 ? props.points[props.index - 1] : undefined
+    const excludeCoord = prevPoint?.isInitialized ? prevPoint.coordinate : undefined
 
     // container for geocoding results which gets set by the geocoder class and set to empty if the underlying query
     // point gets changed from outside also gets filled with an item to select the current location as input if input
@@ -72,7 +80,21 @@ export default function AddressInput(props: AddressInputProps) {
     const [poiSearch] = useState(new ReverseGeocoder(getApi(), props.point, AddressParseResult.handleGeocodingResponse))
 
     // if item is selected we need to clear the autocompletion list
-    useEffect(() => setAutocompleteItems([]), [props.point])
+    useEffect(() => {
+        if (props.point.isInitialized) setAutocompleteItems([])
+    }, [props.point])
+
+    useEffect(() => {
+        if (!hasFocus) return
+        if (isInitialFocus.current) {
+            isInitialFocus.current = false
+            return
+        }
+        if (text === '') {
+            const recents = buildRecentItems(undefined, 5, excludeCoord)
+            if (recents.length > 0) setAutocompleteItems(recents)
+        }
+    }, [hasFocus, excludeCoord])
 
     // highlighted result of geocoding results. Keep track which index is highlighted and change things on ArrowUp and Down
     // on Enter select highlighted result or the 0th if nothing is highlighted
@@ -105,7 +127,8 @@ export default function AddressInput(props: AddressInputProps) {
                                 setText(origText)
                             } else if (nextIndex >= 0) {
                                 const item = autocompleteItems[nextIndex]
-                                if (item instanceof GeocodingItem) setText(item.mainText)
+                                if (item instanceof GeocodingItem || item instanceof RecentLocationItem)
+                                    setText(item.mainText)
                                 else setText(origText)
                             }
                         }
@@ -119,13 +142,15 @@ export default function AddressInput(props: AddressInputProps) {
                     // try to parse input as coordinate. Otherwise query nominatim
                     const coordinate = textToCoordinate(text)
                     if (coordinate) {
-                        props.onAddressSelected(text, coordinate)
+                        props.onLocationSelected(text, undefined, coordinate)
                     } else if (autocompleteItems.length > 0) {
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
                         if (item instanceof POIQueryItem) {
                             handlePoiSearch(poiSearch, item.result, props.map)
-                            props.onAddressSelected(item.result.text(item.result.poi), undefined)
+                            props.onLocationSelected(item.result.text(item.result.poi), undefined, undefined)
+                        } else if (item instanceof RecentLocationItem) {
+                            props.onLocationSelected(item.mainText, item.secondText, item.point)
                         } else if (highlightedResult < 0 && !props.point.isInitialized) {
                             // by default use the first result, otherwise the highlighted one
                             getApi()
@@ -134,13 +159,13 @@ export default function AddressInput(props: AddressInputProps) {
                                     if (result && result.hits.length > 0) {
                                         const hit: GeocodingHit = result.hits[0]
                                         const res = nominatimHitToItem(hit)
-                                        props.onAddressSelected(res.mainText + ', ' + res.secondText, hit.point)
+                                        props.onLocationSelected(res.mainText, res.secondText, hit.point)
                                     } else if (item instanceof GeocodingItem) {
-                                        props.onAddressSelected(item.toText(), item.point)
+                                        props.onLocationSelected(item.mainText, item.secondText, item.point)
                                     }
                                 })
                         } else if (item instanceof GeocodingItem) {
-                            props.onAddressSelected(item.toText(), item.point)
+                            props.onLocationSelected(item.mainText, item.secondText, item.point)
                         }
                     }
                     if (event.key === 'Enter') focusNextOrBlur()
@@ -168,6 +193,7 @@ export default function AddressInput(props: AddressInputProps) {
 
     // do not focus on mobile as we would hide the map with the "input"-view
     const focusFirstInput = props.index == 0 && !isSmallScreen
+    const isInitialFocus = useRef(focusFirstInput)
 
     return (
         <div className={containerClass}>
@@ -202,8 +228,21 @@ export default function AddressInput(props: AddressInputProps) {
                     onChange={e => {
                         const query = e.target.value
                         setText(query)
-                        const coordinate = textToCoordinate(query)
-                        if (!coordinate) geocoder.request(e.target.value, biasCoord, getMap().getView().getZoom())
+                        if (query === '') {
+                            geocoder.cancel()
+                            const recents = buildRecentItems(undefined, 5, excludeCoord)
+                            if (recents.length > 0) setAutocompleteItems(recents)
+                            else setAutocompleteItems([])
+                        } else {
+                            const coordinate = textToCoordinate(query)
+                            if (!coordinate) {
+                                if (query.length < 2) {
+                                    const recents = buildRecentItems(query, 5, excludeCoord)
+                                    if (recents.length > 0) setAutocompleteItems(recents)
+                                }
+                                geocoder.request(query, biasCoord, getMap().getView().getZoom())
+                            }
+                        }
                         props.onChange(query)
                     }}
                     onKeyDown={onKeypress}
@@ -232,6 +271,9 @@ export default function AddressInput(props: AddressInputProps) {
                     onClick={e => {
                         setText('')
                         props.onChange('')
+                        const recents = buildRecentItems(undefined, 5, excludeCoord)
+                        if (recents.length > 0) setAutocompleteItems(recents)
+                        else setAutocompleteItems([])
                         // if we clear the text without focus then explicitly request it to improve usability:
                         searchInput.current!.focus()
                     }}
@@ -247,7 +289,7 @@ export default function AddressInput(props: AddressInputProps) {
                         e => e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
                     }
                     onClick={() => {
-                        onCurrentLocationSelected(props.onAddressSelected)
+                        onCurrentLocationSelected((text, coord) => props.onLocationSelected(text, undefined, coord))
                         // but when clicked => we want to lose the focus e.g. to close mobile-input view
                         searchInput.current!.blur()
                     }}
@@ -255,7 +297,7 @@ export default function AddressInput(props: AddressInputProps) {
                     <CurrentLocationIcon />
                 </PlainButton>
 
-                {autocompleteItems.length > 0 && (
+                {hasFocus && autocompleteItems.length > 0 && (
                     <ResponsiveAutocomplete
                         inputRef={searchInputContainer.current!}
                         index={props.index}
@@ -267,7 +309,10 @@ export default function AddressInput(props: AddressInputProps) {
                             onSelect={item => {
                                 if (item instanceof GeocodingItem) {
                                     setText(item.toText())
-                                    props.onAddressSelected(item.toText(), item.point)
+                                    props.onLocationSelected(item.mainText, item.secondText, item.point)
+                                } else if (item instanceof RecentLocationItem) {
+                                    setText(item.toText())
+                                    props.onLocationSelected(item.mainText, item.secondText, item.point)
                                 } else if (item instanceof POIQueryItem) {
                                     handlePoiSearch(poiSearch, item.result, props.map)
                                     setText(item.result.text(item.result.poi))
@@ -280,6 +325,24 @@ export default function AddressInput(props: AddressInputProps) {
             </div>
         </div>
     )
+}
+
+function buildRecentItems(filter?: string, limit?: number, excludeCoord?: Coordinate): RecentLocationItem[] {
+    let recents = getRecentLocations(0)
+    if (excludeCoord) recents = recents.filter(e => calcDist({ lat: e.lat, lng: e.lng }, excludeCoord) > 0)
+    if (filter) {
+        const lower = filter.toLowerCase()
+        recents = recents.filter(
+            e =>
+                e.mainText.toLowerCase().startsWith(lower) ||
+                e.secondText
+                    .toLowerCase()
+                    .split(/[\s,]+/)
+                    .some(word => word.startsWith(lower)),
+        )
+    }
+    if (limit) recents = recents.slice(0, limit)
+    return recents.map(e => new RecentLocationItem(e.mainText, e.secondText, { lat: e.lat, lng: e.lng }))
 }
 
 function handlePoiSearch(poiSearch: ReverseGeocoder, result: AddressParseResult, map: Map) {
