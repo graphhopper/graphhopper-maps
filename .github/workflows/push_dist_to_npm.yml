@@ -28,7 +28,7 @@ jobs:
           npm version --git-tag-version=false $GHVERSION
           # limit distribution to the dist folder (just for this build), and set package name
           node -e "const packageJson=require('./package.json'); packageJson.files=['dist/']; packageJson.name='@graphhopper/graphhopper-maps-bundle'; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
-          npm ci
+          npm ci --ignore-scripts
           npm run build
           # no dependencies or scripts in package.json (they should not be installed when installing the package, because they are all included in the bundle already)
           node -e "const packageJson=require('./package.json'); packageJson.scripts={}; packageJson.dependencies={}; packageJson.devDependencies={}; require('fs').writeFileSync('package.json', JSON.stringify(packageJson, null, 4));"
