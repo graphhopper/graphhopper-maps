@@ -111,6 +111,10 @@ interface Details {
     readonly max_speed: [number, number, number][]
     readonly average_speed: [number, number, number][]
     readonly road_access: [number, number, string][]
+    readonly surface: [number, number, string][]
+    readonly bike_network: [number, number, string][]
+    readonly foot_network: [number, number, string][]
+    readonly average_speed: [number, number, number][]
     readonly access_conditional: [number, number, string][]
     readonly foot_conditional: [number, number, string][]
     readonly bike_conditional: [number, number, string][]
@@ -119,6 +123,9 @@ interface Details {
     readonly get_off_bike: [number, number, boolean][]
     readonly mtb_rating: [number, number, boolean][]
     readonly hike_rating: [number, number, boolean][]
+    readonly cycleway: [number, number, string][]
+    readonly sidewalk: [number, number, string][]
+    readonly urban_density: [number, number, string][]
 }
 
 export interface TagHash {

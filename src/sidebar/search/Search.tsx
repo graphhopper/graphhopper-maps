@@ -25,6 +25,9 @@ import SettingsBox from '@/sidebar/SettingsBox'
 import { TNSettingsState } from '@/stores/TurnNavigationStore'
 import { RoutingProfile } from '@/api/graphhopper'
 import { getBBoxFromCoord } from '@/utils'
+import { saveRecentLocation } from '@/sidebar/search/RecentLocations'
+import { useContext } from 'react'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
 export default function Search({
     points,
@@ -44,7 +47,7 @@ export default function Search({
 
     return (
         <div className={styles.searchBoxParent}>
-            <div className={styles.searchBox}>
+            <div className={styles.searchBox} data-search-box>
                 {points.map((point, index) => (
                     <SearchBox
                         key={point.id}
@@ -114,6 +117,7 @@ const SearchBox = ({
     map: Map
 }) => {
     const point = points[index]
+    const saveRecent = useContext(SettingsContext).saveRecentLocations
 
     function onClickOrDrop() {
         onDropPreviewSelect(-1)
@@ -187,7 +191,10 @@ const SearchBox = ({
                     point={point}
                     points={points}
                     onCancel={() => console.log('cancel')}
-                    onAddressSelected={(queryText, coordinate) => {
+                    onLocationSelected={(mainText, secondText, coordinate) => {
+                        const queryText = secondText ? mainText + ', ' + secondText : mainText
+                        if (secondText && coordinate && saveRecent) saveRecentLocation(mainText, secondText, coordinate)
+
                         const initCount = points.filter(p => p.isInitialized).length
                         if (coordinate && initCount != points.length)
                             Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coordinate)))

@@ -81,6 +81,7 @@ export default function ({
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
+                            memorizedProfilePerGroup={query.memorizedProfilePerGroup}
                             showCustomModelBox={showCustomModelBox}
                             toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}
                             customModelBoxEnabled={query.customModelEnabled}

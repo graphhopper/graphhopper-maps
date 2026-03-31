@@ -17,6 +17,7 @@ import { SettingsContext } from '@/contexts/SettingsContext'
 import { RoutingProfile } from '@/api/graphhopper'
 import * as config from 'config'
 import { ProfileGroupMap } from '@/utils'
+import { clearRecentLocations } from '@/sidebar/search/RecentLocations'
 
 export default function SettingsBox({
     turnNavSettings,
@@ -86,6 +87,14 @@ export default function SettingsBox({
                     onClick={() =>
                         Dispatcher.dispatch(new UpdateSettings({ showDistanceInMiles: !settings.showDistanceInMiles }))
                     }
+                />
+                <SettingsToggle
+                    title={tr('save_recent_locations')}
+                    enabled={settings.saveRecentLocations}
+                    onClick={() => {
+                        if (settings.saveRecentLocations) clearRecentLocations()
+                        Dispatcher.dispatch(new UpdateSettings({ saveRecentLocations: !settings.saveRecentLocations }))
+                    }}
                 />
             </div>
             <div className={styles.title}>{tr('settings_gpx_export')}</div>

@@ -198,16 +198,19 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     selectedStyle: styleOption,
                 }
         } else if (action instanceof ToggleRoutingGraph) {
+            if (state.routingGraphEnabled === action.routingGraphEnabled) return state
             return {
                 ...state,
                 routingGraphEnabled: action.routingGraphEnabled,
             }
         } else if (action instanceof ToggleUrbanDensityLayer) {
+            if (state.urbanDensityEnabled === action.urbanDensityEnabled) return state
             return {
                 ...state,
                 urbanDensityEnabled: action.urbanDensityEnabled,
             }
         } else if (action instanceof ToggleExternalMVTLayer) {
+            if (state.externalMVTEnabled === action.externalMVTLayerEnabled) return state
             return {
                 ...state,
                 externalMVTEnabled: action.externalMVTLayerEnabled,

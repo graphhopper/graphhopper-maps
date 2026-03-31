@@ -1,7 +1,8 @@
 import { Instruction, Path, RoutingResultInfo } from '@/api/graphhopper'
 import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
-import React, { ReactNode, useContext, useEffect, useState } from 'react'
+import statsStyles from './RouteStats.module.css'
+import { ReactNode, useContext, useEffect, useState } from 'react'
 import {
     SelectMapLayer,
     SetSelectedPath,
@@ -12,12 +13,14 @@ import {
     SetBBox,
 } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
-import { metersToShortText, metersToTextForFile, milliSecondsToText } from '@/Converters'
+import { metersToShortText, metersToText, metersToTextForFile, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import NaviSVG from '@/sidebar/navigation.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
+import RouteStats from '@/sidebar/RouteStats'
+import ElevationInfoBar from '@/pathDetails/ElevationInfoBar'
 import { LineString, Position } from 'geojson'
 import { calcDist, Coordinate, getBBoxFromCoord } from '@/utils'
 import { useMediaQuery } from 'react-responsive'
@@ -42,45 +45,68 @@ import { Bbox } from '@/api/graphhopper'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import { Settings } from '@/stores/SettingsStore'
 
+let persistedElevationMounted = false
+
 export interface RoutingResultsProps {
     info: RoutingResultInfo
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
     profile: string
-    turnNavigation: TurnNavigationStoreState
+    turnNavigation?: TurnNavigationStoreState
+    inclineOnMap?: boolean
 }
 
 export default function RoutingResults(props: RoutingResultsProps) {
+    const [isExpanded, setExpanded] = useState(false)
     // for landscape orientation there is no need that there is space for the map under the 3 alternatives and so the max-height is smaller for short screen
     const isShortScreen = useMediaQuery({
         query: '(max-height: 45rem) and (orientation: landscape), (max-height: 70rem) and (orientation: portrait)',
     })
-    return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
+    return (
+        <ul>
+            {isShortScreen
+                ? createSingletonListContent(props, isExpanded, setExpanded)
+                : createListContent(props, isExpanded, setExpanded)}
+        </ul>
+    )
 }
 
 function RoutingResult({
     info,
     path,
+    allPaths,
     isSelected,
     profile,
     turnNavigation,
+    inclineOnMap,
+    isExpanded,
+    setExpanded,
 }: {
     info: RoutingResultInfo
     path: Path
+    allPaths: Path[]
     isSelected: boolean
     profile: string
-    turnNavigation: TurnNavigationStoreState
+    turnNavigation?: TurnNavigationStoreState
+    inclineOnMap: boolean
+    isExpanded: boolean
+    setExpanded: (v: boolean) => void
 }) {
-    const [isExpanded, setExpanded] = useState(false)
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+    const [elevationMounted, setElevationMounted] = useState(persistedElevationMounted)
+    if ((isExpanded || inclineOnMap) && !elevationMounted) setElevationMounted(true)
+    if (elevationMounted && !persistedElevationMounted) persistedElevationMounted = true
+    const [showInstructions, setShowInstructions] = useState(false)
     const [selectedRH, setSelectedRH] = useState('')
     const [descriptionRH, setDescriptionRH] = useState('')
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
 
-    useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
-
+    useEffect(() => {
+        if (!isSelected) setShowInstructions(false)
+    }, [isSelected])
     const settings = useContext(SettingsContext)
     const showDistanceInMiles = settings.showDistanceInMiles
     let [showBackAndRisk, setShowBackAndRisk] = useState(false)
@@ -167,7 +193,7 @@ function RoutingResult({
             <div className={styles.showRiskButtons}>
                 {
                     // if this panel is still shown although we already confirmed the risk then we are waiting for GPS (or an error with location permission)
-                    turnNavigation.settings.acceptedRisk ? (
+                    turnNavigation?.settings.acceptedRisk ? (
                         <span>{tr('waiting_for_gps')}</span>
                     ) : (
                         <div className={styles.showRiskAccept}>
@@ -177,7 +203,7 @@ function RoutingResult({
                                     Dispatcher.dispatch(
                                         new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState)
                                     )
-                                    startNavigation(turnNavigation.settings.forceVectorTiles)
+                                    startNavigation(turnNavigation?.settings.forceVectorTiles ?? false)
                                 }}
                             >
                                 {tr('accept_risks_after_warning')}
@@ -189,7 +215,7 @@ function RoutingResult({
                     className={styles.showRiskBack}
                     onClick={() => {
                         setShowBackAndRisk(false)
-                        if (turnNavigation.settings.forceVectorTiles)
+                        if (turnNavigation?.settings.forceVectorTiles)
                             Dispatcher.dispatch(new SelectMapLayer(turnNavigation.oldTiles))
                         Dispatcher.dispatch(new TurnNavigationStop())
                     }}
@@ -206,15 +232,17 @@ function RoutingResult({
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
                         <span className={styles.resultSecondaryText}>
-                            {metersToShortText(path.distance, showDistanceInMiles)}
+                            {metersToText(path.distance, showDistanceInMiles)}
                         </span>
                         {isSelected && !ApiImpl.isMotorVehicle(profile) && (
                             <div className={styles.elevationHint}>
                                 <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
-                                    ↗{metersToShortText(path.ascend, showDistanceInMiles)}{' '}
+                                    {'\u2197\uFE0E'}
+                                    {metersToShortText(path.ascend, showDistanceInMiles)}{' '}
                                 </span>
                                 <span title={tr('total_descend', [Math.round(path.descend) + 'm'])}>
-                                    ↘{metersToShortText(path.descend, showDistanceInMiles)}
+                                    {'\u2198\uFE0E'}
+                                    {metersToShortText(path.descend, showDistanceInMiles)}
                                 </span>
                             </div>
                         )}
@@ -229,8 +257,8 @@ function RoutingResult({
                             className={styles.exportButton}
                             onClick={() => {
                                 setShowBackAndRisk(true)
-                                if (turnNavigation.settings.acceptedRisk)
-                                    startNavigation(turnNavigation.settings.forceVectorTiles)
+                                if (turnNavigation?.settings.acceptedRisk)
+                                    startNavigation(turnNavigation?.settings.forceVectorTiles ?? false)
                             }}
                         >
                             <NaviSVG />
@@ -246,6 +274,11 @@ function RoutingResult({
                     {isSelected && !showBackAndRisk && (
                         <PlainButton
                             className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
+                            onTouchEnd={e => {
+                                // reduce chance for synthetic mouse events that cause ghost clicks (#447)
+                                e.preventDefault()
+                                setExpanded(!isExpanded)
+                            }}
                             onClick={() => setExpanded(!isExpanded)}
                         >
                             <Details />
@@ -254,7 +287,7 @@ function RoutingResult({
                     )}
                 </div>
             </div>
-            {isSelected && !isExpanded && showHints && (
+            {isSelected && showHints && (
                 <div className={styles.routeHints}>
                     <div className={styles.icons}>
                         <RHButton
@@ -484,11 +517,34 @@ function RoutingResult({
                     {descriptionRH && <div>{descriptionRH}</div>}
                 </div>
             )}
-            {isExpanded && <Instructions instructions={path.instructions} us={showDistanceInMiles} />}
-            {isExpanded && (
-                <div className={styles.routingResultRoadData}>
-                    {tr('road_data_from')}: {info.road_data_timestamp}
+            {isSmallScreen && elevationMounted && (
+                <div style={{ display: isExpanded ? undefined : 'none' }}>
+                    <hr className={styles.elevationSeparator} />
+                    <ElevationInfoBar
+                        selectedPath={path}
+                        alternativePaths={allPaths}
+                        profile={profile}
+                        isExpanded={false}
+                        onToggleExpanded={() => {}}
+                        inclineOnMap={inclineOnMap}
+                    />
                 </div>
+            )}
+            {isExpanded && <RouteStats path={path} profile={profile} />}
+            {isExpanded && (
+                <div className={styles.instructionsToggle} onClick={() => setShowInstructions(!showInstructions)}>
+                    <span className={statsStyles.label}>{tr('route_stats_turn_instructions')}: </span>
+                    {path.instructions.length}
+                    <span className={statsStyles.statArrow}>{showInstructions ? '▴' : '▾'}</span>
+                </div>
+            )}
+            {isExpanded && showInstructions && (
+                <>
+                    <Instructions instructions={path.instructions} us={showDistanceInMiles} />
+                    <div className={styles.routingResultRoadData}>
+                        {tr('road_data_from')}: {info.road_data_timestamp}
+                    </div>
+                </>
             )}
         </div>
     )
@@ -698,8 +754,10 @@ function downloadGPX(path: Path, settings: Settings) {
             trackPoint += '</trkpt>\n'
             return prevString + trackPoint
         }, '')
-        xmlString += '</trkseg></trk>\n</gpx>'
+        xmlString += '</trkseg></trk>\n'
     }
+
+    xmlString += '</gpx>'
 
     const tmpElement = document.createElement('a')
     const file = new Blob([xmlString], { type: 'application/gpx+xml' })
@@ -744,45 +802,59 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
     return paths.length
 }
 
-function createSingletonListContent(props: RoutingResultsProps) {
+function createSingletonListContent(
+    props: RoutingResultsProps,
+    isExpanded: boolean,
+    setExpanded: (v: boolean) => void,
+) {
     if (props.paths.length > 0)
         return (
             <RoutingResult
                 path={props.selectedPath}
+                allPaths={props.paths}
                 isSelected={true}
                 profile={props.profile}
                 info={props.info}
                 turnNavigation={props.turnNavigation}
+                inclineOnMap={props.inclineOnMap ?? false}
+                isExpanded={isExpanded}
+                setExpanded={setExpanded}
             />
         )
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlaceholder key={1} />
     return ''
 }
 
-function createListContent({
-    info,
-    paths,
-    currentRequest,
-    selectedPath,
-    profile,
-    turnNavigation,
-}: RoutingResultsProps) {
+function pathKey(path: Path): string {
+    return `${path.distance.toFixed(1)}_${path.time}_${path.ascend.toFixed(0)}_${path.descend.toFixed(0)}`
+}
+
+function createListContent(
+    { info, paths, currentRequest, selectedPath, profile, turnNavigation, inclineOnMap }: RoutingResultsProps,
+    isExpanded: boolean,
+    setExpanded: (v: boolean) => void,
+) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
-        if (i < paths.length)
+        if (i < paths.length) {
+            const selected = paths[i] === selectedPath
             result.push(
                 <RoutingResult
-                    key={i}
+                    key={pathKey(paths[i])}
                     path={paths[i]}
-                    isSelected={paths[i] === selectedPath}
+                    allPaths={paths}
+                    isSelected={selected}
                     profile={profile}
                     info={info}
                     turnNavigation={turnNavigation}
-                />
+                    inclineOnMap={inclineOnMap ?? false}
+                    isExpanded={selected && isExpanded}
+                    setExpanded={setExpanded}
+                />,
             )
-        else result.push(<RoutingResultPlaceholder key={i} />)
+        } else result.push(<RoutingResultPlaceholder key={`placeholder-${i}`} />)
     }
 
     return result

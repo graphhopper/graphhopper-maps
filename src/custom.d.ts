@@ -1,7 +1,6 @@
 declare module '*.css'
 declare module '*.svg'
 declare module '*.png'
-declare module 'heightgraph/src/heightgraph'
 declare module 'custom-model-editor/src/index'
 
 interface Window {

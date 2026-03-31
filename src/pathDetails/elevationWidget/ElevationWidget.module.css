@@ -1,0 +1,108 @@
+.container {
+    position: relative;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
+}
+
+.containerExpanded {
+}
+
+.canvasContainer {
+    position: relative;
+    width: 100%;
+    cursor: crosshair;
+    overflow: hidden;
+}
+
+.chartCanvas {
+    display: block;
+}
+
+.overlayCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.5rem 0;
+    flex-wrap: nowrap;
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.alternativeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f8f8f9;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    position: relative;
+}
+
+.alternativeButton:hover {
+    background: #e8e8e8;
+}
+
+.alternativeButtonActive {
+    background: #e8eef5;
+    border-color: #888;
+}
+
+.alternativeNumber {
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+    line-height: 1;
+}
+
+.expandButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f8f8f9;
+    cursor: pointer;
+    font-size: 9px;
+    color: #666;
+    flex-shrink: 0;
+    padding: 0 0 0 1px;
+}
+
+.expandButton:hover {
+    background: #e8e8e8;
+    color: #333;
+}
+
+@media (max-width: 44rem) {
+    .expandButton {
+        display: none;
+    }
+
+    .container {
+        border-radius: 0;
+        box-shadow: none;
+        margin: 0.5rem 1rem;
+    }
+}

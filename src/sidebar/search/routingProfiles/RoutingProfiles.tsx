@@ -14,12 +14,14 @@ import { ProfileGroupMap } from '@/utils'
 export default function ({
     routingProfiles,
     selectedProfile,
+    memorizedProfilePerGroup,
     showCustomModelBox,
     toggleCustomModelBox,
     customModelBoxEnabled,
 }: {
     routingProfiles: RoutingProfile[]
     selectedProfile: RoutingProfile
+    memorizedProfilePerGroup: Record<string, string>
     showCustomModelBox: boolean
     toggleCustomModelBox: () => void
     customModelBoxEnabled: boolean
@@ -107,20 +109,26 @@ export default function ({
                             profile => !profileToGroup[profile.name] || profile.name == profileToGroup[profile.name],
                         )
                         .map(profile => {
+                            const groupName = profileToGroup[profile.name]
                             const isProfileSelected =
                                 profile.name === selectedProfile.name ||
                                 profile.name == profileToGroup[selectedProfile.name]
                             const className = isProfileSelected
                                 ? styles.selectedProfile + ' ' + styles.profileBtn
                                 : styles.profileBtn
+                            // For group leaders, show the memorized profile's icon if available
+                            const activeProfileName = groupName
+                                ? memorizedProfilePerGroup[groupName] || profile.name
+                                : profile.name
+                            const iconName = icons[activeProfileName] ? activeProfileName : profile.name
                             return (
                                 <li key={profile.name}>
                                     <PlainButton
-                                        title={tr(profile.name)}
+                                        title={tr(activeProfileName)}
                                         onClick={() =>
                                             Dispatcher.dispatch(
-                                                profileToGroup[profile.name]
-                                                    ? new SetVehicleProfileGroup(profileToGroup[profile.name])
+                                                groupName
+                                                    ? new SetVehicleProfileGroup(groupName)
                                                     : new SetVehicleProfile(profile),
                                             )
                                         }
@@ -129,7 +137,7 @@ export default function ({
                                         {customModelBoxEnabled && profile.name === selectedProfile.name && (
                                             <CustomModelBoxSVG className={styles.asIndicator} />
                                         )}
-                                        {getIcon(profile.name, customProfiles)}
+                                        {getIcon(iconName, customProfiles)}
                                     </PlainButton>
                                 </li>
                             )

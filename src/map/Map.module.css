@@ -9,7 +9,7 @@
 
 .customZoom {
     right: 17px;
-    top: 115px;
+    top: 165px;
 }
 
 @media (max-width: 44rem) {
@@ -21,11 +21,12 @@
 
 /* changing the position of the attribution is a bit complex as we have to repeat the other css */
 .customAttribution {
-    left: 0;
+    right: 0;
+    left: auto;
     bottom: 0;
     padding: 1px 5px;
-    background-color: rgba(255, 255, 255, 0.8) !important;
-    border-radius: 0 4px 0 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 4px 0 0 0;
 }
 
 .customAttribution ul {
@@ -40,4 +41,12 @@
 
 .customAttribution button {
     display: none !important;
+}
+
+@media (max-width: 44rem) {
+    .customAttribution {
+        right: auto;
+        left: 0;
+        border-radius: 0 4px 0 0;
+    }
 }
