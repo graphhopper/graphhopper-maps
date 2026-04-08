@@ -61,3 +61,23 @@
     font-size: small;
     color: #5b616a;
 }
+
+.recentEntry {
+    display: flex;
+    align-items: center;
+    text-align: start;
+    margin: 0.4rem 0.5rem;
+}
+
+.recentEntryText {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.recentIcon {
+    flex-shrink: 0;
+    color: #5b616a;
+    margin-right: 0.5rem;
+}

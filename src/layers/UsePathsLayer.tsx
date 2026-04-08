@@ -1,6 +1,6 @@
 import { Feature, Map } from 'ol'
 import { Path } from '@/api/graphhopper'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Stroke, Style } from 'ol/style'
@@ -18,8 +18,13 @@ const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
 
-export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Path, queryPoints: QueryPoint[]) {
-    const [showPaths, setShowPaths] = useState(true)
+export default function usePathsLayer(
+    map: Map,
+    paths: Path[],
+    selectedPath: Path,
+    queryPoints: QueryPoint[],
+    showPaths: boolean = true,
+) {
     useEffect(() => {
         removeCurrentPathLayers(map)
         if (showPaths) {
@@ -33,28 +38,7 @@ export default function usePathsLayer(map: Map, paths: Path[], selectedPath: Pat
         return () => {
             removeCurrentPathLayers(map)
         }
-    }, [map, paths, selectedPath, showPaths])
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'h') setShowPaths(false)
-        }
-
-        const handleKeyUp = (e: KeyboardEvent) => {
-            if (e.key === 'h') setShowPaths(true)
-        }
-
-        const viewport = map.getViewport()
-        if (!viewport) return
-
-        viewport.tabIndex = -1 // Make element focusable but not in tab order
-
-        viewport.addEventListener('keydown', handleKeyDown)
-        viewport.addEventListener('keyup', handleKeyUp)
-        return () => {
-            viewport.removeEventListener('keydown', handleKeyDown)
-            viewport.removeEventListener('keyup', handleKeyUp)
-        }
-    }, []) // run only once when component is initialized
+    }, [map, paths, selectedPath, showPaths, queryPoints])
 }
 
 function removeCurrentPathLayers(map: Map) {

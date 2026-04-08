@@ -26,6 +26,7 @@ export default class ErrorStore extends Store<ErrorStoreState> {
                 isDismissed: false,
             }
         } else if (action instanceof DismissLastError || action instanceof RouteRequestSuccess) {
+            if (state.isDismissed) return state
             return {
                 ...state,
                 isDismissed: true,

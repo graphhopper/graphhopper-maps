@@ -2,9 +2,12 @@ import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { SetCustomModelEnabled, UpdateSettings } from '@/actions/Actions'
 
+const STORAGE_KEY = 'settings'
+
 export interface Settings {
     showDistanceInMiles: boolean
-    drawAreasEnabled: boolean
+    drawAreasEnabled: boolean // temporary, not persisted to localStorage
+    saveRecentLocations: boolean
     gpxExportRte: boolean
     gpxExportWpt: boolean
     gpxExportTrk: boolean
@@ -14,30 +17,52 @@ export interface Settings {
 export const defaultSettings: Settings = {
     showDistanceInMiles: false,
     drawAreasEnabled: false,
+    saveRecentLocations: true,
     gpxExportRte: false,
     gpxExportWpt: false,
     gpxExportTrk: true,
     nativeNavigationRisksAccepted: false,
 }
 
+function loadSettings(): Settings {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY)
+        if (stored) return { ...defaultSettings, ...JSON.parse(stored) }
+    } catch {
+        // localStorage unavailable
+    }
+    return defaultSettings
+}
+
+function saveSettings(settings: Settings): void {
+    try {
+        const { drawAreasEnabled, ...persistent } = settings
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(persistent))
+    } catch {
+        // localStorage unavailable
+    }
+}
+
 export default class SettingsStore extends Store<Settings> {
     constructor() {
-        super(defaultSettings)
+        super(loadSettings())
     }
 
     reduce(state: Settings, action: Action): Settings {
+        let newState = state
         if (action instanceof SetCustomModelEnabled) {
             if (!action.enabled && state.drawAreasEnabled)
-                return {
+                newState = {
                     ...state,
                     drawAreasEnabled: false,
                 }
         } else if (action instanceof UpdateSettings) {
-            return {
+            newState = {
                 ...state,
                 ...action.updatedSettings,
             }
         }
-        return state
+        if (newState !== state) saveSettings(newState)
+        return newState
     }
 }
