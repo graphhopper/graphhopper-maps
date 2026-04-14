@@ -172,7 +172,7 @@ export default function AddressInput(props: AddressInputProps) {
                     break
             }
         },
-        [autocompleteItems, highlightedResult],
+        [autocompleteItems, highlightedResult, text],
     )
 
     const focusNextOrBlur = () => {
@@ -235,7 +235,10 @@ export default function AddressInput(props: AddressInputProps) {
                             else setAutocompleteItems([])
                         } else {
                             const coordinate = textToCoordinate(query)
-                            if (!coordinate) {
+                            if (coordinate) {
+                                geocoder.cancel()
+                                setAutocompleteItems([])
+                            } else {
                                 if (query.length < 2) {
                                     const recents = buildRecentItems(query, 5, excludeCoord)
                                     if (recents.length > 0) setAutocompleteItems(recents)
