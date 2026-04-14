@@ -55,7 +55,7 @@ function addNewBackgroundLayers(map: Map, styleOption: StyleOption) {
                 tilePixelRatio: rasterStyle.tilePixelRatio,
                 tileLoadFunction: (tile, src) => {
                     const img = (tile as ImageTile).getImage() as HTMLImageElement
-                    img.referrerPolicy = 'origin-when-cross-origin'
+                    img.referrerPolicy = 'strict-origin-when-cross-origin'
                     img.src = src
                 },
             }),
