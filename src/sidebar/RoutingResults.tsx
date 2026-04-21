@@ -3,11 +3,20 @@ import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
 import statsStyles from './RouteStats.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
+import {
+    SelectMapLayer,
+    SetSelectedPath,
+    TurnNavigationSettingsUpdate,
+    TurnNavigationStart,
+    TurnNavigationStop,
+    PathDetailsElevationSelected,
+    SetBBox,
+} from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
-import { PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
 import { metersToShortText, metersToText, metersToTextForFile, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
+import NaviSVG from '@/sidebar/navigation.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
 import RouteStats from '@/sidebar/RouteStats'
@@ -17,6 +26,9 @@ import { calcDist, Coordinate, getBBoxFromCoord } from '@/utils'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
 import { ApiImpl } from '@/api/Api'
+import { TNSettingsState, TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
+import Cross from '@/sidebar/times-solid.svg'
+import * as config from 'config'
 import FordIcon from '@/sidebar/routeHints/water.svg'
 import CondAccessIcon from '@/sidebar/routeHints/remove_road.svg'
 import FerryIcon from '@/sidebar/routeHints/directions_boat.svg'
@@ -41,6 +53,7 @@ export interface RoutingResultsProps {
     selectedPath: Path
     currentRequest: CurrentRequest
     profile: string
+    turnNavigation?: TurnNavigationStoreState
     inclineOnMap?: boolean
 }
 
@@ -65,6 +78,7 @@ function RoutingResult({
     allPaths,
     isSelected,
     profile,
+    turnNavigation,
     inclineOnMap,
     isExpanded,
     setExpanded,
@@ -74,6 +88,7 @@ function RoutingResult({
     allPaths: Path[]
     isSelected: boolean
     profile: string
+    turnNavigation?: TurnNavigationStoreState
     inclineOnMap: boolean
     isExpanded: boolean
     setExpanded: (v: boolean) => void
@@ -94,6 +109,7 @@ function RoutingResult({
     }, [isSelected])
     const settings = useContext(SettingsContext)
     const showDistanceInMiles = settings.showDistanceInMiles
+    let [showBackAndRisk, setShowBackAndRisk] = useState(false)
 
     const fordInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ford')
     const tollInfo = getInfoFor(
@@ -172,6 +188,43 @@ function RoutingResult({
         dangerousHikeRatingInfo.distance > 0 ||
         steepInfo.distance > 0
 
+    if (showBackAndRisk)
+        return (
+            <div className={styles.showRiskButtons}>
+                {
+                    // if this panel is still shown although we already confirmed the risk then we are waiting for GPS (or an error with location permission)
+                    turnNavigation?.settings.acceptedRisk ? (
+                        <span>{tr('waiting_for_gps')}</span>
+                    ) : (
+                        <div className={styles.showRiskAccept}>
+                            <div>{tr('warning')}</div>
+                            <PlainButton
+                                onClick={() => {
+                                    Dispatcher.dispatch(
+                                        new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState)
+                                    )
+                                    startNavigation(turnNavigation?.settings.forceVectorTiles ?? false)
+                                }}
+                            >
+                                {tr('accept_risks_after_warning')}
+                            </PlainButton>
+                        </div>
+                    )
+                }
+                <PlainButton
+                    className={styles.showRiskBack}
+                    onClick={() => {
+                        setShowBackAndRisk(false)
+                        if (turnNavigation?.settings.forceVectorTiles)
+                            Dispatcher.dispatch(new SelectMapLayer(turnNavigation.oldTiles))
+                        Dispatcher.dispatch(new TurnNavigationStop())
+                    }}
+                >
+                    <Cross />
+                </PlainButton>
+            </div>
+        )
+
     return (
         <div className={styles.resultRow}>
             <div className={styles.resultSelectableArea} onClick={() => Dispatcher.dispatch(new SetSelectedPath(path))}>
@@ -199,13 +252,26 @@ function RoutingResult({
                             </span>
                         )}
                     </div>
-                    {isSelected && (
+                    {isSelected && !showBackAndRisk && (
+                        <PlainButton
+                            className={styles.exportButton}
+                            onClick={() => {
+                                setShowBackAndRisk(true)
+                                if (turnNavigation?.settings.acceptedRisk)
+                                    startNavigation(turnNavigation?.settings.forceVectorTiles ?? false)
+                            }}
+                        >
+                            <NaviSVG />
+                            <div>{tr('start_navigation')}</div>
+                        </PlainButton>
+                    )}
+                    {isSelected && !showBackAndRisk && (
                         <PlainButton className={styles.exportButton} onClick={() => downloadGPX(path, settings)}>
                             <GPXDownload />
                             <div>{tr('gpx_button')}</div>
                         </PlainButton>
                     )}
-                    {isSelected && (
+                    {isSelected && !showBackAndRisk && (
                         <PlainButton
                             className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
                             onTouchEnd={e => {
@@ -484,6 +550,11 @@ function RoutingResult({
     )
 }
 
+function startNavigation(forceVectorTiles: boolean) {
+    if (forceVectorTiles) Dispatcher.dispatch(new SelectMapLayer(config.navigationTiles, true))
+    Dispatcher.dispatch(new TurnNavigationStart())
+}
+
 function RHButton(p: {
     setDescription: (s: string) => void
     description: string
@@ -744,6 +815,7 @@ function createSingletonListContent(
                 isSelected={true}
                 profile={props.profile}
                 info={props.info}
+                turnNavigation={props.turnNavigation}
                 inclineOnMap={props.inclineOnMap ?? false}
                 isExpanded={isExpanded}
                 setExpanded={setExpanded}
@@ -758,7 +830,7 @@ function pathKey(path: Path): string {
 }
 
 function createListContent(
-    { info, paths, currentRequest, selectedPath, profile, inclineOnMap }: RoutingResultsProps,
+    { info, paths, currentRequest, selectedPath, profile, turnNavigation, inclineOnMap }: RoutingResultsProps,
     isExpanded: boolean,
     setExpanded: (v: boolean) => void,
 ) {
@@ -776,6 +848,7 @@ function createListContent(
                     isSelected={selected}
                     profile={profile}
                     info={info}
+                    turnNavigation={turnNavigation}
                     inclineOnMap={inclineOnMap ?? false}
                     isExpanded={selected && isExpanded}
                     setExpanded={setExpanded}
