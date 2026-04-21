@@ -91,8 +91,7 @@ export default function AddressInput(props: AddressInputProps) {
             return
         }
         if (text === '') {
-            const recents = buildRecentItems(undefined, 5, excludeCoord)
-            if (recents.length > 0) setAutocompleteItems(recents)
+            setAutocompleteItems(buildRecentItems(undefined, 5, excludeCoord))
         }
     }, [hasFocus, excludeCoord])
 
@@ -230,9 +229,7 @@ export default function AddressInput(props: AddressInputProps) {
                         setText(query)
                         if (query === '') {
                             geocoder.cancel()
-                            const recents = buildRecentItems(undefined, 5, excludeCoord)
-                            if (recents.length > 0) setAutocompleteItems(recents)
-                            else setAutocompleteItems([])
+                            setAutocompleteItems(buildRecentItems(undefined, 5, excludeCoord))
                         } else {
                             const coordinate = textToCoordinate(query)
                             if (coordinate) {
@@ -240,8 +237,7 @@ export default function AddressInput(props: AddressInputProps) {
                                 setAutocompleteItems([])
                             } else {
                                 if (query.length < 2) {
-                                    const recents = buildRecentItems(query, 5, excludeCoord)
-                                    if (recents.length > 0) setAutocompleteItems(recents)
+                                    setAutocompleteItems(buildRecentItems(query, 5, excludeCoord))
                                 }
                                 geocoder.request(query, biasCoord, getMap().getView().getZoom())
                             }
@@ -274,9 +270,7 @@ export default function AddressInput(props: AddressInputProps) {
                     onClick={e => {
                         setText('')
                         props.onChange('')
-                        const recents = buildRecentItems(undefined, 5, excludeCoord)
-                        if (recents.length > 0) setAutocompleteItems(recents)
-                        else setAutocompleteItems([])
+                        setAutocompleteItems(buildRecentItems(undefined, 5, excludeCoord))
                         // if we clear the text without focus then explicitly request it to improve usability:
                         searchInput.current!.focus()
                     }}
