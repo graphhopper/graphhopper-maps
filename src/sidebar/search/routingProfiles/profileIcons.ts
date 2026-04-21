@@ -1,4 +1,5 @@
 import BicycleIcon from './bike.svg'
+import BikeScenicIcon from './bike_scenic.svg'
 import CarIcon from './car.svg'
 import FootIcon from './foot.svg'
 import HikeIcon from './hike.svg'
@@ -25,6 +26,7 @@ export const icons: Record<string, any> = {
     foot: FootIcon,
     hike: HikeIcon,
     bike: BicycleIcon,
+    bike_scenic: BikeScenicIcon,
     mtb: MtbBicycleIcon, // Mountainbike
     racingbike: RacingbikeIcon,
     ecargobike: EcargobikeIcon,
@@ -34,4 +36,12 @@ export const icons: Record<string, any> = {
     car_avoid_motorway: MotorwayDisabledIcon,
     car_avoid_ferry: FerryDisabledIcon,
     car_avoid_toll: TollDisabledIcon,
+}
+
+// Resolve an icon for a routing-profile name. Falls back to the base-profile icon for custom profiles
+// like 'bike_scenic' → 'bike', and finally to the question-mark icon if nothing matches.
+export function findIcon(profileName: string): any {
+    if (icons[profileName]) return icons[profileName]
+    const baseKey = Object.keys(icons).find(k => profileName.startsWith(k + '_'))
+    return baseKey ? icons[baseKey] : icons.question_mark
 }

@@ -16,7 +16,7 @@ import { Coordinate } from '@/utils'
 import PlainButton from '@/PlainButton'
 import { tr } from '@/translation/Translation'
 import Chevron from '@/sidebar/search/routingProfiles/chevron.svg'
-import { icons } from '@/sidebar/search/routingProfiles/profileIcons'
+import { findIcon } from '@/sidebar/search/routingProfiles/profileIcons'
 import { RoutingProfile } from '@/api/graphhopper'
 
 type MobileSidebarProps = {
@@ -102,8 +102,7 @@ function SmallSearchView(props: { points: QueryPoint[]; selectedProfile: Routing
     const from = props.points[0]
     const to = props.points[props.points.length - 1]
     const isSmallHeight = useMediaQuery({ query: '(max-height: 36rem)' })
-    const icon = icons[props.selectedProfile.name]
-    const iconElement = icon ? React.createElement(icon) : React.createElement(icons.question_mark)
+    const iconElement = React.createElement(findIcon(props.selectedProfile.name))
 
     return (
         <div className={styles.btnOpenContainer} onClick={props.onClick}>
