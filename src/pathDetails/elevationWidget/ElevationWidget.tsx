@@ -6,6 +6,7 @@ import { INCLINE_CATEGORIES, computeInclineCategoryDistances } from './colors'
 import { ElevationPoint } from './types'
 import DetailSelector from './DetailSelector'
 import Legend from './Legend'
+import Cross from '@/sidebar/times-solid.svg'
 
 // Slope colors are also computed in ChartRenderer.drawElevationArea. Duplicate calculation here to keep the
 // legend independent of the renderer's draw cycle.
@@ -237,8 +238,8 @@ export default function ElevationWidget({
                         {isExpanded ? '\u25C0' : '\u25B6'}
                     </button>
                     {isExpanded && onClose && (
-                        <button className={styles.expandButton} onClick={onClose} title="Close">
-                            {'\u2715'}
+                        <button className={styles.closeButton} onClick={onClose} title="Close">
+                            <Cross />
                         </button>
                     )}
                 </div>
