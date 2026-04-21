@@ -8,7 +8,7 @@ We have developed an intuitive and simple user interface to find routes:
 
 [![GraphHopper Maps route planner](https://www.graphhopper.com/wp-content/uploads/2026/03/maps-screenshot.png)](https://graphhopper.com/maps/)
 
-With autocomplete, alternative routes, information along the route and POI search and everything available in all major browsers including mobile browsers. Read more details about it [here](https://www.graphhopper.com/maps-route-planner/).
+With address search (autocomplete), alternative routes, information along the route and POI search and everything available in all major browsers including mobile browsers. Read more details about it [here](https://www.graphhopper.com/maps-route-planner/).
 
 ## Turn-by-Turn navigation
 

@@ -58,22 +58,26 @@ export function saveRecentLocation(
     try {
         const all = getRecentLocations()
         let prevCount = 0
-        const filtered = all.filter(e => {
+        const others = all.filter(e => {
             const isDuplicate = calcDist({ lat: e.lat, lng: e.lng }, coordinate) <= DEDUP_DISTANCE_METERS
             if (isDuplicate) prevCount = e.count
             return !isDuplicate
         })
 
-        filtered.push({
+        const newEntry: RecentLocation = {
             mainText,
             secondText,
             lat: coordinate.lat,
             lng: coordinate.lng,
             timestamp: now,
             count: prevCount + 1,
-        })
-        filtered.sort((a, b) => b.timestamp - a.timestamp)
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered.slice(0, MAX_ENTRIES)))
+        }
+        // Always keep the just-saved entry so a brand-new one-off can enter even if the cache is full of
+        // favorites (otherwise it would be starved and never accumulate count). Rank the remaining slots
+        // by count desc then timestamp desc so frequently-used entries survive pressure from one-offs.
+        others.sort((a, b) => b.count - a.count || b.timestamp - a.timestamp)
+        const kept = [newEntry, ...others].slice(0, MAX_ENTRIES)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(kept))
     } catch {
         // localStorage unavailable (private browsing, quota exceeded)
     }
