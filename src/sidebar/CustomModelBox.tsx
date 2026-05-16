@@ -68,6 +68,21 @@ export default function CustomModelBox({
         instance.cm.setSize('100%', '100%')
         instance.cm.on('change', () => Dispatcher.dispatch(new SetCustomModel(instance.value, false)))
         instance.validListener = (valid: boolean) => setIsValid(valid)
+
+        const triggerRouting = () => {
+            try {
+                JSON.parse(instance.value)
+            } catch (e) {
+                Dispatcher.dispatch(new ErrorAction('Custom Model ' + (e as SyntaxError).toString()))
+            }
+            Dispatcher.dispatch(new SetCustomModel(instance.value, true))
+        }
+        // Using this keyboard shortcut we can skip the custom model validation and directly request a routing
+        // query.
+        instance.cm.addKeyMap({
+            'Ctrl-Enter': triggerRouting,
+            'Cmd-Enter': triggerRouting,
+        })
     }, [])
 
     useEffect(() => {
@@ -77,22 +92,6 @@ export default function CustomModelBox({
         if (customModelEnabled) editor.cm.focus()
         if (editor.value !== customModelStr) editor.value = customModelStr
     }, [editor, encodedValues, customModelEnabled, customModelStr])
-
-    const triggerRouting = useCallback(
-        (event: React.KeyboardEvent<HTMLInputElement>) => {
-            if (event.ctrlKey && event.key === 'Enter') {
-                // Using this keyboard shortcut we can skip the custom model validation and directly request a routing
-                // query.
-                try {
-                    JSON.parse(editor.value)
-                } catch (e) {
-                    Dispatcher.dispatch(new ErrorAction('Custom Model ' + (e as SyntaxError).toString()))
-                }
-                Dispatcher.dispatch(new SetCustomModel(editor.value, true))
-            }
-        },
-        [editor, isValid],
-    )
 
     return (
         <>
@@ -119,7 +118,7 @@ export default function CustomModelBox({
                     </PlainButton>
                 )}
             </div>
-            <div ref={divElement} className={styles.customModelBox} onKeyUp={triggerRouting} />
+            <div ref={divElement} className={styles.customModelBox}/>
             <div className={styles.customModelBoxBottomBar}>
                 <select
                     className={styles.examples}

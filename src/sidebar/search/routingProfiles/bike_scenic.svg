@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24"
+   height="24"
+   version="1.1"
+   xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(0,-1028.3622)">
+    <!-- bike (same geometry as bike.svg) -->
+    <circle
+       style="stroke-opacity:1;stroke-dasharray:none;stroke-miterlimit:4;stroke-width:1.30522;stroke:currentColor;fill:none;"
+       cx="17.34622"
+       cy="1044.1061"
+       r="3.0922649" />
+    <circle
+       style="stroke-opacity:1;stroke-dasharray:none;stroke-miterlimit:4;stroke-width:1.30522;stroke:currentColor;fill:none;"
+       cx="6.7585206"
+       cy="1044.1062"
+       r="3.0922649" />
+    <circle
+       style="stroke-width:0.243187;stroke:none;fill-opacity:1;fill:currentColor;"
+       cx="12.729268"
+       cy="1033.7065"
+       r="1.1284846" />
+    <path
+       style="stroke-opacity:1;stroke-dasharray:none;stroke-miterlimit:4;stroke-linejoin:round;stroke-linecap:round;stroke-width:1.25956;stroke:currentColor;fill:none;"
+       d="m 10.379938,1040.226 c 2.187604,1.9194 1.379478,3.6556 0.855983,5.4514 0.242652,-0.9295 0.808991,-2.2982 0.760838,-3.1051 -0.233076,-0.9715 -2.2275138,-2.7399 -1.616821,-2.3463 z" />
+    <path
+       style="stroke-opacity:1;stroke-dasharray:none;stroke-miterlimit:4;stroke-linejoin:round;stroke-linecap:round;stroke-width:2.29606;stroke:currentColor;fill:none;"
+       d="m 9.9618652,1039.6803 1.7809448,-3.357" />
+    <path
+       style="stroke-opacity:1;stroke-dasharray:none;stroke-miterlimit:4;stroke-linejoin:round;stroke-linecap:round;stroke-width:1.20108;stroke:currentColor;fill:none;"
+       d="m 12.150644,1036.1581 2.802445,2.5208" />
+    <!-- signpost post -->
+    <path
+       style="stroke:currentColor;stroke-width:1.1;stroke-linecap:round;fill:none;"
+       d="m 19,1032 v 5.5" />
+    <!-- signpost plate with arrow tip pointing right -->
+    <path
+       style="stroke:currentColor;stroke-width:1;stroke-linejoin:round;fill:currentColor;fill-opacity:0.25;"
+       d="m 16,1029.2 h 6 l 2,1.4 -2,1.4 h -6 z" />
+  </g>
+</svg>

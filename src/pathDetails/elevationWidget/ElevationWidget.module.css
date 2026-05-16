@@ -84,19 +84,42 @@
     border-radius: 4px;
     background: #f8f8f9;
     cursor: pointer;
-    font-size: 9px;
-    color: #666;
+    font-size: 13px;
+    color: #555;
     flex-shrink: 0;
     padding: 0 0 0 1px;
 }
 
 .expandButton:hover {
     background: #e8e8e8;
-    color: #333;
+}
+
+.closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f8f8f9;
+    cursor: pointer;
+    color: #555;
+    flex-shrink: 0;
+}
+
+.closeButton svg {
+    width: 13px;
+    height: 13px;
+}
+
+.closeButton:hover {
+    background: #e8e8e8;
 }
 
 @media (max-width: 44rem) {
-    .expandButton {
+    .expandButton,
+    .closeButton {
         display: none;
     }
 

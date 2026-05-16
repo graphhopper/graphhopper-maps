@@ -241,11 +241,16 @@
 
     color: lightgray !important; /* unsure why !important is necessary here but not in ErrorMessage.module.css for same <Cross/> */
 
-    height: 10px;
-    width: 10px;
+    height: 15px;
+    width: 15px;
 
     right: 7px;
     top: 6px;
+}
+
+.sidebarCloseButton svg {
+    width: 100%;
+    height: 100%;
 }
 
 .sidebarCloseButton:hover {
