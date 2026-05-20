@@ -2,11 +2,11 @@ import { coordinateToText } from '@/Converters'
 import Dispatcher from '@/stores/Dispatcher'
 import {
     ClearPoints,
+    DisableCustomModel,
     ErrorAction,
     SelectMapLayer,
     SetBBox,
     SetCustomModel,
-    SetCustomModelEnabled,
     SetQueryPoints,
     SetVehicleProfile,
 } from '@/actions/Actions'
@@ -268,7 +268,8 @@ export default class NavBar {
                 prettyStr = customModel2prettyString(JSON.parse(customModelStr))
             } catch {}
             Dispatcher.dispatch(new SetCustomModel(prettyStr, true))
-            Dispatcher.dispatch(new SetCustomModelEnabled(true))
+        } else {
+            Dispatcher.dispatch(new DisableCustomModel())
         }
 
         this.ignoreStateUpdates = false

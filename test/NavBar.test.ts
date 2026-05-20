@@ -22,7 +22,6 @@ import DummyApi from './DummyApi'
 import {
     SelectMapLayer,
     SetCustomModel,
-    SetCustomModelEnabled,
     SetPoint,
     SetQueryPoints,
     SetVehicleProfile,
@@ -187,7 +186,6 @@ describe('NavBar', function () {
             queryStore.receive(new SetVehicleProfile({ name: 'car' }))
             mapStore.receive(new SelectMapLayer('Cyclosm'))
             queryStore.receive(new SetCustomModel(cm, true))
-            queryStore.receive(new SetCustomModelEnabled(true))
             await flush()
 
             const url = lastPushedUrl()
