@@ -1,6 +1,15 @@
 import { coordinateToText } from '@/Converters'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, SelectMapLayer, SetBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
+import {
+    ClearPoints,
+    ErrorAction,
+    SelectMapLayer,
+    SetBBox,
+    SetCustomModel,
+    SetCustomModelEnabled,
+    SetQueryPoints,
+    SetVehicleProfile,
+} from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
@@ -9,6 +18,18 @@ import { ApiImpl, getApi } from '@/api/Api'
 import { AddressParseResult } from '@/pois/AddressParseResult'
 import { getQueryStore } from '@/stores/Stores'
 import { getBBoxFromCoord, getBBoxPoints } from '@/utils'
+import { decodeCoords, encodeCoords } from '@/util/flexPolyline'
+import { canCompress, deflateB64url, inflateB64url } from '@/util/urlCompress'
+
+// Minimum number of (initialized) waypoints before we switch from the legible
+// `point=lat,lng` format to the compact `fpolyline=` representation. For 1-3
+// points the URL stays human-readable; the savings only become substantial
+// once a route gets long enough to be tedious to read anyway.
+const FPOLYLINE_THRESHOLD = 4
+
+// Names delimiter inside the compressed `cnames` blob. Stripped from names on
+// encode so the split on decode is unambiguous.
+const NAMES_SEP = '*'
 
 export default class NavBar {
     private readonly queryStore: QueryStore
@@ -23,23 +44,55 @@ export default class NavBar {
 
     async startSyncingUrlWithAppState() {
         // our first history entry shall be the one that we end up with when the app loads for the first time
-        window.history.replaceState(null, '', this.createUrlFromState())
+        const url = await this.createUrlFromState()
+        window.history.replaceState(null, '', url)
         this.queryStore.register(() => this.updateUrlFromState())
         this.mapStore.register(() => this.updateUrlFromState())
     }
 
-    private static createUrl(baseUrl: string, queryStoreState: QueryStoreState, mapState: MapOptionsStoreState) {
+    private static async createUrl(
+        baseUrl: string,
+        queryStoreState: QueryStoreState,
+        mapState: MapOptionsStoreState,
+    ): Promise<URL> {
         const result = new URL(baseUrl)
-        if (queryStoreState.queryPoints.filter(point => point.isInitialized).length > 0) {
-            queryStoreState.queryPoints
-                .map(point => (!point.isInitialized ? '' : NavBar.pointToParam(point)))
-                .forEach(pointAsString => result.searchParams.append('point', pointAsString))
+        const points = queryStoreState.queryPoints
+        const allInitialized = points.length > 0 && points.every(p => p.isInitialized)
+
+        // We only use the compact `fpolyline`/`cnames`/`cmodel` format when the
+        // browser exposes CompressionStream. Older browsers fall back to the legacy
+        // `point=` + `custom_model=` representation so they keep producing usable
+        // (just longer) share URLs.
+        const compressionAvailable = canCompress()
+
+        if (compressionAvailable && allInitialized && points.length >= FPOLYLINE_THRESHOLD) {
+            result.searchParams.append('fpolyline', encodeCoords(points.map(p => p.coordinate)))
+            const names = points.map(p => {
+                const coordText = coordinateToText(p.coordinate)
+                return p.queryText === coordText ? '' : p.queryText.split(NAMES_SEP).join('')
+            })
+            if (names.some(n => n.length > 0)) {
+                result.searchParams.append('cnames', await deflateB64url(names.join(NAMES_SEP)))
+            }
+        } else if (points.some(p => p.isInitialized)) {
+            // Legacy emission for short routes, mixed-init states, and old browsers.
+            // Only emits when at least one point is set so a clean app state doesn't
+            // produce an ugly `?point=&point=` URL.
+            points
+                .map(p => (!p.isInitialized ? '' : NavBar.pointToParam(p)))
+                .forEach(s => result.searchParams.append('point', s))
         }
 
         result.searchParams.append('profile', queryStoreState.routingProfile.name)
-        result.searchParams.append('layer', mapState.selectedStyle.name)
-        if (queryStoreState.customModelEnabled)
-            result.searchParams.append('custom_model', queryStoreState.customModelStr.replace(/\s+/g, ''))
+        result.searchParams.append('l', mapState.selectedStyle.shortName)
+        if (queryStoreState.customModelEnabled) {
+            const cm = queryStoreState.customModelStr.replace(/\s+/g, '')
+            if (compressionAvailable) {
+                result.searchParams.append('cmodel', await deflateB64url(cm))
+            } else {
+                result.searchParams.append('custom_model', cm)
+            }
+        }
 
         return result
     }
@@ -49,10 +102,44 @@ export default class NavBar {
         return coordinate === point.queryText ? coordinate : coordinate + '_' + point.queryText
     }
 
-    private static parsePoints(url: URL): QueryPoint[] {
+    private static async parsePoints(url: URL): Promise<QueryPoint[]> {
+        const fpolyline = url.searchParams.get('fpolyline')
+        if (fpolyline) {
+            let coords
+            try {
+                coords = decodeCoords(fpolyline)
+            } catch {
+                // Truncated, garbled, or future-version polyline — without coords
+                // there's no route at all, so let the user know rather than showing
+                // an empty map. cnames failures stay silent (names don't affect the
+                // route — just the labels).
+                Dispatcher.dispatch(
+                    new ErrorAction(
+                        'Could not decode the waypoints from the URL. The shared link may be truncated or malformed.',
+                    ),
+                )
+                return []
+            }
+            const cnames = url.searchParams.get('cnames')
+            let names: string[] = []
+            if (cnames && canCompress()) {
+                try {
+                    names = (await inflateB64url(cnames)).split(NAMES_SEP)
+                } catch {
+                    names = []
+                }
+            }
+            return coords.map((coordinate, idx) => ({
+                coordinate,
+                isInitialized: true,
+                id: idx,
+                queryText: names[idx] && names[idx].length > 0 ? names[idx] : coordinateToText(coordinate),
+                color: '',
+                type: QueryPointType.Via,
+            }))
+        }
         return url.searchParams.getAll('point').map((parameter, idx) => {
             const split = parameter.split('_')
-
             const point = {
                 coordinate: { lat: 0, lng: 0 },
                 isInitialized: false,
@@ -74,6 +161,27 @@ export default class NavBar {
         })
     }
 
+    private static async parseCustomModel(url: URL): Promise<string | null> {
+        const compressed = url.searchParams.get('cmodel')
+        if (compressed) {
+            if (canCompress()) {
+                try {
+                    return await inflateB64url(compressed)
+                } catch {}
+            }
+            // cmodel is authoritative when present — don't silently swap in a
+            // potentially-different `custom_model=` value as a fallback.
+            Dispatcher.dispatch(
+                new ErrorAction(
+                    'Could not decode the custom routing model from the URL. ' +
+                        'The route is being shown without the custom model and will differ from the original.',
+                ),
+            )
+            return null
+        }
+        return url.searchParams.get('custom_model')
+    }
+
     private static parseCoordinate(params: string) {
         const coordinateParams = params.split(',')
         if (coordinateParams.length !== 2) throw Error('Could not parse coordinate with value: "' + params[0] + '"')
@@ -92,7 +200,7 @@ export default class NavBar {
     }
 
     private static parseLayer(url: URL): string | null {
-        return url.searchParams.get('layer')
+        return url.searchParams.get('l') ?? url.searchParams.get('layer')
     }
 
     async updateStateFromUrl() {
@@ -106,7 +214,7 @@ export default class NavBar {
         if (parsedProfileName)
             // this won't trigger a route request because we just cleared the points
             Dispatcher.dispatch(new SetVehicleProfile({ name: parsedProfileName }))
-        const parsedPoints = NavBar.parsePoints(url)
+        const parsedPoints = await NavBar.parsePoints(url)
 
         // support legacy URLs without coordinates (not initialized) and only text, see #199
         if (parsedPoints.some(p => !p.isInitialized && p.queryText.length > 0)) {
@@ -150,6 +258,12 @@ export default class NavBar {
         const parsedLayer = NavBar.parseLayer(url)
         if (parsedLayer) Dispatcher.dispatch(new SelectMapLayer(parsedLayer))
 
+        const customModelStr = await NavBar.parseCustomModel(url)
+        if (customModelStr) {
+            Dispatcher.dispatch(new SetCustomModel(customModelStr, true))
+            Dispatcher.dispatch(new SetCustomModelEnabled(true))
+        }
+
         this.ignoreStateUpdates = false
     }
 
@@ -165,17 +279,18 @@ export default class NavBar {
         return Dispatcher.dispatch(new SetQueryPoints(points))
     }
 
-    public updateUrlFromState() {
+    public async updateUrlFromState() {
         if (this.ignoreStateUpdates) return
-        const newHref = this.createUrlFromState()
+        const newHref = await this.createUrlFromState()
         if (newHref !== window.location.href) window.history.pushState(null, '', newHref)
     }
 
-    private createUrlFromState() {
-        return NavBar.createUrl(
+    private async createUrlFromState(): Promise<string> {
+        const url = await NavBar.createUrl(
             window.location.origin + window.location.pathname,
             this.queryStore.state,
             this.mapStore.state,
-        ).toString()
+        )
+        return url.toString()
     }
 }
