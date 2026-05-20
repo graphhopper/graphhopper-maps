@@ -8,10 +8,10 @@ import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
 import {
     ClearRoute,
+    DisableCustomModel,
     DismissLastError,
     ErrorAction,
     SetCustomModel,
-    SetCustomModelEnabled,
     UpdateSettings,
 } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
@@ -101,7 +101,11 @@ export default function CustomModelBox({
                     onClick={() => {
                         if (customModelEnabled) Dispatcher.dispatch(new DismissLastError())
                         Dispatcher.dispatch(new ClearRoute())
-                        Dispatcher.dispatch(new SetCustomModelEnabled(!customModelEnabled))
+                        Dispatcher.dispatch(
+                            customModelEnabled
+                                ? new DisableCustomModel()
+                                : new SetCustomModel(customModelStr, true),
+                        )
                     }}
                 >
                     {customModelEnabled ? <OnIcon /> : <OffIcon />}
@@ -126,7 +130,10 @@ export default function CustomModelBox({
                         // When selecting an example we request a routing request and act like the model is valid,
                         // even when it is not according to the editor validation.
                         Dispatcher.dispatch(
-                            new SetCustomModel(customModel2prettyString(customModelExamples[e.target.value]), true),
+                            new SetCustomModel(
+                                customModel2prettyString(customModelExamples[e.target.value]),
+                                true,
+                            ),
                         )
                     }}
                 >
@@ -159,7 +166,6 @@ export default function CustomModelBox({
                         // If the model was invalid the button would be disabled anyway, so it does not really matter
                         // if we set valid to true or false here.
                         onClick={() => {
-                            if (!customModelEnabled) Dispatcher.dispatch(new SetCustomModelEnabled(true))
                             Dispatcher.dispatch(new SetCustomModel(editor.value, true))
                         }}
                     >

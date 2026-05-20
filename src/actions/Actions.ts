@@ -97,14 +97,6 @@ export class InvalidatePoint implements Action {
     }
 }
 
-export class SetCustomModelEnabled implements Action {
-    readonly enabled: boolean
-
-    constructor(enabled: boolean) {
-        this.enabled = enabled
-    }
-}
-
 export class SetCustomModel implements Action {
     readonly customModelStr: string
     readonly issueRoutingRequest: boolean
@@ -114,6 +106,8 @@ export class SetCustomModel implements Action {
         this.issueRoutingRequest = issueRoutingRequest
     }
 }
+
+export class DisableCustomModel implements Action {}
 
 export class RouteRequestSuccess implements Action {
     readonly result: RoutingResult
