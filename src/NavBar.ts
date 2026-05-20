@@ -20,6 +20,7 @@ import { getQueryStore } from '@/stores/Stores'
 import { getBBoxFromCoord, getBBoxPoints } from '@/utils'
 import { decodeCoords, encodeCoords } from '@/util/flexPolyline'
 import { canCompress, deflateB64url, inflateB64url } from '@/util/urlCompress'
+import { customModel2prettyString } from '@/sidebar/CustomModelExamples'
 
 // Minimum number of (initialized) waypoints before we switch from the legible
 // `point=lat,lng` format to the compact `fpolyline=` representation. For 1-3
@@ -260,7 +261,13 @@ export default class NavBar {
 
         const customModelStr = await NavBar.parseCustomModel(url)
         if (customModelStr) {
-            Dispatcher.dispatch(new SetCustomModel(customModelStr, true))
+            // Pretty-print so the editor shows readable JSON (URL form is minified).
+            // Mirrors QueryStore.getInitialState behaviour for the initial-load case.
+            let prettyStr = customModelStr
+            try {
+                prettyStr = customModel2prettyString(JSON.parse(customModelStr))
+            } catch {}
+            Dispatcher.dispatch(new SetCustomModel(prettyStr, true))
             Dispatcher.dispatch(new SetCustomModelEnabled(true))
         }
 

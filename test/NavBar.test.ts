@@ -292,7 +292,8 @@ describe('NavBar', function () {
             await navBar.updateStateFromUrl()
 
             expect(queryStore.state.customModelEnabled).toEqual(true)
-            expect(queryStore.state.customModelStr).toEqual(cm)
+            // stored value is pretty-printed, so compare JSON semantically
+            expect(JSON.parse(queryStore.state.customModelStr)).toEqual(JSON.parse(cm))
         })
 
         it('parses legacy custom_model= URL', async () => {
@@ -308,7 +309,7 @@ describe('NavBar', function () {
             await navBar.updateStateFromUrl()
 
             expect(queryStore.state.customModelEnabled).toEqual(true)
-            expect(queryStore.state.customModelStr).toEqual(cm)
+            expect(JSON.parse(queryStore.state.customModelStr)).toEqual(JSON.parse(cm))
         })
 
         it('sets no points when no points are in URL', async () => {
