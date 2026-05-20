@@ -5,7 +5,8 @@ import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
-import { useContext } from 'react'
+import LinkIcon from '@/sidebar/link.svg'
+import { useContext, useState } from 'react'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import { RoutingProfile } from '@/api/graphhopper'
 import * as config from 'config'
@@ -14,6 +15,7 @@ import { clearRecentLocations } from '@/sidebar/search/RecentLocations'
 
 export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
     const settings = useContext(SettingsContext)
+    const [showCopiedInfo, setShowCopiedInfo] = useState(false)
 
     function setProfile(n: string) {
         Dispatcher.dispatch(new SetVehicleProfile({ name: profile.name === n ? 'car' : n }))
@@ -23,6 +25,25 @@ export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
     const group = config.profile_group_mapping[groupName]
     return (
         <div className={styles.parent}>
+            <div
+                className={styles.copyLinkRow}
+                onClick={() => {
+                    let url = window.location.href
+                    // Capacitor serves the app from https://localhost or http://localhost — rewrite to the
+                    // public URL so the shared link is openable on other devices.
+                    if (window.location.hostname === 'localhost')
+                        url = 'https://navi.graphhopper.org' + window.location.pathname + window.location.search
+                    navigator.clipboard.writeText(url)
+                    if (navigator.share) navigator.share({ url })
+                    setShowCopiedInfo(true)
+                    setTimeout(() => setShowCopiedInfo(false), 2500)
+                }}
+            >
+                <PlainButton>
+                    <LinkIcon />
+                </PlainButton>
+                <div>{showCopiedInfo ? tr('Copied!') : tr('Copy Link')}</div>
+            </div>
             {groupName && <span className={styles.groupProfileOptionsHeader}>{tr(groupName + '_settings')}</span>}
             {groupName && (
                 <div className={styles.settingsTable}>

@@ -3,6 +3,12 @@ declare module '*.svg'
 declare module '*.png'
 declare module 'custom-model-editor/src/index'
 
+// Optional global injected by the Capacitor wrapper (src/app.js in graphhopper-maps-capacitor)
+// to route file downloads through native Filesystem.writeFile + Share. Absent in browser builds.
+interface Window {
+    ghSaveFile?: (args: { fileName: string; mimeType: string; fileContents: string }) => Promise<unknown>
+}
+
 declare module 'config' {
     interface ProfileGroup {
         readonly options: { profile: string }[]

@@ -745,14 +745,22 @@ function downloadGPX(path: Path, settings: Settings) {
 
     xmlString += '</gpx>'
 
-    const tmpElement = document.createElement('a')
-    const file = new Blob([xmlString], { type: 'application/gpx+xml' })
-    tmpElement.href = URL.createObjectURL(file)
     const date = new Date()
-    tmpElement.download = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
+    const fileName = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
         date.getUTCDate(),
     )}-${metersToTextForFile(path.distance, settings.showDistanceInMiles)}.gpx`
-    tmpElement.click()
+    const mimeType = 'application/gpx+xml'
+
+    if (window.ghSaveFile) {
+        // Capacitor wrapper handles native file save + share.
+        window.ghSaveFile({ fileName, mimeType, fileContents: xmlString })
+    } else {
+        const tmpElement = document.createElement('a')
+        const file = new Blob([xmlString], { type: mimeType })
+        tmpElement.href = URL.createObjectURL(file)
+        tmpElement.download = fileName
+        tmpElement.click()
+    }
 }
 
 function pad(value: number) {

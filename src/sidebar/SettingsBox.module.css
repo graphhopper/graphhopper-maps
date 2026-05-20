@@ -5,6 +5,30 @@
     border-bottom: 1px lightgray solid;
 }
 
+.copyLinkRow {
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 50px auto;
+    align-items: center;
+    padding-bottom: 20px;
+    font-size: 14px;
+    color: gray;
+}
+
+.copyLinkRow div {
+    color: #5b616a;
+}
+
+.copyLinkRow:hover div,
+.copyLinkRow:hover svg {
+    color: black;
+}
+
+.copyLinkRow svg {
+    width: 30px;
+    height: 30px;
+}
+
 .settingsTable {
     display: flex;
     flex-direction: column;
