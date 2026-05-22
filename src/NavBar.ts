@@ -36,6 +36,9 @@ export default class NavBar {
     private readonly queryStore: QueryStore
     private readonly mapStore: MapOptionsStore
     private ignoreStateUpdates = false
+    // Monotonic id so an older URL build can't clobber a newer one if their
+    // async compressions finish out of order.
+    private urlChangeId = 0
 
     constructor(queryStore: QueryStore, mapStore: MapOptionsStore) {
         this.queryStore = queryStore
@@ -289,7 +292,11 @@ export default class NavBar {
 
     public async updateUrlFromState() {
         if (this.ignoreStateUpdates) return
+        const currentId = ++this.urlChangeId
         const newHref = await this.createUrlFromState()
+        // A later state change started another build while we were awaiting
+        // compression — its result is strictly newer, so drop ours.
+        if (currentId !== this.urlChangeId) return
         if (newHref !== window.location.href) window.history.pushState(null, '', newHref)
     }
 

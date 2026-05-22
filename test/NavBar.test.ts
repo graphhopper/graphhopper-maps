@@ -30,6 +30,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { coordinateToText } from '@/Converters'
 import { encodeCoords } from '@/util/flexPolyline'
 import { deflateB64url } from '@/util/urlCompress'
+import * as urlCompress from '@/util/urlCompress'
 
 // import the window and mock it with jest
 import { window } from '@/Window'
@@ -399,6 +400,34 @@ describe('NavBar', function () {
 
             expect(queryStore.state.routingProfile.name).toEqual('some-profile-name')
         })
+    })
+
+    it('does not let an older URL build overwrite a newer one when compressions complete out of order', async () => {
+        // Two synchronous dispatches each kick off an async URL build. We force
+        // the older build to finish *after* the newer one. Without the urlChangeId
+        // guard the stale build's pushState would clobber the current URL.
+        let resolveOld: (s: string) => void = () => {}
+        let resolveNew: (s: string) => void = () => {}
+        const spy = jest
+            .spyOn(urlCompress, 'deflateB64url')
+            .mockImplementationOnce(() => new Promise<string>(r => (resolveOld = r)))
+            .mockImplementationOnce(() => new Promise<string>(r => (resolveNew = r)))
+
+        try {
+            queryStore.receive(new SetCustomModel('{"distance_influence":1}', true))
+            queryStore.receive(new SetCustomModel('{"distance_influence":2}', true))
+
+            // Resolve the newer build first, then the older one — the older one
+            // returning last is exactly the race we're guarding against.
+            resolveNew('NEW')
+            await flush()
+            resolveOld('OLD')
+            await flush()
+
+            expect(lastPushedUrl().searchParams.get('cmodel')).toEqual('NEW')
+        } finally {
+            spy.mockRestore()
+        }
     })
 
     it('updates query store state on popstate (back-pressed)', async () => {
