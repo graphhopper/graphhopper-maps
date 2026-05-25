@@ -156,7 +156,8 @@ const wanderreitkarte: RasterStyle = {
     maxZoom: 18,
 }
 
-const styleOptions: StyleOption[] = [
+// Default basemaps - these will be used as fallback when no custom configuration is provided
+const defaultBasemaps: StyleOption[] = [
     omniscale,
     osmOrg,
     osmCycl,
@@ -168,6 +169,71 @@ const styleOptions: StyleOption[] = [
     mapillion,
     wanderreitkarte,
 ]
+
+// Function to create basemap configurations from config
+function createBasemapsFromConfig(): StyleOption[] {
+    // If custom basemaps are completely defined, use them instead of defaults
+    if (config.basemaps?.basemaps) {
+        return config.basemaps.basemaps.map(convertConfigBasemapToStyleOption)
+    }
+
+    // Start with default basemaps
+    let basemaps = [...defaultBasemaps]
+
+    // Remove disabled basemaps if specified
+    if (config.basemaps?.disabledBasemaps) {
+        basemaps = basemaps.filter(basemap => !config.basemaps!.disabledBasemaps!.includes(basemap.name))
+    }
+
+    // Add custom basemaps if specified
+    if (config.basemaps?.customBasemaps) {
+        const customBasemaps = config.basemaps.customBasemaps.map(convertConfigBasemapToStyleOption)
+        basemaps = [...basemaps, ...customBasemaps]
+    }
+
+    return basemaps
+}
+
+// Convert config basemap to StyleOption, handling API key interpolation and retina detection
+function convertConfigBasemapToStyleOption(configBasemap: any): StyleOption {
+    let processedUrl = configBasemap.url
+
+    // Handle API key interpolation for URLs
+    if (typeof processedUrl === 'string') {
+        processedUrl = interpolateApiKeys(processedUrl)
+    } else if (Array.isArray(processedUrl)) {
+        processedUrl = processedUrl.map(interpolateApiKeys)
+    }
+
+    const styleOption: StyleOption = {
+        name: configBasemap.name,
+        type: configBasemap.type,
+        url: processedUrl,
+        attribution: configBasemap.attribution,
+        maxZoom: configBasemap.maxZoom,
+    }
+
+    // Add tilePixelRatio for raster styles if specified or use default retina detection
+    if (configBasemap.type === 'raster') {
+        const rasterStyle = styleOption as RasterStyle
+        rasterStyle.tilePixelRatio = configBasemap.tilePixelRatio ?? tilePixelRatio
+    }
+
+    return styleOption
+}
+
+// Helper function to interpolate API keys in URLs
+function interpolateApiKeys(url: string): string {
+    return url
+        .replace('{omniscale_key}', osApiKey)
+        .replace('{maptiler_key}', mapTilerKey)
+        .replace('{thunderforest_key}', thunderforestApiKey)
+        .replace('{kurviger_key}', kurvigerApiKey)
+        .replace('{retina_suffix}', retina2x)
+}
+
+// Create the final styleOptions array
+const styleOptions: StyleOption[] = createBasemapsFromConfig()
 
 export default class MapOptionsStore extends Store<MapOptionsStoreState> {
     constructor() {
@@ -181,7 +247,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                 `Could not find tile layer specified in config: '${config.defaultTiles}', using default instead`,
             )
         return {
-            selectedStyle: selectedStyle ? selectedStyle : omniscale,
+            selectedStyle: selectedStyle ? selectedStyle : styleOptions[0],
             styleOptions,
             routingGraphEnabled: false,
             urbanDensityEnabled: false,
