@@ -4,7 +4,14 @@ import {
     transformPathDetail,
     sanitizeNumericValues,
     buildChartData,
+    computeElevationColorRuns,
 } from '@/pathDetails/elevationWidget/pathDetailData'
+import { ElevationPoint } from '@/pathDetails/elevationWidget/types'
+
+// Create a list of mock ElevationPoint objects from (distance, elevation) pairs.
+function pts(pairs: [number, number][]): ElevationPoint[] {
+    return pairs.map(([distance, elevation]) => ({ distance, elevation, lng: 0, lat: 0 }))
+}
 
 describe('pathDetailData', () => {
     describe('extractElevationPoints', () => {
@@ -179,6 +186,69 @@ describe('pathDetailData', () => {
             ]
             const result = transformPathDetail('surface', 'Surface', entries, coords, cumDist)
             expect(result.segments[0].color).toBe('#dddddd')
+        })
+    })
+
+    describe('computeElevationColorRuns', () => {
+        const GREEN = '#2E7D32' // -6..3%
+        const BLUE = '#42A5F5' // -10..-6%
+        const DARK_BLUE = '#1565C0' // < -10%
+        const RED = '#F44336' // 6..10%
+
+        it('returns no runs for fewer than two points', () => {
+            expect(computeElevationColorRuns([], 1)).toEqual([])
+            expect(computeElevationColorRuns(pts([[0, 100]]), 1)).toEqual([])
+        })
+
+        it('colors each segment by its exact grade when bins are per-segment (the reported case)', () => {
+            // Steep descent into a dip, then a climb out. With a tiny bin width every
+            // segment is its own bin, so the color is the segment's own grade: the climb
+            // must read as a climb, not inherit the neighboring descent's color.
+            const runs = computeElevationColorRuns(
+                pts([
+                    [0, 100],
+                    [10, 98.5], // -15% -> dark blue
+                    [20, 99.3], // +8%  -> red (uphill)
+                ]),
+                0.001,
+            )
+            expect(runs).toEqual([
+                { fromIdx: 0, toIdx: 1, color: DARK_BLUE },
+                { fromIdx: 1, toIdx: 2, color: RED },
+            ])
+        })
+
+        it('averages a single noisy sample away inside a wide bin', () => {
+            // 60m of flat ground with one +1m spike. The raw grade at the spike is ±10%,
+            // but a bin spanning the whole route nets to 0% -> flat, so the spike cannot
+            // paint the pixel steep.
+            const runs = computeElevationColorRuns(
+                pts([
+                    [0, 100],
+                    [10, 100],
+                    [20, 101], // spike
+                    [30, 100],
+                    [40, 100],
+                    [50, 100],
+                    [60, 100],
+                ]),
+                1000,
+            )
+            expect(runs).toEqual([{ fromIdx: 0, toIdx: 6, color: GREEN }])
+        })
+
+        it('merges a sustained steep grade into one run', () => {
+            // Steady -8% descent: every per-segment bin is blue, so they merge.
+            const runs = computeElevationColorRuns(
+                pts([
+                    [0, 100],
+                    [10, 99.2],
+                    [20, 98.4],
+                    [30, 97.6],
+                ]),
+                0.001,
+            )
+            expect(runs).toEqual([{ fromIdx: 0, toIdx: 3, color: BLUE }])
         })
     })
 
