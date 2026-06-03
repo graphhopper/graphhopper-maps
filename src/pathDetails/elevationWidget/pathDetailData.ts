@@ -23,28 +23,6 @@ export interface PathLike {
     distance: number
 }
 
-// Distance window (meters) for slope computation. Encoded polylines quantize
-// elevation to ~0.01m, which makes ~1m bumps over <20m sub-segments read as
-// 10%+ slopes. Computing slope over a fixed forward distance filters that
-// noise while preserving real sustained gradients (typical climbs span ≥100m).
-export const SLOPE_HORIZON_M = 30
-
-// Per-segment slope (%) using a forward distance window of SLOPE_HORIZON_M.
-// Returned array has length elevation.length - 1, indexed by segment start.
-export function computeWindowedSlopes(elevation: ElevationPoint[]): number[] {
-    const n = elevation.length
-    if (n < 2) return []
-    const slopes: number[] = new Array(n - 1)
-    let j = 1
-    for (let i = 0; i < n - 1; i++) {
-        if (j < i + 1) j = i + 1
-        while (j < n - 1 && elevation[j].distance - elevation[i].distance < SLOPE_HORIZON_M) j++
-        const dist = elevation[j].distance - elevation[i].distance
-        slopes[i] = dist > 0 ? (100 * (elevation[j].elevation - elevation[i].elevation)) / dist : 0
-    }
-    return slopes
-}
-
 export function extractElevationPoints(coordinates: number[][]): ElevationPoint[] {
     if (coordinates.length === 0) return []
     const has3D = coordinates[0].length >= 3
@@ -320,12 +298,12 @@ export function buildInclineDetail(elevation: ElevationPoint[]): ChartPathDetail
     }
 
     // Compute slope between consecutive points and assign incline colors
-    const slopes = computeWindowedSlopes(elevation)
     const raw: PathDetailSegment[] = []
     for (let i = 0; i < elevation.length - 1; i++) {
         const p = elevation[i]
         const q = elevation[i + 1]
-        const slopePercent = slopes[i]
+        const dist = q.distance - p.distance
+        const slopePercent = dist > 0 ? ((q.elevation - p.elevation) / dist) * 100 : 0
         const color = getSlopeColor(slopePercent)
         raw.push({
             fromDistance: p.distance,

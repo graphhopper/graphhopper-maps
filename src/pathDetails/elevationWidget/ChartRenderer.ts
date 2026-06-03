@@ -7,7 +7,6 @@ import {
     formatDetailTick,
 } from './axisUtils'
 import { getSlopeColor } from './colors'
-import { computeWindowedSlopes } from './pathDetailData'
 
 const DEFAULT_MARGIN = { top: 10, right: 15, bottom: 26, left: 48 }
 const DETAIL_BAR_HEIGHT = 50
@@ -448,20 +447,18 @@ export default class ChartRenderer {
         // pick the steepest slope to determine the color — this preserves steep sections
         // visually even when they span only a few data points. Adjacent bins with the
         // same color are then merged into single polygons to minimize draw calls.
-        // Slopes are computed over a fixed forward distance (see computeWindowedSlopes)
-        // so polyline-quantization noise can't paint long bins as steep climbs/descents.
         const totalDist = elev[elev.length - 1].distance
         const plotWidth = xScale(totalDist) - xScale(0)
         const MIN_BIN_PX = 1
         const minBinDist = (MIN_BIN_PX / plotWidth) * totalDist
-        const slopes = computeWindowedSlopes(elev)
         const bins: { fromIdx: number; toIdx: number; color: string }[] = []
         let binStart = 0
         let maxAbsSlope = 0
         let steepestSlope = 0
 
         for (let i = 0; i < elev.length - 1; i++) {
-            const slope = slopes[i]
+            const segDist = elev[i + 1].distance - elev[i].distance
+            const slope = segDist > 0 ? (100 * (elev[i + 1].elevation - elev[i].elevation)) / segDist : 0
             const absSlope = Math.abs(slope)
             if (absSlope > maxAbsSlope) {
                 maxAbsSlope = absSlope
