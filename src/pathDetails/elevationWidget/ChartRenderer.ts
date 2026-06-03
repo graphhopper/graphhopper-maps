@@ -190,7 +190,7 @@ export default class ChartRenderer {
             lines.push(`distance: ${formatDistanceLabel(hit.distance, miles)}`)
         } else {
             // Default: elevation, incline, distance
-            lines.push(`elevation: ${formatElevationLabel(hit.elevation, miles)}`)
+            lines.push(`elevation: ${formatElevationLabel(hit.elevation, miles, 1)}`)
 
             // Compute incline between the two surrounding elevation points
             const i = hit.elevationIndex
