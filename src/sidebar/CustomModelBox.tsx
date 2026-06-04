@@ -102,9 +102,7 @@ export default function CustomModelBox({
                         if (customModelEnabled) Dispatcher.dispatch(new DismissLastError())
                         Dispatcher.dispatch(new ClearRoute())
                         Dispatcher.dispatch(
-                            customModelEnabled
-                                ? new DisableCustomModel()
-                                : new SetCustomModel(customModelStr, true),
+                            customModelEnabled ? new DisableCustomModel() : new SetCustomModel(customModelStr, true),
                         )
                     }}
                 >
@@ -122,7 +120,7 @@ export default function CustomModelBox({
                     </PlainButton>
                 )}
             </div>
-            <div ref={divElement} className={styles.customModelBox}/>
+            <div ref={divElement} className={styles.customModelBox} />
             <div className={styles.customModelBoxBottomBar}>
                 <select
                     className={styles.examples}
@@ -130,10 +128,7 @@ export default function CustomModelBox({
                         // When selecting an example we request a routing request and act like the model is valid,
                         // even when it is not according to the editor validation.
                         Dispatcher.dispatch(
-                            new SetCustomModel(
-                                customModel2prettyString(customModelExamples[e.target.value]),
-                                true,
-                            ),
+                            new SetCustomModel(customModel2prettyString(customModelExamples[e.target.value]), true),
                         )
                     }}
                 >
