@@ -5,6 +5,7 @@ import Dispatcher, { Action } from '@/stores/Dispatcher'
 import {
     AddPoint,
     ClearPoints,
+    ClearRoute,
     ErrorAction,
     InfoReceived,
     InvalidatePoint,
@@ -104,7 +105,12 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     reduce(state: QueryStoreState, action: Action): QueryStoreState {
-        if (action instanceof InvalidatePoint) {
+        if (action instanceof ClearRoute) {
+            return {
+                ...state,
+                currentRequest: { subRequests: [] },
+            }
+        } else if (action instanceof InvalidatePoint) {
             const points = QueryStore.replacePoint(state.queryPoints, {
                 ...action.point,
                 isInitialized: false,
