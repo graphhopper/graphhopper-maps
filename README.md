@@ -12,7 +12,9 @@ With address search (autocomplete), alternative routes, information along the ro
 
 ## Turn-by-Turn navigation
 
-You can download this bundled as an app for Android [on fdroid](https://f-droid.org/de/packages/com.graphhopper.maps/), where also a turn-by-turn navigation is implemented via Maplibre Navigation SDK. Read more about it in [this repository](https://github.com/boldtrn/graphhopper-maps-capacitor/).
+You can download this bundled as an app for Android [on fdroid](https://f-droid.org/de/packages/com.graphhopper.maps/),
+where also a turn-by-turn navigation is implemented via Maplibre Navigation SDK
+using a capacitor plugin. Read more about it in [this repository](https://github.com/boldtrn/graphhopper-maps-capacitor/).
 
 There was [an experimental `navi` branch](https://github.com/graphhopper/graphhopper-maps/tree/navi) that implements turn-by-turn navigation
 [directly in the browser](https://navi.graphhopper.org).
