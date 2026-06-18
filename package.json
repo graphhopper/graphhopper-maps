@@ -27,6 +27,11 @@
         "js-yaml": "^4.2.0",
         "uuid": "^11.1.1"
     },
+    "allowScripts": {
+        "fsevents": false,
+        "sharp": false,
+        "unrs-resolver": false
+    },
     "devDependencies": {
         "@svgr/webpack": "^8.1.0",
         "@types/geojson": "^7946.0.16",
