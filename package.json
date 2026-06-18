@@ -19,9 +19,9 @@
         "geojson": "^0.5.0",
         "ol": "10.6.1",
         "ol-mapbox-style": "13.1.0",
-        "react": "^19.1.1",
-        "react-dom": "^19.1.1",
-        "react-responsive": "^10.0.1"
+        "react": "19.2.7",
+        "react-dom": "19.2.7",
+        "react-responsive": "10.0.1"
     },
     "devDependencies": {
         "@svgr/webpack": "^8.1.0",
@@ -34,18 +34,18 @@
         "favicons": "^7.2.0",
         "favicons-webpack-plugin": "^6.0.1",
         "html-webpack-plugin": "^5.6.4",
-        "jest": "^30.0.5",
-        "jest-environment-jsdom": "^30.0.5",
+        "jest": "^30.4.2",
+        "jest-environment-jsdom": "^30.4.1",
         "jest-fetch-mock": "^3.0.3",
         "prettier": "3.6.2",
         "source-map-loader": "^5.0.0",
         "style-loader": "^4.0.0",
-        "ts-jest": "^29.4.1",
+        "ts-jest": "^29.4.11",
         "ts-loader": "^9.5.2",
         "typescript": "^5.9.2",
-        "webpack": "^5.101.3",
-        "webpack-cli": "^6.0.1",
-        "webpack-dev-server": "^5.2.2",
+        "webpack": "^5.107.2",
+        "webpack-cli": "^7.0.3",
+        "webpack-dev-server": "^5.2.5",
         "webpack-merge": "^6.0.1"
     }
 }
