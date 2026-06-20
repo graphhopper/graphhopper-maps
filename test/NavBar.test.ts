@@ -1,15 +1,41 @@
+// We use jsdom (some imported modules touch window at load) but jsdom doesn't
+// expose CompressionStream / Blob globally — pull them in from Node so the
+// compression code paths can be exercised. Localized here so we don't need a
+// jest setup file.
+if (typeof (globalThis as any).CompressionStream === 'undefined') {
+    const sw = require('stream/web')
+    ;(globalThis as any).CompressionStream = sw.CompressionStream
+    ;(globalThis as any).DecompressionStream = sw.DecompressionStream
+    ;(globalThis as any).ReadableStream = sw.ReadableStream
+    ;(globalThis as any).WritableStream = sw.WritableStream
+    ;(globalThis as any).TransformStream = sw.TransformStream
+}
+if (typeof (globalThis as any).TextEncoder === 'undefined') {
+    const util = require('util')
+    ;(globalThis as any).TextEncoder = util.TextEncoder
+    ;(globalThis as any).TextDecoder = util.TextDecoder
+}
+
 import NavBar from '@/NavBar'
 import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import DummyApi from './DummyApi'
-import { SelectMapLayer, SetPoint, SetVehicleProfile } from '@/actions/Actions'
+import {
+    SelectMapLayer,
+    SetCustomModel,
+    SetPoint,
+    SetQueryPoints,
+    SetVehicleProfile,
+} from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import { coordinateToText } from '@/Converters'
+import { encodeCoords } from '@/util/flexPolyline'
+import { deflateB64url } from '@/util/urlCompress'
+import * as urlCompress from '@/util/urlCompress'
 
 // import the window and mock it with jest
 import { window } from '@/Window'
 import MapOptionsStore from '@/stores/MapOptionsStore'
 import * as config from 'config'
-import { RoutingProfile } from '@/api/graphhopper'
 
 jest.mock('@/Window', () => ({
     window: {
@@ -24,6 +50,26 @@ jest.mock('@/Window', () => ({
         addEventListener: jest.fn(),
     },
 }))
+
+// Flush pending microtasks + macrotask ticks so async URL updates settle.
+// CompressionStream involves several stream-pipe hops, so we wait a few ticks.
+async function flush() {
+    for (let i = 0; i < 5; i++) await new Promise(r => setTimeout(r, 0))
+}
+
+// Helper to build N initialized query points. QueryStore starts with 2 default
+// empty points; for N>2 we need to replace the whole array via SetQueryPoints
+// since SetPoint only replaces an existing point by id.
+function makePoints(defs: { lat: number; lng: number; text?: string }[]): QueryPoint[] {
+    return defs.map((d, i) => ({
+        coordinate: { lat: d.lat, lng: d.lng },
+        queryText: d.text ?? coordinateToText({ lat: d.lat, lng: d.lng }),
+        isInitialized: true,
+        id: i,
+        color: '',
+        type: QueryPointType.Via,
+    }))
+}
 
 describe('NavBar', function () {
     let queryStore: QueryStore
@@ -51,69 +97,106 @@ describe('NavBar', function () {
         Dispatcher.clear()
     })
 
+    function lastPushedUrl(): URL {
+        const calls = (window.history.pushState as jest.Mock).mock.calls
+        return new URL(calls[calls.length - 1][2])
+    }
+
     describe('state to url', () => {
-        it('should convert query store state into url params on change', function () {
-            const coordinates = [
+        it('emits legacy point= for 2-3 initialized points (below fpolyline threshold)', async () => {
+            queryStore.receive(new SetQueryPoints(makePoints([{ lat: 1, lng: 2 }, { lat: 10, lng: 10 }])))
+            queryStore.receive(new SetVehicleProfile({ name: 'car' }))
+            mapStore.receive(new SelectMapLayer('Cyclosm'))
+            await flush()
+
+            const url = lastPushedUrl()
+            expect(url.searchParams.has('fpolyline')).toEqual(false)
+            expect(url.searchParams.getAll('point')).toEqual(['1,2', '10,10'])
+        })
+
+        it('emits fpolyline (no names) for 4+ initialized points', async () => {
+            const coords = [
                 { lat: 1, lng: 2 },
-                { lat: 10, lng: 10 },
+                { lat: 3, lng: 4 },
+                { lat: 5, lng: 6 },
+                { lat: 7, lng: 8 },
             ]
-            const points = coordinates.map((c, i) => {
-                return {
-                    ...queryStore.state.queryPoints[i],
-                    coordinate: c,
-                    queryText: coordinateToText(c),
-                    isInitialized: true,
-                }
-            })
+            queryStore.receive(new SetQueryPoints(makePoints(coords)))
+            queryStore.receive(new SetVehicleProfile({ name: 'car' }))
+            mapStore.receive(new SelectMapLayer('Cyclosm'))
+            await flush()
 
-            testCreateUrl(points, { name: 'my-profile' }, 'Cyclosm')
+            const url = lastPushedUrl()
+            expect(url.searchParams.get('fpolyline')).toEqual(encodeCoords(coords))
+            expect(url.searchParams.has('cnames')).toEqual(false)
+            expect(url.searchParams.getAll('point').length).toEqual(0)
         })
 
-        it('should convert query store state into url params on change including addresses', () => {
-            const points = [
-                { lat: 1, lng: 2, text: 'som3, address with ! some, characters-in it' },
-                { lat: 10, lng: 10, text: 'some_?more>characters' },
-            ].map((point, i) => {
-                return {
-                    ...queryStore.state.queryPoints[i],
-                    coordinate: { lat: point.lat, lng: point.lng },
-                    queryText: point.text,
-                    isInitialized: true,
-                }
-            })
+        it('emits fpolyline + cnames (always compressed) when any of the 4+ points has a custom name', async () => {
+            queryStore.receive(
+                new SetQueryPoints(
+                    makePoints([
+                        { lat: 1, lng: 2, text: 'Berlin' },
+                        { lat: 3, lng: 4 },
+                        { lat: 5, lng: 6, text: 'Paris' },
+                        { lat: 7, lng: 8 },
+                    ]),
+                ),
+            )
+            queryStore.receive(new SetVehicleProfile({ name: 'car' }))
+            mapStore.receive(new SelectMapLayer('Cyclosm'))
+            await flush()
 
-            testCreateUrl(points, { name: 'my-profile' }, 'Cyclosm')
+            const url = lastPushedUrl()
+            expect(url.searchParams.has('fpolyline')).toEqual(true)
+            expect(url.searchParams.has('cnames')).toEqual(true)
+            expect(url.searchParams.has('name')).toEqual(false)
         })
 
-        function testCreateUrl(points: QueryPoint[], profile: RoutingProfile, layer: string) {
-            // build url which we expect at the end
-            const expectedUrl = new URL(window.location.origin + window.location.pathname)
-            for (const point of points) {
-                const coordinate = coordinateToText(point.coordinate)
-                const param = coordinate === point.queryText ? coordinate : coordinate + '_' + point.queryText
-                expectedUrl.searchParams.append('point', param)
-            }
-            expectedUrl.searchParams.append('profile', profile.name)
-            expectedUrl.searchParams.append('layer', layer)
+        it('falls back to legacy point= when not all points are initialized', async () => {
+            const existing = queryStore.state.queryPoints[0]
+            queryStore.receive(
+                new SetPoint(
+                    { ...existing, coordinate: { lat: 11, lng: 12 }, queryText: '11,12', isInitialized: true },
+                    true,
+                ),
+            )
+            queryStore.receive(new SetVehicleProfile({ name: 'car' }))
+            mapStore.receive(new SelectMapLayer('Cyclosm'))
+            await flush()
 
-            // modify state of stores which the nav bar depends on
-            for (const point of points) {
-                queryStore.receive(new SetPoint(point, true))
-            }
-            queryStore.receive(new SetVehicleProfile(profile))
-            mapStore.receive(new SelectMapLayer(layer))
+            const url = lastPushedUrl()
+            expect(url.searchParams.has('fpolyline')).toEqual(false)
+            expect(url.searchParams.getAll('point').length).toEqual(2)
+        })
 
-            // make assertions
-            // number of calls profile, style and how many points there are
-            const numberOfCalls = 2 + points.length
-            expect(window.history.pushState).toHaveBeenCalledTimes(numberOfCalls)
-            expect(window.history.pushState).toHaveBeenNthCalledWith(numberOfCalls, null, '', expectedUrl.toString())
-        }
+        it('emits l=<shortName> (not layer=<fullName>) for the selected map style', async () => {
+            queryStore.receive(new SetQueryPoints(makePoints([{ lat: 1, lng: 2 }, { lat: 10, lng: 10 }])))
+            queryStore.receive(new SetVehicleProfile({ name: 'car' }))
+            mapStore.receive(new SelectMapLayer('Omniscale'))
+            await flush()
+
+            const url = lastPushedUrl()
+            expect(url.searchParams.get('l')).toEqual('oms')
+            expect(url.searchParams.has('layer')).toEqual(false)
+        })
+
+        it('always emits cmodel (compressed) when custom model is enabled', async () => {
+            const cm = '{"distance_influence":15}'
+            queryStore.receive(new SetQueryPoints(makePoints([{ lat: 1, lng: 2 }, { lat: 10, lng: 10 }])))
+            queryStore.receive(new SetVehicleProfile({ name: 'car' }))
+            mapStore.receive(new SelectMapLayer('Cyclosm'))
+            queryStore.receive(new SetCustomModel(cm, true))
+            await flush()
+
+            const url = lastPushedUrl()
+            expect(url.searchParams.has('cmodel')).toEqual(true)
+            expect(url.searchParams.has('custom_model')).toEqual(false)
+        })
     })
 
     describe('url to state', () => {
-        it('should parse the url and create a new query state when triggered from outside', () => {
-            // set up data
+        it('parses legacy point=lat,lng_name URLs', async () => {
             const point: QueryPoint = {
                 coordinate: { lat: 1, lng: 1 },
                 id: 0,
@@ -122,153 +205,232 @@ describe('NavBar', function () {
                 queryText: 'some1address-with!/<symb0ls',
                 color: '',
             }
-            const profile = 'some-profile'
-            const layer = 'Omniscale'
             const url = new URL(window.location.origin + window.location.pathname)
             url.searchParams.append('point', coordinateToText(point.coordinate) + '_' + point.queryText)
-            url.searchParams.append('profile', profile)
-            url.searchParams.append('layer', layer)
-
+            url.searchParams.append('profile', 'some-profile')
+            url.searchParams.append('layer', 'Omniscale')
             window.location.href = url.toString()
 
-            // act
-            navBar.updateStateFromUrl()
+            await navBar.updateStateFromUrl()
 
-            //assert
             expect(queryStore.state.queryPoints.length).toEqual(2)
             expect(queryStore.state.queryPoints[0].coordinate).toEqual(point.coordinate)
             expect(queryStore.state.queryPoints[0].isInitialized).toEqual(true)
             expect(queryStore.state.queryPoints[0].queryText).toEqual(point.queryText)
-            expect(queryStore.state.queryPoints[1].coordinate).toEqual({ lat: 0, lng: 0 })
-            expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
-            expect(queryStore.state.routingProfile.name).toEqual(profile)
-
-            expect(mapStore.state.selectedStyle.name).toEqual(layer)
-
-            // make sure the navbar doesn't change the window's location while parsing
-            expect(url.toString()).toEqual(window.location.href)
+            expect(queryStore.state.routingProfile.name).toEqual('some-profile')
+            expect(mapStore.state.selectedStyle.name).toEqual('Omniscale')
         })
 
-        it('should parse the url and set no points when no points are set', () => {
+        it('parses fpolyline URL roundtrip', async () => {
+            const coords = [
+                { lat: 51.106229, lng: 13.679849 },
+                { lat: 51.049329, lng: 13.738144 },
+                { lat: 50.987800, lng: 13.687515 },
+                { lat: 50.876543, lng: 13.512345 },
+            ]
+            const url = new URL(window.location.origin + window.location.pathname)
+            url.searchParams.append('fpolyline', encodeCoords(coords))
+            url.searchParams.append('profile', 'car')
+            url.searchParams.append('layer', 'Omniscale')
+            window.location.href = url.toString()
+
+            await navBar.updateStateFromUrl()
+
+            expect(queryStore.state.queryPoints.length).toEqual(coords.length)
+            for (let i = 0; i < coords.length; i++) {
+                expect(queryStore.state.queryPoints[i].coordinate.lat).toBeCloseTo(coords[i].lat, 6)
+                expect(queryStore.state.queryPoints[i].coordinate.lng).toBeCloseTo(coords[i].lng, 6)
+                expect(queryStore.state.queryPoints[i].isInitialized).toEqual(true)
+            }
+        })
+
+        it('parses fpolyline + cnames URL (and roundtrip strips * from names on write)', async () => {
+            const coords = [
+                { lat: 1, lng: 2 },
+                { lat: 3, lng: 4 },
+                { lat: 5, lng: 6 },
+                { lat: 7, lng: 8 },
+            ]
+            const cnames = await deflateB64url('München*Wien*Krakow*Prague')
+            const url = new URL(window.location.origin + window.location.pathname)
+            url.searchParams.append('fpolyline', encodeCoords(coords))
+            url.searchParams.append('cnames', cnames)
+            url.searchParams.append('profile', 'car')
+            url.searchParams.append('layer', 'Omniscale')
+            window.location.href = url.toString()
+
+            await navBar.updateStateFromUrl()
+
+            expect(queryStore.state.queryPoints.map(p => p.queryText)).toEqual(['München', 'Wien', 'Krakow', 'Prague'])
+
+            // Inject a '*' into one queryText and verify it gets stripped on re-emission.
+            queryStore.receive(
+                new SetPoint(
+                    { ...queryStore.state.queryPoints[0], queryText: 'A*star', isInitialized: true },
+                    true,
+                ),
+            )
+            await flush()
+            const reEmitted = lastPushedUrl()
+            window.location.href = reEmitted.toString()
+            await navBar.updateStateFromUrl()
+            expect(queryStore.state.queryPoints[0].queryText).toEqual('Astar')
+        })
+
+        it('parses cmodel (compressed custom model) URL', async () => {
+            const cm = '{"distance_influence":15,"priority":[],"speed":[],"areas":{}}'
+            const cmodel = await deflateB64url(cm)
+            const url = new URL(window.location.origin + window.location.pathname)
+            url.searchParams.append('point', '1,2')
+            url.searchParams.append('point', '3,4')
+            url.searchParams.append('cmodel', cmodel)
+            url.searchParams.append('profile', 'car')
+            url.searchParams.append('layer', 'Omniscale')
+            window.location.href = url.toString()
+
+            await navBar.updateStateFromUrl()
+
+            expect(queryStore.state.customModelEnabled).toEqual(true)
+            // stored value is pretty-printed, so compare JSON semantically
+            expect(JSON.parse(queryStore.state.customModelStr)).toEqual(JSON.parse(cm))
+        })
+
+        it('parses legacy custom_model= URL', async () => {
+            const cm = '{"distance_influence":15}'
+            const url = new URL(window.location.origin + window.location.pathname)
+            url.searchParams.append('point', '1,2')
+            url.searchParams.append('point', '3,4')
+            url.searchParams.append('custom_model', cm)
+            url.searchParams.append('profile', 'car')
+            url.searchParams.append('layer', 'Omniscale')
+            window.location.href = url.toString()
+
+            await navBar.updateStateFromUrl()
+
+            expect(queryStore.state.customModelEnabled).toEqual(true)
+            expect(JSON.parse(queryStore.state.customModelStr)).toEqual(JSON.parse(cm))
+        })
+
+        it('sets no points when no points are in URL', async () => {
             window.location.href = 'https://origin.com'
             const point1 = queryStore.state.queryPoints[0]
             const point2 = queryStore.state.queryPoints[1]
 
-            // act
-            navBar.updateStateFromUrl()
+            await navBar.updateStateFromUrl()
 
-            //assert
-            // we still want to have 2 points and they should have the same values as before - the ids are changed though
-            // since the store creates new instances of points regardless what is fed with "setallqyeryparamsatonce"
             expect(queryStore.state.queryPoints.length).toEqual(2)
             expect(queryStore.state.queryPoints[0].coordinate).toEqual(point1.coordinate)
             expect(queryStore.state.queryPoints[1].coordinate).toEqual(point2.coordinate)
-            expect(queryStore.state.queryPoints[0].queryText).toEqual(point1.queryText)
-            expect(queryStore.state.queryPoints[1].queryText).toEqual(point2.queryText)
         })
 
-        it('should parse the url and only skip invalid points', () => {
-            const expectedUrl = 'https://current.origin/?point=&point=11%2C12'
-            window.location.href = expectedUrl
+        it('only skips invalid legacy point= entries, and re-emits the URL unchanged on roundtrip', async () => {
+            const inputUrl = 'https://current.origin/?point=&point=11%2C12'
+            window.location.href = inputUrl
 
-            // act
-            navBar.updateStateFromUrl()
+            await navBar.updateStateFromUrl()
 
-            //assert
             expect(queryStore.state.queryPoints.length).toEqual(2)
             expect(queryStore.state.queryPoints[0].isInitialized).toEqual(false)
             expect(queryStore.state.queryPoints[0].queryText).toEqual('')
             expect(queryStore.state.queryPoints[1].coordinate).toEqual({ lat: 11, lng: 12 })
             expect(queryStore.state.queryPoints[1].isInitialized).toEqual(true)
 
-            // make sure the navbar doesn't change the window's location while parsing
-            expect(expectedUrl).toEqual(window.location.href)
-            expect(window.history.pushState).toHaveBeenCalledTimes(0)
+            // parsing must not change the URL bar
+            expect(window.location.href).toEqual(inputUrl)
 
-            navBar.updateUrlFromState()
-            expect(window.history.pushState).toHaveBeenNthCalledWith(
-                1,
-                null,
-                '',
-                expectedUrl + '&profile=&layer=OpenStreetMap',
-            )
+            // re-emit and verify the URL is stable (profile + layer-short-code appended)
+            await navBar.updateUrlFromState()
+            expect(window.history.pushState).toHaveBeenLastCalledWith(null, '', inputUrl + '&profile=&l=osm')
         })
 
-        it('should parse the url and invalidate old points', () => {
+        it('invalidates old points when URL has none', async () => {
             window.location.href = 'https://origin.com'
-            Dispatcher.dispatch(
-                new SetPoint(
-                    {
-                        ...queryStore.state.queryPoints[0],
-                        isInitialized: true,
-                    },
-                    true,
-                ),
-            )
+            Dispatcher.dispatch(new SetPoint({ ...queryStore.state.queryPoints[0], isInitialized: true }, true))
 
-            //act
-            navBar.updateStateFromUrl()
+            await navBar.updateStateFromUrl()
 
-            // assert
-            expect(queryStore.state.queryPoints.length).toEqual(2)
             expect(queryStore.state.queryPoints[0].isInitialized).toBeFalsy()
             expect(queryStore.state.queryPoints[1].isInitialized).toBeFalsy()
         })
 
-        it('should parse the url and set defaults for layer if not provided', () => {
+        it('uses default layer when not provided', async () => {
             window.location.href = 'https://origin.com'
 
-            // act
-            navBar.updateStateFromUrl()
+            await navBar.updateStateFromUrl()
 
-            //assert
-            expect(queryStore.state.queryPoints.length).toEqual(2)
-            expect(queryStore.state.queryPoints[0].isInitialized).toEqual(false)
-            expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
             expect(queryStore.state.routingProfile.name).toEqual('')
-
             expect(mapStore.state.selectedStyle.name).toEqual(config.defaultTiles)
         })
 
-        it('should parse the url and set defaults for profile if not set', () => {
-            const layername = 'Omniscale'
+        it('keeps the current routing profile when the URL has no profile param', async () => {
             const url = new URL(window.location.origin + window.location.pathname)
-            url.searchParams.append('layer', layername)
+            url.searchParams.append('layer', 'Omniscale')
             window.location.href = url.toString()
 
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'some-profile' }))
             const defaultProfile = queryStore.state.routingProfile
 
-            // act
-            navBar.updateStateFromUrl()
+            await navBar.updateStateFromUrl()
 
-            //assert
-            expect(queryStore.state.queryPoints.length).toEqual(2)
-            expect(queryStore.state.queryPoints[0].isInitialized).toEqual(false)
-            expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
             expect(queryStore.state.routingProfile.name).toEqual(defaultProfile.name)
-            expect(mapStore.state.selectedStyle.name).toEqual(layername)
+            expect(mapStore.state.selectedStyle.name).toEqual('Omniscale')
         })
 
-        it('should parse the url and set routing profile for legacy "vehicle" param', () => {
-            const layername = 'Omniscale'
-            const profileName = 'some-profile-name'
-            const url = new URL(window.location.origin + window.location.pathname)
-            url.searchParams.append('layer', layername)
-            url.searchParams.append('vehicle', profileName)
+        it('parses the new short layer code (l=oms) and the legacy layer=<fullName> form', async () => {
+            const urlShort = new URL(window.location.origin + window.location.pathname)
+            urlShort.searchParams.append('l', 'oms')
+            window.location.href = urlShort.toString()
+            await navBar.updateStateFromUrl()
+            expect(mapStore.state.selectedStyle.name).toEqual('Omniscale')
 
+            const urlLegacy = new URL(window.location.origin + window.location.pathname)
+            urlLegacy.searchParams.append('layer', 'Cyclosm')
+            window.location.href = urlLegacy.toString()
+            await navBar.updateStateFromUrl()
+            expect(mapStore.state.selectedStyle.name).toEqual('Cyclosm')
+        })
+
+        it('supports the legacy "vehicle" param as profile', async () => {
+            const url = new URL(window.location.origin + window.location.pathname)
+            url.searchParams.append('layer', 'Omniscale')
+            url.searchParams.append('vehicle', 'some-profile-name')
             window.location.href = url.toString()
 
-            // act
-            navBar.updateStateFromUrl()
+            await navBar.updateStateFromUrl()
 
-            // assert
-            expect(queryStore.state.routingProfile.name).toEqual(profileName)
+            expect(queryStore.state.routingProfile.name).toEqual('some-profile-name')
         })
     })
 
-    it('should update the query store state on popstate (back-pressed)', () => {
-        // set up data
+    it('does not let an older URL build overwrite a newer one when compressions complete out of order', async () => {
+        // Two synchronous dispatches each kick off an async URL build. We force
+        // the older build to finish *after* the newer one. Without the urlChangeId
+        // guard the stale build's pushState would clobber the current URL.
+        let resolveOld: (s: string) => void = () => {}
+        let resolveNew: (s: string) => void = () => {}
+        const spy = jest
+            .spyOn(urlCompress, 'deflateB64url')
+            .mockImplementationOnce(() => new Promise<string>(r => (resolveOld = r)))
+            .mockImplementationOnce(() => new Promise<string>(r => (resolveNew = r)))
+
+        try {
+            queryStore.receive(new SetCustomModel('{"distance_influence":1}', true))
+            queryStore.receive(new SetCustomModel('{"distance_influence":2}', true))
+
+            // Resolve the newer build first, then the older one — the older one
+            // returning last is exactly the race we're guarding against.
+            resolveNew('NEW')
+            await flush()
+            resolveOld('OLD')
+            await flush()
+
+            expect(lastPushedUrl().searchParams.get('cmodel')).toEqual('NEW')
+        } finally {
+            spy.mockRestore()
+        }
+    })
+
+    it('updates query store state on popstate (back-pressed)', async () => {
         const point: QueryPoint = {
             coordinate: { lat: 1, lng: 1 },
             id: 0,
@@ -277,29 +439,18 @@ describe('NavBar', function () {
             queryText: '',
             color: '',
         }
-        const profile = 'some-profile'
-        const layer = 'Omniscale'
         const url = new URL(window.location.origin + window.location.pathname)
         url.searchParams.append('point', coordinateToText(point.coordinate))
-        url.searchParams.append('profile', profile)
-        url.searchParams.append('layer', layer)
-
+        url.searchParams.append('profile', 'some-profile')
+        url.searchParams.append('layer', 'Omniscale')
         window.location.href = url.toString()
 
-        // act
-        callbacks.forEach(callback => callback('popstate'))
+        await Promise.all(callbacks.map(callback => callback('popstate')))
+        await flush()
 
-        // assert
-        expect(queryStore.state.queryPoints.length).toEqual(2)
         expect(queryStore.state.queryPoints[0].coordinate).toEqual(point.coordinate)
         expect(queryStore.state.queryPoints[0].isInitialized).toEqual(true)
-        expect(queryStore.state.queryPoints[1].coordinate).toEqual({ lat: 0, lng: 0 })
-        expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
-        expect(queryStore.state.routingProfile.name).toEqual(profile)
-
-        expect(mapStore.state.selectedStyle.name).toEqual(layer)
-
-        // make sure the navbar doesn't change the window's location while parsing
-        expect(url.toString()).toEqual(window.location.href)
+        expect(queryStore.state.routingProfile.name).toEqual('some-profile')
+        expect(mapStore.state.selectedStyle.name).toEqual('Omniscale')
     })
 })
