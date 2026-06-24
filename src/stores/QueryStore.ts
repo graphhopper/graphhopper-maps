@@ -5,6 +5,7 @@ import Dispatcher, { Action } from '@/stores/Dispatcher'
 import {
     AddPoint,
     ClearPoints,
+    ClearRoute,
     ErrorAction,
     InfoReceived,
     InvalidatePoint,
@@ -12,8 +13,8 @@ import {
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
+    DisableCustomModel,
     SetCustomModel,
-    SetCustomModelEnabled,
     SetPoint,
     SetQueryPoints,
     SetVehicleProfile,
@@ -104,7 +105,12 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     reduce(state: QueryStoreState, action: Action): QueryStoreState {
-        if (action instanceof InvalidatePoint) {
+        if (action instanceof ClearRoute) {
+            return {
+                ...state,
+                currentRequest: { subRequests: [] },
+            }
+        } else if (action instanceof InvalidatePoint) {
             const points = QueryStore.replacePoint(state.queryPoints, {
                 ...action.point,
                 isInitialized: false,
@@ -273,19 +279,22 @@ export default class QueryStore extends Store<QueryStoreState> {
             }
             return this.routeIfReady(newState, true)
         } else if (action instanceof SetCustomModel) {
-            const newState = {
+            const newState: QueryStoreState = {
                 ...state,
+                customModelEnabled: true,
                 customModelStr: action.customModelStr,
             }
             return action.issueRoutingRequest ? this.routeIfReady(newState, true) : newState
+        } else if (action instanceof DisableCustomModel) {
+            return this.routeIfReady(
+                {
+                    ...state,
+                    customModelEnabled: false,
+                },
+                true,
+            )
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
-        } else if (action instanceof SetCustomModelEnabled) {
-            const newState: QueryStoreState = {
-                ...state,
-                customModelEnabled: action.enabled,
-            }
-            return this.routeIfReady(newState, true)
         }
         return state
     }

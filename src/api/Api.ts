@@ -106,6 +106,8 @@ export class ApiImpl implements Api {
         url.searchParams.append('osm_tag', '!place:county')
         url.searchParams.append('osm_tag', '!boundary')
         url.searchParams.append('osm_tag', '!historic')
+        // display no results for tourist info signs
+        url.searchParams.append('osm_tag', '!information')
 
         if (additionalOptions) {
             for (const key in additionalOptions) {

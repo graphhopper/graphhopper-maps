@@ -23,26 +23,44 @@ export interface PathLike {
     distance: number
 }
 
-// Distance window (meters) for slope computation. Encoded polylines quantize
-// elevation to ~0.01m, which makes ~1m bumps over <20m sub-segments read as
-// 10%+ slopes. Computing slope over a fixed forward distance filters that
-// noise while preserving real sustained gradients (typical climbs span ≥100m).
-export const SLOPE_HORIZON_M = 30
+export interface ElevationColorRun {
+    fromIdx: number
+    toIdx: number
+    color: string
+}
 
-// Per-segment slope (%) using a forward distance window of SLOPE_HORIZON_M.
-// Returned array has length elevation.length - 1, indexed by segment start.
-export function computeWindowedSlopes(elevation: ElevationPoint[]): number[] {
-    const n = elevation.length
-    if (n < 2) return []
-    const slopes: number[] = new Array(n - 1)
-    let j = 1
-    for (let i = 0; i < n - 1; i++) {
-        if (j < i + 1) j = i + 1
-        while (j < n - 1 && elevation[j].distance - elevation[i].distance < SLOPE_HORIZON_M) j++
-        const dist = elevation[j].distance - elevation[i].distance
-        slopes[i] = dist > 0 ? (100 * (elevation[j].elevation - elevation[i].elevation)) / dist : 0
+// Quantize an elevation profile into colored runs for the area fill. Points are
+// grouped into bins at least minBinDist meters wide and each bin is colored by
+// its net (distance-weighted) grade — total elevation change over the bin's
+// distance. At normal zoom a bin is a single segment, so the color equals the
+// grade the hover popup reports there; when many points share one pixel the net
+// grade averages them, so a single noisy sample can't paint the whole pixel as a
+// steep climb/descent. Consecutive bins with the same color are merged so the
+// renderer draws one polygon per run. Indices refer to the input array.
+export function computeElevationColorRuns(elevation: ElevationPoint[], minBinDist: number): ElevationColorRun[] {
+    const bins: ElevationColorRun[] = []
+    let binStart = 0
+    for (let i = 0; i < elevation.length - 1; i++) {
+        const binSpan = elevation[i + 1].distance - elevation[binStart].distance
+        if (binSpan >= minBinDist || i === elevation.length - 2) {
+            const slope =
+                binSpan > 0 ? (100 * (elevation[i + 1].elevation - elevation[binStart].elevation)) / binSpan : 0
+            bins.push({ fromIdx: binStart, toIdx: i + 1, color: getSlopeColor(slope) })
+            binStart = i + 1
+        }
     }
-    return slopes
+
+    // Merge consecutive bins with the same color.
+    const runs: ElevationColorRun[] = []
+    for (const bin of bins) {
+        const last = runs[runs.length - 1]
+        if (last && last.color === bin.color) {
+            last.toIdx = bin.toIdx
+        } else {
+            runs.push({ ...bin })
+        }
+    }
+    return runs
 }
 
 export function extractElevationPoints(coordinates: number[][]): ElevationPoint[] {
@@ -319,13 +337,13 @@ export function buildInclineDetail(elevation: ElevationPoint[]): ChartPathDetail
         return { key: '_incline', label: 'Incline', type: 'bars', segments: [], legend }
     }
 
-    // Compute slope between consecutive points and assign incline colors
-    const slopes = computeWindowedSlopes(elevation)
+    // Color each segment by its exact grade so the map matches the elevation popup.
     const raw: PathDetailSegment[] = []
     for (let i = 0; i < elevation.length - 1; i++) {
         const p = elevation[i]
         const q = elevation[i + 1]
-        const slopePercent = slopes[i]
+        const dist = q.distance - p.distance
+        const slopePercent = dist > 0 ? ((q.elevation - p.elevation) / dist) * 100 : 0
         const color = getSlopeColor(slopePercent)
         raw.push({
             fromDistance: p.distance,

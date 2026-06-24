@@ -4,11 +4,14 @@ import {
     transformPathDetail,
     sanitizeNumericValues,
     buildChartData,
-    buildInclineDetail,
-    SLOPE_HORIZON_M,
+    computeElevationColorRuns,
 } from '@/pathDetails/elevationWidget/pathDetailData'
-import { getSlopeColor } from '@/pathDetails/elevationWidget/colors'
-import type { ElevationPoint } from '@/pathDetails/elevationWidget/types'
+import { ElevationPoint } from '@/pathDetails/elevationWidget/types'
+
+// Create a list of mock ElevationPoint objects from (distance, elevation) pairs.
+function pts(pairs: [number, number][]): ElevationPoint[] {
+    return pairs.map(([distance, elevation]) => ({ distance, elevation, lng: 0, lat: 0 }))
+}
 
 describe('pathDetailData', () => {
     describe('extractElevationPoints', () => {
@@ -186,6 +189,69 @@ describe('pathDetailData', () => {
         })
     })
 
+    describe('computeElevationColorRuns', () => {
+        const GREEN = '#2E7D32' // -6..3%
+        const BLUE = '#42A5F5' // -10..-6%
+        const DARK_BLUE = '#1565C0' // < -10%
+        const RED = '#F44336' // 6..10%
+
+        it('returns no runs for fewer than two points', () => {
+            expect(computeElevationColorRuns([], 1)).toEqual([])
+            expect(computeElevationColorRuns(pts([[0, 100]]), 1)).toEqual([])
+        })
+
+        it('colors each segment by its exact grade when bins are per-segment (the reported case)', () => {
+            // Steep descent into a dip, then a climb out. With a tiny bin width every
+            // segment is its own bin, so the color is the segment's own grade: the climb
+            // must read as a climb, not inherit the neighboring descent's color.
+            const runs = computeElevationColorRuns(
+                pts([
+                    [0, 100],
+                    [10, 98.5], // -15% -> dark blue
+                    [20, 99.3], // +8%  -> red (uphill)
+                ]),
+                0.001,
+            )
+            expect(runs).toEqual([
+                { fromIdx: 0, toIdx: 1, color: DARK_BLUE },
+                { fromIdx: 1, toIdx: 2, color: RED },
+            ])
+        })
+
+        it('averages a single noisy sample away inside a wide bin', () => {
+            // 60m of flat ground with one +1m spike. The raw grade at the spike is ±10%,
+            // but a bin spanning the whole route nets to 0% -> flat, so the spike cannot
+            // paint the pixel steep.
+            const runs = computeElevationColorRuns(
+                pts([
+                    [0, 100],
+                    [10, 100],
+                    [20, 101], // spike
+                    [30, 100],
+                    [40, 100],
+                    [50, 100],
+                    [60, 100],
+                ]),
+                1000,
+            )
+            expect(runs).toEqual([{ fromIdx: 0, toIdx: 6, color: GREEN }])
+        })
+
+        it('merges a sustained steep grade into one run', () => {
+            // Steady -8% descent: every per-segment bin is blue, so they merge.
+            const runs = computeElevationColorRuns(
+                pts([
+                    [0, 100],
+                    [10, 99.2],
+                    [20, 98.4],
+                    [30, 97.6],
+                ]),
+                0.001,
+            )
+            expect(runs).toEqual([{ fromIdx: 0, toIdx: 3, color: BLUE }])
+        })
+    })
+
     describe('buildChartData', () => {
         it('builds complete chart data', () => {
             const path = {
@@ -289,67 +355,4 @@ describe('pathDetailData', () => {
             expect(result.alternativeElevations[0]).toHaveLength(3)
         })
     })
-
-    describe('buildInclineDetail color binning', () => {
-        // Reproduces the GraphHopper-encoded-polyline noise pattern: a few sample points
-        // that are close together (<20m) with ~1m elevation jitter from quantization,
-        // surrounded by long, gently uphill sub-segments. Without windowed slopes the
-        // tiny jitter sub-segment would paint a 600m+ stretch as a steep decline.
-        it('does not paint a long stretch as steep decline due to a single short noisy sub-segment', () => {
-            const elev: ElevationPoint[] = [
-                { distance: 0, elevation: 200, lng: 0, lat: 0 },
-                { distance: 264, elevation: 207, lng: 0, lat: 0 }, // +2.65% over 264m (real gentle climb)
-                { distance: 275, elevation: 206, lng: 0, lat: 0 }, // 1m drop over 11m → -9% (noise)
-                { distance: 880, elevation: 220, lng: 0, lat: 0 }, // +2.31% over 605m
-                { distance: 970, elevation: 220, lng: 0, lat: 0 }, // flat
-                { distance: 985, elevation: 218, lng: 0, lat: 0 }, // 2m drop over 15m → -13% (noise)
-                { distance: 1300, elevation: 222, lng: 0, lat: 0 }, // +1.27% over 315m
-            ]
-            const detail = buildInclineDetail(elev)
-
-            // Compute total distance painted in each "decline" color category and the
-            // overall direction of every painted segment. No segment longer than 100m
-            // should ever be colored as decline (≤-6%) when the section actually climbs.
-            const declineColors = new Set([getSlopeColor(-7), getSlopeColor(-15)])
-            for (const seg of detail.segments) {
-                const span = seg.toDistance - seg.fromDistance
-                if (declineColors.has(seg.color) && span > 50) {
-                    // Find the actual elevation change over this segment using the source data
-                    const eAtFrom = interpElev(elev, seg.fromDistance)
-                    const eAtTo = interpElev(elev, seg.toDistance)
-                    const overall = ((eAtTo - eAtFrom) / span) * 100
-                    expect(overall).toBeLessThan(0) // decline coloring should require an actual decline
-                }
-            }
-        })
-
-        it('still colors a real sustained descent as decline', () => {
-            // Continuous -8% over 500m — every sample is part of a real steep descent.
-            const elev: ElevationPoint[] = []
-            for (let d = 0; d <= 500; d += 25) {
-                elev.push({ distance: d, elevation: 200 - 0.08 * d, lng: 0, lat: 0 })
-            }
-            const detail = buildInclineDetail(elev)
-            const declineColor = getSlopeColor(-7) // matches the -10..-6% bucket
-            const declineSpan = detail.segments
-                .filter(s => s.color === declineColor)
-                .reduce((sum, s) => sum + (s.toDistance - s.fromDistance), 0)
-            // Most of the route should be painted as decline (allow a small horizon tail-off)
-            expect(declineSpan).toBeGreaterThan(500 - SLOPE_HORIZON_M * 2)
-        })
-    })
 })
-
-// Linear interpolation of elevation at a given distance along the series.
-function interpElev(elev: ElevationPoint[], distance: number): number {
-    if (elev.length === 0) return 0
-    if (distance <= elev[0].distance) return elev[0].elevation
-    if (distance >= elev[elev.length - 1].distance) return elev[elev.length - 1].elevation
-    for (let i = 0; i < elev.length - 1; i++) {
-        if (distance >= elev[i].distance && distance <= elev[i + 1].distance) {
-            const t = (distance - elev[i].distance) / (elev[i + 1].distance - elev[i].distance)
-            return elev[i].elevation + t * (elev[i + 1].elevation - elev[i].elevation)
-        }
-    }
-    return 0
-}

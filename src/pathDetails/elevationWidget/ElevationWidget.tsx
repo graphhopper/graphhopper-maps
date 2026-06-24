@@ -237,7 +237,7 @@ export default function ElevationWidget({
                     >
                         {isExpanded ? '\u25C0' : '\u25B6'}
                     </button>
-                    {isExpanded && onClose && (
+                    {onClose && (
                         <button className={styles.closeButton} onClick={onClose} title="Close">
                             <Cross />
                         </button>

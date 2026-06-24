@@ -1,6 +1,6 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
-import { SetCustomModelEnabled, UpdateSettings } from '@/actions/Actions'
+import { DisableCustomModel, UpdateSettings } from '@/actions/Actions'
 
 const STORAGE_KEY = 'settings'
 
@@ -50,8 +50,8 @@ export default class SettingsStore extends Store<Settings> {
 
     reduce(state: Settings, action: Action): Settings {
         let newState = state
-        if (action instanceof SetCustomModelEnabled) {
-            if (!action.enabled && state.drawAreasEnabled)
+        if (action instanceof DisableCustomModel) {
+            if (state.drawAreasEnabled)
                 newState = {
                     ...state,
                     drawAreasEnabled: false,

@@ -1,6 +1,14 @@
 import { coordinateToText } from '@/Converters'
 import Dispatcher from '@/stores/Dispatcher'
-import { ClearPoints, SelectMapLayer, SetBBox, SetQueryPoints, SetVehicleProfile } from '@/actions/Actions'
+import {
+    ClearPoints,
+    DisableCustomModel,
+    SelectMapLayer,
+    SetBBox,
+    SetCustomModel,
+    SetQueryPoints,
+    SetVehicleProfile,
+} from '@/actions/Actions'
 // import the window like this so that it can be mocked during testing
 import { window } from '@/Window'
 import QueryStore, { QueryPoint, QueryPointType, QueryStoreState } from '@/stores/QueryStore'
@@ -149,6 +157,10 @@ export default class NavBar {
 
         const parsedLayer = NavBar.parseLayer(url)
         if (parsedLayer) Dispatcher.dispatch(new SelectMapLayer(parsedLayer))
+
+        const customModelParam = url.searchParams.get('custom_model')
+        if (customModelParam != null) Dispatcher.dispatch(new SetCustomModel(customModelParam, false))
+        else Dispatcher.dispatch(new DisableCustomModel())
 
         this.ignoreStateUpdates = false
     }
