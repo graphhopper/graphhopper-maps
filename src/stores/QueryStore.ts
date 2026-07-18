@@ -409,9 +409,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         // Janek deliberately chose this style of if statements, to make this readable.
         if (state.queryPoints.length <= 1) return false
         if (!state.queryPoints.every(point => point.isInitialized)) return false
-        if (!state.routingProfile.name) return false
-
-        return true
+        return state.routingProfile.name;
     }
 
     private static movePoint(points: QueryPoint[], point: QueryPoint, newIndex: number): QueryPoint[] {
