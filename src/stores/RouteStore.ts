@@ -4,9 +4,7 @@ import {
     AddPoint,
     ClearPoints,
     ClearRoute,
-    MovePoint,
     RemovePoint,
-    ReversePoints,
     RouteRequestSuccess,
     SetPoint,
     SetSelectedPath,
@@ -82,9 +80,7 @@ export default class RouteStore extends Store<RouteStoreState> {
              action instanceof AddPoint ||
              action instanceof ClearRoute ||
              action instanceof ClearPoints ||
-             action instanceof RemovePoint ||
-             action instanceof ReversePoints ||
-             action instanceof MovePoint
+             action instanceof RemovePoint
          ) {
              return RouteStore.getInitialState()
          }
