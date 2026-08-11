@@ -16,16 +16,16 @@
     },
     "dependencies": {
         "custom-model-editor": "github:graphhopper/custom-model-editor#5ebd80570329f7abfc95c39624be1f1a379cf392",
-        "geojson": "^0.5.0",
-        "ol": "10.6.1",
-        "ol-mapbox-style": "13.1.0",
-        "react": "19.2.7",
-        "react-dom": "19.2.7",
+        "geojson": "0.5.0",
+        "ol": "10.10.0",
+        "ol-mapbox-style": "13.4.2",
+        "react": "19.2.8",
+        "react-dom": "19.2.8",
         "react-responsive": "10.0.1"
     },
     "overrides": {
-        "js-yaml": "^4.2.0",
-        "uuid": "^11.1.1"
+        "js-yaml": "4.3.1",
+        "uuid": "11.1.1"
     },
     "allowScripts": {
         "fsevents": false,
