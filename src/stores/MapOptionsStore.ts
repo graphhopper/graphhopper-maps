@@ -28,6 +28,9 @@ export interface MapOptionsStoreState {
 
 export interface StyleOption {
     name: string
+    // Short code used in share URLs (`l=<shortName>`). Avoids leaking the full
+    // display name and brand strings into URLs.
+    shortName: string
     type: 'raster' | 'vector'
     url: string[] | string
     attribution: string
@@ -53,12 +56,14 @@ const retina2x = isRetina ? '@2x' : ''
 
 const mapTilerSatellite: VectorStyle = {
     name: 'MapTiler Satellite',
+    shortName: 'maptlrsat',
     type: 'vector',
     url: 'https://api.maptiler.com/maps/hybrid/style.json?key=' + mapTilerKey,
     attribution: osmAttribution + ', &copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a>',
 }
 const osmOrg: RasterStyle = {
     name: 'OpenStreetMap',
+    shortName: 'osm',
     type: 'raster',
     url: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
     attribution: osmAttribution,
@@ -66,6 +71,7 @@ const osmOrg: RasterStyle = {
 }
 const osmCycl: RasterStyle = {
     name: 'Cyclosm',
+    shortName: 'cyc',
     type: 'raster',
     url: [
         'https://a.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
@@ -80,6 +86,7 @@ const osmCycl: RasterStyle = {
 
 const omniscale: RasterStyle = {
     name: 'Omniscale',
+    shortName: 'oms',
     type: 'raster',
     url: [
         'https://maps.omniscale.net/v2/' + osApiKey + '/style.default/{z}/{x}/{y}.png' + (isRetina ? '?hq=true' : ''),
@@ -89,6 +96,7 @@ const omniscale: RasterStyle = {
 }
 const esriSatellite: RasterStyle = {
     name: 'Esri Satellite',
+    shortName: 'esri',
     type: 'raster',
     url: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
     attribution:
@@ -98,6 +106,7 @@ const esriSatellite: RasterStyle = {
 }
 const tfTransport: RasterStyle = {
     name: 'TF Transport',
+    shortName: 'tftransp',
     type: 'raster',
     url: [
         'https://a.tile.thunderforest.com/transport/{z}/{x}/{y}' + retina2x + '.png?apikey=' + thunderforestApiKey,
@@ -111,6 +120,7 @@ const tfTransport: RasterStyle = {
 }
 const tfCycle: RasterStyle = {
     name: 'TF Cycle',
+    shortName: 'tfcyc',
     type: 'raster',
     url: [
         'https://a.tile.thunderforest.com/cycle/{z}/{x}/{y}' + retina2x + '.png?apikey=' + thunderforestApiKey,
@@ -124,6 +134,7 @@ const tfCycle: RasterStyle = {
 }
 const tfOutdoors: RasterStyle = {
     name: 'TF Outdoors',
+    shortName: 'tfout',
     type: 'raster',
     url: [
         'https://a.tile.thunderforest.com/outdoors/{z}/{x}/{y}' + retina2x + '.png?apikey=' + thunderforestApiKey,
@@ -137,6 +148,7 @@ const tfOutdoors: RasterStyle = {
 }
 const mapillion: VectorStyle = {
     name: 'Mapilion',
+    shortName: 'mpln',
     type: 'vector',
     url: 'https://tiles.mapilion.com/assets/osm-bright/style.json?key=' + kurvigerApiKey,
     attribution:
@@ -145,6 +157,7 @@ const mapillion: VectorStyle = {
 }
 const wanderreitkarte: RasterStyle = {
     name: 'WanderReitKarte',
+    shortName: 'wrk',
     type: 'raster',
     url: [
         'https://topo.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
@@ -192,7 +205,10 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
 
     reduce(state: MapOptionsStoreState, action: Action): MapOptionsStoreState {
         if (action instanceof SelectMapLayer) {
-            const styleOption = state.styleOptions.find(o => o.name === action.layer)
+            // Accept either the full name (legacy) or the short code used in share URLs.
+            const styleOption = state.styleOptions.find(
+                o => o.name === action.layer || o.shortName === action.layer,
+            )
             if (styleOption)
                 return {
                     ...state,
