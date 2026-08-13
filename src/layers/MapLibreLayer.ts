@@ -39,6 +39,8 @@ export default class MapLibreLayer extends Layer {
     }
 
     override disposeInternal() {
+        // avoid that a repaint is triggered for the map that we are about to remove, e.g. on a style switch
+        this.maplibreMap.triggerRepaint = () => {}
         this.maplibreMap.remove()
         super.disposeInternal()
     }
