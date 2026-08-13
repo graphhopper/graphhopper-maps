@@ -115,6 +115,18 @@
     pointer-events: none;
 }
 
+/* used together with .pathDetails: the elevation reopen button and the Maptoolkit logo share the bottom left corner */
+.bottomLeftBar {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.maptoolkitLogo {
+    height: 1.6rem;
+    pointer-events: none;
+}
+
 .elevationReopenButton {
     display: flex;
     align-items: center;
@@ -153,6 +165,16 @@
     grid-row: 2 / span 1;
     grid-column: 1 / span 1;
     justify-self: end;
+}
+
+/* top left of the map i.e. directly below the search box */
+.smallScreenMaptoolkit {
+    grid-row: 2 / span 1;
+    grid-column: 1 / span 1;
+    justify-self: start;
+    /* without this the absolutely positioned map canvas is painted over the logo */
+    z-index: 1;
+    margin: 0.5rem;
 }
 
 .onMapRightSide > div {
