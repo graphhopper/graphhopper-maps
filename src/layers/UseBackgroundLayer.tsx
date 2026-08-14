@@ -4,13 +4,14 @@ import { RasterStyle, StyleOption } from '@/stores/MapOptionsStore'
 import TileLayer from 'ol/layer/Tile'
 import ImageTile from 'ol/ImageTile'
 import { XYZ } from 'ol/source'
-import { apply } from 'ol-mapbox-style'
 
 export default function useBackgroundLayer(map: Map, styleOption: StyleOption) {
     useEffect(() => {
+        let cancelled = false
         removeCurrentBackgroundLayers(map)
-        addNewBackgroundLayers(map, styleOption)
+        addNewBackgroundLayers(map, styleOption, () => cancelled)
         return () => {
+            cancelled = true
             removeCurrentBackgroundLayers(map)
         }
     }, [map, styleOption])
@@ -36,15 +37,25 @@ function removeCurrentBackgroundLayers(map: Map) {
         .getArray()
         .filter(l => {
             // vector layers added via olms#addLayers have the mapbox-source key
-            return l.get('mapbox-source') || l.get('background-raster-layer')
+            return l.get('mapbox-source') || l.get('background-maplibre-layer') || l.get('background-raster-layer')
         })
-    backgroundLayers.forEach(l => map.removeLayer(l))
+    backgroundLayers.forEach(l => {
+        map.removeLayer(l)
+        // removing a layer does not dispose it, but otherwise switching styles leaks the WebGL context
+        if (l.get('background-maplibre-layer')) l.dispose()
+    })
 }
 
-function addNewBackgroundLayers(map: Map, styleOption: StyleOption) {
+function addNewBackgroundLayers(map: Map, styleOption: StyleOption, isCancelled: () => boolean) {
     if (styleOption.type === 'vector') {
-        // todo: handle promise return value?
-        apply(map, styleOption.url)
+        // MapLibre renders vector tiles with WebGL and so is much faster than the vector tile support of OpenLayers.
+        // It is loaded lazily because it is only needed for vector styles and it is a rather big dependency.
+        import('@/layers/MapLibreLayer').then(({ default: MapLibreLayer }) => {
+            if (isCancelled()) return
+            const vectorLayer = new MapLibreLayer(styleOption.url as string, styleOption.attribution)
+            vectorLayer.set('background-maplibre-layer', true)
+            map.addLayer(vectorLayer)
+        })
     } else {
         const rasterStyle = styleOption as RasterStyle
         const tileLayer = new TileLayer({
