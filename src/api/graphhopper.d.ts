@@ -23,6 +23,7 @@ export interface RoutingRequest {
     elevation: boolean
     headings?: number[]
     heading_penalty?: number
+    roundabout_exits: boolean
     'alternative_route.max_paths'?: number
     'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean

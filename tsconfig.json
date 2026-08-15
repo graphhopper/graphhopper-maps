@@ -8,7 +8,7 @@
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
         "importHelpers": true,
-        "module": "ES2015",
+        "module": "ES2020",
         "moduleResolution": "node",
         "noImplicitReturns": true,
         "strict": true,

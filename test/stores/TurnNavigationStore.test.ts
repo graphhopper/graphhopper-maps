@@ -2,7 +2,6 @@ import Dispatcher from '@/stores/Dispatcher'
 import {
     LocationUpdate,
     SetCustomModel,
-    SetCustomModelEnabled,
     SetSelectedPath,
     SetVehicleProfile,
     TurnNavigationReroutingTimeResetForTest,
@@ -275,7 +274,6 @@ describe('TurnNavigationStore', () => {
             ])
             const store = createStore(api)
             Dispatcher.dispatch(new SetCustomModel(customModelStr, false))
-            Dispatcher.dispatch(new SetCustomModelEnabled(true))
             Dispatcher.dispatch(new SetSelectedPath(reroute1.paths[0]))
             Dispatcher.dispatch(new LocationUpdate({ lng: 14.268908, lat: 51.434871 }, true, 10, 120))
             expect(store.state.customModelStr).toEqual(customModelStr)

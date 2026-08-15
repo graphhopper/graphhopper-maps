@@ -88,9 +88,21 @@ export function ContextMenuContent({
 
     return (
         <div className={styles.wrapper} onMouseUp={convertToClick}>
+            {showAddLocation && (
+                <button className={styles.entry} onClick={() => dispatchAddPoint(coordinate)}>
+                    <div>
+                        <MarkerComponent
+                            size={20}
+                            color={QueryStore.getMarkerColor(QueryPointType.To)}
+                            number={'\uFF0B'}
+                        />
+                    </div>
+                    <span>{tr('add_to_route')}</span>
+                </button>
+            )}
             <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
                 <div>
-                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.From)} />
+                    <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.From)} />
                 </div>
                 <span>{tr('set_start')}</span>
             </button>
@@ -100,38 +112,21 @@ export function ContextMenuContent({
                 onClick={() => setViaPoint(queryPoints, route)}
             >
                 <div>
-                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
+                    <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
                 </div>
                 <span>{tr('set_intermediate')}</span>
             </button>
             <button
-                style={showAddLocation ? {} : { paddingBottom: '10px' }}
                 className={styles.entry}
                 onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
             >
                 <div>
-                    <MarkerComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.To)} />
+                    <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.To)} />
                 </div>
                 <span>{tr('set_end')}</span>
             </button>
-            {showAddLocation && (
-                <button
-                    style={{ paddingBottom: '10px' }}
-                    className={styles.entry}
-                    onClick={() => dispatchAddPoint(coordinate)}
-                >
-                    <div>
-                        <MarkerComponent
-                            size={16}
-                            color={QueryStore.getMarkerColor(QueryPointType.To)}
-                            number={'\uFF0B'}
-                        />
-                    </div>
-                    <span>{tr('add_to_route')}</span>
-                </button>
-            )}
             <button
-                style={{ borderTop: '1px solid lightgray', paddingTop: '10px' }}
+                style={{ borderTop: '1px solid lightgray', marginTop: '0.4em', paddingTop: '0.8em' }}
                 className={styles.entry}
                 onClick={() => {
                     if (queryPoints.length > 0) Dispatcher.dispatch(new SetPoint(queryPoints[0], true))

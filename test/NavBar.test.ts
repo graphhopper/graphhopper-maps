@@ -66,7 +66,7 @@ describe('NavBar', function () {
                 }
             })
 
-            testCreateUrl(points, { name: 'my-profile' }, 'Cyclosm')
+            testCreateUrl(points, { name: 'my-profile' }, 'TF Transport')
         })
 
         it('should convert query store state into url params on change including addresses', () => {
@@ -82,7 +82,7 @@ describe('NavBar', function () {
                 }
             })
 
-            testCreateUrl(points, { name: 'my-profile' }, 'Cyclosm')
+            testCreateUrl(points, { name: 'my-profile' }, 'TF Transport')
         })
 
         function testCreateUrl(points: QueryPoint[], profile: RoutingProfile, layer: string) {

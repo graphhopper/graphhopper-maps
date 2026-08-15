@@ -23,6 +23,46 @@ export interface PathLike {
     distance: number
 }
 
+export interface ElevationColorRun {
+    fromIdx: number
+    toIdx: number
+    color: string
+}
+
+// Quantize an elevation profile into colored runs for the area fill. Points are
+// grouped into bins at least minBinDist meters wide and each bin is colored by
+// its net (distance-weighted) grade — total elevation change over the bin's
+// distance. At normal zoom a bin is a single segment, so the color equals the
+// grade the hover popup reports there; when many points share one pixel the net
+// grade averages them, so a single noisy sample can't paint the whole pixel as a
+// steep climb/descent. Consecutive bins with the same color are merged so the
+// renderer draws one polygon per run. Indices refer to the input array.
+export function computeElevationColorRuns(elevation: ElevationPoint[], minBinDist: number): ElevationColorRun[] {
+    const bins: ElevationColorRun[] = []
+    let binStart = 0
+    for (let i = 0; i < elevation.length - 1; i++) {
+        const binSpan = elevation[i + 1].distance - elevation[binStart].distance
+        if (binSpan >= minBinDist || i === elevation.length - 2) {
+            const slope =
+                binSpan > 0 ? (100 * (elevation[i + 1].elevation - elevation[binStart].elevation)) / binSpan : 0
+            bins.push({ fromIdx: binStart, toIdx: i + 1, color: getSlopeColor(slope) })
+            binStart = i + 1
+        }
+    }
+
+    // Merge consecutive bins with the same color.
+    const runs: ElevationColorRun[] = []
+    for (const bin of bins) {
+        const last = runs[runs.length - 1]
+        if (last && last.color === bin.color) {
+            last.toIdx = bin.toIdx
+        } else {
+            runs.push({ ...bin })
+        }
+    }
+    return runs
+}
+
 export function extractElevationPoints(coordinates: number[][]): ElevationPoint[] {
     if (coordinates.length === 0) return []
     const has3D = coordinates[0].length >= 3
@@ -297,7 +337,7 @@ export function buildInclineDetail(elevation: ElevationPoint[]): ChartPathDetail
         return { key: '_incline', label: 'Incline', type: 'bars', segments: [], legend }
     }
 
-    // Compute slope between consecutive points and assign incline colors
+    // Color each segment by its exact grade so the map matches the elevation popup.
     const raw: PathDetailSegment[] = []
     for (let i = 0; i < elevation.length - 1; i++) {
         const p = elevation[i]

@@ -8,10 +8,10 @@ import { create } from 'custom-model-editor/src/index'
 import Dispatcher from '@/stores/Dispatcher'
 import {
     ClearRoute,
+    DisableCustomModel,
     DismissLastError,
     ErrorAction,
     SetCustomModel,
-    SetCustomModelEnabled,
     UpdateSettings,
 } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
@@ -68,6 +68,21 @@ export default function CustomModelBox({
         instance.cm.setSize('100%', '100%')
         instance.cm.on('change', () => Dispatcher.dispatch(new SetCustomModel(instance.value, false)))
         instance.validListener = (valid: boolean) => setIsValid(valid)
+
+        const triggerRouting = () => {
+            try {
+                JSON.parse(instance.value)
+            } catch (e) {
+                Dispatcher.dispatch(new ErrorAction('Custom Model ' + (e as SyntaxError).toString()))
+            }
+            Dispatcher.dispatch(new SetCustomModel(instance.value, true))
+        }
+        // Using this keyboard shortcut we can skip the custom model validation and directly request a routing
+        // query.
+        instance.cm.addKeyMap({
+            'Ctrl-Enter': triggerRouting,
+            'Cmd-Enter': triggerRouting,
+        })
     }, [])
 
     useEffect(() => {
@@ -78,22 +93,6 @@ export default function CustomModelBox({
         if (editor.value !== customModelStr) editor.value = customModelStr
     }, [editor, encodedValues, customModelEnabled, customModelStr])
 
-    const triggerRouting = useCallback(
-        (event: React.KeyboardEvent<HTMLInputElement>) => {
-            if (event.ctrlKey && event.key === 'Enter') {
-                // Using this keyboard shortcut we can skip the custom model validation and directly request a routing
-                // query.
-                try {
-                    JSON.parse(editor.value)
-                } catch (e) {
-                    Dispatcher.dispatch(new ErrorAction('Custom Model ' + (e as SyntaxError).toString()))
-                }
-                Dispatcher.dispatch(new SetCustomModel(editor.value, true))
-            }
-        },
-        [editor, isValid],
-    )
-
     return (
         <>
             <div className={styles.customModelOptionTable}>
@@ -102,7 +101,9 @@ export default function CustomModelBox({
                     onClick={() => {
                         if (customModelEnabled) Dispatcher.dispatch(new DismissLastError())
                         Dispatcher.dispatch(new ClearRoute())
-                        Dispatcher.dispatch(new SetCustomModelEnabled(!customModelEnabled))
+                        Dispatcher.dispatch(
+                            customModelEnabled ? new DisableCustomModel() : new SetCustomModel(customModelStr, true),
+                        )
                     }}
                 >
                     {customModelEnabled ? <OnIcon /> : <OffIcon />}
@@ -119,7 +120,7 @@ export default function CustomModelBox({
                     </PlainButton>
                 )}
             </div>
-            <div ref={divElement} className={styles.customModelBox} onKeyUp={triggerRouting} />
+            <div ref={divElement} className={styles.customModelBox} />
             <div className={styles.customModelBoxBottomBar}>
                 <select
                     className={styles.examples}
@@ -160,7 +161,6 @@ export default function CustomModelBox({
                         // If the model was invalid the button would be disabled anyway, so it does not really matter
                         // if we set valid to true or false here.
                         onClick={() => {
-                            if (!customModelEnabled) Dispatcher.dispatch(new SetCustomModelEnabled(true))
                             Dispatcher.dispatch(new SetCustomModel(editor.value, true))
                         }}
                     >

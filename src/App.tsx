@@ -25,7 +25,7 @@ import { milliSecondsToText, metersToText } from '@/Converters'
 import { Path } from '@/api/graphhopper'
 import { QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
-import { MapOptionsStoreState } from '@/stores/MapOptionsStore'
+import { MapOptionsStoreState, StyleOption } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import { CurrentLocationStoreState } from '@/stores/CurrentLocationStore'
 import Search from '@/sidebar/search/Search'
@@ -54,7 +54,14 @@ import useExternalMVTLayer from '@/layers/UseExternalMVTLayer'
 import LocationButton from '@/map/LocationButton'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import usePOIsLayer from '@/layers/UsePOIsLayer'
+import maptoolkitImg from '@/map/maptoolkit-attribution.png'
 import useCurrentLocationLayer from '@/layers/UseCurrentLocationLayer'
+
+// the Maptoolkit logo is only shown for their map styles
+function isMaptoolkitStyle(styleOption: StyleOption) {
+    const url = Array.isArray(styleOption.url) ? styleOption.url.join(' ') : styleOption.url
+    return url.includes('maptoolkit.')
+}
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
@@ -258,6 +265,7 @@ function LargeScreenLayout({
     onCyclePathDisplay,
 }: LayoutProps) {
     const inclineOnMap = pathDisplayMode === 'incline'
+    const showMaptoolkitLogo = isMaptoolkitStyle(mapOptions.selectedStyle)
     const [showSidebar, setShowSidebar] = useState(true)
     const [showCustomModelBox, setShowCustomModelBox] = useState(false)
 
@@ -357,17 +365,23 @@ function LargeScreenLayout({
                 <MapComponent map={map} />
             </div>
 
-            {elevationState === 'closed' && hasRoute && (
-                <div className={styles.pathDetails}>
-                    <button
-                        className={styles.elevationReopenButton}
-                        onClick={() => setElevationState('compact')}
-                        title="Show elevation"
-                    >
-                        <svg width="16" height="16" viewBox="0 0 1792 1792" fill="#666">
-                            <path d="M1920 1536v128h-2048v-1536h128v1408h1920zm-384-1024l256 896h-1664v-576l448-576 576 576z" />
-                        </svg>
-                    </button>
+            {/* the logo is only shown when the elevation widget is closed, because it would cover it otherwise */}
+            {elevationState === 'closed' && (hasRoute || showMaptoolkitLogo) && (
+                <div className={styles.pathDetails + ' ' + styles.bottomLeftBar}>
+                    {hasRoute && (
+                        <button
+                            className={styles.elevationReopenButton}
+                            onClick={() => setElevationState('compact')}
+                            title="Show elevation"
+                        >
+                            <svg width="16" height="16" viewBox="0 0 1792 1792" fill="#666">
+                                <path d="M1920 1536v128h-2048v-1536h128v1408h1920zm-384-1024l256 896h-1664v-576l448-576 576 576z" />
+                            </svg>
+                        </button>
+                    )}
+                    {showMaptoolkitLogo && (
+                        <img className={styles.maptoolkitLogo} src={maptoolkitImg} alt="Maptoolkit" />
+                    )}
                 </div>
             )}
             <div
@@ -429,6 +443,13 @@ function SmallScreenLayout({
             <div className={styles.smallScreenMap}>
                 <MapComponent map={map} />
             </div>
+            {isMaptoolkitStyle(mapOptions.selectedStyle) && (
+                <img
+                    className={styles.smallScreenMaptoolkit + ' ' + styles.maptoolkitLogo}
+                    src={maptoolkitImg}
+                    alt="Maptoolkit"
+                />
+            )}
             <div className={styles.smallScreenMapOptions}>
                 <div className={styles.onMapRightSide}>
                     <MapOptions {...mapOptions} />

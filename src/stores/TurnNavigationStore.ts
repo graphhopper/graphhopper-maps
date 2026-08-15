@@ -5,8 +5,8 @@ import {
     LocationUpdate,
     LocationUpdateSync,
     SelectMapLayer,
+    DisableCustomModel,
     SetCustomModel,
-    SetCustomModelEnabled,
     SetSelectedPath,
     SetVehicleProfile,
     ToggleFullScreenForNavigation,
@@ -187,15 +187,15 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 ...state,
                 rerouteInProgress: false,
             }
-        } else if (action instanceof SetCustomModelEnabled) {
+        } else if (action instanceof DisableCustomModel) {
             return {
                 ...state,
-                customModelEnabled: action.enabled,
+                customModelEnabled: false,
             }
         } else if (action instanceof SetCustomModel) {
-            // console.log('SetCustomModel ' + action.customModelStr)
             return {
                 ...state,
+                customModelEnabled: true,
                 customModelStr: action.customModelStr,
             }
         } else if (action instanceof InfoReceived) {

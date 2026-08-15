@@ -55,11 +55,12 @@ export function formatDistanceLabel(meters: number, showMiles: boolean): string 
 /**
  * Format an elevation value for the y-axis label.
  */
-export function formatElevationLabel(meters: number, showMiles: boolean): string {
+export function formatElevationLabel(meters: number, showMiles: boolean, decimals = 0): string {
+    const round = (n: number) => (decimals > 0 ? n.toFixed(decimals) : Math.round(n))
     if (showMiles) {
-        return `${Math.round(meters / 0.3048)} ft`
+        return `${round(meters / 0.3048)} ft`
     }
-    return `${Math.round(meters)} m`
+    return `${round(meters)} m`
 }
 
 function formatNumber(n: number): string {

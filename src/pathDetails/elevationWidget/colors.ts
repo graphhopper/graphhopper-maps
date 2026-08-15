@@ -1,3 +1,5 @@
+import { ApiImpl } from '@/api/Api'
+
 export const SURFACE_COLORS: Record<string, string> = {
     // Paved (greens)
     asphalt: '#2E7D32',
@@ -134,7 +136,7 @@ export function getSpeedThresholds(profile: string): number[] {
         profile.includes('scooter') ||
         profile.includes('bus') ||
         profile.includes('motorcycle')
-    const isFootLike = profile.includes('hike') || profile.includes('foot')
+    const isFootLike = ApiImpl.isFootLike(profile)
 
     if (isMotorVehicle) return [30, 50, 80]
     if (isFootLike) return [3, 4, 5]

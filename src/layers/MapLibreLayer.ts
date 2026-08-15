@@ -18,12 +18,14 @@ import type { FrameState } from 'ol/Map.js'
 import RenderEvent from 'ol/render/Event'
 import _default from 'ol/MapEventType'
 import POSTRENDER = _default.POSTRENDER
+import Source from 'ol/source/Source'
 
 export default class MapLibreLayer extends Layer {
     maplibreMap: maplibregl.Map
 
-    constructor(style: string) {
-        super({})
+    constructor(style: string, attributions?: string) {
+        // the source is not used for rendering, it only feeds the OpenLayers attribution control
+        super({ source: new Source({ attributions: attributions, projection: undefined }) })
         const container = document.createElement('div')
         container.style.position = 'absolute'
         container.style.width = '100%'
@@ -41,6 +43,8 @@ export default class MapLibreLayer extends Layer {
     }
 
     override disposeInternal() {
+        // avoid that a repaint is triggered for the map that we are about to remove, e.g. on a style switch
+        this.maplibreMap.triggerRepaint = () => {}
         this.maplibreMap.remove()
         super.disposeInternal()
     }
@@ -72,7 +76,7 @@ export default class MapLibreLayer extends Layer {
         if (!maplibreCanvas.isConnected) {
             // The canvas is not connected to the DOM, request a map rendering at the next animation frame
             // to set the canvas size.
-            this.getMapInternal()!.render()
+            this.getMapInternal()?.render()
         } else if (!sameSize(maplibreCanvas, frameState)) {
             this.maplibreMap.resize()
         }
