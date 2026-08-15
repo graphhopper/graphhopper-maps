@@ -51,8 +51,10 @@
 }
 
 .detailsButton,
+.detailsButtonExpanded,
 .exportButton {
-    padding-top: 1px; /* correction for "height: auto" of svg  */
+    display: flex;
+    align-items: flex-start;
     margin-left: 0.5em;
 }
 
@@ -61,17 +63,15 @@
 .exportButton div {
     color: #5b616a;
     font-size: 12px;
-    float: left;
-    padding-top: 0.15em;
+    line-height: 1.2rem; /* same as svg height => text vertically centered on icon */
     padding-left: 0.5em;
 }
 
 .detailsButton svg,
 .detailsButtonExpanded svg,
 .exportButton svg {
-    float: left;
     width: 1.2em;
-    height: auto;
+    height: 1.2em;
 }
 
 .exportButton:active div,
