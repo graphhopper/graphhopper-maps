@@ -1,4 +1,4 @@
-import { Map, Overlay } from 'ol'
+import { Feature, Map, MapBrowserEvent, Overlay } from 'ol'
 import { ContextMenuContent } from '@/map/ContextMenuContent'
 import { useEffect, useRef, useState } from 'react'
 import { QueryPoint } from '@/stores/QueryStore'
@@ -20,16 +20,33 @@ const overlay = new Overlay({
 export default function ContextMenu({ map, route, queryPoints }: ContextMenuProps) {
     const [menuCoordinate, setMenuCoordinate] = useState<Coordinate | null>(null)
     const container = useRef<HTMLDivElement | null>(null)
+    // mirror of menuCoordinate for use in the map listeners which are registered only once
+    const isOpen = useRef(false)
 
     const openContextMenu = (e: any) => {
         e.preventDefault()
         const coordinate = map.getEventCoordinate(e)
         const lonLat = toLonLat(coordinate)
+        isOpen.current = true
         setMenuCoordinate({ lng: lonLat[0], lat: lonLat[1] })
     }
 
     const closeContextMenu = () => {
+        isOpen.current = false
         setMenuCoordinate(null)
+    }
+
+    // 'singleclick' is only fired for a plain click, i.e. not when the map was panned and not for double clicks
+    const onSingleClick = (e: MapBrowserEvent<any>) => {
+        if (isOpen.current) {
+            // a click while the menu is shown only closes it and does not open a new one at the clicked location
+            closeContextMenu()
+            return
+        }
+        // do not open the menu when clicking interactive features (POIs, paths, markers), they handle clicks themselves
+        const atFeature = map.getFeaturesAtPixel(e.pixel, { hitTolerance: 5 }).some(f => f instanceof Feature)
+        if (atFeature) return
+        openContextMenu(e.originalEvent)
     }
 
     useEffect(() => {
@@ -52,10 +69,9 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.getTargetElement().addEventListener('touchstart', handleTouchStart)
             map.getTargetElement().addEventListener('touchmove', handleTouchMove)
             map.getTargetElement().addEventListener('touchend', handleTouchEnd)
-
-            map.getTargetElement().addEventListener('click', closeContextMenu)
         }
         map.on('change:target', onMapTargetChange)
+        map.on('singleclick', onSingleClick)
 
         return () => {
             map.getTargetElement().removeEventListener('contextmenu', openContextMenu)
@@ -64,9 +80,9 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.getTargetElement().removeEventListener('touchmove', handleTouchMove)
             map.getTargetElement().removeEventListener('touchend', handleTouchEnd)
 
-            map.getTargetElement().removeEventListener('click', closeContextMenu)
             map.removeOverlay(overlay)
             map.un('change:target', onMapTargetChange)
+            map.un('singleclick', onSingleClick)
         }
     }, [map])
 

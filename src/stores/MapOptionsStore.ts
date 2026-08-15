@@ -135,6 +135,20 @@ const tfOutdoors: RasterStyle = {
         ', <a href="https://www.thunderforest.com/maps/outdoors/" target="_blank">Thunderforest Outdoors</a>',
     tilePixelRatio: tilePixelRatio,
 }
+const maptoolkitHiking: VectorStyle = {
+    name: 'Maptoolkit Hiking',
+    type: 'vector',
+    url: 'https://styles.maptoolkit.org/hiking.json',
+    attribution:
+        osmAttribution + ', &copy; <a href="https://www.maptoolkit.com/copyright/" target="_blank">Maptoolkit</a>',
+}
+const maptoolkitCycling: VectorStyle = {
+    name: 'Maptoolkit Cycling',
+    type: 'vector',
+    url: 'https://styles.maptoolkit.org/cycling.json',
+    attribution:
+        osmAttribution + ', &copy; <a href="https://www.maptoolkit.com/copyright/" target="_blank">Maptoolkit</a>',
+}
 const mapillion: VectorStyle = {
     name: 'Mapilion',
     type: 'vector',
@@ -143,30 +157,17 @@ const mapillion: VectorStyle = {
         osmAttribution +
         ', &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
 }
-const wanderreitkarte: RasterStyle = {
-    name: 'WanderReitKarte',
-    type: 'raster',
-    url: [
-        'https://topo.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-        'https://topo2.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-        'https://topo3.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-        'https://topo4.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-    ],
-    attribution: osmAttribution + ', <a href="https://wanderreitkarte.de" target="_blank">WanderReitKarte</a>',
-    maxZoom: 18,
-}
 
 const styleOptions: StyleOption[] = [
     omniscale,
     osmOrg,
-    osmCycl,
+    maptoolkitCycling,
+    maptoolkitHiking,
     esriSatellite,
-    mapTilerSatellite,
     tfTransport,
     tfCycle,
     tfOutdoors,
     mapillion,
-    wanderreitkarte,
 ]
 
 export default class MapOptionsStore extends Store<MapOptionsStoreState> {

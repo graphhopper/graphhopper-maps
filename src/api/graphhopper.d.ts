@@ -20,6 +20,7 @@ export interface RoutingRequest {
     points_encoded_multiplier: number
     instructions: boolean
     elevation: boolean
+    roundabout_exits: boolean
     'alternative_route.max_paths'?: number
     'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean

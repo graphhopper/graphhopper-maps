@@ -288,6 +288,7 @@ export class ApiImpl implements Api {
             profile: args.profile,
             elevation: true,
             instructions: true,
+            roundabout_exits: true,
             locale: getTranslation().getLang(),
             points_encoded: true,
             points_encoded_multiplier: 1e6,
