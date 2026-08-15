@@ -22,7 +22,6 @@ import RoutingResults from '@/sidebar/RoutingResults'
 import PoweredBy from '@/sidebar/PoweredBy'
 import { milliSecondsToText, metersToText } from '@/Converters'
 import { Path } from '@/api/graphhopper'
-import { ApiImpl } from '@/api/Api'
 import { QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { MapOptionsStoreState, StyleOption } from '@/stores/MapOptionsStore'
@@ -62,23 +61,6 @@ function isMaptoolkitStyle(styleOption: StyleOption) {
 
 export const POPUP_CONTAINER_ID = 'popup-container'
 export const SIDEBAR_CONTENT_ID = 'sidebar-content'
-
-type PathDisplayMode = 'normal' | 'incline' | 'hidden'
-
-function isOutdoorProfile(profile: string) {
-    return ApiImpl.isFootLike(profile) || ApiImpl.isBikeLike(profile)
-}
-
-/** outdoor profiles show incline colors instead of the plain path */
-function defaultPathDisplayMode(profile: string): PathDisplayMode {
-    return isOutdoorProfile(profile) ? 'incline' : 'normal'
-}
-
-/** outdoor profiles toggle incline/hidden, the others cycle through all three modes */
-function nextPathDisplayMode(mode: PathDisplayMode, profile: string): PathDisplayMode {
-    if (isOutdoorProfile(profile)) return mode === 'hidden' ? 'incline' : 'hidden'
-    return mode === 'normal' ? 'incline' : mode === 'incline' ? 'hidden' : 'normal'
-}
 
 export default function App() {
     const [settings, setSettings] = useState(getSettingsStore().state)
@@ -148,16 +130,8 @@ export default function App() {
     useAreasLayer(map, settings.drawAreasEnabled, query.customModelStr, query.customModelEnabled)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
-    const profile = query.routingProfile.name
-    const [pathDisplayMode, setPathDisplayMode] = useState<PathDisplayMode>(() => defaultPathDisplayMode(profile))
-    // reset to the profile default on profile change, otherwise keep the manual toggle
-    const prevProfile = useRef(profile)
-    useEffect(() => {
-        if (prevProfile.current === profile) return
-        prevProfile.current = profile
-        setPathDisplayMode(defaultPathDisplayMode(profile))
-    }, [profile])
-    const cyclePathDisplay = () => setPathDisplayMode(m => nextPathDisplayMode(m, profile))
+    type PathDisplayMode = 'normal' | 'incline' | 'hidden'
+    const [pathDisplayMode, setPathDisplayMode] = useState<PathDisplayMode>('normal')
     const showPaths = pathDisplayMode !== 'hidden'
     const inclineOnMap = pathDisplayMode === 'incline'
     usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints, showPaths)
@@ -189,7 +163,11 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         pathDisplayMode={pathDisplayMode}
-                        onCyclePathDisplay={cyclePathDisplay}
+                        onCyclePathDisplay={() =>
+                            setPathDisplayMode(m =>
+                                m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal',
+                            )
+                        }
                     />
                 ) : (
                     <LargeScreenLayout
@@ -202,7 +180,11 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         pathDisplayMode={pathDisplayMode}
-                        onCyclePathDisplay={cyclePathDisplay}
+                        onCyclePathDisplay={() =>
+                            setPathDisplayMode(m =>
+                                m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal',
+                            )
+                        }
                     />
                 )}
             </div>
@@ -210,7 +192,7 @@ export default function App() {
     )
 }
 
-function InclineIcon({ mode }: { mode: PathDisplayMode }) {
+function InclineIcon({ mode }: { mode: 'normal' | 'incline' | 'hidden' }) {
     if (mode === 'incline')
         return (
             <svg viewBox="0 0 14 14" fill="none">
@@ -245,7 +227,7 @@ interface LayoutProps {
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
-    pathDisplayMode: PathDisplayMode
+    pathDisplayMode: 'normal' | 'incline' | 'hidden'
     onCyclePathDisplay: () => void
 }
 
