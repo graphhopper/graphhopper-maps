@@ -22,6 +22,9 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
     const container = useRef<HTMLDivElement | null>(null)
     // mirror of menuCoordinate for use in the map listeners which are registered only once
     const isOpen = useRef(false)
+    // set when the menu was opened via long touch: OpenLayers fires a 'singleclick' when the finger is lifted
+    // afterwards (unlike the native 'click' event this is not suppressed by the browser) and it must not close the menu
+    const openedByLongTouch = useRef(false)
 
     const openContextMenu = (e: any) => {
         e.preventDefault()
@@ -38,6 +41,10 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 
     // 'singleclick' is only fired for a plain click, i.e. not when the map was panned and not for double clicks
     const onSingleClick = (e: MapBrowserEvent<any>) => {
+        if (openedByLongTouch.current) {
+            openedByLongTouch.current = false
+            return
+        }
         if (isOpen.current) {
             // a click while the menu is shown only closes it and does not open a new one at the clicked location
             closeContextMenu()
@@ -53,8 +60,15 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
         overlay.setElement(container.current!)
         map.addOverlay(overlay)
 
-        const longTouchHandler = new LongTouchHandler(e => openContextMenu(e))
-        const handleTouchStart = (e: any) => longTouchHandler.onTouchStart(e)
+        const longTouchHandler = new LongTouchHandler(e => {
+            openContextMenu(e)
+            openedByLongTouch.current = true
+        })
+        const handleTouchStart = (e: any) => {
+            // a new touch means the 'singleclick' of the previous long touch either happened already or never will
+            openedByLongTouch.current = false
+            longTouchHandler.onTouchStart(e)
+        }
         const handleTouchMove = () => longTouchHandler.onTouchEnd()
         const handleTouchEnd = () => longTouchHandler.onTouchEnd()
         function onMapTargetChange() {
