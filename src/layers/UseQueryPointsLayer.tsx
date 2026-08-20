@@ -10,10 +10,10 @@ import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
 import { coordinateToText } from '@/Converters'
 import { Icon, Style } from 'ol/style'
-import { createCircle, createSvg } from '@/layers/createMarkerSVG'
+import { createSvg } from '@/layers/createMarkerSVG'
 
 const MARKER_SIZE = 35
-const VIA_MARKER_SIZE = 26
+const VIA_MARKER_SIZE = 23
 
 export default function useQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     useEffect(() => {
@@ -37,19 +37,16 @@ function removeQueryPoints(map: Map) {
 
 function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     const features: Feature<Geometry>[] = queryPoints
+        .filter(point => point.isInitialized)
         .map((point, i) => {
-            return { index: i, point: point }
-        })
-        .filter(indexPoint => indexPoint.point.isInitialized)
-        .map((indexPoint, i) => {
             const feature = new Feature({
-                geometry: new Point(fromLonLat([indexPoint.point.coordinate.lng, indexPoint.point.coordinate.lat])),
+                geometry: new Point(fromLonLat([point.coordinate.lng, point.coordinate.lat])),
             })
-            const isVia = indexPoint.point.type == QueryPointType.Via
-            feature.set('gh:query_point', indexPoint.point)
+            const isVia = point.type == QueryPointType.Via
+            feature.set('gh:query_point', point)
             feature.set('gh:marker_props', {
-                color: indexPoint.point.color,
-                via: isVia,
+                color: point.color,
+                // a number is only displayed for via points and turns the marker into a circle
                 number: isVia ? i : undefined,
                 size: isVia ? VIA_MARKER_SIZE : MARKER_SIZE,
             })
@@ -65,14 +62,14 @@ function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     const cachedStyles: { [id: string]: Style } = {}
     queryPointsLayer.setStyle(feature => {
         const props = feature.get('gh:marker_props')
-        const key = (props.via ? 'via' : 'marker') + '-' + props.number + '-' + props.color + '-' + props.size
+        const key = props.number + '-' + props.color + '-' + props.size
         let style = cachedStyles[key]
         if (style) return style
         style = new Style({
             image: new Icon({
-                src: 'data:image/svg+xml;utf8,' + (props.via ? createCircle(props) : createSvg(props)),
-                // the circle is centered on the coordinate, the marker points to it with its tip
-                displacement: props.via ? [0, 0] : [0, MARKER_SIZE / 2],
+                src: 'data:image/svg+xml;utf8,' + createSvg(props),
+                // the via circle is centered on the coordinate, the marker points to it with its tip
+                displacement: props.number !== undefined ? [0, 0] : [0, MARKER_SIZE / 2],
             }),
         })
         cachedStyles[key] = style

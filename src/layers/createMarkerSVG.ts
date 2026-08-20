@@ -9,9 +9,9 @@ interface MarkerProps {
 }
 
 // depending on the number of digits the font must be smaller so that e.g. '10' still fits into the circle
-function circleFontSize(number: number | undefined) {
-    if (number === undefined || ('' + number).length <= 1) return 230
-    return ('' + number).length === 2 ? 170 : 120
+export function circleFontSize(number: string) {
+    if (number.length <= 1) return 230
+    return number.length === 2 ? 170 : 120
 }
 
 // draws a circle with a thick colored ring and a white center, used for via points. If a number is given it is
@@ -22,7 +22,7 @@ export function createCircle({ color, number, size = 0 }: MarkerProps) {
             number === undefined
                 ? ''
                 : `<text x="50%" y="50%" text-anchor="middle" dy="0.35em" style="font-size: ${circleFontSize(
-                      number,
+                      '' + number,
                   )}px" fill="rgb(51, 51, 51)">${number}</text>`
         }
     </svg>`
@@ -44,7 +44,8 @@ export function createPOIMarker(pathD: string) {
 
 // todo: this is mostly duplicated from `Marker.tsx`, but we use a more elongated shape (MARKER_PATH).
 //       To use `Marker.tsx` we would probably need to add ol.Overlays, i.e. create a div for each marker and insert the svg from `Marker.tsx`.
-export function createSvg({ color, size = 0 }: MarkerProps) {
+export function createSvg({ color, number, size = 0 }: MarkerProps) {
+    if (number !== undefined) return createCircle({ color, number, size })
     return `<svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 658" width="${
         // todo: we do not use width in Marker.tsx, but without this the markers are not shown in Firefox :( (but they are shown in Chrome...)
         size
