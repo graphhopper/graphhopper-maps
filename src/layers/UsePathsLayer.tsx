@@ -221,21 +221,29 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
             layerFilter: l => l.get('gh:query_points'),
             hitTolerance: 2,
         }) as Feature | undefined
-    // the same transparent via circle that is shown when dragging an existing via point, see UseQueryPointsLayer
-    const style = new Style({
-        image: new Icon({
-            src:
-                'data:image/svg+xml;utf8,' +
-                createCircle({ color: QueryStore.getMarkerColor(QueryPointType.Via), size: VIA_MARKER_SIZE }),
-            opacity: 0.5,
-        }),
-    })
+    // the transparent via circle, with the number of the dragged via marker (or none when creating a new one)
+    const circleStyle = (number?: number) =>
+        new Style({
+            image: new Icon({
+                src:
+                    'data:image/svg+xml;utf8,' +
+                    createCircle({
+                        color: QueryStore.getMarkerColor(QueryPointType.Via),
+                        number,
+                        size: VIA_MARKER_SIZE,
+                    }),
+                opacity: 0.5,
+            }),
+        })
+    const style = circleStyle()
+    let dragStyle = style
     let dragging = false
     const modify = new Modify({
         source: source,
         style: feature => {
+            if (dragging) return dragStyle
             const pixel = map.getPixelFromCoordinate((feature.getGeometry() as Point).getCoordinates())
-            return dragging || !markerFeatureAt(pixel) ? style : []
+            return !markerFeatureAt(pixel) ? style : []
         },
         condition: e => {
             const feature = markerFeatureAt(e.pixel)
@@ -251,8 +259,11 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
         downCoordinate = { lng: lonLat[0], lat: lonLat[1] }
         // due to the condition above this can only be a via marker: make it transparent while it is dragged
+        // and show its number on the dragged circle
         grabbedViaFeature = markerFeatureAt(downPixel)
         grabbedViaFeature?.set('gh:dragging', true)
+        const number = grabbedViaFeature?.get('gh:marker_props')?.number
+        dragStyle = number === undefined ? style : circleStyle(number)
         setRouteDraggingStyle(map, true)
         // like for via circles the cursor is hidden while dragging so that the placement is more precise
         map.getViewport().style.cursor = 'none'
