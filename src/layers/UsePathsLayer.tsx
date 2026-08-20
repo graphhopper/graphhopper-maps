@@ -8,7 +8,8 @@ import { fromLonLat, toLonLat } from 'ol/proj'
 import { Modify, Select } from 'ol/interaction'
 import { click } from 'ol/events/condition'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, SetSelectedPath } from '@/actions/Actions'
+import { AddPoint, SetPoint, SetSelectedPath } from '@/actions/Actions'
+import { coordinateToText } from '@/Converters'
 import { SelectEvent } from 'ol/interaction/Select'
 import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { distance } from 'ol/coordinate'
@@ -198,32 +199,6 @@ export function setRouteDraggingStyle(map: Map, dragging: boolean) {
         .forEach(l => (l as VectorLayer<VectorSource>).setStyle(dragging ? accessNetworkStyle : selectedPathStyle))
 }
 
-const viaDragLineLayerKey = 'viaDragLineLayer'
-
-/**
- * While dragging a via marker this dashed line connects it with its neighboring query points, just like the
- * dragged route line stays connected to the drag-from-route circle. Pass null to remove the line.
- */
-export function setViaDragLine(map: Map, coordinates: number[][] | null) {
-    const existing = map
-        .getLayers()
-        .getArray()
-        .find(l => l.get(viaDragLineLayerKey)) as VectorLayer<VectorSource> | undefined
-    if (coordinates == null) {
-        if (existing) map.removeLayer(existing)
-    } else if (existing) {
-        existing.getSource()?.getFeatures()[0]?.setGeometry(new LineString(coordinates))
-    } else {
-        const layer = new VectorLayer({
-            source: new VectorSource({ features: [new Feature(new LineString(coordinates))] }),
-            style: accessNetworkStyle,
-            zIndex: 2,
-        })
-        layer.set(viaDragLineLayerKey, true)
-        map.addLayer(layer)
-    }
-}
-
 /**
  * Pointing at the selected route pops up a via circle that can be dragged to create a new via point there.
  * This uses the Modify interaction which finds the closest segment with a spatial index, i.e. hovering stays
@@ -237,10 +212,15 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         selectedPath.snapped_waypoints.coordinates.length < 2
     )
         return
-    // When a query point marker is hit, the marker itself is dragged (hand cursor, see UseBackgroundLayer),
-    // i.e. there the route drag must neither start nor show its circle
-    const hitsQueryPoint = (pixel: number[]) =>
-        map.hasFeatureAtPixel(pixel, { layerFilter: l => l.get('gh:query_points'), hitTolerance: 2 })
+    // The query point marker hit at the given pixel, if any. From/to markers are dragged with their own
+    // interaction (hand cursor, see UseBackgroundLayer+UseQueryPointsLayer), i.e. there the route drag must not
+    // start. Via markers however are dragged with THIS interaction, so moving them bends the route the same way
+    // as dragging the route itself to create a new via point.
+    const markerFeatureAt = (pixel: number[]) =>
+        map.forEachFeatureAtPixel(pixel, f => f, {
+            layerFilter: l => l.get('gh:query_points'),
+            hitTolerance: 2,
+        }) as Feature | undefined
     // the same transparent via circle that is shown when dragging an existing via point, see UseQueryPointsLayer
     const style = new Style({
         image: new Icon({
@@ -255,17 +235,24 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         source: source,
         style: feature => {
             const pixel = map.getPixelFromCoordinate((feature.getGeometry() as Point).getCoordinates())
-            return dragging || !hitsQueryPoint(pixel) ? style : []
+            return dragging || !markerFeatureAt(pixel) ? style : []
         },
-        condition: e => !hitsQueryPoint(e.pixel),
+        condition: e => {
+            const feature = markerFeatureAt(e.pixel)
+            return feature === undefined || feature.get('gh:query_point')?.type === QueryPointType.Via
+        },
     })
     let downPixel = [0, 0]
     let downCoordinate = { lng: 0, lat: 0 }
+    let grabbedViaFeature: Feature | undefined = undefined
     modify.on('modifystart', e => {
         dragging = true
         downPixel = e.mapBrowserEvent.pixel
         const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
         downCoordinate = { lng: lonLat[0], lat: lonLat[1] }
+        // due to the condition above this can only be a via marker: make it transparent while it is dragged
+        grabbedViaFeature = markerFeatureAt(downPixel)
+        grabbedViaFeature?.set('gh:dragging', true)
         setRouteDraggingStyle(map, true)
         // like for via circles the cursor is hidden while dragging so that the placement is more precise
         map.getViewport().style.cursor = 'none'
@@ -274,11 +261,21 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         dragging = false
         map.getViewport().style.cursor = 'default'
         setRouteDraggingStyle(map, false)
+        const grabbedViaPoint = grabbedViaFeature?.get('gh:query_point')
+        grabbedViaFeature?.set('gh:dragging', false)
+        grabbedViaFeature = undefined
         const pixel = e.mapBrowserEvent.pixel
-        // only an actual drag creates a via point, i.e. ignore simple clicks on the route
+        // only an actual drag creates or moves a via point, i.e. ignore simple clicks on the route
         if (Math.abs(pixel[0] - downPixel[0]) <= 2 && Math.abs(pixel[1] - downPixel[1]) <= 2) return
         const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
         const coordinate = { lng: lonLat[0], lat: lonLat[1] }
+        if (grabbedViaPoint) {
+            // the drag started on an existing via marker -> move it instead of creating a new via point
+            Dispatcher.dispatch(
+                new SetPoint({ ...grabbedViaPoint, coordinate, queryText: coordinateToText(coordinate) }, false),
+            )
+            return
+        }
         const route = {
             coordinates: selectedPath.points.coordinates.map(c => ({ lng: c[0], lat: c[1] })),
             wayPoints: selectedPath.snapped_waypoints.coordinates.map(c => ({ lng: c[0], lat: c[1] })),
