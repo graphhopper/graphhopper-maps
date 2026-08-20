@@ -3,20 +3,34 @@ import { Path } from '@/api/graphhopper'
 import { useEffect } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { Stroke, Style } from 'ol/style'
-import { fromLonLat } from 'ol/proj'
-import { Select } from 'ol/interaction'
+import { Icon, Stroke, Style } from 'ol/style'
+import { fromLonLat, toLonLat } from 'ol/proj'
+import { Modify, Select } from 'ol/interaction'
 import { click } from 'ol/events/condition'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetSelectedPath } from '@/actions/Actions'
+import { AddPoint, SetSelectedPath } from '@/actions/Actions'
 import { SelectEvent } from 'ol/interaction/Select'
-import { QueryPoint } from '@/stores/QueryStore'
+import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { distance } from 'ol/coordinate'
 import LineString from 'ol/geom/LineString'
+import { createCircle } from '@/layers/createMarkerSVG'
+import { VIA_MARKER_SIZE } from '@/layers/UseQueryPointsLayer'
+import { findNextWayPoint } from '@/map/findNextWayPoint'
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
+
+// also used for the selected path while dragging it to create a new via point
+const accessNetworkStyle = new Style({
+    stroke: new Stroke({
+        color: 'rgba(143,183,241,0.9)',
+        width: 5,
+        lineDash: [1, 10],
+        lineCap: 'round',
+        lineJoin: 'round',
+    }),
+})
 
 export default function usePathsLayer(
     map: Map,
@@ -27,16 +41,19 @@ export default function usePathsLayer(
 ) {
     useEffect(() => {
         removeCurrentPathLayers(map)
+        removeRouteDragInteractions(map)
         if (showPaths) {
             addUnselectedPathsLayer(
                 map,
                 paths.filter(p => p != selectedPath),
             )
-            addSelectedPathsLayer(map, selectedPath)
+            const selectedPathLayer = addSelectedPathsLayer(map, selectedPath)
             addAccessNetworkLayer(map, selectedPath, queryPoints)
+            addRouteDragInteraction(map, selectedPathLayer, selectedPath)
         }
         return () => {
             removeCurrentPathLayers(map)
+            removeRouteDragInteractions(map)
         }
     }, [map, paths, selectedPath, showPaths, queryPoints])
 }
@@ -125,19 +142,10 @@ function createBezierLineString(start: number[], end: number[]): LineString {
 }
 
 function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryPoint[]) {
-    const style = new Style({
-        stroke: new Stroke({
-            color: 'rgba(143,183,241,0.9)',
-            width: 5,
-            lineDash: [1, 10],
-            lineCap: 'round',
-            lineJoin: 'round',
-        }),
-    })
     const layer = new VectorLayer({
         source: new VectorSource(),
     })
-    layer.setStyle(style)
+    layer.setStyle(accessNetworkStyle)
     for (let i = 0; i < selectedPath.snapped_waypoints.coordinates.length; i++) {
         if (i >= queryPoints.length) break // can happen if deleted too fast
         const start = fromLonLat([queryPoints[i].coordinate.lng, queryPoints[i].coordinate.lat])
@@ -174,6 +182,76 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
     })
     layer.set(selectedPathLayerKey, true)
     map.addLayer(layer)
+    return layer
+}
+
+/**
+ * Pointing at the selected route pops up a via circle that can be dragged to create a new via point there.
+ * This uses the Modify interaction which finds the closest segment with a spatial index, i.e. hovering stays
+ * cheap even for long routes, and the single pre-built style avoids any further work per pointer move.
+ */
+function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, selectedPath: Path) {
+    const source = layer.getSource()
+    if (
+        source == null ||
+        selectedPath.points.coordinates.length < 2 ||
+        selectedPath.snapped_waypoints.coordinates.length < 2
+    )
+        return
+    // the same transparent via circle that is shown when dragging an existing via point, see UseQueryPointsLayer
+    const style = new Style({
+        image: new Icon({
+            src:
+                'data:image/svg+xml;utf8,' +
+                createCircle({ color: QueryStore.getMarkerColor(QueryPointType.Via), size: VIA_MARKER_SIZE }),
+            opacity: 0.5,
+        }),
+    })
+    const modify = new Modify({
+        source: source,
+        style: style,
+        // do not interfere with dragging existing query point markers
+        condition: e =>
+            !map.hasFeatureAtPixel(e.pixel, { layerFilter: l => l.get('gh:query_points'), hitTolerance: 5 }),
+    })
+    const originalStyle = layer.getStyle()
+    let downPixel = [0, 0]
+    let downCoordinate = { lng: 0, lat: 0 }
+    modify.on('modifystart', e => {
+        downPixel = e.mapBrowserEvent.pixel
+        const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
+        downCoordinate = { lng: lonLat[0], lat: lonLat[1] }
+        // while dragging, the dashed and lighter access network style is less obtrusive than the solid route style
+        layer.setStyle(accessNetworkStyle)
+        // like for via circles the cursor is hidden while dragging so that the placement is more precise
+        map.getViewport().style.cursor = 'none'
+    })
+    modify.on('modifyend', e => {
+        map.getViewport().style.cursor = 'default'
+        layer.setStyle(originalStyle)
+        const pixel = e.mapBrowserEvent.pixel
+        // only an actual drag creates a via point, i.e. ignore simple clicks on the route
+        if (Math.abs(pixel[0] - downPixel[0]) <= 2 && Math.abs(pixel[1] - downPixel[1]) <= 2) return
+        const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
+        const coordinate = { lng: lonLat[0], lat: lonLat[1] }
+        const route = {
+            coordinates: selectedPath.points.coordinates.map(c => ({ lng: c[0], lat: c[1] })),
+            wayPoints: selectedPath.snapped_waypoints.coordinates.map(c => ({ lng: c[0], lat: c[1] })),
+        }
+        // determine the insertion index from where the drag started, not where it ended — otherwise the
+        // new via point could end up in a different (closer) leg of the route and would not cause a detour
+        const index = findNextWayPoint([route], downCoordinate).nextWayPoint
+        Dispatcher.dispatch(new AddPoint(index, coordinate, true, false))
+    })
+    modify.set('gh:drag_path_interaction', true)
+    map.addInteraction(modify)
+}
+
+function removeRouteDragInteractions(map: Map) {
+    map.getInteractions()
+        .getArray()
+        .filter(i => i.get('gh:drag_path_interaction'))
+        .forEach(i => map.removeInteraction(i))
 }
 
 function removeSelectPathInteractions(map: Map) {
