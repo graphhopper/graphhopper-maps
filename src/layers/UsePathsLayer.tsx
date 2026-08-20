@@ -23,6 +23,8 @@ import Point from 'ol/geom/Point'
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
+// set on a click's browser event when that click adds a via point, so e.g. the ContextMenu ignores the click
+export const viaPointClickKey = 'gh:via_point_click'
 
 export default function usePathsLayer(
     map: Map,
@@ -283,8 +285,10 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
         const index = findNextWayPoint([route], near).nextWayPoint
         Dispatcher.dispatch(new AddPoint(index, coordinate, true, false))
     }
-    // A click on the route adds a via point exactly on it. 'click' fires on pointer up (so before the click
-    // could select an alternative route and re-create this interaction), but not after panning or dragging.
+    // A click on the route adds a via point exactly on it. It is evaluated on 'click' (fired on pointer up, i.e.
+    // before the click could select an alternative route and re-create this interaction, and not after panning
+    // or dragging), but the via point is only added on the matching 'singleclick', which OpenLayers does not
+    // fire for a double click (zoom). Both events, and the ContextMenu, get the same originalEvent.
     const clickKey = map.on('click', e => {
         // clicking a marker opens the context menu and clicking an alternative route selects it
         if (markerFeatureAt(e.pixel)) return
@@ -293,20 +297,23 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
             hitTolerance: 5,
         })
         if (atAlternative) return
-        // ignore the second click of a double click (zoom)
-        if ((e.originalEvent as PointerEvent).detail > 1) return
         const closest = routeLine.getClosestPoint(e.coordinate)
         const closestPixel = map.getPixelFromCoordinate(closest)
         // same distance to the route within which the hover circle is shown (Modify's pixel tolerance)
         if (Math.hypot(closestPixel[0] - e.pixel[0], closestPixel[1] - e.pixel[1]) > 10) return
         const lonLat = toLonLat(closest)
         const clickLonLat = toLonLat(e.coordinate)
-        addViaPoint({ lng: lonLat[0], lat: lonLat[1] }, { lng: clickLonLat[0], lat: clickLonLat[1] })
-        // the later 'singleclick' has the same originalEvent -> tells the ContextMenu to not open on the new marker
-        ;(e.originalEvent as any).ghViaPointAdded = true
+        ;(e.originalEvent as any)[viaPointClickKey] = {
+            coordinate: { lng: lonLat[0], lat: lonLat[1] },
+            near: { lng: clickLonLat[0], lat: clickLonLat[1] },
+        }
+    })
+    const singleClickKey = map.on('singleclick', e => {
+        const viaPointClick = (e.originalEvent as any)[viaPointClickKey]
+        if (viaPointClick) addViaPoint(viaPointClick.coordinate, viaPointClick.near)
     })
     modify.set('gh:drag_path_interaction', true)
-    modify.set('gh:route_click_key', clickKey)
+    modify.set('gh:route_click_keys', [clickKey, singleClickKey])
     map.addInteraction(modify)
 }
 
@@ -315,7 +322,7 @@ function removeRouteDragInteractions(map: Map) {
         .getArray()
         .filter(i => i.get('gh:drag_path_interaction'))
         .forEach(i => {
-            unByKey(i.get('gh:route_click_key'))
+            unByKey(i.get('gh:route_click_keys'))
             map.removeInteraction(i)
         })
 }
