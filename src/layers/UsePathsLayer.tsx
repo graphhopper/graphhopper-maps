@@ -40,7 +40,7 @@ export default function usePathsLayer(
             )
             addSelectedPathsLayer(map, selectedPath)
             addAccessNetworkLayer(map, selectedPath, queryPoints)
-            addRouteDragInteraction(map, selectedPath)
+            addRouteDragInteraction(map, selectedPath, queryPoints)
         }
         return () => {
             removeCurrentPathLayers(map)
@@ -183,11 +183,16 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
  * that the displayed route keeps its style — while dragging, only a dashed line from the old to the new
  * location is shown.
  */
-function addRouteDragInteraction(map: Map, selectedPath: Path) {
+function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: QueryPoint[]) {
     if (selectedPath.points.coordinates.length < 2 || selectedPath.snapped_waypoints.coordinates.length < 2) return
-    const source = new VectorSource({
+    const source: VectorSource = new VectorSource({
         features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
     })
+    // also add the via points themselves, because when a marker is far away from the route (large snapping
+    // distance) grabbing it would otherwise be impossible as the Modify interaction only starts close to the route
+    queryPoints
+        .filter(p => p.isInitialized && p.type === QueryPointType.Via)
+        .forEach(p => source.addFeature(new Feature(new Point(fromLonLat([p.coordinate.lng, p.coordinate.lat])))))
     // The query point marker hit at the given pixel, if any. From/to markers are dragged with their own
     // interaction (hand cursor, see UseBackgroundLayer+UseQueryPointsLayer), i.e. there the route drag must not
     // start. Via markers however are dragged with THIS interaction, so moving them bends the route the same way
