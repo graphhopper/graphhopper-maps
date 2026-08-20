@@ -14,7 +14,7 @@ import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { distance } from 'ol/coordinate'
 import LineString from 'ol/geom/LineString'
 import { createCircle } from '@/layers/createMarkerSVG'
-import { MARKER_SIZE, VIA_MARKER_SIZE } from '@/layers/UseQueryPointsLayer'
+import { VIA_MARKER_SIZE } from '@/layers/UseQueryPointsLayer'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import Point from 'ol/geom/Point'
 
@@ -50,7 +50,7 @@ export default function usePathsLayer(
             )
             const selectedPathLayer = addSelectedPathsLayer(map, selectedPath)
             addAccessNetworkLayer(map, selectedPath, queryPoints)
-            addRouteDragInteraction(map, selectedPathLayer, selectedPath, queryPoints)
+            addRouteDragInteraction(map, selectedPathLayer, selectedPath)
         }
         return () => {
             removeCurrentPathLayers(map)
@@ -191,12 +191,7 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
  * This uses the Modify interaction which finds the closest segment with a spatial index, i.e. hovering stays
  * cheap even for long routes, and the single pre-built style avoids any further work per pointer move.
  */
-function addRouteDragInteraction(
-    map: Map,
-    layer: VectorLayer<VectorSource>,
-    selectedPath: Path,
-    queryPoints: QueryPoint[],
-) {
+function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, selectedPath: Path) {
     const source = layer.getSource()
     if (
         source == null ||
@@ -204,22 +199,10 @@ function addRouteDragInteraction(
         selectedPath.snapped_waypoints.coordinates.length < 2
     )
         return
-    // Close to a query point marker the marker itself should be dragged, i.e. there the route drag must neither
-    // start nor show its circle. This is a cheap check against the few marker pixels (no hit detection rendering).
-    const queryPointCoords = queryPoints
-        .filter(p => p.isInitialized)
-        .map(p => fromLonLat([p.coordinate.lng, p.coordinate.lat]))
-    const nearQueryPoint = (pixel: number[]) =>
-        queryPointCoords.some(c => {
-            const p = map.getPixelFromCoordinate(c)
-            const dy = p[1] - pixel[1] // > 0 if the pixel is above the marker coordinate
-            // the via circle is centered on the coordinate, the from/to markers are drawn above it (their tip points at it)
-            return (
-                Math.abs(p[0] - pixel[0]) <= VIA_MARKER_SIZE / 2 + 2 &&
-                dy >= -VIA_MARKER_SIZE / 2 - 2 &&
-                dy <= MARKER_SIZE + 2
-            )
-        })
+    // When a query point marker is hit, the marker itself is dragged (hand cursor, see UseBackgroundLayer),
+    // i.e. there the route drag must neither start nor show its circle
+    const hitsQueryPoint = (pixel: number[]) =>
+        map.hasFeatureAtPixel(pixel, { layerFilter: l => l.get('gh:query_points'), hitTolerance: 2 })
     // the same transparent via circle that is shown when dragging an existing via point, see UseQueryPointsLayer
     const style = new Style({
         image: new Icon({
@@ -234,9 +217,9 @@ function addRouteDragInteraction(
         source: source,
         style: feature => {
             const pixel = map.getPixelFromCoordinate((feature.getGeometry() as Point).getCoordinates())
-            return dragging || !nearQueryPoint(pixel) ? style : []
+            return dragging || !hitsQueryPoint(pixel) ? style : []
         },
-        condition: e => !nearQueryPoint(e.pixel),
+        condition: e => !hitsQueryPoint(e.pixel),
     })
     const originalStyle = layer.getStyle()
     let downPixel = [0, 0]

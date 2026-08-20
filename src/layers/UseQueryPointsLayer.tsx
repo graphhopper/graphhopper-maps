@@ -12,7 +12,7 @@ import { coordinateToText } from '@/Converters'
 import { Icon, Style } from 'ol/style'
 import { createSvg } from '@/layers/createMarkerSVG'
 
-export const MARKER_SIZE = 35
+const MARKER_SIZE = 35
 export const VIA_MARKER_SIZE = 23
 
 export default function useQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
