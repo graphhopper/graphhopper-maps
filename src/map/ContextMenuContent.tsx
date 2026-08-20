@@ -3,22 +3,26 @@ import { coordinateToText } from '@/Converters'
 import styles from './ContextMenuContent.module.css'
 import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, SetPoint, MoveMapToPoint } from '@/actions/Actions'
+import { AddPoint, RemovePoint, SetPoint, MoveMapToPoint } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import { tr } from '@/translation/Translation'
 import { CircleComponent, MarkerComponent } from '@/map/Marker'
 import { Coordinate } from '@/utils'
+import Cross from '@/sidebar/times-solid-thin.svg'
 
 export function ContextMenuContent({
     coordinate,
     queryPoints,
     route,
+    markedQueryPoint,
     onSelect,
 }: {
     coordinate: Coordinate
     queryPoints: QueryPoint[]
     route: RouteStoreState
+    // the query point of the marker the menu was opened on (if any), for it a 'delete' entry is shown
+    markedQueryPoint: QueryPoint | null
     onSelect: () => void
 }) {
     const dispatchAddPoint = function (coordinate: Coordinate) {
@@ -86,8 +90,49 @@ export function ContextMenuContent({
     }
     const showAddLocation = queryPoints.length >= 2 && queryPoints[1].isInitialized
 
+    const deletePoint = function (point: QueryPoint) {
+        onSelect()
+        // with only two points the search boxes are kept and just the marker is cleared
+        if (queryPoints.length > 2) Dispatcher.dispatch(new RemovePoint(point))
+        else Dispatcher.dispatch(new SetPoint({ ...point, queryText: '', isInitialized: false }, false))
+    }
+
+    const deleteLabel = function (point: QueryPoint) {
+        const name =
+            point.type === QueryPointType.From
+                ? tr('from_hint')
+                : point.type === QueryPointType.To
+                  ? tr('to_hint')
+                  : // same number as shown in the via marker
+                    queryPoints.filter(p => p.isInitialized).findIndex(p => p.id === point.id)
+        // todo: translate 'Delete' as soon as the translation spreadsheet contains such a key
+        return `Delete '${name}'`
+    }
+
     return (
         <div className={styles.wrapper} onMouseUp={convertToClick}>
+            {markedQueryPoint && (
+                <button className={styles.entry} onClick={() => deletePoint(markedQueryPoint)}>
+                    <div className={styles.crossedMarker}>
+                        {markedQueryPoint.type === QueryPointType.Via ? (
+                            <CircleComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
+                        ) : (
+                            <MarkerComponent size={20} color={QueryStore.getMarkerColor(markedQueryPoint.type)} />
+                        )}
+                        <Cross
+                            className={styles.deleteCross}
+                            style={{
+                                // slightly darker on the destination marker which has the same red as the cross
+                                color:
+                                    markedQueryPoint.type === QueryPointType.To
+                                        ? '#d94f4f'
+                                        : QueryStore.getMarkerColor(QueryPointType.To),
+                            }}
+                        />
+                    </div>
+                    <span>{deleteLabel(markedQueryPoint)}</span>
+                </button>
+            )}
             {showAddLocation && (
                 <button className={styles.entry} onClick={() => dispatchAddPoint(coordinate)}>
                     <div>
@@ -100,7 +145,10 @@ export function ContextMenuContent({
                     <span>{tr('add_to_route')}</span>
                 </button>
             )}
-            <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
+            <button
+                className={markedQueryPoint || showAddLocation ? styles.entryWithDivider : styles.entry}
+                onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}
+            >
                 <div>
                     <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.From)} />
                 </div>
@@ -126,8 +174,7 @@ export function ContextMenuContent({
                 <span>{tr('set_end')}</span>
             </button>
             <button
-                style={{ borderTop: '1px solid lightgray', marginTop: '0.4em', paddingTop: '0.8em' }}
-                className={styles.entry}
+                className={styles.entryWithDivider}
                 onClick={() => {
                     if (queryPoints.length > 0) Dispatcher.dispatch(new SetPoint(queryPoints[0], true))
                 }}

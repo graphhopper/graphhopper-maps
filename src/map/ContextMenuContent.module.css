@@ -14,6 +14,22 @@ button.entry div {
     box-sizing: content-box;
 }
 
+/* the marker icon of the 'delete' entry is overlaid with a red cross */
+.crossedMarker {
+    position: relative;
+}
+
+.deleteCross {
+    position: absolute;
+    top: -4px;
+    /* slightly larger than the marker icon and moved a bit to the left so it does not completely hide it */
+    left: -8px;
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    /* a white halo keeps the cross visible on the equally red destination marker */
+    filter: drop-shadow(0 0 1px white);
+}
+
 .entry {
     display: flex;
     align-items: center;
@@ -38,4 +54,12 @@ button.entry div {
 
 .entry:disabled {
     color: lightgray;
+}
+
+/* an entry that starts a new group of entries, separated by a horizontal line */
+.entryWithDivider {
+    composes: entry;
+    border-top: 1px solid lightgray;
+    margin-top: 0.4em;
+    padding-top: 0.8em;
 }
