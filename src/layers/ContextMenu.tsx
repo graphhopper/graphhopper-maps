@@ -2,7 +2,7 @@ import { Feature, Map, MapBrowserEvent, Overlay } from 'ol'
 import { ContextMenuContent } from '@/map/ContextMenuContent'
 import { useEffect, useRef, useState } from 'react'
 import { QueryPoint } from '@/stores/QueryStore'
-import { fromLonLat, toLonLat } from 'ol/proj'
+import { toLonLat } from 'ol/proj'
 import styles from '@/layers/ContextMenu.module.css'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { Coordinate } from '@/utils'
@@ -39,12 +39,15 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
         const coordinate = map.getEventCoordinate(e)
         const lonLat = toLonLat(coordinate)
         isOpen.current = true
+        // set the position synchronously (not via an effect), other click listeners check it, see UsePathsLayer
+        overlay.setPosition(coordinate)
         setMarkedQueryPoint(queryPointAtPixel(map.getEventPixel(e)))
         setMenuCoordinate({ lng: lonLat[0], lat: lonLat[1] })
     }
 
     const closeContextMenu = () => {
         isOpen.current = false
+        overlay.setPosition(undefined)
         setMenuCoordinate(null)
         setMarkedQueryPoint(null)
     }
@@ -114,10 +117,6 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             map.un('singleclick', onSingleClick)
         }
     }, [map])
-
-    useEffect(() => {
-        overlay.setPosition(menuCoordinate ? fromLonLat([menuCoordinate.lng, menuCoordinate.lat]) : undefined)
-    }, [menuCoordinate])
 
     return (
         <div className={styles.contextMenu} ref={container}>

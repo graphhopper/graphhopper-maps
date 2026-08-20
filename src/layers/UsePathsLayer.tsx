@@ -293,6 +293,14 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
     // selected one the via point wins: the click is consumed with stopPropagation before the Select
     // interaction could switch routes.
     const clickKey = map.on('click', e => {
+        // while the context menu or a popup is open (e.g. opened via long touch on the route) a click only closes it
+        if (
+            map
+                .getOverlays()
+                .getArray()
+                .some(o => o.getPosition() !== undefined)
+        )
+            return
         // markers (context menu) and POIs (popup) handle clicks themselves
         if (markerFeatureAt(e.pixel)) return
         if (map.forEachFeatureAtPixel(e.pixel, () => true, { layerFilter: l => l.get('gh:pois') })) return
