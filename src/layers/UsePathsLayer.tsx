@@ -15,7 +15,7 @@ import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { distance } from 'ol/coordinate'
 import LineString from 'ol/geom/LineString'
 import { createCircle } from '@/layers/createMarkerSVG'
-import { dashedLineStyle, VIA_MARKER_SIZE } from '@/layers/UseQueryPointsLayer'
+import { dashedLineStroke, markerFeatureAtPixel, VIA_MARKER_SIZE } from '@/layers/UseQueryPointsLayer'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import Point from 'ol/geom/Point'
 
@@ -136,7 +136,7 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
     const layer = new VectorLayer({
         source: new VectorSource(),
     })
-    layer.setStyle(dashedLineStyle)
+    layer.setStyle(new Style({ stroke: dashedLineStroke }))
     for (let i = 0; i < selectedPath.snapped_waypoints.coordinates.length; i++) {
         if (i >= queryPoints.length) break // can happen if deleted too fast
         const start = fromLonLat([queryPoints[i].coordinate.lng, queryPoints[i].coordinate.lat])
@@ -197,11 +197,7 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
     // interaction (hand cursor, see UseBackgroundLayer+UseQueryPointsLayer), i.e. there the route drag must not
     // start. Via markers however are dragged with THIS interaction, so moving them bends the route the same way
     // as dragging the route itself to create a new via point.
-    const markerFeatureAt = (pixel: number[]) =>
-        map.forEachFeatureAtPixel(pixel, f => f, {
-            layerFilter: l => l.get('gh:query_points'),
-            hitTolerance: 2,
-        }) as Feature | undefined
+    const markerFeatureAt = (pixel: number[]) => markerFeatureAtPixel(map, pixel, 2)
     // the transparent via circle, with the number of the dragged via marker (or none when creating a new one)
     const circleStyle = (number?: number) =>
         new Style({
@@ -219,7 +215,7 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
     const style = circleStyle()
     let dragStyle = style
     // the dashed line from the old to the new location while dragging
-    const dragLineStyle = new Style({ stroke: dashedLineStyle.getStroke()! })
+    const dragLineStyle = new Style({ stroke: dashedLineStroke })
     let dragging = false
     const modify = new Modify({
         source: source,

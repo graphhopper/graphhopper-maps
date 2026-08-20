@@ -6,6 +6,7 @@ import { fromLonLat, toLonLat } from 'ol/proj'
 import styles from '@/layers/ContextMenu.module.css'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { Coordinate } from '@/utils'
+import { markerFeatureAtPixel } from '@/layers/UseQueryPointsLayer'
 
 interface ContextMenuProps {
     map: Map
@@ -30,10 +31,7 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
 
     // returns the query point of the marker at the given pixel (if there is one) so the menu can offer deleting it
     const queryPointAtPixel = (pixel: number[]): QueryPoint | null =>
-        map.forEachFeatureAtPixel(pixel, f => f.get('gh:query_point'), {
-            layerFilter: l => l.get('gh:query_points'),
-            hitTolerance: 5,
-        }) ?? null
+        markerFeatureAtPixel(map, pixel, 5)?.get('gh:query_point') ?? null
 
     const openContextMenu = (e: any) => {
         e.preventDefault()

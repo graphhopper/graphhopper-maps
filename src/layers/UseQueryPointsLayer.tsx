@@ -17,15 +17,21 @@ export const VIA_MARKER_SIZE = 23
 
 // thin dashed line, used for the access network lines and from the old to the new location while dragging
 // markers or the route
-export const dashedLineStyle = new Style({
-    stroke: new Stroke({
-        color: 'rgba(143,183,241,0.9)',
-        width: 5,
-        lineDash: [1, 10],
-        lineCap: 'round',
-        lineJoin: 'round',
-    }),
+export const dashedLineStroke = new Stroke({
+    color: 'rgba(143,183,241,0.9)',
+    width: 5,
+    lineDash: [1, 10],
+    lineCap: 'round',
+    lineJoin: 'round',
 })
+
+// the query point marker feature at the given pixel, if any
+export function markerFeatureAtPixel(map: Map, pixel: number[], hitTolerance: number) {
+    return map.forEachFeatureAtPixel(pixel, f => f, {
+        layerFilter: l => l.get('gh:query_points'),
+        hitTolerance,
+    }) as Feature | undefined
+}
 
 export default function useQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     useEffect(() => {
@@ -109,7 +115,7 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSourc
     if (tmp == null) throw new Error('source must not be null') // typescript requires this
     // the dashed line from the old to the new location while dragging, like when via markers are dragged with
     // the route drag interaction (UsePathsLayer)
-    const dragLineStyle = new Style({ stroke: dashedLineStyle.getStroke()! })
+    const dragLineStyle = new Style({ stroke: dashedLineStroke })
     let downPosition: number[] = []
     let dragging = false
     const modify = new Modify({
@@ -130,11 +136,7 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSourc
                 .getArray()
                 .some(i => i.get('gh:drag_path_interaction'))
             if (!routeDrag) return true
-            const feature = map.forEachFeatureAtPixel(e.pixel, f => f, {
-                layerFilter: l => l.get('gh:query_points'),
-                hitTolerance: 2,
-            })
-            return feature?.get('gh:marker_props')?.number === undefined
+            return markerFeatureAtPixel(map, e.pixel, 2)?.get('gh:marker_props')?.number === undefined
         },
     })
     modify.on('modifystart', e => {

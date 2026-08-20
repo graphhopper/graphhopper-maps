@@ -132,46 +132,47 @@ export function ContextMenuContent({
                     <span>{deleteLabel(markedQueryPoint)}</span>
                 </button>
             )}
-            {showAddLocation && (
-                <button className={styles.entry} onClick={() => dispatchAddPoint(coordinate)}>
-                    <div>
-                        <MarkerComponent
-                            size={16}
-                            color={QueryStore.getMarkerColor(QueryPointType.To)}
-                            number={'\uFF0B'}
-                        />
-                    </div>
-                    <span>{tr('add_to_route')}</span>
-                </button>
+            {!markedQueryPoint && (
+                <>
+                    {showAddLocation && (
+                        <button className={styles.entry} onClick={() => dispatchAddPoint(coordinate)}>
+                            <div>
+                                <MarkerComponent
+                                    size={16}
+                                    color={QueryStore.getMarkerColor(QueryPointType.To)}
+                                    number={'\uFF0B'}
+                                />
+                            </div>
+                            <span>{tr('add_to_route')}</span>
+                        </button>
+                    )}
+                    <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
+                        <div>
+                            <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.From)} />
+                        </div>
+                        <span>{tr('set_start')}</span>
+                    </button>
+                    <button
+                        className={styles.entry}
+                        disabled={disableViaPoint(queryPoints)}
+                        onClick={() => setViaPoint(queryPoints, route)}
+                    >
+                        <div>
+                            <CircleComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
+                        </div>
+                        <span>{tr('set_intermediate')}</span>
+                    </button>
+                    <button
+                        className={styles.entry}
+                        onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
+                    >
+                        <div>
+                            <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.To)} />
+                        </div>
+                        <span>{tr('set_end')}</span>
+                    </button>
+                </>
             )}
-            <button
-                className={markedQueryPoint || showAddLocation ? styles.entryWithDivider : styles.entry}
-                onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}
-            >
-                <div>
-                    <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.From)} />
-                </div>
-                <span>{tr('set_start')}</span>
-            </button>
-            <button
-                className={styles.entry}
-                disabled={disableViaPoint(queryPoints)}
-                onClick={() => setViaPoint(queryPoints, route)}
-            >
-                <div>
-                    <CircleComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
-                </div>
-                <span>{tr('set_intermediate')}</span>
-            </button>
-            <button
-                className={styles.entry}
-                onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
-            >
-                <div>
-                    <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.To)} />
-                </div>
-                <span>{tr('set_end')}</span>
-            </button>
             <button
                 className={styles.entryWithDivider}
                 onClick={() => {
