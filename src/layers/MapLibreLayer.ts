@@ -1,5 +1,6 @@
 // We need this layer as OpenLayers own vector tiles background is much slower (not yet based on WebGL)
-// So we need this bridge to MapLibre.
+// And for navigation we really want vector tiles e.g. rotating labels, smoother zoom etc
+// So we need this bridge to MapLibre but we had to add a postrender call.
 
 // BSD 3-Clause License
 //
@@ -14,6 +15,9 @@ import { toLonLat } from 'ol/proj.js'
 
 import maplibregl from 'maplibre-gl'
 import type { FrameState } from 'ol/Map.js'
+import RenderEvent from 'ol/render/Event'
+import _default from 'ol/MapEventType'
+import POSTRENDER = _default.POSTRENDER
 import Source from 'ol/source/Source'
 
 export default class MapLibreLayer extends Layer {
@@ -78,6 +82,9 @@ export default class MapLibreLayer extends Layer {
         }
 
         this.maplibreMap.redraw()
+
+        // const layer = this.getLayer()
+        this.dispatchEvent(new RenderEvent(POSTRENDER, undefined, frameState, undefined))
 
         return this.maplibreMap.getContainer()
     }

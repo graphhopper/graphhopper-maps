@@ -137,7 +137,7 @@ class LongTouchHandler {
     }
 
     onTouchEnd() {
-        console.log('touch end')
+        // console.log('touch end')
         window.clearTimeout(this.currentTimeout)
         this.currentEvent = undefined
     }

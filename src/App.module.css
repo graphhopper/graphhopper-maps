@@ -12,6 +12,32 @@
     user-select: none; /* firefox does not ignore -webkit-user-select so make this explicit, see #217 */
 }
 
+.appNaviWrapper {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 30rem 1fr;
+    grid-template-rows: 1fr auto;
+    justify-content: space-between;
+    overflow: auto;
+    -webkit-user-select: none;
+    user-select: none; /* firefox does not ignore -webkit-user-select so make this explicit, see #217 */
+}
+
+@media (max-width: 44rem) {
+    .appWrapper {
+        grid-template-columns: 100%;
+        grid-template-rows: auto 0 1fr auto auto;
+    }
+
+    .appNaviWrapper {
+        grid-template-columns: 100%;
+        grid-template-rows: 1fr auto;
+    }
+}
+
 .map {
     grid-column: 1 / span 3;
     grid-row: 1 / span 1;
@@ -239,13 +265,13 @@
 .sidebarCloseButton {
     position: absolute;
 
-    color: lightgray !important; /* unsure why !important is necessary here but not in ErrorMessage.module.css for same <Cross/> */
+    fill: lightgray;
 
     height: 15px;
     width: 15px;
 
-    right: 7px;
-    top: 6px;
+    right: 6px;
+    top: 5px;
 }
 
 .sidebarCloseButton svg {
