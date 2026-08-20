@@ -293,8 +293,9 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
     // selected one the via point wins: the click is consumed with stopPropagation before the Select
     // interaction could switch routes.
     const clickKey = map.on('click', e => {
-        // markers handle clicks themselves (context menu)
+        // markers (context menu) and POIs (popup) handle clicks themselves
         if (markerFeatureAt(e.pixel)) return
+        if (map.forEachFeatureAtPixel(e.pixel, () => true, { layerFilter: l => l.get('gh:pois') })) return
         const closest = routeLine.getClosestPoint(e.coordinate)
         const closestPixel = map.getPixelFromCoordinate(closest)
         // same distance to the route within which the hover circle is shown (Modify's pixel tolerance)

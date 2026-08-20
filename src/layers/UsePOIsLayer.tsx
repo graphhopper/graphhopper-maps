@@ -104,7 +104,7 @@ function removePOIs(map: Map) {
 }
 
 function addPOISelection(map: Map) {
-    const select = new Select()
+    const select = new Select({ layers: l => l.get('gh:pois') })
     map.addInteraction(select)
     select.on('select', event => {
         const selectedFeatures = event.selected
