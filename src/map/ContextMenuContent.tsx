@@ -7,7 +7,7 @@ import { AddPoint, SetPoint, MoveMapToPoint } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import { tr } from '@/translation/Translation'
-import { MarkerComponent } from '@/map/Marker'
+import { CircleComponent, MarkerComponent } from '@/map/Marker'
 import { Coordinate } from '@/utils'
 
 export function ContextMenuContent({
@@ -92,7 +92,7 @@ export function ContextMenuContent({
                 <button className={styles.entry} onClick={() => dispatchAddPoint(coordinate)}>
                     <div>
                         <MarkerComponent
-                            size={20}
+                            size={16}
                             color={QueryStore.getMarkerColor(QueryPointType.To)}
                             number={'\uFF0B'}
                         />
@@ -112,7 +112,7 @@ export function ContextMenuContent({
                 onClick={() => setViaPoint(queryPoints, route)}
             >
                 <div>
-                    <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
+                    <CircleComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
                 </div>
                 <span>{tr('set_intermediate')}</span>
             </button>

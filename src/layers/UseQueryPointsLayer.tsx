@@ -10,9 +10,10 @@ import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
 import { coordinateToText } from '@/Converters'
 import { Icon, Style } from 'ol/style'
-import { createSvg } from '@/layers/createMarkerSVG'
+import { createCircle, createSvg } from '@/layers/createMarkerSVG'
 
 const MARKER_SIZE = 35
+const VIA_MARKER_SIZE = 26
 
 export default function useQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     useEffect(() => {
@@ -44,11 +45,13 @@ function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
             const feature = new Feature({
                 geometry: new Point(fromLonLat([indexPoint.point.coordinate.lng, indexPoint.point.coordinate.lat])),
             })
+            const isVia = indexPoint.point.type == QueryPointType.Via
             feature.set('gh:query_point', indexPoint.point)
             feature.set('gh:marker_props', {
                 color: indexPoint.point.color,
-                number: indexPoint.point.type == QueryPointType.Via ? i : undefined,
-                size: MARKER_SIZE,
+                via: isVia,
+                number: isVia ? i : undefined,
+                size: isVia ? VIA_MARKER_SIZE : MARKER_SIZE,
             })
             return feature
         })
@@ -62,13 +65,14 @@ function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     const cachedStyles: { [id: string]: Style } = {}
     queryPointsLayer.setStyle(feature => {
         const props = feature.get('gh:marker_props')
-        const key = props.number + '-' + props.color + '-' + props.size
+        const key = (props.via ? 'via' : 'marker') + '-' + props.number + '-' + props.color + '-' + props.size
         let style = cachedStyles[key]
         if (style) return style
         style = new Style({
             image: new Icon({
-                src: 'data:image/svg+xml;utf8,' + createSvg(props),
-                displacement: [0, MARKER_SIZE / 2],
+                src: 'data:image/svg+xml;utf8,' + (props.via ? createCircle(props) : createSvg(props)),
+                // the circle is centered on the coordinate, the marker points to it with its tip
+                displacement: props.via ? [0, 0] : [0, MARKER_SIZE / 2],
             }),
         })
         cachedStyles[key] = style

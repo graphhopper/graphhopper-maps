@@ -16,11 +16,52 @@ interface MarkerProps {
     cursor?: string | undefined
 }
 
+// depending on the number of digits the font must be smaller so that e.g. '10' still fits into the circle
+function circleFontSize(number: string | undefined) {
+    if (number === undefined || number.length <= 1) return 230
+    return number.length === 2 ? 170 : 120
+}
+
 /**
- * This component draws a marker. If a number is passed, the white circle of the marker is larger and displays the
- * number. Otherwise the default marker from https://fontawesome.com/v5.15/icons/map-marker-alt?style=solid is taken
+ * This component draws a circle with a thick colored ring and a white center, used for via points. If a number is
+ * passed it is displayed inside the circle.
+ */
+export function CircleComponent({ color, number, size = 0, cursor }: MarkerProps) {
+    return (
+        <svg
+            aria-hidden="true"
+            focusable="false"
+            role="img"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 384 384"
+            height={size}
+            // the (deliberately global) class allows styling, e.g. Search.module.css enlarges the via icon
+            className="viaCircle"
+            style={{ cursor: cursor ? cursor : markerStyle.cursor }}
+        >
+            <circle cx="192" cy="192" r="160" fill="white" stroke={color} strokeWidth="60" />
+            {number !== undefined && (
+                <text
+                    x="50%"
+                    y="50%"
+                    textAnchor="middle"
+                    dy="0.35em"
+                    style={{ fontSize: circleFontSize(number) }}
+                    fill="#333"
+                >
+                    {number}
+                </text>
+            )}
+        </svg>
+    )
+}
+
+/**
+ * This component draws the default marker from https://fontawesome.com/v5.15/icons/map-marker-alt?style=solid.
+ * If a number is passed the marker is a via point and drawn as a circle displaying the number.
  */
 export function MarkerComponent({ color, number, size = 0, cursor }: MarkerProps) {
+    if (number !== undefined) return <CircleComponent color={color} number={number} size={size} cursor={cursor} />
     return (
         <svg
             aria-hidden="true"
@@ -32,14 +73,7 @@ export function MarkerComponent({ color, number, size = 0, cursor }: MarkerProps
             style={{ ...markerStyle, fill: color, cursor: cursor ? cursor : markerStyle.cursor }}
         >
             <path d={MARKER_PATH} />
-            {number === undefined ? (
-                <path d={INNER_CIRCLE} fill="white" />
-            ) : (
-                <circle cx="192" cy="190" r="150" fill="white" />
-            )}
-            <text x="50%" y="55%" textAnchor="middle" style={{ fontSize: 210 }} fill="black">
-                {number !== undefined ? number : ''}
-            </text>
+            <path d={INNER_CIRCLE} fill="white" />
         </svg>
     )
 }

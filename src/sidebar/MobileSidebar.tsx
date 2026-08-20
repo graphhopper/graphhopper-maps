@@ -6,7 +6,7 @@ import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { useMediaQuery } from 'react-responsive'
-import { MarkerComponent } from '@/map/Marker'
+import { CircleComponent, MarkerComponent } from '@/map/Marker'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
@@ -125,7 +125,11 @@ function SmallQueryPoint({ text, color, position }: { text: string; color: strin
     return (
         <div className={styles.mapViewRow}>
             <div className={styles.markerContainer}>
-                <MarkerComponent color={color} />
+                {position === QueryPointType.Via ? (
+                    <CircleComponent color={color} />
+                ) : (
+                    <MarkerComponent color={color} />
+                )}
             </div>
             <span className={getClassName(position)}>{text}</span>
         </div>

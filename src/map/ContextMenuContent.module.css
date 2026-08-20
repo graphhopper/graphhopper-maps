@@ -7,6 +7,11 @@
 button.entry div {
     margin-bottom: 2px;
     padding-right: 8px;
+    width: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: content-box;
 }
 
 .entry {

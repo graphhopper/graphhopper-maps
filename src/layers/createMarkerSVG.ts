@@ -8,6 +8,26 @@ interface MarkerProps {
     size?: number
 }
 
+// depending on the number of digits the font must be smaller so that e.g. '10' still fits into the circle
+function circleFontSize(number: number | undefined) {
+    if (number === undefined || ('' + number).length <= 1) return 230
+    return ('' + number).length === 2 ? 170 : 120
+}
+
+// draws a circle with a thick colored ring and a white center, used for via points. If a number is given it is
+// displayed inside the circle.
+export function createCircle({ color, number, size = 0 }: MarkerProps) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 384" width="${size}" height="${size}">
+        <circle cx="192" cy="192" r="160" fill="white" stroke="${hexToRgb(color)}" stroke-width="60"/>${
+            number === undefined
+                ? ''
+                : `<text x="50%" y="50%" text-anchor="middle" dy="0.35em" style="font-size: ${circleFontSize(
+                      number,
+                  )}px" fill="rgb(51, 51, 51)">${number}</text>`
+        }
+    </svg>`
+}
+
 export function createPOI(pathD: string) {
     return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="-100 -1060 1160 1160">
         <circle fill="white" cx="480" cy="-480" r="580" />
@@ -24,18 +44,12 @@ export function createPOIMarker(pathD: string) {
 
 // todo: this is mostly duplicated from `Marker.tsx`, but we use a more elongated shape (MARKER_PATH).
 //       To use `Marker.tsx` we would probably need to add ol.Overlays, i.e. create a div for each marker and insert the svg from `Marker.tsx`.
-export function createSvg({ color, number, size = 0 }: MarkerProps) {
+export function createSvg({ color, size = 0 }: MarkerProps) {
     return `<svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 658" width="${
         // todo: we do not use width in Marker.tsx, but without this the markers are not shown in Firefox :( (but they are shown in Chrome...)
         size
     }" height="${size}" style="stroke: none; fill: ${hexToRgb(color)};">
-    <path d="${MARKER_PATH}"/>${
-        number === undefined
-            ? '<path d="' + INNER_CIRCLE + '" fill="white" />'
-            : '<circle cx="192" cy="190" r="120" fill="white" />'
-    }<text x="50%" y="40%" text-anchor="middle" style="font-size: ${180 + 'px'}" fill="black">${
-        number !== undefined ? number : ''
-    }</text></svg>`
+    <path d="${MARKER_PATH}"/><path d="${INNER_CIRCLE}" fill="white" /></svg>`
 }
 
 // todo: for some weird reason the markers are not shown when the color is given in hex format #012345
