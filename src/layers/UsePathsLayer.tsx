@@ -188,6 +188,8 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
  */
 function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: QueryPoint[]) {
     if (selectedPath.points.coordinates.length < 2 || selectedPath.snapped_waypoints.coordinates.length < 2) return
+    // on pointer down Modify inserts a vertex into this invisible copy to have something to drag — harmless,
+    // it lies exactly on the line and does not become a via point
     const routeLine = new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c)))
     const source: VectorSource = new VectorSource({
         features: [new Feature(routeLine)],
@@ -285,24 +287,22 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
         const index = findNextWayPoint([route], near).nextWayPoint
         Dispatcher.dispatch(new AddPoint(index, coordinate, true, false))
     }
-    // A click on the route adds a via point exactly on it. It is evaluated on 'click' (fired on pointer up, i.e.
-    // before the click could select an alternative route and re-create this interaction, and not after panning
-    // or dragging), but the via point is only added on the matching 'singleclick', which OpenLayers does not
-    // fire for a double click (zoom). Both events, and the ContextMenu, get the same originalEvent.
+    // A click on the route adds a via point exactly on it. It is evaluated on 'click' (fired on pointer up,
+    // i.e. not after panning or dragging) but only added on the matching 'singleclick' (same originalEvent),
+    // which OpenLayers does not fire for a double click (zoom). Where an alternative route overlaps the
+    // selected one the via point wins: the click is consumed with stopPropagation before the Select
+    // interaction could switch routes.
     const clickKey = map.on('click', e => {
-        // clicking a marker opens the context menu and clicking an alternative route selects it
+        // markers handle clicks themselves (context menu)
         if (markerFeatureAt(e.pixel)) return
-        const atAlternative = map.forEachFeatureAtPixel(e.pixel, () => true, {
-            layerFilter: l => l.get(pathsLayerKey),
-            hitTolerance: 5,
-        })
-        if (atAlternative) return
         const closest = routeLine.getClosestPoint(e.coordinate)
         const closestPixel = map.getPixelFromCoordinate(closest)
         // same distance to the route within which the hover circle is shown (Modify's pixel tolerance)
         if (Math.hypot(closestPixel[0] - e.pixel[0], closestPixel[1] - e.pixel[1]) > 10) return
+        e.stopPropagation()
         const lonLat = toLonLat(closest)
         const clickLonLat = toLonLat(e.coordinate)
+        // also tells the ContextMenu to not open on the new marker
         ;(e.originalEvent as any)[viaPointClickKey] = {
             coordinate: { lng: lonLat[0], lat: lonLat[1] },
             near: { lng: clickLonLat[0], lat: clickLonLat[1] },
