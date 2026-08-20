@@ -3,17 +3,29 @@ import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { useEffect } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { Geometry, Point } from 'ol/geom'
+import { Geometry, LineString, Point } from 'ol/geom'
 import { fromLonLat, toLonLat } from 'ol/proj'
 import { Modify } from 'ol/interaction'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
 import { coordinateToText } from '@/Converters'
-import { Icon, Style } from 'ol/style'
+import { Icon, Stroke, Style } from 'ol/style'
 import { createSvg } from '@/layers/createMarkerSVG'
 
 const MARKER_SIZE = 35
 export const VIA_MARKER_SIZE = 23
+
+// thin dashed line, used for the access network lines and from the old to the new location while dragging
+// markers or the route
+export const dashedLineStyle = new Style({
+    stroke: new Stroke({
+        color: 'rgba(143,183,241,0.9)',
+        width: 5,
+        lineDash: [1, 10],
+        lineCap: 'round',
+        lineJoin: 'round',
+    }),
+})
 
 export default function useQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     useEffect(() => {
@@ -95,10 +107,20 @@ function removeDragInteractions(map: Map) {
 function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSource>) {
     let tmp = queryPointsLayer.getSource()
     if (tmp == null) throw new Error('source must not be null') // typescript requires this
+    // the dashed line from the old to the new location while dragging, like when via markers are dragged with
+    // the route drag interaction (UsePathsLayer)
+    const dragLineStyle = new Style({ stroke: dashedLineStyle.getStroke()! })
+    let downPosition: number[] = []
+    let dragging = false
     const modify = new Modify({
         hitDetection: queryPointsLayer,
         source: tmp,
-        style: [],
+        style: feature => {
+            if (!dragging) return []
+            const position = (feature.getGeometry() as Point).getCoordinates()
+            dragLineStyle.setGeometry(new LineString([downPosition, position]))
+            return dragLineStyle
+        },
         // Via markers are dragged with the route drag interaction instead, which bends the route like when
         // creating a new via point (see UsePathsLayer). Only when no (drag-able) route is shown, e.g. because
         // the request failed, this interaction drags via markers as a fallback.
@@ -116,12 +138,16 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSourc
         },
     })
     modify.on('modifystart', e => {
+        dragging = true
+        const point = e.features.getArray()[0].get('gh:query_point')
+        downPosition = fromLonLat([point.coordinate.lng, point.coordinate.lat])
         // for via circles (no-route fallback) the cursor is hidden like when dragging the route
         const isVia = e.features.getArray().some(f => f.get('gh:marker_props')?.number !== undefined)
         map.getViewport().style.cursor = isVia ? 'none' : 'grabbing'
         e.features.getArray().forEach(f => f.set('gh:dragging', true))
     })
     modify.on('modifyend', e => {
+        dragging = false
         map.getViewport().style.cursor = 'default'
         const feature = (e as any).features.getArray()[0]
         feature.set('gh:dragging', false)

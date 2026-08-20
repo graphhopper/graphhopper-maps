@@ -15,24 +15,13 @@ import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { distance } from 'ol/coordinate'
 import LineString from 'ol/geom/LineString'
 import { createCircle } from '@/layers/createMarkerSVG'
-import { VIA_MARKER_SIZE } from '@/layers/UseQueryPointsLayer'
+import { dashedLineStyle, VIA_MARKER_SIZE } from '@/layers/UseQueryPointsLayer'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import Point from 'ol/geom/Point'
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
 const accessNetworkLayerKey = 'accessNetworkLayer'
-
-// also used for the selected path while dragging it to create a new via point
-const accessNetworkStyle = new Style({
-    stroke: new Stroke({
-        color: 'rgba(143,183,241,0.9)',
-        width: 5,
-        lineDash: [1, 10],
-        lineCap: 'round',
-        lineJoin: 'round',
-    }),
-})
 
 export default function usePathsLayer(
     map: Map,
@@ -147,7 +136,7 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
     const layer = new VectorLayer({
         source: new VectorSource(),
     })
-    layer.setStyle(accessNetworkStyle)
+    layer.setStyle(dashedLineStyle)
     for (let i = 0; i < selectedPath.snapped_waypoints.coordinates.length; i++) {
         if (i >= queryPoints.length) break // can happen if deleted too fast
         const start = fromLonLat([queryPoints[i].coordinate.lng, queryPoints[i].coordinate.lat])
@@ -225,7 +214,7 @@ function addRouteDragInteraction(map: Map, selectedPath: Path) {
     const style = circleStyle()
     let dragStyle = style
     // the dashed line from the old to the new location while dragging
-    const dragLineStyle = new Style({ stroke: accessNetworkStyle.getStroke()! })
+    const dragLineStyle = new Style({ stroke: dashedLineStyle.getStroke()! })
     let dragging = false
     const modify = new Modify({
         source: source,
