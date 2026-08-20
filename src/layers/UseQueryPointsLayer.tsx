@@ -61,6 +61,8 @@ function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     queryPointsLayer.setZIndex(3)
     const cachedStyles: { [id: string]: Style } = {}
     queryPointsLayer.setStyle(feature => {
+        // hidden while it is dragged along the route, the dragged (numbered) circle replaces it, see UsePathsLayer
+        if (feature.get('gh:hidden')) return []
         const props = feature.get('gh:marker_props')
         const isVia = props.number !== undefined
         // transparent when dragging

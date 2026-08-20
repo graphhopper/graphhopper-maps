@@ -258,10 +258,10 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         downPixel = e.mapBrowserEvent.pixel
         const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
         downCoordinate = { lng: lonLat[0], lat: lonLat[1] }
-        // due to the condition above this can only be a via marker: make it transparent while it is dragged
-        // and show its number on the dragged circle
+        // due to the condition above this can only be a via marker: hide it while it is dragged, the dragged
+        // (numbered) circle replaces it
         grabbedViaFeature = markerFeatureAt(downPixel)
-        grabbedViaFeature?.set('gh:dragging', true)
+        grabbedViaFeature?.set('gh:hidden', true)
         const number = grabbedViaFeature?.get('gh:marker_props')?.number
         dragStyle = number === undefined ? style : circleStyle(number)
         setRouteDraggingStyle(map, true)
@@ -273,7 +273,7 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         map.getViewport().style.cursor = 'default'
         setRouteDraggingStyle(map, false)
         const grabbedViaPoint = grabbedViaFeature?.get('gh:query_point')
-        grabbedViaFeature?.set('gh:dragging', false)
+        grabbedViaFeature?.set('gh:hidden', false)
         grabbedViaFeature = undefined
         const pixel = e.mapBrowserEvent.pixel
         // only an actual drag creates or moves a via point, i.e. ignore simple clicks on the route
