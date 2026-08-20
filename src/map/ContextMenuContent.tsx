@@ -105,8 +105,7 @@ export function ContextMenuContent({
                   ? tr('to_hint')
                   : // same number as shown in the via marker
                     queryPoints.filter(p => p.isInitialized).findIndex(p => p.id === point.id)
-        // todo: translate 'Delete' as soon as the translation spreadsheet contains such a key
-        return `Delete '${name}'`
+        return `${tr('delete')} '${name}'`
     }
 
     return (
