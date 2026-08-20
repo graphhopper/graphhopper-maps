@@ -1,4 +1,5 @@
 import { Feature, Map } from 'ol'
+import { unByKey } from 'ol/Observable'
 import { Path } from '@/api/graphhopper'
 import { useEffect } from 'react'
 import VectorLayer from 'ol/layer/Vector'
@@ -185,8 +186,9 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
  */
 function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: QueryPoint[]) {
     if (selectedPath.points.coordinates.length < 2 || selectedPath.snapped_waypoints.coordinates.length < 2) return
+    const routeLine = new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c)))
     const source: VectorSource = new VectorSource({
-        features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
+        features: [new Feature(routeLine)],
     })
     // also add the via points themselves, because when a marker is far away from the route (large snapping
     // distance) grabbing it would otherwise be impossible as the Modify interaction only starts close to the route
@@ -221,6 +223,8 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
     // the dashed line from the old to the new location while dragging
     const dragLineStyle = new Style({ stroke: dashedLineStyle.getStroke()! })
     let dragging = false
+    // the pointer position, used to place the circle at the exact closest route point, see below
+    let pointerCoordinate: number[] | null = null
     const modify = new Modify({
         source: source,
         style: feature => {
@@ -229,7 +233,11 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
                 dragLineStyle.setGeometry(new LineString([downPosition, position]))
                 return [dragStyle, dragLineStyle]
             }
-            return !markerFeatureAt(map.getPixelFromCoordinate(position)) ? style : []
+            if (markerFeatureAt(map.getPixelFromCoordinate(position))) return []
+            // Modify snaps the circle onto the route vertices within its pixel tolerance, which makes it
+            // stutter where the vertices are dense, so we place it at the exact closest point ourselves
+            if (pointerCoordinate) style.setGeometry(new Point(routeLine.getClosestPoint(pointerCoordinate)))
+            return style
         },
         condition: e => {
             const feature = markerFeatureAt(e.pixel)
@@ -242,6 +250,8 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
     let grabbedViaFeature: Feature | undefined = undefined
     modify.on('modifystart', e => {
         dragging = true
+        // while dragging the circle must follow the dragged position again instead of the closest route point
+        style.setGeometry(undefined as any)
         downPixel = e.mapBrowserEvent.pixel
         downPosition = e.mapBrowserEvent.coordinate
         const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
@@ -284,6 +294,10 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
         Dispatcher.dispatch(new AddPoint(index, coordinate, true, false))
     })
     modify.set('gh:drag_path_interaction', true)
+    modify.set(
+        'gh:pointermove_key',
+        map.on('pointermove', e => (pointerCoordinate = e.coordinate)),
+    )
     map.addInteraction(modify)
 }
 
@@ -291,7 +305,10 @@ function removeRouteDragInteractions(map: Map) {
     map.getInteractions()
         .getArray()
         .filter(i => i.get('gh:drag_path_interaction'))
-        .forEach(i => map.removeInteraction(i))
+        .forEach(i => {
+            unByKey(i.get('gh:pointermove_key'))
+            map.removeInteraction(i)
+        })
 }
 
 function removeSelectPathInteractions(map: Map) {
