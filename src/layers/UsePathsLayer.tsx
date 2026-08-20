@@ -14,8 +14,9 @@ import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { distance } from 'ol/coordinate'
 import LineString from 'ol/geom/LineString'
 import { createCircle } from '@/layers/createMarkerSVG'
-import { VIA_MARKER_SIZE } from '@/layers/UseQueryPointsLayer'
+import { MARKER_SIZE, VIA_MARKER_SIZE } from '@/layers/UseQueryPointsLayer'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
+import Point from 'ol/geom/Point'
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -49,7 +50,7 @@ export default function usePathsLayer(
             )
             const selectedPathLayer = addSelectedPathsLayer(map, selectedPath)
             addAccessNetworkLayer(map, selectedPath, queryPoints)
-            addRouteDragInteraction(map, selectedPathLayer, selectedPath)
+            addRouteDragInteraction(map, selectedPathLayer, selectedPath, queryPoints)
         }
         return () => {
             removeCurrentPathLayers(map)
@@ -190,7 +191,12 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
  * This uses the Modify interaction which finds the closest segment with a spatial index, i.e. hovering stays
  * cheap even for long routes, and the single pre-built style avoids any further work per pointer move.
  */
-function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, selectedPath: Path) {
+function addRouteDragInteraction(
+    map: Map,
+    layer: VectorLayer<VectorSource>,
+    selectedPath: Path,
+    queryPoints: QueryPoint[],
+) {
     const source = layer.getSource()
     if (
         source == null ||
@@ -198,6 +204,22 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         selectedPath.snapped_waypoints.coordinates.length < 2
     )
         return
+    // Close to a query point marker the marker itself should be dragged, i.e. there the route drag must neither
+    // start nor show its circle. This is a cheap check against the few marker pixels (no hit detection rendering).
+    const queryPointCoords = queryPoints
+        .filter(p => p.isInitialized)
+        .map(p => fromLonLat([p.coordinate.lng, p.coordinate.lat]))
+    const nearQueryPoint = (pixel: number[]) =>
+        queryPointCoords.some(c => {
+            const p = map.getPixelFromCoordinate(c)
+            const dy = p[1] - pixel[1] // > 0 if the pixel is above the marker coordinate
+            // the via circle is centered on the coordinate, the from/to markers are drawn above it (their tip points at it)
+            return (
+                Math.abs(p[0] - pixel[0]) <= VIA_MARKER_SIZE / 2 + 2 &&
+                dy >= -VIA_MARKER_SIZE / 2 - 2 &&
+                dy <= MARKER_SIZE + 2
+            )
+        })
     // the same transparent via circle that is shown when dragging an existing via point, see UseQueryPointsLayer
     const style = new Style({
         image: new Icon({
@@ -207,17 +229,20 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
             opacity: 0.5,
         }),
     })
+    let dragging = false
     const modify = new Modify({
         source: source,
-        style: style,
-        // do not interfere with dragging existing query point markers
-        condition: e =>
-            !map.hasFeatureAtPixel(e.pixel, { layerFilter: l => l.get('gh:query_points'), hitTolerance: 5 }),
+        style: feature => {
+            const pixel = map.getPixelFromCoordinate((feature.getGeometry() as Point).getCoordinates())
+            return dragging || !nearQueryPoint(pixel) ? style : []
+        },
+        condition: e => !nearQueryPoint(e.pixel),
     })
     const originalStyle = layer.getStyle()
     let downPixel = [0, 0]
     let downCoordinate = { lng: 0, lat: 0 }
     modify.on('modifystart', e => {
+        dragging = true
         downPixel = e.mapBrowserEvent.pixel
         const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
         downCoordinate = { lng: lonLat[0], lat: lonLat[1] }
@@ -227,6 +252,7 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         map.getViewport().style.cursor = 'none'
     })
     modify.on('modifyend', e => {
+        dragging = false
         map.getViewport().style.cursor = 'default'
         layer.setStyle(originalStyle)
         const pixel = e.mapBrowserEvent.pixel
