@@ -158,32 +158,70 @@ function addAccessNetworkLayer(map: Map, selectedPath: Path, queryPoints: QueryP
     map.addLayer(layer)
 }
 
+const selectedPathStyle = [
+    new Style({
+        stroke: new Stroke({
+            color: 'rgba(255,255,255,0.9)',
+            width: 10,
+        }),
+    }),
+    new Style({
+        stroke: new Stroke({
+            color: 'rgba(39,100,200,0.85)',
+            width: 8,
+        }),
+    }),
+]
+
 function addSelectedPathsLayer(map: Map, selectedPath: Path) {
-    const styleArray = [
-        new Style({
-            stroke: new Stroke({
-                color: 'rgba(255,255,255,0.9)',
-                width: 10,
-            }),
-        }),
-        new Style({
-            stroke: new Stroke({
-                color: 'rgba(39,100,200,0.85)',
-                width: 8,
-            }),
-        }),
-    ]
     const layer = new VectorLayer({
         source: new VectorSource({
             features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
         }),
-        style: styleArray,
+        style: selectedPathStyle,
         opacity: 0.8,
         zIndex: 2,
     })
     layer.set(selectedPathLayerKey, true)
     map.addLayer(layer)
     return layer
+}
+
+/**
+ * While dragging the route (see below) or a via marker (see UseQueryPointsLayer) the selected path is drawn
+ * with the dashed and lighter access network style, which is less obtrusive than the solid route style.
+ */
+export function setRouteDraggingStyle(map: Map, dragging: boolean) {
+    map.getLayers()
+        .getArray()
+        .filter(l => l.get(selectedPathLayerKey))
+        .forEach(l => (l as VectorLayer<VectorSource>).setStyle(dragging ? accessNetworkStyle : selectedPathStyle))
+}
+
+const viaDragLineLayerKey = 'viaDragLineLayer'
+
+/**
+ * While dragging a via marker this dashed line connects it with its neighboring query points, just like the
+ * dragged route line stays connected to the drag-from-route circle. Pass null to remove the line.
+ */
+export function setViaDragLine(map: Map, coordinates: number[][] | null) {
+    const existing = map
+        .getLayers()
+        .getArray()
+        .find(l => l.get(viaDragLineLayerKey)) as VectorLayer<VectorSource> | undefined
+    if (coordinates == null) {
+        if (existing) map.removeLayer(existing)
+    } else if (existing) {
+        existing.getSource()?.getFeatures()[0]?.setGeometry(new LineString(coordinates))
+    } else {
+        const layer = new VectorLayer({
+            source: new VectorSource({ features: [new Feature(new LineString(coordinates))] }),
+            style: accessNetworkStyle,
+            zIndex: 2,
+        })
+        layer.set(viaDragLineLayerKey, true)
+        map.addLayer(layer)
+    }
 }
 
 /**
@@ -221,7 +259,6 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         },
         condition: e => !hitsQueryPoint(e.pixel),
     })
-    const originalStyle = layer.getStyle()
     let downPixel = [0, 0]
     let downCoordinate = { lng: 0, lat: 0 }
     modify.on('modifystart', e => {
@@ -229,15 +266,14 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         downPixel = e.mapBrowserEvent.pixel
         const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
         downCoordinate = { lng: lonLat[0], lat: lonLat[1] }
-        // while dragging, the dashed and lighter access network style is less obtrusive than the solid route style
-        layer.setStyle(accessNetworkStyle)
+        setRouteDraggingStyle(map, true)
         // like for via circles the cursor is hidden while dragging so that the placement is more precise
         map.getViewport().style.cursor = 'none'
     })
     modify.on('modifyend', e => {
         dragging = false
         map.getViewport().style.cursor = 'default'
-        layer.setStyle(originalStyle)
+        setRouteDraggingStyle(map, false)
         const pixel = e.mapBrowserEvent.pixel
         // only an actual drag creates a via point, i.e. ignore simple clicks on the route
         if (Math.abs(pixel[0] - downPixel[0]) <= 2 && Math.abs(pixel[1] - downPixel[1]) <= 2) return
