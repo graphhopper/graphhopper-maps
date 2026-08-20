@@ -49,9 +49,9 @@ export default function usePathsLayer(
                 map,
                 paths.filter(p => p != selectedPath),
             )
-            const selectedPathLayer = addSelectedPathsLayer(map, selectedPath)
+            addSelectedPathsLayer(map, selectedPath)
             addAccessNetworkLayer(map, selectedPath, queryPoints)
-            addRouteDragInteraction(map, selectedPathLayer, selectedPath)
+            addRouteDragInteraction(map, selectedPath)
         }
         return () => {
             removeCurrentPathLayers(map)
@@ -185,33 +185,20 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
     })
     layer.set(selectedPathLayerKey, true)
     map.addLayer(layer)
-    return layer
 }
 
 /**
- * While dragging the route (see below) or a via marker (see UseQueryPointsLayer) the selected path is drawn
- * with the dashed and lighter access network style, which is less obtrusive than the solid route style.
+ * Pointing at the selected route pops up a via circle that can be dragged to create a new via point there, and
+ * dragging a via marker moves it. This uses the Modify interaction which finds the closest segment with a
+ * spatial index, i.e. hovering stays cheap even for long routes. It works on an invisible copy of the route so
+ * that the displayed route keeps its style — while dragging, only a dashed line from the old to the new
+ * location is shown.
  */
-export function setRouteDraggingStyle(map: Map, dragging: boolean) {
-    map.getLayers()
-        .getArray()
-        .filter(l => l.get(selectedPathLayerKey))
-        .forEach(l => (l as VectorLayer<VectorSource>).setStyle(dragging ? accessNetworkStyle : selectedPathStyle))
-}
-
-/**
- * Pointing at the selected route pops up a via circle that can be dragged to create a new via point there.
- * This uses the Modify interaction which finds the closest segment with a spatial index, i.e. hovering stays
- * cheap even for long routes, and the single pre-built style avoids any further work per pointer move.
- */
-function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, selectedPath: Path) {
-    const source = layer.getSource()
-    if (
-        source == null ||
-        selectedPath.points.coordinates.length < 2 ||
-        selectedPath.snapped_waypoints.coordinates.length < 2
-    )
-        return
+function addRouteDragInteraction(map: Map, selectedPath: Path) {
+    if (selectedPath.points.coordinates.length < 2 || selectedPath.snapped_waypoints.coordinates.length < 2) return
+    const source = new VectorSource({
+        features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
+    })
     // The query point marker hit at the given pixel, if any. From/to markers are dragged with their own
     // interaction (hand cursor, see UseBackgroundLayer+UseQueryPointsLayer), i.e. there the route drag must not
     // start. Via markers however are dragged with THIS interaction, so moving them bends the route the same way
@@ -237,13 +224,18 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         })
     const style = circleStyle()
     let dragStyle = style
+    // the dashed line from the old to the new location while dragging
+    const dragLineStyle = new Style({ stroke: accessNetworkStyle.getStroke()! })
     let dragging = false
     const modify = new Modify({
         source: source,
         style: feature => {
-            if (dragging) return dragStyle
-            const pixel = map.getPixelFromCoordinate((feature.getGeometry() as Point).getCoordinates())
-            return !markerFeatureAt(pixel) ? style : []
+            const position = (feature.getGeometry() as Point).getCoordinates()
+            if (dragging) {
+                dragLineStyle.setGeometry(new LineString([downPosition, position]))
+                return [dragStyle, dragLineStyle]
+            }
+            return !markerFeatureAt(map.getPixelFromCoordinate(position)) ? style : []
         },
         condition: e => {
             const feature = markerFeatureAt(e.pixel)
@@ -251,27 +243,28 @@ function addRouteDragInteraction(map: Map, layer: VectorLayer<VectorSource>, sel
         },
     })
     let downPixel = [0, 0]
+    let downPosition: number[] = []
     let downCoordinate = { lng: 0, lat: 0 }
     let grabbedViaFeature: Feature | undefined = undefined
     modify.on('modifystart', e => {
         dragging = true
         downPixel = e.mapBrowserEvent.pixel
+        downPosition = e.mapBrowserEvent.coordinate
         const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
         downCoordinate = { lng: lonLat[0], lat: lonLat[1] }
         // due to the condition above this can only be a via marker: hide it while it is dragged, the dragged
-        // (numbered) circle replaces it
+        // (numbered) circle replaces it and the dashed line starts at its exact old location
         grabbedViaFeature = markerFeatureAt(downPixel)
         grabbedViaFeature?.set('gh:hidden', true)
+        if (grabbedViaFeature) downPosition = (grabbedViaFeature.getGeometry() as Point).getCoordinates()
         const number = grabbedViaFeature?.get('gh:marker_props')?.number
         dragStyle = number === undefined ? style : circleStyle(number)
-        setRouteDraggingStyle(map, true)
         // like for via circles the cursor is hidden while dragging so that the placement is more precise
         map.getViewport().style.cursor = 'none'
     })
     modify.on('modifyend', e => {
         dragging = false
         map.getViewport().style.cursor = 'default'
-        setRouteDraggingStyle(map, false)
         const grabbedViaPoint = grabbedViaFeature?.get('gh:query_point')
         grabbedViaFeature?.set('gh:hidden', false)
         grabbedViaFeature = undefined
