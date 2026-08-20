@@ -59,6 +59,8 @@ export default function ContextMenu({ map, route, queryPoints }: ContextMenuProp
             closeContextMenu()
             return
         }
+        // this click added a via point (see UsePathsLayer) -> do not open the menu on the marker it created
+        if ((e.originalEvent as any).ghViaPointAdded) return
         // clicking a query point marker opens the menu (with a 'remove' entry), but do not open it when clicking
         // other interactive features (POIs, paths), they handle clicks themselves
         if (!queryPointAtPixel(e.pixel)) {

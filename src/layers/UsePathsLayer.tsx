@@ -1,4 +1,5 @@
 import { Feature, Map } from 'ol'
+import { unByKey } from 'ol/Observable'
 import { Path } from '@/api/graphhopper'
 import { useEffect } from 'react'
 import VectorLayer from 'ol/layer/Vector'
@@ -185,18 +186,18 @@ function addSelectedPathsLayer(map: Map, selectedPath: Path) {
  */
 function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: QueryPoint[]) {
     if (selectedPath.points.coordinates.length < 2 || selectedPath.snapped_waypoints.coordinates.length < 2) return
+    const routeLine = new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c)))
     const source: VectorSource = new VectorSource({
-        features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
+        features: [new Feature(routeLine)],
     })
-    // also add the via points themselves, because when a marker is far away from the route (large snapping
-    // distance) grabbing it would otherwise be impossible as the Modify interaction only starts close to the route
+    // add the via points too, as Modify only starts close to the route and could not grab a marker
+    // that is far away from it (large snapping distance)
     queryPoints
         .filter(p => p.isInitialized && p.type === QueryPointType.Via)
         .forEach(p => source.addFeature(new Feature(new Point(fromLonLat([p.coordinate.lng, p.coordinate.lat])))))
-    // The query point marker hit at the given pixel, if any. From/to markers are dragged with their own
-    // interaction (hand cursor, see UseBackgroundLayer+UseQueryPointsLayer), i.e. there the route drag must not
-    // start. Via markers however are dragged with THIS interaction, so moving them bends the route the same way
-    // as dragging the route itself to create a new via point.
+    // The query point marker at the given pixel, if any. From/to markers are dragged with their own
+    // interaction (see UseBackgroundLayer+UseQueryPointsLayer), via markers with THIS one, so moving
+    // them bends the route just like dragging the route itself.
     const markerFeatureAt = (pixel: number[]) => markerFeatureAtPixel(map, pixel, 2)
     // the transparent via circle, with the number of the dragged via marker (or none when creating a new one)
     const circleStyle = (number?: number) =>
@@ -242,14 +243,14 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
         downPosition = e.mapBrowserEvent.coordinate
         const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
         downCoordinate = { lng: lonLat[0], lat: lonLat[1] }
-        // due to the condition above this can only be a via marker: hide it while it is dragged, the dragged
-        // (numbered) circle replaces it and the dashed line starts at its exact old location
+        // due to the condition above this can only be a via marker: hide it, the dragged (numbered)
+        // circle replaces it and the dashed line starts at its exact old location
         grabbedViaFeature = markerFeatureAt(downPixel)
         grabbedViaFeature?.set('gh:hidden', true)
         if (grabbedViaFeature) downPosition = (grabbedViaFeature.getGeometry() as Point).getCoordinates()
         const number = grabbedViaFeature?.get('gh:marker_props')?.number
         dragStyle = number === undefined ? style : circleStyle(number)
-        // like for via circles the cursor is hidden while dragging so that the placement is more precise
+        // hide the cursor while dragging for more precise placement, like for via circles
         map.getViewport().style.cursor = 'none'
     })
     modify.on('modifyend', e => {
@@ -259,27 +260,53 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
         grabbedViaFeature?.set('gh:hidden', false)
         grabbedViaFeature = undefined
         const pixel = e.mapBrowserEvent.pixel
-        // only an actual drag creates or moves a via point, i.e. ignore simple clicks on the route
+        // clicks are handled below, a drag creates or moves a via point
         if (Math.abs(pixel[0] - downPixel[0]) <= 2 && Math.abs(pixel[1] - downPixel[1]) <= 2) return
         const lonLat = toLonLat(e.mapBrowserEvent.coordinate)
         const coordinate = { lng: lonLat[0], lat: lonLat[1] }
         if (grabbedViaPoint) {
-            // the drag started on an existing via marker -> move it instead of creating a new via point
+            // the drag started on a via marker -> move it
             Dispatcher.dispatch(
                 new SetPoint({ ...grabbedViaPoint, coordinate, queryText: coordinateToText(coordinate) }, false),
             )
             return
         }
+        addViaPoint(coordinate, downCoordinate)
+    })
+    // inserts a new via point, into the route leg closest to `near`: for a drag this must be where it
+    // started — the drop position could be closer to another leg
+    const addViaPoint = (coordinate: { lng: number; lat: number }, near: { lng: number; lat: number }) => {
         const route = {
             coordinates: selectedPath.points.coordinates.map(c => ({ lng: c[0], lat: c[1] })),
             wayPoints: selectedPath.snapped_waypoints.coordinates.map(c => ({ lng: c[0], lat: c[1] })),
         }
-        // determine the insertion index from where the drag started, not where it ended — otherwise the
-        // new via point could end up in a different (closer) leg of the route and would not cause a detour
-        const index = findNextWayPoint([route], downCoordinate).nextWayPoint
+        const index = findNextWayPoint([route], near).nextWayPoint
         Dispatcher.dispatch(new AddPoint(index, coordinate, true, false))
+    }
+    // A click on the route adds a via point exactly on it. 'click' fires on pointer up (so before the click
+    // could select an alternative route and re-create this interaction), but not after panning or dragging.
+    const clickKey = map.on('click', e => {
+        // clicking a marker opens the context menu and clicking an alternative route selects it
+        if (markerFeatureAt(e.pixel)) return
+        const atAlternative = map.forEachFeatureAtPixel(e.pixel, () => true, {
+            layerFilter: l => l.get(pathsLayerKey),
+            hitTolerance: 5,
+        })
+        if (atAlternative) return
+        // ignore the second click of a double click (zoom)
+        if ((e.originalEvent as PointerEvent).detail > 1) return
+        const closest = routeLine.getClosestPoint(e.coordinate)
+        const closestPixel = map.getPixelFromCoordinate(closest)
+        // same distance to the route within which the hover circle is shown (Modify's pixel tolerance)
+        if (Math.hypot(closestPixel[0] - e.pixel[0], closestPixel[1] - e.pixel[1]) > 10) return
+        const lonLat = toLonLat(closest)
+        const clickLonLat = toLonLat(e.coordinate)
+        addViaPoint({ lng: lonLat[0], lat: lonLat[1] }, { lng: clickLonLat[0], lat: clickLonLat[1] })
+        // the later 'singleclick' has the same originalEvent -> tells the ContextMenu to not open on the new marker
+        ;(e.originalEvent as any).ghViaPointAdded = true
     })
     modify.set('gh:drag_path_interaction', true)
+    modify.set('gh:route_click_key', clickKey)
     map.addInteraction(modify)
 }
 
@@ -287,7 +314,10 @@ function removeRouteDragInteractions(map: Map) {
     map.getInteractions()
         .getArray()
         .filter(i => i.get('gh:drag_path_interaction'))
-        .forEach(i => map.removeInteraction(i))
+        .forEach(i => {
+            unByKey(i.get('gh:route_click_key'))
+            map.removeInteraction(i)
+        })
 }
 
 function removeSelectPathInteractions(map: Map) {
