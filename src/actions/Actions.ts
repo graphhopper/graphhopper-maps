@@ -69,6 +69,8 @@ export class SetQueryPoints implements Action {
     }
 }
 
+export class ReversePoints implements Action {}
+
 export class ClearPoints implements Action {}
 
 export class RemovePoint implements Action {

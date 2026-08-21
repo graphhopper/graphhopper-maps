@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import styles from './RoutingProfiles.module.css'
 import Dispatcher from '@/stores/Dispatcher'
-import { SetVehicleProfile, SetVehicleProfileGroup } from '@/actions/Actions'
+import { SetVehicleProfile, SetVehicleProfileGroup, ReversePoints } from '@/actions/Actions'
 import { RoutingProfile } from '@/api/graphhopper'
 import PlainButton from '@/PlainButton'
 import Chevron from './chevron.svg'
 import { tr } from '@/translation/Translation'
 import CustomModelBoxSVG from '@/sidebar/open_custom_model.svg'
+import UpDownSVG from '@/sidebar/up_down.svg'
 import { icons } from '@/sidebar/search/routingProfiles/profileIcons'
 import * as config from 'config'
 import { ProfileGroupMap } from '@/utils'
@@ -93,6 +94,13 @@ export default function ({
                 onClick={toggleCustomModelBox}
             >
                 <CustomModelBoxSVG />
+            </PlainButton>
+            <PlainButton
+                title={tr('reverse_route')}
+                className={styles.cmBox + ' ' + styles.reverseBtn}
+                onClick={() => Dispatcher.dispatch(new ReversePoints())}
+            >
+                <UpDownSVG />
             </PlainButton>
             <div className={styles.carousel}>
                 <PlainButton

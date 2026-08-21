@@ -159,6 +159,10 @@
     animation-duration: 0.2s;
 }
 
+.reverseBtn {
+    margin-left: 18px;
+}
+
 @keyframes setting_rotate {
     0% {
         transform: rotate(0);

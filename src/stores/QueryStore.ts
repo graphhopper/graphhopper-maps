@@ -17,6 +17,7 @@ import {
     SetCustomModel,
     SetPoint,
     SetQueryPoints,
+    ReversePoints,
     SetVehicleProfile,
     SetVehicleProfileGroup,
 } from '@/actions/Actions'
@@ -295,6 +296,22 @@ export default class QueryStore extends Store<QueryStoreState> {
             )
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
+        } else if (action instanceof ReversePoints) {
+            // Reverse the order of the query points and issue a routing request
+            const reversed = state.queryPoints
+                .slice()
+                .reverse()
+                .map((point, i) => {
+                    const type = QueryStore.getPointType(i, state.queryPoints.length)
+                    return { ...point, color: QueryStore.getMarkerColor(type), type: type, id: this.state.nextQueryPointId + i }
+                })
+
+            const newState: QueryStoreState = {
+                ...state,
+                nextQueryPointId: this.state.nextQueryPointId + state.queryPoints.length,
+                queryPoints: reversed,
+            }
+            return this.routeIfReady(newState, false)
         }
         return state
     }
