@@ -32,6 +32,7 @@ export default function usePathsLayer(
     selectedPath: Path,
     queryPoints: QueryPoint[],
     showPaths: boolean = true,
+    drawAreasEnabled: boolean = false,
 ) {
     useEffect(() => {
         removeCurrentPathLayers(map)
@@ -43,13 +44,14 @@ export default function usePathsLayer(
             )
             addSelectedPathsLayer(map, selectedPath)
             addAccessNetworkLayer(map, selectedPath, queryPoints)
-            addRouteDragInteraction(map, selectedPath, queryPoints)
+            // clicking or dragging the route would interfere with drawing an area on top of it
+            if (!drawAreasEnabled) addRouteDragInteraction(map, selectedPath, queryPoints)
         }
         return () => {
             removeCurrentPathLayers(map)
             removeRouteDragInteractions(map)
         }
-    }, [map, paths, selectedPath, showPaths, queryPoints])
+    }, [map, paths, selectedPath, showPaths, queryPoints, drawAreasEnabled])
 }
 
 function removeCurrentPathLayers(map: Map) {
