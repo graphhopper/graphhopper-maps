@@ -25,9 +25,9 @@ export function ContextMenuContent({
     markedQueryPoint: QueryPoint | null
     onSelect: () => void
 }) {
-    const dispatchAddPoint = function (coordinate: Coordinate) {
+    const dispatchAddPoint = function (index: number, coordinate: Coordinate) {
         onSelect()
-        Dispatcher.dispatch(new AddPoint(queryPoints.length, coordinate, true, false))
+        Dispatcher.dispatch(new AddPoint(index, coordinate, true, false))
     }
 
     const dispatchSetPoint = function (point: QueryPoint, coordinate: Coordinate) {
@@ -46,32 +46,21 @@ export function ContextMenuContent({
     }
 
     const setViaPoint = function (points: QueryPoint[], route: RouteStoreState) {
-        const viaPoints = points.filter(point => point.type === QueryPointType.Via)
-        const point = viaPoints.find(point => !point.isInitialized)
-        onSelect()
-
+        const point = points.find(point => point.type === QueryPointType.Via && !point.isInitialized)
         if (point) {
             dispatchSetPoint(point, coordinate)
-        } else if (route.routingResult.paths.length === 0) {
-            // no route, e.g. because the request failed -> insert the via point before the destination
-            Dispatcher.dispatch(new AddPoint(points.length - 1, coordinate, true, false))
-        } else {
-            const routes = route.routingResult.paths.map(p => {
-                return {
-                    coordinates: p.points.coordinates.map(pos => {
-                        return { lat: pos[1], lng: pos[0] }
-                    }),
-                    wayPoints: p.snapped_waypoints.coordinates.map(pos => {
-                        return { lat: pos[1], lng: pos[0] }
-                    }),
-                }
-            })
-            // note that we can use the index returned by findNextWayPoint no matter which route alternative was found
-            // to be closest to the clicked location, because for every route the n-th snapped_waypoint corresponds to
-            // the n-th query point
-            const index = findNextWayPoint(routes, coordinate).nextWayPoint
-            Dispatcher.dispatch(new AddPoint(index, coordinate, true, false))
+            return
         }
+        const toCoordinate = (pos: number[]) => ({ lng: pos[0], lat: pos[1] })
+        const routes = route.routingResult.paths.map(p => ({
+            coordinates: p.points.coordinates.map(toCoordinate),
+            wayPoints: p.snapped_waypoints.coordinates.map(toCoordinate),
+        }))
+        // note that we can use the index returned by findNextWayPoint no matter which route alternative was found
+        // to be closest to the clicked location, because for every route the n-th snapped_waypoint corresponds to
+        // the n-th query point. Without a route, e.g. because the request failed, insert before the destination.
+        const index = routes.length === 0 ? points.length - 1 : findNextWayPoint(routes, coordinate).nextWayPoint
+        dispatchAddPoint(index, coordinate)
     }
 
     const disableViaPoint = function (points: QueryPoint[]) {
@@ -138,7 +127,10 @@ export function ContextMenuContent({
             {!markedQueryPoint && (
                 <>
                     {showAddLocation && (
-                        <button className={styles.entry} onClick={() => dispatchAddPoint(coordinate)}>
+                        <button
+                            className={styles.entry}
+                            onClick={() => dispatchAddPoint(queryPoints.length, coordinate)}
+                        >
                             <div>
                                 <MarkerComponent
                                     size={16}
