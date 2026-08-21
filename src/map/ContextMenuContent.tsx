@@ -3,27 +3,31 @@ import { coordinateToText } from '@/Converters'
 import styles from './ContextMenuContent.module.css'
 import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, SetPoint, MoveMapToPoint } from '@/actions/Actions'
+import { AddPoint, RemovePoint, SetPoint, MoveMapToPoint } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import { tr } from '@/translation/Translation'
-import { MarkerComponent } from '@/map/Marker'
+import { CircleComponent, MarkerComponent } from '@/map/Marker'
 import { Coordinate } from '@/utils'
+import Cross from '@/sidebar/times-solid-thin.svg'
 
 export function ContextMenuContent({
     coordinate,
     queryPoints,
     route,
+    markedQueryPoint,
     onSelect,
 }: {
     coordinate: Coordinate
     queryPoints: QueryPoint[]
     route: RouteStoreState
+    // the query point of the marker the menu was opened on (if any), for it a 'delete' entry is shown
+    markedQueryPoint: QueryPoint | null
     onSelect: () => void
 }) {
-    const dispatchAddPoint = function (coordinate: Coordinate) {
+    const dispatchAddPoint = function (index: number, coordinate: Coordinate) {
         onSelect()
-        Dispatcher.dispatch(new AddPoint(queryPoints.length, coordinate, true, false))
+        Dispatcher.dispatch(new AddPoint(index, coordinate, true, false))
     }
 
     const dispatchSetPoint = function (point: QueryPoint, coordinate: Coordinate) {
@@ -42,29 +46,21 @@ export function ContextMenuContent({
     }
 
     const setViaPoint = function (points: QueryPoint[], route: RouteStoreState) {
-        const viaPoints = points.filter(point => point.type === QueryPointType.Via)
-        const point = viaPoints.find(point => !point.isInitialized)
-        onSelect()
-
+        const point = points.find(point => point.type === QueryPointType.Via && !point.isInitialized)
         if (point) {
             dispatchSetPoint(point, coordinate)
-        } else {
-            const routes = route.routingResult.paths.map(p => {
-                return {
-                    coordinates: p.points.coordinates.map(pos => {
-                        return { lat: pos[1], lng: pos[0] }
-                    }),
-                    wayPoints: p.snapped_waypoints.coordinates.map(pos => {
-                        return { lat: pos[1], lng: pos[0] }
-                    }),
-                }
-            })
-            // note that we can use the index returned by findNextWayPoint no matter which route alternative was found
-            // to be closest to the clicked location, because for every route the n-th snapped_waypoint corresponds to
-            // the n-th query point
-            const index = findNextWayPoint(routes, coordinate).nextWayPoint
-            Dispatcher.dispatch(new AddPoint(index, coordinate, true, false))
+            return
         }
+        const toCoordinate = (pos: number[]) => ({ lng: pos[0], lat: pos[1] })
+        const routes = route.routingResult.paths.map(p => ({
+            coordinates: p.points.coordinates.map(toCoordinate),
+            wayPoints: p.snapped_waypoints.coordinates.map(toCoordinate),
+        }))
+        // note that we can use the index returned by findNextWayPoint no matter which route alternative was found
+        // to be closest to the clicked location, because for every route the n-th snapped_waypoint corresponds to
+        // the n-th query point. Without a route, e.g. because the request failed, insert before the destination.
+        const index = routes.length === 0 ? points.length - 1 : findNextWayPoint(routes, coordinate).nextWayPoint
+        dispatchAddPoint(index, coordinate)
     }
 
     const disableViaPoint = function (points: QueryPoint[]) {
@@ -86,48 +82,94 @@ export function ContextMenuContent({
     }
     const showAddLocation = queryPoints.length >= 2 && queryPoints[1].isInitialized
 
+    const deletePoint = function (point: QueryPoint) {
+        onSelect()
+        // with only two points the search boxes are kept and just the marker is cleared
+        if (queryPoints.length > 2) Dispatcher.dispatch(new RemovePoint(point))
+        else Dispatcher.dispatch(new SetPoint({ ...point, queryText: '', isInitialized: false }, false))
+    }
+
+    const deleteLabel = function (point: QueryPoint) {
+        const name =
+            point.type === QueryPointType.From
+                ? tr('from_hint')
+                : point.type === QueryPointType.To
+                  ? tr('to_hint')
+                  : // same number as shown in the via marker
+                    queryPoints.filter(p => p.isInitialized).findIndex(p => p.id === point.id)
+        return `${tr('delete')} '${name}'`
+    }
+
     return (
         <div className={styles.wrapper} onMouseUp={convertToClick}>
-            {showAddLocation && (
-                <button className={styles.entry} onClick={() => dispatchAddPoint(coordinate)}>
-                    <div>
-                        <MarkerComponent
-                            size={20}
-                            color={QueryStore.getMarkerColor(QueryPointType.To)}
-                            number={'\uFF0B'}
+            {markedQueryPoint && (
+                <button className={styles.entry} onClick={() => deletePoint(markedQueryPoint)}>
+                    <div className={styles.crossedMarker}>
+                        {markedQueryPoint.type === QueryPointType.Via ? (
+                            <CircleComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
+                        ) : (
+                            <MarkerComponent size={20} color={QueryStore.getMarkerColor(markedQueryPoint.type)} />
+                        )}
+                        <Cross
+                            className={styles.deleteCross}
+                            style={{
+                                // slightly darker on the destination marker which has the same red as the cross
+                                color:
+                                    markedQueryPoint.type === QueryPointType.To
+                                        ? '#d94f4f'
+                                        : QueryStore.getMarkerColor(QueryPointType.To),
+                            }}
                         />
                     </div>
-                    <span>{tr('add_to_route')}</span>
+                    <span>{deleteLabel(markedQueryPoint)}</span>
                 </button>
             )}
-            <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
-                <div>
-                    <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.From)} />
-                </div>
-                <span>{tr('set_start')}</span>
-            </button>
+            {!markedQueryPoint && (
+                <>
+                    {showAddLocation && (
+                        <button
+                            className={styles.entry}
+                            onClick={() => dispatchAddPoint(queryPoints.length, coordinate)}
+                        >
+                            <div>
+                                <MarkerComponent
+                                    size={16}
+                                    color={QueryStore.getMarkerColor(QueryPointType.To)}
+                                    number={'\uFF0B'}
+                                />
+                            </div>
+                            <span>{tr('add_to_route')}</span>
+                        </button>
+                    )}
+                    <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
+                        <div>
+                            <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.From)} />
+                        </div>
+                        <span>{tr('set_start')}</span>
+                    </button>
+                    <button
+                        className={styles.entry}
+                        disabled={disableViaPoint(queryPoints)}
+                        onClick={() => setViaPoint(queryPoints, route)}
+                    >
+                        <div>
+                            <CircleComponent size={16} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
+                        </div>
+                        <span>{tr('set_intermediate')}</span>
+                    </button>
+                    <button
+                        className={styles.entry}
+                        onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
+                    >
+                        <div>
+                            <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.To)} />
+                        </div>
+                        <span>{tr('set_end')}</span>
+                    </button>
+                </>
+            )}
             <button
-                className={styles.entry}
-                disabled={disableViaPoint(queryPoints)}
-                onClick={() => setViaPoint(queryPoints, route)}
-            >
-                <div>
-                    <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.Via)} />
-                </div>
-                <span>{tr('set_intermediate')}</span>
-            </button>
-            <button
-                className={styles.entry}
-                onClick={() => dispatchSetPoint(queryPoints[queryPoints.length - 1], coordinate)}
-            >
-                <div>
-                    <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.To)} />
-                </div>
-                <span>{tr('set_end')}</span>
-            </button>
-            <button
-                style={{ borderTop: '1px solid lightgray', marginTop: '0.4em', paddingTop: '0.8em' }}
-                className={styles.entry}
+                className={styles.entryWithDivider}
                 onClick={() => {
                     if (queryPoints.length > 0) Dispatcher.dispatch(new SetPoint(queryPoints[0], true))
                 }}
