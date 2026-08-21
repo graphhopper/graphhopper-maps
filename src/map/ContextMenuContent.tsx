@@ -52,6 +52,9 @@ export function ContextMenuContent({
 
         if (point) {
             dispatchSetPoint(point, coordinate)
+        } else if (route.routingResult.paths.length === 0) {
+            // no route, e.g. because the request failed -> insert the via point before the destination
+            Dispatcher.dispatch(new AddPoint(points.length - 1, coordinate, true, false))
         } else {
             const routes = route.routingResult.paths.map(p => {
                 return {
