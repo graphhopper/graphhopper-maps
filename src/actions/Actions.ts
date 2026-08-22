@@ -69,6 +69,8 @@ export class SetQueryPoints implements Action {
     }
 }
 
+export class ReversePoints implements Action {}
+
 export class ClearPoints implements Action {}
 
 export class RemovePoint implements Action {
@@ -183,14 +185,6 @@ export class ToggleExternalMVTLayer implements Action {
 }
 
 export class MapIsLoaded implements Action {}
-
-export class MoveMapToPoint implements Action {
-    readonly coordinate: Coordinate
-
-    constructor(coordinate: Coordinate) {
-        this.coordinate = coordinate
-    }
-}
 
 export class SetBBox implements Action {
     readonly bbox: Bbox
