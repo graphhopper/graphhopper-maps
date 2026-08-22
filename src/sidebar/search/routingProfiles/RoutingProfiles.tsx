@@ -95,13 +95,6 @@ export default function ({
             >
                 <CustomModelBoxSVG />
             </PlainButton>
-            <PlainButton
-                title={tr('reverse_route')}
-                className={styles.cmBox + ' ' + styles.reverseBtn}
-                onClick={() => Dispatcher.dispatch(new ReversePoints())}
-            >
-                <UpDownSVG />
-            </PlainButton>
             <div className={styles.carousel}>
                 <PlainButton
                     className={styles.chevron}

@@ -3,7 +3,7 @@ import { coordinateToText } from '@/Converters'
 import styles from './ContextMenuContent.module.css'
 import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, RemovePoint, SetPoint, MoveMapToPoint } from '@/actions/Actions'
+import {AddPoint, RemovePoint, SetPoint, MoveMapToPoint, ReversePoints} from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import { tr } from '@/translation/Translation'
@@ -184,6 +184,15 @@ export function ContextMenuContent({
                 }}
             >
                 {tr('center_map')}
+            </button>
+            <button
+                className={styles.entry}
+                onClick={() => {
+                    onSelect()
+                    Dispatcher.dispatch(new ReversePoints())
+                }}
+            >
+                {tr('reverse_route')}
             </button>
             <button
                 className={styles.entry}
