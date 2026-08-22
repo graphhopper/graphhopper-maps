@@ -303,7 +303,12 @@ export default class QueryStore extends Store<QueryStoreState> {
                 .reverse()
                 .map((point, i) => {
                     const type = QueryStore.getPointType(i, state.queryPoints.length)
-                    return { ...point, color: QueryStore.getMarkerColor(type), type: type, id: this.state.nextQueryPointId + i }
+                    return {
+                        ...point,
+                        color: QueryStore.getMarkerColor(type),
+                        type: type,
+                        id: this.state.nextQueryPointId + i,
+                    }
                 })
 
             const newState: QueryStoreState = {
@@ -409,7 +414,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         // Janek deliberately chose this style of if statements, to make this readable.
         if (state.queryPoints.length <= 1) return false
         if (!state.queryPoints.every(point => point.isInitialized)) return false
-        return state.routingProfile.name;
+        return state.routingProfile.name
     }
 
     private static movePoint(points: QueryPoint[], point: QueryPoint, newIndex: number): QueryPoint[] {

@@ -2593,6 +2593,7 @@
 "delete_from_route":"",
 "delete":"",
 "open_custom_model_box":"",
+"reverse_route":"",
 "draw_areas_enabled":"",
 "help_custom_model":"",
 "apply_custom_model":"",

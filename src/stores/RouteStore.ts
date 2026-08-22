@@ -75,15 +75,15 @@ export default class RouteStore extends Store<RouteStoreState> {
                 ...state,
                 selectedPath: action.path,
             }
-         } else if (
-             action instanceof SetPoint ||
-             action instanceof AddPoint ||
-             action instanceof ClearRoute ||
-             action instanceof ClearPoints ||
-             action instanceof RemovePoint
-         ) {
-             return RouteStore.getInitialState()
-         }
+        } else if (
+            action instanceof SetPoint ||
+            action instanceof AddPoint ||
+            action instanceof ClearRoute ||
+            action instanceof ClearPoints ||
+            action instanceof RemovePoint
+        ) {
+            return RouteStore.getInitialState()
+        }
         return state
     }
 
