@@ -7,7 +7,6 @@ import {
     RouteRequestSuccess,
     SetBBox,
     SetSelectedPath,
-    MoveMapToPoint,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
@@ -30,14 +29,6 @@ export default class MapActionReceiver implements ActionReceiver {
             // we estimate the map size to be equal to the window size. we don't know better at this point, because
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
-        } else if (action instanceof MoveMapToPoint) {
-            let zoom = this.map.getView().getZoom()
-            if (zoom == undefined || zoom < 8) zoom = 8
-            this.map.getView().animate({
-                zoom: zoom,
-                center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
-                duration: 400,
-            })
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route

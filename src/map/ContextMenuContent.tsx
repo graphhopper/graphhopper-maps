@@ -3,7 +3,7 @@ import { coordinateToText } from '@/Converters'
 import styles from './ContextMenuContent.module.css'
 import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import {AddPoint, RemovePoint, SetPoint, MoveMapToPoint, ReversePoints} from '@/actions/Actions'
+import {AddPoint, RemovePoint, SetPoint, ReversePoints} from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import { tr } from '@/translation/Translation'
@@ -175,15 +175,6 @@ export function ContextMenuContent({
                 }}
             >
                 <span>{tr('zoom_to_route')}</span>
-            </button>
-            <button
-                className={styles.entry}
-                onClick={() => {
-                    onSelect()
-                    Dispatcher.dispatch(new MoveMapToPoint(coordinate))
-                }}
-            >
-                {tr('center_map')}
             </button>
             <button
                 className={styles.entry}
