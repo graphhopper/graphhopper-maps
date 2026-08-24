@@ -10,12 +10,10 @@ import Cross from '@/sidebar/times-solid.svg'
 
 // Slope colors are also computed in ChartRenderer.drawElevationArea. Duplicate calculation here to keep the
 // legend independent of the renderer's draw cycle.
-function getUsedInclineCategories(elevation: ElevationPoint[]): Set<string> {
+function getUsedInclineCategories(elevation: ElevationPoint[]) {
     const coords = elevation.map(p => [p.lng, p.lat, p.elevation])
     const distances = computeInclineCategoryDistances(coords)
-    const used = new Set<string>()
-    for (let i = 0; i < distances.length; i++) if (distances[i] > 0) used.add(INCLINE_CATEGORIES[i].color)
-    return used
+    return INCLINE_CATEGORIES.filter((_, i) => distances[i] > 0)
 }
 
 interface ElevationWidgetProps {
@@ -165,14 +163,10 @@ export default function ElevationWidget({
     const selectedDetail = hasData ? data.pathDetails.find(d => d.key === selectedKey) || null : null
     const alternativeCount = data?.alternativeElevations.length ?? 0
 
-    const usedColors = data && data.elevation.length >= 2 ? getUsedInclineCategories(data.elevation) : null
-    const inclineLegend = usedColors
-        ? INCLINE_CATEGORIES.filter(c => usedColors.has(c.color)).map(c => ({
-              label: isExpanded ? c.label : c.shortLabel,
-              color: c.color,
-              title: c.tooltip,
-          }))
-        : []
+    const inclineLegend =
+        data && data.elevation.length >= 2
+            ? getUsedInclineCategories(data.elevation).map(c => ({ label: c.label, color: c.color, title: c.tooltip }))
+            : []
 
     const cycleAlternative = useCallback(() => {
         setAltIndex(prev => (prev + 1 >= alternativeCount ? -1 : prev + 1))
@@ -194,7 +188,10 @@ export default function ElevationWidget({
                         showTitle={isExpanded}
                     />
                 ) : (
-                    hasData && <Legend entries={inclineLegend} maxVisible={onClose && !isExpanded ? 3 : undefined} />
+                    // the incline legend has at most 6 entries with very short labels, so it is never truncated,
+                    // but in the small widget state (map overlay and sidebar) it needs tighter spacing
+                    // to fit on a single line
+                    hasData && <Legend entries={inclineLegend} compact={!isExpanded} />
                 )}
                 <div className={styles.buttons}>
                     {!selectedDetail && alternativeCount > 0 && (
