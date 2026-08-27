@@ -20,7 +20,7 @@ import ptTransferTo from './pt_transfer_to.png'
 import ptEndTrip from './pt_end_trip.png'
 import { metersToText } from '@/Converters'
 import { Instruction } from '@/api/graphhopper'
-import { MarkerComponent } from '@/map/Marker'
+import { CircleComponent, MarkerComponent } from '@/map/Marker'
 import QueryStore, { QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { InstructionClicked } from '@/actions/Actions'
@@ -66,20 +66,16 @@ const Line = function ({ instruction, index, us }: { instruction: Instruction; i
 function getTurnSign(sign: number, index: number) {
     // from, via and to signs are special
     if (index === 0 || sign === 4 || sign === 5) {
-        let markerColor
+        let icon
         if (index === 0) {
-            markerColor = QueryStore.getMarkerColor(QueryPointType.From)
+            icon = <MarkerComponent color={QueryStore.getMarkerColor(QueryPointType.From)} />
         } else if (sign === 4) {
-            markerColor = QueryStore.getMarkerColor(QueryPointType.To)
+            icon = <MarkerComponent color={QueryStore.getMarkerColor(QueryPointType.To)} />
         } else {
-            markerColor = QueryStore.getMarkerColor(QueryPointType.Via)
+            icon = <CircleComponent color={QueryStore.getMarkerColor(QueryPointType.Via)} />
         }
 
-        return (
-            <div className={styles.sign}>
-                <MarkerComponent color={markerColor} />
-            </div>
-        )
+        return <div className={styles.sign}>{icon}</div>
     }
     return <img className={styles.sign} src={getSignName(sign)} alt={'turn instruction'} />
 }

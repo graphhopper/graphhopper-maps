@@ -134,7 +134,14 @@ export default function App() {
     const [pathDisplayMode, setPathDisplayMode] = useState<PathDisplayMode>('normal')
     const showPaths = pathDisplayMode !== 'hidden'
     const inclineOnMap = pathDisplayMode === 'incline'
-    usePathsLayer(map, route.routingResult.paths, route.selectedPath, query.queryPoints, showPaths)
+    usePathsLayer(
+        map,
+        route.routingResult.paths,
+        route.selectedPath,
+        query.queryPoints,
+        showPaths,
+        settings.drawAreasEnabled,
+    )
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails, showPaths)
     usePOIsLayer(map, pois)

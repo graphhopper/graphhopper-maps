@@ -3,16 +3,35 @@ import { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { useEffect } from 'react'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { Geometry, Point } from 'ol/geom'
+import { Geometry, LineString, Point } from 'ol/geom'
 import { fromLonLat, toLonLat } from 'ol/proj'
 import { Modify } from 'ol/interaction'
 import Dispatcher from '@/stores/Dispatcher'
 import { SetPoint } from '@/actions/Actions'
 import { coordinateToText } from '@/Converters'
-import { Icon, Style } from 'ol/style'
+import { Icon, Stroke, Style } from 'ol/style'
 import { createSvg } from '@/layers/createMarkerSVG'
 
 const MARKER_SIZE = 35
+export const VIA_MARKER_SIZE = 23
+
+// thin dashed line, used for the access network lines and from the old to the new location while dragging
+// markers or the route
+export const dashedLineStroke = new Stroke({
+    color: 'rgba(143,183,241,0.9)',
+    width: 5,
+    lineDash: [1, 10],
+    lineCap: 'round',
+    lineJoin: 'round',
+})
+
+// the query point marker feature at the given pixel, if any
+export function markerFeatureAtPixel(map: Map, pixel: number[], hitTolerance: number) {
+    return map.forEachFeatureAtPixel(pixel, f => f, {
+        layerFilter: l => l.get('gh:query_points'),
+        hitTolerance,
+    }) as Feature | undefined
+}
 
 export default function useQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     useEffect(() => {
@@ -36,19 +55,18 @@ function removeQueryPoints(map: Map) {
 
 function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     const features: Feature<Geometry>[] = queryPoints
+        .filter(point => point.isInitialized)
         .map((point, i) => {
-            return { index: i, point: point }
-        })
-        .filter(indexPoint => indexPoint.point.isInitialized)
-        .map((indexPoint, i) => {
             const feature = new Feature({
-                geometry: new Point(fromLonLat([indexPoint.point.coordinate.lng, indexPoint.point.coordinate.lat])),
+                geometry: new Point(fromLonLat([point.coordinate.lng, point.coordinate.lat])),
             })
-            feature.set('gh:query_point', indexPoint.point)
+            const isVia = point.type == QueryPointType.Via
+            feature.set('gh:query_point', point)
             feature.set('gh:marker_props', {
-                color: indexPoint.point.color,
-                number: indexPoint.point.type == QueryPointType.Via ? i : undefined,
-                size: MARKER_SIZE,
+                color: point.color,
+                // a number is only displayed for via points and turns the marker into a circle
+                number: isVia ? i : undefined,
+                size: isVia ? VIA_MARKER_SIZE : MARKER_SIZE,
             })
             return feature
         })
@@ -61,14 +79,21 @@ function addQueryPointsLayer(map: Map, queryPoints: QueryPoint[]) {
     queryPointsLayer.setZIndex(3)
     const cachedStyles: { [id: string]: Style } = {}
     queryPointsLayer.setStyle(feature => {
+        // hidden while it is dragged along the route, the dragged (numbered) circle replaces it, see UsePathsLayer
+        if (feature.get('gh:hidden')) return []
         const props = feature.get('gh:marker_props')
-        const key = props.number + '-' + props.color + '-' + props.size
+        const isVia = props.number !== undefined
+        // transparent when dragging
+        const dragging = isVia && feature.get('gh:dragging') === true
+        const key = props.number + '-' + props.color + '-' + props.size + '-' + dragging
         let style = cachedStyles[key]
         if (style) return style
         style = new Style({
             image: new Icon({
                 src: 'data:image/svg+xml;utf8,' + createSvg(props),
-                displacement: [0, MARKER_SIZE / 2],
+                // the via circle is centered on the coordinate, the marker points to it with its tip
+                displacement: isVia ? [0, 0] : [0, MARKER_SIZE / 2],
+                opacity: dragging ? 0.5 : 1,
             }),
         })
         cachedStyles[key] = style
@@ -88,16 +113,45 @@ function removeDragInteractions(map: Map) {
 function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSource>) {
     let tmp = queryPointsLayer.getSource()
     if (tmp == null) throw new Error('source must not be null') // typescript requires this
+    // the dashed line from the old to the new location while dragging, like when via markers are dragged with
+    // the route drag interaction (UsePathsLayer)
+    const dragLineStyle = new Style({ stroke: dashedLineStroke })
+    let downPosition: number[] = []
+    let dragging = false
     const modify = new Modify({
         hitDetection: queryPointsLayer,
         source: tmp,
-        style: [],
+        style: feature => {
+            if (!dragging) return []
+            const position = (feature.getGeometry() as Point).getCoordinates()
+            dragLineStyle.setGeometry(new LineString([downPosition, position]))
+            return dragLineStyle
+        },
+        // Via markers are dragged with the route drag interaction instead, which bends the route like when
+        // creating a new via point (see UsePathsLayer). Only when no (drag-able) route is shown, e.g. because
+        // the request failed, this interaction drags via markers as a fallback.
+        condition: e => {
+            const routeDrag = map
+                .getInteractions()
+                .getArray()
+                .some(i => i.get('gh:drag_path_interaction'))
+            if (!routeDrag) return true
+            return markerFeatureAtPixel(map, e.pixel, 2)?.get('gh:marker_props')?.number === undefined
+        },
     })
     modify.on('modifystart', e => {
-        map.getViewport().style.cursor = 'grabbing'
+        dragging = true
+        const point = e.features.getArray()[0].get('gh:query_point')
+        downPosition = fromLonLat([point.coordinate.lng, point.coordinate.lat])
+        // for via circles (no-route fallback) the cursor is hidden like when dragging the route
+        const isVia = e.features.getArray().some(f => f.get('gh:marker_props')?.number !== undefined)
+        map.getViewport().style.cursor = isVia ? 'none' : 'grabbing'
+        e.features.getArray().forEach(f => f.set('gh:dragging', true))
     })
     modify.on('modifyend', e => {
+        dragging = false
         map.getViewport().style.cursor = 'default'
+        e.features.getArray().forEach(f => f.set('gh:dragging', false))
         const feature = (e as any).features.getArray()[0]
         const point = feature.get('gh:query_point')
         const coordinateLonLat = toLonLat(feature.getGeometry().getCoordinates())

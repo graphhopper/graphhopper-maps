@@ -151,9 +151,11 @@ function detailEntries(
 
 function ColorBar({ entries }: { entries: DetailEntry[] }) {
     if (entries.length === 0) return null
+    // largest parts first, but keep the entries prop untouched as its order is used for the expanded detail rows
+    const sorted = [...entries].sort((a, b) => b.fraction - a.fraction)
     return (
         <div className={styles.colorBar}>
-            {entries.map((d, i) => (
+            {sorted.map((d, i) => (
                 <div
                     key={i}
                     className={styles.colorBarSegment}

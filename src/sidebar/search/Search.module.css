@@ -120,6 +120,11 @@
     outline: none;
 }
 
+/* the via circle has a square aspect ratio and would appear too small with the 1rem of .markerContainer */
+.markerContainer:has(> :global(.viaCircle)) {
+    width: 1.25rem;
+}
+
 .markerTarget:hover svg {
     fill: black;
 }
