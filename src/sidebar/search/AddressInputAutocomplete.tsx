@@ -1,6 +1,8 @@
 import styles from './AddressInputAutocomplete.module.css'
 import { Bbox } from '@/api/graphhopper'
 import { AddressParseResult } from '@/pois/AddressParseResult'
+import { tr } from '@/translation/Translation'
+import Cross from '@/sidebar/times-solid-thin.svg'
 
 export interface AutocompleteItem {}
 
@@ -50,25 +52,31 @@ export interface AutocompleteProps {
     items: AutocompleteItem[]
     highlightedItem: AutocompleteItem
     onSelect: (hit: AutocompleteItem) => void
+    onRemove?: (hit: RecentLocationItem) => void
 }
 
-export default function Autocomplete({ items, highlightedItem, onSelect }: AutocompleteProps) {
+export default function Autocomplete({ items, highlightedItem, onSelect, onRemove }: AutocompleteProps) {
     return (
         <ul>
             {items.map((item, i) => (
                 <li key={i} className={styles.autocompleteItem}>
-                    {mapToComponent(item, highlightedItem === item, onSelect)}
+                    {mapToComponent(item, highlightedItem === item, onSelect, onRemove)}
                 </li>
             ))}
         </ul>
     )
 }
 
-function mapToComponent(item: AutocompleteItem, isHighlighted: boolean, onSelect: (hit: AutocompleteItem) => void) {
+function mapToComponent(
+    item: AutocompleteItem,
+    isHighlighted: boolean,
+    onSelect: (hit: AutocompleteItem) => void,
+    onRemove?: (hit: RecentLocationItem) => void,
+) {
     if (item instanceof GeocodingItem)
         return <GeocodingEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else if (item instanceof RecentLocationItem)
-        return <RecentLocationEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
+        return <RecentLocationEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} onRemove={onRemove} />
     else if (item instanceof POIQueryItem)
         return <POIQueryEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else throw Error('Unsupported item type: ' + typeof item)
@@ -117,10 +125,12 @@ function RecentLocationEntry({
     item,
     isHighlighted,
     onSelect,
+    onRemove,
 }: {
     item: RecentLocationItem
     isHighlighted: boolean
     onSelect: (item: RecentLocationItem) => void
+    onRemove?: (item: RecentLocationItem) => void
 }) {
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
@@ -141,6 +151,27 @@ function RecentLocationEntry({
                     <span className={styles.mainText}>{item.mainText}</span>
                     <span className={styles.secondaryText}>{item.secondText}</span>
                 </div>
+                {onRemove && (
+                    // span because the entry itself is already a button (AutocompleteEntry)
+                    <span
+                        className={styles.removeIcon}
+                        role="button"
+                        aria-label={tr('delete')}
+                        title={tr('delete')}
+                        onClick={e => {
+                            e.stopPropagation()
+                            onRemove(item)
+                        }}
+                        onTouchEnd={e => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            onRemove(item)
+                        }}
+                        onMouseDown={e => e.preventDefault()} // keep input focus, see AutocompleteEntry
+                    >
+                        <Cross />
+                    </span>
+                )}
             </div>
         </AutocompleteEntry>
     )

@@ -7,7 +7,7 @@ import Autocomplete, {
     POIQueryItem,
     RecentLocationItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
-import { getRecentLocations } from '@/sidebar/search/RecentLocations'
+import { getRecentLocations, removeRecentLocation } from '@/sidebar/search/RecentLocations'
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import CurrentLocationIcon from './current-location.svg'
@@ -315,6 +315,10 @@ export default function AddressInput(props: AddressInputProps) {
                                     setText(item.result.text(item.result.poi))
                                 }
                                 focusNextOrBlur()
+                            }}
+                            onRemove={item => {
+                                removeRecentLocation(item.point)
+                                setAutocompleteItems(buildRecentItems(text ? text : undefined, 5, excludeCoord))
                             }}
                         />
                     </ResponsiveAutocomplete>
