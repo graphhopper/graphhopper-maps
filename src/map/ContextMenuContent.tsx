@@ -3,7 +3,7 @@ import { coordinateToText } from '@/Converters'
 import styles from './ContextMenuContent.module.css'
 import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, RemovePoint, SetPoint, ReversePoints } from '@/actions/Actions'
+import { AddPoint, RemovePoint, SetPoint, ReversePoints, ZoomToRoute } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import { tr } from '@/translation/Translation'
@@ -171,7 +171,8 @@ export function ContextMenuContent({
             <button
                 className={styles.entryWithDivider}
                 onClick={() => {
-                    if (queryPoints.length > 0) Dispatcher.dispatch(new SetPoint(queryPoints[0], true))
+                    onSelect()
+                    Dispatcher.dispatch(new ZoomToRoute())
                 }}
             >
                 <span>{tr('zoom_to_route')}</span>
