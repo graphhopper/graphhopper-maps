@@ -68,6 +68,52 @@ const config = {
     //    ]
     //  }
     // }
+
+    // Configure custom basemaps. You have three options:
+    // 1. Replace all default basemaps with your own
+    // 2. Add custom basemaps to the existing defaults
+    // 3. Disable specific default basemaps
+    //
+    // basemaps: {
+    //     // Option 1: Replace all default basemaps with custom ones
+    //     basemaps: [
+    //         {
+    //             name: 'My Custom Raster',
+    //             type: 'raster',
+    //             url: ['https://example.com/tiles/{z}/{x}/{y}.png'],
+    //             attribution: '&copy; My Custom Provider',
+    //             maxZoom: 18
+    //         },
+    //         {
+    //             name: 'My Custom Vector',
+    //             type: 'vector',
+    //             url: 'https://example.com/style.json?key={maptiler_key}',
+    //             attribution: '&copy; My Vector Provider'
+    //         }
+    //     ],
+    //
+    //     // Option 2: Add custom basemaps to defaults (commented out when using Option 1)
+    //     // customBasemaps: [
+    //     //     {
+    //     //         name: 'Additional Custom Map',
+    //     //         type: 'raster',
+    //     //         url: ['https://another-provider.com/{z}/{x}/{y}{retina_suffix}.png?key={thunderforest_key}'],
+    //     //         attribution: '&copy; Another Provider',
+    //     //         maxZoom: 19,
+    //     //         tilePixelRatio: 2  // Optional: override retina detection
+    //     //     }
+    //     // ],
+    //
+    //     // Option 3: Disable specific default basemaps by name (commented out when using Option 1)
+    //     // disabledBasemaps: ['TF Transport', 'TF Cycle', 'TF Outdoors']
+    // }
+    //
+    // Available API key placeholders for URLs:
+    // - {omniscale_key} - replaced with keys.omniscale
+    // - {maptiler_key} - replaced with keys.maptiler
+    // - {thunderforest_key} - replaced with keys.thunderforest
+    // - {kurviger_key} - replaced with keys.kurviger
+    // - {retina_suffix} - replaced with '@2x' on retina displays, empty otherwise
 }
 
 // this is needed for jest (with our current setup at least)
