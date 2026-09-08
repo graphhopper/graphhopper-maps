@@ -78,11 +78,15 @@ const osmCycl: RasterStyle = {
     maxZoom: 19,
 }
 
+// the default layer set has no POIs, so list all layers explicitly, see https://maps.omniscale.com/de/api/maps
 const omniscale: RasterStyle = {
     name: 'Omniscale',
     type: 'raster',
     url: [
-        'https://maps.omniscale.net/v2/' + osApiKey + '/style.default/{z}/{x}/{y}.png' + (isRetina ? '?hq=true' : ''),
+        'https://maps.omniscale.net/v2/' +
+            osApiKey +
+            '/style.default/layers.world,landusages,admin,roads,buildings,labels,housenumbers,pois/{z}/{x}/{y}.png' +
+            (isRetina ? '?hq=true' : ''),
     ],
     attribution: osmAttribution + ', &copy; <a href="https://maps.omniscale.com/" target="_blank">Omniscale</a>',
     tilePixelRatio: tilePixelRatio,
