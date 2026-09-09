@@ -130,7 +130,6 @@ export default function App() {
     useAreasLayer(map, settings.drawAreasEnabled, query.customModelStr, query.customModelEnabled)
     useRoutingGraphLayer(map, mapOptions.routingGraphEnabled)
     useUrbanDensityLayer(map, mapOptions.urbanDensityEnabled)
-    type PathDisplayMode = 'normal' | 'incline' | 'hidden'
     const [pathDisplayMode, setPathDisplayMode] = useState<PathDisplayMode>('normal')
     const showPaths = pathDisplayMode !== 'hidden'
     const inclineOnMap = pathDisplayMode === 'incline'
@@ -141,6 +140,7 @@ export default function App() {
         query.queryPoints,
         showPaths,
         settings.drawAreasEnabled,
+        pathDisplayMode === 'outline',
     )
     useQueryPointsLayer(map, query.queryPoints)
     usePathDetailsLayer(map, pathDetails, showPaths)
@@ -170,11 +170,7 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         pathDisplayMode={pathDisplayMode}
-                        onCyclePathDisplay={() =>
-                            setPathDisplayMode(m =>
-                                m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal',
-                            )
-                        }
+                        onCyclePathDisplay={() => setPathDisplayMode(nextPathDisplayMode)}
                     />
                 ) : (
                     <LargeScreenLayout
@@ -187,11 +183,7 @@ export default function App() {
                         drawAreas={settings.drawAreasEnabled}
                         currentLocation={currentLocation}
                         pathDisplayMode={pathDisplayMode}
-                        onCyclePathDisplay={() =>
-                            setPathDisplayMode(m =>
-                                m === 'normal' ? 'incline' : m === 'incline' ? 'hidden' : 'normal',
-                            )
-                        }
+                        onCyclePathDisplay={() => setPathDisplayMode(nextPathDisplayMode)}
                     />
                 )}
             </div>
@@ -199,13 +191,39 @@ export default function App() {
     )
 }
 
-function InclineIcon({ mode }: { mode: 'normal' | 'incline' | 'hidden' }) {
+type PathDisplayMode = 'normal' | 'incline' | 'outline' | 'hidden'
+
+function nextPathDisplayMode(mode: PathDisplayMode): PathDisplayMode {
+    if (mode === 'normal') return 'incline'
+    if (mode === 'incline') return 'outline'
+    if (mode === 'outline') return 'hidden'
+    return 'normal'
+}
+
+// what a click on the button does, i.e. the next mode
+function pathDisplayButtonTitle(mode: PathDisplayMode) {
+    if (mode === 'normal') return 'Show incline on map'
+    if (mode === 'incline') return 'Show path as outline'
+    if (mode === 'outline') return 'Hide path'
+    return 'Show path'
+}
+
+function InclineIcon({ mode }: { mode: PathDisplayMode }) {
     if (mode === 'incline')
         return (
             <svg viewBox="0 0 14 14" fill="none">
                 <polyline points="3,11 5.5,5 8,9 11,3" stroke="#2E7D32" strokeWidth="1.2" fill="none" />
                 <circle cx="3" cy="11" r="1.5" fill="#2E7D32" />
                 <circle cx="11" cy="3" r="1.5" fill="#F44336" />
+            </svg>
+        )
+    if (mode === 'outline')
+        return (
+            <svg viewBox="0 0 14 14" fill="none">
+                <polyline points="3,11 5.5,5 8,9 11,3" stroke="gray" strokeWidth="3" fill="none" />
+                <polyline points="3,11 5.5,5 8,9 11,3" stroke="white" strokeWidth="1.6" fill="none" />
+                <circle cx="3" cy="11" r="1.5" fill="gray" />
+                <circle cx="11" cy="3" r="1.5" fill="gray" />
             </svg>
         )
     if (mode === 'hidden')
@@ -234,7 +252,7 @@ interface LayoutProps {
     error: ErrorStoreState
     encodedValues: object[]
     drawAreas: boolean
-    pathDisplayMode: 'normal' | 'incline' | 'hidden'
+    pathDisplayMode: PathDisplayMode
     onCyclePathDisplay: () => void
 }
 
@@ -328,13 +346,7 @@ function LargeScreenLayout({
                             (pathDisplayMode === 'incline' ? ' ' + styles.inclineButtonActive : '')
                         }
                         onClick={onCyclePathDisplay}
-                        title={
-                            pathDisplayMode === 'normal'
-                                ? 'Show incline on map'
-                                : pathDisplayMode === 'incline'
-                                  ? 'Hide path'
-                                  : 'Show path'
-                        }
+                        title={pathDisplayButtonTitle(pathDisplayMode)}
                     >
                         <InclineIcon mode={pathDisplayMode} />
                     </div>
@@ -438,13 +450,7 @@ function SmallScreenLayout({
                                 (pathDisplayMode === 'incline' ? ' ' + styles.inclineButtonActive : '')
                             }
                             onClick={onCyclePathDisplay}
-                            title={
-                                pathDisplayMode === 'normal'
-                                    ? 'Show incline on map'
-                                    : pathDisplayMode === 'incline'
-                                      ? 'Hide path'
-                                      : 'Show path'
-                            }
+                            title={pathDisplayButtonTitle(pathDisplayMode)}
                         >
                             <InclineIcon mode={pathDisplayMode} />
                         </div>

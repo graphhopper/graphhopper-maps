@@ -19,6 +19,7 @@ import { createCircle } from '@/layers/createMarkerSVG'
 import { dashedLineStroke, markerFeatureAtPixel, VIA_MARKER_SIZE } from '@/layers/UseQueryPointsLayer'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import Point from 'ol/geom/Point'
+import { State as RenderState } from 'ol/render'
 
 const pathsLayerKey = 'pathsLayer'
 const selectedPathLayerKey = 'selectedPathLayer'
@@ -33,6 +34,7 @@ export default function usePathsLayer(
     queryPoints: QueryPoint[],
     showPaths: boolean = true,
     drawAreasEnabled: boolean = false,
+    outline: boolean = false,
 ) {
     useEffect(() => {
         removeCurrentPathLayers(map)
@@ -41,8 +43,9 @@ export default function usePathsLayer(
             addUnselectedPathsLayer(
                 map,
                 paths.filter(p => p != selectedPath),
+                outline,
             )
-            addSelectedPathsLayer(map, selectedPath)
+            addSelectedPathsLayer(map, selectedPath, outline)
             addAccessNetworkLayer(map, selectedPath, queryPoints)
             // clicking or dragging the route would interfere with drawing an area on top of it
             if (!drawAreasEnabled) addRouteDragInteraction(map, selectedPath, queryPoints)
@@ -51,7 +54,7 @@ export default function usePathsLayer(
             removeCurrentPathLayers(map)
             removeRouteDragInteractions(map)
         }
-    }, [map, paths, selectedPath, showPaths, queryPoints, drawAreasEnabled])
+    }, [map, paths, selectedPath, showPaths, queryPoints, drawAreasEnabled, outline])
 }
 
 function removeCurrentPathLayers(map: Map) {
@@ -61,7 +64,9 @@ function removeCurrentPathLayers(map: Map) {
         .forEach(l => map.removeLayer(l))
 }
 
-function addUnselectedPathsLayer(map: Map, paths: Path[]) {
+const unselectedPathsOutlineStyle = createOutlineStyle('rgb(80,130,210)')
+
+function addUnselectedPathsLayer(map: Map, paths: Path[], outline: boolean) {
     const styleArray = [
         new Style({
             stroke: new Stroke({
@@ -87,7 +92,7 @@ function addUnselectedPathsLayer(map: Map, paths: Path[]) {
                 return f
             }),
         }),
-        style: styleArray,
+        style: outline ? unselectedPathsOutlineStyle : styleArray,
         opacity: 0.7,
         zIndex: 1,
     })
@@ -168,13 +173,82 @@ const selectedPathStyle = [
     }),
 ]
 
-function addSelectedPathsLayer(map: Map, selectedPath: Path) {
+// the paths as two thin lines with the map visible in between, see #464
+const selectedPathOutlineStyle = createOutlineStyle('rgb(20,60,150)')
+
+// reused across frames, its size follows the layer canvas
+let outlineCanvas: HTMLCanvasElement | undefined
+
+/**
+ * Draws the line as a wide stroke from which the inner part is cut out, i.e. two lines of 2px color and 1px
+ * white remain. This happens on a separate canvas, as OpenLayers can render several layers into the same
+ * canvas and the cut-out would also remove e.g. the map. All paths use the same widths, so that alternative
+ * routes overlapping the selected one do not fill its gap.
+ */
+function createOutlineStyle(color: string): Style {
+    // the distance of the two lines grows when zooming in, the lines themselves stay 3px
+    const widths = (resolution: number) => {
+        const zoom = Math.log2(156543 / resolution)
+        const innerWidth = 10 * Math.min(1.6, Math.max(0.5, Math.pow(2, (zoom - 16) / 2)))
+        return { innerWidth, outerWidth: innerWidth + 6 }
+    }
+    const addPath = (ctx: CanvasRenderingContext2D, points: number[][]) => {
+        ctx.beginPath()
+        ctx.moveTo(points[0][0], points[0][1])
+        for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1])
+        ctx.lineJoin = 'round'
+        ctx.lineCap = 'round'
+    }
+    return new Style({
+        renderer: (coordinates: any, state: RenderState) => {
+            const points = coordinates as number[][]
+            if (points.length < 2) return
+            const target = state.context
+            const { width, height } = target.canvas
+            if (!outlineCanvas) outlineCanvas = document.createElement('canvas')
+            if (outlineCanvas.width !== width || outlineCanvas.height !== height) {
+                outlineCanvas.width = width
+                outlineCanvas.height = height
+            }
+            const ctx = outlineCanvas.getContext('2d')
+            if (!ctx) return
+            ctx.clearRect(0, 0, width, height)
+            const { innerWidth, outerWidth } = widths(state.resolution)
+            addPath(ctx, points)
+            ctx.globalCompositeOperation = 'source-over'
+            ctx.strokeStyle = 'rgba(255,255,255,0.9)'
+            ctx.lineWidth = outerWidth * state.pixelRatio
+            ctx.stroke()
+            ctx.strokeStyle = color
+            ctx.lineWidth = (outerWidth - 2) * state.pixelRatio
+            ctx.stroke()
+            // must be fully opaque, a transparent stroke would only partially remove the color
+            ctx.globalCompositeOperation = 'destination-out'
+            ctx.strokeStyle = 'black'
+            ctx.lineWidth = innerWidth * state.pixelRatio
+            ctx.stroke()
+            target.drawImage(outlineCanvas, 0, 0)
+        },
+        // clicking into the gap should still hit the path, e.g. to select an alternative route
+        hitDetectionRenderer: (coordinates: any, state: RenderState) => {
+            const points = coordinates as number[][]
+            if (points.length < 2) return
+            const ctx = state.context
+            addPath(ctx, points)
+            ctx.strokeStyle = 'black'
+            ctx.lineWidth = widths(state.resolution).outerWidth * state.pixelRatio
+            ctx.stroke()
+        },
+    })
+}
+
+function addSelectedPathsLayer(map: Map, selectedPath: Path, outline: boolean) {
     const layer = new VectorLayer({
         source: new VectorSource({
             features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
         }),
-        style: selectedPathStyle,
-        opacity: 0.8,
+        style: outline ? selectedPathOutlineStyle : selectedPathStyle,
+        opacity: outline ? 1 : 0.8,
         zIndex: 2,
     })
     layer.set(selectedPathLayerKey, true)
