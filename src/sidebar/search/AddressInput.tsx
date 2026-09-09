@@ -190,8 +190,8 @@ export default function AddressInput(props: AddressInputProps) {
     const lonlat = toLonLat(getMap().getView().getCenter()!)
     const biasCoord = { lng: lonlat[0], lat: lonlat[1] }
 
-    // do not focus on mobile as we would hide the map with the "input"-view
-    const focusFirstInput = props.index == 0 && !isSmallScreen
+    // focus first empty input, but not on mobile as we would hide the map with the "input"-view
+    const focusFirstInput = !isSmallScreen && props.points.findIndex(p => p.queryText === '') == props.index
     const isInitialFocus = useRef(focusFirstInput)
 
     return (
