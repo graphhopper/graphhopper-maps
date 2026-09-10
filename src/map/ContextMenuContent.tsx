@@ -10,6 +10,7 @@ import { tr } from '@/translation/Translation'
 import { CircleComponent, MarkerComponent } from '@/map/Marker'
 import { Coordinate } from '@/utils'
 import Cross from '@/sidebar/times-solid-thin.svg'
+import { getMap } from '@/map/map'
 
 export function ContextMenuContent({
     coordinate,
@@ -190,8 +191,10 @@ export function ContextMenuContent({
                 className={styles.entry}
                 onClick={() => {
                     onSelect()
+                    // osm.org only accepts integer zoom levels in the map fragment
+                    const zoom = Math.round(getMap().getView().getZoom() ?? 15)
                     window.open(
-                        `https://www.openstreetmap.org/query?lat=${coordinate.lat}&lon=${coordinate.lng}`,
+                        `https://www.openstreetmap.org/query?lat=${coordinate.lat}&lon=${coordinate.lng}#map=${zoom}/${coordinate.lat}/${coordinate.lng}`,
                         '_blank',
                         'noopener,noreferrer',
                     )
