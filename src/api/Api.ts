@@ -260,14 +260,17 @@ export class ApiImpl implements Api {
     }
 
     private getRoutingURLWithKey(endpoint: string) {
-        const url = new URL(this.routingApi + endpoint)
-        url.searchParams.append('key', this.apiKey)
-        return url
+        return ApiImpl.getURLWithKey(this.routingApi + endpoint, this.apiKey)
     }
 
     private getGeocodingURLWithKey(endpoint: string) {
-        const url = new URL(this.geocodingApi + endpoint)
-        url.searchParams.append('key', this.apiKey)
+        return ApiImpl.getURLWithKey(this.geocodingApi + endpoint, this.apiKey)
+    }
+
+    private static getURLWithKey(urlString: string, apiKey: string) {
+        const url = new URL(urlString)
+        url.searchParams.append('key', apiKey)
+        url.searchParams.append('client_tag', __GH_CLIENT__)
         return url
     }
 

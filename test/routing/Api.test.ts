@@ -29,7 +29,7 @@ describe('info api', () => {
         const ghApi = 'https://some.api/'
         const geocodingApi = 'https://some.api/'
         const ghKey = 'some-key'
-        const expectedUrl = ghApi + 'info?key=' + ghKey
+        const expectedUrl = ghApi + 'info?key=' + ghKey + '&client_tag=maps-test'
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
             profiles: [],
@@ -81,7 +81,7 @@ describe('route', () => {
         const ghKey = 'key'
 
         fetchMock.mockResponse(request => {
-            expect(request.url.toString()).toEqual(ghApi + 'route?key=' + ghKey)
+            expect(request.url.toString()).toEqual(ghApi + 'route?key=' + ghKey + '&client_tag=maps-test')
             expect(request.method).toEqual('POST')
             expect(request.headers.get('Accept')).toEqual('application/json')
             expect(request.headers.get('Content-Type')).toEqual('application/json')
