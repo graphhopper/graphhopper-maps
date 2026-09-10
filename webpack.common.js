@@ -19,12 +19,10 @@ if (fs.existsSync(localConfig)) {
 
 // get git info from command line
 let gitSHA = 'dev'
-let gitShortSHA = 'dev'
 try {
     gitSHA = require('child_process').execSync('git rev-parse HEAD').toString().trim()
-    gitShortSHA = require('child_process').execSync('git rev-parse --short HEAD').toString().trim()
 } catch (e) {
-    console.warn('git not available, using "dev" as build id')
+    console.warn('git not available, using "dev" as git sha')
 }
 
 let package = require('./package.json')
@@ -129,7 +127,6 @@ module.exports = {
         }),
         new webpack.DefinePlugin({
             GIT_SHA: JSON.stringify(gitSHA),
-            __GH_CLIENT__: JSON.stringify('maps-' + gitShortSHA),
         }),
     ],
 

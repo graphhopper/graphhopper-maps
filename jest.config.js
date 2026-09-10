@@ -2,7 +2,7 @@ module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'jsdom',
     globals: {
-        __GH_CLIENT__: 'maps-test',
+        GIT_SHA: 'test',
     },
     moduleNameMapper: {
         '@/(.*)$': '<rootDir>/src/$1',

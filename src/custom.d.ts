@@ -44,4 +44,3 @@ declare module 'react-responsive' {
 
 // defined by webpack
 declare const GIT_SHA: string
-declare const __GH_CLIENT__: string

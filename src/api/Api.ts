@@ -270,7 +270,7 @@ export class ApiImpl implements Api {
     private static getURLWithKey(urlString: string, apiKey: string) {
         const url = new URL(urlString)
         url.searchParams.append('key', apiKey)
-        url.searchParams.append('client_tag', __GH_CLIENT__)
+        url.searchParams.append('client_tag', 'maps-' + GIT_SHA.substring(0, 7))
         return url
     }
 
