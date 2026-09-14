@@ -179,7 +179,7 @@ function RoutingResult({
         steepInfo.distance > 0
 
     // Native navigation is only available for the first route (not alternatives)
-    const nativeNavigation = index === 0 ? (window as any).ghNativeNavigation ?? null : null
+    const nativeNavigation = index === 0 ? ((window as any).ghNativeNavigation ?? null) : null
 
     const startNavigation = () => {
         try {
@@ -187,7 +187,7 @@ function RoutingResult({
                 getApi().createURLWithKey('navigate').toString(),
                 JSON.stringify(ApiImpl.createRequest(requestArguments)),
                 () => {
-                    console.log("Navigating closed")
+                    console.log('Navigating closed')
                 },
                 showDistanceInMiles,
             )
@@ -245,13 +245,16 @@ function RoutingResult({
                         )}
                     </div>
                     {isSelected && nativeNavigation && (
-                        <PlainButton className={styles.exportButton} onClick={() => {
-                            if (settings.nativeNavigationRisksAccepted) {
-                                startNavigation()
-                            } else {
-                                setShowNativeWarning(true)
-                            }
-                        }}>
+                        <PlainButton
+                            className={styles.exportButton}
+                            onClick={() => {
+                                if (settings.nativeNavigationRisksAccepted) {
+                                    startNavigation()
+                                } else {
+                                    setShowNativeWarning(true)
+                                }
+                            }}
+                        >
                             <NaviSVG />
                             <div>{tr('start_navigation')}</div>
                         </PlainButton>
