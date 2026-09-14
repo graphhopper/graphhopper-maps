@@ -7,7 +7,7 @@ import Autocomplete, {
     POIQueryItem,
     RecentLocationItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
-import { getRecentLocations } from '@/sidebar/search/RecentLocations'
+import { getRecentLocations, removeRecentLocation } from '@/sidebar/search/RecentLocations'
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import CurrentLocationIcon from './current-location.svg'
@@ -190,8 +190,8 @@ export default function AddressInput(props: AddressInputProps) {
     const lonlat = toLonLat(getMap().getView().getCenter()!)
     const biasCoord = { lng: lonlat[0], lat: lonlat[1] }
 
-    // do not focus on mobile as we would hide the map with the "input"-view
-    const focusFirstInput = props.index == 0 && !isSmallScreen
+    // focus first empty input, but not on mobile as we would hide the map with the "input"-view
+    const focusFirstInput = !isSmallScreen && props.points.findIndex(p => p.queryText === '') == props.index
     const isInitialFocus = useRef(focusFirstInput)
 
     return (
@@ -315,6 +315,10 @@ export default function AddressInput(props: AddressInputProps) {
                                     setText(item.result.text(item.result.poi))
                                 }
                                 focusNextOrBlur()
+                            }}
+                            onRemove={item => {
+                                removeRecentLocation(item.point)
+                                setAutocompleteItems(buildRecentItems(text ? text : undefined, 5, excludeCoord))
                             }}
                         />
                     </ResponsiveAutocomplete>

@@ -3,13 +3,14 @@ import { coordinateToText } from '@/Converters'
 import styles from './ContextMenuContent.module.css'
 import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
-import { AddPoint, RemovePoint, SetPoint, ReversePoints } from '@/actions/Actions'
+import { AddPoint, RemovePoint, SetPoint, ReversePoints, ZoomToRoute } from '@/actions/Actions'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { findNextWayPoint } from '@/map/findNextWayPoint'
 import { tr } from '@/translation/Translation'
 import { CircleComponent, MarkerComponent } from '@/map/Marker'
 import { Coordinate } from '@/utils'
 import Cross from '@/sidebar/times-solid-thin.svg'
+import { getMap } from '@/map/map'
 
 export function ContextMenuContent({
     coordinate,
@@ -171,7 +172,8 @@ export function ContextMenuContent({
             <button
                 className={styles.entryWithDivider}
                 onClick={() => {
-                    if (queryPoints.length > 0) Dispatcher.dispatch(new SetPoint(queryPoints[0], true))
+                    onSelect()
+                    Dispatcher.dispatch(new ZoomToRoute())
                 }}
             >
                 <span>{tr('zoom_to_route')}</span>
@@ -189,8 +191,10 @@ export function ContextMenuContent({
                 className={styles.entry}
                 onClick={() => {
                     onSelect()
+                    // osm.org only accepts integer zoom levels in the map fragment
+                    const zoom = Math.round(getMap().getView().getZoom() ?? 15)
                     window.open(
-                        `https://www.openstreetmap.org/query?lat=${coordinate.lat}&lon=${coordinate.lng}`,
+                        `https://www.openstreetmap.org/query?lat=${coordinate.lat}&lon=${coordinate.lng}#map=${zoom}/${coordinate.lat}/${coordinate.lng}`,
                         '_blank',
                         'noopener,noreferrer',
                     )

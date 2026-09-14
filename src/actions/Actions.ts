@@ -71,6 +71,9 @@ export class SetQueryPoints implements Action {
 
 export class ReversePoints implements Action {}
 
+/** Fits the map viewport to the currently selected route without triggering a new routing request. */
+export class ZoomToRoute implements Action {}
+
 export class ClearPoints implements Action {}
 
 export class RemovePoint implements Action {

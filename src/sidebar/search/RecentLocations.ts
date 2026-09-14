@@ -38,6 +38,17 @@ export function getRecentLocations(minCount: number = 0): RecentLocation[] {
     }
 }
 
+export function removeRecentLocation(coordinate: Coordinate): void {
+    try {
+        const kept = getRecentLocations().filter(
+            e => calcDist({ lat: e.lat, lng: e.lng }, coordinate) > DEDUP_DISTANCE_METERS,
+        )
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(kept))
+    } catch {
+        // localStorage unavailable
+    }
+}
+
 export function clearRecentLocations(): void {
     try {
         localStorage.removeItem(STORAGE_KEY)

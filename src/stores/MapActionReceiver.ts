@@ -7,6 +7,7 @@ import {
     RouteRequestSuccess,
     SetBBox,
     SetSelectedPath,
+    ZoomToRoute,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
@@ -51,6 +52,9 @@ export default class MapActionReceiver implements ActionReceiver {
                 widerBBox[3] += 0.0005
             }
             if (action.zoom) fitBounds(this.map, widerBBox, isSmallScreen)
+        } else if (action instanceof ZoomToRoute) {
+            const bbox = this.routeStore.state.selectedPath.bbox
+            if (bbox) fitBounds(this.map, bbox, isSmallScreen)
         } else if (action instanceof SetSelectedPath) {
             // Forcing to change bounds is ugly if zoomed in and for alternatives. See #437
             // fitBounds(this.map, action.path.bbox!, isSmallScreen)

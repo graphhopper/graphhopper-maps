@@ -175,6 +175,7 @@
     /* without this the absolutely positioned map canvas is painted over the logo */
     z-index: 1;
     margin: 0.5rem;
+    height: 1.2rem;
 }
 
 .onMapRightSide > div {
