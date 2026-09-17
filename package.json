@@ -16,7 +16,7 @@
         "test": "jest"
     },
     "dependencies": {
-        "custom-model-editor": "github:graphhopper/custom-model-editor#5ebd80570329f7abfc95c39624be1f1a379cf392",
+        "@graphhopper/custom-model-editor": "0.0.3",
         "geojson": "0.5.0",
         "maplibre-gl": "^6.9.0",
         "ol": "10.10.0",

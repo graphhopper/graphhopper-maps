@@ -316,6 +316,7 @@ export function buildChartData(
             ),
         )
     }
+    pathDetails.sort((a, b) => a.label.localeCompare(b.label))
 
     // Via point distances
     const viaPointDistances = calculateViaPointDistances(selectedPath)

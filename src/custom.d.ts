@@ -1,7 +1,7 @@
 declare module '*.css'
 declare module '*.svg'
 declare module '*.png'
-declare module 'custom-model-editor/src/index'
+declare module '@graphhopper/custom-model-editor'
 
 // Optional global injected by the Capacitor wrapper (src/app.js in graphhopper-maps-capacitor)
 // to route file downloads through native Filesystem.writeFile + Share. Absent in browser builds.
