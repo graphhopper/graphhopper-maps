@@ -4,7 +4,7 @@ import 'codemirror/addon/lint/lint.css'
 import '@/sidebar/CustomModelBox.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { create } from 'custom-model-editor/src/index'
+import { create } from '@graphhopper/custom-model-editor'
 import Dispatcher from '@/stores/Dispatcher'
 import {
     ClearRoute,
