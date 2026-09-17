@@ -21,6 +21,7 @@ import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
 import DrawAreasIcon from '@/sidebar/edit_square.svg'
 import DrawAreasDisabledIcon from '@/sidebar/edit_square_disabled.svg'
+import FormatIcon from '@/sidebar/format_braces.svg'
 
 function convertEncodedValuesForEditor(encodedValues: object[]): any {
     // todo: maybe do this 'conversion' in Api.ts already and use types from there on
@@ -109,6 +110,22 @@ export default function CustomModelBox({
                     {customModelEnabled ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
                 <div style={{ color: customModelEnabled ? '#5b616a' : 'gray' }}>{tr('custom_model_enabled')}</div>
+                {customModelEnabled && (
+                    <PlainButton
+                        className={styles.formatButton}
+                        title={tr('Format custom model')}
+                        onClick={() => {
+                            try {
+                                const formatted = customModel2prettyString(JSON.parse(editor.value))
+                                Dispatcher.dispatch(new SetCustomModel(formatted, false))
+                            } catch (e) {
+                                Dispatcher.dispatch(new ErrorAction('Custom Model ' + (e as SyntaxError).toString()))
+                            }
+                        }}
+                    >
+                        <FormatIcon />
+                    </PlainButton>
+                )}
                 {customModelEnabled && (
                     <PlainButton
                         className={styles.drawAreas}
