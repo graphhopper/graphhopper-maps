@@ -4,6 +4,7 @@ import { fromLonLat } from 'ol/proj'
 import {
     InfoReceived,
     PathDetailsRangeSelected,
+    RouteRequestFailed,
     RouteRequestSuccess,
     SetBBox,
     SetSelectedPath,
@@ -11,6 +12,7 @@ import {
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
+import { getBBoxPoints } from '@/utils'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -52,6 +54,10 @@ export default class MapActionReceiver implements ActionReceiver {
                 widerBBox[3] += 0.0005
             }
             if (action.zoom) fitBounds(this.map, widerBBox, isSmallScreen)
+        } else if (action instanceof RouteRequestFailed) {
+            // even if no route could be found we still center the map on the request points, see #306
+            const bbox = getBBoxPoints(action.request.points.map(p => ({ lng: p[0], lat: p[1] })))
+            if (bbox) fitBounds(this.map, bbox, isSmallScreen)
         } else if (action instanceof ZoomToRoute) {
             const bbox = this.routeStore.state.selectedPath.bbox
             if (bbox) fitBounds(this.map, bbox, isSmallScreen)

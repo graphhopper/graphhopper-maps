@@ -34,6 +34,16 @@ export function getBBoxPoints(points: Coordinate[]): Bbox | null {
         ],
         [180, 90, -180, -90] as Bbox,
     )
+    // if the points are closer to each other across the antimeridian we wrap around it instead, see #306
+    if (bbox[2] - bbox[0] > 180) {
+        const lngs = points.map(c => (c.lng < 0 ? c.lng + 360 : c.lng))
+        const min = Math.min(...lngs)
+        const max = Math.max(...lngs)
+        if (max - min < bbox[2] - bbox[0]) {
+            bbox[0] = min
+            bbox[2] = max
+        }
+    }
     if (points.length == 1) {
         bbox[0] = bbox[0] - 0.001
         bbox[1] = bbox[1] - 0.001
