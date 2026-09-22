@@ -396,6 +396,18 @@ describe('QueryStore', () => {
 
             expect(newState.currentRequest.subRequests[0].state).toEqual(RequestState.FAILED)
         })
+        it('should also finish earlier subrequests that Api would ignore', () => {
+            const store = new QueryStore(new ApiMock(() => {}))
+            const subRequests = [1, 3].map(maxAlternativeRoutes => ({
+                state: RequestState.SENT,
+                args: { maxAlternativeRoutes, points: [], profile: 'some-profile', customModel: null },
+            }))
+            const state = { ...store.state, currentRequest: { subRequests } }
+            // alternatives (2nd) request fails first => Api ignores the 1st response, so it must not stay SENT
+            const newState = store.reduce(state, new RouteRequestFailed(subRequests[1].args, 'message'))
+            const failed = RequestState.FAILED
+            expect(newState.currentRequest.subRequests.map(r => r.state)).toEqual([failed, failed])
+        })
     })
 })
 

@@ -326,7 +326,12 @@ export default class QueryStore extends Store<QueryStoreState> {
         action: RouteRequestSuccess | RouteRequestFailed,
     ): QueryStoreState {
         const newState = action instanceof RouteRequestSuccess ? RequestState.SUCCESS : RequestState.FAILED
-        const newSubrequests = QueryStore.replaceSubRequest(state.currentRequest.subRequests, action.request, newState)
+        const subRequests = state.currentRequest.subRequests
+        const idx = subRequests.findIndex(r => r.args === action.request)
+        // Api ignores responses of earlier started requests (see routeWithDispatch) => also finish them, avoids stale placeholders
+        const newSubrequests = subRequests.map((r, i) =>
+            i > idx || r.state !== RequestState.SENT ? r : { ...r, state: i < idx ? RequestState.FAILED : newState },
+        )
 
         return {
             ...state,
@@ -438,16 +443,6 @@ export default class QueryStore extends Store<QueryStoreState> {
             points,
             p => p.id === point.id,
             () => point,
-        )
-    }
-
-    private static replaceSubRequest(subRequests: SubRequest[], args: RoutingArgs, state: RequestState) {
-        return replace(
-            subRequests,
-            r => r.args === args,
-            r => {
-                return { ...r, state }
-            },
         )
     }
 
