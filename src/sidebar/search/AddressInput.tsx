@@ -33,7 +33,7 @@ export interface AddressInputProps {
         mainText: string,
         secondText: string | undefined,
         coord: Coordinate | undefined,
-        streetName: string,
+        streetName: string | undefined,
     ) => void
     onChange: (value: string) => void
     clearDragDrop: () => void
@@ -71,7 +71,7 @@ export default function AddressInput(props: AddressInputProps) {
                     new GeocodingItem(
                         obj.mainText,
                         obj.secondText,
-                        hit.street ?? '',
+                        obj.streetName,
                         hit.point,
                         hit.extent ? hit.extent : getBBoxFromCoord(hit.point),
                     ),
@@ -147,13 +147,13 @@ export default function AddressInput(props: AddressInputProps) {
                     // try to parse input as coordinate. Otherwise query nominatim
                     const coordinate = textToCoordinate(text)
                     if (coordinate) {
-                        props.onLocationSelected(text, undefined, coordinate, '')
+                        props.onLocationSelected(text, undefined, coordinate, undefined)
                     } else if (autocompleteItems.length > 0) {
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
                         if (item instanceof POIQueryItem) {
                             handlePoiSearch(poiSearch, item.result, props.map)
-                            props.onLocationSelected(item.result.text(item.result.poi), undefined, undefined, '')
+                            props.onLocationSelected(item.result.text(item.result.poi), undefined, undefined, undefined)
                         } else if (item instanceof RecentLocationItem) {
                             props.onLocationSelected(item.mainText, item.secondText, item.point, item.streetName)
                         } else if (highlightedResult < 0 && !props.point.isInitialized) {
@@ -168,7 +168,7 @@ export default function AddressInput(props: AddressInputProps) {
                                             res.mainText,
                                             res.secondText,
                                             hit.point,
-                                            hit.street ?? '',
+                                            res.streetName,
                                         )
                                     } else if (item instanceof GeocodingItem) {
                                         props.onLocationSelected(
@@ -302,7 +302,9 @@ export default function AddressInput(props: AddressInputProps) {
                         e => e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
                     }
                     onClick={() => {
-                        onCurrentLocationSelected((text, coord) => props.onLocationSelected(text, undefined, coord, ''))
+                        onCurrentLocationSelected((text, coord) =>
+                            props.onLocationSelected(text, undefined, coord, undefined),
+                        )
                         // but when clicked => we want to lose the focus e.g. to close mobile-input view
                         searchInput.current!.blur()
                     }}

@@ -180,7 +180,7 @@ const SearchBox = ({
                     point={point}
                     points={points}
                     onCancel={() => console.log('cancel')}
-                    onLocationSelected={(mainText, secondText, coordinate, streetName) => {
+                    onLocationSelected={(mainText, secondText, coordinate, streetName = '') => {
                         const queryText = secondText ? mainText + ', ' + secondText : mainText
                         if (secondText && coordinate && saveRecent)
                             saveRecentLocation(mainText, secondText, coordinate, streetName)
@@ -195,7 +195,7 @@ const SearchBox = ({
                                     ...point,
                                     isInitialized: !!coordinate,
                                     queryText: queryText,
-                                    streetName: streetName,
+                                    streetName,
                                     coordinate: coordinate ? coordinate : point.coordinate,
                                 },
                                 initCount > 0,

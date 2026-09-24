@@ -66,7 +66,7 @@ export function saveRecentLocation(
     mainText: string,
     secondText: string,
     coordinate: Coordinate,
-    streetName: string = '',
+    streetName: string,
     now: number = Date.now(),
 ): void {
     if (mainText === tr('current_location')) return
