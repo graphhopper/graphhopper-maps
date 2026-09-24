@@ -359,9 +359,7 @@ function buildRecentItems(filter?: string, limit?: number, excludeCoord?: Coordi
         )
     }
     if (limit) recents = recents.slice(0, limit)
-    return recents.map(
-        e => new RecentLocationItem(e.mainText, e.secondText, e.street ?? '', { lat: e.lat, lng: e.lng }),
-    )
+    return recents.map(e => new RecentLocationItem(e.mainText, e.secondText, e.street, { lat: e.lat, lng: e.lng }))
 }
 
 function handlePoiSearch(poiSearch: ReverseGeocoder, result: AddressParseResult, map: Map) {
