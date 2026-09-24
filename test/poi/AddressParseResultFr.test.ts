@@ -17,18 +17,18 @@ describe('reverse geocoder french', () => {
     it('should prefer longer phrases', async () => {
         let res = AddressParseResult.parse('hotel de ville lille', false)
         expect(res.location).toEqual('lille')
-        expect(res.poiType).toEqual('mairie')
+        expect(res.poi).toEqual('mairie')
 
         res = AddressParseResult.parse('hotel lille', false)
         expect(res.location).toEqual('lille')
-        expect(res.poiType).toEqual('hôtels')
+        expect(res.poi).toEqual('hôtels')
 
         res = AddressParseResult.parse('boîte aux lettres dans lyon', false)
         expect(res.location).toEqual('lyon')
-        expect(res.poiType).toEqual('boîte aux lettres')
+        expect(res.poi).toEqual('boîte aux lettres')
 
         res = AddressParseResult.parse('bureau de poste paris', false)
         expect(res.location).toEqual('paris')
-        expect(res.poiType).toEqual('poste')
+        expect(res.poi).toEqual('poste')
     })
 })

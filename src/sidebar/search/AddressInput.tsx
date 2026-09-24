@@ -153,7 +153,7 @@ export default function AddressInput(props: AddressInputProps) {
                         const item = autocompleteItems[index]
                         if (item instanceof POIQueryItem) {
                             handlePoiSearch(poiSearch, item.result, props.map)
-                            props.onLocationSelected(item.result.text(item.result.poiType), undefined, undefined)
+                            props.onLocationSelected(item.result.text(item.result.poi), undefined, undefined)
                         } else if (item instanceof RecentLocationItem) {
                             props.onLocationSelected(item.mainText, item.secondText, item.point, item.street)
                         } else if (highlightedResult < 0 && !props.point.isInitialized) {
@@ -328,7 +328,7 @@ export default function AddressInput(props: AddressInputProps) {
                                     props.onLocationSelected(item.mainText, item.secondText, item.point, item.street)
                                 } else if (item instanceof POIQueryItem) {
                                     handlePoiSearch(poiSearch, item.result, props.map)
-                                    setText(item.result.text(item.result.poiType))
+                                    setText(item.result.text(item.result.poi))
                                 }
                                 focusNextOrBlur()
                             }}

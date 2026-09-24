@@ -95,7 +95,7 @@ export function POIQueryEntry({
     isHighlighted: boolean
     onSelect: (item: POIQueryItem) => void
 }) {
-    const poi = item.result.poiType ? item.result.poiType : ''
+    const poi = item.result.poi ? item.result.poi : ''
     return (
         <AutocompleteEntry isHighlighted={isHighlighted} onSelect={() => onSelect(item)}>
             <div className={styles.poiEntry}>

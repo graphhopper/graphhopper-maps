@@ -11,15 +11,15 @@ export class AddressParseResult {
     location: string
     query: POIQuery
     icon: string
-    poiType: string
+    poi: string
     static TRIGGER_VALUES: PoiTriggerPhrases[]
     static REMOVE_VALUES: string[]
 
-    constructor(location: string, query: POIQuery, icon: string, poiType: string) {
+    constructor(location: string, query: POIQuery, icon: string, poi: string) {
         this.location = location
         this.query = query
         this.icon = icon
-        this.poiType = poiType
+        this.poi = poi
     }
 
     hasPOIs(): boolean {
