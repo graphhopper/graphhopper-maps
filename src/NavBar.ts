@@ -91,8 +91,8 @@ export default class NavBar {
                     else {
                         point.queryText = parameter.substring(first + 1, first === last ? undefined : last)
                         const street = first === last ? '' : parameter.substring(last + 1)
-                        const pos = /^(?:(\d+)\.)?(\d+)$/.exec(street)
-                        const start = pos ? Number(pos[1] ?? 0) : 0
+                        const pos = /^(\d+\.)?(\d+)$/.exec(street)
+                        const start = pos ? parseInt(pos[1] ?? '0') : 0
                         point.streetName = pos ? point.queryText.substring(start, start + Number(pos[2])) : street
                     }
                 }
