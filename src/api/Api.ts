@@ -282,7 +282,6 @@ export class ApiImpl implements Api {
 
         const request: RoutingRequest = {
             points: args.points,
-            point_hints: args.pointHints,
             profile: args.profile,
             elevation: true,
             instructions: true,
@@ -293,6 +292,8 @@ export class ApiImpl implements Api {
             ...profileConfig,
             details: details,
         }
+
+        if (args.pointHints.some(hint => hint)) request.point_hints = args.pointHints
 
         if (config.request?.snapPreventions) request.snap_preventions = config.request?.snapPreventions
 

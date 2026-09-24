@@ -15,7 +15,7 @@ export interface RoutingArgs {
 
 export interface RoutingRequest {
     readonly points: ReadonlyArray<[number, number]>
-    readonly point_hints: string[]
+    point_hints?: string[]
     profile: string
     locale: string
     points_encoded: boolean

@@ -100,7 +100,7 @@ describe('route', () => {
     it('transforms routingArgs into routing request with default algorithm for maxAlternativeRoutes: 1', async () => {
         const args: RoutingArgs = {
             points: [],
-            pointHints: [],
+            pointHints: ['', 'Hauptstraße'],
             maxAlternativeRoutes: 1,
             profile: 'car',
             customModel: null,
@@ -108,7 +108,6 @@ describe('route', () => {
 
         const expectedBody: RoutingRequest = {
             points: args.points,
-            point_hints: [],
             profile: args.profile,
             elevation: true,
             instructions: true,
@@ -127,6 +126,7 @@ describe('route', () => {
                 'track_type',
                 'country',
             ],
+            point_hints: args.pointHints,
         }
 
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
@@ -153,7 +153,6 @@ describe('route', () => {
 
         const expectedBody: RoutingRequest = {
             points: args.points,
-            point_hints: [],
             profile: args.profile,
             elevation: true,
             instructions: true,
@@ -208,7 +207,6 @@ describe('route', () => {
 
         const expectedBody: RoutingRequest = {
             points: args.points,
-            point_hints: [],
             profile: args.profile,
             elevation: true,
             instructions: true,
@@ -322,7 +320,6 @@ describe('route', () => {
 
         const expectedBody: RoutingRequest = {
             points: args.points,
-            point_hints: [],
             profile: args.profile,
             elevation: true,
             instructions: true,
