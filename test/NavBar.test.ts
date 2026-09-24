@@ -66,33 +66,29 @@ describe('NavBar', function () {
                 }
             })
 
-            testCreateUrl(points, { name: 'my-profile' }, 'TF Transport')
+            testCreateUrl(points, ['1,2', '10,10'], { name: 'my-profile' }, 'TF Transport')
         })
 
         it('should convert query store state into url params on change including addresses', () => {
             const points = [
                 { lat: 1, lng: 2, text: 'som3, address with ! some, characters-in it' },
-                { lat: 10, lng: 10, text: 'some ?more>characters' },
-            ].map((point, i) => {
-                return {
-                    ...queryStore.state.queryPoints[i],
-                    coordinate: { lat: point.lat, lng: point.lng },
-                    queryText: point.text,
-                    isInitialized: true,
-                }
-            })
+                { lat: 10, lng: 10, text: 'some_?more>characters' },
+            ].map((p, i) => ({
+                ...queryStore.state.queryPoints[i],
+                coordinate: { lat: p.lat, lng: p.lng },
+                queryText: p.text,
+                isInitialized: true,
+            }))
 
-            testCreateUrl(points, { name: 'my-profile' }, 'TF Transport')
+            // '_' in text -> trailing '_' so it is not parsed as street separator
+            const params = ['1,2_som3, address with ! some, characters-in it', '10,10_some_?more>characters_']
+            testCreateUrl(points, params, { name: 'my-profile' }, 'TF Transport')
         })
 
-        function testCreateUrl(points: QueryPoint[], profile: RoutingProfile, layer: string) {
+        function testCreateUrl(points: QueryPoint[], params: string[], profile: RoutingProfile, layer: string) {
             // build url which we expect at the end
             const expectedUrl = new URL(window.location.origin + window.location.pathname)
-            for (const point of points) {
-                const coordinate = coordinateToText(point.coordinate)
-                const param = coordinate === point.queryText ? coordinate : coordinate + '_' + point.queryText
-                expectedUrl.searchParams.append('point', param)
-            }
+            params.forEach(param => expectedUrl.searchParams.append('point', param))
             expectedUrl.searchParams.append('profile', profile.name)
             expectedUrl.searchParams.append('layer', layer)
 
