@@ -72,7 +72,7 @@ describe('NavBar', function () {
         it('should convert query store state into url params on change including addresses', () => {
             const points = [
                 { lat: 1, lng: 2, text: 'som3, address with ! some, characters-in it' },
-                { lat: 10, lng: 10, text: 'some_?more>characters' },
+                { lat: 10, lng: 10, text: 'some ?more>characters' },
             ].map((point, i) => {
                 return {
                     ...queryStore.state.queryPoints[i],
@@ -143,6 +143,7 @@ describe('NavBar', function () {
             expect(queryStore.state.queryPoints[0].coordinate).toEqual(point.coordinate)
             expect(queryStore.state.queryPoints[0].isInitialized).toEqual(true)
             expect(queryStore.state.queryPoints[0].queryText).toEqual(point.queryText)
+            expect(queryStore.state.queryPoints[0].streetName).toEqual('') // legacy 2-segment param
             expect(queryStore.state.queryPoints[1].coordinate).toEqual({ lat: 0, lng: 0 })
             expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
             expect(queryStore.state.routingProfile.name).toEqual(profile)
@@ -283,6 +284,35 @@ describe('NavBar', function () {
 
             // assert
             expect(queryStore.state.routingProfile.name).toEqual(profileName)
+        })
+    })
+
+    describe('street name round trip', () => {
+        it.each([
+            ['no street', 'Erfurt', '', '_Erfurt'],
+            ['street is prefix -> length', 'Bahnhofstraße 12, Erfurt', 'Bahnhofstraße', '_Bahnhofstraße 12, Erfurt_13'],
+            [
+                'street inside text -> start.len',
+                'Hbf, Bahnhofstraße 1, Erfurt',
+                'Bahnhofstraße',
+                '_Hbf, Bahnhofstraße 1, Erfurt_5.13',
+            ],
+            ['street not in text -> literal', 'Hbf, Erfurt', 'Bahnhofstraße', '_Hbf, Erfurt_Bahnhofstraße'],
+            ['text with _ -> trailing separator', 'some_?more>chars', '', '_some_?more>chars_'],
+            ['text with _ and street', 'a_b 1, c', 'a_b', '_a_b 1, c_3'],
+        ])('%s', (_, queryText, streetName, expectedSuffix) => {
+            const coordinate = { lat: 1, lng: 2 }
+            const point = { ...queryStore.state.queryPoints[0], coordinate, queryText, streetName, isInitialized: true }
+            queryStore.receive(new SetPoint(point, true))
+            const href = (window.history.pushState as jest.Mock).mock.calls[0][2]
+            expect(new URL(href).searchParams.get('point')).toEqual(coordinateToText(coordinate) + expectedSuffix)
+
+            window.location = { ...window.location, href }
+            navBar.updateStateFromUrl()
+            const parsed = queryStore.state.queryPoints[0]
+            expect(parsed.coordinate).toEqual(coordinate)
+            expect(parsed.queryText).toEqual(queryText)
+            expect(parsed.streetName).toEqual(streetName)
         })
     })
 

@@ -33,6 +33,7 @@ export function ContextMenuContent({
                     ...point,
                     coordinate: coordinate,
                     queryText: coordinateToText(coordinate),
+                    streetName: '',
                     isInitialized: true,
                 },
                 false

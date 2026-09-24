@@ -132,6 +132,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 return {
                     ...point,
                     queryText: '',
+                    streetName: '',
                     point: { lat: 0, lng: 0 },
                     isInitialized: false,
                 }

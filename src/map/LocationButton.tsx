@@ -25,6 +25,7 @@ export default function LocationButton(props: { queryPoints: QueryPoint[] }) {
                                         ...props.queryPoints[0],
                                         coordinate,
                                         queryText: tr('current_location'),
+                                        streetName: '',
                                         isInitialized: true,
                                         type: QueryPointType.From,
                                     },

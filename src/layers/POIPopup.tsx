@@ -76,6 +76,7 @@ export default function POIStatePopup({ map, poiState, points }: POIStatePopupPr
             const queryPoint = {
                 ...points[index],
                 queryText: selectedPOI?.name,
+                streetName: '',
                 coordinate: selectedPOI?.coordinate,
                 isInitialized: true,
             }

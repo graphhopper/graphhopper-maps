@@ -59,7 +59,7 @@ export default function AddressInput(props: AddressInputProps) {
                     new GeocodingItem(
                         obj.mainText,
                         obj.secondText,
-                        hit.street,
+                        hit.street ?? '',
                         hit.point,
                         hit.extent ? hit.extent : getBBoxFromCoord(hit.point)
                     )
@@ -138,7 +138,7 @@ export default function AddressInput(props: AddressInputProps) {
                                         const res = nominatimHitToItem(hit)
                                         props.onAddressSelected(
                                             res.mainText + ', ' + res.secondText,
-                                            hit.street,
+                                            hit.street ?? '',
                                             hit.point
                                         )
                                     } else if (item instanceof GeocodingItem) {

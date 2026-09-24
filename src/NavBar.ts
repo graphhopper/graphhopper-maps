@@ -43,32 +43,50 @@ export default class NavBar {
         return result
     }
 
+    // point=lat,lng[_text[_street]]. If street is contained in text only its position is stored:
+    // 'len' if prefix, else 'start.len' ('.' survives URL encoding, ':' does not).
+    // TODO 'start.len' is unnecessary once names are deflate-compressed (#453), deflate dedupes the repeated street.
     private static pointToParam(point: QueryPoint) {
         const coordinate = coordinateToText(point.coordinate)
-        return coordinate === point.queryText ? coordinate : coordinate + '_' + point.queryText
+        const text = point.queryText
+        if (!point.streetName) {
+            if (coordinate === text) return coordinate
+            // parser splits on the last '_' too, so a text with '_' needs the (empty) third segment
+            return coordinate + '_' + text + (text.includes('_') ? '_' : '')
+        }
+        const start = text.indexOf(point.streetName)
+        const street = start < 0 ? point.streetName : (start > 0 ? start + '.' : '') + point.streetName.length
+        return coordinate + '_' + text + '_' + street
     }
 
     private static parsePoints(url: URL): QueryPoint[] {
         return url.searchParams.getAll('point').map((parameter, idx) => {
-            const split = parameter.split('_')
+            // split on first and last '_' only, see pointToParam
+            const first = parameter.indexOf('_')
+            const last = parameter.lastIndexOf('_')
 
             const point = {
                 coordinate: { lat: 0, lng: 0 },
                 isInitialized: false,
                 id: idx,
                 queryText: parameter,
-                streetName: '' /**/,
+                streetName: '',
                 color: '',
                 type: QueryPointType.Via,
             }
-            if (split.length >= 1)
-                try {
-                    point.coordinate = NavBar.parseCoordinate(split[0])
-                    if (!Number.isNaN(point.coordinate.lat) && !Number.isNaN(point.coordinate.lng)) {
-                        point.queryText = split.length >= 2 ? split[1] : coordinateToText(point.coordinate)
-                        point.isInitialized = true
+            try {
+                point.coordinate = NavBar.parseCoordinate(first < 0 ? parameter : parameter.substring(0, first))
+                if (!Number.isNaN(point.coordinate.lat) && !Number.isNaN(point.coordinate.lng)) {
+                    point.isInitialized = true
+                    if (first < 0) point.queryText = coordinateToText(point.coordinate)
+                    else {
+                        point.queryText = parameter.substring(first + 1, first === last ? undefined : last)
+                        const street = first === last ? '' : parameter.substring(last + 1)
+                        const pos = /^(?:(\d+)\.)?(\d+)$/.exec(street)
+                        point.streetName = pos ? point.queryText.substr(Number(pos[1] ?? 0), Number(pos[2])) : street
                     }
-                } catch (e) {}
+                }
+            } catch (e) {}
 
             return point
         })
@@ -133,7 +151,7 @@ export default class NavBar {
                             return {
                                 ...p,
                                 queryText: res.hits[0].name,
-                                streetName: res.hits[0].street,
+                                streetName: res.hits[0].street ?? '',
                                 coordinate: { lat: res.hits[0].point.lat, lng: res.hits[0].point.lng },
                                 isInitialized: true,
                             }
