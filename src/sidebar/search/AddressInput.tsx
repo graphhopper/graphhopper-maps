@@ -33,7 +33,7 @@ export interface AddressInputProps {
         mainText: string,
         secondText: string | undefined,
         coord: Coordinate | undefined,
-        street?: string,
+        streetName: string,
     ) => void
     onChange: (value: string) => void
     clearDragDrop: () => void
@@ -147,15 +147,15 @@ export default function AddressInput(props: AddressInputProps) {
                     // try to parse input as coordinate. Otherwise query nominatim
                     const coordinate = textToCoordinate(text)
                     if (coordinate) {
-                        props.onLocationSelected(text, undefined, coordinate)
+                        props.onLocationSelected(text, undefined, coordinate, '')
                     } else if (autocompleteItems.length > 0) {
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
                         if (item instanceof POIQueryItem) {
                             handlePoiSearch(poiSearch, item.result, props.map)
-                            props.onLocationSelected(item.result.text(item.result.poi), undefined, undefined)
+                            props.onLocationSelected(item.result.text(item.result.poi), undefined, undefined, '')
                         } else if (item instanceof RecentLocationItem) {
-                            props.onLocationSelected(item.mainText, item.secondText, item.point, item.street)
+                            props.onLocationSelected(item.mainText, item.secondText, item.point, item.streetName)
                         } else if (highlightedResult < 0 && !props.point.isInitialized) {
                             // by default use the first result, otherwise the highlighted one
                             getApi()
@@ -175,12 +175,12 @@ export default function AddressInput(props: AddressInputProps) {
                                             item.mainText,
                                             item.secondText,
                                             item.point,
-                                            item.street,
+                                            item.streetName,
                                         )
                                     }
                                 })
                         } else if (item instanceof GeocodingItem) {
-                            props.onLocationSelected(item.mainText, item.secondText, item.point, item.street)
+                            props.onLocationSelected(item.mainText, item.secondText, item.point, item.streetName)
                         }
                     }
                     if (event.key === 'Enter') focusNextOrBlur()
@@ -302,7 +302,7 @@ export default function AddressInput(props: AddressInputProps) {
                         e => e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
                     }
                     onClick={() => {
-                        onCurrentLocationSelected((text, coord) => props.onLocationSelected(text, undefined, coord))
+                        onCurrentLocationSelected((text, coord) => props.onLocationSelected(text, undefined, coord, ''))
                         // but when clicked => we want to lose the focus e.g. to close mobile-input view
                         searchInput.current!.blur()
                     }}
@@ -322,10 +322,20 @@ export default function AddressInput(props: AddressInputProps) {
                             onSelect={item => {
                                 if (item instanceof GeocodingItem) {
                                     setText(item.toText())
-                                    props.onLocationSelected(item.mainText, item.secondText, item.point, item.street)
+                                    props.onLocationSelected(
+                                        item.mainText,
+                                        item.secondText,
+                                        item.point,
+                                        item.streetName,
+                                    )
                                 } else if (item instanceof RecentLocationItem) {
                                     setText(item.toText())
-                                    props.onLocationSelected(item.mainText, item.secondText, item.point, item.street)
+                                    props.onLocationSelected(
+                                        item.mainText,
+                                        item.secondText,
+                                        item.point,
+                                        item.streetName,
+                                    )
                                 } else if (item instanceof POIQueryItem) {
                                     handlePoiSearch(poiSearch, item.result, props.map)
                                     setText(item.result.text(item.result.poi))
@@ -359,7 +369,7 @@ function buildRecentItems(filter?: string, limit?: number, excludeCoord?: Coordi
         )
     }
     if (limit) recents = recents.slice(0, limit)
-    return recents.map(e => new RecentLocationItem(e.mainText, e.secondText, e.street, { lat: e.lat, lng: e.lng }))
+    return recents.map(e => new RecentLocationItem(e.mainText, e.secondText, e.streetName, { lat: e.lat, lng: e.lng }))
 }
 
 function handlePoiSearch(poiSearch: ReverseGeocoder, result: AddressParseResult, map: Map) {

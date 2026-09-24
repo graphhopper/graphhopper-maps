@@ -180,10 +180,10 @@ const SearchBox = ({
                     point={point}
                     points={points}
                     onCancel={() => console.log('cancel')}
-                    onLocationSelected={(mainText, secondText, coordinate, street = '') => {
+                    onLocationSelected={(mainText, secondText, coordinate, streetName) => {
                         const queryText = secondText ? mainText + ', ' + secondText : mainText
                         if (secondText && coordinate && saveRecent)
-                            saveRecentLocation(mainText, secondText, coordinate, street)
+                            saveRecentLocation(mainText, secondText, coordinate, streetName)
 
                         const initCount = points.filter(p => p.isInitialized).length
                         if (coordinate && initCount != points.length)
@@ -195,7 +195,7 @@ const SearchBox = ({
                                     ...point,
                                     isInitialized: !!coordinate,
                                     queryText: queryText,
-                                    streetName: street,
+                                    streetName: streetName,
                                     coordinate: coordinate ? coordinate : point.coordinate,
                                 },
                                 initCount > 0,

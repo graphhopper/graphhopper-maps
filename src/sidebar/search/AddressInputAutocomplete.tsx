@@ -9,14 +9,20 @@ export interface AutocompleteItem {}
 export class GeocodingItem implements AutocompleteItem {
     mainText: string
     secondText: string
-    street: string
+    streetName: string
     point: { lat: number; lng: number }
     bbox: Bbox
 
-    constructor(mainText: string, secondText: string, street: string, point: { lat: number; lng: number }, bbox: Bbox) {
+    constructor(
+        mainText: string,
+        secondText: string,
+        streetName: string,
+        point: { lat: number; lng: number },
+        bbox: Bbox,
+    ) {
         this.mainText = mainText
         this.secondText = secondText
-        this.street = street
+        this.streetName = streetName
         this.point = point
         this.bbox = bbox
     }
@@ -29,13 +35,13 @@ export class GeocodingItem implements AutocompleteItem {
 export class RecentLocationItem implements AutocompleteItem {
     mainText: string
     secondText: string
-    street: string
+    streetName: string
     point: { lat: number; lng: number }
 
-    constructor(mainText: string, secondText: string, street: string, point: { lat: number; lng: number }) {
+    constructor(mainText: string, secondText: string, streetName: string, point: { lat: number; lng: number }) {
         this.mainText = mainText
         this.secondText = secondText
-        this.street = street
+        this.streetName = streetName
         this.point = point
     }
 
