@@ -104,7 +104,7 @@ function removePOIs(map: Map) {
 }
 
 function addPOISelection(map: Map) {
-    const select = new Select()
+    const select = new Select({ layers: l => l.get('gh:pois') })
     map.addInteraction(select)
     select.on('select', event => {
         const selectedFeatures = event.selected
@@ -119,7 +119,7 @@ function addPOISelection(map: Map) {
                         src: 'data:image/svg+xml;utf8,' + svgStrings[props.icon],
                         displacement: [0, 18],
                     }),
-                })
+                }),
             )
             Dispatcher.dispatch(new SelectPOI(props.poi))
         } else Dispatcher.dispatch(new SelectPOI(null))

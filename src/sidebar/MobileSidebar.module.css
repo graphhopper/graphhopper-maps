@@ -95,14 +95,19 @@
     border-radius: 0.2rem;
 }
 
+/* address often too wide and we need to truncate */
 .btnOpenContainer .mapView {
-    width: calc(100% - 34px);
+    width: calc(100% - 34px - 34px);
 }
 
 .btnOpenInputs svg {
     color: #adadad;
 }
 
-.btnOpenInputs {
+.btnOpenInputs,
+.profile {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     width: 34px;
 }

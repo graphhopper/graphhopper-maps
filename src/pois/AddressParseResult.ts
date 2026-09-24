@@ -5,6 +5,7 @@ import { hitToItem } from '@/Converters'
 import { GeocodingHit, ReverseGeocodingHit } from '@/api/graphhopper'
 import { tr, Translation } from '@/translation/Translation'
 import { POI } from '@/stores/POIsStore'
+import { getBBoxPoints } from '@/utils'
 
 export class AddressParseResult {
     location: string
@@ -39,37 +40,21 @@ export class AddressParseResult {
         if (res.hasPOIs()) return res
 
         const cleanQuery = queryTokens.join(' ')
-        const bigrams: string[] = []
-        for (let i = 0; i < queryTokens.length - 1; i++) {
-            bigrams.push(queryTokens[i] + ' ' + queryTokens[i + 1])
-        }
 
-        const trigrams: string[] = []
-        for (let i = 0; i < queryTokens.length - 2; i++) {
-            trigrams.push(queryTokens[i] + ' ' + queryTokens[i + 1] + ' ' + queryTokens[i + 2])
-        }
+        // check longer phrases first for all POI types, so that e.g. 'hotel de ville' (townhall) is not matched as 'hotel'
+        for (let n = 3; n >= 1; n--) {
+            const ngrams: string[] = []
+            for (let i = 0; i + n <= queryTokens.length; i++) {
+                ngrams.push(queryTokens.slice(i, i + n).join(' '))
+            }
+            if (ngrams.length == 0) continue
 
-        for (const val of AddressParseResult.TRIGGER_VALUES) {
-            // three word phrases like 'home improvement store' must be checked before two word phrases
-            if (trigrams.length > 0)
+            for (const val of AddressParseResult.TRIGGER_VALUES) {
                 for (const keyword of val.k) {
-                    const i = trigrams.indexOf(keyword)
+                    const i = ngrams.indexOf(keyword)
                     if (i < 0) continue
-                    return new AddressParseResult(cleanQuery.replace(trigrams[i], '').trim(), val.q, val.i, val.k[0])
+                    return new AddressParseResult(cleanQuery.replace(ngrams[i], '').trim(), val.q, val.i, val.k[0])
                 }
-
-            // two word phrases like 'public transit' must be checked before single word phrases
-            if (bigrams.length > 0)
-                for (const keyword of val.k) {
-                    const i = bigrams.indexOf(keyword)
-                    if (i < 0) continue
-                    return new AddressParseResult(cleanQuery.replace(bigrams[i], '').trim(), val.q, val.i, val.k[0])
-                }
-
-            for (const keyword of val.k) {
-                const i = queryTokens.indexOf(keyword)
-                if (i < 0) continue
-                return new AddressParseResult(cleanQuery.replace(queryTokens[i], '').trim(), val.q, val.i, val.k[0])
             }
         }
 
@@ -144,13 +129,13 @@ export class AddressParseResult {
                     address: res.secondText,
                 } as POI
             })
-        const bbox = ApiImpl.getBBoxPoints(pois.map(p => p.coordinate))
+        const bbox = getBBoxPoints(pois.map(p => p.coordinate))
         if (bbox) {
             if (parseResult.location) Dispatcher.dispatch(new SetBBox(bbox))
             Dispatcher.dispatch(new SetPOIs(pois))
         } else {
             console.warn(
-                'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult)
+                'invalid bbox for points ' + JSON.stringify(pois) + ' result was: ' + JSON.stringify(parseResult),
             )
         }
     }
@@ -203,11 +188,23 @@ export class AddressParseResult {
             { k: 'poi_education', q: ['amenity=school', 'building=school', 'building=university'], i: 'school' },
 
             { k: 'poi_fast_food', q: ['amenity=fast_food'], i: 'restaurant' },
-            { k: 'poi_food_burger', q: ['cuisine=burger', 'name~burger'], i: 'restaurant' },
+            {
+                k: 'poi_food_burger',
+                q: ['cuisine=burger', 'name~burger', 'cuisine=american', 'origin=american'],
+                i: 'restaurant',
+            },
             { k: 'poi_food_kebab', q: ['cuisine=kebab', 'name~kebab'], i: 'restaurant' },
-            { k: 'poi_food_pizza', q: ['cuisine=pizza', 'name~pizza'], i: 'restaurant' },
+            {
+                k: 'poi_food_pizza',
+                q: ['cuisine=pizza', 'name~pizza', 'cuisine=italian', 'origin=italian'],
+                i: 'restaurant',
+            },
             { k: 'poi_food_sandwich', q: ['cuisine=sandwich', 'name~sandwich'], i: 'restaurant' },
-            { k: 'poi_food_sushi', q: ['cuisine=sushi', 'name~sushi'], i: 'restaurant' },
+            {
+                k: 'poi_food_sushi',
+                q: ['cuisine=sushi', 'name~sushi', 'cuisine=japanese', 'origin=japanese'],
+                i: 'restaurant',
+            },
             { k: 'poi_food_chicken', q: ['cuisine=chicken', 'name~chicken'], i: 'restaurant' },
 
             { k: 'poi_gas_station', q: ['amenity=fuel'], i: 'local_gas_station' },
@@ -271,7 +268,7 @@ export class AddressParseResult {
                         if (kv.length > 1) return new POIPhrase(kv[0], '~', kv[1], true)
                         kv = v.split('=')
                         return new POIPhrase(kv[0], '=', kv[1], false)
-                    })
+                    }),
                 )
             })
             return {

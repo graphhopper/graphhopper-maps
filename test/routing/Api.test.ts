@@ -29,7 +29,7 @@ describe('info api', () => {
         const ghApi = 'https://some.api/'
         const geocodingApi = 'https://some.api/'
         const ghKey = 'some-key'
-        const expectedUrl = ghApi + 'info?key=' + ghKey
+        const expectedUrl = ghApi + 'info?key=' + ghKey + '&client_tag=maps-test'
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
             profiles: [],
@@ -50,7 +50,7 @@ describe('info api', () => {
                     profiles: [],
                     elevation: expected.elevation,
                     encoded_values: expected.encoded_values,
-                })
+                }),
             )
         })
 
@@ -82,7 +82,7 @@ describe('route', () => {
         const ghKey = 'key'
 
         fetchMock.mockResponse(request => {
-            expect(request.url.toString()).toEqual(ghApi + 'route?key=' + ghKey)
+            expect(request.url.toString()).toEqual(ghApi + 'route?key=' + ghKey + '&client_tag=maps-test')
             expect(request.method).toEqual('POST')
             expect(request.headers.get('Accept')).toEqual('application/json')
             expect(request.headers.get('Content-Type')).toEqual('application/json')
@@ -112,6 +112,7 @@ describe('route', () => {
             profile: args.profile,
             elevation: true,
             instructions: true,
+            roundabout_exits: true,
             locale: 'en_US',
             points_encoded: true,
             points_encoded_multiplier: 1e6,
@@ -156,6 +157,7 @@ describe('route', () => {
             profile: args.profile,
             elevation: true,
             instructions: true,
+            roundabout_exits: true,
             locale: 'en_US',
             points_encoded: true,
             points_encoded_multiplier: 1e6,
@@ -170,6 +172,7 @@ describe('route', () => {
                 'track_type',
                 'country',
             ],
+            timeout_ms: 10000,
             'alternative_route.max_paths': args.maxAlternativeRoutes,
             algorithm: 'alternative_route',
         }
@@ -209,6 +212,7 @@ describe('route', () => {
             profile: args.profile,
             elevation: true,
             instructions: true,
+            roundabout_exits: true,
             locale: 'en_US',
             points_encoded: true,
             points_encoded_multiplier: 1e6,
@@ -225,6 +229,7 @@ describe('route', () => {
             ],
             custom_model: args.customModel!,
             'ch.disable': true,
+            timeout_ms: 10000,
         }
 
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
@@ -300,7 +305,7 @@ describe('route', () => {
         }
         fetchMock.mockResponse(() => Promise.resolve({ status: 500 }))
         await expect(new ApiImpl('https://some.api/', 'https://some.api/', 'key').route(args)).rejects.toThrow(
-            'Route calculation timed out'
+            'Route calculation timed out',
         )
     })
 
@@ -321,6 +326,7 @@ describe('route', () => {
             profile: args.profile,
             elevation: true,
             instructions: true,
+            roundabout_exits: true,
             locale: 'de_DE',
             points_encoded: true,
             points_encoded_multiplier: 1e6,

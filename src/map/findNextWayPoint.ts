@@ -1,5 +1,4 @@
-import { Coordinate } from '@/stores/QueryStore'
-import { calcDist } from '@/distUtils'
+import { calcDist, Coordinate } from '@/utils'
 
 /**
  * Finds the way-point that follows the part of a route that is closest to a given location
@@ -9,12 +8,12 @@ import { calcDist } from '@/distUtils'
  */
 export function findNextWayPoint(
     routes: { coordinates: Coordinate[]; wayPoints: Coordinate[] }[],
-    location: Coordinate
+    location: Coordinate,
 ): { closestRoute: number; nextWayPoint: number; distance: number } {
     if (
         routes.length < 1 ||
         routes.some(
-            r => r.coordinates.length < 2 || r.wayPoints.length < 2 || r.wayPoints.length > r.coordinates.length
+            r => r.coordinates.length < 2 || r.wayPoints.length < 2 || r.wayPoints.length > r.coordinates.length,
         )
     )
         throw new Error('Invalid input when trying to find the next way point')

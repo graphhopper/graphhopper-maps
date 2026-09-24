@@ -1,8 +1,17 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/search/Search.module.css'
-import { Coordinate, getBBoxFromCoord, QueryPoint } from '@/stores/QueryStore'
-import { AddPoint, ClearRoute, InvalidatePoint, MovePoint, RemovePoint, SetBBox, SetPoint } from '@/actions/Actions'
+import { QueryPoint } from '@/stores/QueryStore'
+import {
+    AddPoint,
+    ClearRoute,
+    InvalidatePoint,
+    MovePoint,
+    RemovePoint,
+    SetBBox,
+    SetPoint,
+    StopSyncCurrentLocation,
+} from '@/actions/Actions'
 import RemoveIcon from './minus-circle-solid.svg'
 import AddIcon from './plus-circle-solid.svg'
 import TargetIcon from './send.svg'
@@ -13,8 +22,13 @@ import AddressInput from '@/sidebar/search/AddressInput'
 import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
+import { RoutingProfile } from '@/api/graphhopper'
+import { getBBoxFromCoord } from '@/utils'
+import { saveRecentLocation } from '@/sidebar/search/RecentLocations'
+import { useContext } from 'react'
+import { SettingsContext } from '@/contexts/SettingsContext'
 
-export default function Search({ points, map }: { points: QueryPoint[]; map: Map }) {
+export default function Search({ points, profile, map }: { points: QueryPoint[]; profile: RoutingProfile; map: Map }) {
     const [showSettings, setShowSettings] = useState(false)
     const [showTargetIcons, setShowTargetIcons] = useState(true)
     const [moveStartIndex, onMoveStartSelect] = useState(-1)
@@ -22,7 +36,7 @@ export default function Search({ points, map }: { points: QueryPoint[]; map: Map
 
     return (
         <div className={styles.searchBoxParent}>
-            <div className={styles.searchBox}>
+            <div className={styles.searchBox} data-search-box>
                 {points.map((point, index) => (
                     <SearchBox
                         key={point.id}
@@ -32,6 +46,7 @@ export default function Search({ points, map }: { points: QueryPoint[]; map: Map
                         onChange={() => {
                             Dispatcher.dispatch(new ClearRoute())
                             Dispatcher.dispatch(new InvalidatePoint(point))
+                            Dispatcher.dispatch(new StopSyncCurrentLocation())
                         }}
                         showTargetIcons={showTargetIcons}
                         moveStartIndex={moveStartIndex}
@@ -62,7 +77,7 @@ export default function Search({ points, map }: { points: QueryPoint[]; map: Map
                     {showSettings ? tr('settings_close') : tr('settings')}
                 </PlainButton>
             </div>
-            {showSettings && <SettingsBox />}
+            {showSettings && <SettingsBox profile={profile} />}
         </div>
     )
 }
@@ -91,6 +106,7 @@ const SearchBox = ({
     map: Map
 }) => {
     const point = points[index]
+    const saveRecent = useContext(SettingsContext).saveRecentLocations
 
     function onClickOrDrop() {
         onDropPreviewSelect(-1)
@@ -164,7 +180,11 @@ const SearchBox = ({
                     point={point}
                     points={points}
                     onCancel={() => console.log('cancel')}
-                    onAddressSelected={(queryText, street, coordinate) => {
+                    onLocationSelected={(mainText, secondText, coordinate, street = '') => {
+                        const queryText = secondText ? mainText + ', ' + secondText : mainText
+                        if (secondText && coordinate && saveRecent)
+                            saveRecentLocation(mainText, secondText, coordinate, street)
+
                         const initCount = points.filter(p => p.isInitialized).length
                         if (coordinate && initCount != points.length)
                             Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coordinate)))
@@ -178,8 +198,8 @@ const SearchBox = ({
                                     streetName: street,
                                     coordinate: coordinate ? coordinate : point.coordinate,
                                 },
-                                initCount > 0
-                            )
+                                initCount > 0,
+                            ),
                         )
                     }}
                     clearDragDrop={() => {

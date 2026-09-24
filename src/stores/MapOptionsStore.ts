@@ -78,11 +78,15 @@ const osmCycl: RasterStyle = {
     maxZoom: 19,
 }
 
+// the default layer set has no POIs, so list all layers explicitly, see https://maps.omniscale.com/de/api/maps
 const omniscale: RasterStyle = {
     name: 'Omniscale',
     type: 'raster',
     url: [
-        'https://maps.omniscale.net/v2/' + osApiKey + '/style.default/{z}/{x}/{y}.png' + (isRetina ? '?hq=true' : ''),
+        'https://maps.omniscale.net/v2/' +
+            osApiKey +
+            '/style.default/layers.world,landusages,admin,roads,buildings,labels,housenumbers,pois/{z}/{x}/{y}.png' +
+            (isRetina ? '?hq=true' : ''),
     ],
     attribution: osmAttribution + ', &copy; <a href="https://maps.omniscale.com/" target="_blank">Omniscale</a>',
     tilePixelRatio: tilePixelRatio,
@@ -135,22 +139,19 @@ const tfOutdoors: RasterStyle = {
         ', <a href="https://www.thunderforest.com/maps/outdoors/" target="_blank">Thunderforest Outdoors</a>',
     tilePixelRatio: tilePixelRatio,
 }
-const path = '/raster/styles/kurviger-liberty/{z}/{x}/{y}' + retina2x + '.png?key=' + kurvigerApiKey
-const kurviger: RasterStyle = {
-    name: 'Kurviger Liberty',
-    type: 'raster',
-    url: [
-        'https://a-tiles.mapilion.com' + path,
-        'https://b-tiles.mapilion.com' + path,
-        'https://c-tiles.mapilion.com' + path,
-        'https://d-tiles.mapilion.com' + path,
-        'https://e-tiles.mapilion.com' + path,
-    ],
+const maptoolkitHiking: VectorStyle = {
+    name: 'Maptoolkit Hiking',
+    type: 'vector',
+    url: 'https://styles.maptoolkit.org/hiking.json',
     attribution:
-        osmAttribution +
-        ',&copy; <a href="https://kurviger.de/" target="_blank">Kurviger</a> &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
-    maxZoom: 22,
-    tilePixelRatio: tilePixelRatio,
+        osmAttribution + ', &copy; <a href="https://www.maptoolkit.com/copyright/" target="_blank">Maptoolkit</a>',
+}
+const maptoolkitCycling: VectorStyle = {
+    name: 'Maptoolkit Cycling',
+    type: 'vector',
+    url: 'https://styles.maptoolkit.org/cycling.json',
+    attribution:
+        osmAttribution + ', &copy; <a href="https://www.maptoolkit.com/copyright/" target="_blank">Maptoolkit</a>',
 }
 const mapillion: VectorStyle = {
     name: 'Mapilion',
@@ -160,39 +161,17 @@ const mapillion: VectorStyle = {
         osmAttribution +
         ', &copy; <a href="https://mapilion.com/attribution" target="_blank">Mapilion</a> <a href="http://www.openmaptiles.org/" target="_blank">&copy; OpenMapTiles</a>',
 }
-const lyrk: RasterStyle = {
-    name: 'Lyrk',
-    type: 'raster',
-    url: ['https://tiles.lyrk.org/lr/{z}/{x}/{y}?apikey=6e8cfef737a140e2a58c8122aaa26077'],
-    attribution: osmAttribution + ', <a href="https://geodienste.lyrk.de/">Lyrk</a>',
-    maxZoom: 15,
-}
-const wanderreitkarte: RasterStyle = {
-    name: 'WanderReitKarte',
-    type: 'raster',
-    url: [
-        'https://topo.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-        'https://topo2.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-        'https://topo3.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-        'https://topo4.wanderreitkarte.de/topo/{z}/{x}/{y}.png',
-    ],
-    attribution: osmAttribution + ', <a href="https://wanderreitkarte.de" target="_blank">WanderReitKarte</a>',
-    maxZoom: 18,
-}
 
 const styleOptions: StyleOption[] = [
     omniscale,
     osmOrg,
-    osmCycl,
+    maptoolkitCycling,
+    maptoolkitHiking,
     esriSatellite,
-    mapTilerSatellite,
     tfTransport,
     tfCycle,
     tfOutdoors,
-    kurviger,
     mapillion,
-    lyrk,
-    wanderreitkarte,
 ]
 
 export default class MapOptionsStore extends Store<MapOptionsStoreState> {
@@ -204,7 +183,7 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
         const selectedStyle = styleOptions.find(s => s.name === config.defaultTiles)
         if (!selectedStyle)
             console.warn(
-                `Could not find tile layer specified in config: '${config.defaultTiles}', using default instead`
+                `Could not find tile layer specified in config: '${config.defaultTiles}', using default instead`,
             )
         return {
             selectedStyle: selectedStyle ? selectedStyle : omniscale,
@@ -225,16 +204,19 @@ export default class MapOptionsStore extends Store<MapOptionsStoreState> {
                     selectedStyle: styleOption,
                 }
         } else if (action instanceof ToggleRoutingGraph) {
+            if (state.routingGraphEnabled === action.routingGraphEnabled) return state
             return {
                 ...state,
                 routingGraphEnabled: action.routingGraphEnabled,
             }
         } else if (action instanceof ToggleUrbanDensityLayer) {
+            if (state.urbanDensityEnabled === action.urbanDensityEnabled) return state
             return {
                 ...state,
                 urbanDensityEnabled: action.urbanDensityEnabled,
             }
         } else if (action instanceof ToggleExternalMVTLayer) {
+            if (state.externalMVTEnabled === action.externalMVTLayerEnabled) return state
             return {
                 ...state,
                 externalMVTEnabled: action.externalMVTLayerEnabled,

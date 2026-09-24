@@ -1,9 +1,10 @@
-import { Coordinate, QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint } from '@/stores/QueryStore'
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { SelectPOI, SetPOIs } from '@/actions/Actions'
 import { POIQuery } from '@/pois/AddressParseResult'
 import { TagHash } from '@/api/graphhopper'
+import { Coordinate } from '@/utils'
 
 export interface POI {
     name: string

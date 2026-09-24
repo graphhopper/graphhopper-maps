@@ -4,14 +4,14 @@ import 'codemirror/addon/lint/lint.css'
 import '@/sidebar/CustomModelBox.css'
 import styles from '@/sidebar/CustomModelBox.module.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { create } from 'custom-model-editor/src/index'
+import { create } from '@graphhopper/custom-model-editor'
 import Dispatcher from '@/stores/Dispatcher'
 import {
     ClearRoute,
+    DisableCustomModel,
     DismissLastError,
     ErrorAction,
     SetCustomModel,
-    SetCustomModelEnabled,
     UpdateSettings,
 } from '@/actions/Actions'
 import { tr } from '@/translation/Translation'
@@ -21,6 +21,7 @@ import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
 import DrawAreasIcon from '@/sidebar/edit_square.svg'
 import DrawAreasDisabledIcon from '@/sidebar/edit_square_disabled.svg'
+import FormatIcon from '@/sidebar/format_braces.svg'
 
 function convertEncodedValuesForEditor(encodedValues: object[]): any {
     // todo: maybe do this 'conversion' in Api.ts already and use types from there on
@@ -61,13 +62,28 @@ export default function CustomModelBox({
     useEffect(() => {
         // we start with the encoded values we already have, but they might be empty still
         const instance = create(convertEncodedValuesForEditor(encodedValues), (element: Node) =>
-            divElement.current?.appendChild(element)
+            divElement.current?.appendChild(element),
         )
         setEditor(instance)
 
         instance.cm.setSize('100%', '100%')
         instance.cm.on('change', () => Dispatcher.dispatch(new SetCustomModel(instance.value, false)))
         instance.validListener = (valid: boolean) => setIsValid(valid)
+
+        const triggerRouting = () => {
+            try {
+                JSON.parse(instance.value)
+            } catch (e) {
+                Dispatcher.dispatch(new ErrorAction('Custom Model ' + (e as SyntaxError).toString()))
+            }
+            Dispatcher.dispatch(new SetCustomModel(instance.value, true))
+        }
+        // Using this keyboard shortcut we can skip the custom model validation and directly request a routing
+        // query.
+        instance.cm.addKeyMap({
+            'Ctrl-Enter': triggerRouting,
+            'Cmd-Enter': triggerRouting,
+        })
     }, [])
 
     useEffect(() => {
@@ -78,22 +94,6 @@ export default function CustomModelBox({
         if (editor.value !== customModelStr) editor.value = customModelStr
     }, [editor, encodedValues, customModelEnabled, customModelStr])
 
-    const triggerRouting = useCallback(
-        (event: React.KeyboardEvent<HTMLInputElement>) => {
-            if (event.ctrlKey && event.key === 'Enter') {
-                // Using this keyboard shortcut we can skip the custom model validation and directly request a routing
-                // query.
-                try {
-                    JSON.parse(editor.value)
-                } catch (e) {
-                    Dispatcher.dispatch(new ErrorAction('Custom Model ' + (e as SyntaxError).toString()))
-                }
-                Dispatcher.dispatch(new SetCustomModel(editor.value, true))
-            }
-        },
-        [editor, isValid]
-    )
-
     return (
         <>
             <div className={styles.customModelOptionTable}>
@@ -102,12 +102,30 @@ export default function CustomModelBox({
                     onClick={() => {
                         if (customModelEnabled) Dispatcher.dispatch(new DismissLastError())
                         Dispatcher.dispatch(new ClearRoute())
-                        Dispatcher.dispatch(new SetCustomModelEnabled(!customModelEnabled))
+                        Dispatcher.dispatch(
+                            customModelEnabled ? new DisableCustomModel() : new SetCustomModel(customModelStr, true),
+                        )
                     }}
                 >
                     {customModelEnabled ? <OnIcon /> : <OffIcon />}
                 </PlainButton>
                 <div style={{ color: customModelEnabled ? '#5b616a' : 'gray' }}>{tr('custom_model_enabled')}</div>
+                {customModelEnabled && (
+                    <PlainButton
+                        className={styles.formatButton}
+                        title={tr('Format custom model')}
+                        onClick={() => {
+                            try {
+                                const formatted = customModel2prettyString(JSON.parse(editor.value))
+                                Dispatcher.dispatch(new SetCustomModel(formatted, false))
+                            } catch (e) {
+                                Dispatcher.dispatch(new ErrorAction('Custom Model ' + (e as SyntaxError).toString()))
+                            }
+                        }}
+                    >
+                        <FormatIcon />
+                    </PlainButton>
+                )}
                 {customModelEnabled && (
                     <PlainButton
                         className={styles.drawAreas}
@@ -119,7 +137,7 @@ export default function CustomModelBox({
                     </PlainButton>
                 )}
             </div>
-            <div ref={divElement} className={styles.customModelBox} onKeyUp={triggerRouting} />
+            <div ref={divElement} className={styles.customModelBox} />
             <div className={styles.customModelBoxBottomBar}>
                 <select
                     className={styles.examples}
@@ -127,7 +145,7 @@ export default function CustomModelBox({
                         // When selecting an example we request a routing request and act like the model is valid,
                         // even when it is not according to the editor validation.
                         Dispatcher.dispatch(
-                            new SetCustomModel(customModel2prettyString(customModelExamples[e.target.value]), true)
+                            new SetCustomModel(customModel2prettyString(customModelExamples[e.target.value]), true),
                         )
                     }}
                 >
@@ -160,7 +178,6 @@ export default function CustomModelBox({
                         // If the model was invalid the button would be disabled anyway, so it does not really matter
                         // if we set valid to true or false here.
                         onClick={() => {
-                            if (!customModelEnabled) Dispatcher.dispatch(new SetCustomModelEnabled(true))
                             Dispatcher.dispatch(new SetCustomModel(editor.value, true))
                         }}
                     >

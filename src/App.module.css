@@ -45,7 +45,7 @@
     flex-direction: column;
     border-radius: 0.5rem;
     background-color: white;
-    max-height: calc(100% - 2rem);
+    max-height: calc(100% - 10.3rem);
     margin: 0.5rem;
 
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
@@ -72,14 +72,80 @@
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
 }
 
+.inclineButton {
+    position: absolute;
+    right: 10px;
+    top: 114px;
+    width: 34px;
+    height: 34px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.inclineButton svg {
+    width: 100%;
+    height: 100%;
+}
+
+.inclineButtonActive {
+    background-color: #e0f0e4 !important;
+    border: 1px solid #2e7d32 !important;
+}
+
 .pathDetails {
-    grid-column: 2 / span 2;
+    grid-column: 1 / span 1;
     grid-row: 1 / span 1;
-    z-index: 1;
+    z-index: 2;
     align-self: end;
-    overflow: hidden; /* This is important to make the heightgraph shrink */
-    margin: 0;
+    overflow: hidden;
+    margin: 0 0.5rem 0.5rem 0.5rem;
     pointer-events: none;
+}
+
+.pathDetailsExpanded {
+    grid-column: 1 / span 3;
+    grid-row: 1 / span 1;
+    z-index: 2;
+    align-self: end;
+    overflow: hidden;
+    margin: 0 0.5rem 0.5rem 0.5rem;
+    pointer-events: none;
+}
+
+/* used together with .pathDetails: the elevation reopen button and the Maptoolkit logo share the bottom left corner */
+.bottomLeftBar {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.maptoolkitLogo {
+    height: 1.6rem;
+    pointer-events: none;
+}
+
+.elevationReopenButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    font-size: 9px;
+    color: #666;
+    pointer-events: auto;
+    padding: 0;
+}
+
+.elevationReopenButton:hover {
+    background: #e8e8e8;
+    color: #333;
 }
 
 .smallScreenMap {
@@ -101,13 +167,24 @@
     justify-self: end;
 }
 
+/* top left of the map i.e. directly below the search box */
+.smallScreenMaptoolkit {
+    grid-row: 2 / span 1;
+    grid-column: 1 / span 1;
+    justify-self: start;
+    /* without this the absolutely positioned map canvas is painted over the logo */
+    z-index: 1;
+    margin: 0.5rem;
+    height: 1.2rem;
+}
+
 .onMapRightSide > div {
     background-color: white;
     border-radius: 0.5rem;
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
 }
 
-.smallScreenRoutingResult {
+.smallScreenFooter {
     grid-row: 4 / span 1;
     grid-column: 1 / span 1;
     margin: 0;
@@ -115,41 +192,49 @@
     background-color: white;
 }
 
-.smallScreenPoweredBy {
-    grid-row: 5 / span 1;
-    grid-column: 1 / span 1;
-    margin: 0;
-    border-radius: 0;
-    z-index: 2;
+.smallScreenFooterHandle {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0 2px;
+    cursor: pointer;
+    border-top: 1px solid #e0e0e0;
+}
+
+.collapsedFooter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 16px;
+    cursor: pointer;
+    border-top: 1px solid #e0e0e0;
+}
+
+.handleBar {
+    width: 32px;
+    height: 4px;
+    border-radius: 2px;
+    background-color: #c0c0c0;
+}
+
+.collapsedFooterSummary {
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: #333;
+}
+
+.collapsedFooterTime {
+    font-weight: bold;
+}
+
+.collapsedFooterDistance {
+    color: #666;
 }
 
 @media (max-width: 44rem) {
     .appWrapper {
         grid-template-columns: 100%;
-        grid-template-rows: auto 0 1fr auto auto;
+        grid-template-rows: auto 0 1fr auto;
     }
-}
-
-/* mapilion */
-@font-face {
-    font-family: 'Open Sans';
-    src: url(./fonts/OpenSans-Variable.ttf) format('truetype');
-}
-
-/* maptiler */
-@font-face {
-    font-family: 'Noto Sans';
-    src: url(./fonts/NotoSans-Regular.ttf) format('truetype');
-}
-
-@font-face {
-    font-family: 'Roboto';
-    src: url(./fonts/Roboto-Regular.ttf) format('truetype');
-}
-
-@font-face {
-    font-family: 'Roboto Condensed';
-    src: url(./fonts/RobotoCondensed-Regular.ttf) format('truetype');
 }
 
 .sidebarCloseButton {
@@ -157,11 +242,16 @@
 
     color: lightgray !important; /* unsure why !important is necessary here but not in ErrorMessage.module.css for same <Cross/> */
 
-    height: 10px;
-    width: 10px;
+    height: 15px;
+    width: 15px;
 
     right: 7px;
     top: 6px;
+}
+
+.sidebarCloseButton svg {
+    width: 100%;
+    height: 100%;
 }
 
 .sidebarCloseButton:hover {

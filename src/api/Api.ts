@@ -17,8 +17,8 @@ import {
 import { LineString } from 'geojson'
 import { getTranslation, tr } from '@/translation/Translation'
 import * as config from 'config'
-import { Coordinate } from '@/stores/QueryStore'
 import { POIQuery } from '@/pois/AddressParseResult'
+import { getMaxDistance } from '@/stores/QueryStore'
 
 interface ApiProfile {
     name: string
@@ -79,7 +79,7 @@ export class ApiImpl implements Api {
         } else {
             if (result.message) throw new Error(result.message)
             throw new Error(
-                'There has been an error. Server responded with ' + response.statusText + ' (' + response.status + ')'
+                'There has been an error. Server responded with ' + response.statusText + ' (' + response.status + ')',
             )
         }
     }
@@ -87,7 +87,7 @@ export class ApiImpl implements Api {
     async geocode(
         query: string,
         provider: string,
-        additionalOptions?: Record<string, string>
+        additionalOptions?: Record<string, string>,
     ): Promise<GeocodingResult> {
         if (!this.supportsGeocoding())
             return {
@@ -104,6 +104,8 @@ export class ApiImpl implements Api {
         url.searchParams.append('osm_tag', '!place:county')
         url.searchParams.append('osm_tag', '!boundary')
         url.searchParams.append('osm_tag', '!historic')
+        // display no results for tourist info signs
+        url.searchParams.append('osm_tag', '!information')
 
         if (additionalOptions) {
             for (const key in additionalOptions) {
@@ -258,14 +260,17 @@ export class ApiImpl implements Api {
     }
 
     private getRoutingURLWithKey(endpoint: string) {
-        const url = new URL(this.routingApi + endpoint)
-        url.searchParams.append('key', this.apiKey)
-        return url
+        return ApiImpl.getURLWithKey(this.routingApi + endpoint, this.apiKey)
     }
 
     private getGeocodingURLWithKey(endpoint: string) {
-        const url = new URL(this.geocodingApi + endpoint)
-        url.searchParams.append('key', this.apiKey)
+        return ApiImpl.getURLWithKey(this.geocodingApi + endpoint, this.apiKey)
+    }
+
+    private static getURLWithKey(urlString: string, apiKey: string) {
+        const url = new URL(urlString)
+        url.searchParams.append('key', apiKey)
+        url.searchParams.append('client_tag', 'maps-' + GIT_SHA.substring(0, 7))
         return url
     }
 
@@ -281,6 +286,7 @@ export class ApiImpl implements Api {
             profile: args.profile,
             elevation: true,
             instructions: true,
+            roundabout_exits: true,
             locale: getTranslation().getLang(),
             points_encoded: true,
             points_encoded_multiplier: 1e6,
@@ -291,8 +297,15 @@ export class ApiImpl implements Api {
         if (config.request?.snapPreventions) request.snap_preventions = config.request?.snapPreventions
 
         if (args.customModel) {
+            const maxDist = getMaxDistance(args.points.map(point => ({ lat: point[1], lng: point[0] })))
+            // performance improvement for longer distances, but use with caution, as the heuristic result may deviate significantly from the optimum
+            if (maxDist > 250_000) request['astarbi.epsilon'] = 1.8
+            else if (maxDist > 150_000) request['astarbi.epsilon'] = 1.6
+            else if (maxDist > 100_000) request['astarbi.epsilon'] = 1.4
+
             request.custom_model = args.customModel
             request['ch.disable'] = true
+            request['timeout_ms'] = 10000
         }
 
         if (
@@ -303,6 +316,7 @@ export class ApiImpl implements Api {
         ) {
             return {
                 ...request,
+                timeout_ms: 10000,
                 'alternative_route.max_paths': args.maxAlternativeRoutes,
                 algorithm: 'alternative_route',
             }
@@ -444,7 +458,7 @@ export class ApiImpl implements Api {
 
     public static isMotorVehicle(profile: string) {
         return (
-            profile.includes('car') ||
+            (profile.includes('car') && !profile.includes('cargobike')) ||
             profile.includes('truck') ||
             profile.includes('scooter') ||
             profile.includes('bus') ||
@@ -454,26 +468,5 @@ export class ApiImpl implements Api {
 
     public static isTruck(profile: string) {
         return profile.includes('truck')
-    }
-
-    public static getBBoxPoints(points: Coordinate[]): Bbox | null {
-        const bbox: Bbox = points.reduce(
-            (res: Bbox, c) => [
-                Math.min(res[0], c.lng),
-                Math.min(res[1], c.lat),
-                Math.max(res[2], c.lng),
-                Math.max(res[3], c.lat),
-            ],
-            [180, 90, -180, -90] as Bbox
-        )
-        if (points.length == 1) {
-            bbox[0] = bbox[0] - 0.001
-            bbox[1] = bbox[1] - 0.001
-            bbox[2] = bbox[2] + 0.001
-            bbox[3] = bbox[3] + 0.001
-        }
-
-        // return null if the bbox is not valid, e.g. if no url points were given at all
-        return bbox[0] < bbox[2] && bbox[1] < bbox[3] ? bbox : null
     }
 }

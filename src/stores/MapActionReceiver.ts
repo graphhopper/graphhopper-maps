@@ -4,13 +4,15 @@ import { fromLonLat } from 'ol/proj'
 import {
     InfoReceived,
     PathDetailsRangeSelected,
+    RouteRequestFailed,
     RouteRequestSuccess,
     SetBBox,
     SetSelectedPath,
-    ZoomMapToPoint,
+    ZoomToRoute,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
+import { getBBoxPoints } from '@/utils'
 
 export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
@@ -30,14 +32,6 @@ export default class MapActionReceiver implements ActionReceiver {
             // we estimate the map size to be equal to the window size. we don't know better at this point, because
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
-        } else if (action instanceof ZoomMapToPoint) {
-            let zoom = this.map.getView().getZoom()
-            if (zoom == undefined || zoom < 8) zoom = 8
-            this.map.getView().animate({
-                zoom: zoom,
-                center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
-                duration: 400,
-            })
         } else if (action instanceof RouteRequestSuccess) {
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route
@@ -60,8 +54,16 @@ export default class MapActionReceiver implements ActionReceiver {
                 widerBBox[3] += 0.0005
             }
             if (action.zoom) fitBounds(this.map, widerBBox, isSmallScreen)
+        } else if (action instanceof RouteRequestFailed) {
+            // even if no route could be found we still center the map on the request points, see #306
+            const bbox = getBBoxPoints(action.request.points.map(p => ({ lng: p[0], lat: p[1] })))
+            if (bbox) fitBounds(this.map, bbox, isSmallScreen)
+        } else if (action instanceof ZoomToRoute) {
+            const bbox = this.routeStore.state.selectedPath.bbox
+            if (bbox) fitBounds(this.map, bbox, isSmallScreen)
         } else if (action instanceof SetSelectedPath) {
-            fitBounds(this.map, action.path.bbox!, isSmallScreen)
+            // Forcing to change bounds is ugly if zoomed in and for alternatives. See #437
+            // fitBounds(this.map, action.path.bbox!, isSmallScreen)
         } else if (action instanceof PathDetailsRangeSelected) {
             // we either use the bbox from the path detail selection or go back to the route bbox when the path details
             // were deselected

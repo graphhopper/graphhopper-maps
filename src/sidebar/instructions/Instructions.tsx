@@ -12,13 +12,15 @@ import right from './right.png'
 import sharpRight from './sharp_right.png'
 import roundabout from './roundabout.png'
 import keepRight from './keep_right.png'
+import ferry from './ferry.png'
+import unknown from './unknown.png'
 import uTurnRight from './u_turn_right.png'
 import ptStartTrip from './pt_start_trip.png'
 import ptTransferTo from './pt_transfer_to.png'
 import ptEndTrip from './pt_end_trip.png'
 import { metersToText } from '@/Converters'
 import { Instruction } from '@/api/graphhopper'
-import { MarkerComponent } from '@/map/Marker'
+import { CircleComponent, MarkerComponent } from '@/map/Marker'
 import QueryStore, { QueryPointType } from '@/stores/QueryStore'
 import Dispatcher from '@/stores/Dispatcher'
 import { InstructionClicked } from '@/actions/Actions'
@@ -44,8 +46,8 @@ const Line = function ({ instruction, index, us }: { instruction: Instruction; i
                 Dispatcher.dispatch(
                     new InstructionClicked(
                         { lng: instruction.points[0][0], lat: instruction.points[0][1] },
-                        instruction.text
-                    )
+                        instruction.text,
+                    ),
                 )
             }
         >
@@ -64,20 +66,16 @@ const Line = function ({ instruction, index, us }: { instruction: Instruction; i
 function getTurnSign(sign: number, index: number) {
     // from, via and to signs are special
     if (index === 0 || sign === 4 || sign === 5) {
-        let markerColor
+        let icon
         if (index === 0) {
-            markerColor = QueryStore.getMarkerColor(QueryPointType.From)
+            icon = <MarkerComponent color={QueryStore.getMarkerColor(QueryPointType.From)} />
         } else if (sign === 4) {
-            markerColor = QueryStore.getMarkerColor(QueryPointType.To)
+            icon = <MarkerComponent color={QueryStore.getMarkerColor(QueryPointType.To)} />
         } else {
-            markerColor = QueryStore.getMarkerColor(QueryPointType.Via)
+            icon = <CircleComponent color={QueryStore.getMarkerColor(QueryPointType.Via)} />
         }
 
-        return (
-            <div className={styles.sign}>
-                <MarkerComponent color={markerColor} />
-            </div>
-        )
+        return <div className={styles.sign}>{icon}</div>
     }
     return <img className={styles.sign} src={getSignName(sign)} alt={'turn instruction'} />
 }
@@ -105,11 +103,14 @@ function getSignName(sign: number) {
         case 3:
             return sharpRight
         case 6:
+        case -6:
             return roundabout
         case 7:
             return keepRight
         case 8:
             return uTurnRight
+        case 9:
+            return ferry
         case 101:
             return ptStartTrip
         case 102:
@@ -117,6 +118,6 @@ function getSignName(sign: number) {
         case 103:
             return ptEndTrip
         default:
-            return 'unknown'
+            return unknown
     }
 }

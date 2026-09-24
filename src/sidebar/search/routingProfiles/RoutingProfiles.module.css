@@ -11,6 +11,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0 2rem;
+    margin-left: 34px;
     box-sizing: border-box;
 }
 
@@ -74,6 +75,15 @@
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
+}
+
+.profileBtn span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.5em;
+    aspect-ratio: 1 / 1;
+    font-weight: bold;
 }
 
 .iconContainer {
@@ -148,6 +158,10 @@
     transform: rotate(180deg);
     animation-name: setting_rotate;
     animation-duration: 0.2s;
+}
+
+.reverseBtn {
+    margin-left: 34px;
 }
 
 @keyframes setting_rotate {

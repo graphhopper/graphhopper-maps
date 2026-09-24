@@ -1,9 +1,11 @@
 import { Action } from '@/stores/Dispatcher'
-import { Coordinate, QueryPoint } from '@/stores/QueryStore'
+import { QueryPoint } from '@/stores/QueryStore'
 import { ApiInfo, Bbox, Path, RoutingArgs, RoutingProfile, RoutingResult } from '@/api/graphhopper'
 import { PathDetailsPoint } from '@/stores/PathDetailsStore'
+import { ChartPathDetail } from '@/pathDetails/elevationWidget/types'
 import { POI } from '@/stores/POIsStore'
 import { Settings } from '@/stores/SettingsStore'
+import { Coordinate } from '@/utils'
 
 export class InfoReceived implements Action {
     readonly result: ApiInfo
@@ -37,6 +39,14 @@ export class SetVehicleProfile implements Action {
     }
 }
 
+export class SetVehicleProfileGroup implements Action {
+    readonly group: string
+
+    constructor(group: string) {
+        this.group = group
+    }
+}
+
 export class AddPoint implements Action {
     readonly atIndex: number
     readonly coordinate: Coordinate
@@ -58,6 +68,11 @@ export class SetQueryPoints implements Action {
         this.queryPoints = queryPoints
     }
 }
+
+export class ReversePoints implements Action {}
+
+/** Fits the map viewport to the currently selected route without triggering a new routing request. */
+export class ZoomToRoute implements Action {}
 
 export class ClearPoints implements Action {}
 
@@ -87,14 +102,6 @@ export class InvalidatePoint implements Action {
     }
 }
 
-export class SetCustomModelEnabled implements Action {
-    readonly enabled: boolean
-
-    constructor(enabled: boolean) {
-        this.enabled = enabled
-    }
-}
-
 export class SetCustomModel implements Action {
     readonly customModelStr: string
     readonly issueRoutingRequest: boolean
@@ -104,6 +111,8 @@ export class SetCustomModel implements Action {
         this.issueRoutingRequest = issueRoutingRequest
     }
 }
+
+export class DisableCustomModel implements Action {}
 
 export class RouteRequestSuccess implements Action {
     readonly result: RoutingResult
@@ -180,14 +189,6 @@ export class ToggleExternalMVTLayer implements Action {
 
 export class MapIsLoaded implements Action {}
 
-export class ZoomMapToPoint implements Action {
-    readonly coordinate: Coordinate
-
-    constructor(coordinate: Coordinate) {
-        this.coordinate = coordinate
-    }
-}
-
 export class SetBBox implements Action {
     readonly bbox: Bbox
 
@@ -217,6 +218,14 @@ export class PathDetailsElevationSelected implements Action {
 
     constructor(segments: Coordinate[][]) {
         this.segments = segments
+    }
+}
+
+export class SetActiveDetail implements Action {
+    readonly detail: ChartPathDetail | null
+
+    constructor(detail: ChartPathDetail | null) {
+        this.detail = detail
     }
 }
 
@@ -261,5 +270,37 @@ export class SetPOIs implements Action {
 
     constructor(pois: POI[]) {
         this.pois = pois
+    }
+}
+
+/**
+ * Start watching the location and synchronizing the view.
+ */
+export class StartWatchCurrentLocation implements Action {}
+export class StopWatchCurrentLocation implements Action {}
+
+/**
+ * Start synchronizing the view again.
+ */
+export class StartSyncCurrentLocation implements Action {}
+export class StopSyncCurrentLocation implements Action {}
+
+export class CurrentLocationError implements Action {
+    readonly error: string
+
+    constructor(error: string) {
+        this.error = error
+    }
+}
+
+export class CurrentLocation implements Action {
+    readonly coordinate: Coordinate
+    readonly accuracy: number
+    readonly heading: number | null
+
+    constructor(coordinate: Coordinate, accuracy: number, heading: number | null) {
+        this.coordinate = coordinate
+        this.accuracy = accuracy
+        this.heading = heading
     }
 }

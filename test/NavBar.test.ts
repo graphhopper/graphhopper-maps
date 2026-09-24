@@ -66,7 +66,7 @@ describe('NavBar', function () {
                 }
             })
 
-            testCreateUrl(points, { name: 'my-profile' }, 'Lyrk')
+            testCreateUrl(points, { name: 'my-profile' }, 'TF Transport')
         })
 
         it('should convert query store state into url params on change including addresses', () => {
@@ -82,7 +82,7 @@ describe('NavBar', function () {
                 }
             })
 
-            testCreateUrl(points, { name: 'my-profile' }, 'Lyrk')
+            testCreateUrl(points, { name: 'my-profile' }, 'TF Transport')
         })
 
         function testCreateUrl(points: QueryPoint[], profile: RoutingProfile, layer: string) {
@@ -130,10 +130,7 @@ describe('NavBar', function () {
             url.searchParams.append('profile', profile)
             url.searchParams.append('layer', layer)
 
-            window.location = {
-                ...window.location,
-                href: url.toString(),
-            }
+            window.location.href = url.toString()
 
             // act
             navBar.updateStateFromUrl()
@@ -155,10 +152,7 @@ describe('NavBar', function () {
         })
 
         it('should parse the url and set no points when no points are set', () => {
-            window.location = {
-                ...window.location,
-                href: 'https://origin.com',
-            }
+            window.location.href = 'https://origin.com'
             const point1 = queryStore.state.queryPoints[0]
             const point2 = queryStore.state.queryPoints[1]
 
@@ -177,7 +171,7 @@ describe('NavBar', function () {
 
         it('should parse the url and only skip invalid points', () => {
             const expectedUrl = 'https://current.origin/?point=&point=11%2C12'
-            window.location = { ...window.location, href: expectedUrl }
+            window.location.href = expectedUrl
 
             // act
             navBar.updateStateFromUrl()
@@ -198,23 +192,20 @@ describe('NavBar', function () {
                 1,
                 null,
                 '',
-                expectedUrl + '&profile=&layer=OpenStreetMap'
+                expectedUrl + '&profile=&layer=OpenStreetMap',
             )
         })
 
         it('should parse the url and invalidate old points', () => {
-            window.location = {
-                ...window.location,
-                href: 'https://origin.com',
-            }
+            window.location.href = 'https://origin.com'
             Dispatcher.dispatch(
                 new SetPoint(
                     {
                         ...queryStore.state.queryPoints[0],
                         isInitialized: true,
                     },
-                    true
-                )
+                    true,
+                ),
             )
 
             //act
@@ -227,10 +218,7 @@ describe('NavBar', function () {
         })
 
         it('should parse the url and set defaults for layer if not provided', () => {
-            window.location = {
-                ...window.location,
-                href: 'https://origin.com',
-            }
+            window.location.href = 'https://origin.com'
 
             // act
             navBar.updateStateFromUrl()
@@ -248,10 +236,7 @@ describe('NavBar', function () {
             const layername = 'Omniscale'
             const url = new URL(window.location.origin + window.location.pathname)
             url.searchParams.append('layer', layername)
-            window.location = {
-                ...window.location,
-                href: url.toString(),
-            }
+            window.location.href = url.toString()
 
             Dispatcher.dispatch(new SetVehicleProfile({ name: 'some-profile' }))
             const defaultProfile = queryStore.state.routingProfile
@@ -274,10 +259,7 @@ describe('NavBar', function () {
             url.searchParams.append('layer', layername)
             url.searchParams.append('vehicle', profileName)
 
-            window.location = {
-                ...window.location,
-                href: url.toString(),
-            }
+            window.location.href = url.toString()
 
             // act
             navBar.updateStateFromUrl()
@@ -307,7 +289,7 @@ describe('NavBar', function () {
             const href = (window.history.pushState as jest.Mock).mock.calls[0][2]
             expect(new URL(href).searchParams.get('point')).toEqual(coordinateToText(coordinate) + expectedSuffix)
 
-            window.location = { ...window.location, href }
+            window.location.href = href
             navBar.updateStateFromUrl()
             const parsed = queryStore.state.queryPoints[0]
             expect(parsed.coordinate).toEqual(coordinate)
@@ -334,10 +316,7 @@ describe('NavBar', function () {
         url.searchParams.append('profile', profile)
         url.searchParams.append('layer', layer)
 
-        window.location = {
-            ...window.location,
-            href: url.toString(),
-        }
+        window.location.href = url.toString()
 
         // act
         callbacks.forEach(callback => callback('popstate'))

@@ -1,5 +1,6 @@
 import { LineString } from 'geojson'
-import { Coordinate, CustomModel } from '@/stores/QueryStore'
+
+import { Coordinate, CustomModel } from '@/utils'
 
 // minLon, minLat, maxLon, maxLat
 export type Bbox = [number, number, number, number]
@@ -21,13 +22,16 @@ export interface RoutingRequest {
     points_encoded_multiplier: number
     instructions: boolean
     elevation: boolean
+    roundabout_exits: boolean
     'alternative_route.max_paths'?: number
     'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean
+    timeout_ms?: number
     algorithm?: 'alternative_route' | 'round_trip'
     snap_preventions?: string[]
     details?: string[]
     custom_model?: CustomModel
+    'astarbi.epsilon'?: number
 }
 
 export interface ErrorResponse {
@@ -104,6 +108,10 @@ interface Details {
     readonly road_class: [number, number, string][]
     readonly road_environment: [number, number, string][]
     readonly road_access: [number, number, string][]
+    readonly surface: [number, number, string][]
+    readonly bike_network: [number, number, string][]
+    readonly foot_network: [number, number, string][]
+    readonly average_speed: [number, number, number][]
     readonly access_conditional: [number, number, string][]
     readonly foot_conditional: [number, number, string][]
     readonly bike_conditional: [number, number, string][]
@@ -112,6 +120,9 @@ interface Details {
     readonly get_off_bike: [number, number, boolean][]
     readonly mtb_rating: [number, number, boolean][]
     readonly hike_rating: [number, number, boolean][]
+    readonly cycleway: [number, number, string][]
+    readonly sidewalk: [number, number, string][]
+    readonly urban_density: [number, number, string][]
 }
 
 export interface TagHash {

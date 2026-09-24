@@ -5,6 +5,7 @@ import Dispatcher, { Action } from '@/stores/Dispatcher'
 import {
     AddPoint,
     ClearPoints,
+    ClearRoute,
     ErrorAction,
     InfoReceived,
     InvalidatePoint,
@@ -12,28 +13,22 @@ import {
     RemovePoint,
     RouteRequestFailed,
     RouteRequestSuccess,
+    DisableCustomModel,
     SetCustomModel,
-    SetCustomModelEnabled,
     SetPoint,
     SetQueryPoints,
+    ReversePoints,
     SetVehicleProfile,
+    SetVehicleProfileGroup,
 } from '@/actions/Actions'
-import { Bbox, RoutingArgs, RoutingProfile } from '@/api/graphhopper'
-import { calcDist } from '@/distUtils'
+import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
+import { calcDist, Coordinate, ProfileGroupMap } from '@/utils'
 import config from 'config'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
 
-export interface Coordinate {
-    lat: number
-    lng: number
-}
-
-export function getBBoxFromCoord(c: Coordinate, offset: number = 0.005): Bbox {
-    return [c.lng - offset, c.lat - offset, c.lng + offset, c.lat + offset]
-}
-
 export interface QueryStoreState {
     readonly profiles: RoutingProfile[]
+    readonly memorizedProfilePerGroup: Record<string, string>
     readonly queryPoints: QueryPoint[]
     readonly nextQueryPointId: number
     readonly currentRequest: CurrentRequest
@@ -51,13 +46,6 @@ export interface QueryPoint {
     readonly color: string
     readonly id: number
     readonly type: QueryPointType
-}
-
-export interface CustomModel {
-    readonly speed?: object[]
-    readonly priority?: object[]
-    readonly distance_influence?: number
-    readonly areas?: object
 }
 
 export enum QueryPointType {
@@ -100,6 +88,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         return {
             profiles: [],
+            memorizedProfilePerGroup: {},
             queryPoints: [
                 QueryStore.getEmptyPoint(0, QueryPointType.From),
                 QueryStore.getEmptyPoint(1, QueryPointType.To),
@@ -118,7 +107,12 @@ export default class QueryStore extends Store<QueryStoreState> {
     }
 
     reduce(state: QueryStoreState, action: Action): QueryStoreState {
-        if (action instanceof InvalidatePoint) {
+        if (action instanceof ClearRoute) {
+            return {
+                ...state,
+                currentRequest: { subRequests: [] },
+            }
+        } else if (action instanceof InvalidatePoint) {
             const points = QueryStore.replacePoint(state.queryPoints, {
                 ...action.point,
                 isInitialized: false,
@@ -160,7 +154,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                         type: type,
                         id: this.state.nextQueryPointId + index,
                     }
-                }
+                },
             )
 
             const newState = {
@@ -232,7 +226,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     queryPoints: queryPoints,
                     nextQueryPointId: nextId,
                 },
-                true
+                true,
             )
         } else if (action instanceof RemovePoint) {
             const newPoints = state.queryPoints
@@ -264,39 +258,84 @@ export default class QueryStore extends Store<QueryStoreState> {
                     profiles,
                     routingProfile: profile,
                 },
-                true
+                true,
             )
-        } else if (action instanceof SetVehicleProfile) {
+        } else if (action instanceof SetVehicleProfileGroup) {
+            let prevProfile = this.state.memorizedProfilePerGroup[action.group]
+
+            // here we assume the name of the group can be used as default profile
+            if (!prevProfile) prevProfile = action.group
+
             const newState: QueryStoreState = {
                 ...state,
-                routingProfile: action.profile,
+                routingProfile: { ...this.state.routingProfile, name: prevProfile },
             }
-
+            return this.routeIfReady(newState, true)
+        } else if (action instanceof SetVehicleProfile) {
+            const name = action.profile.name
+            const profileToGroup = ProfileGroupMap.create(config.profile_group_mapping)
+            const groupName = profileToGroup[name]
+            const newState: QueryStoreState = {
+                ...state,
+                routingProfile: { ...action.profile, name: name },
+                // keep track of "selected option" like car_avoid_motorway for group 'car' and if we switch back to
+                // this group ('car') then we still want the profile car_avoid_motorway
+                memorizedProfilePerGroup: { ...state.memorizedProfilePerGroup, [groupName]: name },
+            }
             return this.routeIfReady(newState, true)
         } else if (action instanceof SetCustomModel) {
-            const newState = {
+            const newState: QueryStoreState = {
                 ...state,
+                customModelEnabled: true,
                 customModelStr: action.customModelStr,
             }
             return action.issueRoutingRequest ? this.routeIfReady(newState, true) : newState
+        } else if (action instanceof DisableCustomModel) {
+            return this.routeIfReady(
+                {
+                    ...state,
+                    customModelEnabled: false,
+                },
+                true,
+            )
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
-        } else if (action instanceof SetCustomModelEnabled) {
+        } else if (action instanceof ReversePoints) {
+            // Reverse the order of the query points and issue a routing request
+            const reversed = state.queryPoints
+                .slice()
+                .reverse()
+                .map((point, i) => {
+                    const type = QueryStore.getPointType(i, state.queryPoints.length)
+                    return {
+                        ...point,
+                        color: QueryStore.getMarkerColor(type),
+                        type: type,
+                        id: this.state.nextQueryPointId + i,
+                    }
+                })
+
             const newState: QueryStoreState = {
                 ...state,
-                customModelEnabled: action.enabled,
+                nextQueryPointId: this.state.nextQueryPointId + state.queryPoints.length,
+                queryPoints: reversed,
             }
-            return this.routeIfReady(newState, true)
+            return this.routeIfReady(newState, false)
         }
         return state
     }
 
     private static handleFinishedRequest(
         state: QueryStoreState,
-        action: RouteRequestSuccess | RouteRequestFailed
+        action: RouteRequestSuccess | RouteRequestFailed,
     ): QueryStoreState {
         const newState = action instanceof RouteRequestSuccess ? RequestState.SUCCESS : RequestState.FAILED
-        const newSubrequests = QueryStore.replaceSubRequest(state.currentRequest.subRequests, action.request, newState)
+        const subRequests = state.currentRequest.subRequests
+        const idx = subRequests.findIndex(r => r.args === action.request)
+        // Api ignores responses of earlier started requests (see routeWithDispatch) => also finish them, avoids stale placeholders
+        const newSubrequests = subRequests.map((r, i) =>
+            i > idx || r.state !== RequestState.SENT ? r : { ...r, state: i < idx ? RequestState.FAILED : newState },
+        )
 
         return {
             ...state,
@@ -309,12 +348,12 @@ export default class QueryStore extends Store<QueryStoreState> {
     private routeIfReady(state: QueryStoreState, zoom: boolean): QueryStoreState {
         if (QueryStore.isReadyToRoute(state)) {
             let requests
-            const maxDistance = getMaxDistance(state.queryPoints)
+            const maxDistance = getMaxDistance(state.queryPoints.map(qp => qp.coordinate))
             if (state.customModelEnabled) {
                 if (maxDistance < 200_000) {
                     // Use a single request, possibly including alternatives when custom models are enabled.
                     requests = [QueryStore.buildRouteRequest(state)]
-                } else if (maxDistance < 500_000) {
+                } else if (maxDistance < 700_000) {
                     // Force no alternatives for longer custom model routes.
                     requests = [
                         QueryStore.buildRouteRequest({
@@ -330,9 +369,9 @@ export default class QueryStore extends Store<QueryStoreState> {
                             'Using the custom model feature is unfortunately not ' +
                                 'possible when the request points are further than ' +
                                 // todo: use settings#showDistanceInMiles, but not sure how to use state from another store here
-                                metersToText(500_000, false) +
-                                ' apart.'
-                        )
+                                metersToText(700_000, false) +
+                                ' apart.',
+                        ),
                     )
                     return state
                 }
@@ -384,9 +423,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         // Janek deliberately chose this style of if statements, to make this readable.
         if (state.queryPoints.length <= 1) return false
         if (!state.queryPoints.every(point => point.isInitialized)) return false
-        if (!state.routingProfile.name) return false
-
-        return true
+        return state.routingProfile.name
     }
 
     private static movePoint(points: QueryPoint[], point: QueryPoint, newIndex: number): QueryPoint[] {
@@ -409,17 +446,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return replace(
             points,
             p => p.id === point.id,
-            () => point
-        )
-    }
-
-    private static replaceSubRequest(subRequests: SubRequest[], args: RoutingArgs, state: RequestState) {
-        return replace(
-            subRequests,
-            r => r.args === args,
-            r => {
-                return { ...r, state }
-            }
+            () => point,
         )
     }
 
@@ -443,7 +470,7 @@ export default class QueryStore extends Store<QueryStoreState> {
     private static buildRouteRequest(state: QueryStoreState): RoutingArgs {
         const coordinates = state.queryPoints.map(point => [point.coordinate.lng, point.coordinate.lat]) as [
             number,
-            number
+            number,
         ][]
 
         let customModel = null
@@ -485,10 +512,10 @@ function replace<T>(array: T[], compare: { (element: T): boolean }, provider: { 
     return result
 }
 
-function getMaxDistance(queryPoints: QueryPoint[]): number {
+export function getMaxDistance(coordinates: Coordinate[]): number {
     let max = 0
-    for (let idx = 1; idx < queryPoints.length; idx++) {
-        const dist = calcDist(queryPoints[idx - 1].coordinate, queryPoints[idx].coordinate)
+    for (let idx = 1; idx < coordinates.length; idx++) {
+        const dist = calcDist(coordinates[idx - 1], coordinates[idx])
         max = Math.max(dist, max)
     }
     return max

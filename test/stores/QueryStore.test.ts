@@ -20,7 +20,7 @@ import {
     SetPoint,
     SetVehicleProfile,
 } from '@/actions/Actions'
-import { POIAndQuery, POIQuery } from '@/pois/AddressParseResult'
+import { POIQuery } from '@/pois/AddressParseResult'
 
 class ApiMock implements Api {
     private readonly callback: { (args: RoutingArgs): void }
@@ -60,7 +60,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     throw Error('not expected')
-                })
+                }),
             )
             const point: QueryPoint = {
                 ...store.state.queryPoints[0],
@@ -146,7 +146,7 @@ describe('QueryStore', () => {
             const newState = store.reduce(state, new InvalidatePoint(point))
 
             expect(
-                newState.queryPoints.filter(p => p.id === point.id).every(point => !point.isInitialized)
+                newState.queryPoints.filter(p => p.id === point.id).every(point => !point.isInitialized),
             ).toBeTruthy()
             expect(newState.queryPoints.filter(p => p.id !== point.id).every(point => point.isInitialized)).toBeTruthy()
         })
@@ -176,7 +176,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     counter++
-                })
+                }),
             )
             const newPointId = store.state.nextQueryPointId
             const atIndex = 1
@@ -192,7 +192,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     counter++
-                })
+                }),
             )
             const newPointId = store.state.nextQueryPointId
             const atIndex = 1
@@ -216,7 +216,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     counter++
-                })
+                }),
             )
 
             const initializedPoints = store.state.queryPoints.map(p => ({ ...p, isInitialized: true }))
@@ -236,7 +236,7 @@ describe('QueryStore', () => {
 
             expect(lastState.queryPoints.length).toEqual(2)
             expect(
-                lastState.queryPoints.every((p, i) => isCorrectType(p, i, lastState.queryPoints.length))
+                lastState.queryPoints.every((p, i) => isCorrectType(p, i, lastState.queryPoints.length)),
             ).toBeTruthy()
             expect(counter).toEqual(1)
         })
@@ -246,7 +246,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(
                 new ApiMock(() => {
                     fail('no routing request when profile was already set.')
-                })
+                }),
             )
 
             const profile = 'some-profile'
@@ -265,10 +265,13 @@ describe('QueryStore', () => {
                     version: '',
                     bbox: [0, 0, 0, 0],
                     encoded_values: [],
-                })
+                }),
             )
 
-            expect(newState).toEqual({ ...state, profiles: [{ name: 'some-other-profile' }] })
+            expect(newState).toEqual({
+                ...state,
+                profiles: [{ name: 'some-other-profile' }],
+            })
         })
         it('should use the first profile received from info endpoint', () => {
             const expectedProfile = {
@@ -282,7 +285,7 @@ describe('QueryStore', () => {
                 new ApiMock(args => {
                     expect(args.profile).toEqual(expectedProfile.name)
                     routingRequestWasIssued = true
-                })
+                }),
             )
             let state: QueryStoreState = store.state
 
@@ -294,8 +297,8 @@ describe('QueryStore', () => {
                         ...state.queryPoints[0],
                         isInitialized: true,
                     },
-                    true
-                )
+                    true,
+                ),
             )
             state = store.reduce(
                 state,
@@ -304,8 +307,8 @@ describe('QueryStore', () => {
                         ...state.queryPoints[1],
                         isInitialized: true,
                     },
-                    true
-                )
+                    true,
+                ),
             )
             state = store.reduce(
                 state,
@@ -315,7 +318,7 @@ describe('QueryStore', () => {
                     version: '',
                     bbox: [0, 0, 0, 0],
                     encoded_values: [],
-                })
+                }),
             )
 
             expect(state.routingProfile).toEqual(expectedProfile)
@@ -364,7 +367,7 @@ describe('QueryStore', () => {
                 new RouteRequestSuccess(routingArgs, true, {
                     info: { took: 1, road_data_timestamp: '', copyright: [] } as RoutingResultInfo,
                     paths: [],
-                })
+                }),
             )
 
             expect(newState.currentRequest.subRequests[0].state).toEqual(RequestState.SUCCESS)
@@ -394,6 +397,18 @@ describe('QueryStore', () => {
             const newState = store.reduce(state, new RouteRequestFailed(routingArgs, 'message'))
 
             expect(newState.currentRequest.subRequests[0].state).toEqual(RequestState.FAILED)
+        })
+        it('should also finish earlier subrequests that Api would ignore', () => {
+            const store = new QueryStore(new ApiMock(() => {}))
+            const subRequests = [1, 3].map(maxAlternativeRoutes => ({
+                state: RequestState.SENT,
+                args: { maxAlternativeRoutes, points: [], pointHints: [], profile: 'some-profile', customModel: null },
+            }))
+            const state = { ...store.state, currentRequest: { subRequests } }
+            // alternatives (2nd) request fails first => Api ignores the 1st response, so it must not stay SENT
+            const newState = store.reduce(state, new RouteRequestFailed(subRequests[1].args, 'message'))
+            const failed = RequestState.FAILED
+            expect(newState.currentRequest.subRequests.map(r => r.state)).toEqual([failed, failed])
         })
     })
 })

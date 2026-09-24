@@ -8,7 +8,7 @@
 }
 
 .resultSelectableArea:hover .resultSummary {
-    border-left: rgba(201, 217, 241, 0.8) solid 0.25rem;
+    border-left: rgba(201, 217, 241, 0.7) solid 0.25rem;
     padding: 0 1rem 0 15px;
 }
 
@@ -21,7 +21,7 @@
 }
 
 .selectedResultSummary {
-    border-left: rgb(49, 104, 187) solid 0.25rem !important;
+    border-left: rgba(39, 100, 200, 0.85) solid 0.25rem !important;
     padding: 0 1rem 0 15px;
 }
 
@@ -183,6 +183,14 @@
     color: black;
 }
 
+.redButton {
+    color: red !important;
+}
+
+.orangeButton {
+    color: orange !important;
+}
+
 .routeHintButton,
 .routeHintButton span {
     color: gray;
@@ -196,8 +204,29 @@
     border-color: #d5d4d4;
 }
 
+.instructionsToggle {
+    display: flex;
+    align-items: center;
+    padding: 0.3rem 1.5rem 1.2rem 1.4rem;
+    font-size: 16px;
+    color: #5b616a;
+    cursor: pointer;
+    line-height: 1.5;
+    gap: 0.5em;
+}
+
+.instructionsToggle:hover {
+    color: #383838;
+}
+
 .routingResultRoadData {
     color: gray;
     font-size: small;
-    padding: 10px 5px 10px 3rem;
+    padding: 10px 5px 0.75rem 3rem;
+}
+
+.elevationSeparator {
+    border: none;
+    border-top: 1px solid lightgray;
+    margin: 0.5rem 0 0;
 }

@@ -10,11 +10,12 @@ const config = {
     defaultTiles: 'OpenStreetMap',
     // various api keys used for the GH backend and the different tile providers
     keys: {
-        graphhopper: 'bfb9d728-3732-4542-9e92-f638ac1c9f3a',
+        graphhopper: 'efc33bcc-a9e6-450b-9221-c52c5bf57de3',
         maptiler: 'missing_api_key',
         omniscale: 'missing_api_key',
         thunderforest: 'missing_api_key',
         kurviger: 'missing_api_key',
+        tracestrack: 'missing_api_key',
     },
     // if true there will be an option to enable the GraphHopper routing graph and the urban density visualization in the layers menu
     routingGraphLayerAllowed: false,
@@ -39,13 +40,35 @@ const config = {
     //
     // profiles: {
     //    car:{}, small_truck:{}, truck:{}, scooter:{},
-    //    foot:{ details: ['foot_network', 'access_conditional', 'foot_conditional', 'hike_rating'] }, hike:{ details: ['foot_network', 'access_conditional', 'foot_conditional', 'hike_rating' ] },
-    //    bike:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating' ] }, mtb:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating'] }, racingbike:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating'] },
+    //    foot:{ details: ['foot_network', 'access_conditional', 'foot_conditional', 'hike_rating', 'sidewalk', 'urban_density'] }, hike:{ details: ['foot_network', 'access_conditional', 'foot_conditional', 'hike_rating', 'sidewalk', 'urban_density' ] },
+    //    bike:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating', 'cycleway', 'urban_density' ] }, mtb:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating', 'cycleway', 'urban_density'] }, racingbike:{ details: ['get_off_bike', 'bike_network', 'access_conditional', 'bike_conditional', 'mtb_rating', 'cycleway', 'urban_density'] },
     // }
     //
     // E.g. the 'bike' entry will add a "bike" profile for which we send a request with the specified 'details' parameter. You can even change the profile itself when you specify
     // bike: { profile: 'raw_bike', ... }
+
+    // You can 'collapse' or group certain profiles to reduce the number of profiles in the panel. Instead they're listed in the settings but still a profile icon is shown.
+    // Note: the name of the group must be the default option for this group.
+    profile_group_mapping: {},
+    // profile_group_mapping: {
+    //  car: {
+    //    options: [
+    //      { profile: 'car' },
+    //      { profile: 'car_avoid_motorway' },
+    //      { profile: 'car_avoid_ferry' },
+    //      { profile: 'car_avoid_toll' }
+    //    ]
+    //  },
+    //  bike: {
+    //    options: [
+    //      { profile: 'bike' },
+    //      { profile: 'mtb' },
+    //      { profile: 'racingbike' },
+    //      { profile: 'ecargobike' }
+    //    ]
+    //  }
+    // }
 }
 
 // this is needed for jest (with our current setup at least)
-if (module) module.exports = config
+if (typeof module !== 'undefined') module.exports = config

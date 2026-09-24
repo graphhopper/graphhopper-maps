@@ -4,21 +4,25 @@ A route planner user interface for the [GraphHopper routing engine](https://gith
 
 [Try it out](https://graphhopper.com/maps/)!
 
-We have developed an intuite and simple user interface to find routes:
+We have developed an intuitive and simple user interface to find routes:
 
-[![GraphHopper Maps route planner](https://www.graphhopper.com/wp-content/uploads/2023/03/gh-maps-202303.png)](https://graphhopper.com/maps/)
+[![GraphHopper Maps route planner](https://www.graphhopper.com/wp-content/uploads/2026/03/maps-screenshot.png)](https://graphhopper.com/maps/)
 
-With autocomplete, alternative routes, information along the route and POI search and everything available in all major browsers including mobile browsers. Read more details about it [here](https://www.graphhopper.com/maps-route-planner/).
+With address search (autocomplete), alternative routes, information along the route and POI search and everything available in all major browsers including mobile browsers. Read more details about it [here](https://www.graphhopper.com/maps-route-planner/).
 
 ## Turn-by-Turn navigation
 
-There is [an experimental `navi` branch](https://github.com/graphhopper/graphhopper-maps/tree/navi) that implements turn-by-turn navigation
+You can download this bundled as an app for Android [on fdroid](https://f-droid.org/de/packages/com.graphhopper.maps/),
+where also a turn-by-turn navigation is implemented via Maplibre Navigation SDK
+using a capacitor plugin. Read more about it in [this repository](https://github.com/boldtrn/graphhopper-maps-capacitor/).
+
+There was [an experimental `navi` branch](https://github.com/graphhopper/graphhopper-maps/tree/navi) that implements turn-by-turn navigation
 [directly in the browser](https://navi.graphhopper.org).
 
 ## Start development:
 
  * Clone this repository.
- * Make sure node and npm are installed. We recommend using the iron LTS (node v20.14.0 and npm 10.7.0).
+ * Make sure node and npm are installed. We recommend using the iron LTS (node v24.12.0 and npm v11.6.2).
  * npm install
  * npm run serve
  * Open your browser at http://0.0.0.0:3000/.

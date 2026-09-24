@@ -65,7 +65,7 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
             const newFeature = convertFeature(feature as Feature<Geometry>)
             newFeature.id = feature.getId()
             customModel.areas.features = customModel.areas.features.map((f: any) =>
-                f.id == feature.getId() ? newFeature : f
+                f.id == feature.getId() ? newFeature : f,
             )
         })
 
@@ -85,7 +85,7 @@ function addAreasLayer(map: Map, modifyOrNewAreas: boolean, customModelStr: Muta
         let maxId = 0
         if ((customModel.areas as any)?.features) {
             const numArr = customModel.areas.features.map((obj: any) =>
-                obj['id'] ? parseInt(obj['id'].match(/\d+/)[0]) : 0
+                obj['id'] ? parseInt(obj['id'].match(/\d+/)[0]) : 0,
             )
             if (numArr.length > 0) maxId = Math.max(...numArr)
         } else {

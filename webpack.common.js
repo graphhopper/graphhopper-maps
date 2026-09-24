@@ -18,12 +18,21 @@ if (fs.existsSync(localConfig)) {
 }
 
 // get git info from command line
-const gitSHA = require('child_process').execSync('git rev-parse HEAD').toString().trim()
+let gitSHA = 'dev'
+try {
+    gitSHA = require('child_process').execSync('git rev-parse HEAD').toString().trim()
+} catch (e) {
+    console.warn('git not available, using "dev" as git sha')
+}
 
 let package = require('./package.json')
 
 module.exports = {
     entry: path.resolve(__dirname, 'src', 'index.tsx'),
+    ignoreWarnings: [
+        // harmless, from maplibre's own worker URL resolution which we bypass via setWorkerUrl
+        { module: /maplibre-gl/, message: /Critical dependency: the request of a dependency is an expression/ },
+    ],
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.[contenthash].js',
@@ -53,6 +62,8 @@ module.exports = {
                         options: {
                             modules: {
                                 localIdentName: '[path][name]__[local]',
+                                namedExport: false,
+                                exportLocalsConvention: 'as-is',
                             },
                         },
                     },
@@ -102,6 +113,13 @@ module.exports = {
                     from: config,
                     to: 'config.js',
                 },
+            ],
+        }),
+        // maplibre-gl 6 ships its worker as a separate file, see setWorkerUrl in MapLibreLayer.ts
+        new CopyPlugin({
+            patterns: [
+                { from: './node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs', to: 'maplibre-gl-worker.mjs' },
+                { from: './node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs', to: 'maplibre-gl-shared.mjs' },
             ],
         }),
         new CopyPlugin({

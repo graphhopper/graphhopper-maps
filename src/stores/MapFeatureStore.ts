@@ -1,7 +1,8 @@
 import Store from '@/stores/Store'
 import { Action } from '@/stores/Dispatcher'
 import { InstructionClicked, RoutingGraphHover } from '@/actions/Actions'
-import { Coordinate } from '@/stores/QueryStore'
+
+import { Coordinate } from '@/utils'
 
 export interface MapFeatureStoreState {
     roadAttributesCoordinate: Coordinate | null

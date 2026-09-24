@@ -1,16 +1,19 @@
 import { Instruction, Path, RoutingResultInfo } from '@/api/graphhopper'
-import { Coordinate, CurrentRequest, getBBoxFromCoord, RequestState, SubRequest } from '@/stores/QueryStore'
+import { CurrentRequest, RequestState, SubRequest } from '@/stores/QueryStore'
 import styles from './RoutingResult.module.css'
+import statsStyles from './RouteStats.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
-import { metersToShortText, metersToTextForFile, milliSecondsToText } from '@/Converters'
+import { metersToShortText, metersToText, metersToTextForFile, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
 import Instructions from '@/sidebar/instructions/Instructions'
+import RouteStats from '@/sidebar/RouteStats'
+import ElevationInfoBar from '@/pathDetails/ElevationInfoBar'
 import { LineString, Position } from 'geojson'
-import { calcDist } from '@/distUtils'
+import { calcDist, Coordinate, getBBoxFromCoord } from '@/utils'
 import { useMediaQuery } from 'react-responsive'
 import { tr } from '@/translation/Translation'
 import { ApiImpl } from '@/api/Api'
@@ -30,41 +33,65 @@ import { Bbox } from '@/api/graphhopper'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import { Settings } from '@/stores/SettingsStore'
 
+let persistedElevationMounted = false
+
 export interface RoutingResultsProps {
     info: RoutingResultInfo
     paths: Path[]
     selectedPath: Path
     currentRequest: CurrentRequest
     profile: string
+    inclineOnMap?: boolean
 }
 
 export default function RoutingResults(props: RoutingResultsProps) {
+    const [isExpanded, setExpanded] = useState(false)
     // for landscape orientation there is no need that there is space for the map under the 3 alternatives and so the max-height is smaller for short screen
     const isShortScreen = useMediaQuery({
         query: '(max-height: 45rem) and (orientation: landscape), (max-height: 70rem) and (orientation: portrait)',
     })
-    return <ul>{isShortScreen ? createSingletonListContent(props) : createListContent(props)}</ul>
+    return (
+        <ul>
+            {isShortScreen
+                ? createSingletonListContent(props, isExpanded, setExpanded)
+                : createListContent(props, isExpanded, setExpanded)}
+        </ul>
+    )
 }
 
 function RoutingResult({
     info,
     path,
+    allPaths,
     isSelected,
     profile,
+    inclineOnMap,
+    isExpanded,
+    setExpanded,
 }: {
     info: RoutingResultInfo
     path: Path
+    allPaths: Path[]
     isSelected: boolean
     profile: string
+    inclineOnMap: boolean
+    isExpanded: boolean
+    setExpanded: (v: boolean) => void
 }) {
-    const [isExpanded, setExpanded] = useState(false)
+    const isSmallScreen = useMediaQuery({ query: '(max-width: 44rem)' })
+    const [elevationMounted, setElevationMounted] = useState(persistedElevationMounted)
+    if ((isExpanded || inclineOnMap) && !elevationMounted) setElevationMounted(true)
+    if (elevationMounted && !persistedElevationMounted) persistedElevationMounted = true
+    const [showInstructions, setShowInstructions] = useState(false)
     const [selectedRH, setSelectedRH] = useState('')
     const [descriptionRH, setDescriptionRH] = useState('')
     const resultSummaryClass = isSelected
         ? styles.resultSummary + ' ' + styles.selectedResultSummary
         : styles.resultSummary
 
-    useEffect(() => setExpanded(isSelected && isExpanded), [isSelected])
+    useEffect(() => {
+        if (!isSelected) setShowInstructions(false)
+    }, [isSelected])
     const settings = useContext(SettingsContext)
     const showDistanceInMiles = settings.showDistanceInMiles
 
@@ -72,16 +99,21 @@ function RoutingResult({
     const tollInfo = getInfoFor(
         path.points,
         path.details.toll,
-        s => s === 'all' || (s === 'hgv' && ApiImpl.isTruck(profile))
+        s => s === 'all' || (s === 'hgv' && ApiImpl.isTruck(profile)),
     )
     const ferryInfo = getInfoFor(path.points, path.details.road_environment, s => s === 'ferry')
     const accessCondInfo = getInfoFor(path.points, path.details.access_conditional, s => s != null && s.length > 0)
+
     const footAccessCondInfo = !ApiImpl.isFootLike(profile)
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.foot_conditional, s => s != null && s.length > 0)
+
     const hikeRatingInfo = !ApiImpl.isFootLike(profile)
         ? new RouteInfo()
-        : getInfoFor(path.points, path.details.hike_rating, s => s > 1)
+        : getInfoFor(path.points, path.details.hike_rating, s => s > 1 && s < 5)
+    const dangerousHikeRatingInfo = !ApiImpl.isFootLike(profile)
+        ? new RouteInfo()
+        : getInfoFor(path.points, path.details.hike_rating, s => s >= 5)
 
     const bikeAccessCondInfo = !ApiImpl.isBikeLike(profile)
         ? new RouteInfo()
@@ -90,11 +122,15 @@ function RoutingResult({
         ? new RouteInfo()
         : getInfoFor(path.points, path.details.mtb_rating, s => s > 1)
 
-    const privateOrDeliveryInfo = ApiImpl.isMotorVehicle(profile)
+    const privateInfo = ApiImpl.isMotorVehicle(profile)
+        ? getInfoFor(path.points, path.details.road_access, s => s === 'private')
+        : new RouteInfo()
+
+    const deliveryEtcInfo = ApiImpl.isMotorVehicle(profile)
         ? getInfoFor(
               path.points,
               path.details.road_access,
-              s => s === 'private' || s === 'customers' || s === 'delivery'
+              s => s === 'delivery' || s === 'customers' || s === 'destination',
           )
         : new RouteInfo()
     const badTrackInfo = !ApiImpl.isMotorVehicle(profile)
@@ -102,7 +138,7 @@ function RoutingResult({
         : getInfoFor(
               path.points,
               path.details.track_type,
-              s => s === 'grade2' || s === 'grade3' || s === 'grade4' || s === 'grade5'
+              s => s === 'grade2' || s === 'grade3' || s === 'grade4' || s === 'grade5',
           )
     const trunkInfo = ApiImpl.isMotorVehicle(profile)
         ? new RouteInfo()
@@ -125,7 +161,7 @@ function RoutingResult({
         accessCondInfo.distance > 0 ||
         footAccessCondInfo.distance > 0 ||
         bikeAccessCondInfo.distance > 0 ||
-        privateOrDeliveryInfo.distance > 0 ||
+        privateInfo.distance > 0 ||
         trunkInfo.distance > 0 ||
         badTrackInfo.distance > 0 ||
         stepsInfo.distance > 0 ||
@@ -133,6 +169,7 @@ function RoutingResult({
         getOffBikeInfo.distance > 0 ||
         mtbRatingInfo.distance > 0 ||
         hikeRatingInfo.distance > 0 ||
+        dangerousHikeRatingInfo.distance > 0 ||
         steepInfo.distance > 0
 
     return (
@@ -142,15 +179,17 @@ function RoutingResult({
                     <div className={styles.resultValues}>
                         <span className={styles.resultMainText}>{milliSecondsToText(path.time)}</span>
                         <span className={styles.resultSecondaryText}>
-                            {metersToShortText(path.distance, showDistanceInMiles)}
+                            {metersToText(path.distance, showDistanceInMiles)}
                         </span>
                         {isSelected && !ApiImpl.isMotorVehicle(profile) && (
                             <div className={styles.elevationHint}>
                                 <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
-                                    ↗{metersToShortText(path.ascend, showDistanceInMiles)}{' '}
+                                    {'\u2197\uFE0E'}
+                                    {metersToShortText(path.ascend, showDistanceInMiles)}{' '}
                                 </span>
                                 <span title={tr('total_descend', [Math.round(path.descend) + 'm'])}>
-                                    ↘{metersToShortText(path.descend, showDistanceInMiles)}
+                                    {'\u2198\uFE0E'}
+                                    {metersToShortText(path.descend, showDistanceInMiles)}
                                 </span>
                             </div>
                         )}
@@ -169,6 +208,11 @@ function RoutingResult({
                     {isSelected && (
                         <PlainButton
                             className={isExpanded ? styles.detailsButtonExpanded : styles.detailsButton}
+                            onTouchEnd={e => {
+                                // reduce chance for synthetic mouse events that cause ghost clicks (#447)
+                                e.preventDefault()
+                                setExpanded(!isExpanded)
+                            }}
                             onClick={() => setExpanded(!isExpanded)}
                         >
                             <Details />
@@ -177,7 +221,7 @@ function RoutingResult({
                     )}
                 </div>
             </div>
-            {isSelected && !isExpanded && showHints && (
+            {isSelected && showHints && (
                 <div className={styles.routeHints}>
                     <div className={styles.icons}>
                         <RHButton
@@ -190,6 +234,7 @@ function RoutingResult({
                             selected={selectedRH}
                             segments={fordInfo.segments}
                             values={[]}
+                            addClassName={styles.orangeButton}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -262,12 +307,25 @@ function RoutingResult({
                             type={'private'}
                             child={<PrivateIcon />}
                             value={
-                                privateOrDeliveryInfo.distance > 0 &&
-                                metersToShortText(privateOrDeliveryInfo.distance, showDistanceInMiles)
+                                privateInfo.distance > 0 && metersToShortText(privateInfo.distance, showDistanceInMiles)
                             }
                             selected={selectedRH}
-                            segments={privateOrDeliveryInfo.segments}
+                            segments={privateInfo.segments}
                             values={[]}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('way_contains', [tr('restricted_sections')])}
+                            setType={t => setSelectedRH(t)}
+                            type={'delivery_etc'}
+                            child={<PrivateIcon />}
+                            value={
+                                deliveryEtcInfo.distance > 0 &&
+                                metersToShortText(deliveryEtcInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={deliveryEtcInfo.segments}
+                            values={deliveryEtcInfo.values}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -282,7 +340,7 @@ function RoutingResult({
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
-                            description={tr('way_contains', [tr('challenging_sections')])}
+                            description={tr('challenging_sections')}
                             setType={t => setSelectedRH(t)}
                             type={'mtb_rating'}
                             child={<DangerousIcon />}
@@ -293,10 +351,11 @@ function RoutingResult({
                             selected={selectedRH}
                             segments={mtbRatingInfo.segments}
                             values={mtbRatingInfo.values}
+                            addClassName={styles.orangeButton}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
-                            description={tr('way_contains', [tr('challenging_sections')])}
+                            description={tr('challenging_sections')}
                             setType={t => setSelectedRH(t)}
                             type={'hike_rating'}
                             child={<DangerousIcon />}
@@ -307,6 +366,22 @@ function RoutingResult({
                             selected={selectedRH}
                             segments={hikeRatingInfo.segments}
                             values={hikeRatingInfo.values}
+                            addClassName={styles.orangeButton}
+                        />
+                        <RHButton
+                            setDescription={b => setDescriptionRH(b)}
+                            description={tr('dangerous_sections')}
+                            setType={t => setSelectedRH(t)}
+                            type={'hike_rating'}
+                            child={<DangerousIcon />}
+                            value={
+                                dangerousHikeRatingInfo.distance > 0 &&
+                                metersToShortText(dangerousHikeRatingInfo.distance, showDistanceInMiles)
+                            }
+                            selected={selectedRH}
+                            segments={dangerousHikeRatingInfo.segments}
+                            values={dangerousHikeRatingInfo.values}
+                            addClassName={styles.redButton}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -343,6 +418,7 @@ function RoutingResult({
                             selected={selectedRH}
                             segments={trunkInfo.segments}
                             values={[]}
+                            addClassName={styles.orangeButton}
                         />
                         <RHButton
                             setDescription={b => setDescriptionRH(b)}
@@ -375,11 +451,34 @@ function RoutingResult({
                     {descriptionRH && <div>{descriptionRH}</div>}
                 </div>
             )}
-            {isExpanded && <Instructions instructions={path.instructions} us={showDistanceInMiles} />}
-            {isExpanded && (
-                <div className={styles.routingResultRoadData}>
-                    {tr('road_data_from')}: {info.road_data_timestamp}
+            {isSmallScreen && elevationMounted && (
+                <div style={{ display: isExpanded ? undefined : 'none' }}>
+                    <hr className={styles.elevationSeparator} />
+                    <ElevationInfoBar
+                        selectedPath={path}
+                        alternativePaths={allPaths}
+                        profile={profile}
+                        isExpanded={false}
+                        onToggleExpanded={() => {}}
+                        inclineOnMap={inclineOnMap}
+                    />
                 </div>
+            )}
+            {isExpanded && <RouteStats path={path} profile={profile} />}
+            {isExpanded && (
+                <div className={styles.instructionsToggle} onClick={() => setShowInstructions(!showInstructions)}>
+                    <span className={statsStyles.label}>{tr('route_stats_turn_instructions')}: </span>
+                    {path.instructions.length}
+                    <span className={statsStyles.statArrow}>{showInstructions ? '▴' : '▾'}</span>
+                </div>
+            )}
+            {isExpanded && showInstructions && (
+                <>
+                    <Instructions instructions={path.instructions} us={showDistanceInMiles} />
+                    <div className={styles.routingResultRoadData}>
+                        {tr('road_data_from')}: {info.road_data_timestamp}
+                    </div>
+                </>
             )}
         </div>
     )
@@ -395,12 +494,17 @@ function RHButton(p: {
     selected: string
     segments: Coordinate[][]
     values: string[]
+    addClassName?: string
 }) {
     let [index, setIndex] = useState(0)
     if (p.value === false) return null
     return (
         <PlainButton
-            className={p.selected == p.type ? styles.selectedRouteHintButton : styles.routeHintButton}
+            className={
+                (p.addClassName || '') +
+                ' ' +
+                (p.selected == p.type ? styles.selectedRouteHintButton : styles.routeHintButton)
+            }
             onClick={() => {
                 p.setType(p.type)
 
@@ -558,7 +662,7 @@ function downloadGPX(path: Path, settings: Settings) {
         xmlString += '<rte>\n'
         xmlString += path.instructions.reduce((prevString: string, instruction: Instruction) => {
             let routeSegment = `<rtept lat="${instruction.points[0][1].toFixed(
-                6
+                6,
             )}" lon="${instruction.points[0][0].toFixed(6)}">`
             routeSegment += `<desc>${instruction.text}</desc><extensions><gh:distance>${instruction.distance}</gh:distance>`
             routeSegment += `<gh:time>${instruction.time}</gh:time><gh:sign>${instruction.sign}</gh:sign>`
@@ -579,15 +683,17 @@ function downloadGPX(path: Path, settings: Settings) {
             trackPoint += '</trkpt>\n'
             return prevString + trackPoint
         }, '')
-        xmlString += '</trkseg></trk>\n</gpx>'
+        xmlString += '</trkseg></trk>\n'
     }
+
+    xmlString += '</gpx>'
 
     const tmpElement = document.createElement('a')
     const file = new Blob([xmlString], { type: 'application/gpx+xml' })
     tmpElement.href = URL.createObjectURL(file)
     const date = new Date()
     tmpElement.download = `GraphHopper-Track-${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
-        date.getUTCDate()
+        date.getUTCDate(),
     )}-${metersToTextForFile(path.distance, settings.showDistanceInMiles)}.gpx`
     tmpElement.click()
 }
@@ -619,35 +725,63 @@ function getLength(paths: Path[], subRequests: SubRequest[]) {
             paths.length,
             ...subRequests
                 .filter(request => request.state === RequestState.SENT)
-                .map(request => request.args.maxAlternativeRoutes)
+                .map(request => request.args.maxAlternativeRoutes),
         )
     }
     return paths.length
 }
 
-function createSingletonListContent(props: RoutingResultsProps) {
+function createSingletonListContent(
+    props: RoutingResultsProps,
+    isExpanded: boolean,
+    setExpanded: (v: boolean) => void,
+) {
     if (props.paths.length > 0)
-        return <RoutingResult path={props.selectedPath} isSelected={true} profile={props.profile} info={props.info} />
+        return (
+            <RoutingResult
+                path={props.selectedPath}
+                allPaths={props.paths}
+                isSelected={true}
+                profile={props.profile}
+                info={props.info}
+                inclineOnMap={props.inclineOnMap ?? false}
+                isExpanded={isExpanded}
+                setExpanded={setExpanded}
+            />
+        )
     if (hasPendingRequests(props.currentRequest.subRequests)) return <RoutingResultPlaceholder key={1} />
     return ''
 }
 
-function createListContent({ info, paths, currentRequest, selectedPath, profile }: RoutingResultsProps) {
+function pathKey(path: Path): string {
+    return `${path.distance.toFixed(1)}_${path.time}_${path.ascend.toFixed(0)}_${path.descend.toFixed(0)}`
+}
+
+function createListContent(
+    { info, paths, currentRequest, selectedPath, profile, inclineOnMap }: RoutingResultsProps,
+    isExpanded: boolean,
+    setExpanded: (v: boolean) => void,
+) {
     const length = getLength(paths, currentRequest.subRequests)
     const result = []
 
     for (let i = 0; i < length; i++) {
-        if (i < paths.length)
+        if (i < paths.length) {
+            const selected = paths[i] === selectedPath
             result.push(
                 <RoutingResult
-                    key={i}
+                    key={pathKey(paths[i])}
                     path={paths[i]}
-                    isSelected={paths[i] === selectedPath}
+                    allPaths={paths}
+                    isSelected={selected}
                     profile={profile}
                     info={info}
-                />
+                    inclineOnMap={inclineOnMap ?? false}
+                    isExpanded={selected && isExpanded}
+                    setExpanded={setExpanded}
+                />,
             )
-        else result.push(<RoutingResultPlaceholder key={i} />)
+        } else result.push(<RoutingResultPlaceholder key={`placeholder-${i}`} />)
     }
 
     return result

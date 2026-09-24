@@ -1,17 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Coordinate, QueryPoint, QueryPointType, QueryStoreState, RequestState } from '@/stores/QueryStore'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { QueryPoint, QueryPointType, QueryStoreState, RequestState } from '@/stores/QueryStore'
 import { RouteStoreState } from '@/stores/RouteStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { useMediaQuery } from 'react-responsive'
-import { MarkerComponent } from '@/map/Marker'
+import { CircleComponent, MarkerComponent } from '@/map/Marker'
 import RoutingProfiles from '@/sidebar/search/routingProfiles/RoutingProfiles'
 import OpenInputsIcon from './unfold.svg'
 import CloseInputsIcon from './unfold_less.svg'
 import CustomModelBox from '@/sidebar/CustomModelBox'
 import { Map } from 'ol'
+import { Coordinate } from '@/utils'
+import PlainButton from '@/PlainButton'
+import { tr } from '@/translation/Translation'
+import Chevron from '@/sidebar/search/routingProfiles/chevron.svg'
+import { findIcon } from '@/sidebar/search/routingProfiles/profileIcons'
+import { RoutingProfile } from '@/api/graphhopper'
 
 type MobileSidebarProps = {
     query: QueryStoreState
@@ -35,7 +41,7 @@ export default function ({ query, route, error, encodedValues, drawAreas, map }:
             const clickInside = event.target instanceof Node && searchContainerRef.current?.contains(event.target)
             if (!clickInside && isShortScreen && hasResult(route)) setIsSmallSearchView(true)
         },
-        [isShortScreen, route]
+        [isShortScreen, route],
     )
     useEffect(() => {
         window.addEventListener('mousedown', handleWindowClick)
@@ -52,7 +58,11 @@ export default function ({ query, route, error, encodedValues, drawAreas, map }:
         <div className={styles.sidebar}>
             <div className={styles.background} ref={searchContainerRef}>
                 {isSmallSearchView ? (
-                    <SmallSearchView points={query.queryPoints} onClick={() => setIsSmallSearchView(false)} />
+                    <SmallSearchView
+                        selectedProfile={query.routingProfile}
+                        points={query.queryPoints}
+                        onClick={() => setIsSmallSearchView(false)}
+                    />
                 ) : (
                     <div className={styles.btnCloseContainer}>
                         <div className={styles.btnCloseInputs} onClick={() => setIsSmallSearchView(true)}>
@@ -61,6 +71,7 @@ export default function ({ query, route, error, encodedValues, drawAreas, map }:
                         <RoutingProfiles
                             routingProfiles={query.profiles}
                             selectedProfile={query.routingProfile}
+                            memorizedProfilePerGroup={query.memorizedProfilePerGroup}
                             showCustomModelBox={showCustomModelBox}
                             toggleCustomModelBox={() => setShowCustomModelBox(!showCustomModelBox)}
                             customModelBoxEnabled={query.customModelEnabled}
@@ -74,7 +85,7 @@ export default function ({ query, route, error, encodedValues, drawAreas, map }:
                                 drawAreas={drawAreas}
                             />
                         )}
-                        <Search points={query.queryPoints} map={map} />
+                        <Search points={query.queryPoints} profile={query.routingProfile} map={map} />
                     </div>
                 )}
                 {!error.isDismissed && <ErrorMessage error={error} />}
@@ -87,13 +98,15 @@ function hasResult(route: RouteStoreState) {
     return route.routingResult.paths.length > 0
 }
 
-function SmallSearchView(props: { points: QueryPoint[]; onClick: () => void }) {
+function SmallSearchView(props: { points: QueryPoint[]; selectedProfile: RoutingProfile; onClick: () => void }) {
     const from = props.points[0]
     const to = props.points[props.points.length - 1]
     const isSmallHeight = useMediaQuery({ query: '(max-height: 36rem)' })
+    const iconElement = React.createElement(findIcon(props.selectedProfile.name))
 
     return (
         <div className={styles.btnOpenContainer} onClick={props.onClick}>
+            <div className={styles.profile}>{iconElement}</div>
             <div className={styles.mapView}>
                 {!isSmallHeight && <SmallQueryPoint text={from.queryText} color={from.color} position={from.type} />}
                 {!isSmallHeight && <IntermediatePoint points={props.points} />}
@@ -112,7 +125,11 @@ function SmallQueryPoint({ text, color, position }: { text: string; color: strin
     return (
         <div className={styles.mapViewRow}>
             <div className={styles.markerContainer}>
-                <MarkerComponent color={color} />
+                {position === QueryPointType.Via ? (
+                    <CircleComponent color={color} />
+                ) : (
+                    <MarkerComponent color={color} />
+                )}
             </div>
             <span className={getClassName(position)}>{text}</span>
         </div>
