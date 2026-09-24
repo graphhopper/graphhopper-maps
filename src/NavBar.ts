@@ -92,7 +92,8 @@ export default class NavBar {
                         point.queryText = parameter.substring(first + 1, first === last ? undefined : last)
                         const street = first === last ? '' : parameter.substring(last + 1)
                         const pos = /^(?:(\d+)\.)?(\d+)$/.exec(street)
-                        point.streetName = pos ? point.queryText.substr(Number(pos[1] ?? 0), Number(pos[2])) : street
+                        const start = pos ? Number(pos[1] ?? 0) : 0
+                        point.streetName = pos ? point.queryText.substring(start, start + Number(pos[2])) : street
                     }
                 }
             } catch (e) {}
@@ -103,7 +104,7 @@ export default class NavBar {
 
     private static parseCoordinate(params: string) {
         const coordinateParams = params.split(',')
-        if (coordinateParams.length !== 2) throw Error('Could not parse coordinate with value: "' + params[0] + '"')
+        if (coordinateParams.length !== 2) throw Error('Could not parse coordinate with value: "' + params + '"')
         return {
             lat: Number.parseFloat(coordinateParams[0]),
             lng: Number.parseFloat(coordinateParams[1]),
