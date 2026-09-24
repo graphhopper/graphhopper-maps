@@ -158,7 +158,7 @@ describe('QueryStore', () => {
                 ...p,
                 isInitialized: true,
                 queryText: `${i}`,
-                point: { lat: i, lng: i },
+                coordinate: { lat: i, lng: i },
             }))
             const state = {
                 ...store.state,
@@ -167,7 +167,7 @@ describe('QueryStore', () => {
 
             const newState = store.reduce(state, new ClearPoints())
 
-            expect(newState.queryPoints.every(p => isCleared(p)))
+            expect(newState.queryPoints.every(p => isCleared(p))).toBeTruthy()
         })
     })
     describe('AddPoint action', () => {
