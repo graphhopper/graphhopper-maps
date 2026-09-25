@@ -39,6 +39,7 @@ export function ContextMenuContent({
                     ...point,
                     coordinate: coordinate,
                     queryText: coordinateToText(coordinate),
+                    streetName: '',
                     isInitialized: true,
                 },
                 false,
@@ -87,7 +88,7 @@ export function ContextMenuContent({
         onSelect()
         // with only two points the search boxes are kept and just the marker is cleared
         if (queryPoints.length > 2) Dispatcher.dispatch(new RemovePoint(point))
-        else Dispatcher.dispatch(new SetPoint({ ...point, queryText: '', isInitialized: false }, false))
+        else Dispatcher.dispatch(new SetPoint({ ...point, queryText: '', streetName: '', isInitialized: false }, false))
     }
 
     const deleteLabel = function (point: QueryPoint) {

@@ -9,6 +9,7 @@ const DEDUP_DISTANCE_METERS = 5
 export interface RecentLocation {
     mainText: string
     secondText: string
+    streetName: string // point hint for routing, '' if unknown
     lat: number
     lng: number
     timestamp: number
@@ -30,7 +31,11 @@ export function getRecentLocations(minCount: number = 0): RecentLocation[] {
                     typeof e.lng === 'number' &&
                     typeof e.timestamp === 'number',
             )
-            .map((e: any) => ({ ...e, count: typeof e.count === 'number' ? e.count : 1 }))
+            .map((e: any) => ({
+                ...e,
+                streetName: typeof e.streetName === 'string' ? e.streetName : '',
+                count: typeof e.count === 'number' ? e.count : 1,
+            }))
             .filter((e: RecentLocation) => e.count > minCount)
             .sort((a: RecentLocation, b: RecentLocation) => b.count - a.count || b.timestamp - a.timestamp)
     } catch {
@@ -61,6 +66,7 @@ export function saveRecentLocation(
     mainText: string,
     secondText: string,
     coordinate: Coordinate,
+    streetName: string,
     now: number = Date.now(),
 ): void {
     if (mainText === tr('current_location')) return
@@ -78,6 +84,7 @@ export function saveRecentLocation(
         const newEntry: RecentLocation = {
             mainText,
             secondText,
+            streetName,
             lat: coordinate.lat,
             lng: coordinate.lng,
             timestamp: now,

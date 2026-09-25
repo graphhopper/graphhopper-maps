@@ -162,6 +162,7 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSourc
                     ...point,
                     coordinate,
                     queryText: coordinateToText(coordinate),
+                    streetName: '',
                 },
                 false,
             ),

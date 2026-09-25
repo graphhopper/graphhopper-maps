@@ -71,6 +71,7 @@ describe('route', () => {
     it('should use correct metadata', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'profile',
             customModel: null,
@@ -99,6 +100,7 @@ describe('route', () => {
     it('transforms routingArgs into routing request with default algorithm for maxAlternativeRoutes: 1', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: ['', 'Hauptstraße'],
             maxAlternativeRoutes: 1,
             profile: 'car',
             customModel: null,
@@ -124,6 +126,7 @@ describe('route', () => {
                 'track_type',
                 'country',
             ],
+            point_hints: args.pointHints,
         }
 
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
@@ -142,6 +145,7 @@ describe('route', () => {
     it('transforms routingArgs into routing request with alternative_route algorithm for maxAlternativeRoutes > 1', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 2,
             profile: 'car',
             customModel: null,
@@ -188,6 +192,7 @@ describe('route', () => {
     it('transforms routingArgs into routing request with custom model', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
             customModel: {
@@ -245,6 +250,7 @@ describe('route', () => {
                 [0, 0],
                 [1, 1],
             ],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'bla',
             customModel: null,
@@ -266,6 +272,7 @@ describe('route', () => {
                 [0, 0],
                 [1, 1],
             ],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'bla',
             customModel: null,
@@ -290,6 +297,7 @@ describe('route', () => {
         const args: RoutingArgs = {
             profile: 'car',
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 3,
             customModel: null,
         }
@@ -304,6 +312,7 @@ describe('route', () => {
         setTranslation('de', true)
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
             customModel: null,

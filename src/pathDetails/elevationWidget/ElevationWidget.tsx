@@ -196,7 +196,9 @@ export default function ElevationWidget({
                 <div className={styles.buttons}>
                     {!selectedDetail && alternativeCount > 0 && (
                         <button
-                            className={`${styles.alternativeButton}${alternativeIndex >= 0 ? ' ' + styles.alternativeButtonActive : ''}`}
+                            className={`${styles.alternativeButton}${
+                                alternativeIndex >= 0 ? ' ' + styles.alternativeButtonActive : ''
+                            }`}
                             onClick={cycleAlternative}
                             title={
                                 alternativeIndex >= 0

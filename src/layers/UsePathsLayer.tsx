@@ -273,7 +273,10 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
         if (grabbedViaPoint) {
             // the drag started on a via marker -> move it
             Dispatcher.dispatch(
-                new SetPoint({ ...grabbedViaPoint, coordinate, queryText: coordinateToText(coordinate) }, false),
+                new SetPoint(
+                    { ...grabbedViaPoint, coordinate, queryText: coordinateToText(coordinate), streetName: '' },
+                    false,
+                ),
             )
             return
         }

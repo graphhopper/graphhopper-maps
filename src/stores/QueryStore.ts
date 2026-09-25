@@ -41,6 +41,7 @@ export interface QueryStoreState {
 export interface QueryPoint {
     readonly coordinate: Coordinate
     readonly queryText: string
+    readonly streetName: string
     readonly isInitialized: boolean
     readonly color: string
     readonly id: number
@@ -125,6 +126,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 return {
                     ...point,
                     queryText: '',
+                    streetName: '',
                     coordinate: { lat: 0, lng: 0 },
                     isInitialized: false,
                 }
@@ -170,6 +172,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 coordinate: action.coordinate,
                 id: state.nextQueryPointId,
                 queryText: queryText,
+                streetName: '',
                 color: '',
                 isInitialized: action.isInitialized,
                 type: QueryPointType.Via,
@@ -209,6 +212,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     id: queryPoints.length,
                     type: type,
                     color: QueryStore.getMarkerColor(type),
+                    streetName: '',
                     queryText: '',
                     isInitialized: false,
                     coordinate: { lat: 0, lng: 0 },
@@ -477,6 +481,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         return {
             points: coordinates,
+            pointHints: state.queryPoints.map(point => point.streetName),
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
             customModel: customModel,
@@ -487,6 +492,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             isInitialized: false,
             queryText: '',
+            streetName: '',
             coordinate: { lat: 0, lng: 0 },
             id: id,
             color: QueryStore.getMarkerColor(type),

@@ -59,6 +59,7 @@ export function hitToItem(hit: GeocodingHit) {
     return {
         mainText: mainText,
         secondText: toSecondText(hit, mainText),
+        streetName: hit.street ?? '',
     }
 }
 
@@ -86,6 +87,7 @@ export function nominatimHitToItem(hit: GeocodingHit) {
     const mainText = hit.street && name.indexOf(hit.street) == 0 ? street : name.split(',')[0]
     return {
         mainText: mainText,
+        streetName: hit.street ?? '',
         secondText:
             (!mainText.includes(street) && street.length > 0 ? street + ', ' : '') +
             (!mainText.includes(hit.postcode) && hit.postcode ? hit.postcode + ' ' : '') +

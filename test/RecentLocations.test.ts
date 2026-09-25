@@ -11,7 +11,7 @@ jest.mock('@/Converters', () => ({ textToCoordinate: () => null }))
 beforeEach(() => localStorage.clear())
 
 function save(name: string, lat: number, timestamp: number) {
-    saveRecentLocation(name, '', { lat, lng: 0 }, timestamp)
+    saveRecentLocation(name, '', { lat, lng: 0 }, '', timestamp)
 }
 
 function names() {

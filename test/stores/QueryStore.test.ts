@@ -347,6 +347,7 @@ describe('QueryStore', () => {
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],
+                pointHints: [],
                 profile: 'some-profile',
                 customModel: null,
             }
@@ -378,6 +379,7 @@ describe('QueryStore', () => {
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],
+                pointHints: [],
                 profile: 'some-profile',
                 customModel: null,
             }
@@ -400,7 +402,7 @@ describe('QueryStore', () => {
             const store = new QueryStore(new ApiMock(() => {}))
             const subRequests = [1, 3].map(maxAlternativeRoutes => ({
                 state: RequestState.SENT,
-                args: { maxAlternativeRoutes, points: [], profile: 'some-profile', customModel: null },
+                args: { maxAlternativeRoutes, points: [], pointHints: [], profile: 'some-profile', customModel: null },
             }))
             const state = { ...store.state, currentRequest: { subRequests } }
             // alternatives (2nd) request fails first => Api ignores the 1st response, so it must not stay SENT
@@ -416,6 +418,7 @@ function getQueryPoint(id: number): QueryPoint {
         type: QueryPointType.From,
         isInitialized: true,
         queryText: '',
+        streetName: '',
         color: '',
         coordinate: { lat: 0, lng: 0 },
         id: id,
