@@ -51,6 +51,11 @@ export function metersToShortText(meters: number, showDistanceInMiles: boolean) 
     }
 }
 
+// ascent/descent is always shown in m or ft like in other apps (komoot, Strava, OsmAnd), never km
+export function elevationToText(meters: number, showDistanceInMiles: boolean) {
+    return showDistanceInMiles ? Math.round(meters / 0.3048) + 'ft' : Math.round(meters) + 'm'
+}
+
 export function hitToItem(hit: GeocodingHit) {
     const mainText =
         hit.street && hit.name.indexOf(hit.street) >= 0

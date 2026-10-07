@@ -3,7 +3,7 @@ import { Path } from '@/api/graphhopper'
 import { Position } from 'geojson'
 import { ApiImpl } from '@/api/Api'
 import { tr } from '@/translation/Translation'
-import { metersToShortText } from '@/Converters'
+import { elevationToText, metersToShortText } from '@/Converters'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import styles from './RouteStats.module.css'
 import {
@@ -278,8 +278,8 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                 label={tr('route_stats_incline')}
                 details={inclineDetails}
                 extraInfo={[
-                    { name: tr('route_stats_total_ascent'), value: metersToShortText(path.ascend, us) },
-                    { name: tr('route_stats_total_descent'), value: metersToShortText(path.descend, us) },
+                    { name: tr('route_stats_total_ascent'), value: elevationToText(path.ascend, us) },
+                    { name: tr('route_stats_total_descent'), value: elevationToText(path.descend, us) },
                 ]}
             />,
         )

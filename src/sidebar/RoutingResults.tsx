@@ -5,7 +5,7 @@ import statsStyles from './RouteStats.module.css'
 import { ReactNode, useContext, useEffect, useState } from 'react'
 import Dispatcher from '@/stores/Dispatcher'
 import { PathDetailsElevationSelected, SetBBox, SetSelectedPath } from '@/actions/Actions'
-import { metersToShortText, metersToText, metersToTextForFile, milliSecondsToText } from '@/Converters'
+import { elevationToText, metersToShortText, metersToText, metersToTextForFile, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import GPXDownload from '@/sidebar/file_download.svg'
@@ -185,11 +185,11 @@ function RoutingResult({
                             <div className={styles.elevationHint}>
                                 <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
                                     {'\u2197\uFE0E'}
-                                    {metersToShortText(path.ascend, showDistanceInMiles)}{' '}
+                                    {elevationToText(path.ascend, showDistanceInMiles)}{' '}
                                 </span>
                                 <span title={tr('total_descend', [Math.round(path.descend) + 'm'])}>
                                     {'\u2198\uFE0E'}
-                                    {metersToShortText(path.descend, showDistanceInMiles)}
+                                    {elevationToText(path.descend, showDistanceInMiles)}
                                 </span>
                             </div>
                         )}

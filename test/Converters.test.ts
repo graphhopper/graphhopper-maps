@@ -1,4 +1,4 @@
-import { textToCoordinate, nominatimHitToItem, hitToItem, milliSecondsToText } from '@/Converters'
+import { textToCoordinate, nominatimHitToItem, hitToItem, milliSecondsToText, elevationToText } from '@/Converters'
 
 describe('Converters', function () {
     describe('milliSecondsToText', function () {
@@ -8,6 +8,14 @@ describe('Converters', function () {
             expect(milliSecondsToText(63 * 60 * 1000)).toEqual('1 h 3 min')
 
             expect(milliSecondsToText(7198000)).toEqual('2 h')
+        })
+    })
+
+    describe('elevationToText', function () {
+        it('always m or ft', function () {
+            expect(elevationToText(988.4, false)).toEqual('988m')
+            expect(elevationToText(1004, false)).toEqual('1004m')
+            expect(elevationToText(1004, true)).toEqual('3294ft')
         })
     })
 
