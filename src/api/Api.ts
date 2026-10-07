@@ -304,6 +304,8 @@ export class ApiImpl implements Api {
 
             request.custom_model = args.customModel
             request['ch.disable'] = true
+            // a changed parameter is rejected for a profile prepared with landmarks
+            if (args.customModel.parameters) request['lm.disable'] = true
             request['timeout_ms'] = 10000
         }
 
@@ -331,6 +333,7 @@ export class ApiImpl implements Api {
         for (const profileIndex in response.profiles as ApiProfile[]) {
             const profile: RoutingProfile = {
                 name: response.profiles[profileIndex].name,
+                parameters: response.profiles[profileIndex].parameters,
             }
 
             profiles.push(profile)

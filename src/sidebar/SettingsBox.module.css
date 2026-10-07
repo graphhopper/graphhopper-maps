@@ -95,3 +95,21 @@ input {
     font-size: 14px;
     color: gray;
 }
+
+.powerRow {
+    display: grid;
+    grid-template-columns: 50px auto;
+    align-items: center;
+    margin: 0.6rem 0 0.4rem 0;
+}
+
+.powerRow input {
+    width: 110px;
+    margin: 0 8px 0 0;
+    vertical-align: middle;
+}
+
+.powerInfo {
+    grid-column: 2;
+    color: gray;
+}

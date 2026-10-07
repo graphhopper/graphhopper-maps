@@ -1,18 +1,25 @@
-import { SetVehicleProfile, UpdateSettings } from '@/actions/Actions'
+import { SetBikePower, SetVehicleProfile, UpdateSettings } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
 import styles from '@/sidebar/SettingsBox.module.css'
 import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import { RoutingProfile } from '@/api/graphhopper'
 import * as config from 'config'
 import { ProfileGroupMap } from '@/utils'
 import { clearRecentLocations } from '@/sidebar/search/RecentLocations'
+import { PowerSetting } from '@/BikePower'
 
-export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
+export default function SettingsBox({
+    profile,
+    powerSetting,
+}: {
+    profile: RoutingProfile
+    powerSetting: PowerSetting | null
+}) {
     const settings = useContext(SettingsContext)
 
     function setProfile(n: string) {
@@ -45,6 +52,7 @@ export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
             )}
             <div className={styles.title}>{tr('settings')}</div>
             <div className={styles.settingsTable}>
+                {powerSetting && <PowerSlider setting={powerSetting} />}
                 <SettingsToggle
                     title={tr('distance_unit', [tr(settings.showDistanceInMiles ? 'mi' : 'km')])}
                     enabled={settings.showDistanceInMiles}
@@ -96,6 +104,38 @@ export default function SettingsBox({ profile }: { profile: RoutingProfile }) {
                 <a href="https://www.graphhopper.com/privacy/">{tr('privacy')}</a>
                 <a href="https://www.graphhopper.com/terms/">{tr('terms')}</a>
             </div>
+        </div>
+    )
+}
+
+// the route is requested when the slider is released, while dragging only the label changes
+function PowerSlider({ setting }: { setting: PowerSetting }) {
+    const [power, setPower] = useState(setting.power)
+    useEffect(() => setPower(setting.power), [setting.power])
+    const commit = () => Dispatcher.dispatch(new SetBikePower(power === setting.defaultPower ? null : power))
+    // the label column is as wide as the toggle icons of the other settings, the slider aligns with their titles
+    return (
+        <div className={styles.powerRow} style={{ color: '#5b616a' }}>
+            <div>Power</div>
+            <div>
+                <input
+                    type="range"
+                    min={setting.min}
+                    max={setting.max}
+                    step={10}
+                    value={power}
+                    onChange={e => setPower(Number(e.target.value))}
+                    onPointerUp={commit}
+                    onKeyUp={commit}
+                />
+                {power} W
+            </div>
+            {setting.flatSpeed && (
+                <div className={styles.powerInfo}>
+                    {setting.flatSpeed(power).toFixed(1)} km/h on the flat
+                    {power === setting.defaultPower ? ' (default)' : ''}
+                </div>
+            )}
         </div>
     )
 }

@@ -14,6 +14,7 @@ import {
     RouteRequestFailed,
     RouteRequestSuccess,
     DisableCustomModel,
+    SetBikePower,
     SetCustomModel,
     SetPoint,
     SetQueryPoints,
@@ -25,6 +26,7 @@ import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist, Coordinate, ProfileGroupMap } from '@/utils'
 import config from 'config'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
+import { bikeParameters } from '@/BikePower'
 
 export interface QueryStoreState {
     readonly profiles: RoutingProfile[]
@@ -36,6 +38,8 @@ export interface QueryStoreState {
     readonly routingProfile: RoutingProfile
     readonly customModelEnabled: boolean
     readonly customModelStr: string
+    // the power of the cyclist in watt for profiles with the power parameter, null means the default of the profile
+    readonly bikePower: number | null
 }
 
 export interface QueryPoint {
@@ -102,6 +106,7 @@ export default class QueryStore extends Store<QueryStoreState> {
             },
             customModelEnabled: customModelEnabledInitially,
             customModelStr: initialCustomModelStr,
+            bikePower: null,
         }
     }
 
@@ -243,7 +248,9 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             // if there are profiles defined in the config file use them, otherwise use the profiles from /info
             const profiles: RoutingProfile[] = config.profiles
-                ? Object.keys(config.profiles).map(profile => ({ name: profile }))
+                ? Object.keys(config.profiles).map(
+                      profile => action.result.profiles.find(p => p.name === profile) ?? { name: profile },
+                  )
                 : action.result.profiles
 
             // if a routing profile was in the url keep it, otherwise select the first entry as default profile
@@ -294,6 +301,8 @@ export default class QueryStore extends Store<QueryStoreState> {
                 },
                 true,
             )
+        } else if (action instanceof SetBikePower) {
+            return this.routeIfReady({ ...state, bikePower: action.power }, false)
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
         } else if (action instanceof ReversePoints) {
@@ -345,7 +354,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         if (QueryStore.isReadyToRoute(state)) {
             let requests
             const maxDistance = getMaxDistance(state.queryPoints.map(qp => qp.coordinate))
-            if (state.customModelEnabled) {
+            if (state.customModelEnabled || QueryStore.getParameterOverrides(state)) {
                 if (maxDistance < 200_000) {
                     // Use a single request, possibly including alternatives when custom models are enabled.
                     requests = [QueryStore.buildRouteRequest(state)]
@@ -474,6 +483,8 @@ export default class QueryStore extends Store<QueryStoreState> {
             try {
                 customModel = JSON.parse(state.customModelStr)
             } catch {}
+        const parameters = QueryStore.getParameterOverrides(state)
+        if (parameters) customModel = { ...customModel, parameters: { ...customModel?.parameters, ...parameters } }
 
         return {
             points: coordinates,
@@ -481,6 +492,13 @@ export default class QueryStore extends Store<QueryStoreState> {
             maxAlternativeRoutes: state.maxAlternativeRoutes,
             customModel: customModel,
         }
+    }
+
+    // the parameters of the selected profile that were changed in the settings, e.g. the power of the cyclist
+    private static getParameterOverrides(state: QueryStoreState): Record<string, number> | null {
+        if (state.bikePower === null) return null
+        const parameters = state.profiles.find(p => p.name === state.routingProfile.name)?.parameters
+        return parameters ? bikeParameters(parameters, state.bikePower) : null
     }
 
     private static getEmptyPoint(id: number, type: QueryPointType): QueryPoint {

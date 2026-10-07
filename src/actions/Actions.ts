@@ -114,6 +114,15 @@ export class SetCustomModel implements Action {
 
 export class DisableCustomModel implements Action {}
 
+export class SetBikePower implements Action {
+    // in watt, null means the default of the profile
+    readonly power: number | null
+
+    constructor(power: number | null) {
+        this.power = power
+    }
+}
+
 export class RouteRequestSuccess implements Action {
     readonly result: RoutingResult
     readonly request: RoutingArgs

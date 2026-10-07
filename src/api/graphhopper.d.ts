@@ -24,6 +24,7 @@ export interface RoutingRequest {
     'alternative_route.max_paths'?: number
     'alternative_route.max_weight_factor'?: number
     'ch.disable'?: boolean
+    'lm.disable'?: boolean
     timeout_ms?: number
     algorithm?: 'alternative_route' | 'round_trip'
     snap_preventions?: string[]
@@ -61,8 +62,16 @@ export interface ApiInfo {
     readonly encoded_values: object[]
 }
 
+export interface ProfileParameter {
+    readonly value: number | boolean
+    readonly min?: number
+    readonly max?: number
+}
+
 export interface RoutingProfile {
     readonly name: string
+    // the parameters of the server-side custom model that a request can override, see /info
+    readonly parameters?: Record<string, ProfileParameter>
 }
 
 export interface Path extends BasePath {

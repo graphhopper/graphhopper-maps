@@ -59,6 +59,7 @@ export interface CustomModel {
     readonly priority?: object[]
     readonly distance_influence?: number
     readonly areas?: object
+    readonly parameters?: Record<string, number | boolean>
 }
 
 /**
