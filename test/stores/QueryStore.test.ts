@@ -329,12 +329,7 @@ describe('QueryStore', () => {
         it('should set the routing profile (surprise!)', () => {
             const store = new QueryStore(new ApiMock(() => {}))
             const state: QueryStoreState = store.state
-            const profile = {
-                name: 'car',
-                import_date: 'some_date',
-                features: { elevation: false },
-                version: 'some-version',
-            }
+            const profile = { name: 'car' }
 
             const newState = store.reduce(state, new SetVehicleProfile(profile))
 

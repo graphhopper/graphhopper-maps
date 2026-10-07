@@ -26,7 +26,6 @@ import { RoutingArgs, RoutingProfile } from '@/api/graphhopper'
 import { calcDist, Coordinate, ProfileGroupMap } from '@/utils'
 import config from 'config'
 import { customModel2prettyString, customModelExamples } from '@/sidebar/CustomModelExamples'
-import { bikeParameters } from '@/BikePower'
 
 export interface QueryStoreState {
     readonly profiles: RoutingProfile[]
@@ -38,7 +37,7 @@ export interface QueryStoreState {
     readonly routingProfile: RoutingProfile
     readonly customModelEnabled: boolean
     readonly customModelStr: string
-    // the power of the cyclist in watt for profiles with the power parameter, null means the default of the profile
+    // the power of the cyclist in watt, null means the default of the profile
     readonly bikePower: number | null
 }
 
@@ -248,13 +247,13 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             // if there are profiles defined in the config file use them, otherwise use the profiles from /info
             const profiles: RoutingProfile[] = config.profiles
-                ? Object.keys(config.profiles).map(
-                      profile => action.result.profiles.find(p => p.name === profile) ?? { name: profile },
-                  )
+                ? Object.keys(config.profiles).map(name => QueryStore.profile(action.result.profiles, name))
                 : action.result.profiles
 
             // if a routing profile was in the url keep it, otherwise select the first entry as default profile
-            const profile = state.routingProfile.name ? state.routingProfile : profiles[0]
+            const profile = state.routingProfile.name
+                ? QueryStore.profile(profiles, state.routingProfile.name)
+                : profiles[0]
             return this.routeIfReady(
                 {
                     ...state,
@@ -271,7 +270,8 @@ export default class QueryStore extends Store<QueryStoreState> {
 
             const newState: QueryStoreState = {
                 ...state,
-                routingProfile: { ...this.state.routingProfile, name: prevProfile },
+                routingProfile: QueryStore.profile(state.profiles, prevProfile),
+                bikePower: null,
             }
             return this.routeIfReady(newState, true)
         } else if (action instanceof SetVehicleProfile) {
@@ -280,7 +280,8 @@ export default class QueryStore extends Store<QueryStoreState> {
             const groupName = profileToGroup[name]
             const newState: QueryStoreState = {
                 ...state,
-                routingProfile: { ...action.profile, name: name },
+                routingProfile: QueryStore.profile(state.profiles, name),
+                bikePower: null,
                 // keep track of "selected option" like car_avoid_motorway for group 'car' and if we switch back to
                 // this group ('car') then we still want the profile car_avoid_motorway
                 memorizedProfilePerGroup: { ...state.memorizedProfilePerGroup, [groupName]: name },
@@ -354,7 +355,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         if (QueryStore.isReadyToRoute(state)) {
             let requests
             const maxDistance = getMaxDistance(state.queryPoints.map(qp => qp.coordinate))
-            if (state.customModelEnabled || QueryStore.getParameterOverrides(state)) {
+            if (state.customModelEnabled || state.bikePower !== null) {
                 if (maxDistance < 200_000) {
                     // Use a single request, possibly including alternatives when custom models are enabled.
                     requests = [QueryStore.buildRouteRequest(state)]
@@ -483,8 +484,8 @@ export default class QueryStore extends Store<QueryStoreState> {
             try {
                 customModel = JSON.parse(state.customModelStr)
             } catch {}
-        const parameters = QueryStore.getParameterOverrides(state)
-        if (parameters) customModel = { ...customModel, parameters: { ...customModel?.parameters, ...parameters } }
+        if (state.bikePower !== null)
+            customModel = { ...customModel, parameters: { ...customModel?.parameters, power: state.bikePower } }
 
         return {
             points: coordinates,
@@ -494,11 +495,9 @@ export default class QueryStore extends Store<QueryStoreState> {
         }
     }
 
-    // the parameters of the selected profile that were changed in the settings, e.g. the power of the cyclist
-    private static getParameterOverrides(state: QueryStoreState): Record<string, number> | null {
-        if (state.bikePower === null) return null
-        const parameters = state.profiles.find(p => p.name === state.routingProfile.name)?.parameters
-        return parameters ? bikeParameters(parameters, state.bikePower) : null
+    // the profile with its parameters from /info, if known
+    private static profile(profiles: RoutingProfile[], name: string): RoutingProfile {
+        return profiles.find(p => p.name === name) ?? { name }
     }
 
     private static getEmptyPoint(id: number, type: QueryPointType): QueryPoint {

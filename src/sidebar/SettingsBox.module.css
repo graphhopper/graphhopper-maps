@@ -108,8 +108,3 @@ input {
     margin: 0 8px 0 0;
     vertical-align: middle;
 }
-
-.powerInfo {
-    grid-column: 2;
-    color: gray;
-}

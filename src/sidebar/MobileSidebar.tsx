@@ -4,7 +4,6 @@ import { RouteStoreState } from '@/stores/RouteStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import styles from './MobileSidebar.module.css'
 import Search from '@/sidebar/search/Search'
-import { getPowerSetting } from '@/BikePower'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import { useMediaQuery } from 'react-responsive'
 import { CircleComponent, MarkerComponent } from '@/map/Marker'
@@ -89,10 +88,7 @@ export default function ({ query, route, error, encodedValues, drawAreas, map }:
                         <Search
                             points={query.queryPoints}
                             profile={query.routingProfile}
-                            powerSetting={getPowerSetting(
-                                query.profiles.find(p => p.name === query.routingProfile.name)?.parameters,
-                                query.bikePower,
-                            )}
+                            bikePower={query.bikePower}
                             map={map}
                         />
                     </div>

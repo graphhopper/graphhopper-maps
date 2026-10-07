@@ -28,7 +28,6 @@ import { MapOptionsStoreState, StyleOption } from '@/stores/MapOptionsStore'
 import { ErrorStoreState } from '@/stores/ErrorStore'
 import { CurrentLocationStoreState } from '@/stores/CurrentLocationStore'
 import Search from '@/sidebar/search/Search'
-import { getPowerSetting } from '@/BikePower'
 import ErrorMessage from '@/sidebar/ErrorMessage'
 import useBackgroundLayer from '@/layers/UseBackgroundLayer'
 import useQueryPointsLayer from '@/layers/UseQueryPointsLayer'
@@ -300,10 +299,7 @@ function LargeScreenLayout({
                         <Search
                             points={query.queryPoints}
                             profile={query.routingProfile}
-                            powerSetting={getPowerSetting(
-                                query.profiles.find(p => p.name === query.routingProfile.name)?.parameters,
-                                query.bikePower,
-                            )}
+                            bikePower={query.bikePower}
                             map={map}
                         />
                         <div>{!error.isDismissed && <ErrorMessage error={error} />}</div>

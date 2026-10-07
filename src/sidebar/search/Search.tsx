@@ -23,7 +23,6 @@ import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
 import { RoutingProfile } from '@/api/graphhopper'
-import { PowerSetting } from '@/BikePower'
 import { getBBoxFromCoord } from '@/utils'
 import { saveRecentLocation } from '@/sidebar/search/RecentLocations'
 import { useContext } from 'react'
@@ -32,12 +31,12 @@ import { SettingsContext } from '@/contexts/SettingsContext'
 export default function Search({
     points,
     profile,
-    powerSetting,
+    bikePower,
     map,
 }: {
     points: QueryPoint[]
     profile: RoutingProfile
-    powerSetting: PowerSetting | null
+    bikePower: number | null
     map: Map
 }) {
     const [showSettings, setShowSettings] = useState(false)
@@ -88,7 +87,7 @@ export default function Search({
                     {showSettings ? tr('settings_close') : tr('settings')}
                 </PlainButton>
             </div>
-            {showSettings && <SettingsBox profile={profile} powerSetting={powerSetting} />}
+            {showSettings && <SettingsBox profile={profile} bikePower={bikePower} />}
         </div>
     )
 }

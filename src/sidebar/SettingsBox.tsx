@@ -5,21 +5,15 @@ import { tr } from '@/translation/Translation'
 import PlainButton from '@/PlainButton'
 import OnIcon from '@/sidebar/toggle_on.svg'
 import OffIcon from '@/sidebar/toggle_off.svg'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import { RoutingProfile } from '@/api/graphhopper'
 import * as config from 'config'
 import { ProfileGroupMap } from '@/utils'
 import { clearRecentLocations } from '@/sidebar/search/RecentLocations'
-import { PowerSetting } from '@/BikePower'
+import { flatSpeed } from '@/BikePower'
 
-export default function SettingsBox({
-    profile,
-    powerSetting,
-}: {
-    profile: RoutingProfile
-    powerSetting: PowerSetting | null
-}) {
+export default function SettingsBox({ profile, bikePower }: { profile: RoutingProfile; bikePower: number | null }) {
     const settings = useContext(SettingsContext)
 
     function setProfile(n: string) {
@@ -52,7 +46,7 @@ export default function SettingsBox({
             )}
             <div className={styles.title}>{tr('settings')}</div>
             <div className={styles.settingsTable}>
-                {powerSetting && <PowerSlider setting={powerSetting} />}
+                {profile.parameters?.power && <PowerSlider key={profile.name} profile={profile} power={bikePower} />}
                 <SettingsToggle
                     title={tr('distance_unit', [tr(settings.showDistanceInMiles ? 'mi' : 'km')])}
                     enabled={settings.showDistanceInMiles}
@@ -108,11 +102,13 @@ export default function SettingsBox({
     )
 }
 
-// the route is requested when the slider is released, while dragging only the label changes
-function PowerSlider({ setting }: { setting: PowerSetting }) {
-    const [power, setPower] = useState(setting.power)
-    useEffect(() => setPower(setting.power), [setting.power])
-    const commit = () => Dispatcher.dispatch(new SetBikePower(power === setting.defaultPower ? null : power))
+// the slider for the power parameter of the profile, see /info. The route is requested when the slider is released.
+function PowerSlider({ profile, power }: { profile: RoutingProfile; power: number | null }) {
+    const p = profile.parameters!.power
+    const defaultPower = p.value as number
+    const mass = Number(profile.parameters!.mass?.value ?? 90)
+    const [value, setValue] = useState(power ?? defaultPower)
+    const commit = () => Dispatcher.dispatch(new SetBikePower(value === defaultPower ? null : value))
     // the label column is as wide as the toggle icons of the other settings, the slider aligns with their titles
     return (
         <div className={styles.powerRow} style={{ color: '#5b616a' }}>
@@ -120,22 +116,20 @@ function PowerSlider({ setting }: { setting: PowerSetting }) {
             <div>
                 <input
                     type="range"
-                    min={setting.min}
-                    max={setting.max}
+                    min={Math.max(50, p.min ?? 50)}
+                    max={Math.min(300, p.max ?? 300)}
                     step={10}
-                    value={power}
-                    onChange={e => setPower(Number(e.target.value))}
+                    value={value}
+                    onChange={e => setValue(Number(e.target.value))}
                     onPointerUp={commit}
                     onKeyUp={commit}
                 />
-                {power} W
-            </div>
-            {setting.flatSpeed && (
-                <div className={styles.powerInfo}>
-                    {setting.flatSpeed(power).toFixed(1)} km/h on the flat
-                    {power === setting.defaultPower ? ' (default)' : ''}
+                {value} W
+                <div style={{ color: 'gray' }}>
+                    {flatSpeed(profile.name, value, mass).toFixed(1)} km/h on the flat
+                    {value === defaultPower ? ' (default)' : ''}
                 </div>
-            )}
+            </div>
         </div>
     )
 }
