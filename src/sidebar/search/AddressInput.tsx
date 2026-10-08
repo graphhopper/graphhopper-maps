@@ -446,8 +446,10 @@ class Geocoder {
 
         await this.timeout.wait()
         try {
+            // photon's bias radius shrinks 2.2x per zoom level (12: ~11km, 13: ~5km) and from 13 on far results are
+            // hidden entirely, e.g. 'berl' after selecting Leipzig no longer finds Berlin => cap at 12
             const options: Record<string, string> = bias
-                ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '' + (zoom + 1) }
+                ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '' + Math.min(zoom + 1, 12) }
                 : {}
             const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
