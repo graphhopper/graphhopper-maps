@@ -57,7 +57,7 @@ export default class MapActionReceiver implements ActionReceiver {
         } else if (action instanceof RouteRequestFailed) {
             // even if no route could be found we still center the map on the request points, see #306
             const bbox = getBBoxPoints(action.request.points.map(p => ({ lng: p[0], lat: p[1] })))
-            if (bbox) fitBounds(this.map, bbox, isSmallScreen)
+            if (action.zoom && bbox) fitBounds(this.map, bbox, isSmallScreen)
         } else if (action instanceof ZoomToRoute) {
             const bbox = this.routeStore.state.selectedPath.bbox
             if (bbox) fitBounds(this.map, bbox, isSmallScreen)

@@ -235,13 +235,13 @@ export class ApiImpl implements Api {
         }
     }
 
-    routeWithDispatch(args: RoutingArgs, zoomOnSuccess: boolean) {
+    routeWithDispatch(args: RoutingArgs, zoom: boolean) {
         const routeNumber = this.routeCounter++
         this.route(args)
             .then(result => {
                 if (routeNumber > this.lastRouteNumber) {
                     this.lastRouteNumber = routeNumber
-                    Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
+                    Dispatcher.dispatch(new RouteRequestSuccess(args, zoom, result))
                 } else {
                     const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
                     console.log('Ignore response of earlier started route ' + tmp)
@@ -251,7 +251,7 @@ export class ApiImpl implements Api {
                 if (routeNumber > this.lastRouteNumber) {
                     console.warn('error when performing /route request ' + routeNumber + ': ', error)
                     this.lastRouteNumber = routeNumber
-                    Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
+                    Dispatcher.dispatch(new RouteRequestFailed(args, zoom, error.message))
                 } else {
                     const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
                     console.log('Ignore error ' + error.message + ' of earlier started route ' + tmp)

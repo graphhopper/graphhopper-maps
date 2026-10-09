@@ -290,7 +290,7 @@ describe('route', () => {
         await flushPromises()
 
         expect(mockedDispatcher).toHaveBeenCalledTimes(1)
-        expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestFailed(args, error.message))
+        expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestFailed(args, true, error.message))
     })
 
     it('should handle 500 error', async () => {

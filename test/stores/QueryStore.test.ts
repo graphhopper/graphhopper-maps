@@ -394,7 +394,7 @@ describe('QueryStore', () => {
                 },
             }
 
-            const newState = store.reduce(state, new RouteRequestFailed(routingArgs, 'message'))
+            const newState = store.reduce(state, new RouteRequestFailed(routingArgs, false, 'message'))
 
             expect(newState.currentRequest.subRequests[0].state).toEqual(RequestState.FAILED)
         })
@@ -406,7 +406,7 @@ describe('QueryStore', () => {
             }))
             const state = { ...store.state, currentRequest: { subRequests } }
             // alternatives (2nd) request fails first => Api ignores the 1st response, so it must not stay SENT
-            const newState = store.reduce(state, new RouteRequestFailed(subRequests[1].args, 'message'))
+            const newState = store.reduce(state, new RouteRequestFailed(subRequests[1].args, false, 'message'))
             const failed = RequestState.FAILED
             expect(newState.currentRequest.subRequests.map(r => r.state)).toEqual([failed, failed])
         })

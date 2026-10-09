@@ -136,10 +136,12 @@ export class ErrorAction implements Action {
 
 export class RouteRequestFailed extends ErrorAction {
     readonly request: RoutingArgs
+    readonly zoom: boolean
 
-    constructor(request: RoutingArgs, message: string) {
+    constructor(request: RoutingArgs, zoom: boolean, message: string) {
         super(message)
         this.request = request
+        this.zoom = zoom
     }
 }
 
