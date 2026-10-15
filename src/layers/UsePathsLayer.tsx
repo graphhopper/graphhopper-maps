@@ -229,6 +229,8 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
         style: feature => {
             const position = (feature.getGeometry() as Point).getCoordinates()
             if (dragging) {
+                // not while pinch zooming (mobile), that drag is ignored (see modifyend)
+                if (map.getView().getInteracting()) return []
                 dragLineStyle.setGeometry(new LineString([downPosition, position]))
                 return [dragStyle, dragLineStyle]
             }
@@ -265,6 +267,13 @@ function addRouteDragInteraction(map: Map, selectedPath: Path, queryPoints: Quer
         const grabbedViaPoint = grabbedViaFeature?.get('gh:query_point')
         grabbedViaFeature?.set('gh:hidden', false)
         grabbedViaFeature = undefined
+        // another finger is still down: a pinch zoom (mobile) that started on the route, not a drag.
+        // Recreating the interaction discards the dragged vertex of the invisible copy.
+        if (e.mapBrowserEvent.activePointers?.length) {
+            removeRouteDragInteractions(map)
+            addRouteDragInteraction(map, selectedPath, queryPoints)
+            return
+        }
         const pixel = e.mapBrowserEvent.pixel
         // clicks are handled below, a drag creates or moves a via point
         if (Math.abs(pixel[0] - downPixel[0]) <= 2 && Math.abs(pixel[1] - downPixel[1]) <= 2) return

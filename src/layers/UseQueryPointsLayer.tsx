@@ -122,7 +122,8 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSourc
         hitDetection: queryPointsLayer,
         source: tmp,
         style: feature => {
-            if (!dragging) return []
+            // not while pinch zooming (mobile), that drag is ignored (see modifyend)
+            if (!dragging || map.getView().getInteracting()) return []
             const position = (feature.getGeometry() as Point).getCoordinates()
             dragLineStyle.setGeometry(new LineString([downPosition, position]))
             return dragLineStyle
@@ -153,6 +154,8 @@ function addDragInteractions(map: Map, queryPointsLayer: VectorLayer<VectorSourc
         map.getViewport().style.cursor = 'default'
         e.features.getArray().forEach(f => f.set('gh:dragging', false))
         const feature = (e as any).features.getArray()[0]
+        // another finger is still down: a pinch zoom (mobile) that started on the marker, put it back
+        if (e.mapBrowserEvent.activePointers?.length) return feature.getGeometry().setCoordinates(downPosition)
         const point = feature.get('gh:query_point')
         const coordinateLonLat = toLonLat(feature.getGeometry().getCoordinates())
         const coordinate = { lng: coordinateLonLat[0], lat: coordinateLonLat[1] }
