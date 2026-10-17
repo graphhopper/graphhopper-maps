@@ -180,14 +180,22 @@ const SearchBox = ({
                     point={point}
                     points={points}
                     onCancel={() => console.log('cancel')}
-                    onLocationSelected={(mainText, secondText, coordinate, streetName = '', bbox) => {
+                    onLocationSelected={(
+                        mainText,
+                        secondText,
+                        coordinate,
+                        streetName = '',
+                        osm_id,
+                        osm_type,
+                        extent,
+                    ) => {
                         const queryText = secondText ? mainText + ', ' + secondText : mainText
                         if (secondText && coordinate && saveRecent)
-                            saveRecentLocation(mainText, secondText, coordinate, streetName)
+                            saveRecentLocation(mainText, secondText, coordinate, streetName, osm_id, osm_type, extent)
 
                         const initCount = points.filter(p => p.isInitialized).length
                         if (coordinate && initCount != points.length)
-                            Dispatcher.dispatch(new SetBBox(getBBoxFromExtent(coordinate, bbox)))
+                            Dispatcher.dispatch(new SetBBox(getBBoxFromExtent(coordinate, extent)))
 
                         Dispatcher.dispatch(
                             new SetPoint(

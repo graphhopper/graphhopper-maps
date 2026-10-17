@@ -1,4 +1,5 @@
 import { calcDist, Coordinate } from '@/utils'
+import { Bbox } from '@/api/graphhopper'
 import { tr } from '@/translation/Translation'
 import { textToCoordinate } from '@/Converters'
 
@@ -14,6 +15,10 @@ export interface RecentLocation {
     lng: number
     timestamp: number
     count: number
+    // to zoom and fetch the geometry on selection (too big to store)
+    osm_id?: string
+    osm_type?: string
+    extent?: Bbox
 }
 
 export function getRecentLocations(minCount: number = 0): RecentLocation[] {
@@ -67,6 +72,9 @@ export function saveRecentLocation(
     secondText: string,
     coordinate: Coordinate,
     streetName: string,
+    osm_id?: string,
+    osm_type?: string,
+    extent?: Bbox,
     now: number = Date.now(),
 ): void {
     if (mainText === tr('current_location')) return
@@ -89,6 +97,9 @@ export function saveRecentLocation(
             lng: coordinate.lng,
             timestamp: now,
             count: prevCount + 1,
+            osm_id,
+            osm_type,
+            extent,
         }
         // Always keep the just-saved entry so a brand-new one-off can enter even if the cache is full of
         // favorites (otherwise it would be starved and never accumulate count). Rank the remaining slots

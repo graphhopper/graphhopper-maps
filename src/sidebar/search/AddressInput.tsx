@@ -36,7 +36,9 @@ export interface AddressInputProps {
         secondText: string | undefined,
         coord: Coordinate | undefined,
         streetName: string | undefined,
-        bbox?: Bbox,
+        osm_id?: string,
+        osm_type?: string,
+        extent?: Bbox,
     ) => void
     onChange: (value: string) => void
     clearDragDrop: () => void
@@ -76,8 +78,9 @@ export default function AddressInput(props: AddressInputProps) {
                         obj.secondText,
                         obj.streetName,
                         hit.point,
-                        hit.extent ? hit.extent : getBBoxFromCoord(hit.point),
-                        hit,
+                        hit.osm_id,
+                        hit.osm_type,
+                        hit.extent,
                     ),
                 )
             })
@@ -89,9 +92,17 @@ export default function AddressInput(props: AddressInputProps) {
 
     const [poiSearch] = useState(new ReverseGeocoder(getApi(), props.point, AddressParseResult.handleGeocodingResponse))
 
-    const selectGeocodingItem = (item: GeocodingItem) => {
-        props.onLocationSelected(item.mainText, item.secondText, item.point, item.streetName, item.bbox)
-        geocoder.requestGeometry(item.hit)
+    const selectItem = (item: GeocodingItem) => {
+        props.onLocationSelected(
+            item.mainText,
+            item.secondText,
+            item.point,
+            item.streetName,
+            item.osm_id,
+            item.osm_type,
+            item.extent,
+        )
+        if (item.osm_id) geocoder.requestGeometry(item)
     }
 
     // if item is selected we need to clear the autocompletion list
@@ -164,7 +175,7 @@ export default function AddressInput(props: AddressInputProps) {
                             handlePoiSearch(poiSearch, item.result, props.map)
                             props.onLocationSelected(item.result.text(item.result.poi), undefined, undefined, undefined)
                         } else if (item instanceof RecentLocationItem) {
-                            props.onLocationSelected(item.mainText, item.secondText, item.point, item.streetName)
+                            selectItem(item)
                         } else if (highlightedResult < 0 && !props.point.isInitialized) {
                             // by default use the first result, otherwise the highlighted one
                             getApi()
@@ -173,20 +184,23 @@ export default function AddressInput(props: AddressInputProps) {
                                     if (result && result.hits.length > 0) {
                                         const hit: GeocodingHit = result.hits[0]
                                         const res = nominatimHitToItem(hit)
-                                        props.onLocationSelected(
-                                            res.mainText,
-                                            res.secondText,
-                                            hit.point,
-                                            res.streetName,
-                                            hit.extent,
+                                        selectItem(
+                                            new GeocodingItem(
+                                                res.mainText,
+                                                res.secondText,
+                                                res.streetName,
+                                                hit.point,
+                                                hit.osm_id,
+                                                hit.osm_type,
+                                                hit.extent,
+                                            ),
                                         )
-                                        geocoder.requestGeometry(hit)
                                     } else if (item instanceof GeocodingItem) {
-                                        selectGeocodingItem(item)
+                                        selectItem(item)
                                     }
                                 })
                         } else if (item instanceof GeocodingItem) {
-                            selectGeocodingItem(item)
+                            selectItem(item)
                         }
                     }
                     if (event.key === 'Enter') focusNextOrBlur()
@@ -328,17 +342,9 @@ export default function AddressInput(props: AddressInputProps) {
                             items={autocompleteItems}
                             highlightedItem={autocompleteItems[highlightedResult]}
                             onSelect={item => {
-                                if (item instanceof GeocodingItem) {
+                                if (item instanceof GeocodingItem || item instanceof RecentLocationItem) {
                                     setText(item.toText())
-                                    selectGeocodingItem(item)
-                                } else if (item instanceof RecentLocationItem) {
-                                    setText(item.toText())
-                                    props.onLocationSelected(
-                                        item.mainText,
-                                        item.secondText,
-                                        item.point,
-                                        item.streetName,
-                                    )
+                                    selectItem(item)
                                 } else if (item instanceof POIQueryItem) {
                                     handlePoiSearch(poiSearch, item.result, props.map)
                                     setText(item.result.text(item.result.poi))
@@ -372,7 +378,7 @@ function buildRecentItems(filter?: string, limit?: number, excludeCoord?: Coordi
         )
     }
     if (limit) recents = recents.slice(0, limit)
-    return recents.map(e => new RecentLocationItem(e.mainText, e.secondText, e.streetName, { lat: e.lat, lng: e.lng }))
+    return recents.map(e => new RecentLocationItem(e))
 }
 
 function handlePoiSearch(poiSearch: ReverseGeocoder, result: AddressParseResult, map: Map) {
@@ -423,8 +429,6 @@ class Geocoder {
     private readonly timeout = new Timout(100)
     private readonly api: Api
     private readonly onSuccess: (query: string, provider: string, hits: GeocodingHit[]) => void
-    private lastQuery = ''
-    private lastOptions: Record<string, string> = {}
 
     constructor(api: Api, onSuccess: (query: string, provider: string, hits: GeocodingHit[]) => void) {
         this.api = api
@@ -454,8 +458,6 @@ class Geocoder {
             const options: Record<string, string> = bias
                 ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '' + Math.min(zoom + 1, 12) }
                 : {}
-            this.lastQuery = query
-            this.lastOptions = options
             const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
             if (currentId === this.requestId) this.onSuccess(query, provider, hits)
@@ -465,11 +467,17 @@ class Geocoder {
     }
 
     // geometries can be big so request only for the selected hit; streets are split into ways so skip lines
-    requestGeometry(selected: GeocodingHit) {
+    requestGeometry(item: GeocodingItem) {
+        const options = {
+            point: coordinateToText(item.point),
+            location_bias_scale: '0.5',
+            zoom: '12',
+            geometry: 'true',
+        }
         this.api
-            .geocode(this.lastQuery, 'default', { ...this.lastOptions, geometry: 'true' })
+            .geocode(item.mainText, 'default', options)
             .then(result => {
-                const hit = result.hits.find(h => h.osm_id == selected.osm_id && h.osm_type == selected.osm_type)
+                const hit = result.hits.find(h => h.osm_id == item.osm_id && h.osm_type == item.osm_type)
                 const geometry = hit?.geometry as { type: string } | undefined
                 Dispatcher.dispatch(new SetGeocodingGeometry(geometry?.type.endsWith('Polygon') ? geometry : null))
             })

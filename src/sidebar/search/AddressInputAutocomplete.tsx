@@ -1,5 +1,7 @@
 import styles from './AddressInputAutocomplete.module.css'
-import { Bbox, GeocodingHit } from '@/api/graphhopper'
+import { Bbox } from '@/api/graphhopper'
+import { Coordinate } from '@/utils'
+import { RecentLocation } from '@/sidebar/search/RecentLocations'
 import { AddressParseResult } from '@/pois/AddressParseResult'
 import { tr } from '@/translation/Translation'
 import Cross from '@/sidebar/times-solid-thin.svg'
@@ -10,24 +12,28 @@ export class GeocodingItem implements AutocompleteItem {
     mainText: string
     secondText: string
     streetName: string
-    point: { lat: number; lng: number }
-    bbox: Bbox
-    hit: GeocodingHit
+    point: Coordinate
+    // osm_id, osm_type and extent of the geocoding hit, if known, to zoom and to fetch the geometry
+    osm_id?: string
+    osm_type?: string
+    extent?: Bbox
 
     constructor(
         mainText: string,
         secondText: string,
         streetName: string,
-        point: { lat: number; lng: number },
-        bbox: Bbox,
-        hit: GeocodingHit,
+        point: Coordinate,
+        osm_id?: string,
+        osm_type?: string,
+        extent?: Bbox,
     ) {
         this.mainText = mainText
         this.secondText = secondText
         this.streetName = streetName
         this.point = point
-        this.bbox = bbox
-        this.hit = hit
+        this.osm_id = osm_id
+        this.osm_type = osm_type
+        this.extent = extent
     }
 
     toText() {
@@ -35,21 +41,9 @@ export class GeocodingItem implements AutocompleteItem {
     }
 }
 
-export class RecentLocationItem implements AutocompleteItem {
-    mainText: string
-    secondText: string
-    streetName: string
-    point: { lat: number; lng: number }
-
-    constructor(mainText: string, secondText: string, streetName: string, point: { lat: number; lng: number }) {
-        this.mainText = mainText
-        this.secondText = secondText
-        this.streetName = streetName
-        this.point = point
-    }
-
-    toText() {
-        return this.mainText + ', ' + this.secondText
+export class RecentLocationItem extends GeocodingItem {
+    constructor(e: RecentLocation) {
+        super(e.mainText, e.secondText, e.streetName, { lat: e.lat, lng: e.lng }, e.osm_id, e.osm_type, e.extent)
     }
 }
 
@@ -86,10 +80,10 @@ function mapToComponent(
     onSelect: (hit: AutocompleteItem) => void,
     onRemove?: (hit: RecentLocationItem) => void,
 ) {
-    if (item instanceof GeocodingItem)
-        return <GeocodingEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
-    else if (item instanceof RecentLocationItem)
+    if (item instanceof RecentLocationItem)
         return <RecentLocationEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} onRemove={onRemove} />
+    else if (item instanceof GeocodingItem)
+        return <GeocodingEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else if (item instanceof POIQueryItem)
         return <POIQueryEntry item={item} isHighlighted={isHighlighted} onSelect={onSelect} />
     else throw Error('Unsupported item type: ' + typeof item)
