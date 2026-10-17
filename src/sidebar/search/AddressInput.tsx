@@ -102,7 +102,9 @@ export default function AddressInput(props: AddressInputProps) {
             item.osm_type,
             item.extent,
         )
-        if (item.osm_id) geocoder.requestGeometry(item)
+        // skip if this selection triggers a route request as the route replaces the geometry anyway
+        const othersSet = props.points.every(p => p.id == props.point.id || p.isInitialized)
+        if (item.osm_id && !othersSet) geocoder.requestGeometry(item)
     }
 
     // if item is selected we need to clear the autocompletion list
