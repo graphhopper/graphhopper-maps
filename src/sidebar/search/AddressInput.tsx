@@ -212,11 +212,12 @@ export default function AddressInput(props: AddressInputProps) {
         [autocompleteItems, highlightedResult, text],
     )
 
+    // on small screens show the map instead of the next input
     const focusNextOrBlur = () => {
         const next = document
             .querySelector<HTMLElement>('[data-search-box]')!
             .querySelectorAll<HTMLInputElement>('input[type="text"]')[props.index + 1]
-        if (next) next.focus()
+        if (next && !isSmallScreen) next.focus()
         else searchInput.current!.blur()
     }
 
