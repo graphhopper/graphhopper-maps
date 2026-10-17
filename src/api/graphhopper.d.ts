@@ -144,6 +144,8 @@ export interface GeocodingResult {
 export interface GeocodingHit {
     readonly point: Coordinate
     readonly extent: Bbox
+    // GeoJSON geometry, only present if requested with geometry=true
+    readonly geometry?: object
     readonly osm_id: string
     readonly osm_type: string
     readonly osm_key: string

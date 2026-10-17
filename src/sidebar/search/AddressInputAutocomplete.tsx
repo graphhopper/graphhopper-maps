@@ -1,5 +1,5 @@
 import styles from './AddressInputAutocomplete.module.css'
-import { Bbox } from '@/api/graphhopper'
+import { Bbox, GeocodingHit } from '@/api/graphhopper'
 import { AddressParseResult } from '@/pois/AddressParseResult'
 import { tr } from '@/translation/Translation'
 import Cross from '@/sidebar/times-solid-thin.svg'
@@ -12,6 +12,7 @@ export class GeocodingItem implements AutocompleteItem {
     streetName: string
     point: { lat: number; lng: number }
     bbox: Bbox
+    hit: GeocodingHit
 
     constructor(
         mainText: string,
@@ -19,12 +20,14 @@ export class GeocodingItem implements AutocompleteItem {
         streetName: string,
         point: { lat: number; lng: number },
         bbox: Bbox,
+        hit: GeocodingHit,
     ) {
         this.mainText = mainText
         this.secondText = secondText
         this.streetName = streetName
         this.point = point
         this.bbox = bbox
+        this.hit = hit
     }
 
     toText() {

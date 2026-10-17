@@ -1,12 +1,17 @@
 import { Action, ActionReceiver } from '@/stores/Dispatcher'
-import { Map } from 'ol'
+import { Feature, Map } from 'ol'
 import { fromLonLat } from 'ol/proj'
+import VectorLayer from 'ol/layer/Vector'
+import VectorSource from 'ol/source/Vector'
+import { GeoJSON } from 'ol/format'
+import { Fill, Stroke, Style } from 'ol/style'
 import {
     InfoReceived,
     PathDetailsRangeSelected,
     RouteRequestFailed,
     RouteRequestSuccess,
     SetBBox,
+    SetGeocodingGeometry,
     SetSelectedPath,
     ZoomToRoute,
 } from '@/actions/Actions'
@@ -18,6 +23,7 @@ export default class MapActionReceiver implements ActionReceiver {
     readonly map: Map
     private readonly routeStore: RouteStore
     private readonly isSmallScreenQuery: () => boolean
+    private geometryLayer: VectorLayer | null = null
 
     constructor(map: Map, routeStore: RouteStore, isSmallScreenQuery: () => boolean) {
         this.map = map
@@ -32,7 +38,10 @@ export default class MapActionReceiver implements ActionReceiver {
             // we estimate the map size to be equal to the window size. we don't know better at this point, because
             // the map has not been rendered for the first time yet
             fitBounds(this.map, action.bbox, isSmallScreen, [window.innerWidth, window.innerHeight])
+        } else if (action instanceof SetGeocodingGeometry) {
+            this.setGeometryLayer(action.geometry)
         } else if (action instanceof RouteRequestSuccess) {
+            this.setGeometryLayer(null)
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route
             // store digests this action first, which our Dispatcher can't at the moment.
@@ -77,6 +86,22 @@ export default class MapActionReceiver implements ActionReceiver {
                 fitBounds(this.map, action.result.bbox, isSmallScreen)
             }
         }
+    }
+
+    private setGeometryLayer(geometry: object | null) {
+        if (this.geometryLayer) this.map.removeLayer(this.geometryLayer)
+        this.geometryLayer = null
+        if (!geometry) return
+        const feature = new Feature(new GeoJSON({ featureProjection: 'EPSG:3857' }).readGeometry(geometry))
+        this.geometryLayer = new VectorLayer({
+            source: new VectorSource({ features: [feature] }),
+            style: new Style({
+                stroke: new Stroke({ color: 'rgba(39,100,200,0.65)', width: 2 }),
+                fill: new Fill({ color: 'rgba(39,100,200,0.08)' }),
+            }),
+            zIndex: 1,
+        })
+        this.map.addLayer(this.geometryLayer)
     }
 }
 

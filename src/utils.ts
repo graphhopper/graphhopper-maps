@@ -23,6 +23,13 @@ export function getBBoxFromCoord(c: Coordinate, offset: number = 0.005): Bbox {
     return [c.lng - offset, c.lat - offset, c.lng + offset, c.lat + offset]
 }
 
+// bbox around c within the extent, uses the smaller distance to the border to skip exclaves (Hamburg: Neuwerk)
+export function getBBoxFromExtent(c: Coordinate, extent?: Bbox, minOffset: number = 0.005): Bbox {
+    const lngOffset = extent ? Math.max(minOffset, Math.min(c.lng - extent[0], extent[2] - c.lng)) : minOffset
+    const latOffset = extent ? Math.max(minOffset, Math.min(c.lat - extent[1], extent[3] - c.lat)) : minOffset
+    return [c.lng - lngOffset, c.lat - latOffset, c.lng + lngOffset, c.lat + latOffset]
+}
+
 // TODO merge with toBBox in RoutingResults
 export function getBBoxPoints(points: Coordinate[]): Bbox | null {
     const bbox: Bbox = points.reduce(

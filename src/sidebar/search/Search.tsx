@@ -23,7 +23,7 @@ import { MarkerComponent } from '@/map/Marker'
 import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
 import { RoutingProfile } from '@/api/graphhopper'
-import { getBBoxFromCoord } from '@/utils'
+import { getBBoxFromExtent } from '@/utils'
 import { saveRecentLocation } from '@/sidebar/search/RecentLocations'
 import { useContext } from 'react'
 import { SettingsContext } from '@/contexts/SettingsContext'
@@ -180,14 +180,14 @@ const SearchBox = ({
                     point={point}
                     points={points}
                     onCancel={() => console.log('cancel')}
-                    onLocationSelected={(mainText, secondText, coordinate, streetName = '') => {
+                    onLocationSelected={(mainText, secondText, coordinate, streetName = '', bbox) => {
                         const queryText = secondText ? mainText + ', ' + secondText : mainText
                         if (secondText && coordinate && saveRecent)
                             saveRecentLocation(mainText, secondText, coordinate, streetName)
 
                         const initCount = points.filter(p => p.isInitialized).length
                         if (coordinate && initCount != points.length)
-                            Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coordinate)))
+                            Dispatcher.dispatch(new SetBBox(getBBoxFromExtent(coordinate, bbox)))
 
                         Dispatcher.dispatch(
                             new SetPoint(

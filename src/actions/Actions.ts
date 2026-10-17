@@ -199,6 +199,15 @@ export class SetBBox implements Action {
     }
 }
 
+/** Shows the GeoJSON geometry of the selected geocoding hit until a route is shown, null removes it */
+export class SetGeocodingGeometry implements Action {
+    readonly geometry: object | null
+
+    constructor(geometry: object | null) {
+        this.geometry = geometry
+    }
+}
+
 export class PathDetailsHover implements Action {
     readonly pathDetailsPoint: PathDetailsPoint | null
 

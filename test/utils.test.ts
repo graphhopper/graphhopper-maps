@@ -1,4 +1,4 @@
-import { getBBoxPoints } from '@/utils'
+import { getBBoxFromExtent, getBBoxPoints } from '@/utils'
 
 describe('getBBoxPoints', () => {
     it('returns the bbox of the given points', () => {
@@ -27,5 +27,17 @@ describe('getBBoxPoints', () => {
                 { lat: 1, lng: 170 },
             ]),
         ).toEqual([0, 0, 190, 1])
+    })
+})
+
+describe('getBBoxFromExtent', () => {
+    it('is symmetric around the point and ignores exclaves', () => {
+        const c = { lng: 10.0, lat: 53.55 }
+        const close = (bbox: number[], exp: number[]) => bbox.forEach((v, i) => expect(v).toBeCloseTo(exp[i], 6))
+        close(getBBoxFromExtent(c), [9.995, 53.545, 10.005, 53.555])
+        // tiny extent -> minimum size
+        close(getBBoxFromExtent(c, [9.999, 53.549, 10.001, 53.551]), [9.995, 53.545, 10.005, 53.555])
+        // Hamburg incl. Neuwerk
+        close(getBBoxFromExtent(c, [8.1, 53.4, 10.3, 54.0]), [9.7, 53.4, 10.3, 53.7])
     })
 })

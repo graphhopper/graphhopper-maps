@@ -24,6 +24,8 @@ import { Map } from 'ol'
 import { AddressParseResult } from '@/pois/AddressParseResult'
 import { getMap } from '@/map/map'
 import { calcDist, Coordinate, getBBoxFromCoord } from '@/utils'
+import Dispatcher from '@/stores/Dispatcher'
+import { SetGeocodingGeometry } from '@/actions/Actions'
 
 export interface AddressInputProps {
     point: QueryPoint
@@ -34,6 +36,7 @@ export interface AddressInputProps {
         secondText: string | undefined,
         coord: Coordinate | undefined,
         streetName: string | undefined,
+        bbox?: Bbox,
     ) => void
     onChange: (value: string) => void
     clearDragDrop: () => void
@@ -74,6 +77,7 @@ export default function AddressInput(props: AddressInputProps) {
                         obj.streetName,
                         hit.point,
                         hit.extent ? hit.extent : getBBoxFromCoord(hit.point),
+                        hit,
                     ),
                 )
             })
@@ -84,6 +88,11 @@ export default function AddressInput(props: AddressInputProps) {
     )
 
     const [poiSearch] = useState(new ReverseGeocoder(getApi(), props.point, AddressParseResult.handleGeocodingResponse))
+
+    const selectGeocodingItem = (item: GeocodingItem) => {
+        props.onLocationSelected(item.mainText, item.secondText, item.point, item.streetName, item.bbox)
+        geocoder.requestGeometry(item.hit)
+    }
 
     // if item is selected we need to clear the autocompletion list
     useEffect(() => {
@@ -169,18 +178,15 @@ export default function AddressInput(props: AddressInputProps) {
                                             res.secondText,
                                             hit.point,
                                             res.streetName,
+                                            hit.extent,
                                         )
+                                        geocoder.requestGeometry(hit)
                                     } else if (item instanceof GeocodingItem) {
-                                        props.onLocationSelected(
-                                            item.mainText,
-                                            item.secondText,
-                                            item.point,
-                                            item.streetName,
-                                        )
+                                        selectGeocodingItem(item)
                                     }
                                 })
                         } else if (item instanceof GeocodingItem) {
-                            props.onLocationSelected(item.mainText, item.secondText, item.point, item.streetName)
+                            selectGeocodingItem(item)
                         }
                     }
                     if (event.key === 'Enter') focusNextOrBlur()
@@ -324,12 +330,7 @@ export default function AddressInput(props: AddressInputProps) {
                             onSelect={item => {
                                 if (item instanceof GeocodingItem) {
                                     setText(item.toText())
-                                    props.onLocationSelected(
-                                        item.mainText,
-                                        item.secondText,
-                                        item.point,
-                                        item.streetName,
-                                    )
+                                    selectGeocodingItem(item)
                                 } else if (item instanceof RecentLocationItem) {
                                     setText(item.toText())
                                     props.onLocationSelected(
@@ -422,6 +423,8 @@ class Geocoder {
     private readonly timeout = new Timout(100)
     private readonly api: Api
     private readonly onSuccess: (query: string, provider: string, hits: GeocodingHit[]) => void
+    private lastQuery = ''
+    private lastOptions: Record<string, string> = {}
 
     constructor(api: Api, onSuccess: (query: string, provider: string, hits: GeocodingHit[]) => void) {
         this.api = api
@@ -451,12 +454,26 @@ class Geocoder {
             const options: Record<string, string> = bias
                 ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '' + Math.min(zoom + 1, 12) }
                 : {}
+            this.lastQuery = query
+            this.lastOptions = options
             const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
             if (currentId === this.requestId) this.onSuccess(query, provider, hits)
         } catch (reason) {
             throw Error('Could not get geocoding results because: ' + reason)
         }
+    }
+
+    // geometries can be big so request only for the selected hit; streets are split into ways so skip lines
+    requestGeometry(selected: GeocodingHit) {
+        this.api
+            .geocode(this.lastQuery, 'default', { ...this.lastOptions, geometry: 'true' })
+            .then(result => {
+                const hit = result.hits.find(h => h.osm_id == selected.osm_id && h.osm_type == selected.osm_type)
+                const geometry = hit?.geometry as { type: string } | undefined
+                Dispatcher.dispatch(new SetGeocodingGeometry(geometry?.type.endsWith('Polygon') ? geometry : null))
+            })
+            .catch(() => Dispatcher.dispatch(new SetGeocodingGeometry(null)))
     }
 
     private getNextId() {
