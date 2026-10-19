@@ -3,7 +3,7 @@ import { Path } from '@/api/graphhopper'
 import { Position } from 'geojson'
 import { ApiImpl } from '@/api/Api'
 import { tr } from '@/translation/Translation'
-import { metersToShortText } from '@/Converters'
+import { elevationToText, metersToShortText } from '@/Converters'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import styles from './RouteStats.module.css'
 import {
@@ -151,9 +151,11 @@ function detailEntries(
 
 function ColorBar({ entries }: { entries: DetailEntry[] }) {
     if (entries.length === 0) return null
+    // largest parts first, but keep the entries prop untouched as its order is used for the expanded detail rows
+    const sorted = [...entries].sort((a, b) => b.fraction - a.fraction)
     return (
         <div className={styles.colorBar}>
-            {entries.map((d, i) => (
+            {sorted.map((d, i) => (
                 <div
                     key={i}
                     className={styles.colorBarSegment}
@@ -276,8 +278,8 @@ export default function RouteStats({ path, profile }: { path: Path; profile: str
                 label={tr('route_stats_incline')}
                 details={inclineDetails}
                 extraInfo={[
-                    { name: tr('route_stats_total_ascent'), value: metersToShortText(path.ascend, us) },
-                    { name: tr('route_stats_total_descent'), value: metersToShortText(path.descend, us) },
+                    { name: tr('route_stats_total_ascent'), value: elevationToText(path.ascend, us) },
+                    { name: tr('route_stats_total_descent'), value: elevationToText(path.descend, us) },
                 ]}
             />,
         )

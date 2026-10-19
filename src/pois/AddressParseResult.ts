@@ -40,37 +40,21 @@ export class AddressParseResult {
         if (res.hasPOIs()) return res
 
         const cleanQuery = queryTokens.join(' ')
-        const bigrams: string[] = []
-        for (let i = 0; i < queryTokens.length - 1; i++) {
-            bigrams.push(queryTokens[i] + ' ' + queryTokens[i + 1])
-        }
 
-        const trigrams: string[] = []
-        for (let i = 0; i < queryTokens.length - 2; i++) {
-            trigrams.push(queryTokens[i] + ' ' + queryTokens[i + 1] + ' ' + queryTokens[i + 2])
-        }
+        // check longer phrases first for all POI types, so that e.g. 'hotel de ville' (townhall) is not matched as 'hotel'
+        for (let n = 3; n >= 1; n--) {
+            const ngrams: string[] = []
+            for (let i = 0; i + n <= queryTokens.length; i++) {
+                ngrams.push(queryTokens.slice(i, i + n).join(' '))
+            }
+            if (ngrams.length == 0) continue
 
-        for (const val of AddressParseResult.TRIGGER_VALUES) {
-            // three word phrases like 'home improvement store' must be checked before two word phrases
-            if (trigrams.length > 0)
+            for (const val of AddressParseResult.TRIGGER_VALUES) {
                 for (const keyword of val.k) {
-                    const i = trigrams.indexOf(keyword)
+                    const i = ngrams.indexOf(keyword)
                     if (i < 0) continue
-                    return new AddressParseResult(cleanQuery.replace(trigrams[i], '').trim(), val.q, val.i, val.k[0])
+                    return new AddressParseResult(cleanQuery.replace(ngrams[i], '').trim(), val.q, val.i, val.k[0])
                 }
-
-            // two word phrases like 'public transit' must be checked before single word phrases
-            if (bigrams.length > 0)
-                for (const keyword of val.k) {
-                    const i = bigrams.indexOf(keyword)
-                    if (i < 0) continue
-                    return new AddressParseResult(cleanQuery.replace(bigrams[i], '').trim(), val.q, val.i, val.k[0])
-                }
-
-            for (const keyword of val.k) {
-                const i = queryTokens.indexOf(keyword)
-                if (i < 0) continue
-                return new AddressParseResult(cleanQuery.replace(queryTokens[i], '').trim(), val.q, val.i, val.k[0])
             }
         }
 

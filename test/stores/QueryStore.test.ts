@@ -158,7 +158,7 @@ describe('QueryStore', () => {
                 ...p,
                 isInitialized: true,
                 queryText: `${i}`,
-                point: { lat: i, lng: i },
+                coordinate: { lat: i, lng: i },
             }))
             const state = {
                 ...store.state,
@@ -167,7 +167,7 @@ describe('QueryStore', () => {
 
             const newState = store.reduce(state, new ClearPoints())
 
-            expect(newState.queryPoints.every(p => isCleared(p)))
+            expect(newState.queryPoints.every(p => isCleared(p))).toBeTruthy()
         })
     })
     describe('AddPoint action', () => {
@@ -347,6 +347,7 @@ describe('QueryStore', () => {
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],
+                pointHints: [],
                 profile: 'some-profile',
                 customModel: null,
             }
@@ -378,6 +379,7 @@ describe('QueryStore', () => {
             const routingArgs: RoutingArgs = {
                 maxAlternativeRoutes: 1,
                 points: [],
+                pointHints: [],
                 profile: 'some-profile',
                 customModel: null,
             }
@@ -392,9 +394,21 @@ describe('QueryStore', () => {
                 },
             }
 
-            const newState = store.reduce(state, new RouteRequestFailed(routingArgs, 'message'))
+            const newState = store.reduce(state, new RouteRequestFailed(routingArgs, false, 'message'))
 
             expect(newState.currentRequest.subRequests[0].state).toEqual(RequestState.FAILED)
+        })
+        it('should also finish earlier subrequests that Api would ignore', () => {
+            const store = new QueryStore(new ApiMock(() => {}))
+            const subRequests = [1, 3].map(maxAlternativeRoutes => ({
+                state: RequestState.SENT,
+                args: { maxAlternativeRoutes, points: [], pointHints: [], profile: 'some-profile', customModel: null },
+            }))
+            const state = { ...store.state, currentRequest: { subRequests } }
+            // alternatives (2nd) request fails first => Api ignores the 1st response, so it must not stay SENT
+            const newState = store.reduce(state, new RouteRequestFailed(subRequests[1].args, false, 'message'))
+            const failed = RequestState.FAILED
+            expect(newState.currentRequest.subRequests.map(r => r.state)).toEqual([failed, failed])
         })
     })
 })
@@ -404,6 +418,7 @@ function getQueryPoint(id: number): QueryPoint {
         type: QueryPointType.From,
         isInitialized: true,
         queryText: '',
+        streetName: '',
         color: '',
         coordinate: { lat: 0, lng: 0 },
         id: id,

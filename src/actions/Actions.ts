@@ -114,6 +114,11 @@ export class SetQueryPoints implements Action {
     }
 }
 
+export class ReversePoints implements Action {}
+
+/** Fits the map viewport to the currently selected route without triggering a new routing request. */
+export class ZoomToRoute implements Action {}
+
 export class ClearPoints implements Action {}
 
 export class RemovePoint implements Action {
@@ -176,10 +181,12 @@ export class ErrorAction implements Action {
 
 export class RouteRequestFailed extends ErrorAction {
     readonly request: RoutingArgs
+    readonly zoom: boolean
 
-    constructor(request: RoutingArgs, message: string) {
+    constructor(request: RoutingArgs, zoom: boolean, message: string) {
         super(message)
         this.request = request
+        this.zoom = zoom
     }
 }
 
@@ -231,19 +238,20 @@ export class ToggleExternalMVTLayer implements Action {
 
 export class MapIsLoaded implements Action {}
 
-export class MoveMapToPoint implements Action {
-    readonly coordinate: Coordinate
-
-    constructor(coordinate: Coordinate) {
-        this.coordinate = coordinate
-    }
-}
-
 export class SetBBox implements Action {
     readonly bbox: Bbox
 
     constructor(bbox: Bbox) {
         this.bbox = bbox
+    }
+}
+
+/** Shows the GeoJSON geometry of the selected geocoding hit until a route is shown, null removes it */
+export class SetGeocodingGeometry implements Action {
+    readonly geometry: object | null
+
+    constructor(geometry: object | null) {
+        this.geometry = geometry
     }
 }
 

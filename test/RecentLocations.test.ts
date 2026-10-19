@@ -1,4 +1,9 @@
-import { getRecentLocations, saveRecentLocation, MAX_ENTRIES } from '@/sidebar/search/RecentLocations'
+import {
+    getRecentLocations,
+    removeRecentLocation,
+    saveRecentLocation,
+    MAX_ENTRIES,
+} from '@/sidebar/search/RecentLocations'
 
 jest.mock('@/translation/Translation', () => ({ tr: (key: string) => key }))
 jest.mock('@/Converters', () => ({ textToCoordinate: () => null }))
@@ -6,7 +11,7 @@ jest.mock('@/Converters', () => ({ textToCoordinate: () => null }))
 beforeEach(() => localStorage.clear())
 
 function save(name: string, lat: number, timestamp: number) {
-    saveRecentLocation(name, '', { lat, lng: 0 }, timestamp)
+    saveRecentLocation(name, '', { lat, lng: 0 }, '', undefined, undefined, undefined, timestamp)
 }
 
 function names() {
@@ -63,6 +68,18 @@ describe('RecentLocations', () => {
         save('New', 100, 10_000)
         // a brand-new one-off must still be stored, otherwise it can never accumulate count on future visits
         expect(names()).toContain('New')
+    })
+
+    it('should remove a single location, including its count', () => {
+        save('Home', 1, 1000)
+        save('Home', 1, 2000)
+        save('Work', 2, 3000)
+
+        removeRecentLocation({ lat: 1, lng: 0 })
+        expect(names()).toEqual(['Work'])
+
+        save('Home', 1, 4000) // re-saving starts with a fresh count
+        expect(getRecentLocations().find(l => l.mainText === 'Home')).toMatchObject({ count: 1 })
     })
 
     it('should sort by count desc, then timestamp desc', () => {

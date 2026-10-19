@@ -18,8 +18,8 @@ import {
     TurnNavigationStart,
     TurnNavigationStop,
 } from '@/actions/Actions'
-import Dispatcher, {Action} from '@/stores/Dispatcher'
-import Api, {ApiImpl} from '@/api/Api'
+import Dispatcher, { Action } from '@/stores/Dispatcher'
+import Api, { ApiImpl } from '@/api/Api'
 import {
     calcDist,
     calcOrientation,
@@ -28,13 +28,13 @@ import {
     toDegrees,
     toNorthBased,
 } from '@/turnNavigation/GeoMethods'
-import {Instruction, Path, RoutingArgs} from '@/api/graphhopper'
-import {tr} from '@/translation/Translation'
-import {SpeechSynthesizer} from '@/SpeechSynthesizer'
-import {Pixel} from 'ol/pixel'
+import { Instruction, Path, RoutingArgs } from '@/api/graphhopper'
+import { tr } from '@/translation/Translation'
+import { SpeechSynthesizer } from '@/SpeechSynthesizer'
+import { Pixel } from 'ol/pixel'
 import SettingsStore from '@/stores/SettingsStore'
-import {meterToFt, meterToMiles} from '@/Converters'
-import {Coordinate} from '@/utils'
+import { meterToFt, meterToMiles } from '@/Converters'
+import { Coordinate } from '@/utils'
 
 export interface TurnNavigationStoreState {
     // TODO replace "showUI" with a composite state depending on activePath, coordinate and instruction
@@ -95,7 +95,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     private readonly api: Api
     private watchId: any = undefined
     private interval: any
-    private wakeLockSentinel: WakeLockSentinel | null = null;
+    private wakeLockSentinel: WakeLockSentinel | null = null
     private readonly speechSynthesizer: SpeechSynthesizer
     private readonly cs: MapCoordinateSystem
     private readonly settingsStore: SettingsStore
@@ -107,7 +107,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         fakeGPSDelta: number,
         tiles: string,
         settingsStore: SettingsStore,
-        customModelStr: string
+        customModelStr: string,
     ) {
         super({
             showUI: false,
@@ -239,7 +239,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 state.instruction.distanceToWaypoint,
                 TurnNavigationStore.getWaypoint(path, instrInfo.nextWaypointIndex),
                 state.coordinate,
-                action.coordinate
+                action.coordinate,
             )
             // ... the waypoint of activePath should be skipped -> pick next waypoint from initialPath
             if (
@@ -254,7 +254,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     state.instruction.distanceToWaypoint,
                     TurnNavigationStore.getWaypoint(path, instrInfo.nextWaypointIndex),
                     state.coordinate,
-                    action.coordinate
+                    action.coordinate,
                 )
             }
 
@@ -285,6 +285,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
                     let args: RoutingArgs = {
                         points: [[coordinate.lng, coordinate.lat] as [number, number]].concat(nextWaypoints),
+                        pointHints: [],
                         maxAlternativeRoutes: 0,
                         heading: ApiImpl.isMotorVehicle(state.activeProfile) ? action.heading : undefined,
                         profile: state.activeProfile,
@@ -322,7 +323,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
 
             if (instrInfo.index < 0) {
                 console.error(
-                    'Instruction cannot be determined. Current location too far away? ' + JSON.stringify(coordinate)
+                    'Instruction cannot be determined. Current location too far away? ' + JSON.stringify(coordinate),
                 )
                 return state
             }
@@ -330,7 +331,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(
                 path,
                 instrInfo.pillarPointOnRoute,
-                [path.details.average_speed, path.details.max_speed, path.details.surface, path.details.road_class]
+                [path.details.average_speed, path.details.max_speed, path.details.surface, path.details.road_class],
             )
 
             const instruction: Instruction = path.instructions[instrInfo.index]
@@ -370,8 +371,8 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                             dist > 1200
                                 ? tr('in_km', [(dist / 1000).toFixed(1)])
                                 : dist > 900
-                                ? tr('in_km_singular')
-                                : tr('in_m', ['' + Math.floor(dist / 100) * 100])
+                                  ? tr('in_km_singular')
+                                  : tr('in_m', ['' + Math.floor(dist / 100) * 100])
                         this.synthesize(inString + ' ' + instruction.text)
                     }
                 }
@@ -422,7 +423,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             const [estimatedAvgSpeed, maxSpeed, surface, roadClass] = getCurrentDetails(
                 path,
                 state.pillarPointOnRoute,
-                [path.details.average_speed, path.details.max_speed, path.details.surface, path.details.road_class]
+                [path.details.average_speed, path.details.max_speed, path.details.surface, path.details.road_class],
             )
 
             return {
@@ -483,7 +484,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
         prevStateDistanceToWaypoint: number,
         waypoint: Coordinate,
         stateCoord: Coordinate,
-        actionCoord: Coordinate
+        actionCoord: Coordinate,
     ): boolean {
         // if waypoint reached use next waypoint as destination
         if (prevStateDistanceToWaypoint < 50) return true
@@ -493,8 +494,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private async initFake() {
-        if (this.state.settings.fullScreen)
-            this.requestFullscreen()
+        if (this.state.settings.fullScreen) this.requestFullscreen()
 
         console.log('started fake GPS injection')
 
@@ -518,7 +518,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 const o = calcOrientation(prevCoord.lat, prevCoord.lng, coord[1], coord[0])
                 const distanceInM = calcDist(
                     { lat: prevCoord.lat, lng: prevCoord.lng },
-                    { lat: coord[1], lng: coord[0] }
+                    { lat: coord[1], lng: coord[0] },
                 )
                 this.locationUpdate({
                     coords: {
@@ -599,6 +599,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                 [14.245254, 51.439291],
                 [14.234999, 51.43322],
             ],
+            pointHints: [],
             heading: 0,
             profile: 'car',
             maxAlternativeRoutes: 0,
@@ -609,37 +610,40 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
     }
 
     private requestFullscreen() {
-        (document.documentElement as any).requestFullscreen?.()
+        ;(document.documentElement as any)
+            .requestFullscreen?.()
             .then(() => console.log('requestFullscreen'))
             .catch((err: any) => {
-                console.error(`${err.name}, ${err.message}`);
-                throw err;
-            });
+                console.error(`${err.name}, ${err.message}`)
+                throw err
+            })
     }
 
     private requestWakeLock() {
         if (!navigator.wakeLock) return
-        navigator.wakeLock.request("screen")
+        navigator.wakeLock
+            .request('screen')
             .then((wakeLock: WakeLockSentinel) => {
-                this.wakeLockSentinel = wakeLock;
-                console.log("Wake Lock active.");
+                this.wakeLockSentinel = wakeLock
+                console.log('Wake Lock active.')
             })
             .catch((err: any) => {
-                console.error(`${err.name}, ${err.message}`);
-                throw err;
-            });
+                console.error(`${err.name}, ${err.message}`)
+                throw err
+            })
     }
 
     private releaseWakeLock() {
         if (!this.wakeLockSentinel) return
-        this.wakeLockSentinel.release()
+        this.wakeLockSentinel
+            .release()
             .then(() => {
-                this.wakeLockSentinel = null;
-                console.log("Wake Lock released.");
+                this.wakeLockSentinel = null
+                console.log('Wake Lock released.')
             })
-            .catch((err) => {
-                console.error("Failed to release Wake Lock:", err.name, err.message);
-            });
+            .catch(err => {
+                console.error('Failed to release Wake Lock:', err.name, err.message)
+            })
     }
 
     private locationUpdate(pos: any) {
@@ -655,8 +659,7 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
             // force calling clearWatch can help to find GPS fix more reliable in android firefox
             if (this.watchId !== undefined) navigator.geolocation.clearWatch(this.watchId)
 
-            if (this.state.settings.fullScreen)
-                this.requestFullscreen()
+            if (this.state.settings.fullScreen) this.requestFullscreen()
 
             this.watchId = navigator.geolocation.watchPosition(
                 this.locationUpdate.bind(this),
@@ -669,11 +672,11 @@ export default class TurnNavigationStore extends Store<TurnNavigationStoreState>
                     timeout: 300_000,
                     // maximumAge is not a problem here like with getCurrentPosition but let's use identical settings
                     enableHighAccuracy: true,
-                }
+                },
             )
 
             // initialize and enable after potential fullscreen change
-            this.requestWakeLock();
+            this.requestWakeLock()
         }
     }
 

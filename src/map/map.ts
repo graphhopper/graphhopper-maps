@@ -14,7 +14,7 @@ export function createMap(): Map {
             enableRotation: true,
             constrainRotation: false,
             multiWorld: false,
-            constrainResolution: true,
+            constrainResolution: false,
             center: fromLonLat([10, 10]),
             zoom: 2,
         }),

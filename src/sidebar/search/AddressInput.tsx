@@ -7,7 +7,7 @@ import Autocomplete, {
     POIQueryItem,
     RecentLocationItem,
 } from '@/sidebar/search/AddressInputAutocomplete'
-import { getRecentLocations } from '@/sidebar/search/RecentLocations'
+import { getRecentLocations, removeRecentLocation } from '@/sidebar/search/RecentLocations'
 import ArrowBack from './arrow_back.svg'
 import Cross from '@/sidebar/times-solid-thin.svg'
 import CurrentLocationIcon from './current-location.svg'
@@ -24,12 +24,22 @@ import { Map } from 'ol'
 import { AddressParseResult } from '@/pois/AddressParseResult'
 import { getMap } from '@/map/map'
 import { calcDist, Coordinate, getBBoxFromCoord } from '@/utils'
+import Dispatcher from '@/stores/Dispatcher'
+import { SetGeocodingGeometry } from '@/actions/Actions'
 
 export interface AddressInputProps {
     point: QueryPoint
     points: QueryPoint[]
     onCancel: () => void
-    onLocationSelected: (mainText: string, secondText: string | undefined, coord: Coordinate | undefined) => void
+    onLocationSelected: (
+        mainText: string,
+        secondText: string | undefined,
+        coord: Coordinate | undefined,
+        streetName: string | undefined,
+        osm_id?: string,
+        osm_type?: string,
+        extent?: Bbox,
+    ) => void
     onChange: (value: string) => void
     clearDragDrop: () => void
     moveStartIndex: number
@@ -66,8 +76,11 @@ export default function AddressInput(props: AddressInputProps) {
                     new GeocodingItem(
                         obj.mainText,
                         obj.secondText,
+                        obj.streetName,
                         hit.point,
-                        hit.extent ? hit.extent : getBBoxFromCoord(hit.point),
+                        hit.osm_id,
+                        hit.osm_type,
+                        hit.extent,
                     ),
                 )
             })
@@ -78,6 +91,21 @@ export default function AddressInput(props: AddressInputProps) {
     )
 
     const [poiSearch] = useState(new ReverseGeocoder(getApi(), props.point, AddressParseResult.handleGeocodingResponse))
+
+    const selectItem = (item: GeocodingItem) => {
+        props.onLocationSelected(
+            item.mainText,
+            item.secondText,
+            item.point,
+            item.streetName,
+            item.osm_id,
+            item.osm_type,
+            item.extent,
+        )
+        // skip if this selection triggers a route request as the route replaces the geometry anyway
+        const othersSet = props.points.every(p => p.id == props.point.id || p.isInitialized)
+        if (item.osm_id && !othersSet) geocoder.requestGeometry(item)
+    }
 
     // if item is selected we need to clear the autocompletion list
     useEffect(() => {
@@ -141,15 +169,15 @@ export default function AddressInput(props: AddressInputProps) {
                     // try to parse input as coordinate. Otherwise query nominatim
                     const coordinate = textToCoordinate(text)
                     if (coordinate) {
-                        props.onLocationSelected(text, undefined, coordinate)
+                        props.onLocationSelected(text, undefined, coordinate, undefined)
                     } else if (autocompleteItems.length > 0) {
                         const index = highlightedResult >= 0 ? highlightedResult : 0
                         const item = autocompleteItems[index]
                         if (item instanceof POIQueryItem) {
                             handlePoiSearch(poiSearch, item.result, props.map)
-                            props.onLocationSelected(item.result.text(item.result.poi), undefined, undefined)
+                            props.onLocationSelected(item.result.text(item.result.poi), undefined, undefined, undefined)
                         } else if (item instanceof RecentLocationItem) {
-                            props.onLocationSelected(item.mainText, item.secondText, item.point)
+                            selectItem(item)
                         } else if (highlightedResult < 0 && !props.point.isInitialized) {
                             // by default use the first result, otherwise the highlighted one
                             getApi()
@@ -158,13 +186,23 @@ export default function AddressInput(props: AddressInputProps) {
                                     if (result && result.hits.length > 0) {
                                         const hit: GeocodingHit = result.hits[0]
                                         const res = nominatimHitToItem(hit)
-                                        props.onLocationSelected(res.mainText, res.secondText, hit.point)
+                                        selectItem(
+                                            new GeocodingItem(
+                                                res.mainText,
+                                                res.secondText,
+                                                res.streetName,
+                                                hit.point,
+                                                hit.osm_id,
+                                                hit.osm_type,
+                                                hit.extent,
+                                            ),
+                                        )
                                     } else if (item instanceof GeocodingItem) {
-                                        props.onLocationSelected(item.mainText, item.secondText, item.point)
+                                        selectItem(item)
                                     }
                                 })
                         } else if (item instanceof GeocodingItem) {
-                            props.onLocationSelected(item.mainText, item.secondText, item.point)
+                            selectItem(item)
                         }
                     }
                     if (event.key === 'Enter') focusNextOrBlur()
@@ -174,11 +212,12 @@ export default function AddressInput(props: AddressInputProps) {
         [autocompleteItems, highlightedResult, text],
     )
 
+    // on small screens show the map instead of the next input
     const focusNextOrBlur = () => {
         const next = document
             .querySelector<HTMLElement>('[data-search-box]')!
             .querySelectorAll<HTMLInputElement>('input[type="text"]')[props.index + 1]
-        if (next) next.focus()
+        if (next && !isSmallScreen) next.focus()
         else searchInput.current!.blur()
     }
 
@@ -190,8 +229,8 @@ export default function AddressInput(props: AddressInputProps) {
     const lonlat = toLonLat(getMap().getView().getCenter()!)
     const biasCoord = { lng: lonlat[0], lat: lonlat[1] }
 
-    // do not focus on mobile as we would hide the map with the "input"-view
-    const focusFirstInput = props.index == 0 && !isSmallScreen
+    // focus first empty input, but not on mobile as we would hide the map with the "input"-view
+    const focusFirstInput = !isSmallScreen && props.points.findIndex(p => p.queryText === '') == props.index
     const isInitialFocus = useRef(focusFirstInput)
 
     return (
@@ -286,7 +325,9 @@ export default function AddressInput(props: AddressInputProps) {
                         e => e.preventDefault() // prevents that input->onBlur is called when clicking the button (would hide this button and prevent onClick)
                     }
                     onClick={() => {
-                        onCurrentLocationSelected((text, coord) => props.onLocationSelected(text, undefined, coord))
+                        onCurrentLocationSelected((text, coord) =>
+                            props.onLocationSelected(text, undefined, coord, undefined),
+                        )
                         // but when clicked => we want to lose the focus e.g. to close mobile-input view
                         searchInput.current!.blur()
                     }}
@@ -304,17 +345,18 @@ export default function AddressInput(props: AddressInputProps) {
                             items={autocompleteItems}
                             highlightedItem={autocompleteItems[highlightedResult]}
                             onSelect={item => {
-                                if (item instanceof GeocodingItem) {
+                                if (item instanceof GeocodingItem || item instanceof RecentLocationItem) {
                                     setText(item.toText())
-                                    props.onLocationSelected(item.mainText, item.secondText, item.point)
-                                } else if (item instanceof RecentLocationItem) {
-                                    setText(item.toText())
-                                    props.onLocationSelected(item.mainText, item.secondText, item.point)
+                                    selectItem(item)
                                 } else if (item instanceof POIQueryItem) {
                                     handlePoiSearch(poiSearch, item.result, props.map)
                                     setText(item.result.text(item.result.poi))
                                 }
                                 focusNextOrBlur()
+                            }}
+                            onRemove={item => {
+                                removeRecentLocation(item.point)
+                                setAutocompleteItems(buildRecentItems(text ? text : undefined, 5, excludeCoord))
                             }}
                         />
                     </ResponsiveAutocomplete>
@@ -339,7 +381,7 @@ function buildRecentItems(filter?: string, limit?: number, excludeCoord?: Coordi
         )
     }
     if (limit) recents = recents.slice(0, limit)
-    return recents.map(e => new RecentLocationItem(e.mainText, e.secondText, { lat: e.lat, lng: e.lng }))
+    return recents.map(e => new RecentLocationItem(e))
 }
 
 function handlePoiSearch(poiSearch: ReverseGeocoder, result: AddressParseResult, map: Map) {
@@ -414,8 +456,10 @@ class Geocoder {
 
         await this.timeout.wait()
         try {
+            // photon's bias radius shrinks 2.2x per zoom level (12: ~11km, 13: ~5km) and from 13 on far results are
+            // hidden entirely, e.g. 'berl' after selecting Leipzig no longer finds Berlin => cap at 12
             const options: Record<string, string> = bias
-                ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '' + (zoom + 1) }
+                ? { point: coordinateToText(bias), location_bias_scale: '0.5', zoom: '' + Math.min(zoom + 1, 12) }
                 : {}
             const result = await this.api.geocode(query, provider, options)
             const hits = Geocoder.filterDuplicates(result.hits)
@@ -423,6 +467,24 @@ class Geocoder {
         } catch (reason) {
             throw Error('Could not get geocoding results because: ' + reason)
         }
+    }
+
+    // geometries can be big so request only for the selected hit; streets are split into ways so skip lines
+    requestGeometry(item: GeocodingItem) {
+        const options = {
+            point: coordinateToText(item.point),
+            location_bias_scale: '0.5',
+            zoom: '12',
+            geometry: 'true',
+        }
+        this.api
+            .geocode(item.mainText, 'default', options)
+            .then(result => {
+                const hit = result.hits.find(h => h.osm_id == item.osm_id && h.osm_type == item.osm_type)
+                const geometry = hit?.geometry as { type: string } | undefined
+                Dispatcher.dispatch(new SetGeocodingGeometry(geometry?.type.endsWith('Polygon') ? geometry : null))
+            })
+            .catch(() => Dispatcher.dispatch(new SetGeocodingGeometry(null)))
     }
 
     private getNextId() {

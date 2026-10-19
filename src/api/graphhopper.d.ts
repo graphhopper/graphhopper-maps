@@ -8,6 +8,7 @@ export type Bbox = [number, number, number, number]
 export interface RoutingArgs {
     readonly points: [number, number][]
     readonly heading?: number
+    readonly pointHints: string[]
     readonly profile: string
     readonly maxAlternativeRoutes: number
     readonly customModel: CustomModel | null
@@ -15,6 +16,7 @@ export interface RoutingArgs {
 
 export interface RoutingRequest {
     readonly points: ReadonlyArray<[number, number]>
+    point_hints?: string[]
     profile: string
     locale: string
     points_encoded: boolean
@@ -148,6 +150,8 @@ export interface GeocodingResult {
 export interface GeocodingHit {
     readonly point: Coordinate
     readonly extent: Bbox
+    // GeoJSON geometry, only present if requested with geometry=true
+    readonly geometry?: object
     readonly osm_id: string
     readonly osm_type: string
     readonly osm_key: string

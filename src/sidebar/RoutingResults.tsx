@@ -13,7 +13,7 @@ import {
     SetBBox,
 } from '@/actions/Actions'
 import Dispatcher from '@/stores/Dispatcher'
-import { metersToShortText, metersToText, metersToTextForFile, milliSecondsToText } from '@/Converters'
+import { elevationToText, metersToShortText, metersToText, metersToTextForFile, milliSecondsToText } from '@/Converters'
 import PlainButton from '@/PlainButton'
 import Details from '@/sidebar/list.svg'
 import NaviSVG from '@/sidebar/navigation.svg'
@@ -201,7 +201,7 @@ function RoutingResult({
                             <PlainButton
                                 onClick={() => {
                                     Dispatcher.dispatch(
-                                        new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState)
+                                        new TurnNavigationSettingsUpdate({ acceptedRisk: true } as TNSettingsState),
                                     )
                                     startNavigation(turnNavigation?.settings.forceVectorTiles ?? false)
                                 }}
@@ -238,11 +238,11 @@ function RoutingResult({
                             <div className={styles.elevationHint}>
                                 <span title={tr('total_ascend', [Math.round(path.ascend) + 'm'])}>
                                     {'\u2197\uFE0E'}
-                                    {metersToShortText(path.ascend, showDistanceInMiles)}{' '}
+                                    {elevationToText(path.ascend, showDistanceInMiles)}{' '}
                                 </span>
                                 <span title={tr('total_descend', [Math.round(path.descend) + 'm'])}>
                                     {'\u2198\uFE0E'}
-                                    {metersToShortText(path.descend, showDistanceInMiles)}
+                                    {elevationToText(path.descend, showDistanceInMiles)}
                                 </span>
                             </div>
                         )}

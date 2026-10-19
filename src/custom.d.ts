@@ -1,7 +1,7 @@
 declare module '*.css'
 declare module '*.svg'
 declare module '*.png'
-declare module 'custom-model-editor/src/index'
+declare module '@graphhopper/custom-model-editor'
 
 interface Window {
     ghSaveFile: ({ fileName: string, mimeType: string, fileContents: xmlString }) => Promise<any>

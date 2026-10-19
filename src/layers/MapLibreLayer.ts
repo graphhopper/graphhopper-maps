@@ -13,15 +13,18 @@ import Layer from 'ol/layer/Layer.js'
 import { toDegrees } from 'ol/math.js'
 import { toLonLat } from 'ol/proj.js'
 
-import maplibregl from 'maplibre-gl'
+import { Map as MapLibreMap, setWorkerUrl } from 'maplibre-gl'
 import type { FrameState } from 'ol/Map.js'
 import RenderEvent from 'ol/render/Event'
 import _default from 'ol/MapEventType'
 import POSTRENDER = _default.POSTRENDER
 import Source from 'ol/source/Source'
 
+// copied to dist via webpack.common.js
+setWorkerUrl(new URL('maplibre-gl-worker.mjs', document.baseURI).href)
+
 export default class MapLibreLayer extends Layer {
-    maplibreMap: maplibregl.Map
+    maplibreMap: MapLibreMap
 
     constructor(style: string, attributions?: string) {
         // the source is not used for rendering, it only feeds the OpenLayers attribution control
@@ -31,7 +34,7 @@ export default class MapLibreLayer extends Layer {
         container.style.width = '100%'
         container.style.height = '100%'
 
-        this.maplibreMap = new maplibregl.Map({
+        this.maplibreMap = new MapLibreMap({
             style: style,
             container: container,
             attributionControl: false,

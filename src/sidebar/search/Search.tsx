@@ -24,7 +24,7 @@ import { tr } from '@/translation/Translation'
 import SettingsBox from '@/sidebar/SettingsBox'
 import { TNSettingsState } from '@/stores/TurnNavigationStore'
 import { RoutingProfile } from '@/api/graphhopper'
-import { getBBoxFromCoord } from '@/utils'
+import { getBBoxFromExtent } from '@/utils'
 import { saveRecentLocation } from '@/sidebar/search/RecentLocations'
 import { useContext } from 'react'
 import { SettingsContext } from '@/contexts/SettingsContext'
@@ -191,13 +191,22 @@ const SearchBox = ({
                     point={point}
                     points={points}
                     onCancel={() => console.log('cancel')}
-                    onLocationSelected={(mainText, secondText, coordinate) => {
+                    onLocationSelected={(
+                        mainText,
+                        secondText,
+                        coordinate,
+                        streetName = '',
+                        osm_id,
+                        osm_type,
+                        extent,
+                    ) => {
                         const queryText = secondText ? mainText + ', ' + secondText : mainText
-                        if (secondText && coordinate && saveRecent) saveRecentLocation(mainText, secondText, coordinate)
+                        if (secondText && coordinate && saveRecent)
+                            saveRecentLocation(mainText, secondText, coordinate, streetName, osm_id, osm_type, extent)
 
                         const initCount = points.filter(p => p.isInitialized).length
                         if (coordinate && initCount != points.length)
-                            Dispatcher.dispatch(new SetBBox(getBBoxFromCoord(coordinate)))
+                            Dispatcher.dispatch(new SetBBox(getBBoxFromExtent(coordinate, extent)))
 
                         Dispatcher.dispatch(
                             new SetPoint(
@@ -205,6 +214,7 @@ const SearchBox = ({
                                     ...point,
                                     isInitialized: !!coordinate,
                                     queryText: queryText,
+                                    streetName,
                                     coordinate: coordinate ? coordinate : point.coordinate,
                                 },
                                 initCount > 0,

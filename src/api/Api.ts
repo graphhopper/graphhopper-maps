@@ -235,13 +235,13 @@ export class ApiImpl implements Api {
         }
     }
 
-    routeWithDispatch(args: RoutingArgs, zoomOnSuccess: boolean) {
+    routeWithDispatch(args: RoutingArgs, zoom: boolean) {
         const routeNumber = this.routeCounter++
         this.route(args)
             .then(result => {
                 if (routeNumber > this.lastRouteNumber) {
                     this.lastRouteNumber = routeNumber
-                    Dispatcher.dispatch(new RouteRequestSuccess(args, zoomOnSuccess, result))
+                    Dispatcher.dispatch(new RouteRequestSuccess(args, zoom, result))
                 } else {
                     const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
                     console.log('Ignore response of earlier started route ' + tmp)
@@ -251,7 +251,7 @@ export class ApiImpl implements Api {
                 if (routeNumber > this.lastRouteNumber) {
                     console.warn('error when performing /route request ' + routeNumber + ': ', error)
                     this.lastRouteNumber = routeNumber
-                    Dispatcher.dispatch(new RouteRequestFailed(args, error.message))
+                    Dispatcher.dispatch(new RouteRequestFailed(args, zoom, error.message))
                 } else {
                     const tmp = JSON.stringify(args) + ' ' + routeNumber + ' <= ' + this.lastRouteNumber
                     console.log('Ignore error ' + error.message + ' of earlier started route ' + tmp)
@@ -260,14 +260,17 @@ export class ApiImpl implements Api {
     }
 
     private getRoutingURLWithKey(endpoint: string) {
-        const url = new URL(this.routingApi + endpoint)
-        url.searchParams.append('key', this.apiKey)
-        return url
+        return ApiImpl.getURLWithKey(this.routingApi + endpoint, this.apiKey)
     }
 
     private getGeocodingURLWithKey(endpoint: string) {
-        const url = new URL(this.geocodingApi + endpoint)
-        url.searchParams.append('key', this.apiKey)
+        return ApiImpl.getURLWithKey(this.geocodingApi + endpoint, this.apiKey)
+    }
+
+    private static getURLWithKey(urlString: string, apiKey: string) {
+        const url = new URL(urlString)
+        url.searchParams.append('key', apiKey)
+        url.searchParams.append('client_tag', 'maps-' + GIT_SHA.substring(0, 7))
         return url
     }
 
@@ -289,6 +292,8 @@ export class ApiImpl implements Api {
             ...profileConfig,
             details: details,
         }
+
+        if (args.pointHints.some(hint => hint)) request.point_hints = args.pointHints
 
         if (config.request?.snapPreventions) request.snap_preventions = config.request?.snapPreventions
 

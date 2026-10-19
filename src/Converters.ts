@@ -1,6 +1,6 @@
-import {GeocodingHit} from '@/api/graphhopper'
+import { GeocodingHit } from '@/api/graphhopper'
 
-import {Coordinate} from '@/utils'
+import { Coordinate } from '@/utils'
 
 export function milliSecondsToText(ms: number) {
     const hours = Math.floor(ms / 3600000)
@@ -12,7 +12,7 @@ export function milliSecondsToText(ms: number) {
     return (hourText ? hourText + ' ' : '') + minutes + ' min'
 }
 
-let distanceFormat: Intl.NumberFormat = new Intl.NumberFormat('en', {maximumFractionDigits: 1})
+let distanceFormat: Intl.NumberFormat = new Intl.NumberFormat('en', { maximumFractionDigits: 1 })
 
 export function setDistanceFormat(_distanceFormat: Intl.NumberFormat) {
     distanceFormat = _distanceFormat
@@ -68,6 +68,11 @@ export function meterToMiles(value: number) {
     return value / 1609.34
 }
 
+// ascent/descent is always shown in m or ft like in other apps (komoot, Strava, OsmAnd), never km
+export function elevationToText(meters: number, showDistanceInMiles: boolean) {
+    return showDistanceInMiles ? Math.round(meters / 0.3048) + 'ft' : Math.round(meters) + 'm'
+}
+
 export function hitToItem(hit: GeocodingHit) {
     const mainText =
         hit.street && hit.name.indexOf(hit.street) >= 0
@@ -76,6 +81,7 @@ export function hitToItem(hit: GeocodingHit) {
     return {
         mainText: mainText,
         secondText: toSecondText(hit, mainText),
+        streetName: hit.street ?? '',
     }
 }
 
@@ -103,6 +109,7 @@ export function nominatimHitToItem(hit: GeocodingHit) {
     const mainText = hit.street && name.indexOf(hit.street) == 0 ? street : name.split(',')[0]
     return {
         mainText: mainText,
+        streetName: hit.street ?? '',
         secondText:
             (!mainText.includes(street) && street.length > 0 ? street + ', ' : '') +
             (!mainText.includes(hit.postcode) && hit.postcode ? hit.postcode + ' ' : '') +

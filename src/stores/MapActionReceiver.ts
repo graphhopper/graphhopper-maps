@@ -1,23 +1,29 @@
 import { Action, ActionReceiver } from '@/stores/Dispatcher'
-import { Map } from 'ol'
+import { Feature, Map } from 'ol'
 import { fromLonLat } from 'ol/proj'
+import VectorLayer from 'ol/layer/Vector'
+import VectorSource from 'ol/source/Vector'
+import { GeoJSON } from 'ol/format'
+import { Fill, Stroke, Style } from 'ol/style'
 import {
     InfoReceived,
     LocationUpdate,
     PathDetailsRangeSelected,
+    RouteRequestFailed,
     RouteRequestSuccess,
     SetBBox,
+    SetGeocodingGeometry,
     SetSelectedPath,
     TurnNavigationStart,
     TurnNavigationStop,
-    MoveMapToPoint,
+    ZoomToRoute,
 } from '@/actions/Actions'
 import RouteStore from '@/stores/RouteStore'
 import { Bbox } from '@/api/graphhopper'
+import { getBBoxPoints } from '@/utils'
 import { Attribution, Zoom } from 'ol/control'
 import { toRadians } from '@/turnNavigation/GeoMethods'
 import { linear } from 'ol/easing'
-import VectorLayer from 'ol/layer/Vector'
 import { LineString } from 'ol/geom'
 import { AnimationOptions } from 'ol/View'
 
@@ -28,6 +34,7 @@ export default class MapActionReceiver implements ActionReceiver {
     private readonly onMove: () => boolean
     private zoomCtrl: Zoom | null = null
     private attributionCtrl: Attribution | null = null
+    private geometryLayer: VectorLayer | null = null
 
     constructor(map: Map, routeStore: RouteStore, isSmallScreenQuery: () => boolean, onMove: () => boolean) {
         this.map = map
@@ -138,15 +145,10 @@ export default class MapActionReceiver implements ActionReceiver {
                     if (currentPoint) currentPoint.setCoordinates(center)
                 }
             }
-        } else if (action instanceof MoveMapToPoint) {
-            let zoom = this.map.getView().getZoom()
-            if (zoom == undefined || zoom < 8) zoom = 8
-            this.map.getView().animate({
-                zoom: zoom,
-                center: fromLonLat([action.coordinate.lng, action.coordinate.lat]),
-                duration: 400,
-            })
+        } else if (action instanceof SetGeocodingGeometry) {
+            this.setGeometryLayer(action.geometry)
         } else if (action instanceof RouteRequestSuccess) {
+            this.setGeometryLayer(null)
             // this assumes that always the first path is selected as result. One could use the
             // state of the routeStore as well, but then we would have to make sure that the route
             // store digests this action first, which our Dispatcher can't at the moment.
@@ -168,6 +170,13 @@ export default class MapActionReceiver implements ActionReceiver {
                 widerBBox[3] += 0.0005
             }
             if (action.zoom) fitBounds(this.map, widerBBox, isSmallScreen)
+        } else if (action instanceof RouteRequestFailed) {
+            // even if no route could be found we still center the map on the request points, see #306
+            const bbox = getBBoxPoints(action.request.points.map(p => ({ lng: p[0], lat: p[1] })))
+            if (action.zoom && bbox) fitBounds(this.map, bbox, isSmallScreen)
+        } else if (action instanceof ZoomToRoute) {
+            const bbox = this.routeStore.state.selectedPath.bbox
+            if (bbox) fitBounds(this.map, bbox, isSmallScreen)
         } else if (action instanceof SetSelectedPath) {
             // Forcing to change bounds is ugly if zoomed in and for alternatives. See #437
             // fitBounds(this.map, action.path.bbox!, isSmallScreen)
@@ -184,6 +193,22 @@ export default class MapActionReceiver implements ActionReceiver {
                 fitBounds(this.map, action.result.bbox, isSmallScreen)
             }
         }
+    }
+
+    private setGeometryLayer(geometry: object | null) {
+        if (this.geometryLayer) this.map.removeLayer(this.geometryLayer)
+        this.geometryLayer = null
+        if (!geometry) return
+        const feature = new Feature(new GeoJSON({ featureProjection: 'EPSG:3857' }).readGeometry(geometry))
+        this.geometryLayer = new VectorLayer({
+            source: new VectorSource({ features: [feature] }),
+            style: new Style({
+                stroke: new Stroke({ color: 'rgba(39,100,200,0.65)', width: 2 }),
+                fill: new Fill({ color: 'rgba(39,100,200,0.08)' }),
+            }),
+            zIndex: 1,
+        })
+        this.map.addLayer(this.geometryLayer)
     }
 }
 

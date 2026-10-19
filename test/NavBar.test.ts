@@ -66,33 +66,29 @@ describe('NavBar', function () {
                 }
             })
 
-            testCreateUrl(points, { name: 'my-profile' }, 'TF Transport')
+            testCreateUrl(points, ['1,2', '10,10'], { name: 'my-profile' }, 'TF Transport')
         })
 
         it('should convert query store state into url params on change including addresses', () => {
             const points = [
                 { lat: 1, lng: 2, text: 'som3, address with ! some, characters-in it' },
                 { lat: 10, lng: 10, text: 'some_?more>characters' },
-            ].map((point, i) => {
-                return {
-                    ...queryStore.state.queryPoints[i],
-                    coordinate: { lat: point.lat, lng: point.lng },
-                    queryText: point.text,
-                    isInitialized: true,
-                }
-            })
+            ].map((p, i) => ({
+                ...queryStore.state.queryPoints[i],
+                coordinate: { lat: p.lat, lng: p.lng },
+                queryText: p.text,
+                isInitialized: true,
+            }))
 
-            testCreateUrl(points, { name: 'my-profile' }, 'TF Transport')
+            // '_' in text -> trailing '_' so it is not parsed as street separator
+            const params = ['1,2_som3, address with ! some, characters-in it', '10,10_some_?more>characters_']
+            testCreateUrl(points, params, { name: 'my-profile' }, 'TF Transport')
         })
 
-        function testCreateUrl(points: QueryPoint[], profile: RoutingProfile, layer: string) {
+        function testCreateUrl(points: QueryPoint[], params: string[], profile: RoutingProfile, layer: string) {
             // build url which we expect at the end
             const expectedUrl = new URL(window.location.origin + window.location.pathname)
-            for (const point of points) {
-                const coordinate = coordinateToText(point.coordinate)
-                const param = coordinate === point.queryText ? coordinate : coordinate + '_' + point.queryText
-                expectedUrl.searchParams.append('point', param)
-            }
+            params.forEach(param => expectedUrl.searchParams.append('point', param))
             expectedUrl.searchParams.append('profile', profile.name)
             expectedUrl.searchParams.append('layer', layer)
 
@@ -120,6 +116,7 @@ describe('NavBar', function () {
                 type: QueryPointType.To,
                 isInitialized: false,
                 queryText: 'some1address-with!/<symb0ls',
+                streetName: '',
                 color: '',
             }
             const profile = 'some-profile'
@@ -139,6 +136,7 @@ describe('NavBar', function () {
             expect(queryStore.state.queryPoints[0].coordinate).toEqual(point.coordinate)
             expect(queryStore.state.queryPoints[0].isInitialized).toEqual(true)
             expect(queryStore.state.queryPoints[0].queryText).toEqual(point.queryText)
+            expect(queryStore.state.queryPoints[0].streetName).toEqual('') // legacy 2-segment param
             expect(queryStore.state.queryPoints[1].coordinate).toEqual({ lat: 0, lng: 0 })
             expect(queryStore.state.queryPoints[1].isInitialized).toEqual(false)
             expect(queryStore.state.routingProfile.name).toEqual(profile)
@@ -267,6 +265,35 @@ describe('NavBar', function () {
         })
     })
 
+    describe('street name round trip', () => {
+        it.each([
+            ['no street', 'Erfurt', '', '_Erfurt'],
+            ['street is prefix -> length', 'Bahnhofstraße 12, Erfurt', 'Bahnhofstraße', '_Bahnhofstraße 12, Erfurt_13'],
+            [
+                'street inside text -> start.len',
+                'Hbf, Bahnhofstraße 1, Erfurt',
+                'Bahnhofstraße',
+                '_Hbf, Bahnhofstraße 1, Erfurt_5.13',
+            ],
+            ['street not in text -> literal', 'Hbf, Erfurt', 'Bahnhofstraße', '_Hbf, Erfurt_Bahnhofstraße'],
+            ['text with _ -> trailing separator', 'some_?more>chars', '', '_some_?more>chars_'],
+            ['text with _ and street', 'a_b 1, c', 'a_b', '_a_b 1, c_3'],
+        ])('%s', (_, queryText, streetName, expectedSuffix) => {
+            const coordinate = { lat: 1, lng: 2 }
+            const point = { ...queryStore.state.queryPoints[0], coordinate, queryText, streetName, isInitialized: true }
+            queryStore.receive(new SetPoint(point, true))
+            const href = (window.history.pushState as jest.Mock).mock.calls[0][2]
+            expect(new URL(href).searchParams.get('point')).toEqual(coordinateToText(coordinate) + expectedSuffix)
+
+            window.location.href = href
+            navBar.updateStateFromUrl()
+            const parsed = queryStore.state.queryPoints[0]
+            expect(parsed.coordinate).toEqual(coordinate)
+            expect(parsed.queryText).toEqual(queryText)
+            expect(parsed.streetName).toEqual(streetName)
+        })
+    })
+
     it('should update the query store state on popstate (back-pressed)', () => {
         // set up data
         const point: QueryPoint = {
@@ -275,6 +302,7 @@ describe('NavBar', function () {
             type: QueryPointType.To,
             isInitialized: false,
             queryText: '',
+            streetName: '',
             color: '',
         }
         const profile = 'some-profile'

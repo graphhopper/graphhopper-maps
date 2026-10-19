@@ -20,9 +20,14 @@ export default function useBackgroundLayer(map: Map, styleOption: StyleOption) {
     useEffect(() => {
         const onPointerMove = (evt: any) => {
             if (evt.dragging) return // skip expensive hit-test while panning
-            const features = map.getFeaturesAtPixel(evt.pixel)
-            const atFeature = features.some(f => f instanceof Feature)
-            map.getTargetElement().style.cursor = atFeature ? 'pointer' : 'default'
+            let cursor = 'default'
+            map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
+                if (!(feature instanceof Feature)) return
+                // query point markers can be dragged -> hand cursor, other features are just clickable
+                cursor = layer?.get('gh:query_points') ? 'grab' : 'pointer'
+                return true // stop at the topmost feature
+            })
+            map.getTargetElement().style.cursor = cursor
         }
         map.on('pointermove', onPointerMove)
         return () => {

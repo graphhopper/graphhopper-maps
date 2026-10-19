@@ -1,4 +1,5 @@
 import { calcDist, Coordinate } from '@/utils'
+import { Bbox } from '@/api/graphhopper'
 import { tr } from '@/translation/Translation'
 import { textToCoordinate } from '@/Converters'
 
@@ -9,10 +10,15 @@ const DEDUP_DISTANCE_METERS = 5
 export interface RecentLocation {
     mainText: string
     secondText: string
+    streetName: string // point hint for routing, '' if unknown
     lat: number
     lng: number
     timestamp: number
     count: number
+    // to zoom and fetch the geometry on selection (too big to store)
+    osm_id?: string
+    osm_type?: string
+    extent?: Bbox
 }
 
 export function getRecentLocations(minCount: number = 0): RecentLocation[] {
@@ -30,11 +36,26 @@ export function getRecentLocations(minCount: number = 0): RecentLocation[] {
                     typeof e.lng === 'number' &&
                     typeof e.timestamp === 'number',
             )
-            .map((e: any) => ({ ...e, count: typeof e.count === 'number' ? e.count : 1 }))
+            .map((e: any) => ({
+                ...e,
+                streetName: typeof e.streetName === 'string' ? e.streetName : '',
+                count: typeof e.count === 'number' ? e.count : 1,
+            }))
             .filter((e: RecentLocation) => e.count > minCount)
             .sort((a: RecentLocation, b: RecentLocation) => b.count - a.count || b.timestamp - a.timestamp)
     } catch {
         return []
+    }
+}
+
+export function removeRecentLocation(coordinate: Coordinate): void {
+    try {
+        const kept = getRecentLocations().filter(
+            e => calcDist({ lat: e.lat, lng: e.lng }, coordinate) > DEDUP_DISTANCE_METERS,
+        )
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(kept))
+    } catch {
+        // localStorage unavailable
     }
 }
 
@@ -50,6 +71,10 @@ export function saveRecentLocation(
     mainText: string,
     secondText: string,
     coordinate: Coordinate,
+    streetName: string,
+    osm_id?: string,
+    osm_type?: string,
+    extent?: Bbox,
     now: number = Date.now(),
 ): void {
     if (mainText === tr('current_location')) return
@@ -67,10 +92,14 @@ export function saveRecentLocation(
         const newEntry: RecentLocation = {
             mainText,
             secondText,
+            streetName,
             lat: coordinate.lat,
             lng: coordinate.lng,
             timestamp: now,
             count: prevCount + 1,
+            osm_id,
+            osm_type,
+            extent,
         }
         // Always keep the just-saved entry so a brand-new one-off can enter even if the cache is full of
         // favorites (otherwise it would be starved and never accumulate count). Rank the remaining slots

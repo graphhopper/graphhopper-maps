@@ -29,7 +29,7 @@ describe('info api', () => {
         const ghApi = 'https://some.api/'
         const geocodingApi = 'https://some.api/'
         const ghKey = 'some-key'
-        const expectedUrl = ghApi + 'info?key=' + ghKey
+        const expectedUrl = ghApi + 'info?key=' + ghKey + '&client_tag=maps-test'
         const expected: ApiInfo = {
             bbox: [0, 0, 0, 0],
             profiles: [],
@@ -71,6 +71,7 @@ describe('route', () => {
     it('should use correct metadata', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'profile',
             customModel: null,
@@ -81,7 +82,7 @@ describe('route', () => {
         const ghKey = 'key'
 
         fetchMock.mockResponse(request => {
-            expect(request.url.toString()).toEqual(ghApi + 'route?key=' + ghKey)
+            expect(request.url.toString()).toEqual(ghApi + 'route?key=' + ghKey + '&client_tag=maps-test')
             expect(request.method).toEqual('POST')
             expect(request.headers.get('Accept')).toEqual('application/json')
             expect(request.headers.get('Content-Type')).toEqual('application/json')
@@ -99,6 +100,7 @@ describe('route', () => {
     it('transforms routingArgs into routing request with default algorithm for maxAlternativeRoutes: 1', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: ['', 'Hauptstraße'],
             maxAlternativeRoutes: 1,
             profile: 'car',
             customModel: null,
@@ -124,6 +126,7 @@ describe('route', () => {
                 'track_type',
                 'country',
             ],
+            point_hints: args.pointHints,
         }
 
         const mockedDispatcher = jest.spyOn(Dispatcher, 'dispatch')
@@ -142,6 +145,7 @@ describe('route', () => {
     it('transforms routingArgs into routing request with alternative_route algorithm for maxAlternativeRoutes > 1', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 2,
             profile: 'car',
             customModel: null,
@@ -188,6 +192,7 @@ describe('route', () => {
     it('transforms routingArgs into routing request with custom model', async () => {
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
             customModel: {
@@ -245,6 +250,7 @@ describe('route', () => {
                 [0, 0],
                 [1, 1],
             ],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'bla',
             customModel: null,
@@ -266,6 +272,7 @@ describe('route', () => {
                 [0, 0],
                 [1, 1],
             ],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'bla',
             customModel: null,
@@ -283,13 +290,14 @@ describe('route', () => {
         await flushPromises()
 
         expect(mockedDispatcher).toHaveBeenCalledTimes(1)
-        expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestFailed(args, error.message))
+        expect(mockedDispatcher).toHaveBeenCalledWith(new RouteRequestFailed(args, true, error.message))
     })
 
     it('should handle 500 error', async () => {
         const args: RoutingArgs = {
             profile: 'car',
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 3,
             customModel: null,
         }
@@ -304,6 +312,7 @@ describe('route', () => {
         setTranslation('de', true)
         const args: RoutingArgs = {
             points: [],
+            pointHints: [],
             maxAlternativeRoutes: 1,
             profile: 'car',
             customModel: null,

@@ -17,6 +17,7 @@ import {
     SetCustomModel,
     SetPoint,
     SetQueryPoints,
+    ReversePoints,
     SetVehicleProfile,
     SetVehicleProfileGroup,
 } from '@/actions/Actions'
@@ -40,6 +41,7 @@ export interface QueryStoreState {
 export interface QueryPoint {
     readonly coordinate: Coordinate
     readonly queryText: string
+    readonly streetName: string
     readonly isInitialized: boolean
     readonly color: string
     readonly id: number
@@ -124,7 +126,8 @@ export default class QueryStore extends Store<QueryStoreState> {
                 return {
                     ...point,
                     queryText: '',
-                    point: { lat: 0, lng: 0 },
+                    streetName: '',
+                    coordinate: { lat: 0, lng: 0 },
                     isInitialized: false,
                 }
             })
@@ -169,6 +172,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                 coordinate: action.coordinate,
                 id: state.nextQueryPointId,
                 queryText: queryText,
+                streetName: '',
                 color: '',
                 isInitialized: action.isInitialized,
                 type: QueryPointType.Via,
@@ -208,6 +212,7 @@ export default class QueryStore extends Store<QueryStoreState> {
                     id: queryPoints.length,
                     type: type,
                     color: QueryStore.getMarkerColor(type),
+                    streetName: '',
                     queryText: '',
                     isInitialized: false,
                     coordinate: { lat: 0, lng: 0 },
@@ -295,6 +300,27 @@ export default class QueryStore extends Store<QueryStoreState> {
             )
         } else if (action instanceof RouteRequestSuccess || action instanceof RouteRequestFailed) {
             return QueryStore.handleFinishedRequest(state, action)
+        } else if (action instanceof ReversePoints) {
+            // Reverse the order of the query points and issue a routing request
+            const reversed = state.queryPoints
+                .slice()
+                .reverse()
+                .map((point, i) => {
+                    const type = QueryStore.getPointType(i, state.queryPoints.length)
+                    return {
+                        ...point,
+                        color: QueryStore.getMarkerColor(type),
+                        type: type,
+                        id: this.state.nextQueryPointId + i,
+                    }
+                })
+
+            const newState: QueryStoreState = {
+                ...state,
+                nextQueryPointId: this.state.nextQueryPointId + state.queryPoints.length,
+                queryPoints: reversed,
+            }
+            return this.routeIfReady(newState, false)
         }
         return state
     }
@@ -304,7 +330,12 @@ export default class QueryStore extends Store<QueryStoreState> {
         action: RouteRequestSuccess | RouteRequestFailed,
     ): QueryStoreState {
         const newState = action instanceof RouteRequestSuccess ? RequestState.SUCCESS : RequestState.FAILED
-        const newSubrequests = QueryStore.replaceSubRequest(state.currentRequest.subRequests, action.request, newState)
+        const subRequests = state.currentRequest.subRequests
+        const idx = subRequests.findIndex(r => r.args === action.request)
+        // Api ignores responses of earlier started requests (see routeWithDispatch) => also finish them, avoids stale placeholders
+        const newSubrequests = subRequests.map((r, i) =>
+            i > idx || r.state !== RequestState.SENT ? r : { ...r, state: i < idx ? RequestState.FAILED : newState },
+        )
 
         return {
             ...state,
@@ -392,9 +423,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         // Janek deliberately chose this style of if statements, to make this readable.
         if (state.queryPoints.length <= 1) return false
         if (!state.queryPoints.every(point => point.isInitialized)) return false
-        if (!state.routingProfile.name) return false
-
-        return true
+        return state.routingProfile.name
     }
 
     private static movePoint(points: QueryPoint[], point: QueryPoint, newIndex: number): QueryPoint[] {
@@ -418,16 +447,6 @@ export default class QueryStore extends Store<QueryStoreState> {
             points,
             p => p.id === point.id,
             () => point,
-        )
-    }
-
-    private static replaceSubRequest(subRequests: SubRequest[], args: RoutingArgs, state: RequestState) {
-        return replace(
-            subRequests,
-            r => r.args === args,
-            r => {
-                return { ...r, state }
-            },
         )
     }
 
@@ -462,6 +481,7 @@ export default class QueryStore extends Store<QueryStoreState> {
 
         return {
             points: coordinates,
+            pointHints: state.queryPoints.map(point => point.streetName),
             profile: state.routingProfile.name,
             maxAlternativeRoutes: state.maxAlternativeRoutes,
             customModel: customModel,
@@ -472,6 +492,7 @@ export default class QueryStore extends Store<QueryStoreState> {
         return {
             isInitialized: false,
             queryText: '',
+            streetName: '',
             coordinate: { lat: 0, lng: 0 },
             id: id,
             color: QueryStore.getMarkerColor(type),

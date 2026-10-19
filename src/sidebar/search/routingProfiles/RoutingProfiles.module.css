@@ -11,6 +11,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0 2rem;
+    margin-left: 34px;
     box-sizing: border-box;
 }
 
@@ -157,6 +158,10 @@
     transform: rotate(180deg);
     animation-name: setting_rotate;
     animation-duration: 0.2s;
+}
+
+.reverseBtn {
+    margin-left: 34px;
 }
 
 @keyframes setting_rotate {

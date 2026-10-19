@@ -93,7 +93,6 @@ export const NAMED_COLOR_MAPS: Record<string, Record<string, string>> = {
 // iterates in order and picks the first match where percent >= minSlope.
 export interface InclineCategory {
     label: string
-    shortLabel: string
     tooltip: string
     minSlope: number
     color: string
@@ -102,24 +101,21 @@ export interface InclineCategory {
 export const INCLINE_CATEGORIES: InclineCategory[] = [
     {
         label: '\u2191\uFE0E\u2191\uFE0E',
-        shortLabel: '\u2191\uFE0E\u2191\uFE0E',
         tooltip: '>10%',
         minSlope: 10,
         color: '#D50000',
     },
-    { label: '\u2191\uFE0E', shortLabel: '\u2191\uFE0E', tooltip: '6..10%', minSlope: 6, color: '#F44336' },
-    { label: '\u2197\uFE0E', shortLabel: '\u2197\uFE0E', tooltip: '3..6%', minSlope: 3, color: '#FF9800' },
-    { label: '-', shortLabel: '-', tooltip: '\u22126..3%', minSlope: -6, color: '#2E7D32' },
+    { label: '\u2191\uFE0E', tooltip: '6..10%', minSlope: 6, color: '#F44336' },
+    { label: '\u2197\uFE0E', tooltip: '3..6%', minSlope: 3, color: '#FF9800' },
+    { label: '-', tooltip: '\u22126..3%', minSlope: -6, color: '#2E7D32' },
     {
         label: '\u2193\uFE0E',
-        shortLabel: '\u2193\uFE0E',
         tooltip: '\u221210..\u22126%',
         minSlope: -10,
         color: '#42A5F5',
     },
     {
         label: '\u2193\uFE0E\u2193\uFE0E',
-        shortLabel: '\u2193\uFE0E\u2193\uFE0E',
         tooltip: '<\u221210%',
         minSlope: -Infinity,
         color: '#1565C0',

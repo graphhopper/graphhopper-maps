@@ -66,7 +66,8 @@
     display: flex;
     align-items: center;
     text-align: start;
-    margin: 0.4rem 0.5rem;
+    /* right: align the x icon with the clear button of the input */
+    margin: 0.4rem 2px 0.4rem 0.5rem;
 }
 
 .recentEntryText {
@@ -80,4 +81,39 @@
     flex-shrink: 0;
     color: #5b616a;
     margin-right: 0.5rem;
+}
+
+.removeIcon {
+    flex-shrink: 0;
+    display: flex;
+    color: #5b616a;
+    margin-left: 0.5rem;
+    padding: 0.4rem;
+    border-radius: 50%;
+}
+
+.removeIcon > svg {
+    width: 18px;
+    height: 18px;
+}
+
+.removeIcon:hover {
+    background-color: #d5d5d5;
+    color: black;
+}
+
+@media (max-width: 44rem) {
+    /* align the suggestion text with the input text (at 52px) */
+    .recentEntry {
+        margin-left: 22px;
+    }
+
+    .recentIcon {
+        margin-right: 10px;
+    }
+
+    .geocodingEntry,
+    .poiEntry {
+        margin-left: 52px;
+    }
 }
