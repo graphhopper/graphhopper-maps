@@ -163,11 +163,12 @@ const mapillion: VectorStyle = {
 }
 
 const styleOptions: StyleOption[] = [
-    omniscale,
+    // omniscale,
     osmOrg,
     maptoolkitCycling,
     maptoolkitHiking,
     esriSatellite,
+    // mapTilerSatellite,
     tfTransport,
     tfCycle,
     tfOutdoors,
