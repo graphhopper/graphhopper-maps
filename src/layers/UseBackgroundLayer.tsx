@@ -36,18 +36,15 @@ export default function useBackgroundLayer(map: Map, styleOption: StyleOption) {
     }, [map])
 }
 
-export function getCurrentBackgroundLayers(map: Map) {
-    return map
+function removeCurrentBackgroundLayers(map: Map) {
+    const backgroundLayers = map
         .getLayers()
         .getArray()
         .filter(l => {
             // vector layers added via olms#addLayers have the mapbox-source key
             return l.get('mapbox-source') || l.get('background-maplibre-layer') || l.get('background-raster-layer')
         })
-}
-
-function removeCurrentBackgroundLayers(map: Map) {
-    getCurrentBackgroundLayers(map).forEach(l => {
+    backgroundLayers.forEach(l => {
         map.removeLayer(l)
         // removing a layer does not dispose it, but otherwise switching styles leaks the WebGL context
         if (l.get('background-maplibre-layer')) l.dispose()

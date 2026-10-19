@@ -5,40 +5,28 @@ import { fromLonLat } from 'ol/proj'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Icon, Style } from 'ol/style'
-import { getCenter } from 'ol/extent'
 import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
-import { Tile } from 'ol/layer'
-import { getCurrentBackgroundLayers } from '@/layers/UseBackgroundLayer'
 
 // This class renders just the arrow on the current location. The map rotation is done elsewhere and the arrow will
 // always point to north.
 export default function useNavigationLocationLayer(map: Map, turnNavigation: TurnNavigationStoreState) {
     const point = new Point(fromLonLat([turnNavigation.coordinate.lng, turnNavigation.coordinate.lat]))
     const feature = new Feature({ geometry: point })
-    // Synchronize the position of the view animation (see MapActionReceiver) with the arrow via the "postrender" event.
-    // Note that setting updateWhileAnimating = true for currentLocationLayer is necessary to see the animation.
-    const onPostrender = () => point.setCoordinates(getCenter(map.getView().calculateExtent()))
+    // Synchronize the arrow with the view animation (see MapActionReceiver): the animation sets the view center
+    // every frame, before the layers render. Note that updateWhileAnimating = true for currentLocationLayer is
+    // necessary to see the animation.
+    const onCenterChange = () => {
+        const center = map.getView().getCenter()
+        if (center) point.setCoordinates(center)
+    }
 
     useEffect(() => {
         if (!turnNavigation.showUI) return
         const currentLocationLayer = addCurrentLocation(map, feature)
-
-        // Attach the "postrender" event to the non-empty current background layer, because the event isn't triggered if the layer is empty.
-        // Somehow the current location layer is empty for longer zoom durations e.g. here point=51.438901%2C14.245252&point=53.550341%2C10.000654&fake=10 and so it cannot be used.
-        // If the background would be a VectorLayer we could just add the arrow as feature there but we allow raster layers
-        // and so we need a separate layer.
-        const layers = getCurrentBackgroundLayers(map)
-        const backgroundLayer = layers.length > 0 ? (layers[0] as Tile<any>) : null
-        if (backgroundLayer == null) console.error('Cannot find background layer ' + layers.length)
-        else if (turnNavigation.settings.syncView) {
-            console.log('Found background layer ' + layers.length)
-            backgroundLayer.on('postrender', onPostrender)
-        }
+        if (turnNavigation.settings.syncView) map.getView().on('change:center', onCenterChange)
 
         return () => {
-            if (!turnNavigation.showUI) return
-            if (backgroundLayer == null) console.error('Cannot find background layer ' + JSON.stringify(layers))
-            else if (turnNavigation.settings.syncView) backgroundLayer.un('postrender', onPostrender)
+            if (turnNavigation.settings.syncView) map.getView().un('change:center', onCenterChange)
             map.removeLayer(currentLocationLayer)
         }
     }, [turnNavigation.showUI, turnNavigation.settings.syncView])
