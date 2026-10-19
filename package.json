@@ -25,7 +25,8 @@
     },
     "overrides": {
         "qs": "6.16.0",
-        "uuid": "11.1.1"
+        "uuid": "11.1.1",
+        "js-yaml": "^4.1.0"
     },
     "allowScripts": {
         "fsevents": false,
@@ -50,11 +51,11 @@
         "source-map-loader": "5.0.0",
         "style-loader": "4.0.0",
         "ts-jest": "29.4.11",
-        "ts-loader": "9.5.4",
+        "ts-loader": "9.6.2",
         "typescript": "5.9.3",
         "webpack": "5.107.2",
-        "webpack-cli": "7.0.3",
-        "webpack-dev-server": "5.2.6",
+        "webpack-cli": "7.2.3",
+        "webpack-dev-server": "6.1.0",
         "webpack-merge": "6.0.1"
     }
 }
