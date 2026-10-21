@@ -32,6 +32,7 @@ import DangerousIcon from '@/sidebar/routeHints/warn_report.svg'
 import { Bbox } from '@/api/graphhopper'
 import { SettingsContext } from '@/contexts/SettingsContext'
 import { Settings } from '@/stores/SettingsStore'
+import { planeDist } from '@/pathDetails/elevationWidget/colors'
 
 let persistedElevationMounted = false
 
@@ -614,33 +615,33 @@ function calcDistPos(from: Position, to: Position): number {
     return calcDist({ lat: from[1], lng: from[0] }, { lat: to[1], lng: to[0] })
 }
 
-// sums up the lengths of the road segments with a slope bigger than steepSlope
+// sums up the lengths of the road sections (consecutive segments) with a slope bigger than steepSlope. Per segment
+// instead of 100m windows from the start so that identical tracks yield identical results. Sections < 20m are noise.
 function getHighSlopeInfo(points: LineString, steepSlope: number, showDistanceInMiles: boolean) {
-    if (points.coordinates.length == 0) return new RouteInfo()
-    if (points.coordinates[0].length != 3) return new RouteInfo()
     const info = new RouteInfo()
-    let distForSlope = 0
-    let segmentPoints: Coordinate[] = []
-    let prevElePoint = points.coordinates[0]
-    let prevDistPoint = points.coordinates[0]
-    points.coordinates.forEach(currPoint => {
-        distForSlope += calcDistPos(currPoint, prevDistPoint)
-        // we assume that elevation data is not that precise and we can improve when using a minimum distance:
-        if (distForSlope > 100) {
-            const slope = (100.0 * Math.abs(prevElePoint[2] - currPoint[2])) / distForSlope
-            if (slope > steepSlope) {
-                const distanceTxt = metersToShortText(Math.round(distForSlope), showDistanceInMiles)
-                info.values.push(distanceTxt + ' (' + Math.round(slope) + '%)')
-                info.distance += distForSlope
-                info.segments.push(segmentPoints)
+    const coords = points.coordinates
+    if (coords.length < 2 || coords[0].length != 3) return info
+    let start = 0
+    let dist = 0
+    let eleDiff = 0
+    for (let i = 0; i < coords.length; i++) {
+        const last = i == coords.length - 1
+        const d = last ? 0 : planeDist(coords[i], coords[i + 1])
+        const e = last ? 0 : Math.abs(coords[i + 1][2] - coords[i][2])
+        if (d > 0 && (100 * e) / d > steepSlope) {
+            if (dist == 0) start = i
+            dist += d
+            eleDiff += e
+        } else if (dist > 0) {
+            if (dist >= 20) {
+                const slope = Math.round((100 * eleDiff) / dist)
+                info.values.push(metersToShortText(Math.round(dist), showDistanceInMiles) + ' (' + slope + '%)')
+                info.distance += dist
+                info.segments.push(coords.slice(start, i + 1).map(toCoordinate))
             }
-            prevElePoint = currPoint
-            distForSlope = 0
-            segmentPoints = []
+            dist = eleDiff = 0
         }
-        prevDistPoint = currPoint
-        segmentPoints.push(toCoordinate(currPoint))
-    })
+    }
     return info
 }
 
