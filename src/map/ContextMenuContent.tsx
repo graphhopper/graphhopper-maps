@@ -82,7 +82,12 @@ export function ContextMenuContent({
         evt.stopPropagation = () => {}
         e.target.dispatchEvent(evt)
     }
-    const showAddLocation = queryPoints.length >= 2 && queryPoints[1].isInitialized
+    const addLocation = function () {
+        // fill the first empty location (start, then destination, then empty intermediate inputs), otherwise append
+        const emptyPoint = queryPoints.find(p => !p.isInitialized)
+        if (emptyPoint) dispatchSetPoint(emptyPoint, coordinate)
+        else dispatchAddPoint(queryPoints.length, coordinate)
+    }
 
     const deletePoint = function (point: QueryPoint) {
         onSelect()
@@ -128,21 +133,17 @@ export function ContextMenuContent({
             )}
             {!markedQueryPoint && (
                 <>
-                    {showAddLocation && (
-                        <button
-                            className={styles.entry}
-                            onClick={() => dispatchAddPoint(queryPoints.length, coordinate)}
-                        >
-                            <div>
-                                <MarkerComponent
-                                    size={16}
-                                    color={QueryStore.getMarkerColor(QueryPointType.To)}
-                                    number={'\uFF0B'}
-                                />
-                            </div>
-                            <span>{tr('add_to_route')}</span>
-                        </button>
-                    )}
+                    <button className={styles.entry} onClick={addLocation}>
+                        <div>
+                            <MarkerComponent
+                                size={16}
+                                color={QueryStore.getMarkerColor(QueryPointType.To)}
+                                number={'\uFF0B'}
+                            />
+                        </div>
+                        <span>{tr('add_to_route')}</span>
+                    </button>
+
                     <button className={styles.entry} onClick={() => dispatchSetPoint(queryPoints[0], coordinate)}>
                         <div>
                             <MarkerComponent size={20} color={QueryStore.getMarkerColor(QueryPointType.From)} />
