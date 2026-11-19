@@ -12,6 +12,7 @@ import Dispatcher from '@/stores/Dispatcher'
 import { AddPoint, SetPoint, SetSelectedPath } from '@/actions/Actions'
 import { coordinateToText } from '@/Converters'
 import { SelectEvent } from 'ol/interaction/Select'
+import { TurnNavigationStoreState } from '@/stores/TurnNavigationStore'
 import QueryStore, { QueryPoint, QueryPointType } from '@/stores/QueryStore'
 import { distance } from 'ol/coordinate'
 import LineString from 'ol/geom/LineString'
@@ -31,18 +32,21 @@ export default function usePathsLayer(
     paths: Path[],
     selectedPath: Path,
     queryPoints: QueryPoint[],
+    turnNavigation: TurnNavigationStoreState,
     showPaths: boolean = true,
     drawAreasEnabled: boolean = false,
 ) {
     useEffect(() => {
         removeCurrentPathLayers(map)
         removeRouteDragInteractions(map)
-        if (showPaths) {
+        if (turnNavigation.showUI && turnNavigation.activePath) {
+            addSelectedPathsLayer(map, turnNavigation.activePath, true)
+        } else if (showPaths) {
             addUnselectedPathsLayer(
                 map,
                 paths.filter(p => p != selectedPath),
             )
-            addSelectedPathsLayer(map, selectedPath)
+            addSelectedPathsLayer(map, selectedPath, false)
             addAccessNetworkLayer(map, selectedPath, queryPoints)
             // clicking or dragging the route would interfere with drawing an area on top of it
             if (!drawAreasEnabled) addRouteDragInteraction(map, selectedPath, queryPoints)
@@ -51,7 +55,16 @@ export default function usePathsLayer(
             removeCurrentPathLayers(map)
             removeRouteDragInteractions(map)
         }
-    }, [map, paths, selectedPath, showPaths, queryPoints, drawAreasEnabled])
+    }, [
+        map,
+        paths,
+        selectedPath,
+        turnNavigation.showUI,
+        turnNavigation.activePath,
+        showPaths,
+        queryPoints,
+        drawAreasEnabled,
+    ])
 }
 
 function removeCurrentPathLayers(map: Map) {
@@ -168,15 +181,18 @@ const selectedPathStyle = [
     }),
 ]
 
-function addSelectedPathsLayer(map: Map, selectedPath: Path) {
+function addSelectedPathsLayer(map: Map, selectedPath: Path, updateMoreFrequently: boolean) {
     const layer = new VectorLayer({
         source: new VectorSource({
             features: [new Feature(new LineString(selectedPath.points.coordinates.map(c => fromLonLat(c))))],
         }),
         style: selectedPathStyle,
+        updateWhileAnimating: updateMoreFrequently,
+        updateWhileInteracting: updateMoreFrequently,
         opacity: 0.8,
         zIndex: 2,
     })
+
     layer.set(selectedPathLayerKey, true)
     map.addLayer(layer)
 }
